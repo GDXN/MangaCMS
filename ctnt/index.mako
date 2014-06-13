@@ -72,20 +72,6 @@ import os.path
 <div>
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
-		<div class="subdiv mtMainId">
-			<div class="contentdiv">
-				<h3>Followed Downloads</h3>
-				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable()}
-			</div>
-		</div>
-		<div class="subdiv mtSubId">
-			<div class="contentdiv">
-				<h3>Other Downloads</h3>
-				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(picked=False)}
-			</div>
-		</div>
 
 		<div class="subdiv fuFuId">
 			<div class="contentdiv">

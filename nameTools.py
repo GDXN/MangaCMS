@@ -15,6 +15,9 @@ import unicodedata
 
 import pyinotify
 
+import random
+random.seed()
+
 # --------------------------------------------------------------
 
 def prepFilenameForMatching(inStr):
@@ -460,6 +463,31 @@ class DirNameProxy(object):
 		dummy_prefix, rating, dummy_postfix = extractRating(dirName)
 		ret = {"fqPath" : item, "item": dirName, "inKey" : origKey, "dirKey": filteredKey, "rating": rating, "sourceDict": dirDictKey}
 		return ret
+
+	def getTotalItems(self):
+		items = 0
+		for item in self.dirDicts.values():
+			items += len(item)
+		return items
+
+	def random(self):
+		items = self.getTotalItems()
+		index = random.randint(0, items-1)
+		return self.getByIndex(index)
+
+	def getByIndex(self, index):
+		if index < 0 or index >= self.getTotalItems():
+			raise ValueError("Index value exceeds allowable range - %s" % index)
+		for key, itemSet in self.dirDicts.items():
+			if index > len(itemSet):
+				index -= len(itemSet)
+				continue
+			else:
+				item = itemSet[list(itemSet.keys())[index]]
+				dummy_basePath, dirName = os.path.split(item)
+				filteredKey = sanitizeString(dirName)
+				return self[filteredKey]
+		raise ValueError("Exceeded valid range?")
 
 	def __getitem__(self, key):
 		# self.checkUpdate()

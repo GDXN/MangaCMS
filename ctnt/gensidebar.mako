@@ -8,6 +8,7 @@ import datetime
 from babel.dates import format_timedelta
 
 import statusManager as sm
+import nameTools as nt
 
 %>
 
@@ -20,24 +21,10 @@ import statusManager as sm
 
 	cur = sqlConnection.cursor()
 
-	mtRunning,    mtRunStart,    mtLastRunDuration    = sm.getStatus(cur, "MtLoader")
-	mtMonRunning, mtMonRunStart, mtMonLastRunDuration = sm.getStatus(cur, "MtMonitor")
 	fuRunning,    fuRunStart,    fuLastRunDuration    = sm.getStatus(cur, "Fufufuu")
 	djMRunning,   djMRunStart,   djMLastRunDuration   = sm.getStatus(cur, "DjMoe")
 	buRunning,    buRunStart,    buLastRunDuration    = sm.getStatus(cur, "BuMon")
 
-
-
-	if mtRunning:
-		mtRunState = "<b>Running</b>"
-	else:
-		mtRunState = "Not Running"
-
-
-	if mtMonRunning:
-		mtMonRunState = "<b>Running</b>"
-	else:
-		mtMonRunState = "Not Running"
 
 
 	if fuRunning:
@@ -72,16 +59,6 @@ import statusManager as sm
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=1;'
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=0;'
 
-	cur.execute('SELECT COUNT(*) FROM MangaItems WHERE dlState=2 AND flags LIKE "%picked%";')
-	mpItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM MangaItems WHERE dlState=0 AND flags LIKE "%picked%";')
-	mpNewItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM MangaItems WHERE dlState=2 AND NOT flags LIKE "%picked%";')
-	baseItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM MangaItems WHERE dlState=0 AND NOT flags LIKE "%picked%";')
-	baseNewItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM MangaItems WHERE dlState=1;')
-	mtWorkItems = cur.fetchone()[0]
 
 
 	cur.execute('SELECT COUNT(*) FROM MangaSeries;')
@@ -111,6 +88,12 @@ import statusManager as sm
 			<ul>
 				<li><a href="/">Index</a>
 				<hr>
+				<hr>
+				<li><a href="/reader/">Manga Reader</a>
+				<hr>
+				<li>${ut.createReaderLink("Random Manga", nt.dirNameProxy.random())}
+				<hr>
+				<hr>
 				<li><a href="/bmUpdates">Baka Manga</a>
 				<li><a href="/dirListing">Dir Listing</a>
 				<hr>
@@ -119,52 +102,21 @@ import statusManager as sm
 				<li><a href="/itemsMt?picked=True">MT Picked</a>
 				<li><a href="/itemsMt?picked=False">MT Other</a>
 				<hr>
+				<hr>
 				<li><a href="/itemsDjm">DjM Files</a>
 				<li><a href="/tagsDjM">DjM Tags</a>
 				<hr>
 				<li><a href="/itemsFufufuu">Fu Files</a>
 				<li><a href="/tagsFu">Fu Tags</a>
 				<hr>
-				<li><a href="/dbFix">DB Tweaker</a>
 				<hr>
-				<li><a href="/reader/">Manga Reader</a>
+				<li><a href="/dbFix">DB Tweaker</a>
 			</ul>
 		</div>
 		<br>
 
 		<div class="statediv">
 			<strong>Status:</strong>
-		</div>
-		<div class="statediv mtMainId">
-			<strong>MT:</strong><br />
-			${ut.timeAgo(mtRunStart)}<br />
-			${mtRunState}
-			<hr>
-			Picked:
-			<ul>
-				<li>Have: ${mpItems}</li>
-				<li>Want: ${mpNewItems}</li>
-			</ul>
-			Other:
-			<ul>
-				<li>Have: ${baseItems}</li>
-				<li>Want: ${baseNewItems}</li>
-			</ul>
-
-			<hr>
-
-			<ul>
-				<li>DLing: ${mtWorkItems}</li>
-			</ul>
-
-		</div>
-		<div class="statediv mtMonId">
-			<strong>MT Monitor:</strong><br />
-			${ut.timeAgo(mtMonRunStart)}<br />
-			${mtMonRunState}
-			<ul>
-				<li>Have: ${mtMonItems}</li>
-			</ul>
 		</div>
 		<div class="statediv buId">
 			<strong>MU Mon:</strong><br />
