@@ -1,0 +1,18 @@
+/.svn
+
+__pycache__
+/bak
+/*.lwp
+/ctntCache
+/dbSnapshot.sql
+/ghostdriver.log
+/have.list
+/links - Copy (2).db
+/links - Copy (3).db
+/links - Copy.db
+/links.db
+/listing.data
+/logs
+/settings.py
+
+/*.pyc
