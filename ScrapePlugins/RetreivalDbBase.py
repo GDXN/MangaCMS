@@ -75,6 +75,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		self.openDB()
 		self.checkInitPrimaryDb()
 
+
 	def openDB(self):
 		pass
 		# self.log.info("Opening DB...",)
@@ -193,43 +194,6 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		for row in rets:
 
 			keys = ["dbId", "dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note"]
-			retL.append(dict(zip(keys, row)))
-		return retL
-
-
-	def getRowsByValueDl(self, **kwargs):
-		if len(kwargs) != 1:
-			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
-		validCols = ["dbId", "sourceUrl", "dlState"]
-		key, val = kwargs.popitem()
-		if key not in validCols:
-			raise ValueError("Invalid column query: %s" % key)
-
-		cur = self.conn.cursor()
-
-		query = '''SELECT dbId,
-							dlState,
-							sourceUrl,
-							retreivalTime,
-							lastUpdate,
-							sourceId,
-							seriesName,
-							fileName,
-							originName,
-							downloadPath,
-							flags,
-							tags,
-							note,
-							dlServer
-							FROM {tableN} WHERE {key}=?;'''.format(tableN=self.tableName, key=key)
-		# print("Query = ", query)
-		ret = cur.execute(query, (val, ))
-
-		rets = ret.fetchall()
-		retL = []
-		for row in rets:
-
-			keys = ["dbId", "dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note", "dlServer"]
 			retL.append(dict(zip(keys, row)))
 		return retL
 

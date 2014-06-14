@@ -13,7 +13,7 @@ class ColourHandler(logging.Handler):
 
 	def __init__(self, level=logging.DEBUG):
 		logging.Handler.__init__(self, level)
-		self.formatter = logging.Formatter(clr.Style.RESET_ALL+'\r%(asctime)s - %(colour)s%(name)s'+clr.Style.RESET_ALL+'%(padding)s - %(style)s%(levelname)s - %(message)s'+clr.Style.RESET_ALL)
+		self.formatter = logging.Formatter(clr.Style.RESET_ALL+'\r%(colour)s%(name)s'+clr.Style.RESET_ALL+'%(padding)s - %(style)s%(levelname)s - %(message)s'+clr.Style.RESET_ALL)
 		clr.init()
 
 	def emit(self, record):
