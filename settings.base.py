@@ -49,6 +49,23 @@ mtSettings = {
 
 }
 
+skSettings = {
+
+	"login"         : "username",
+	"passWd"        : "password",
+
+	"dlDir"         : pickedDir,
+	"mDlDir"        : baseDir,
+
+
+	"dirs" : {
+		"dlDir"         : pickedDir,
+		"mnDir"         : newDir,
+		"mDlDir"        : baseDir
+		}
+
+}
+
 buSettings = {
 	"login"         : "username",
 	"passWd"        : "password",

@@ -16,3 +16,6 @@ __pycache__
 /settings.py
 
 /*.pyc
+
+/links.db-shm
+/links.db-wal
