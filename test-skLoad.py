@@ -11,6 +11,8 @@ from ScrapePlugins.SkLoader.skFeedLoader import SkFeedLoader
 from ScrapePlugins.SkLoader.skContentLoader import SkContentLoader
 import signal
 
+import os.path
+
 def customHandler(signum, stackframe):
 	if runStatus.run:
 		runStatus.run = False
@@ -27,10 +29,10 @@ def test():
 	# try:
 	# 	runner.go()
 
-	loader = SkFeedLoader()
-	print("Running")
+	# loader = SkFeedLoader()
+	# print("Running")
 
-	loader.go()
+	# loader.go()
 
 	# try:
 	# 	newItems = 0
@@ -57,18 +59,27 @@ def test():
 	# # getter = SkContentLoader()
 	# # print(getter)
 
-	# cl = SkContentLoader()
-	# todo = cl.retreiveTodoLinksFromDB()
+	cl = SkContentLoader()
 
-	# # print("todo:", todo)
-	# if not runStatus.run:
-	# 	return
 
-	# cl.processTodoLinks(todo)
+	# cur = cl.conn.cursor()
+	# ret = cur.execute("SELECT downloadPath, fileName FROM SkMangaItems WHERE downloadPath IS NOT NULL;")
+
+
+	# for pathTo, fileName in ret.fetchall():
+	# 	cl.cleanZip(os.path.join(pathTo, fileName))
+
+	todo = cl.retreiveTodoLinksFromDB()
+
+	# print("todo:", todo)
+	if not runStatus.run:
+		return
+
+	cl.processTodoLinks(todo)
 
 
 	# loader.closeDB()
-	# cl.closeDB()
+	cl.closeDB()
 
 
 

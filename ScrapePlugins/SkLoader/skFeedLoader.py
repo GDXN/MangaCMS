@@ -121,6 +121,13 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 						item = self.getItemFromContainer(div, currentDate)
 						ret.append(item)
 
+		# Starkana is fucking annoying, and when someone uploads more then just one chapter, the "view"
+		# link just goes to the root-page of the manga series, rather then actually having volume archives.
+		# Blaugh.
+		# As such, go and grab all the contents of said series page.
+		# Unfortunately, there is no information about *when* the items on the series page were
+		# uploaded, so all new items just use the current date.
+		# STARKANA, YOUR DEVS BE CRAZY
 		for SeriesPage in seriesPages:
 			seriesItems = self.getSeriesPage(SeriesPage)
 			if seriesItems:
@@ -153,10 +160,10 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			row = self.getRowsByValue(sourceUrl=link["dlLink"])
 			if not row:
 				newItems += 1
-					# Flags has to be an empty string, because the DB is annoying.
-					#
-					# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
-					#
+				# Flags has to be an empty string, because the DB is annoying.
+				#
+				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
+				#
 				flagStr = ""
 				if isPicked:
 					flagStr = "picked"
@@ -175,26 +182,13 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			else:
 				row = row.pop()
 				if isPicked and not "picked" in row["flags"]:  # Set the picked flag if it's not already there, and we have the item already
-					self.updateDbEntry(link["dlLink"],flags=" ".join([row["flags"], "picked"]))
-
-				# Starkana is fucking annoying, and when someone uploads more then just one chapter, the "view"
-				# link just goes to the root-page of the manga series, rather then actually having volume archives.
-				# Blaugh.
-				# As such, just reset the download state of the file so we can go and actually look at the series files.
-				if link["date"] > row["retreivalTime"] and not "chapter" in dlLink:
-					self.log.warning("Link to series page. Fuck you, starkana")
-					self.updateDbEntry(link["dlLink"], dlState = 0)
-
-				# TODO: in the future, replace this with something that goes and just grabs ALL THE FILES from the manga in question, and enqueues them?
+					self.updateDbEntry(link["dlLink"], flags=" ".join([row["flags"], "picked"]))
 
 
 		self.log.info( "Done")
 		self.log.info( "Committing...",)
 		self.conn.commit()
 		self.log.info( "Committed")
-
-		#for row in cur.execute('SELECT * FROM links'):
-		#	self.log.info( row)
 
 		return newItems
 
