@@ -6,7 +6,7 @@ Comic/Manga Download tool and reader.
 Plugin scrapers for:
 
  
- - Starkana.com (WIP)
+ - Starkana.com (Partially Complete)
  - Crazytje.be (Planned)
  - MangaTraders
  - Doujin-Moe
