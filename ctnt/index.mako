@@ -73,6 +73,14 @@ import os.path
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
 
+		<div class="subdiv skId">
+			<div class="contentdiv">
+				<h3>Starkana</h3>
+				${tableGenerators.genLegendTable()}
+				${tableGenerators.genMangaTable(table="SkMangaItems")}
+			</div>
+		</div>
+
 		<div class="subdiv fuFuId">
 			<div class="contentdiv">
 				<h3>Fufufuu</h3>

@@ -73,6 +73,9 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = []
 
 		for td in itemDivs:
+			if "http://starkana.com/upload_manga" in td.a["href"]:
+				self.log.warning("Found missing item. Skipping")
+				continue
 			ret.append(self.getItemFromContainer(td, datetime.date.today()))
 		return ret
 

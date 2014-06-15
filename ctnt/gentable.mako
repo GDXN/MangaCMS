@@ -91,7 +91,7 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<%def name="genMangaTable(picked=True, limit=100, offset=0, distinct=False)">
+<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, table='MangaItems')">
 	<table border="1px">
 		<tr>
 				<th class="uncoloured" width="40">Date</th>
@@ -105,11 +105,14 @@ colours = {
 
 	<%
 	cur = sqlCon.cursor()
-
-	if picked:
-		pickedStr = ""
+	print("lolwat")
+	if flags != '':
+		print("wat")
+		print("Query string not properly generated at the moment")
+		# queryStr = "WHERE flags {flags} LIKE "%%picked%%"".format(flags=flags)
+		queryStr = ""
 	else:
-		pickedStr = "NOT"
+		queryStr = ""
 
 	if distinct:
 		groupStr = "GROUP BY seriesName"
@@ -117,23 +120,23 @@ colours = {
 		groupStr = ""
 
 	ret = cur.execute('''SELECT dbId,
-										dlState,
-										sourceUrl,
-										retreivalTime,
-										sourceId,
-										seriesName,
-										fileName,
-										originName,
-										downloadPath,
-										flags,
-										tags,
-										note
-									FROM MangaItems
-									WHERE flags {flags} LIKE "%%picked%%"
-									{group}
-									ORDER BY retreivalTime
-									DESC LIMIT ?
-									OFFSET ?;'''.format(flags=pickedStr, group=groupStr), (limit, offset))
+								dlState,
+								sourceUrl,
+								retreivalTime,
+								sourceId,
+								seriesName,
+								fileName,
+								originName,
+								downloadPath,
+								flags,
+								tags,
+								note
+								FROM {table}
+								{query}
+								{group}
+								ORDER BY retreivalTime
+								DESC LIMIT ?
+								OFFSET ?;'''.format(table=table, query=queryStr, group=groupStr), (limit, offset))
 	tblCtntArr = ret.fetchall()
 	%>
 	% for row in tblCtntArr:

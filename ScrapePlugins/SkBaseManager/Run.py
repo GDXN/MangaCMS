@@ -14,13 +14,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 		self.log.info("SkBase calling plugins.")
 
-		monitor = ScrapePlugins.MtMonitor.Run.Runner()
-		monitor.go()
-
 		self.log.warning("Implement series monitor!")
+		# monitor = ScrapePlugins.MtMonitor.Run.Runner()
+		# monitor.go()
 
-		# loader = ScrapePlugins.MtLoader.Run.Runner()
-		# loader.go()
+
+		loader = ScrapePlugins.SkLoader.Run.Runner()
+		loader.go()
 
 		self.log.info("SkBase Finished calling plugins.")
 

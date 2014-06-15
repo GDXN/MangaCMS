@@ -25,9 +25,9 @@ def test():
 
 	signal.signal(signal.SIGINT, customHandler)
 
-	# runner = Runner()
-	# try:
-	# 	runner.go()
+	runner = Runner()
+
+	runner.go()
 
 	# loader = SkFeedLoader()
 	# print("Running")
@@ -59,7 +59,7 @@ def test():
 	# # getter = SkContentLoader()
 	# # print(getter)
 
-	cl = SkContentLoader()
+	# cl = SkContentLoader()
 
 
 	# cur = cl.conn.cursor()
@@ -69,17 +69,17 @@ def test():
 	# for pathTo, fileName in ret.fetchall():
 	# 	cl.cleanZip(os.path.join(pathTo, fileName))
 
-	todo = cl.retreiveTodoLinksFromDB()
+	# todo = cl.retreiveTodoLinksFromDB()
 
 	# print("todo:", todo)
-	if not runStatus.run:
-		return
+	# if not runStatus.run:
+	# 	return
 
-	cl.processTodoLinks(todo)
+	# cl.processTodoLinks(todo)
 
 
 	# loader.closeDB()
-	cl.closeDB()
+	# cl.closeDB()
 
 
 

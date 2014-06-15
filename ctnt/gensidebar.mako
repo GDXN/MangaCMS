@@ -21,9 +21,17 @@ import nameTools as nt
 
 	cur = sqlConnection.cursor()
 
+	skRunning,    skRunStart,    skLastRunDuration    = sm.getStatus(cur, "SkLoader")
 	fuRunning,    fuRunStart,    fuLastRunDuration    = sm.getStatus(cur, "Fufufuu")
 	djMRunning,   djMRunStart,   djMLastRunDuration   = sm.getStatus(cur, "DjMoe")
 	buRunning,    buRunStart,    buLastRunDuration    = sm.getStatus(cur, "BuMon")
+
+
+
+	if skRunning:
+		skRunState = "<b>Running</b>"
+	else:
+		skRunState = "Not Running"
 
 
 
@@ -59,11 +67,17 @@ import nameTools as nt
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=1;'
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=0;'
 
+	cur.execute('SELECT COUNT(*) FROM SkMangaItems WHERE dlState=2;')
+	skItems = cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM SkMangaItems WHERE dlState=0;')
+	skNewItems = cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM SkMangaItems WHERE dlState=1;')
+	skWorkItems = cur.fetchone()[0]
+
 
 
 	cur.execute('SELECT COUNT(*) FROM MangaSeries;')
 	mtMonItems = cur.fetchall()[0][0]
-	# mtMonItems = "<marquee><b>FIXME</b></marquee>"
 
 	cur.execute('SELECT COUNT(*) FROM FufufuuItems WHERE dlState=2;')
 	fuItems = cur.fetchone()[0]
@@ -101,6 +115,7 @@ import nameTools as nt
 				<hr>
 				<li><a href="/itemsMt?picked=True">MT Picked</a>
 				<li><a href="/itemsMt?picked=False">MT Other</a>
+				<li><a href="/itemsSk?distinct=True">Starkana</a>
 				<hr>
 				<hr>
 				<li><a href="/itemsDjm">DjM Files</a>
@@ -117,6 +132,17 @@ import nameTools as nt
 
 		<div class="statediv">
 			<strong>Status:</strong>
+		</div>
+		<div class="statediv mtId">
+			<strong>Starkana:</strong><br />
+			${ut.timeAgo(skRunStart)}<br />
+			${skRunState}
+
+			<ul>
+				<li>Have: ${skItems}</li>
+				<li>DLing: ${skWorkItems}</li>
+				<li>Want: ${skNewItems}</li>
+			</ul>
 		</div>
 		<div class="statediv buId">
 			<strong>MU Mon:</strong><br />
