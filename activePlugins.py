@@ -16,7 +16,7 @@ import ScrapePlugins.SkBaseManager.Run
 
 scrapePlugins = {
 	# 0 : (ScrapePlugins.MtBaseManager.Run,    60*75),
-	0 : (ScrapePlugins.SkBaseManager.Run,    60*75),
+	0 : (ScrapePlugins.SkBaseManager.Run,    60*60),
 	1 : (ScrapePlugins.BuMonitor.Run,        60*60),
 	2 : (ScrapePlugins.FufufuuLoader.Run,    60*45),
 	3 : (ScrapePlugins.FufufuuLoader.Retag,  60*60),

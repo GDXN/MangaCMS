@@ -85,7 +85,7 @@ def test():
 
 
 	# loader.closeDB()
-	cl.closeDB()
+	# cl.closeDB()
 
 
 

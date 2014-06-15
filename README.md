@@ -5,7 +5,7 @@ Comic/Manga Download tool and reader.
 
 Plugin scrapers for:
 
- 
+
  - Starkana.com
  - Crazytje.be (Planned)
  - Realitylapse.com (Planned, possibly)
@@ -14,7 +14,7 @@ Plugin scrapers for:
  - Fufufuu.net
  - MangaUpdates (metadata only).
 
-The current focus is entirely on scraping sites that provide direct-archive-downloads, though I have considered targeting image-viewer sites like batoto, etc... in the future.  
+The current focus is entirely on scraping sites that provide direct-archive-downloads, though I have considered targeting image-viewer sites like batoto, etc... in the future.
 
 Automatic ad-removal and banner-removal. Currently, Starkana inserts an irritating self-aggrandizing image at a random position in each archive downloaded from their site. This is currently automatically and silently removed from each zip-file on download.
 Any download system for sites that add source banners should crop the banners automatically, or remove any intersitial cruft.
@@ -32,6 +32,6 @@ Has lots of dependencies:
  - CherryPy
  - Pyramid
  - Beautifulsoup
- - Selenium (to interface with GhostJS)
- - GhostJS
+ - Selenium (to interface with PhantomJS)
+ - PhantomJS
  - FeedParser (possibly defunct since MT is down).
