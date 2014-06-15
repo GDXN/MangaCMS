@@ -18,6 +18,7 @@ The current focus is entirely on scraping sites that provide direct-archive-down
 
 Automatic ad-removal and banner-removal. Currently, Starkana inserts an irritating self-aggrandizing image at a random position in each archive downloaded from their site. This is currently automatically and silently removed from each zip-file on download.
 Any download system for sites that add source banners should crop the banners automatically, or remove any intersitial cruft.
+
 ---
 
 Streaming archive decompression so there are no temporary files or unzipped archives for the reader.
