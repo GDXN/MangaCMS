@@ -6,7 +6,7 @@ if __name__ == "__main__":
 
 
 import runStatus
-from ScrapePlugins.SkLoader.Run import Runner
+from ScrapePlugins.SkBaseManager.Run import Runner
 from ScrapePlugins.SkLoader.skFeedLoader import SkFeedLoader
 from ScrapePlugins.SkLoader.skContentLoader import SkContentLoader
 import signal

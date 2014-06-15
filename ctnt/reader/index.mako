@@ -13,6 +13,7 @@ import os.path
 import os
 import urllib.parse
 
+from natsort import natsorted
 
 from operator import itemgetter
 
@@ -74,8 +75,8 @@ def getNotInDBItems(cur):
 		<h3>Folder: ${settings.mangaFolders[dictKey]["dir"]}</h3>
 		<%
 		itemTemp = nt.dirNameProxy.getRawDirDict(dictKey)
-		keys = list(itemTemp.keys())
-		keys.sort()
+		keys = list(itemTemp.keys(), key=lambda y: y.lower())
+		keys = natsorted(keys)
 
 		%>
 		<table border="1px">

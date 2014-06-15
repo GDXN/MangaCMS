@@ -154,12 +154,15 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Should retreive: %s, url - %s", originFileName, sourceUrl)
 
 		self.updateDbEntry(sourceUrl, dlState=1)
+		self.conn.commit()
 
 		fileUrl = self.getDownloadUrl(sourceUrl)
 
+		if fileUrl == "http://starkana.com/download/manga/":
+			self.log.warning("File doesn't actually exist because starkana are a bunch of douchecanoes!")
+			self.deleteRowsByValue(sourceUrl=sourceUrl)
+			return
 
-
-		self.conn.commit()
 		try:
 			content, hName = self.getLinkFile(fileUrl)
 		except:

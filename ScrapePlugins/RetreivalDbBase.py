@@ -160,6 +160,23 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			self.conn.commit()
 
 
+	def deleteRowsByValue(self, commit=True, **kwargs):
+		if len(kwargs) != 1:
+			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
+		validCols = ["dbId", "sourceUrl", "dlState"]
+		key, val = kwargs.popitem()
+		if key not in validCols:
+			raise ValueError("Invalid column query: %s" % key)
+
+		cur = self.conn.cursor()
+
+		query = '''DELETE FROM {tableN} WHERE {key}=?;'''.format(tableN=self.tableName, key=key)
+		# print("Query = ", query)
+		cur.execute(query, (val, ))
+		if commit:
+			self.conn.commit()
+
+
 
 
 	def getRowsByValue(self, **kwargs):
