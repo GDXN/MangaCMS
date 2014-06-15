@@ -184,7 +184,7 @@ def getNotInDBItems(cur):
 
 					% for item in items:
 						<tr>
-							<% print("Item type = ", type(item)) %>
+							<!-- <% print("Item type = ", type(item)) %> -->
 							<td><a href="/reader/${dirDictKey}/${urllib.parse.quote(itemKey)}/${urllib.parse.quote(bytes(item, 'utf-8'))}">${item}</a></td>
 						</tr>
 					% endfor

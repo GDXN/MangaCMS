@@ -31,7 +31,17 @@ Has lots of dependencies:
  - Mako
  - CherryPy
  - Pyramid
- - Beautifulsoup
+ - Beautifulsoup4
  - Selenium (to interface with PhantomJS)
  - PhantomJS
+ - Colorama
+ - PyInotify
+ = Dateutil
  - FeedParser (possibly defunct since MT is down).
+
+
+Theoretical install procedure (WIP):
+`sudo apt-get install python3 python3-setuptools phantomjs`
+`sudo easy_install3 pip`
+`sudo pip3 install Mako CherryPy Pyramid Beautifulsoup4 Selenium FeedParser colorama pyinotify python-dateutil apscheduler`
+

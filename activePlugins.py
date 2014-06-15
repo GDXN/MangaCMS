@@ -14,6 +14,10 @@ import ScrapePlugins.DjMoeLoader.Run
 import ScrapePlugins.DjMoeLoader.Retag
 import ScrapePlugins.SkBaseManager.Run
 
+
+# Plugins in this dictionary are the active plugins. Comment out a plugin to disable it.
+# plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
+# are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
 	# 0 : (ScrapePlugins.MtBaseManager.Run,    60*75),
 	0 : (ScrapePlugins.SkBaseManager.Run,    60*60),
