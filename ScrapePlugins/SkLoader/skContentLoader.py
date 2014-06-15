@@ -131,7 +131,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		soup = bs4.BeautifulSoup(page)
 
 		link = soup.find("a", href=re.compile(".*download.*"))
-		print("Link = ", link["href"])
+
 		if link:
 			return link["href"]
 
@@ -157,6 +157,10 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.conn.commit()
 
 		fileUrl = self.getDownloadUrl(sourceUrl)
+		if fileUrl is None:
+			self.log.warning("Could not find url!")
+			self.deleteRowsByValue(sourceUrl=sourceUrl)
+			return
 
 		if fileUrl == "http://starkana.com/download/manga/":
 			self.log.warning("File doesn't actually exist because starkana are a bunch of douchecanoes!")
@@ -177,6 +181,9 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# Clean Annoying, bullshit self-promotion in names
 		hName = hName.replace("[starkana.com]_", "").replace("[starkana.com]", "")
 
+		# And fix %xx crap
+		hName = urllib.parse.unquote(hName)
+
 		fName = "%s - %s" % (originFileName, hName)
 		fName = nt.makeFilenameSafe(fName)
 
@@ -192,12 +199,16 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		filePath, fileName = os.path.split(fqFName)
 
+		if "You have been limit reached." in content:
+			self.log.warning("Hit rate-limiting error. Breaking")
+			self.updateDbEntry(sourceUrl, dlState=0)
+			return "Limited"
+
 		try:
 			with open(fqFName, "wb") as fp:
 				fp.write(content)
 		except TypeError:
 			self.log.error("Failure trying to retreive content from source %s", sourceUrl)
-			self.updateDbEntry(sourceUrl, dlState=-1, downloadPath=filePath, fileName=fileName)
 			return
 		#self.log.info( filePath)
 
@@ -211,8 +222,14 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def fetchLinkList(self, linkList):
 		try:
 			for link in linkList:
+				if link is None:
+					self.log.error("One of the items in the link-list is none! Wat?")
+					continue
 
-				self.getLink(link)
+				ret = self.getLink(link)
+				if ret == "Limited":
+					break
+
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")

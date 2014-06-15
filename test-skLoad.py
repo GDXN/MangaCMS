@@ -59,15 +59,21 @@ def test():
 	# # getter = SkContentLoader()
 	# # print(getter)
 
+
 	# cl = SkContentLoader()
 
-
 	# cur = cl.conn.cursor()
-	# ret = cur.execute("SELECT downloadPath, fileName FROM SkMangaItems WHERE downloadPath IS NOT NULL;")
+	# ret = cur.execute("SELECT dbId, downloadPath, fileName FROM SkMangaItems WHERE downloadPath IS NOT NULL;")
 
 
-	# for pathTo, fileName in ret.fetchall():
-	# 	cl.cleanZip(os.path.join(pathTo, fileName))
+	# for dbId, pathTo, fileName in ret.fetchall():
+	# 	pathTo = os.path.join(pathTo, fileName)
+	# 	if os.path.exists(pathTo):
+	# 		print("Exists = ", pathTo)
+	# 	else:
+	# 		print(dbId, "Not exist = ", pathTo)
+	# 		cl.deleteRowsByValue(dbId=dbId)
+
 
 	# todo = cl.retreiveTodoLinksFromDB()
 
@@ -79,7 +85,7 @@ def test():
 
 
 	# loader.closeDB()
-	# cl.closeDB()
+	cl.closeDB()
 
 
 
