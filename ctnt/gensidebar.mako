@@ -22,6 +22,7 @@ import nameTools as nt
 	cur = sqlConnection.cursor()
 
 	skRunning,    skRunStart,    skLastRunDuration    = sm.getStatus(cur, "SkLoader")
+	czRunning,    czRunStart,    czLastRunDuration    = sm.getStatus(cur, "CzLoader")
 	fuRunning,    fuRunStart,    fuLastRunDuration    = sm.getStatus(cur, "Fufufuu")
 	djMRunning,   djMRunStart,   djMLastRunDuration   = sm.getStatus(cur, "DjMoe")
 	buRunning,    buRunStart,    buLastRunDuration    = sm.getStatus(cur, "BuMon")
@@ -32,6 +33,13 @@ import nameTools as nt
 		skRunState = "<b>Running</b>"
 	else:
 		skRunState = "Not Running"
+
+
+
+	if czRunning:
+		czRunState = "<b>Running</b>"
+	else:
+		czRunState = "Not Running"
 
 
 
@@ -75,6 +83,14 @@ import nameTools as nt
 	skWorkItems = cur.fetchone()[0]
 
 
+	cur.execute('SELECT COUNT(*) FROM CzMangaItems WHERE dlState=2;')
+	czItems = cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM CzMangaItems WHERE dlState=0;')
+	czNewItems = cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM CzMangaItems WHERE dlState=1;')
+	czWorkItems = cur.fetchone()[0]
+
+
 
 	cur.execute('SELECT COUNT(*) FROM MangaSeries;')
 	mtMonItems = cur.fetchall()[0][0]
@@ -116,6 +132,7 @@ import nameTools as nt
 				<li><a href="/itemsMt?picked=True">MT Picked</a>
 				<li><a href="/itemsMt?picked=False">MT Other</a>
 				<li><a href="/itemsSk?distinct=True">Starkana</a>
+				<li><a href="/itemsCz?distinct=True">Crazy's Manga</a>
 				<hr>
 				<hr>
 				<li><a href="/itemsDjm">DjM Files</a>
@@ -133,7 +150,7 @@ import nameTools as nt
 		<div class="statediv">
 			<strong>Status:</strong>
 		</div>
-		<div class="statediv mtId">
+		<div class="statediv skId">
 			<strong>Starkana:</strong><br />
 			${ut.timeAgo(skRunStart)}<br />
 			${skRunState}
@@ -142,6 +159,17 @@ import nameTools as nt
 				<li>Have: ${skItems}</li>
 				<li>DLing: ${skWorkItems}</li>
 				<li>Want: ${skNewItems}</li>
+			</ul>
+		</div>
+		<div class="statediv czId">
+			<strong>Crazy's Manga:</strong><br />
+			${ut.timeAgo(czRunStart)}<br />
+			${czRunState}
+
+			<ul>
+				<li>Have: ${czItems}</li>
+				<li>DLing: ${czWorkItems}</li>
+				<li>Want: ${czNewItems}</li>
 			</ul>
 		</div>
 		<div class="statediv buId">

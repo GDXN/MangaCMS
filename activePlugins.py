@@ -13,6 +13,8 @@ import ScrapePlugins.BuMonitor.Run
 import ScrapePlugins.DjMoeLoader.Run
 import ScrapePlugins.DjMoeLoader.Retag
 import ScrapePlugins.SkBaseManager.Run
+import ScrapePlugins.CzLoader.Run
+
 
 
 # Plugins in this dictionary are the active plugins. Comment out a plugin to disable it.
@@ -25,7 +27,8 @@ scrapePlugins = {
 	2 : (ScrapePlugins.FufufuuLoader.Run,    60*45),
 	3 : (ScrapePlugins.FufufuuLoader.Retag,  60*60),
 	4 : (ScrapePlugins.DjMoeLoader.Run,      60*45),
-	5 : (ScrapePlugins.DjMoeLoader.Retag,    60*60)
+	5 : (ScrapePlugins.DjMoeLoader.Retag,    60*60),
+	6 : (ScrapePlugins.CzLoader.Run,         60*60*8)  # Every 8 hours, since I have to scrape a lot of pages to update properly
 }
 
 

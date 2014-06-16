@@ -84,6 +84,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Have %s new items to retreive in SkDownloader" % len(items))
 
 
+		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
 		return items
 
 	# So starkana, in an impressive feat of douchecopterness, inserts an annoying self-promotion image
@@ -199,7 +200,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		filePath, fileName = os.path.split(fqFName)
 
-		if "You have been limit reached." in content:
+		if type(content) is str and "You have been limit reached." in content:
 			self.log.warning("Hit rate-limiting error. Breaking")
 			self.updateDbEntry(sourceUrl, dlState=0)
 			return "Limited"

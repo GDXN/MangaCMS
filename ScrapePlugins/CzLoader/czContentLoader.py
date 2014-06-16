@@ -41,6 +41,7 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 
 		items = []
+
 		for item in rows:
 
 			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
@@ -88,7 +89,7 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info( "Have %s new items to retreive in CzDownloader" % len(items))
 
-
+		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
 		return items
 
 

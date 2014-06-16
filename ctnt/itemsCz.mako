@@ -94,21 +94,21 @@ else:
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
 
-		<div class="subdiv skId">
+		<div class="subdiv czId">
 			<div class="contentdiv">
-				<h3>Starkana Series${ " - (Only distinct)" if onlyDistinct else ""}</h3>
-				<a href="itemsSk?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsSk?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
+				<h3>Crazy's Manga  Series${ " - (Only distinct)" if onlyDistinct else ""}</h3>
+				<a href="itemsCz?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsCz?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, table="SkMangaItems")}
+				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, table="CzMangaItems")}
 			</div>
 
 			% if pageNo > 0:
 				<span class="pageChangeButton" style='float:left;'>
-					<a href="itemsSk?${urllib.parse.urlencode(prevPage)}">prev</a>
+					<a href="itemsCz?${urllib.parse.urlencode(prevPage)}">prev</a>
 				</span>
 			% endif
 			<span class="pageChangeButton" style='float:right;'>
-				<a href="itemsSk?${urllib.parse.urlencode(nextPage)}">next</a>
+				<a href="itemsCz?${urllib.parse.urlencode(nextPage)}">next</a>
 			</span>
 
 			</div>

@@ -80,6 +80,13 @@ import os.path
 				${tableGenerators.genMangaTable(table="SkMangaItems")}
 			</div>
 		</div>
+		<div class="subdiv czId">
+			<div class="contentdiv">
+				<h3>Crazy's Manga</h3>
+				${tableGenerators.genLegendTable()}
+				${tableGenerators.genMangaTable(table="CzMangaItems")}
+			</div>
+		</div>
 
 		<div class="subdiv fuFuId">
 			<div class="contentdiv">
