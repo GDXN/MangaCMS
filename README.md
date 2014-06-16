@@ -36,12 +36,18 @@ Has lots of dependencies:
  - PhantomJS
  - Colorama
  - PyInotify
- = Dateutil
+ - Dateutil
  - FeedParser (possibly defunct since MT is down).
 
 
-Theoretical install procedure (WIP):
-`sudo apt-get install python3 python3-setuptools phantomjs`
-`sudo easy_install3 pip`
-`sudo pip3 install Mako CherryPy Pyramid Beautifulsoup4 Selenium FeedParser colorama pyinotify python-dateutil apscheduler`
+Theoretical install procedure (WIP):  
+`sudo apt-get install python3 python3-setuptools build-essential`  
+`sudo easy_install3 pip`  
+`sudo apt-get install -y python-software-properties python g++ make`  
+`sudo add-apt-repository -y ppa:chris-lea/node.js`  
+`sudo apt-get update`  
+`sudo apt-get install nodejs`  
+`sudo npm -g install phantomjs`  
+`sudo pip3 install Mako CherryPy Pyramid Beautifulsoup4 Selenium FeedParser colorama pyinotify python-dateutil apscheduler`  
 
+Or just run the `installDeps.sh` script in the repo root (note: must be run with `sudo` or as root. Please review it before running for security reasons). 

@@ -23,6 +23,23 @@ def customHandler(signum, stackframe):
 
 def test():
 
+
+	cl = SkContentLoader()
+
+	cur = cl.conn.cursor()
+	ret = cur.execute("SELECT dbId, downloadPath, fileName FROM SkMangaItems WHERE downloadPath IS NOT NULL;")
+
+
+	for dbId, pathTo, fileName in ret.fetchall():
+		pathTo = os.path.join(pathTo, fileName)
+		if os.path.exists(pathTo):
+			print("Exists = ", pathTo)
+		else:
+			print(dbId, "Not exist = ", pathTo)
+			cl.deleteRowsByValue(dbId=dbId)
+
+	cl.closeDB()
+
 	signal.signal(signal.SIGINT, customHandler)
 
 	runner = Runner()
@@ -60,20 +77,6 @@ def test():
 	# # print(getter)
 
 
-	# cl = SkContentLoader()
-
-	# cur = cl.conn.cursor()
-	# ret = cur.execute("SELECT dbId, downloadPath, fileName FROM SkMangaItems WHERE downloadPath IS NOT NULL;")
-
-
-	# for dbId, pathTo, fileName in ret.fetchall():
-	# 	pathTo = os.path.join(pathTo, fileName)
-	# 	if os.path.exists(pathTo):
-	# 		print("Exists = ", pathTo)
-	# 	else:
-	# 		print(dbId, "Not exist = ", pathTo)
-	# 		cl.deleteRowsByValue(dbId=dbId)
-
 
 	# todo = cl.retreiveTodoLinksFromDB()
 
@@ -85,7 +88,6 @@ def test():
 
 
 	# loader.closeDB()
-	# cl.closeDB()
 
 
 
