@@ -46,7 +46,8 @@ Note that the setup script will forcefully update your python 3 version to pytho
 
 Once you have installed the dependencies, you have to configure the various options. Copy `settings.base.py` to `settings.py`, and then edit it:  
 
-Note: All paths MUST be absolute. Some of the threading somewhere is eating the environment information.
+Note: All paths **MUST** be absolute. Some of the threading somewhere is eating the environment information. Rather then try to track down where in the complex dependency system the environment variables are being modified, it's easier to just use absolute paths.
+(Note: this means that paths like `~/blah` will also not work. You have to specify `/home/{username}/blah`).
 
  - `pickedDir`  = This is where files on any "picked" list will go, for the scrapers that support that (I hope to remove this in the near future, there are simpler ways to achieve what I want)
  - `newDir`     = For scrapers that support downloading entire manga based on some trigger functionality, the downloaded files will go here (MN = MangaNew)
