@@ -7,7 +7,7 @@ Plugin scrapers for:
 
 
  - Starkana.com
- - Crazytje.be (Planned)
+ - Crazytje.be
  - download.japanzai.com (Planned)
  - Realitylapse.com (Planned, possibly)
  - MangaTraders
