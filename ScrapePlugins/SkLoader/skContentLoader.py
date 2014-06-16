@@ -72,8 +72,8 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 						self.log.critical("Directory creation failed?")
 						self.log.critical(traceback.format_exc())
 				else:
-					self.log.error("Directory not found in dir-dict, but it exists!")
-					self.log.error("Directory-Path: %s", targetDir)
+					self.log.warning("Directory not found in dir-dict, but it exists!")
+					self.log.warning("Directory-Path: %s", targetDir)
 					item["targetDir"] = targetDir
 
 					self.updateDbEntry(item["sourceUrl"],flags=" ".join([item["flags"], "haddir"]))

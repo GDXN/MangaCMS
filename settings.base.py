@@ -1,10 +1,17 @@
 
 
+# Note: Paths have to be absolute.
+pickedDir   = r"/SOMETHING/MP"
+newDir      = r"/SOMETHING/MN"
+baseDir     = r"/SOMETHING/Manga/"
 
-pickedDir = r"/SOMETHING/MP"
-newDir = r"/SOMETHING/MN"
-baseDir = r"/SOMETHING/Manga/"
+#
+fufuDir     = r"/SOMETHING/H/Fufufuu"
+djMoeDir    = r"/SOMETHING/H/DjMoe"
 
+# Paths for database and web content
+dbName      = '/SOMETHING/MangaCMS/links.db'
+webCtntPath = '/SOMETHING/MangaCMS/ctnt'
 
 # Folders to scan for folders to use as download paths.
 # Directories are scanned by sorted keys
@@ -26,10 +33,6 @@ mangaFolders = {
 			"lastScan" : 0
 		}
 }
-
-oldDbName =   '/script_location/links.db'
-dbName =      '/script_location/links.db'
-webCtntPath = '/script_location/ctnt'
 
 mtSettings = {
 
@@ -72,11 +75,11 @@ buSettings = {
 }
 
 fuSettings = {
-	"dlDir" :  r"/SOMETHING/H/Fufufuu",
+	"dlDir" :  fufuDir,
 	"retag" : 60*60*24*31			# 1 month
 }
 
 djSettings = {
-	"dlDir" :  r"/SOMETHING/H/DjMoe",
+	"dlDir" :  djMoeDir,
 	"retag" : 60*60*24*31			# 1 month
 }

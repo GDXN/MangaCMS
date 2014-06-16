@@ -39,15 +39,29 @@ Has lots of dependencies:
  - Dateutil
  - FeedParser (possibly defunct since MT is down).
 
+Installing:  
+Run the `installDeps.sh` script in the `setuptools` directory (note: must be run with `sudo` or as root. Please review it before running for security reasons). 
+Note that the setup script will forcefully update your python 3 version to python 3.4.
 
-Theoretical install procedure (WIP):  
-`sudo apt-get install python3 python3-setuptools build-essential`  
-`sudo easy_install3 pip`  
-`sudo apt-get install -y python-software-properties python g++ make`  
-`sudo add-apt-repository -y ppa:chris-lea/node.js`  
-`sudo apt-get update`  
-`sudo apt-get install nodejs`  
-`sudo npm -g install phantomjs`  
-`sudo pip3 install Mako CherryPy Pyramid Beautifulsoup4 Selenium FeedParser colorama pyinotify python-dateutil apscheduler`  
+Once you have installed the dependencies, you have to configure the various options. Copy `settings.base.py` to `settings.py`, and then edit it:  
 
-Or just run the `installDeps.sh` script in the repo root (note: must be run with `sudo` or as root. Please review it before running for security reasons). 
+Note: All paths MUST be absolute. Some of the threading somewhere is eating the environment information.
+
+ - `pickedDir`  = This is where files on any "picked" list will go, for the scrapers that support that (I hope to remove this in the near future, there are simpler ways to achieve what I want)
+ - `newDir`     = For scrapers that support downloading entire manga based on some trigger functionality, the downloaded files will go here (MN = MangaNew)
+ - `baseDir`    = This is where the bulk manga downloads go.
+
+ - `fufuDir`    = Where Fufufuu.net files go
+ - `djMoeDir`   = And DoujinMoe files
+
+ - `dbName`      = Where to place the SQLite database used for storing downloads. I normally just put it in the repo root.
+ - `webCtntPath` = Path to the `ctnt` directory in the repo. 
+
+
+If you want to pull down MangaUpdate metadata, you need to specify your username and password in the `buSettings` fields (mangaupdate = Baka-Updates).
+Eventually the starkana scraper will pull down information about your watched series as well, which is why there are fields for starkana username+pass as well. This is currently not implemented.
+
+Finally, the actual scraper has two halves. `mainWeb.py` is the web-interface, and `mainScrape.py` is the scraper. 
+Currently, if you run `mainWeb.py` having never run `mainScrape.py`, it will *probably* fail, because the scraper is responsible for setting up the database. Simply run `mainScrape.py` first. (All are run `python3 mainScrape.py` or `python3 mainWeb.py`).
+
+The tools are currently not daemonized at all, and must be manually run after restarting. I normally just leave them running in a [screen](http://www.gnu.org/software/screen/) session on my server. 
