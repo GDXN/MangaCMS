@@ -369,6 +369,24 @@ class DirNameProxy(object):
 
 		self.updateLock.release()
 
+	# Force the update of the directory containing the passed path dirPath
+	# Useful for when programmatic changes are made, such as creating a directory, and
+	# you want to force that change to be recognized in the dir proxy immediately.
+	# This is needed because the change-watching mechanism doesn't always seem
+	# to properly catch folder creation or manipulation.
+	# It works great for file changes.
+	def forceUpdateContainingPath(self, dirPath):
+
+		keys = list(self.paths.keys())
+		keys.sort()
+		for key in keys:
+			if self.paths[key]["dir"] in dirPath:
+				self.log.info("DirLookupTool updating %s, path=%s!", key, self.paths[key]["dir"])
+				self.log.info("DirLookupTool updating from Directory")
+				self.dirDicts[key] = self.getDirDict(self.paths[key]["dir"])
+				self.paths[key]["lastScan"] = time.time()
+
+
 	def changeRating(self, mangaName, newRating):
 		item = self[mangaName]
 		if not item['fqPath']:

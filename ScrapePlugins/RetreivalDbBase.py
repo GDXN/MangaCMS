@@ -214,6 +214,14 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			retL.append(dict(zip(keys, row)))
 		return retL
 
+	# Convenience crap.
+	def getRowByValue(self, **kwargs):
+		rows = self.getRowsByValue(**kwargs)
+		if not rows:
+			return []
+		else:
+			return rows.pop(0)
+
 
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------

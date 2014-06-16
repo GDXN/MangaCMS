@@ -125,6 +125,9 @@ def exceptHook(exc_type, exc_value, exc_traceback):
 def initLogging(logLevel=logging.INFO):
 	print("Setting up loggers....")
 
+	if not os.path.exists(os.path.join("./logs")):
+		os.mkdir(os.path.join("./logs"))
+
 	mainLogger = logging.getLogger("Main")			# Main logger
 	mainLogger.setLevel(logLevel)
 	ch = ColourHandler()
