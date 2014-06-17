@@ -31,13 +31,14 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 	loggerPath = "Main.DjM.Cl"
 	pluginName = "DjMoe Content Retreiver"
-	tableName = "DoujinMoeItems"
+	tableKey   = "djm"
 	urlBase = "http://www.doujin-moe.us/"
 
 	def retag(self):
 		retagTimeThresh = time.time()-settings.fuSettings["retag"]
 		cur = self.conn.cursor()
-		ret = cur.execute('SELECT sourceUrl FROM {table} WHERE lastUpdate<{updTime} ORDER BY retreivalTime DESC;'.format(table=self.tableName, updTime=retagTimeThresh))
+
+		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? ORDER BY retreivalTime DESC;', (retagTimeThresh, self.tableKey))
 
 		rets = ret.fetchall()
 		if not rets:

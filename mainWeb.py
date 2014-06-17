@@ -1,4 +1,6 @@
 
+import schemaUpdater.schemaRevisioner
+schemaUpdater.schemaRevisioner.verifySchemaUpToDate()
 
 
 import logSetup

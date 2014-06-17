@@ -20,7 +20,7 @@ class MtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Mt.Fl"
 	pluginName = "MangaTraders Link Retreiver"
-	tableName = "MangaItems"
+	tableKey = "mt"
 	dbName = settings.dbName
 	urlBase = "http://www.mangatraders.com/"
 
@@ -164,14 +164,6 @@ class MtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					item["dlServer"] = server.img["alt"]
 					ret.append(item)
 		return ret
-
-
-
-	def resetStuckItems(self):
-		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE {table} SET dlState=0 WHERE dlState=1'''.format(table=self.tableName))
-		self.conn.commit()
-		self.log.info("Download reset complete")
 
 
 	def processLinksIntoDB(self, linksDicts, isPicked):

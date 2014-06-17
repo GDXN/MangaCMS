@@ -22,7 +22,7 @@ class MtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Mt.Cl"
 	pluginName = "MangaTraders Content Retreiver"
-	tableName = "MangaItems"
+	tableKey = "mt"
 	dbName = settings.dbName
 	urlBase = "http://www.mangatraders.com/"
 
@@ -187,6 +187,7 @@ class MtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	# Only used by MT loader. Is a horrible hack
 	# You got DB in my plugin!
+	# Note: this will also be broken by the schema change from r1 to r2. Fukkit. If MT comes back, I'll fix it.
 	def getRowsByValueDl(self, **kwargs):
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)

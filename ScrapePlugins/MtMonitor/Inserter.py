@@ -9,7 +9,7 @@ class Inserter(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	loggerPath = "Main.Inserter"
 	pluginName = "DB Item Inserter"
-	tableName = "MangaItems"
+	tableName = "mt"
 	dbName = settings.dbName
 
 

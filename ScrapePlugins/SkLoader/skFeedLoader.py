@@ -21,7 +21,7 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Sk.Fl"
 	pluginName = "Starkana Link Retreiver"
-	tableName = "SkMangaItems"
+	tableKey = "sk"
 	dbName = settings.dbName
 
 
@@ -143,12 +143,6 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-
-	def resetStuckItems(self):
-		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE {table} SET dlState=0 WHERE dlState=1'''.format(table=self.tableName))
-		self.conn.commit()
-		self.log.info("Download reset complete")
 
 
 	def processLinksIntoDB(self, linksDicts, isPicked=False):

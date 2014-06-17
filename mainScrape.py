@@ -1,5 +1,7 @@
 
 
+import schemaUpdater.schemaRevisioner
+schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 
 import logSetup
 logSetup.initLogging()

@@ -26,7 +26,7 @@ class FuFuFuuDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	loggerPath = "Main.Fu.Fl"
 	pluginName = "Fufufu Link Retreiver"
-	tableName = "FufufuuItems"
+	tableKey    = "fu"
 	dbName = settings.dbName
 	urlBase = "http://fufufuu.net/"
 
@@ -94,12 +94,6 @@ class FuFuFuuDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dat = self.getFeed()
 		self.processLinksIntoDB(dat)
 
-
-	def resetStuckItems(self):
-		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE {table} SET dlState=0 WHERE dlState=1'''.format(table=self.tableName))
-		self.conn.commit()
-		self.log.info("Download reset complete")
 
 
 	def loadFeed(self, pageOverride=None):

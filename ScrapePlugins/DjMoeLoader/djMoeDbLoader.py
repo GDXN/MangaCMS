@@ -17,7 +17,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 	loggerPath = "Main.DjM.Fl"
 	pluginName = "DjMoe Link Retreiver"
-	tableName = "DoujinMoeItems"
+	tableKey    = "djm"
 	urlBase = "http://www.doujin-moe.us/"
 
 

@@ -25,7 +25,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	loggerPath  = "Main.Fu.Cl"
 	pluginName  = "Fufufu Content Retreiver"
-	tableName   = "FufufuuItems"
+	tableKey    = "fu"
 	dbName      = settings.dbName
 	dlPath      = settings.fuSettings["dlDir"]
 	urlBase     = "http://fufufuu.net/"
@@ -68,7 +68,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Fetching items from db...",)
 
 
-		ret = cur.execute('SELECT sourceUrl,tags FROM {table} WHERE dlState=0 ORDER BY retreivalTime DESC;'.format(table=self.tableName))
+		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE dlState=0 AND AND sourceSite=? ORDER BY retreivalTime DESC;', (self.tableKey, ))
 		rets = ret.fetchall()
 		if not rets:
 			self.log.info("No items")
@@ -88,7 +88,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def retag(self):
 		retagTimeThresh = time.time()-settings.fuSettings["retag"]
 		cur = self.conn.cursor()
-		ret = cur.execute('SELECT sourceUrl,tags FROM {table} WHERE lastUpdate<{updTime} ORDER BY retreivalTime DESC;'.format(table=self.tableName, updTime=retagTimeThresh))
+		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? ORDER BY retreivalTime DESC;', (retagTimeThresh, self.tableKey))
 
 		rets = ret.fetchall()
 		if not rets:

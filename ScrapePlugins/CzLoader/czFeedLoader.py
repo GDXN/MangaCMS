@@ -22,7 +22,7 @@ class CzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Cz.Fl"
 	pluginName = "Crazy's Manga Link Retreiver"
-	tableName = "CzMangaItems"
+	tableKey = "cz"
 	dbName = settings.dbName
 
 
@@ -113,7 +113,6 @@ class CzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# for item in items:
 		# 	self.log.info( item)
 		#
-
 		self.log.info( "Loading SK Main Feed")
 
 		ret = []
@@ -123,22 +122,12 @@ class CzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		content = soup.find("div", class_="serie_list")
 		links = content.find_all("div")
 
-
-
 		for page in links:
 			if page.find("a") and ("Ago]" in page.get_text() or not onlyRecent):
 
 				ret.extend(self.getItemsForSeries(page.a["href"]))
 
 		return ret
-
-
-
-	def resetStuckItems(self):
-		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE {table} SET dlState=0 WHERE dlState=1'''.format(table=self.tableName))
-		self.conn.commit()
-		self.log.info("Download reset complete")
 
 
 	def processLinksIntoDB(self, linksDicts, isPicked=False):

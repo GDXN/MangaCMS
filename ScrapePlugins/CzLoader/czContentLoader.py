@@ -26,7 +26,7 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Cz.Cl"
 	pluginName = "Crazy's Manga Content Retreiver"
-	tableName = "CzMangaItems"
+	tableKey = "cz"
 	dbName = settings.dbName
 	urlBase = "http://crazytje.be/Scanlation"
 

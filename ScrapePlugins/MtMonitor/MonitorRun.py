@@ -43,7 +43,7 @@ class MtWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Mt.Watcher"
 	pluginName = "MangaTraders Series Watcher"
-	tableName = "MangaSeries"
+	tableName = "mt"
 	dbName = settings.dbName
 	urlBase = "http://www.mangatraders.com/"
 
