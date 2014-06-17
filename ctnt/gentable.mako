@@ -38,10 +38,25 @@ def fSizeToStr(fSize):
 	return fStr
 
 
-def buildWhereQuery(tagsFilter=None, seriesFilter=None):
-	whereItems = []
+def buildWhereQuery(tagsFilter=None, seriesFilter=None, tableKey=None):
+	if tableKey == None:
+		whereItems = []
+		queryAdditionalArgs = []
+
+	elif type(tableKey) is str:
+		whereItems = ["WHERE sourceSite=?"]
+		queryAdditionalArgs = [tableKey]
+
+	elif type(tableKey) is list or type(tableKey) is tuple:
+		items = []
+		for key in tableKey:
+			items.append("WHERE sourceSite=?")
+			queryAdditionalArgs.append(key)
+		whereItems = [" OR ".join(items)]
+	else:
+		raise ValueError("Invalid table-key type")
+
 	tagsFilterArr = []
-	queryAdditionalArgs = []
 	if tagsFilter != None:
 		for tag in tagsFilter:
 			tagsFilterArr.append(" tags LIKE ? ")
@@ -91,7 +106,7 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, table='MangaItems')">
+<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey='mt')">
 	<table border="1px">
 		<tr>
 				<th class="uncoloured" width="40">Date</th>
@@ -107,19 +122,18 @@ colours = {
 	cur = sqlCon.cursor()
 	print("lolwat")
 	if flags != '':
-		print("wat")
 		print("Query string not properly generated at the moment")
+		print("FIX ME!")
 		# queryStr = "WHERE flags {flags} LIKE "%%picked%%"".format(flags=flags)
-		queryStr = ""
+		queryStr = "WHERE sourceSite=?"
 	else:
-		queryStr = ""
+		queryStr = "WHERE sourceSite=?"
 
 	if distinct:
 		groupStr = "GROUP BY seriesName"
 	else:
 		groupStr = ""
-
-	ret = cur.execute('''SELECT dbId,
+	query = '''SELECT dbId,
 								dlState,
 								sourceUrl,
 								retreivalTime,
@@ -131,12 +145,14 @@ colours = {
 								flags,
 								tags,
 								note
-								FROM {table}
+								FROM AllMangaItems
 								{query}
 								{group}
-								ORDER BY retreivalTime
-								DESC LIMIT ?
-								OFFSET ?;'''.format(table=table, query=queryStr, group=groupStr), (limit, offset))
+								ORDER BY retreivalTime DESC
+								LIMIT ?
+								OFFSET ?;'''.format(query=queryStr, group=groupStr)
+
+	ret = cur.execute(query, (tableKey, limit, offset))
 	tblCtntArr = ret.fetchall()
 	%>
 	% for row in tblCtntArr:
@@ -231,7 +247,7 @@ colours = {
 	<%
 
 	offset = offset * limit
-	whereStr, queryAdditionalArgs = buildWhereQuery(tagsFilter, seriesFilter)
+	whereStr, queryAdditionalArgs = buildWhereQuery("fu", tagsFilter, seriesFilter)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
 
 	print("Params = ", params)
@@ -250,7 +266,7 @@ colours = {
 									flags,
 									tags,
 									note
-								FROM FufufuuItems
+								FROM AllMangaItems
 								{query}
 								ORDER BY retreivalTime
 								DESC LIMIT ?
@@ -373,7 +389,7 @@ colours = {
 
 	<%
 
-	whereStr, queryAdditionalArgs = buildWhereQuery(tagsFilter, seriesFilter)
+	whereStr, queryAdditionalArgs = buildWhereQuery("djm", tagsFilter, seriesFilter)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
 
 	cur = sqlCon.cursor()
@@ -390,7 +406,7 @@ colours = {
 									flags,
 									tags,
 									note
-								FROM DoujinMoeItems
+								FROM AllMangaItems
 								{query}
 								ORDER BY retreivalTime
 								DESC LIMIT ?

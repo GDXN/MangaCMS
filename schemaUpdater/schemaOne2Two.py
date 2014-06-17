@@ -92,6 +92,7 @@ def updateOne2Two(conn):
 
 	conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceSite)'''                 % ("%s_source_index"        % NEW_TABLE_NAME, NEW_TABLE_NAME))
 	conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (retreivalTime)'''              % ("%s_time_index"          % NEW_TABLE_NAME, NEW_TABLE_NAME))
+	conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceSite, retreivalTime)'''  % ("%s_src_time_index"      % NEW_TABLE_NAME, NEW_TABLE_NAME))
 	conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastUpdate)'''                 % ("%s_lastUpdate_index"    % NEW_TABLE_NAME, NEW_TABLE_NAME))
 	conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceUrl)'''                  % ("%s_url_index"           % NEW_TABLE_NAME, NEW_TABLE_NAME))
 	conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName collate nocase)'''  % ("%s_seriesName_index"    % NEW_TABLE_NAME, NEW_TABLE_NAME))

@@ -77,14 +77,14 @@ import os.path
 			<div class="contentdiv">
 				<h3>Starkana</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(table="SkMangaItems")}
+				${tableGenerators.genMangaTable(tableKey="sk")}
 			</div>
 		</div>
 		<div class="subdiv czId">
 			<div class="contentdiv">
 				<h3>Crazy's Manga</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(table="CzMangaItems")}
+				${tableGenerators.genMangaTable(tableKey="cz")}
 			</div>
 		</div>
 

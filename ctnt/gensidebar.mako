@@ -75,19 +75,19 @@ import nameTools as nt
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=1;'
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=0;'
 
-	cur.execute('SELECT COUNT(*) FROM SkMangaItems WHERE dlState=2;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="sk";')
 	skItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM SkMangaItems WHERE dlState=0;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="sk";')
 	skNewItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM SkMangaItems WHERE dlState=1;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="sk";')
 	skWorkItems = cur.fetchone()[0]
 
 
-	cur.execute('SELECT COUNT(*) FROM CzMangaItems WHERE dlState=2;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="cz";')
 	czItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM CzMangaItems WHERE dlState=0;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="cz";')
 	czNewItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM CzMangaItems WHERE dlState=1;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="cz";')
 	czWorkItems = cur.fetchone()[0]
 
 
@@ -95,18 +95,18 @@ import nameTools as nt
 	cur.execute('SELECT COUNT(*) FROM MangaSeries;')
 	mtMonItems = cur.fetchall()[0][0]
 
-	cur.execute('SELECT COUNT(*) FROM FufufuuItems WHERE dlState=2;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="fu";')
 	fuItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM FufufuuItems WHERE dlState=1;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="fu";')
 	fuWorkItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM FufufuuItems WHERE dlState=0;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="fu";')
 	fuNewItems = cur.fetchone()[0]
 
-	cur.execute('SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=2;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="djm";')
 	djmItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=1;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="djm";')
 	djmWorkItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=0;')
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="djm";')
 	djmNewItems = cur.fetchone()[0]
 
 

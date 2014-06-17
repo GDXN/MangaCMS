@@ -25,7 +25,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		return None
 
 	@abc.abstractmethod
-	def tableKey(self):
+	def tableName(self):
 		return None
 
 

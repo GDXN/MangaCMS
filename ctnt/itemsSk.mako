@@ -99,7 +99,7 @@ else:
 				<h3>Starkana Series${ " - (Only distinct)" if onlyDistinct else ""}</h3>
 				<a href="itemsSk?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsSk?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, table="SkMangaItems")}
+				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, tableKey="sk")}
 			</div>
 
 			% if pageNo > 0:
