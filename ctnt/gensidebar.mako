@@ -75,40 +75,59 @@ import nameTools as nt
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=1;'
 	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=0;'
 
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="sk";')
-	skItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="sk";')
-	skNewItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="sk";')
-	skWorkItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="sk";')
+	# skItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="sk";')
+	# skNewItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="sk";')
+	# skWorkItems = cur.fetchone()[0]
 
 
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="cz";')
-	czItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="cz";')
-	czNewItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="cz";')
-	czWorkItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="cz";')
+	# czItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="cz";')
+	# czNewItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="cz";')
+	# czWorkItems = cur.fetchone()[0]
 
 
 
-	cur.execute('SELECT COUNT(*) FROM MangaSeries;')
-	mtMonItems = cur.fetchall()[0][0]
+	# cur.execute('SELECT COUNT(*) FROM MangaSeries;')
+	# mtMonItems = cur.fetchall()[0][0]
 
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="fu";')
-	fuItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="fu";')
-	fuWorkItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="fu";')
-	fuNewItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="fu";')
+	# fuItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="fu";')
+	# fuWorkItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="fu";')
+	# fuNewItems = cur.fetchone()[0]
 
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="djm";')
-	djmItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="djm";')
-	djmWorkItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="djm";')
-	djmNewItems = cur.fetchone()[0]
-
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="djm";')
+	# djmItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="djm";')
+	# djmWorkItems = cur.fetchone()[0]
+	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="djm";')
+	# djmNewItems = cur.fetchone()[0]
+	#		<ul>
+	#			<li>Have: ${skItems}</li>
+	#			<li>DLing: ${skWorkItems}</li>
+	#			<li>Want: ${skNewItems}</li>
+	#		</ul>
+	#		<ul>
+	#			<li>Have: ${czItems}</li>
+	#			<li>DLing: ${czWorkItems}</li>
+	#			<li>Want: ${czNewItems}</li>
+	#		</ul>
+	#		<ul>
+	#			<li>Have: ${djmItems}</li>
+	#			<li>DLing: ${djmWorkItems}</li>
+	#			<li>Want: ${djmNewItems}</li>
+	#		</ul>
+	#		<ul>
+	#			<li>Have: ${fuItems}</li>
+	#			<li>DLing: ${fuWorkItems}</li>
+	#			<li>Want: ${fuNewItems}</li>
+	#		</ul>
 
 	%>
 
@@ -155,22 +174,14 @@ import nameTools as nt
 			${ut.timeAgo(skRunStart)}<br />
 			${skRunState}
 
-			<ul>
-				<li>Have: ${skItems}</li>
-				<li>DLing: ${skWorkItems}</li>
-				<li>Want: ${skNewItems}</li>
-			</ul>
+
 		</div>
 		<div class="statediv czId">
 			<strong>Crazy's Manga:</strong><br />
 			${ut.timeAgo(czRunStart)}<br />
 			${czRunState}
 
-			<ul>
-				<li>Have: ${czItems}</li>
-				<li>DLing: ${czWorkItems}</li>
-				<li>Want: ${czNewItems}</li>
-			</ul>
+
 		</div>
 		<div class="statediv buId">
 			<strong>MU Mon:</strong><br />
@@ -183,22 +194,14 @@ import nameTools as nt
 			${ut.timeAgo(djMRunStart)}<br />
 			${djmRunState}
 
-			<ul>
-				<li>Have: ${djmItems}</li>
-				<li>DLing: ${djmWorkItems}</li>
-				<li>Want: ${djmNewItems}</li>
-			</ul>
+
 		</div>
 		<div class="statediv fuFuId">
 			<strong>Fufufuu:</strong><br />
 			${ut.timeAgo(fuRunStart)}<br />
 			${fuRunState}
 
-			<ul>
-				<li>Have: ${fuItems}</li>
-				<li>DLing: ${fuWorkItems}</li>
-				<li>Want: ${fuNewItems}</li>
-			</ul>
+
 		</div>
 	</div>
 
