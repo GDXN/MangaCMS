@@ -35,16 +35,21 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase = "http://www.doujin-moe.us/"
 
 	def retag(self):
-		retagTimeThresh = time.time()-settings.fuSettings["retag"]
+		retagUntaggedThresh = time.time()-settings.djSettings["retagMissing"]
+		retagThresh = time.time()-settings.djSettings["retag"]
 		cur = self.conn.cursor()
 
-		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? ORDER BY retreivalTime DESC;', (retagTimeThresh, self.tableKey))
-
+		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? AND dlState=2 AND tags="" ORDER BY retreivalTime DESC;', (retagUntaggedThresh, self.tableKey))
 		rets = ret.fetchall()
 		if not rets:
 			self.log.info("No items")
 			return
-		self.log.info("Done")
+		else:
+			ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? AND dlState=2 AND tags="" ORDER BY retreivalTime DESC;', (retagThresh, self.tableKey))
+			rets = ret.fetchall()
+			if not rets:
+				self.log.info("Done")
+				return
 
 		items = []
 		for row in rets:
@@ -54,11 +59,11 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			items.append(contentId)
 		self.log.info("Have %s new items to retag in FufufuuDownloader" % len(items))
 
-		for contentId in items[:100]:
-			print("contentId = ", contentId)
+		for contentId in items[:30]:
+			# print("contentId = ", contentId)
 			conf = {"sourceUrl" : contentId}
 			ret = self.getDownloadUrl(conf, retag=True)
-			print(ret)
+			# print(ret)
 
 
 
@@ -81,7 +86,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("No items")
 			return
 		self.log.info("Done")
-		print(rows)
+		# print(rows)
 		items = []
 		for row in rows:
 			# self.log.info("Row = %s", row)
@@ -130,7 +135,9 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def getDownloadUrl(self, linkDict, retag=False):
 		self.log.info("Retreiving item: %s", linkDict["sourceUrl"])
 
-		if not retag:
+		if retag:
+			self.log.warning("Retagging. No download is expected behaviour.")
+		else:
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
 			self.conn.commit()
 
@@ -162,7 +169,19 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1)
 			self.conn.commit()
-			raise
+			return
+
+		except ValueError:
+			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
+			if retag:
+				# page is gone. Skip it and set it to ignore in the future
+				self.updateDbEntry(linkDict["contentId"], lastUpdate=time.time())
+				return
+
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1)
+			self.conn.commit()
+			return
+
 
 
 		note = soup.find("div", class_="message")

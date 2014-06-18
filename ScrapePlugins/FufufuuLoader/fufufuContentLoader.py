@@ -68,7 +68,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Fetching items from db...",)
 
 
-		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE dlState=0 AND AND sourceSite=? ORDER BY retreivalTime DESC;', (self.tableKey, ))
+		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE dlState=0 AND sourceSite=? ORDER BY retreivalTime DESC;', (self.tableKey, ))
 		rets = ret.fetchall()
 		if not rets:
 			self.log.info("No items")
@@ -88,7 +88,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def retag(self):
 		retagTimeThresh = time.time()-settings.fuSettings["retag"]
 		cur = self.conn.cursor()
-		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? ORDER BY retreivalTime DESC;', (retagTimeThresh, self.tableKey))
+		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? AND dlState=2 ORDER BY retreivalTime DESC;', (retagTimeThresh, self.tableKey))
 
 		rets = ret.fetchall()
 		if not rets:
@@ -104,7 +104,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			items.append([url, tags])
 		self.log.info("Have %s new items to retag in FufufuuDownloader" % len(items))
 
-		for url, tags in items[:100]:
+		for url, tags in items[:30]:
 
 			self.downloadItem(url, tags, retagOnly=True)
 
@@ -129,9 +129,10 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def downloadItem(self, sourceUrl, srcTags, retagOnly=False):
 
-		if not retagOnly:
+		if retagOnly:
+			self.log.warn("RETAGGING OLD ITEMS! No download is normal behaviour!")
+		else:
 			self.updateDbEntry(sourceUrl, dlState=1)
-
 
 		dirDict = self.getDirDict(self.dlPath)
 		#self.log.info("%s %s", dirDict, linkDict["dlLink"])

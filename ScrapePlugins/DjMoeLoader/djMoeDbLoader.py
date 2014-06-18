@@ -45,14 +45,6 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return items
 
 
-	def resetStuckItems(self):
-		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE {table} SET dlState=0 WHERE dlState=1'''.format(table=self.tableName))
-		self.conn.commit()
-		self.log.info("Download reset complete")
-
-
-
 	def getFeed(self, pageOverride=None):
 		# for item in items:
 		# 	self.log.info(item)

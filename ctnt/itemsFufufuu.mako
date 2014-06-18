@@ -88,8 +88,10 @@ nextPage["page"] = pageNo+2
 					Retry broken links:<br>
 					<a href="itemsFufufuu?reset-links=all-links">Reset all</a>
 				</div> -->
+				<%
+				%>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genFuuTable(offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
+				${tableGenerators.genPronTable("fu", offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
 			</div>
 			% if pageNo > 0:
 				<span class="pageChangeButton" style='float:left;'>

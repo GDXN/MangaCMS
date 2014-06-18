@@ -41,23 +41,18 @@ def dequoteDict(inDict):
 <%
 
 try:
-	sourceSite = request.matchdict['source']
+
 	itemId = int(request.matchdict['mId'])
 except ValueError:
 	reader.invalidKey()
 
-siteTableMap = {
-	"djm"    : "DoujinMoeItems",
-	"fufufuu": "FufufuuItems"
-}
-
-if not sourceSite in siteTableMap:
-	reader.invalidKey()
-	return
+# sourceSite is no longer used, since all the manga Tables got merged together.
+# Vestigial crap is still about. I really should remove it.
+# request.matchdict['source']
 
 
 cur = sqlCon.cursor()
-ret = cur.execute('''SELECT downloadPath, fileName FROM %s WHERE rowid=?''' % siteTableMap[sourceSite], (itemId, ))
+ret = cur.execute('''SELECT downloadPath, fileName FROM AllMangaItems WHERE dbId=?;''', (itemId, ))
 
 rets = ret.fetchall()[0]
 if not rets:

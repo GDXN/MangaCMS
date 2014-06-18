@@ -7,7 +7,8 @@ if __name__ == "__main__":
 import nameTools as nt
 from ScrapePlugins.FufufuuLoader.fufufuDbLoader import FuFuFuuDbLoader
 from ScrapePlugins.FufufuuLoader.fufufuContentLoader import FuFuFuuContentLoader
-from ScrapePlugins.FufufuuLoader.Retag import Runner
+from ScrapePlugins.FufufuuLoader.Run import Runner
+from ScrapePlugins.FufufuuLoader.Retag import Runner as TagRunner
 
 import signal
 import runStatus
@@ -33,6 +34,10 @@ def test():
 
 	dbInt = Runner()
 	dbInt.go()
+
+	tRun = TagRunner()
+	tRun.go()
+
 
 
 	# # runner.setup()

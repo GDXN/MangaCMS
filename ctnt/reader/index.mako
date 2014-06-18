@@ -75,7 +75,8 @@ def getNotInDBItems(cur):
 		<h3>Folder: ${settings.mangaFolders[dictKey]["dir"]}</h3>
 		<%
 		itemTemp = nt.dirNameProxy.getRawDirDict(dictKey)
-		keys = list(itemTemp.keys(), key=lambda y: y.lower())
+
+		keys = list(itemTemp.keys())  # Keys are pre-lower-cased from the dirNameProxy
 		keys = natsorted(keys)
 
 		%>

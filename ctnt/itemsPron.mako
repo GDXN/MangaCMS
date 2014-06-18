@@ -135,14 +135,14 @@ nextPage["page"] = pageNo+2
 
 		<div class="subdiv djMoeId">
 			<div class="contentdiv">
-				<h3>Doujin Moe Series</h3>
+				<h3>Aggregate Pron Series</h3>
 				Query =<br>
 				% for key in request.params.keys():
 					% if key != "page":
 						${key} ${request.params.getall(key)}<br>
 					% endif
 				% endfor
-				${tableGenerators.genPronTable("djm", offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
+				${tableGenerators.genPronTable(["fu", "djm"], offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
 			</div>
 
 			% if pageNo > 0:

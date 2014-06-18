@@ -90,18 +90,18 @@ import os.path
 
 		<div class="subdiv fuFuId">
 			<div class="contentdiv">
-				<h3>Fufufuu</h3>
+				<h3>Porn!</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genFuuTable(tagsFilter=["english"])}
+				${tableGenerators.genPronTable(["fu", "djm"])}
 			</div>
 		</div>
-		<div class="subdiv djMoeId">
-			<div class="contentdiv">
-				<h3>Doujin Moe</h3>
-				${tableGenerators.genLegendTable()}
-				${tableGenerators.genDjmTable()}
-			</div>
-		</div>
+## 		<div class="subdiv djMoeId">
+## 			<div class="contentdiv">
+## 				<h3>Doujin Moe</h3>
+## 				${tableGenerators.genLegendTable()}
+## 				${tableGenerators.genPronTable("djm")}
+## 			</div>
+## 		</div>
 
 	</div>
 </div>
@@ -112,9 +112,8 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Add planned routes to look into the various tables (can I share code across the various query mechanisms?)</li>
-	<li>Make series monitoring tool for MT update periodically</li>
-	<li><marquee Width=500>Get around to adding automated tag update mechanism!</marquee></li>
+	<li>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (partially complete)</li>
+
 </ul>
 </p>
 <p>
@@ -122,7 +121,6 @@ Shit to do:
 <ul>
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
-	<li>Make the zoom mode change button region actually work on WinRT</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>
 </ul>
 </p>

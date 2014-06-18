@@ -95,12 +95,12 @@ import nameTools as nt
 	# cur.execute('SELECT COUNT(*) FROM MangaSeries;')
 	# mtMonItems = cur.fetchall()[0][0]
 
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="fu";')
-	# fuItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="fu";')
-	# fuWorkItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="fu";')
-	# fuNewItems = cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="fu";')
+	fuItems = cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="fu";')
+	fuWorkItems = cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="fu";')
+	fuNewItems = cur.fetchone()[0]
 
 	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="djm";')
 	# djmItems = cur.fetchone()[0]
@@ -153,6 +153,8 @@ import nameTools as nt
 				<li><a href="/itemsSk?distinct=True">Starkana</a>
 				<li><a href="/itemsCz?distinct=True">Crazy's Manga</a>
 				<hr>
+				<hr>
+				<li><a href="/itemsPron">Pron Files</a>
 				<hr>
 				<li><a href="/itemsDjm">DjM Files</a>
 				<li><a href="/tagsDjM">DjM Tags</a>

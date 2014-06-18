@@ -140,7 +140,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, sourceUrl, commit=True, **kwargs):
 
-
+		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl), kwargs)
 		queries = []
 		qArgs = []
 		for key in kwargs.keys():
@@ -161,6 +161,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		if commit:
 			self.conn.commit()
+		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
 
 
 	def deleteRowsByValue(self, commit=True, **kwargs):

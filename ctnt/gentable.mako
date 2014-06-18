@@ -38,21 +38,27 @@ def fSizeToStr(fSize):
 	return fStr
 
 
-def buildWhereQuery(tagsFilter=None, seriesFilter=None, tableKey=None):
+def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None):
+
+	# print("Building where query. tags=", tagsFilter, "series=", seriesFilter, "tableKey", tableKey)
 	if tableKey == None:
 		whereItems = []
 		queryAdditionalArgs = []
 
 	elif type(tableKey) is str:
-		whereItems = ["WHERE sourceSite=?"]
+		whereItems = ["sourceSite=?"]
 		queryAdditionalArgs = [tableKey]
 
 	elif type(tableKey) is list or type(tableKey) is tuple:
 		items = []
+		queryAdditionalArgs = []
 		for key in tableKey:
-			items.append("WHERE sourceSite=?")
+			items.append("sourceSite=?")
 			queryAdditionalArgs.append(key)
-		whereItems = [" OR ".join(items)]
+
+		selectStr = " OR ".join(items)    # Convert down to a single string
+		selectStr = "(" + selectStr + ")" # and wrap it in parenthesis to make the OR work
+		whereItems = [selectStr]
 	else:
 		raise ValueError("Invalid table-key type")
 
@@ -120,7 +126,7 @@ colours = {
 
 	<%
 	cur = sqlCon.cursor()
-	print("lolwat")
+
 	if flags != '':
 		print("Query string not properly generated at the moment")
 		print("FIX ME!")
@@ -229,13 +235,13 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<%def name="genFuuTable(limit=100, offset=0, tagsFilter=None, seriesFilter=None)">
+<%def name="genPronTable(siteSource, limit=100, offset=0, tagsFilter=None, seriesFilter=None)">
 	<table border="1px">
 		<tr>
 
 			<th class="uncoloured" width="5%">Date</th>
 			<th class="uncoloured" width="3%">St</th>
-			<th class="uncoloured" width="18%">Tankobon</th>
+			<th class="uncoloured" width="18%">Path</th>
 			<th class="uncoloured" width="25%">FileName</th>
 			<th class="uncoloured" width="30%">Tags</th>
 			<th class="uncoloured" width="8%">Size</th>
@@ -247,14 +253,15 @@ colours = {
 	<%
 
 	offset = offset * limit
-	whereStr, queryAdditionalArgs = buildWhereQuery("fu", tagsFilter, seriesFilter)
+	whereStr, queryAdditionalArgs = buildWhereQuery(siteSource, tagsFilter, seriesFilter)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
 
-	print("Params = ", params)
-	print("whereStr = ", whereStr)
+	# print("Params = ", params)
+	# print("whereStr = ", whereStr)
 
 	cur = sqlCon.cursor()
-	ret = cur.execute('''SELECT dbId,
+	ret = cur.execute('''SELECT 	dbId,
+									sourceSite,
 									dlState,
 									sourceUrl,
 									retreivalTime,
@@ -279,6 +286,7 @@ colours = {
 		<%
 
 		dbId,          \
+		sourceSite,    \
 		dlState,       \
 		sourceUrl,     \
 		retreivalTime, \
@@ -327,30 +335,52 @@ colours = {
 		else:
 			fSizeStr = fSizeToStr(fSize)
 
+		if sourceSite == "fu":
+			linkPage = "itemsFufufuu"
+		elif sourceSite == "djm":
+			linkPage = "itemsDjm"
+		else:
+			linkPage = "LOLNONE"
+			print("WAT?", sourceSite)
+
+		if "»" in seriesName:
+			seriesNames = seriesName.split("»")
+		else:
+			seriesNames = [seriesName]
+
+
+
 		%>
 		<tr>
 
 			<td>${ut.timeAgo(retreivalTime)}</td>
 			<td bgcolor=${statusColour} class="showTT" title="${dbId}, ${filePath}"></td>
-			<td><a href="/itemsFufufuu?bySeries=${seriesName|u}">${seriesName}</a></td>
+			<td>
+			## Messy hack that prevents the "»" from being drawn anywhere but *inbetween* tags in the path
+				% for i, seriesName in enumerate(seriesNames):
+					${'»'*bool(i)}
+					<a href="/itemsPron?bySeries=${seriesName.strip()|u}">${seriesName}</a>
+				% endfor
+			</td>
 
 
 
 			% if fSize <= 0:
 				<td>${originName}</td>
 			% else:
-				<td><a href="/pron/fufufuu/${dbId}">${originName}</a></td>
+				<td><a href="/pron/${linkPage}/${dbId}">${originName}</a></td>
 			% endif
 
 
 			% if tags != None:
 				<td>
+
 				% for tag in tags.split():
-					<a href="/itemsFufufuu?byTag=${tag|u}">${tag}</a>
+					<a href="/itemsPron?byTag=${tag.strip()|u}">${tag}</a>
 				% endfor
 				</td>
 			% else:
-				<td>${tags}</td>
+				<td>(No Tags)</td>
 			% endif
 
 			% if fSize <= 0:
@@ -366,170 +396,6 @@ colours = {
 
 	</table>
 </%def>
-
-
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-<%def name="genDjmTable(checkFileExist=True, limit=100, offset=0, tagsFilter=None, seriesFilter=None)">
-	<table border="1px">
-		<tr>
-
-			<th class="uncoloured" width="7%">Date</th>
-			<th class="uncoloured" width="3%">St</th>
-			<th class="uncoloured" width="25%">FilePath</th>
-			<th class="uncoloured" width="25%">FileName</th>
-			<th class="uncoloured" width="25%">Tags</th>
-			<th class="uncoloured" width="10%">Size</th>
-			<th class="uncoloured" width="10%">DLTime</th>
-
-
-		</tr>
-
-	<%
-
-	whereStr, queryAdditionalArgs = buildWhereQuery("djm", tagsFilter, seriesFilter)
-	params = tuple(queryAdditionalArgs)+(limit, offset)
-
-	cur = sqlCon.cursor()
-
-	ret = cur.execute('''SELECT dbId,
-									dlState,
-									sourceUrl,
-									retreivalTime,
-									sourceId,
-									seriesName,
-									fileName,
-									originName,
-									downloadPath,
-									flags,
-									tags,
-									note
-								FROM AllMangaItems
-								{query}
-								ORDER BY retreivalTime
-								DESC LIMIT ?
-								OFFSET ?;'''.format(query = whereStr), params)
-	tblCtntArr = ret.fetchall()
-	%>
-
-	% for row in tblCtntArr:
-
-
-		<%
-		dbId,          \
-		dlState,       \
-		sourceUrl,     \
-		retreivalTime, \
-		sourceId,      \
-		seriesPath,    \
-		fileName,      \
-		originName,    \
-		downloadPath,  \
-		flags,         \
-		tags,          \
-		note = row
-
-		dlState = int(dlState)
-
-
-		addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(retreivalTime))
-
-
-		if checkFileExist:
-			try:
-				filePath = os.path.join(downloadPath, fileName)
-				if os.path.exists(filePath):
-					fSize = os.path.getsize(filePath)
-				else:
-					fSize = -2
-			except OSError:
-				filePath = None
-				fSize = -1
-			except AttributeError:
-				filePath = None
-				fSize = -1
-
-			if  dlState == 2 and fSize < 0:
-				statusColour = colours["failed"]
-			elif  dlState == 2:
-				statusColour = colours["downloaded"]
-			elif  dlState == 1:
-				statusColour = colours["processing"]
-			else:
-				statusColour = colours["queued"]
-			if fSize == -2:
-				fSizeStr = "No File"
-			elif fSize < 0:
-				fSizeStr = "Unk Err"
-
-			else:
-				fSizeStr = fSizeToStr(fSize)
-		else:
-			statusColour = colours["not checked"]
-			fSize = 1
-			fSizeStr = "no chk"
-
-
-		# seriesPath = seriesPath.replace(u"»", u"»<br>")
-		%>
-		<tr>
-			<td>${ut.timeAgo(retreivalTime)}</td>
-			<td bgcolor=${statusColour} bgcolor=${statusColour} class="showTT" title="${filePath}"></td>
-
-
-
-
-			<td>
-				<%
-				path = []
-				%>
-				% if seriesPath:
-					% for pathSegment in seriesPath.split("»"):
-						% if path:
-							»
-						% endif
-						<%
-						path.append(pathSegment)
-						%>
-						<a href='/itemsDjm?bySeries=${"»".join(path) |u}'>${pathSegment}</a>
-					% endfor
-				% else:
-					None
-				% endif
-			</td>
-
-
-			% if fSize <= 0:
-				<td>${originName}</td>
-			% else:
-				<td><a href="/pron/djm/${dbId}">${originName}</a></td>
-			% endif
-
-			% if tags != None and tags != "":
-				<td>
-				% for tag in tags.split():
-					<a href="/itemsDjm?byTag=${tag|u}">${tag}</a>
-				% endfor
-				</td>
-			% else:
-				<td>No Tags!</td>
-			% endif
-
-			% if fSize <= 0:
-				<td bgcolor=${colours["no matching dir"]}>${fSizeStr}</td>
-			% else:
-				<td>${fSizeStr}</td>
-			% endif
-			<td>${addDate}</td>
-
-		</tr>
-	% endfor
-
-	</table>
-</%def>
-
 
 
 

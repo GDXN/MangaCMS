@@ -5,7 +5,8 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 
 
-from ScrapePlugins.DjMoeLoader.Retag import Runner
+from ScrapePlugins.DjMoeLoader.Retag import Runner as TagRunner
+from ScrapePlugins.DjMoeLoader.Run import Runner
 from ScrapePlugins.DjMoeLoader.djMoeDbLoader import DjMoeDbLoader
 from ScrapePlugins.DjMoeLoader.djMoeContentLoader import DjMoeContentLoader
 # import DjMoeLoader.Run
@@ -30,6 +31,10 @@ def test():
 	signal.signal(signal.SIGINT, signal_handler)
 
 	runner = Runner()
+	print(runner)
+	runner.go()
+
+	runner = TagRunner()
 	print(runner)
 	runner.go()
 
