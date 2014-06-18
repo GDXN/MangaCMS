@@ -67,3 +67,11 @@ Finally, the actual scraper has two halves. `mainWeb.py` is the web-interface, a
 Currently, if you run `mainWeb.py` having never run `mainScrape.py`, it will *probably* fail, because the scraper is responsible for setting up the database. Simply run `mainScrape.py` first. (All are run `python3 mainScrape.py` or `python3 mainWeb.py`).
 
 The tools are currently not daemonized at all, and must be manually run after restarting. I normally just leave them running in a [screen](http://www.gnu.org/software/screen/) session on my server. 
+
+---
+
+
+Because I'm sure no one wants to just read about what MangaCMS does, here are some screenshots of the web-interface:  
+![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)  
+![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)  
+![Reader](http://fake-name.github.io/MangaCMS/img/Stuff%203.png)  
