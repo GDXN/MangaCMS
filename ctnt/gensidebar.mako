@@ -43,8 +43,6 @@ DNLDED = 2
 			statusDict[srcId] = {}
 		statusDict[srcId][state] = num
 
-	print("row", statusDict)
-
 
 	if skRunning:
 		skRunState = "<b>Running</b>"

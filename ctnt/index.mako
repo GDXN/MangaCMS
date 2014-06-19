@@ -75,16 +75,16 @@ import os.path
 
 		<div class="subdiv skId">
 			<div class="contentdiv">
-				<h3>Starkana</h3>
+				<h3>Starkana (distinct)</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey="sk")}
+				${tableGenerators.genMangaTable(tableKey="sk", distinct=True)}
 			</div>
 		</div>
 		<div class="subdiv czId">
 			<div class="contentdiv">
-				<h3>Crazy's Manga</h3>
+				<h3>Crazy's Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey="cz")}
+				${tableGenerators.genMangaTable(tableKey="cz", distinct=True)}
 			</div>
 		</div>
 
@@ -112,7 +112,6 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</li>
 	<li>Flatten any found duplicate directories, when they span more then one of the manga-folders.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Generalize the image-cleaner to remove all annoying batoto/starkana/whatever images from downloaded archives. Possibly make it possible to run in batch mode? It should have a local directory of "bad"
@@ -122,7 +121,8 @@ Shit to do:
 	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b></li>
 	<li>Ability to disable bulk-downloading.</li>
 	<li>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (partially complete)</li>
-
+	<li>Add failed item introspection table.</li>
+	<br>
 </ul>
 </p>
 <p>
@@ -134,6 +134,15 @@ Shit to do:
 </ul>
 </p>
 
+<p>
+
+<b>Complete:</b>
+<ul>
+	<li><strike>Make series monitoring tool for MT update periodically</strike></li>
+	<li><strike>Automated tag update mechanism!</strike></li>
+	<li><strike>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</strike></li>
+</ul>
+</p>
 
 <%
 stopTime = time.time()

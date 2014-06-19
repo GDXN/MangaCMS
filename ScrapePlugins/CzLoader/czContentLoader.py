@@ -141,7 +141,8 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		fileUrl = self.getDownloadUrl(sourceUrl, sourceFn)
 		if fileUrl is None:
-			self.log.warning("Could not find url!")
+			self.log.error()("Could not find url!")
+			self.updateDbEntry(link["sourceUrl"], dlState=-1)
 			# self.deleteRowsByValue(sourceUrl=sourceUrl)
 			return
 

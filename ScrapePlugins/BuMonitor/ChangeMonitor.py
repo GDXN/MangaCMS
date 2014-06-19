@@ -36,23 +36,8 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def go(self):
 		items = self.getItemsToCheck()
 
-		# lists = {"Win": r"http://www.mangaupdates.com/mylist.html?list=user11"}
-		# lists = {"Unfinished": r"http://www.mangaupdates.com/mylist.html?list=unfinished"}
-		# lists = {"Complete": r"http://www.mangaupdates.com/mylist.html?list=complete"}
-
 		for dbId, mId in items:
 			self.updateItem(dbId, mId)
-
-		# dbId, mId = items.pop()
-		# self.updateItem(dbId, mId)
-		# print("Item ID = ", dbId, mId)
-
-		# dbId, mId = items.pop()
-		# print("Item ID = ", dbId, mId)
-		# self.updateItem(dbId, mId)
-
-		# self.downloadNewFiles(idOverride=idOverride, limit=limit)
-
 
 	def getItemsToCheck(self):
 
@@ -195,8 +180,3 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			self.log.info("Logged in successfully!")
 
 		self.wgH.saveCookies()
-
-
-		# checkPage = self.wgH.getpage(self.baseListURL)
-		# if "You must be a user to access this page." in checkPage:
-		# 	self.log.info("Still not logged in?")
