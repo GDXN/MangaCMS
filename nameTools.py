@@ -281,6 +281,7 @@ class DirNameProxy(object):
 	def __init__(self, paths):
 		self.__dict__ = self._shared_state
 
+		self.notifierRunning = True
 		self.updateLock = threading.Lock()
 
 
@@ -315,9 +316,11 @@ class DirNameProxy(object):
 		# for watch in self.
 
 	def stop(self):
-
-		self.log.info("Unoading DirLookup")
-		self.notifier.stop()
+		# Only stop once (should prevent on-exit errors)
+		if self.notifierRunning:
+			self.log.info("Unoading DirLookup")
+			self.notifier.stop()
+			self.notifierRunning = False
 
 	def getDirDict(self, dlPath):
 

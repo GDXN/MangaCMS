@@ -12,19 +12,21 @@ import settings
 
 import ScrapePlugins.MonitorDbBase
 
-CHECK_INTERVAL = 60 * 60 * 24 *3  # Every 3 days
+CHECK_INTERVAL       = 60 * 60 * 24 *  3  # Every 3 days
+CHECK_INTERVAL_OTHER = 60 * 60 * 24 * 30  # Every month
 
 def toInt(inStr):
 	return int(''.join(ele for ele in inStr if ele.isdigit()))
 
 class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
-	loggerPath = "Main.Bu.DateUpdater"
-	pluginName = "BakaUpdates Update Date Monitor"
-	tableName = "MangaSeries"
+	loggerPath       = "Main.Bu.DateUpdater"
+	pluginName       = "BakaUpdates Update Date Monitor"
+	tableName        = "MangaSeries"
+	nameMapTableName = "muNameList"
 
-	baseURL = "http://www.mangaupdates.com/"
-	itemURL = 'http://www.mangaupdates.com/series.html?id={buId}'
+	baseURL          = "http://www.mangaupdates.com/"
+	itemURL          = 'http://www.mangaupdates.com/series.html?id={buId}'
 
 
 	dbName = settings.dbName
@@ -42,8 +44,29 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def getItemsToCheck(self):
 
 		cur = self.conn.cursor()
-		ret = cur.execute('''SELECT dbId,buId FROM {tableName} WHERE (lastChecked < ? or lastChecked IS NULL) and buId IS NOT NULL LIMIT 50;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
+		ret = cur.execute('''SELECT dbId,buId
+								FROM {tableName}
+								WHERE
+									(lastChecked < ? or lastChecked IS NULL)
+									AND buId IS NOT NULL
+									AND buList IS NOT NULL
+
+								LIMIT 50;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
 		rets = ret.fetchall()
+
+		if not rets:
+
+			ret = cur.execute('''SELECT dbId,buId
+									FROM {tableName}
+									WHERE
+										(lastChecked < ? or lastChecked IS NULL)
+										AND buId IS NOT NULL
+										AND buList IS NULL
+
+									LIMIT 150;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
+			rets = ret.fetchall()
+
+
 
 		return rets
 
@@ -134,7 +157,22 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			outList.append(tag.replace(" ", "-"))
 		return outList
 
+	def getNames(self, soup):
+		baseNameContainer = soup.find("span", class_="releasestitle tabletitle")
+		baseName = baseNameContainer.get_text()
 
+		namesHeaderB = soup.find("b", text="Associated Names")
+		container = namesHeaderB.parent.find_next_sibling("div", class_="sContent")
+		print("BaseName = ", baseName)
+		altNames = [baseName]
+
+		for name in container.find_all(text=True):
+			name = name.rstrip().lstrip()
+			if name:
+				altNames.append(name)
+
+
+		return baseName, altNames
 
 	def updateItem(self, dbId, mId):
 
@@ -145,8 +183,12 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		tags = self.extractTags(soup)
 		genres =  self.extractGenres(soup)
 
+		baseName, altNames = self.getNames(soup)
+		print("Basename = ", baseName)
+		print("AltNames = ", altNames)
 		kwds = {
-			"lastChecked" : time.time()
+			"lastChecked" : time.time(),
+			"buName"      : baseName
 		}
 		if release:
 			kwds["lastChanged"] = release
@@ -156,6 +198,8 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		if genres:
 			kwds["buGenre"] = " ".join(genres)
 
+
+		self.insertNames(mId, altNames)
 
 		self.updateDbEntry(dbId, **kwds)
 

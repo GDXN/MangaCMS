@@ -28,6 +28,10 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	def tableName(self):
 		return None
 
+	@abc.abstractmethod
+	def nameMapTableName(self):
+		return None
+
 
 
 
@@ -37,8 +41,38 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		self.openDB()
 		self.checkInitPrimaryDb()
 
-		self.validKwargs  =         ["mtList", "mtName", "mtId", "mtTags", "buName", "buId", "buTags", "buGenre", "buList", "readingProgress", "availProgress", "rating", "lastChanged", "lastChecked", "itemAdded"]
-		self.validColName = ["dbId", "mtList", "mtName", "mtId", "mtTags", "buName", "buId", "buTags", "buGenre", "buList", "readingProgress", "availProgress", "rating", "lastChanged", "lastChecked", "itemAdded"]
+		self.validKwargs  = ["mtList",
+							"mtName",
+							"mtId",
+							"mtTags",
+							"buName",
+							"buId",
+							"buTags",
+							"buGenre",
+							"buList",
+							"readingProgress",
+							"availProgress",
+							"rating",
+							"lastChanged",
+							"lastChecked",
+							"itemAdded"]
+
+		self.validColName = ["dbId",
+							"mtList",
+							"mtName",
+							"mtId",
+							"mtTags",
+							"buName",
+							"buId",
+							"buTags",
+							"buGenre",
+							"buList",
+							"readingProgress",
+							"availProgress",
+							"rating",
+							"lastChanged",
+							"lastChecked",
+							"itemAdded"]
 
 	def openDB(self):
 		self.log.info("Opening DB...",)
@@ -265,6 +299,13 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		for line in ret.fetchall():
 			print(line)
 
+	def insertNames(self, buId, names):
+
+		cur = self.conn.cursor()
+		for name in names:
+			cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+		cur.fetchall()
+
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Management
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -309,6 +350,20 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (mtTags collate nocase)'''  % ("%s_mtTags_index"       % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buTags collate nocase)'''  % ("%s_buTags_index"       % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buGenre collate nocase)''' % ("%s_buGenre_index"      % self.tableName, self.tableName))
+
+
+
+
+		self.conn.execute('''CREATE TABLE IF NOT EXISTS %s (
+											dbId            INTEGER PRIMARY KEY,
+											buId            text COLLATE NOCASE,
+											name            text COLLATE NOCASE,
+											FOREIGN KEY(buId) REFERENCES %s(buId),
+											UNIQUE(buId, name) ON CONFLICT REPLACE
+											);''' % (self.nameMapTableName, self.tableName))
+
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId collate nocase)''' % ("%s_nameTable_mtId_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name collate nocase)''' % ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
 
 		self.conn.commit()
 		self.log.info("Retreived page database created")

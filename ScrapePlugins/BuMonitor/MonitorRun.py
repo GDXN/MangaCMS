@@ -15,14 +15,18 @@ import ScrapePlugins.MonitorDbBase
 def toInt(inStr):
 	return int(''.join(ele for ele in inStr if ele.isdigit()))
 
+
+# Maintains a local mirror of a user's watches series on mangaUpdates
+# This only retreives the watched item list. ChangeMonitor.py actually fetches the metadata.
 class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
-	loggerPath = "Main.Bu.Watcher"
-	pluginName = "BakaUpdates List Monitor"
-	tableName = "MangaSeries"
+	loggerPath       = "Main.Bu.Watcher"
+	pluginName       = "BakaUpdates List Monitor"
+	tableName        = "MangaSeries"
+	nameMapTableName = "muNameList"
 
-	baseURL = "http://www.mangaupdates.com/"
-	baseListURL = r"http://www.mangaupdates.com/mylist.html"
+	baseURL          = "http://www.mangaupdates.com/"
+	baseListURL      = r"http://www.mangaupdates.com/mylist.html"
 
 	dbName = settings.dbName
 
@@ -34,9 +38,6 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		self.checkLogin()
 		lists = self.getListNames()
 
-		# lists = {"Win": r"http://www.mangaupdates.com/mylist.html?list=user11"}
-		# lists = {"Unfinished": r"http://www.mangaupdates.com/mylist.html?list=unfinished"}
-		# lists = {"Complete": r"http://www.mangaupdates.com/mylist.html?list=complete"}
 
 		for listName, listURL in lists.items():
 			self.updateList(listName, listURL)
@@ -115,11 +116,25 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 				if haveRow:
 					# print("HaveRow = ", haveRow)
 					haveRow = haveRow.pop()
-					self.updateDbEntry(haveRow["dbId"], commit=False, buName=mangaName, buList=listName, availProgress=currentChapter, readingProgress=readChapter, buId=seriesID)
+					self.updateDbEntry(haveRow["dbId"],
+						commit=False,
+						buName=mangaName,
+						buList=listName,
+						availProgress=currentChapter,
+						readingProgress=readChapter,
+						buId=seriesID)
 				else:
 					# ["mtList", "buList", "mtName", "mdId", "mtTags", "buName", "buId", "buTags", "readingProgress", "availProgress", "rating", "lastChanged"]
 
-					self.insertIntoDb(commit=False, buName=mangaName, buList=listName, availProgress=currentChapter, readingProgress=readChapter, buId=seriesID, lastChanged=0, lastChecked=0, itemAdded=time.time())
+					self.insertIntoDb(commit=False,
+						buName=mangaName,
+						buList=listName,
+						availProgress=currentChapter,
+						readingProgress=readChapter,
+						buId=seriesID,
+						lastChanged=0,
+						lastChecked=0,
+						itemAdded=time.time())
 
 
 

@@ -22,16 +22,23 @@ def test():
 	# runner.go()
 
 	chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
-	chMon.go()
-	chMon.closeDB()
+	# chMon.go()
+	# chMon.closeDB()
 
 	# pages = [u'8304', u'4789', u'4788', u'373']
-	#pages = [u'375']
-	#pages = runner.getMangaIDs()
+
+	cur = chMon.conn.cursor()
+
+	ret = cur.execute("SELECT dbId, buId FROM MangaSeries WHERE buId IS NOT NULL;")
+	items = ret.fetchall()
+	for item in items:
+		pages = chMon.updateItem(*item)
+		if not runStatus.run:
+			break
 
 
 	#runner.loadNewFiles()
-
+	chMon.closeDB()
 
 if __name__ == "__main__":
 	test()
