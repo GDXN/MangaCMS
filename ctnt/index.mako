@@ -112,6 +112,12 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</li>
+	<li>Flatten any found duplicate directories, when they span more then one of the manga-folders.</li>
+	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes.</li>
+	<li>Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
+	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b></li>
+	<li>Ability to disable bulk-downloading.</li>
 	<li>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (partially complete)</li>
 
 </ul>
