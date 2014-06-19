@@ -114,6 +114,9 @@ Shit to do:
 <ul>
 	<li>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</li>
 	<li>Flatten any found duplicate directories, when they span more then one of the manga-folders.</li>
+	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
+	<li>Generalize the image-cleaner to remove all annoying batoto/starkana/whatever images from downloaded archives. Possibly make it possible to run in batch mode? It should have a local directory of "bad"
+	images that are scanned on start, and compare using hashes (or full on bitwise?).</li>
 	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes.</li>
 	<li>Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
 	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b></li>

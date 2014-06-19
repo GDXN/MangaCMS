@@ -10,6 +10,11 @@ from babel.dates import format_timedelta
 import statusManager as sm
 import nameTools as nt
 
+FAILED = -1
+QUEUED = 0
+DLING  = 1
+DNLDED = 2
+
 %>
 
 <%namespace name="ut" file="utilities.mako"/>
@@ -27,6 +32,18 @@ import nameTools as nt
 	djMRunning,   djMRunStart,   djMLastRunDuration   = sm.getStatus(cur, "DjMoe")
 	buRunning,    buRunStart,    buLastRunDuration    = sm.getStatus(cur, "BuMon")
 
+
+	# Counting crap is now driven by commit/update/delete hooks
+	ret = cur.execute('SELECT sourceSite, dlState, quantity FROM MangaItemCounts;')
+	rets = cur.fetchall()
+
+	statusDict = {}
+	for srcId, state, num in rets:
+		if not srcId in statusDict:
+			statusDict[srcId] = {}
+		statusDict[srcId][state] = num
+
+	print("row", statusDict)
 
 
 	if skRunning:
@@ -59,75 +76,6 @@ import nameTools as nt
 		buState = "Not Running"
 
 
-	# Counting stuff
-
-
-	# 'SELECT COUNT(*) FROM MangaItems WHERE dlState=2 AND flags LIKE "%picked%";'
-	# 'SELECT COUNT(*) FROM MangaItems WHERE dlState=0 AND flags LIKE "%picked%";'
-	# 'SELECT COUNT(*) FROM MangaItems WHERE dlState=2 AND NOT flags LIKE "%picked%";'
-	# 'SELECT COUNT(*) FROM MangaItems WHERE dlState=0 AND NOT flags LIKE "%picked%";'
-	# 'SELECT COUNT(*) FROM MangaItems WHERE dlState=1;'
-	# 'SELECT COUNT(*) FROM MangaSeries;'
-	# 'SELECT COUNT(*) FROM FufufuuItems WHERE dlState=2;'
-	# 'SELECT COUNT(*) FROM FufufuuItems WHERE dlState=1;'
-	# 'SELECT COUNT(*) FROM FufufuuItems WHERE dlState=0;'
-	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=2;'
-	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=1;'
-	# 'SELECT COUNT(*) FROM DoujinMoeItems WHERE dlState=0;'
-
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="sk";')
-	# skItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="sk";')
-	# skNewItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="sk";')
-	# skWorkItems = cur.fetchone()[0]
-
-
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="cz";')
-	# czItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="cz";')
-	# czNewItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="cz";')
-	# czWorkItems = cur.fetchone()[0]
-
-
-
-	# cur.execute('SELECT COUNT(*) FROM MangaSeries;')
-	# mtMonItems = cur.fetchall()[0][0]
-
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="fu";')
-	fuItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="fu";')
-	fuWorkItems = cur.fetchone()[0]
-	cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="fu";')
-	fuNewItems = cur.fetchone()[0]
-
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=2 AND sourceSite="djm";')
-	# djmItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=1 AND sourceSite="djm";')
-	# djmWorkItems = cur.fetchone()[0]
-	# cur.execute('SELECT COUNT(*) FROM AllMangaItems WHERE dlState=0 AND sourceSite="djm";')
-	# djmNewItems = cur.fetchone()[0]
-	#		<ul>
-	#			<li>Have: ${skItems}</li>
-	#			<li>DLing: ${skWorkItems}</li>
-	#			<li>Want: ${skNewItems}</li>
-	#		</ul>
-	#		<ul>
-	#			<li>Have: ${czItems}</li>
-	#			<li>DLing: ${czWorkItems}</li>
-	#			<li>Want: ${czNewItems}</li>
-	#		</ul>
-	#		<ul>
-	#			<li>Have: ${djmItems}</li>
-	#			<li>DLing: ${djmWorkItems}</li>
-	#			<li>Want: ${djmNewItems}</li>
-	#		</ul>
-	#		<ul>
-	#			<li>Have: ${fuItems}</li>
-	#			<li>DLing: ${fuWorkItems}</li>
-	#			<li>Want: ${fuNewItems}</li>
-	#		</ul>
 
 	%>
 
@@ -175,7 +123,12 @@ import nameTools as nt
 			<strong>Starkana:</strong><br />
 			${ut.timeAgo(skRunStart)}<br />
 			${skRunState}
-
+			<ul>
+				<li>Have: ${statusDict["sk"][DNLDED]}</li>
+				<li>DLing: ${statusDict["sk"][DLING]}</li>
+				<li>Want: ${statusDict["sk"][QUEUED]}</li>
+				<li>Failed: ${statusDict["sk"][FAILED]}</li>
+			</ul>
 
 		</div>
 		<div class="statediv czId">
@@ -183,7 +136,12 @@ import nameTools as nt
 			${ut.timeAgo(czRunStart)}<br />
 			${czRunState}
 
-
+			<ul>
+				<li>Have: ${statusDict["cz"][DNLDED]}</li>
+				<li>DLing: ${statusDict["cz"][DLING]}</li>
+				<li>Want: ${statusDict["cz"][QUEUED]}</li>
+				<li>Failed: ${statusDict["cz"][FAILED]}</li>
+			</ul>
 		</div>
 		<div class="statediv buId">
 			<strong>MU Mon:</strong><br />
@@ -195,7 +153,12 @@ import nameTools as nt
 			<strong>DjMoe:</strong><br />
 			${ut.timeAgo(djMRunStart)}<br />
 			${djmRunState}
-
+			<ul>
+				<li>Have: ${statusDict["djm"][DNLDED]}</li>
+				<li>DLing: ${statusDict["djm"][DLING]}</li>
+				<li>Want: ${statusDict["djm"][QUEUED]}</li>
+				<li>Failed: ${statusDict["djm"][FAILED]}</li>
+			</ul>
 
 		</div>
 		<div class="statediv fuFuId">
@@ -203,6 +166,12 @@ import nameTools as nt
 			${ut.timeAgo(fuRunStart)}<br />
 			${fuRunState}
 
+			<ul>
+				<li>Have: ${statusDict["fu"][DNLDED]}</li>
+				<li>DLing: ${statusDict["fu"][DLING]}</li>
+				<li>Want: ${statusDict["fu"][QUEUED]}</li>
+				<li>Failed: ${statusDict["fu"][FAILED]}</li>
+			</ul>
 
 		</div>
 	</div>

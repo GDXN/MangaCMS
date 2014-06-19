@@ -4,8 +4,9 @@ import settings
 import sys
 
 from schemaUpdater.schemaOne2Two import updateOne2Two
+from schemaUpdater.schemaTwo2Three import schemaTwo2Three
 
-CURRENT_SCHEMA = 2
+CURRENT_SCHEMA = 3
 
 def getSchemaRev(conn):
 	cur = conn.cursor()
@@ -17,7 +18,10 @@ def getSchemaRev(conn):
 		return -1
 
 	if not "schemaRev" in tables:
-		return 0
+		if "AllMangaItems" in tables:
+			return 2
+		else:
+			return 0
 	else:
 		ret = cur.execute("SELECT schemaVersion FROM schemaRev;")
 		rets = ret.fetchall()
@@ -44,7 +48,7 @@ def updateSchemaRevNo(newNum):
 
 
 def createSchemaRevTable(conn):
-	conn.execute('''CREATE TABLE IF NOT EXISTS schemaRev (schemaVersion real DEFAULT 1);''')
+	conn.execute('''CREATE TABLE IF NOT EXISTS schemaRev (schemaVersion int DEFAULT 1);''')
 	conn.execute('''INSERT INTO schemaRev VALUES (1);''')
 	conn.commit()
 
@@ -52,7 +56,7 @@ def updateDatabaseSchema():
 	conn = sqlite3.connect(settings.dbName, timeout=10)
 
 	rev = getSchemaRev(conn)
-	print("Current Rev = ", rev)
+	print("Current Database Schema Rev = ", rev)
 	if rev == CURRENT_SCHEMA:
 		print("Database structure us up to date.")
 		return
@@ -73,6 +77,14 @@ def updateDatabaseSchema():
 		updateSchemaRevNo(2)
 
 	# Rev 2 amalgamates all the downloader tables into a single table.
+
+
+	if rev == 2:
+		schemaTwo2Three(conn)
+		updateSchemaRevNo(3)
+
+	# Rev 3 adds insert and delete triggers to track table-size
+
 
 
 	rev = getSchemaRev(conn)
