@@ -158,6 +158,8 @@ def getNotInDBItems(cur):
 		else:
 			haveBu = "✗"
 
+
+
 		%>
 		<h3>Manga: ${baseName}</h3>
 
@@ -172,8 +174,15 @@ def getNotInDBItems(cur):
 					baseName = fullPath.split("/")[-1]
 
 					items = os.listdir(fullPath)
-					items.sort()
+					# items.sort()
+					try:
+						sort = ""
+						items = natsorted(items)
+					except:
+						sort = "<b>Natural Sort failed!</b> Using ASCIIbetical sorting as fall-back."
+						items.sort()
 				%>
+				${sort}
 				<table border="1px" class="mangaFileTable">
 					<tr>
 						<th class="uncoloured" width="700">${itemDict["fqPath"]}</th>
@@ -181,7 +190,7 @@ def getNotInDBItems(cur):
 
 					% for item in items:
 						<tr>
-							<!-- <% print("Item type = ", type(item)) %> -->
+
 							<td><a href="/reader/${dirDictKey}/${urllib.parse.quote(itemKey)}/${urllib.parse.quote(bytes(item, 'utf-8'))}">${item}</a></td>
 						</tr>
 					% endfor

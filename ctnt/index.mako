@@ -112,7 +112,6 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>FIX NATURAL SORTING</li>	
 	<li>Flatten any found duplicate directories, when they span more then one of the manga-folders.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Generalize the image-cleaner to remove all annoying batoto/starkana/whatever images from downloaded archives. Possibly make it possible to run in batch mode? It should have a local directory of "bad"
@@ -139,6 +138,7 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>FIX NATURAL SORTING</strike></li>
 	<li><strike>Make series monitoring tool for MT update periodically</strike></li>
 	<li><strike>Automated tag update mechanism!</strike></li>
 	<li><strike>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</strike></li>
