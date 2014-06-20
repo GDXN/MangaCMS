@@ -150,12 +150,8 @@ def getNotInDBItems(cur):
 		mtItems = getNotInDBItems(sqlCon.cursor())
 		name = nt.sanitizeString(itemDict["item"], flatten=False)
 		print(name)
-		haveMt, mtLink, haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
+		haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
 
-		if haveMt:
-			haveMt = "✓"
-		else:
-			haveMt = "✗"
 
 		if haveBu:
 			haveBu = "✓"
@@ -199,9 +195,6 @@ def getNotInDBItems(cur):
 				 ${baseName}
 			</div>
 
-			<div class="lightRect itemInfoBox">
-				${haveMt} ${mtLink}
-			</div>
 
 			<div class="lightRect itemInfoBox">
 				${haveBu} ${buLink}

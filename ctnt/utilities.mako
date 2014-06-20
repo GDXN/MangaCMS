@@ -110,20 +110,13 @@ import nameTools as nt
 <%def name="getItemInfo(seriesName)">
 	<%
 	cur = sqlCon.cursor()
-	ret = cur.execute("SELECT mtId,buId,buTags,buGenre,buList FROM MangaSeries WHERE mtName=? OR buName=?;", (seriesName, seriesName))
+	ret = cur.execute("SELECT buId,buTags,buGenre,buList FROM MangaSeries WHERE buName=?;", (seriesName, ))
 	rets = ret.fetchall()
 	if not rets:
-		mtId, buId, buTags, buGenre, buList = None, None, None, None, None
+		buId, buTags, buGenre, buList = None, None, None, None
 	else:
-		mtId, buId, buTags, buGenre, buList = rets[0]
-	print("Looked up item %s, ret=%s, %s" % (seriesName, mtId, buId))
-
-	if mtId:
-		haveMt = True
-		mtLink = '<a href="http://www.mangatraders.com/manga/series/%s">Manga Traders</a>' % mtId
-	else:
-		haveMt = False
-		mtLink = nameToMtSearch(seriesName)
+		buId, buTags, buGenre, buList = rets[0]
+	print("Looked up item %s, ret=%s" % (seriesName, buId))
 
 	if buId:
 		haveBu = True
@@ -132,7 +125,7 @@ import nameTools as nt
 		haveBu = False
 		buLink = nameToBuSearch(seriesName)
 
-	return (haveMt, mtLink, haveBu, buLink, buTags, buGenre, buList)
+	return (haveBu, buLink, buTags, buGenre, buList)
 	%>
 </%def>
 
