@@ -9,10 +9,17 @@ import urllib.parse
 import time
 import settings
 
+# TODO: Drive change monitoring by watching
+# https://www.mangaupdates.com/releases.html
+
+
 
 import ScrapePlugins.MonitorDbBase
 
+# Check items on user's watched list for changes every day
 CHECK_INTERVAL       = 60 * 60 * 24 *  3  # Every 3 days
+
+# check all MT items for changes once per month
 CHECK_INTERVAL_OTHER = 60 * 60 * 24 * 30  # Every month
 
 def toInt(inStr):
@@ -29,17 +36,58 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	itemURL          = 'http://www.mangaupdates.com/series.html?id={buId}'
 
 
+
 	dbName = settings.dbName
 
 	wgH = webFunctions.WebGetRobust()
 
 
 
+	# https://www.mangaupdates.com/series.html?page=2&letter=A&perpage=100
+
+
+
+
+	# -----------------------------------------------------------------------------------
+	# Login Management tools
+	# -----------------------------------------------------------------------------------
+
+	def checkLogin(self):
+
+		checkPage = self.wgH.getpage(r"http://www.mangaupdates.com/mylist.html")
+		if "You must be a user to access this page." in checkPage:
+			self.log.info("Whoops, need to get Login cookie")
+		else:
+			self.log.info("Still logged in")
+			return
+
+		logondict = {"username" : settings.buSettings["login"], "password" : settings.buSettings["passWd"], "act" : "login"}
+		getPage = self.wgH.getpage(r"http://www.mangaupdates.com/login.html", postData=logondict)
+		if "No user found, or error. Try again." in getPage:
+			self.log.error("Login failed!")
+			with open("pageTemp.html", "wb") as fp:
+				fp.write(getPage)
+		elif "You are currently logged in as" in getPage:
+			self.log.info("Logged in successfully!")
+
+		self.wgH.saveCookies()
+
+
+	# -----------------------------------------------------------------------------------
+	# Management Stuff
+	# -----------------------------------------------------------------------------------
+
 	def go(self):
 		items = self.getItemsToCheck()
-
+		totItems = len(items)
+		scanned = 0
 		for dbId, mId in items:
 			self.updateItem(dbId, mId)
+			scanned += 1
+			self.log.info("Scanned %s of %s manga pages. %s%% done.", scanned, totItems, (1.0*scanned)/totItems*100)
+			if not runStatus.run:
+				self.log.info( "Breaking due to exit flag being set")
+				break
 
 	def getItemsToCheck(self):
 
@@ -50,10 +98,10 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 									(lastChecked < ? or lastChecked IS NULL)
 									AND buId IS NOT NULL
 									AND buList IS NOT NULL
-
 								LIMIT 50;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
 		rets = ret.fetchall()
 
+		# Only process non-list items if there are no list-items to process.
 		if not rets:
 
 			ret = cur.execute('''SELECT dbId,buId
@@ -62,13 +110,64 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 										(lastChecked < ? or lastChecked IS NULL)
 										AND buId IS NOT NULL
 										AND buList IS NULL
-
-									LIMIT 150;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
+									LIMIT 500;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
 			rets = ret.fetchall()
 
-
-
 		return rets
+
+		# Retreive page for mId, extract relevant information, and update the DB with the scraped info
+	def updateItem(self, dbId, mId):
+
+		pageCtnt  = self.wgH.getpage(self.itemURL.format(buId=mId))
+
+		if "You specified an invalid series id." in pageCtnt:
+			self.deleteRowById(dbId)
+			self.log.warning("Invalid MU ID! ID: %s", mId)
+			return
+
+		soup      = bs4.BeautifulSoup(pageCtnt)
+
+		release   = self.getLatestRelease(soup)
+		tags      = self.extractTags(soup)
+		genres    = self.extractGenres(soup)
+
+		author    = self.getAuthor(soup)
+		artist    = self.getArtist(soup)
+		desc      = self.getDescription(soup)
+		relState  = self.getReleaseState(soup)
+
+
+		baseName, altNames = self.getNames(soup)
+		# print("Basename = ", baseName)
+		self.log.info("Basename = %s, AltNames = %s", baseName, altNames)
+		self.log.info("Author = %s, Artist = %s", author, artist)
+		self.log.info("ReleaseState %s, desc len = %s", relState, len(desc))
+		kwds = {
+			"lastChecked"   : time.time(),
+			"buName"        : baseName,
+			"buArtist"      : artist,
+			"buAuthor"      : author,
+			"buDescription" : desc,
+			"buRelState"    : relState
+		}
+		if release:
+			kwds["lastChanged"] = release
+
+		if tags:
+			kwds["buTags"] = " ".join(tags)
+		if genres:
+			kwds["buGenre"] = " ".join(genres)
+
+
+
+		self.insertNames(mId, altNames)
+
+		self.updateDbEntry(dbId, **kwds)
+
+	# -----------------------------------------------------------------------------------
+	# Series Page Scraping
+	# -----------------------------------------------------------------------------------
+
 
 	def getLatestRelease(self, soup):
 
@@ -163,7 +262,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 		namesHeaderB = soup.find("b", text="Associated Names")
 		container = namesHeaderB.parent.find_next_sibling("div", class_="sContent")
-		print("BaseName = ", baseName)
+
 		altNames = [baseName]
 
 		for name in container.find_all(text=True):
@@ -174,53 +273,50 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 		return baseName, altNames
 
-	def updateItem(self, dbId, mId):
+	def getAuthor(self, soup):
 
-		pageCtnt = self.wgH.getpage(self.itemURL.format(buId=mId))
-		soup = bs4.BeautifulSoup(pageCtnt)
+		header = soup.find("b", text="Author(s)")
+		if not header:
+			return ""
 
-		release = self.getLatestRelease(soup)
-		tags = self.extractTags(soup)
-		genres =  self.extractGenres(soup)
+		container = header.parent.find_next_sibling("div", class_="sContent")
+		if not container:
+			return ""
 
-		baseName, altNames = self.getNames(soup)
-		print("Basename = ", baseName)
-		print("AltNames = ", altNames)
-		kwds = {
-			"lastChecked" : time.time(),
-			"buName"      : baseName
-		}
-		if release:
-			kwds["lastChanged"] = release
+		return container.get_text().strip()
 
-		if tags:
-			kwds["buTags"] = " ".join(tags)
-		if genres:
-			kwds["buGenre"] = " ".join(genres)
+	def getArtist(self, soup):
+		header = soup.find("b", text="Artist(s)")
+		if not header:
+			return ""
+
+		container = header.parent.find_next_sibling("div", class_="sContent")
+		if not container:
+			return ""
+
+		return container.get_text().strip()
+
+	def getDescription(self, soup):
+		header = soup.find("b", text="Description")
+		if not header:
+			return ""
+
+		container = header.parent.find_next_sibling("div", class_="sContent")
+		if not container:
+			return ""
+
+		return container.get_text().strip()
 
 
-		self.insertNames(mId, altNames)
+	def getReleaseState(self, soup):
+		header = soup.find("b", text="Status in Country of Origin")
+		if not header:
+			return ""
 
-		self.updateDbEntry(dbId, **kwds)
+		container = header.parent.find_next_sibling("div", class_="sContent")
+		if not container:
+			return ""
+
+		return container.get_text().strip()
 
 
-
-	def checkLogin(self):
-
-		checkPage = self.wgH.getpage(self.baseListURL)
-		if "You must be a user to access this page." in checkPage:
-			self.log.info("Whoops, need to get Login cookie")
-		else:
-			self.log.info("Still logged in")
-			return
-
-		logondict = {"username" : settings.buSettings["login"], "password" : settings.buSettings["passWd"], "act" : "login"}
-		getPage = self.wgH.getpage(r"http://www.mangaupdates.com/login.html", postData=logondict)
-		if "No user found, or error. Try again." in getPage:
-			self.log.error("Login failed!")
-			with open("pageTemp.html", "wb") as fp:
-				fp.write(getPage)
-		elif "You are currently logged in as" in getPage:
-			self.log.info("Logged in successfully!")
-
-		self.wgH.saveCookies()

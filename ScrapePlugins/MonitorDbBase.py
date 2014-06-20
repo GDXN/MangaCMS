@@ -4,6 +4,7 @@ import logging
 import sqlite3
 import abc
 import traceback
+import time
 
 class MonitorDbBase(metaclass=abc.ABCMeta):
 
@@ -41,15 +42,18 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		self.openDB()
 		self.checkInitPrimaryDb()
 
-		self.validKwargs  = ["mtList",
-							"mtName",
-							"mtId",
-							"mtTags",
-							"buName",
+		self.validKwargs  = ["buName",
 							"buId",
 							"buTags",
 							"buGenre",
 							"buList",
+
+							"buArtist",
+							"buAuthor",
+							"buOriginState",
+							"buDescription",
+							"buRelState",
+
 							"readingProgress",
 							"availProgress",
 							"rating",
@@ -58,15 +62,18 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 							"itemAdded"]
 
 		self.validColName = ["dbId",
-							"mtList",
-							"mtName",
-							"mtId",
-							"mtTags",
 							"buName",
 							"buId",
 							"buTags",
 							"buGenre",
 							"buList",
+
+							"buArtist",
+							"buAuthor",
+							"buOriginState",
+							"buDescription",
+							"buRelState",
+
 							"readingProgress",
 							"availProgress",
 							"rating",
@@ -299,6 +306,37 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		for line in ret.fetchall():
 			print(line)
 
+
+	def insertBareNameItems(self, items):
+
+		cur = self.conn.cursor()
+		for name, mId in items:
+			row = self.getRowByValue(buId=mId)
+			if row:
+				if name.lower() != row["buName"].lower():
+					self.log.warning("Name disconnect!")
+					self.log.warning("New name='%s', old name='%s'.", name, row["buName"])
+					self.log.warning("Whole row=%s", row)
+					self.updateDbEntry(row["dbId"], buName=name, commit=False)
+
+			else:
+				row = self.getRowByValue(buName=name)
+				if row:
+					self.log.error("Conflicting with existing series?")
+					self.log.error("Existing row = %s, %s", row["buName"], row["buId"])
+					self.log.error("Current item = %s, %s", name, mId)
+					self.updateDbEntry(row["dbId"], buName=name, commit=False)
+				else:
+					self.insertIntoDb(buName=name,
+									buId=mId,
+									lastChanged=0,
+									lastChecked=0,
+									itemAdded=time.time(),
+									commit=False)
+				# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+		cur.fetchall()
+		self.conn.commit()
+
 	def insertNames(self, buId, names):
 
 		cur = self.conn.cursor()
@@ -319,16 +357,17 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		self.conn.execute('''CREATE TABLE IF NOT EXISTS %s (
 											dbId            INTEGER PRIMARY KEY,
 
-											mtName          text COLLATE NOCASE UNIQUE,
-											mtId            text COLLATE NOCASE UNIQUE,
-											mtTags          text,
-											mtList          text,
-
 											buName          text COLLATE NOCASE UNIQUE,
 											buId            text COLLATE NOCASE UNIQUE,
 											buTags          text,
 											buGenre         text,
 											buList          text,
+
+											buArtist        text,
+											buAuthor        text,
+											buOriginState   text,
+											buDescription   text,
+											buRelState      text,
 
 											readingProgress int,
 											availProgress   int,
@@ -343,11 +382,8 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastChecked)'''            % ("%s_lastChecked_index"  % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (itemAdded)'''              % ("%s_itemAdded_index"    % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (rating)'''                 % ("%s_rating_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (mtName collate nocase)'''  % ("%s_mtName_index"       % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buName collate nocase)'''  % ("%s_buName_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (mtId   collate nocase)'''  % ("%s_mtId_index"         % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId   collate nocase)'''  % ("%s_buId_index"         % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (mtTags collate nocase)'''  % ("%s_mtTags_index"       % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buTags collate nocase)'''  % ("%s_buTags_index"       % self.tableName, self.tableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buGenre collate nocase)''' % ("%s_buGenre_index"      % self.tableName, self.tableName))
 

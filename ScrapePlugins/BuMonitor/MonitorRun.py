@@ -33,6 +33,36 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	wgH = webFunctions.WebGetRobust()
 
 
+	# -----------------------------------------------------------------------------------
+	# Login Management tools
+	# -----------------------------------------------------------------------------------
+
+
+	def checkLogin(self):
+
+		checkPage = self.wgH.getpage(self.baseListURL)
+		if "You must be a user to access this page." in checkPage:
+			self.log.info("Whoops, need to get Login cookie")
+		else:
+			self.log.info("Still logged in")
+			return
+
+		logondict = {"username" : settings.buSettings["login"], "password" : settings.buSettings["passWd"], "act" : "login"}
+		getPage = self.wgH.getpage(r"http://www.mangaupdates.com/login.html", postData=logondict)
+		if "No user found, or error. Try again." in getPage:
+			self.log.error("Login failed!")
+			with open("pageTemp.html", "wb") as fp:
+				fp.write(getPage)
+		elif "You are currently logged in as" in getPage:
+			self.log.info("Logged in successfully!")
+
+		self.wgH.saveCookies()
+
+
+	# -----------------------------------------------------------------------------------
+	# Management Stuff
+	# -----------------------------------------------------------------------------------
+
 
 	def go(self):
 		self.checkLogin()
@@ -40,12 +70,11 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 
 		for listName, listURL in lists.items():
-			self.updateList(listName, listURL)
+			self.updateUserListNamed(listName, listURL)
 
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
 				break
-		# self.downloadNewFiles(idOverride=idOverride, limit=limit)
 
 
 	def getListNames(self):
@@ -69,7 +98,73 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		return listDict
 
 
-	def updateList(self, listName, listURL):
+
+
+	# -----------------------------------------------------------------------------------
+	# Series List scraping
+	# -----------------------------------------------------------------------------------
+
+	def extractRow(self, row, listName):
+
+		nameSegment = row.find("td", class_="lcol_nopri")
+		if nameSegment:
+
+			currentChapter = -1
+
+			link = nameSegment.find("a")["href"]
+			mangaName = nameSegment.find("a").string
+			urlParsed = urllib.parse.urlparse(link)
+			if nameSegment.find("span"):
+				chapInfo = nameSegment.find("span").string
+				currentChapter = toInt(chapInfo)
+
+			readSegment = row.find("td", class_=re.compile("lcol4")).find("a", title="Increment Chapter")
+			if readSegment:
+				readChapter = toInt(readSegment.string)
+			elif listName == "Complete":
+				readChapter = -2
+			else:
+				readChapter = -1
+
+			seriesID = toInt(urlParsed.query)
+			listName = listName.replace("\u00A0"," ")
+
+			# self.log.debug("Item info = seriesID=%s, currentChapter=%s, readChapter=%s, mangaName=%s, listName=%s", seriesID, currentChapter, readChapter, mangaName, listName)
+
+			# Try to match new item by both ID and name.
+			haveRow = self.getRowsByValue(buId=seriesID)
+			if not haveRow:
+				haveRow = self.getRowsByValue(buName=mangaName)
+
+			if haveRow:
+				# print("HaveRow = ", haveRow)
+				haveRow = haveRow.pop()
+				self.updateDbEntry(haveRow["dbId"],
+					commit=False,
+					buName=mangaName,
+					buList=listName,
+					availProgress=currentChapter,
+					readingProgress=readChapter,
+					buId=seriesID)
+			else:
+				# ["mtList", "buList", "mtName", "mdId", "mtTags", "buName", "buId", "buTags", "readingProgress", "availProgress", "rating", "lastChanged"]
+
+				self.insertIntoDb(commit=False,
+					buName=mangaName,
+					buList=listName,
+					availProgress=currentChapter,
+					readingProgress=readChapter,
+					buId=seriesID,
+					lastChanged=0,
+					lastChecked=0,
+					itemAdded=time.time())
+
+			return 1
+
+		self.log.warning("Row with no contents?")
+		return 0
+
+	def updateUserListNamed(self, listName, listURL):
 
 		pageCtnt = self.wgH.getpage(listURL)
 		soup = bs4.BeautifulSoup(pageCtnt)
@@ -81,61 +176,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			self.log.critical("Could not find table?")
 			return
 		for row in itemTable.find_all("tr"):
-
-
-			nameSegment = row.find("td", class_="lcol_nopri")
-			if nameSegment:
-				itemCount += 1
-				currentChapter = -1
-
-				link = nameSegment.find("a")["href"]
-				mangaName = nameSegment.find("a").string
-				urlParsed = urllib.parse.urlparse(link)
-				if nameSegment.find("span"):
-					chapInfo = nameSegment.find("span").string
-					currentChapter = toInt(chapInfo)
-
-				readSegment = row.find("td", class_=re.compile("lcol4")).find("a", title="Increment Chapter")
-				if readSegment:
-					readChapter = toInt(readSegment.string)
-				elif listName == "Complete":
-					readChapter = -2
-				else:
-					readChapter = -1
-
-				seriesID = toInt(urlParsed.query)
-				listName = listName.replace("\u00A0"," ")
-
-				# self.log.debug("Item info = seriesID=%s, currentChapter=%s, readChapter=%s, mangaName=%s, listName=%s", seriesID, currentChapter, readChapter, mangaName, listName)
-
-				# Try to match new item by both ID and name.
-				haveRow = self.getRowsByValue(buId=seriesID)
-				if not haveRow:
-					haveRow = self.getRowsByValue(buName=mangaName)
-
-				if haveRow:
-					# print("HaveRow = ", haveRow)
-					haveRow = haveRow.pop()
-					self.updateDbEntry(haveRow["dbId"],
-						commit=False,
-						buName=mangaName,
-						buList=listName,
-						availProgress=currentChapter,
-						readingProgress=readChapter,
-						buId=seriesID)
-				else:
-					# ["mtList", "buList", "mtName", "mdId", "mtTags", "buName", "buId", "buTags", "readingProgress", "availProgress", "rating", "lastChanged"]
-
-					self.insertIntoDb(commit=False,
-						buName=mangaName,
-						buList=listName,
-						availProgress=currentChapter,
-						readingProgress=readChapter,
-						buId=seriesID,
-						lastChanged=0,
-						lastChecked=0,
-						itemAdded=time.time())
-
+			itemCount += self.extractRow(row, listName)
 
 
 		listTotalNo = toInt(soup.find("div", class_="low_col1").text)
@@ -144,27 +185,56 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		self.conn.commit()
 		self.log.info("Properly processed all items in list!")
 
-	def checkLogin(self):
+	# -----------------------------------------------------------------------------------
+	# General MangaUpdate mirroring tool (enqueues ALL the manga items!)
+	# -----------------------------------------------------------------------------------
 
-		checkPage = self.wgH.getpage(self.baseListURL)
-		if "You must be a user to access this page." in checkPage:
-			self.log.info("Whoops, need to get Login cookie")
-		else:
-			self.log.info("Still logged in")
-			return
+	def getSeriesFromPage(self, soup):
+		itemTable = soup.find("table", class_="series_rows_table")
 
-		logondict = {"username" : settings.buSettings["login"], "password" : settings.buSettings["passWd"], "act" : "login"}
-		getPage = self.wgH.getpage(r"http://www.mangaupdates.com/login.html", postData=logondict)
-		if "No user found, or error. Try again." in getPage:
-			self.log.error("Login failed!")
-			with open("pageTemp.html", "wb") as fp:
-				fp.write(getPage)
-		elif "You are currently logged in as" in getPage:
-			self.log.info("Logged in successfully!")
+		rows = []
+		for row in itemTable.find_all("tr"):
+			if not row.find("td", class_="text"):
+				continue
 
-		self.wgH.saveCookies()
+			tds = row.find_all("td")
+			if len(tds) != 4:
+				continue
+
+			title, dummy_genre, dummy_year, dummy_rating = tds
+			mId = title.a["href"].replace('https://www.mangaupdates.com/series.html?id=', '')
+			# print("title", title.get_text(), mId)
+
+			try:
+				int(mId)
+				rows.append((title.get_text(), mId))
+			except ValueError:
+				self.log.critical("Could not extract ID? TitleTD = %s", title)
 
 
-		# checkPage = self.wgH.getpage(self.baseListURL)
-		# if "You must be a user to access this page." in checkPage:
-		# 	self.log.info("Still not logged in?")
+		return rows
+
+
+	def getAllManga(self):
+		urlFormat = 'https://www.mangaupdates.com/series.html?page={page}&perpage=100'
+		self.log.info("MU Updater scanning MangaUpdates to get all available manga.")
+		run = 1
+		while run:
+			url = urlFormat.format(page=run)
+
+			run += 1
+
+			soup = self.wgH.getpage(url, soup=True)
+			series = self.getSeriesFromPage(soup)
+			if series:
+				self.log.info("Inserting %s items into name DB", len(series))
+				self.insertBareNameItems(series)
+
+			if len(series) == 0:
+				self.log.info("No items found. At the end of the series list?")
+				run = 0
+			if not runStatus.run:
+				self.log.info( "Breaking due to exit flag being set")
+				break
+
+		self.log.info("Completed scanning all manga items.")

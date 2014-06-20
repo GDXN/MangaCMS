@@ -1,9 +1,16 @@
 
+import sys
+
+if sys.version_info < (3,0):
+	print("Sorry, requires Python 3.x, not Python 2.x")
+	sys.exit(1)
+
 import logging
 import logSetup
 import runStatus
 import ScrapePlugins.BuMonitor.Run
 import ScrapePlugins.BuMonitor.ChangeMonitor
+import ScrapePlugins.BuMonitor.MonitorRun
 
 import signal
 
@@ -18,27 +25,33 @@ def test():
 
 	logSetup.initLogging(logLevel=logging.DEBUG)
 
-	# runner = ScrapePlugins.BuMonitor.Run.Runner()
-	# runner.go()
+	# # runner = ScrapePlugins.BuMonitor.Run.Runner()
+	# # runner.go()
 
 	chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
-	# chMon.go()
+	chMon.go()
+	chMon.closeDB()
+
+	# # pages = [u'8304', u'4789', u'4788', u'373']
+
+	# cur = chMon.conn.cursor()
+
+	# ret = cur.execute("SELECT dbId, buId FROM MangaSeries WHERE buId IS NOT NULL;")
+	# items = ret.fetchall()
+	# for item in items:
+	# 	pages = chMon.updateItem(*item)
+	# 	if not runStatus.run:
+	# 		break
+
+
+	# #runner.loadNewFiles()
 	# chMon.closeDB()
 
-	# pages = [u'8304', u'4789', u'4788', u'373']
+	# mon = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
 
-	cur = chMon.conn.cursor()
+	# mon.getAllManga()
+	# mon.closeDB()
 
-	ret = cur.execute("SELECT dbId, buId FROM MangaSeries WHERE buId IS NOT NULL;")
-	items = ret.fetchall()
-	for item in items:
-		pages = chMon.updateItem(*item)
-		if not runStatus.run:
-			break
-
-
-	#runner.loadNewFiles()
-	chMon.closeDB()
 
 if __name__ == "__main__":
 	test()

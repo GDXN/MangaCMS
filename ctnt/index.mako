@@ -112,6 +112,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>FIX NATURAL SORTING</li>	
 	<li>Flatten any found duplicate directories, when they span more then one of the manga-folders.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Generalize the image-cleaner to remove all annoying batoto/starkana/whatever images from downloaded archives. Possibly make it possible to run in batch mode? It should have a local directory of "bad"
