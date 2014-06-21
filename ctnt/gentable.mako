@@ -90,7 +90,7 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None):
 colours = {
 	# Download Status
 	"failed"          : "000000",
-	"no matching dir" : "FF9999",
+	"no match"        : "FF9999",
 	"moved"           : "FFFF99",
 	"downloaded"      : "99FF99",
 	"processing"      : "9999FF",
@@ -100,8 +100,8 @@ colours = {
 
 	# Categories
 
-	"valid category"  : "FFFFFF",
-	"bad category"    : "999999"
+	"valid cat"  : "FFFFFF",
+	"in picked"    : "999999"
 	}
 
 
@@ -202,15 +202,15 @@ colours = {
 			filePath = os.path.join(downloadPath, fileName)
 			if "=0=" in downloadPath:
 				if os.path.exists(filePath):
-					locationColour = colours["no matching dir"]
+					locationColour = colours["no match"]
 				else:
 					locationColour = colours["moved"]
 			elif "/MP/" in downloadPath and not "picked" in flags:
-				locationColour = colours["bad category"]
+				locationColour = colours["in picked"]
 			elif "newdir" in flags:
 				locationColour = colours["created-dir"]
 			else:
-				locationColour = colours["valid category"]
+				locationColour = colours["valid cat"]
 		else:
 			locationColour = colours["failed"]
 			filePath = "N.A."
@@ -343,10 +343,10 @@ colours = {
 			linkPage = "LOLNONE"
 			print("WAT?", sourceSite)
 
-		if "»" in seriesName:
+		if seriesName and "»" in seriesName:
 			seriesNames = seriesName.split("»")
 		else:
-			seriesNames = [seriesName]
+			seriesNames = [str(seriesName)]
 
 
 
@@ -384,7 +384,7 @@ colours = {
 			% endif
 
 			% if fSize <= 0:
-				<td bgcolor=${colours["no matching dir"]}>${fSizeStr}</td>
+				<td bgcolor=${colours["no match"]}>${fSizeStr}</td>
 			% else:
 				<td>${fSizeStr}</td>
 			% endif

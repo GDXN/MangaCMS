@@ -16,12 +16,13 @@ import bs4
 
 import ScrapePlugins.RetreivalDbBase
 
-import zipfile
-import hashlib
 
+import archCleaner
 
 class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
+
+	archCleaner = archCleaner.ArchCleaner()
 
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Sk.Cl"
@@ -87,44 +88,6 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
 		return items
 
-	# So starkana, in an impressive feat of douchecopterness, inserts an annoying self-promotion image
-	# in EVERY manga archive the serve. Furthermore, they insert it in the MIDDLE of the manga.
-	# Therefore, this function edits the zip and removes this stupid annoying file.
-	def cleanZip(self, zipPath):
-		self.log.info("Removing ads from file %s", zipPath)
-		if not os.path.exists(zipPath):
-			raise ValueError("Trying to clean non-existant file?")
-
-		# MD5 hashes of the images we want to remove (only one, at the moment)
-		badHashes = ['17cfa019168817f3297d3640709c4787']
-		# MD5 because cryptographic security is not important here
-
-		old_zfp = zipfile.ZipFile(zipPath, "r")
-
-		fileNs = old_zfp.infolist()
-		files = []
-		for fileInfo in fileNs:
-
-			fctnt = old_zfp.open(fileInfo).read()
-			md5 = hashlib.md5()
-			md5.update(fctnt)
-
-			# Replace bad image with a text-file with the same name, and an explanation in it.
-			if md5.hexdigest() in badHashes:
-				self.log.info("File %s was the advert. Removing!", fileInfo.filename)
-				fileInfo.filename = fileInfo.filename + ".deleted.txt"
-				fctnt  = "This was an advertisement (fuck you, Starkana). It has been automatically removed.\n"
-				fctnt += "Don't worry, there are no missing files, despite the gap in the numbering."
-
-			files.append((fileInfo, fctnt))
-
-		old_zfp.close()
-
-		# Now, recreate the zip file without the ad
-		new_zfp = zipfile.ZipFile(zipPath, "w")
-		for fileInfo, contents in files:
-			new_zfp.writestr(fileInfo, contents)
-		new_zfp.close()
 
 
 	def getDownloadUrl(self, containerUrl):
@@ -213,7 +176,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
-		self.cleanZip(fqFName)
+		self.archCleaner.cleanZip(fqFName)
 		self.log.info( "Done")
 
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName)

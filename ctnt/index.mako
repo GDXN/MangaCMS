@@ -122,6 +122,7 @@ Shit to do:
 	<li>Ability to disable bulk-downloading.</li>
 	<li>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (partially complete)</li>
 	<li>Add failed item introspection table.</li>
+	<li>Fix presetting of item rating field.</li>
 	<br>
 </ul>
 </p>
