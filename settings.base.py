@@ -1,4 +1,9 @@
 
+End-User setup (README):
+
+replace all instances of "SOMETHING" with your own directory paths.
+Add your username + password for each site.
+
 
 # Note: Paths have to be absolute.
 pickedDir   = r"/SOMETHING/MP"
@@ -16,6 +21,11 @@ webCtntPath = '/SOMETHING/MangaCMS/ctnt'
 # Folders to scan for folders to use as download paths.
 # Directories are scanned by sorted keys
 
+
+badImageDir  = r"/SOMETHING/MangaCMS/removeImages"
+
+# Why do I have two instances of each directory path here?
+# TODO: Clean the config structure up!
 mangaFolders = {
 	1 : {
 			"dir" : pickedDir,
