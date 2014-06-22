@@ -133,8 +133,15 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 			# Try to match new item by both ID and name.
 			haveRow = self.getRowsByValue(buId=seriesID)
+			haveRow2 = self.getRowsByValue(buName=mangaName)
 			if not haveRow:
-				haveRow = self.getRowsByValue(buName=mangaName)
+				haveRow = haveRow2
+
+			if haveRow and haveRow2:
+				if haveRow[0]["buId"] != haveRow2[0]["buId"]:
+					print("WAT")
+					print(haveRow[0]["buId"])
+					print(haveRow2[0]["buId"])
 
 			if haveRow:
 				# print("HaveRow = ", haveRow)
@@ -161,7 +168,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 			return 1
 
-		self.log.warning("Row with no contents?")
+
 		return 0
 
 	def updateUserListNamed(self, listName, listURL):

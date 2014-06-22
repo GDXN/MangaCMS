@@ -8,7 +8,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
 	loggerPath = "Main.DjM.Retagger"
-	pluginName = "FufufuuRetagger"
+	pluginName = "Doujin Moe Retagger"
 
 
 

@@ -281,9 +281,11 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		contentUrl = urllib.parse.urljoin(self.urlBase, fragment)
 		# self.log.info(contentUrl)
 
-
-		content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': sourceUrl}, postData=postDict)
-
+		try:
+			content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': sourceUrl}, postData=postDict)
+		except urllib.error.URLError:
+			self.updateDbEntry(sourceUrl, dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED (Archive page 404)")
+			return
 		# self.log.info(len(content))
 
 		if handle:

@@ -57,7 +57,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			contentId = row[0]
 
 			items.append(contentId)
-		self.log.info("Have %s new items to retag in FufufuuDownloader" % len(items))
+		self.log.info("Have %s new items to retag in Doujin Moe Retagger" % len(items))
 
 		for contentId in items[:30]:
 			# print("contentId = ", contentId)

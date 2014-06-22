@@ -25,12 +25,12 @@ def test():
 
 	logSetup.initLogging(logLevel=logging.DEBUG)
 
-	# # runner = ScrapePlugins.BuMonitor.Run.Runner()
-	# # runner.go()
+	runner = ScrapePlugins.BuMonitor.Run.Runner()
+	runner.go()
 
-	chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
-	chMon.go()
-	chMon.closeDB()
+	# chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
+	# chMon.go()
+	# chMon.closeDB()
 
 	# # pages = [u'8304', u'4789', u'4788', u'373']
 
