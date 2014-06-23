@@ -130,35 +130,38 @@ colours = {
 	if flags != '':
 		print("Query string not properly generated at the moment")
 		print("FIX ME!")
-		# queryStr = "WHERE flags {flags} LIKE "%%picked%%"".format(flags=flags)
-		queryStr = "WHERE sourceSite=?"
-	else:
-		queryStr = "WHERE sourceSite=?"
+
 
 	if distinct:
 		groupStr = "GROUP BY seriesName"
 	else:
 		groupStr = ""
-	query = '''SELECT dbId,
-								dlState,
-								sourceUrl,
-								retreivalTime,
-								sourceId,
-								seriesName,
-								fileName,
-								originName,
-								downloadPath,
-								flags,
-								tags,
-								note
-								FROM AllMangaItems
-								{query}
-								{group}
-								ORDER BY retreivalTime DESC
-								LIMIT ?
-								OFFSET ?;'''.format(query=queryStr, group=groupStr)
 
-	ret = cur.execute(query, (tableKey, limit, offset))
+
+	whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, None)
+	params = tuple(queryAdditionalArgs)+(limit, offset)
+
+	query = '''SELECT dbId,
+						dlState,
+						sourceSite,
+						sourceUrl,
+						retreivalTime,
+						sourceId,
+						seriesName,
+						fileName,
+						originName,
+						downloadPath,
+						flags,
+						tags,
+						note
+						FROM AllMangaItems
+						{query}
+						{group}
+						ORDER BY retreivalTime DESC
+						LIMIT ?
+						OFFSET ?;'''.format(query=whereStr, group=groupStr)
+
+	ret = cur.execute(query, params)
 	tblCtntArr = ret.fetchall()
 	%>
 	% for row in tblCtntArr:
@@ -166,6 +169,7 @@ colours = {
 
 		dbId,          \
 		dlState,       \
+		sourceSite,    \
 		sourceUrl,     \
 		retreivalTime, \
 		sourceId,      \
@@ -218,7 +222,7 @@ colours = {
 
 
 		%>
-		<tr>
+		<tr class="${sourceSite}_row">
 			<td>${ut.timeAgo(retreivalTime)}</td>
 			<td bgcolor=${statusColour} class="showTT" title="${filePath}"></td>
 			<td bgcolor=${locationColour} class="showTT" title="${filePath}"></td>
@@ -351,7 +355,7 @@ colours = {
 
 
 		%>
-		<tr>
+		<tr class="${sourceSite}_row">
 
 			<td>${ut.timeAgo(retreivalTime)}</td>
 			<td bgcolor=${statusColour} class="showTT" title="${dbId}, ${filePath}"></td>

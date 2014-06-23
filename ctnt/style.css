@@ -195,14 +195,60 @@ table.mangaFileTable
 
 }
 
+tr.sk_row:nth-child(even)
+{
+	background: #ddddff
+}
+tr.sk_row:nth-child(odd)
+{
+	background: #f5f5ff
+}
+tr.cz_row:nth-child(even)
+{
+	background: #ddffdd
+}
+tr.cz_row:nth-child(odd)
+{
+	background: #f5fff5
+}
+tr.mt_row:nth-child(even)
+{
+	background: #ffdddd
+}
+tr.mt_row:nth-child(odd)
+{
+	background: #fff5f5
+}
+
+
+
+tr.fu_row:nth-child(even)
+{
+	background: #ddddff
+}
+tr.fu_row:nth-child(odd)
+{
+	background: #f5f5ff
+}
+tr.djm_row:nth-child(even)
+{
+	background: #ddffdd
+}
+tr.djm_row:nth-child(odd)
+{
+	background: #f5fff5
+}
+
+
 tr:nth-child(even)
 {
-	background: #f0f0ff
+	background: #ffffff
 }
 tr:nth-child(odd)
 {
-	background: #FFF
+	background: #f0f0ff
 }
+
 input[type="text"]
 {
 	background: transparent;

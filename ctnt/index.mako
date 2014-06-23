@@ -75,16 +75,9 @@ import os.path
 
 		<div class="subdiv skId">
 			<div class="contentdiv">
-				<h3>Starkana (distinct)</h3>
+				<h3>Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey="sk", distinct=True)}
-			</div>
-		</div>
-		<div class="subdiv czId">
-			<div class="contentdiv">
-				<h3>Crazy's Manga (distinct)</h3>
-				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey="cz", distinct=True)}
+				${tableGenerators.genMangaTable(tableKey=["sk", "cz"], distinct=True, limit=200)}
 			</div>
 		</div>
 

@@ -119,7 +119,7 @@ mtItems = getNotInDBItems(cur)
 # rating,
 # lastChanged
 print("Querying")
-cur.execute('SELECT mtId,buId,availProgress,readingProgress,buName,buList FROM MangaSeries WHERE buId IS NOT NULL;')
+cur.execute('SELECT buId,availProgress,readingProgress,buName,buList FROM MangaSeries WHERE buId IS NOT NULL;')
 buItems = cur.fetchall()
 print("Query complete")
 
@@ -128,7 +128,7 @@ inMTcount = 0
 badLinks = 0
 
 items = {}
-tableTopology = ("mtId", "mangaID", "currentChapter", "readChapter", "seriesName", "listName")
+tableTopology = ("mangaID", "currentChapter", "readChapter", "seriesName", "listName")
 for item in buItems:
 
 	item = dict(zip(tableTopology, item))
@@ -151,10 +151,6 @@ for item in buItems:
 
 	cleanedName = nt.cleanName(seriesName)
 
-
-
-	if item["mtId"]:
-		inMTcount += 1
 
 
 # cur.execute('SELECT COUNT(DISTINCT baseName) FROM links WHERE isMp=1;')
@@ -191,13 +187,6 @@ showUpToDate = True
 
 showRatingFound  = True
 showRatingMissing = True
-
-if "filter" in request.params:
-	if request.params["filter"] == ["notMP"]:
-		showInMT = False
-
-	elif request.params["filter"] == ["inMP"]:
-		showNotInMT = False
 
 if "readStatus" in request.params:
 	if request.params["readStatus"] == ["upToDate"]:
@@ -244,15 +233,7 @@ mtMonRunLast = mtMonRunLast.split(".")[0]
 		<div class="subdiv buMonId" style="padding: 5px;">
 			<h3>Baka-Manga Updates</h3>
 			<div>
-				<div class="" style="white-space:nowrap; display: inline-block;">
-					Filter items:
-					<ul style="width: 100px;">
-						<li> <a href="bmUpdates?filter=All">All Items</a></li>
-						<li> <a href="bmUpdates?filter=notMP">Only not in MP</a></li>
-						<li> <a href="bmUpdates?filter=inMP">Only in MP</a></li>
 
-					</ul>
-				</div>
 				<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px;">
 					Filter read status:
 					<ul style="width: 100px;">
@@ -300,19 +281,13 @@ mtMonRunLast = mtMonRunLast.split(".")[0]
 			% for key in keys:
 				<div>
 					<div style="margin-top: 10px;">
-						<%
-						inMtCnt = 0
-						notMtCnt = 0
-						for item in items[key]:
-							if nt.cleanName(item["seriesName"]) in mtItems:
-								inMtCnt += 1
-							else:
-								notMtCnt += 1
-
-						%>
-						<div style="display:inline;"><h4 style="display:inline;">List: ${key}</h4></div>
-						<div style="display:inline; width:400px;">&nbsp;</div>
-						<div style="display:inline;"> - ${len(items[key])} Item${"s" if len(items[key]) > 1 else ""}, In MT: ${inMtCnt}, Not in MT: ${notMtCnt}</div>
+## 						<%
+## 						notMtCnt = 0
+##
+## 						%>
+## 						<div style="display:inline;"><h4 style="display:inline;">List: ${key}</h4></div>
+## 						<div style="display:inline; width:400px;">&nbsp;</div>
+## 						<div style="display:inline;"> - ${len(items[key])} Item${"s" if len(items[key]) > 1 else ""}, In MT: ${inMtCnt}, Not in MT: ${notMtCnt}</div>
 					</div>
 					${genBmUpdateTable(items[key])}
 				</div>
@@ -342,9 +317,7 @@ mtMonRunLast = mtMonRunLast.split(".")[0]
 				<th class="padded" width="300">Full Name</th>
 				<th class="padded" width="300">Cleaned Name</th>
 				<th class="padded" width="30">Rating</th>
-				<th class="padded" width="30">MT It</th>
 				<th class="padded" width="30">MU It</th>
-				<th class="padded" width="35">In MT?</th>
 				<th class="padded" width="50">Latest Chapter</th>
 				<th class="padded" width="60">Read-To Chapter</th>
 					</tr>
@@ -412,20 +385,9 @@ mtMonRunLast = mtMonRunLast.split(".")[0]
 				%endif
 
 
-				% if dataDict["mtId"]:
-
-					<td class="padded"><a href="http://www.mangatraders.com/manga/series/${dataDict["mtId"]}">MT</a></td>
-				% else:
-					<td class="padded"><a href="http://www.mangatraders.com/search/?term=${dataDict["seriesName"].replace(":", "")}&Submit=Submit&searchSeries=1">MT</a></td>
-				% endif
 
 				<td class="padded"><a href="http://www.mangaupdates.com/series.html?id=${dataDict["mangaID"]}">BU</a></td>
 
-				% if dataDict["mtId"]:
-					<td bgcolor="${colours["upToDate"]}" class="padded">Y</td>
-				% else:
-					<td bgcolor="${colours["notInMT"]}" class="padded">N</td>
-				% endif
 
 				% if dataDict["currentChapter"] == -1:
 					% if dataDict["readChapter"] == -1:
