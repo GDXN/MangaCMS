@@ -112,7 +112,9 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Flatten any found duplicate directories, when they span more then one of the manga-folders.</li>
+	<li>MangaBaby.com scraper</li>
+	<li>Add better time-stamp granularity to Starkana Scraper.</li>
+	<li>Coerce directory structure to match MangaUpdates naming.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes.</li>
 	<li>Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
@@ -137,6 +139,7 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Flatten any found duplicate directories, when they span more then one of the manga-folders.</strike></li>
 	<li><strike>FIX NATURAL SORTING</strike></li>
 	<li><strike>Make series monitoring tool for MT update periodically</strike></li>
 	<li><strike>Automated tag update mechanism!</strike></li>

@@ -344,6 +344,29 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
 		cur.fetchall()
 
+	def getIdFromName(self, name):
+
+		cur = self.conn.cursor()
+		ret = cur.execute("""SELECT buId FROM %s WHERE name=?;""" % self.nameMapTableName, (name, ))
+		ret = ret.fetchall()
+		if ret:
+			if len(ret[0]) != 1:
+				raise ValueError("Have ambiguous name. Cannot definitively link to manga series.")
+			return ret[0][0]
+		else:
+			return None
+
+	def getNamesFromId(self, mId):
+
+		cur = self.conn.cursor()
+		ret = cur.execute("""SELECT name FROM %s WHERE buId=?;""" % self.nameMapTableName, (mId, ))
+		ret = ret.fetchall()
+		if ret:
+			return ret
+		else:
+			return None
+
+
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Management
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------

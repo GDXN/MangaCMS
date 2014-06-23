@@ -27,20 +27,23 @@ def prepFilenameForMatching(inStr):
 
 def makeFilenameSafe(inStr):
 	inStr = inStr.replace("%20", " ") \
-				 .replace("<",  "") \
-				 .replace(">",  "") \
-				 .replace(":",  "") \
-				 .replace("\"", "") \
-				 .replace("/",  "") \
-				 .replace("\\", "") \
-				 .replace("|",  "") \
-				 .replace("?",  "") \
-				 .replace("*",  "") \
-				 .replace('"', "")
+				 .replace("<",  " ") \
+				 .replace(">",  " ") \
+				 .replace(":",  " ") \
+				 .replace("\"", " ") \
+				 .replace("/",  " ") \
+				 .replace("\\", " ") \
+				 .replace("|",  " ") \
+				 .replace("?",  " ") \
+				 .replace("*",  " ") \
+				 .replace('"', " ")
+
+	# Collapse all the repeated spaces down.
+	while inStr.find("  ")+1:
+		inStr = inStr.replace("  ", " ")
 
 	inStr = inStr.rstrip(".")  # Windows file names can't end in dot. For some reason.
-	inStr = inStr.rstrip(" ")  # And can't have leading or trailing spaces
-	inStr = inStr.lstrip(" ")
+	inStr = inStr.strip(" ")   # And can't have leading or trailing spaces
 
 	return inStr
 
