@@ -10,9 +10,10 @@ import dateutil.parser
 import runStatus
 import settings
 import datetime
+import nameTools as nt
 
 import ScrapePlugins.RetreivalDbBase
-import nameTools as nt
+
 
 class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
@@ -20,26 +21,16 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Mb.Fl"
-	pluginName = "Starkana Link Retreiver"
+	pluginName = "MangaBaby Link Retreiver"
 	tableKey = "mb"
 	dbName = settings.dbName
 
 
-	urlBase = "http://starkana.com/"
-
-	feedUrl = "http://starkana.com/new/%d"
+	urlBase = "http://www.mangababy.com/"
 
 
 	def checkLogin(self):
-		for cookie in self.wg.cj:
-			if "SMFCookie232" in str(cookie):   # We have a log-in cookie
-				return True
-
-		self.log.info( "Getting Login cookie")
-		logondict = {"login-user" : settings.mbSettings["login"], "login-pass" : settings.mbSettings["passWd"], "rememberme" : "on"}
-		self.wg.getpage('http://www.mangatraders.com/login/processlogin', postData=logondict)
-
-		self.wg.saveCookies()
+		return True
 
 	def closeDB(self):
 		self.log.info( "Closing DB...",)
@@ -48,38 +39,50 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getItemFromContainer(self, segmentSoup, addDate):
-		seriesName, chapter = segmentSoup.get_text().strip().split(" chapter ")
+	def getItemsFromContainer(self, segmentSoup):
 
-		chName = "{series} - {chapter}".format(series=seriesName, chapter=chapter)
+
+
 
 		# chName, seriesName, size, view = segmentSoupItems
+		title = segmentSoup.find("a", class_="mtit")
+		if not title:
+			return []
 
-
-		item = {}
-
-		item["date"] = time.mktime(addDate.timetuple())
-		item["dlName"] = chName
-		item["dlLink"] =  urllib.parse.urljoin(self.urlBase, segmentSoup.a["href"])
-		item["baseName"] = nt.makeFilenameSafe(seriesName)
-
-		return item
-
-	def getSeriesPage(self, seriesUrl):
-		page = self.wg.getpage(seriesUrl)
-		soup = bs4.BeautifulSoup(page)
-		itemDivs = soup.find_all("td", class_=re.compile("c_h2b?"), align="left")
+		title = title.get_text()
+		# print("Title = ", title)
 
 		ret = []
 
-		for td in itemDivs:
-			if "http://starkana.com/upload_manga" in td.a["href"]:
-				self.log.warning("Found missing item. Skipping")
-				continue
-			ret.append(self.getItemFromContainer(td, datetime.date.today()))
+		for item in segmentSoup.find_all("a", class_="btit"):
+
+			href = item["href"]
+			href = href.replace("/manga/", "/download/")
+			# Links are to the reader page. Tweak the URL so they go to the download page.
+
+			url = urllib.parse.urljoin(self.urlBase, href)
+			# print("item", url)
+			# print("date", dateutil.parser.parse(item.next_sibling.next_sibling.get_text()))
+
+			ch = item.get_text()
+			ch = ch.replace("Ch.", "c")
+			chName = "{series} - {chapter}".format(series=title, chapter=ch)
+			# print("Chap = ", chName)
+
+			entry = {}
+
+			entry["date"] = dateutil.parser.parse(item.next_sibling.next_sibling.get_text())
+			entry["dlName"] = chName
+			entry["dlLink"] =  url
+			entry["baseName"] = nt.makeFilenameSafe(title)
+
+			print("entry", entry)
+
+			ret.append(entry)
 		return ret
 
-	def getMainItems(self, rangeOverride=None, rangeOffset=None):
+
+	def getItems(self, rangeOverride=None, rangeOffset=None):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -99,51 +102,24 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		currentDate = None
 
-		for daysAgo in range(1, dayDelta+1):
+		url = self.urlBase
+		page = self.wg.getpage(url)
+		soup = bs4.BeautifulSoup(page)
 
-			url = self.feedUrl % daysAgo
-			page = self.wg.getpage(url)
-			soup = bs4.BeautifulSoup(page)
+		# Find the divs a series that changed recently
+		seriesContainers = soup.find_all("div", class_="text")
 
-			# Find the divs containing either new files, or the day a file was uploaded
-			itemDivs = soup.find_all("div", class_=re.compile("c_h[12]b?"))
+		for div in seriesContainers:
 
-			for div in itemDivs:
-				if "c_h1" in div["class"]:
-					dateStr = div.get_text()
-					currentDate = dateutil.parser.parse(dateStr)
-
-					# If the date header is today, override the calculated date with the current date AND time.
-					if currentDate == datetime.datetime.combine(datetime.date.today(), datetime.datetime.min.time()):
-						datetime.datetime.now()
+			items = self.getItemsFromContainer(div)
+			# item = self.getItemFromContainer(div, currentDate)
+			# ret.append(item)
 
 
-				else:
-					if not currentDate:
-						raise ValueError("How did we get a file before a valid date?")
-
-					if not "chapter" in div.a["href"]:
-						seriesPages.append(urllib.parse.urljoin(self.urlBase, div.a["href"]))
-					else:
-						item = self.getItemFromContainer(div, currentDate)
-						ret.append(item)
-
-		# Starkana is fucking annoying, and when someone uploads more then just one chapter, the "view"
-		# link just goes to the root-page of the manga series, rather then actually having volume archives.
-		# Blaugh.
-		# As such, go and grab all the contents of said series page.
-		# Unfortunately, there is no information about *when* the items on the series page were
-		# uploaded, so all new items just use the current date.
-		# STARKANA, YOUR DEVS BE CRAZY
-		for SeriesPage in seriesPages:
-			seriesItems = self.getSeriesPage(SeriesPage)
-			if seriesItems:
-				ret.extend(seriesItems)
 
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
 				break
-
 		return ret
 
 
@@ -199,7 +175,7 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.resetStuckItems()
 		self.log.info("Getting feed items")
 
-		feedItems = self.getMainItems()
+		feedItems = self.getItems()
 		self.log.info("Processing feed Items")
 
 		self.processLinksIntoDB(feedItems)

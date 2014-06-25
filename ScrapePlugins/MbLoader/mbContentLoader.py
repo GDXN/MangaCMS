@@ -26,10 +26,11 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Mb.Cl"
-	pluginName = "Starkana Content Retreiver"
+	pluginName = "MangaBaby Content Retreiver"
 	tableKey = "mb"
 	dbName = settings.dbName
-	urlBase = "http://starkana.com/"
+
+	urlBase = "http://www.mangababy.com/"
 
 	def retreiveTodoLinksFromDB(self):
 

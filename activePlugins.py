@@ -6,7 +6,7 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 
 
-import ScrapePlugins.MtBaseManager.Run
+# import ScrapePlugins.MtBaseManager.Run
 import ScrapePlugins.FufufuuLoader.Run
 import ScrapePlugins.FufufuuLoader.Retag
 import ScrapePlugins.BuMonitor.Run
