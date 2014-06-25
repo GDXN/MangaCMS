@@ -14,14 +14,14 @@ import datetime
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 
-class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
 	wg = webFunctions.WebGetRobust()
-	loggerPath = "Main.Sk.Fl"
+	loggerPath = "Main.Mb.Fl"
 	pluginName = "Starkana Link Retreiver"
-	tableKey = "sk"
+	tableKey = "mb"
 	dbName = settings.dbName
 
 
@@ -36,7 +36,7 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				return True
 
 		self.log.info( "Getting Login cookie")
-		logondict = {"login-user" : settings.skSettings["login"], "login-pass" : settings.skSettings["passWd"], "rememberme" : "on"}
+		logondict = {"login-user" : settings.mbSettings["login"], "login-pass" : settings.mbSettings["passWd"], "rememberme" : "on"}
 		self.wg.getpage('http://www.mangatraders.com/login/processlogin', postData=logondict)
 
 		self.wg.saveCookies()
@@ -84,7 +84,7 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# 	self.log.info( item)
 		#
 
-		self.log.info( "Loading SK Main Feed")
+		self.log.info( "Loading MB Main Feed")
 
 		ret = []
 

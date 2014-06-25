@@ -18,14 +18,12 @@ djMoeDir    = r"/SOMETHING/H/DjMoe"
 dbName      = '/SOMETHING/MangaCMS/links.db'
 webCtntPath = '/SOMETHING/MangaCMS/ctnt'
 
-# Folders to scan for folders to use as download paths.
-# Directories are scanned by sorted keys
 
-
+# Path to the directory of images that get auto-removed from archives on download.
 badImageDir  = r"/SOMETHING/MangaCMS/removeImages"
 
-# Why do I have two instances of each directory path here?
-# TODO: Clean the config structure up!
+# Folders to scan for folders to use as download paths.
+# Directories are scanned by sorted keys
 mangaFolders = {
 	1 : {
 			"dir" : pickedDir,
@@ -44,32 +42,27 @@ mangaFolders = {
 		}
 }
 
-mtSettings = {
-
+# Manga Updates
+buSettings = {
 	"login"         : "username",
 	"passWd"        : "password",
-
-	"dlDir"         : pickedDir,
-	"mDlDir"        : baseDir,
-
-	"watchedFeedNo" : "your_user_ID",
-
-	"dirs" : {
-		"dlDir"         : pickedDir,
-		"mnDir"         : newDir,
-		"mDlDir"        : baseDir
-		}
-
 }
 
+# Starkana.com
 skSettings = {
 
 	"login"         : "username",
 	"passWd"        : "password",
 
-	"dlDir"         : pickedDir,
-	"mDlDir"        : baseDir,
+	"dirs" : {
+		"dlDir"         : pickedDir,
+		"mnDir"         : newDir,
+		"mDlDir"        : baseDir
+		}
 
+}
+
+mbSettings = {
 
 	"dirs" : {
 		"dlDir"         : pickedDir,
@@ -79,10 +72,7 @@ skSettings = {
 
 }
 
-buSettings = {
-	"login"         : "username",
-	"passWd"        : "password",
-}
+
 
 fuSettings = {
 	"dlDir" :  fufuDir,
