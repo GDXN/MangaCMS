@@ -190,6 +190,11 @@ colours = {
 		else:
 			rating = ""
 
+		# clamp times to now, if we have items that are in the future.
+		# Work around for some time-zone fuckups in the MangaBaby Scraper.
+		if retreivalTime > time.time():
+			retreivalTime = time.time()
+
 		addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(retreivalTime))
 
 

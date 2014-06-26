@@ -280,7 +280,7 @@ def getNotInDBItems(cur):
 					item = request.matchdict['seriesName']
 					dictKey = int(request.matchdict['dict'])
 					# print("Series name! - ", item)
-					if (not dictKey in settings.mangaFolders) or (not item in nt.dirNameProxy):
+					if (not dictKey in settings.mangaFolders) or (not item in nt.dirNameProxy.getDirDicts()[dictKey]):
 						reader.invalidKeyContent()
 					else:
 						displayItemFiles(dictKey, item)

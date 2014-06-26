@@ -5,6 +5,7 @@ import sys
 
 from schemaUpdater.schemaOne2Two import updateOne2Two
 from schemaUpdater.schemaTwo2Three import schemaTwo2Three
+from schemaUpdater.schemaTwo2Three import doTableCounts
 
 CURRENT_SCHEMA = 3
 
@@ -57,9 +58,6 @@ def updateDatabaseSchema():
 
 	rev = getSchemaRev(conn)
 	print("Current Database Schema Rev = ", rev)
-	if rev == CURRENT_SCHEMA:
-		print("Database structure us up to date.")
-		return
 
 	if rev == -1:
 		print("Database not instantiated. Deferring DB creation to plugins.")
@@ -79,6 +77,7 @@ def updateDatabaseSchema():
 	# Rev 2 amalgamates all the downloader tables into a single table.
 
 
+
 	if rev == 2:
 		schemaTwo2Three(conn)
 		updateSchemaRevNo(3)
@@ -86,7 +85,8 @@ def updateDatabaseSchema():
 	# Rev 3 adds insert and delete triggers to track table-size
 
 
-
+	doTableCounts(conn)
 	rev = getSchemaRev(conn)
 	print("Current Rev = ", rev)
+	print("Database structure us up to date.")
 

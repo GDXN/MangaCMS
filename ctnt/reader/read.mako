@@ -43,9 +43,9 @@ dictKey = int(request.matchdict['dict'])
 if not dictKey in settings.mangaFolders:
 	reader.invalidKey()
 	return
-if not item in nt.dirNameProxy:
-	reader.invalidKey()
-	return
+# if not item in nt.dirNameProxy:
+# 	reader.invalidKey()
+# 	return
 dirPath = nt.dirNameProxy.getFromSpecificDict(dictKey, item)["fqPath"]
 if dirPath == None:
 	return
@@ -57,8 +57,11 @@ itemPath = os.path.join(dirPath, request.matchdict["fileName"])
 # print("Dirpath = ", itemPath)
 
 if not (os.path.isfile(itemPath) and os.access(itemPath, os.R_OK)):
+	print("")
 	reader.invalidKey()
 	return
+
+
 
 try:
 	# We have a valid file-path. Read it!
@@ -78,6 +81,7 @@ try:
 
 	reader.showMangaItems(itemPath, keyUrls)
 except:
+	print("Bad file")
 	reader.badFileError(itemPath)
 
 

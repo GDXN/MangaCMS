@@ -2,7 +2,7 @@
 
 def schemaTwo2Three(conn):
 
-	print("Creating commit hooks for table-size tracking.")
+	print("Ensuring commit hooks for table-size tracking exist.")
 
 
 	conn.execute('''CREATE TABLE IF NOT EXISTS MangaItemCounts (
@@ -41,10 +41,22 @@ def schemaTwo2Three(conn):
 												SET quantity = quantity - 1
 												WHERE sourceSite=OLD.sourceSite AND dlState=OLD.dlState;
 										END;''')
+	doTableCounts(conn)
+
+def doTableCounts(conn):
+
+	print("Pre-Counting table items.")
 
 	ret = conn.execute("SELECT DISTINCT(dlState) FROM AllMangaItems;")
 	rets = ret.fetchall()
 	values = [val[0] for val in rets]
+	values = set(values)
+
+
+	values.add(-1)
+	values.add(0)
+	values.add(1)
+	values.add(2)
 
 	ret = conn.execute("SELECT DISTINCT(sourceSite) FROM AllMangaItems;")
 	rets = ret.fetchall()

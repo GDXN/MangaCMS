@@ -13,7 +13,7 @@ import runStatus
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 	loggerPath = "Main.Mb.Run"
 
-	pluginName = "SkLoader"
+	pluginName = "MbLoader"
 
 
 	def _go(self):

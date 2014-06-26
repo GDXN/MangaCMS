@@ -454,6 +454,7 @@ class DirNameProxy(object):
 
 	def getFromSpecificDict(self, dictKey, itemKey):
 		filteredKey = self.filterNameThroughDB(itemKey)
+		print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
 		if filteredKey in self.dirDicts[dictKey]:
 			tmp = self.dirDicts[dictKey][filteredKey]
 			return self._processItemIntoRet(tmp, itemKey, filteredKey, dictKey)
@@ -535,6 +536,11 @@ class DirNameProxy(object):
 		baseDictKeys = list(self.dirDicts.keys())
 		baseDictKeys.sort()
 		for dirDictKey in baseDictKeys:
+
+			# Limit scanned items to < 100
+			if dirDictKey > 99:
+				continue
+
 			if key in self.dirDicts[dirDictKey]:
 				return key in self.dirDicts[dirDictKey]
 
