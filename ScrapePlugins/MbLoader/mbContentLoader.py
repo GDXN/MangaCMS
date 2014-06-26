@@ -128,7 +128,14 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.updateDbEntry(sourceUrl, dlState=1)
 		self.conn.commit()
 
-		fileUrl, password = self.getDownloadUrl(sourceUrl)
+		try:
+			fileUrl, password = self.getDownloadUrl(sourceUrl)
+		except urllib.error.URLError:
+			self.log.warning("Download container page is not available! Deleting link.")
+			self.deleteRowsByValue(sourceUrl=sourceUrl)
+			return
+
+
 		if fileUrl is None:
 			self.log.warning("Could not find url!")
 			self.deleteRowsByValue(sourceUrl=sourceUrl)
