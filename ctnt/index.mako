@@ -77,7 +77,7 @@ import os.path
 			<div class="contentdiv">
 				<h3>Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey=["sk", "cz"], distinct=True, limit=200)}
+				${tableGenerators.genMangaTable(tableKey=["sk", "cz", "mb"], distinct=True, limit=200)}
 			</div>
 		</div>
 

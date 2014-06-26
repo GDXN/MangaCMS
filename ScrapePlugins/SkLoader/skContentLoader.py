@@ -41,6 +41,14 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not rows:
 			return
 
+		# I'm not totally sure how starkana's rate-limiting works.
+		# I thought it was total transfered/day at first, but
+		# I think they may now have a system that looks at shorter
+		# term transfer totals, and then triggers a 24 hour ban
+		# if you exceed a limit or something
+		# Anyways, limit the maximum items/hour to 50 items
+		rows = rows[:50]
+
 		items = []
 		for item in rows:
 

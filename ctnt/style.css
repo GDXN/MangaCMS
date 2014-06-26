@@ -219,6 +219,14 @@ tr.mt_row:nth-child(odd)
 {
 	background: #fff5f5
 }
+tr.mb_row:nth-child(even)
+{
+	background: #ffdddd
+}
+tr.mb_row:nth-child(odd)
+{
+	background: #fff5f5
+}
 
 
 

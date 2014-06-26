@@ -71,18 +71,28 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			entry = {}
 
-			entry["date"] = dateutil.parser.parse(item.next_sibling.next_sibling.get_text())
+			addDate = dateutil.parser.parse(item.next_sibling.next_sibling.get_text())
+
+			# since we don't have the year, if any items were uploaded in previous years, they can show up as
+			# being in the future. Therefore, for any items that have timestamps > current, we
+			# deincrement them in year steps untill they are in the past
+			# The +12 hours is a fudge-factor since I don't know the source time zone.
+			# Possibly increase it to 24 in the
+			while addDate > datetime.datetime.now() + datetime.timedelta(hours=12):
+				addDate = addDate - datetime.timedelta(days=365)
+
+			entry["date"] = time.mktime(addDate.timetuple())
 			entry["dlName"] = chName
 			entry["dlLink"] =  url
 			entry["baseName"] = nt.makeFilenameSafe(title)
 
-			print("entry", entry)
+			# print("entry", entry)
 
 			ret.append(entry)
 		return ret
 
 
-	def getItems(self, rangeOverride=None, rangeOffset=None):
+	def getItems(self):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -90,17 +100,6 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Loading MB Main Feed")
 
 		ret = []
-
-		seriesPages = []
-
-		if not rangeOverride:
-			dayDelta = 1
-		else:
-			dayDelta = int(rangeOverride)
-		if not rangeOffset:
-			rangeOffset = 0
-
-		currentDate = None
 
 		url = self.urlBase
 		page = self.wg.getpage(url)
@@ -115,7 +114,8 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# item = self.getItemFromContainer(div, currentDate)
 			# ret.append(item)
 
-
+			for item in items:
+				ret.append(item)
 
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
@@ -176,7 +176,7 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Getting feed items")
 
 		feedItems = self.getItems()
-		self.log.info("Processing feed Items")
+		self.log.info("Processing %s feed Items", len(feedItems))
 
 		self.processLinksIntoDB(feedItems)
 		self.log.info("Complete")

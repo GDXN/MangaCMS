@@ -4,13 +4,28 @@
 import os
 import os.path
 
-import zipfile
 import hashlib
-
-import zipfile
 import settings
 import logging
 import magic
+
+# Fix czipfile at some point!
+# try:
+# 	import pyximport
+# 	pyximport.install()
+# 	import czipfile as zipfile
+
+# except ImportError:
+# 	import traceback
+# 	traceback.print_exc()
+
+# 	import sys
+# 	sys.exit(0)
+
+import zipfile
+
+
+
 
 
 # Utility class that scans the contents of a zip archive for any of a number of "bad" files (loaded from settings.badImageDir).
@@ -85,6 +100,51 @@ class ArchCleaner(object):
 			new_zfp.close()
 		else:
 			self.log.info("No offending contents. No changes made to file.")
+
+	# Rebuild zipfile `zipPath` that has a password as a non-password protected zip
+	# Pre-emptively checks if the zip is really password-protected, and does not
+	# rebuild zips that are not password protected.
+	def unprotectZip(self, zipPath, password):
+		password = password.encode("ascii")
+		try:
+			old_zfp = zipfile.ZipFile(zipPath, "r")
+			files = old_zfp.infolist()
+			for fileN in files:
+				old_zfp.open(fileN).read()
+			self.log.warn("Zipfile isn't actually password protected. Wat?")
+			self.log.warn("Archive = %s", zipPath)
+			return
+
+		except RuntimeError:
+			pass
+
+		self.log.info("Removing password from zip '%s'", zipPath)
+		old_zfp = zipfile.ZipFile(zipPath, "r")
+		old_zfp.setpassword(password)
+		fileNs = old_zfp.namelist()
+		files = []
+
+
+		# The zip decryption is STUPID slow. It's really insane how shitty
+		# the python integrated library is.
+		# See czipfile.pyd for some work on making it faster.
+		for fileInfo in fileNs:
+
+			fctnt = old_zfp.open(fileInfo).read()
+			files.append((fileInfo, fctnt))
+
+		old_zfp.close()
+
+		os.remove(zipPath)
+
+		# only replace the file if we need to
+		# Now, recreate the zip file without the ad
+		self.log.info("Rebuilding zip without password.")
+		new_zfp = zipfile.ZipFile(zipPath, "w")
+		for fileInfo, contents in files:
+			new_zfp.writestr(fileInfo, contents)
+		new_zfp.close()
+
 
 if __name__ == "__main__":
 

@@ -95,15 +95,22 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		page = self.wg.getpage(containerUrl)
 		soup = bs4.BeautifulSoup(page)
 
-		link = soup.find("a", href=re.compile(".*download.*"))
+		link = soup.find("a", href=re.compile(".*file.mangababy.com.*"))
 
-		if link:
-			return link["href"]
+		# Password extraction is via a plain regex. Probably a bit brittle, but there is no
+		# easy way to key onto the div containing the password string otherwise (it isn't a unique
+		# class or anything, unfortunately). We'll see if this breaks. AFICT, everything uses
+		# the same password anyways
+		passwd = re.search('The password of the zip file is "(.*?)"', page)
 
-		return None
+		if link and passwd:
+			return link["href"], passwd.group(1)
 
-	def getLinkFile(self, fileUrl):
-		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True)
+		return None, None
+
+	def getLinkFile(self, fileUrl, sourceUrl):
+		# Work around referrer sniffing by passing referrer as a additional header
+		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple=True, addlHeaders={'Referer': sourceUrl})
 		pageUrl = pghandle.geturl()
 		hName = urllib.parse.urlparse(pageUrl)[2].split("/")[-1]
 		self.log.info( "HName: %s", hName, )
@@ -121,19 +128,16 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.updateDbEntry(sourceUrl, dlState=1)
 		self.conn.commit()
 
-		fileUrl = self.getDownloadUrl(sourceUrl)
+		fileUrl, password = self.getDownloadUrl(sourceUrl)
 		if fileUrl is None:
 			self.log.warning("Could not find url!")
 			self.deleteRowsByValue(sourceUrl=sourceUrl)
 			return
 
-		if fileUrl == "http://starkana.com/download/manga/":
-			self.log.warning("File doesn't actually exist because starkana are a bunch of douchecanoes!")
-			self.deleteRowsByValue(sourceUrl=sourceUrl)
-			return
+
 
 		try:
-			content, hName = self.getLinkFile(fileUrl)
+			content, hName = self.getLinkFile(fileUrl, sourceUrl)
 		except:
 			self.log.error("Unrecoverable error retreiving content %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
@@ -143,11 +147,8 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# print("Content type = ", type(content))
 
-		# Clean Annoying, bullshit self-promotion in names
-		hName = hName.replace("[starkana.com]_", "").replace("[starkana.com]", "")
-
-		# And fix %xx crap
-		hName = urllib.parse.unquote(hName)
+		if not hName.endswith(".zip"):
+			hName = hName + ".zip"
 
 		fName = "%s - %s" % (originFileName, hName)
 		fName = nt.makeFilenameSafe(fName)
@@ -177,6 +178,7 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
+		self.archCleaner.unprotectZip(fqFName, password)
 		self.archCleaner.cleanZip(fqFName)
 		self.log.info( "Done")
 
@@ -194,7 +196,6 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				ret = self.getLink(link)
 				if ret == "Limited":
 					break
-
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
