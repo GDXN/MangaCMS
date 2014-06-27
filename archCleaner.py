@@ -36,6 +36,7 @@ except ImportError:
 
 # Utility class that scans the contents of a zip archive for any of a number of "bad" files (loaded from settings.badImageDir).
 # If it finds any of the bad files in the archive, it re-creates the archive with with the bad file deleted.
+# MD5 is used for haching, because cryptographic security is not important here
 class ArchCleaner(object):
 
 	loggerPath = "Main.ZipClean"
@@ -55,9 +56,6 @@ class ArchCleaner(object):
 				self.badHashes.append(md5.hexdigest())
 				self.log.info("Bad Image = '%s', Hash = '%s'", im, md5.hexdigest())
 
-		# MD5 hashes of the images we want to remove (only one, at the moment)
-		# self.badHashes = ['17cfa019168817f3297d3640709c4787']
-		# MD5 because cryptographic security is not important here
 
 	# So starkana, in an impressive feat of douchecopterness, inserts an annoying self-promotion image
 	# in EVERY manga archive the serve. Furthermore, they insert it in the MIDDLE of the manga.
