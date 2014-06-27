@@ -10,19 +10,25 @@ import logging
 import magic
 
 # Fix czipfile at some point!
-# try:
-# 	import pyximport
-# 	pyximport.install()
-# 	import czipfile as zipfile
+try:
+	import pyximport
+	pyximport.install()
+	import czipfile.czipfile as zipfile
 
-# except ImportError:
-# 	import traceback
-# 	traceback.print_exc()
+except ImportError:
+	print("Unzipping performance can be increased MASSIVELY by")
+	print("installing cython, which will result in the use of a ")
+	print("cythonized unzipping package, rather then the (default)")
+	print("pure-python zip decyption. ")
+	print("")
+	print("The speedup achieved via cython can reach ~100x faster then ")
+	print("the pure-python implementation~")
+	import traceback
+	traceback.print_exc()
 
-# 	import sys
-# 	sys.exit(0)
+	print("Falling back to the pure-python implementation due to the lack of cython.")
 
-import zipfile
+	import zipfile
 
 
 

@@ -891,7 +891,7 @@ class ZipExtFile(io.BufferedIOBase):
 			raise EOFError
 
 		if self._decrypter is not None:
-			data = bytes(map(self._decrypter, data))
+			data = self._decrypter(data)
 		return data
 
 	def close(self):
@@ -1219,7 +1219,7 @@ class ZipFile:
 				#  or the MSB of the file time depending on the header type
 				#  and is used to check the correctness of the password.
 				header = zef_file.read(12)
-				h = list(map(zd, header[0:12]))
+				h = zd(header[0:12])
 				if zinfo.flag_bits & 0x8:
 					# compare against the file type from extended local headers
 					check_byte = (zinfo._raw_time >> 8) & 0xff
