@@ -46,11 +46,6 @@ import urllib.parse
 
 <%
 
-picked=False
-if "picked" in request.params and request.params["picked"] == "True":
-	picked="picked"
-else:
-	picked=""
 
 limit = 200
 pageNo = 0
@@ -98,10 +93,10 @@ else:
 
 		<div class="subdiv mtMainId">
 			<div class="contentdiv">
-				<h3>MT Series - ${"Picked" if picked else "Not Picked"}${ " - (Only distinct)" if onlyDistinct else ""}</h3>
+				<h3>MT Series ${ " - (Only distinct)" if onlyDistinct else ""}</h3>
 				<a href="itemsMt?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsMt?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(limit=limit, offset=offset, flags=picked, distinct=onlyDistinct, tableKey="mt")}
+				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, tableKey="mt")}
 			</div>
 
 			% if pageNo > 0:

@@ -22,6 +22,11 @@ webCtntPath = '/SOMETHING/MangaCMS/ctnt'
 # Path to the directory of images that get auto-removed from archives on download.
 badImageDir  = r"/SOMETHING/MangaCMS/removeImages"
 
+# This is the path to the deduplication tool database API python file.
+# You only need to set this if you want to use the on-the-fly duplicate
+# removal, which is complex and not fully finished at this time.
+dedupApiFile = None
+
 # Folders to scan for folders to use as download paths.
 # Directories are scanned by sorted keys
 mangaFolders = {

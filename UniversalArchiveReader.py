@@ -98,7 +98,7 @@ class ArchiveReader(object):
 
 
 	def iterZipFiles(self):
-
+		names = self.getFileList()
 		for name in names:
 			with self.archHandle.open(name) as tempFp:
 				yield name, tempFp
@@ -106,7 +106,7 @@ class ArchiveReader(object):
 
 
 	def iterRarFiles(self):
-
+		names = self.getFileList()
 		for name in names:
 			with self.archHandle.open(name) as tempFp:
 				name = name.replace("\\", "/")
@@ -114,6 +114,7 @@ class ArchiveReader(object):
 
 				#raise
 
-	def __del__(self):
+
+	def close(self):
 		self.archHandle.close()
 

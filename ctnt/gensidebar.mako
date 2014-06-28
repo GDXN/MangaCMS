@@ -97,10 +97,10 @@ DNLDED = 2
 				<hr>
 				<li><a href="/seriesMon">Series Monitor</a>
 				<hr>
-				<li><a href="/itemsMt?picked=True">MT Picked</a>
-				<li><a href="/itemsMt?picked=False">MT Other</a>
+				<li><a href="/itemsMt?distinct=True">MT</a>
 				<li><a href="/itemsSk?distinct=True">Starkana</a>
 				<li><a href="/itemsCz?distinct=True">Crazy's Manga</a>
+				<li><a href="/itemsMb?distinct=True">MangaBaby</a>
 				<hr>
 				<hr>
 				<li><a href="/itemsPron">Pron Files</a>

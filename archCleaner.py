@@ -8,8 +8,8 @@ import hashlib
 import settings
 import logging
 import magic
+import UniversalArchiveReader
 
-# Fix czipfile at some point!
 try:
 	import pyximport
 	pyximport.install()
@@ -31,6 +31,13 @@ except ImportError:
 	import zipfile
 
 
+
+try:
+	import deduplicator.dupCheck as deduper
+	print("Have file deduplication interface. Doing download duplicate checking!")
+except:
+	deduper = None
+	print("No deduplication tools installed.")
 
 
 
@@ -60,50 +67,70 @@ class ArchCleaner(object):
 	# So starkana, in an impressive feat of douchecopterness, inserts an annoying self-promotion image
 	# in EVERY manga archive the serve. Furthermore, they insert it in the MIDDLE of the manga.
 	# Therefore, this function edits the zip and removes this stupid annoying file.
-	def cleanZip(self, zipPath):
+	def cleanZip(self, archPath):
 
-		if not os.path.exists(zipPath):
+		origPath = archPath
+
+		if not os.path.exists(archPath):
 			raise ValueError("Trying to clean non-existant file?")
 
-		if not magic.from_file(zipPath, mime=True).decode("ascii") == 'application/zip':
-			raise ValueError("Trying to clean a file that is not a zip archive! File=%s" % zipPath)
+		if not magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip' and \
+		   not magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
+			raise ValueError("Trying to clean a file that is not a zip/rar archive! File=%s" % archPath)
 
 
-		self.log.info("Scanning zip '%s'", zipPath)
-		old_zfp = zipfile.ZipFile(zipPath, "r")
+		self.log.info("Scanning arch '%s'", archPath)
+		old_zfp = UniversalArchiveReader.ArchiveReader(archPath)
 
-		fileNs = old_zfp.infolist()
+
+
 		files = []
-		hadAdvert = False
-		for fileInfo in fileNs:
+		hadBadFile = False
+		for fileN, fileCtnt in old_zfp:
 
-			fctnt = old_zfp.open(fileInfo).read()
+			if fileN.endswith("Thumbs.db"):
+				hadBadFile = True
+				self.log.info("Had windows 'Thumbs.db' file. Removing")
+				continue
+
+			fctnt = fileCtnt.read()
 			md5 = hashlib.md5()
 			md5.update(fctnt)
 
 			# Replace bad image with a text-file with the same name, and an explanation in it.
 			if md5.hexdigest() in self.badHashes:
-				self.log.info("File %s was the advert. Removing!", fileInfo.filename)
-				fileInfo.filename = fileInfo.filename + ".deleted.txt"
+				self.log.info("File %s was the advert. Removing!", fileN)
+				fileN = fileN + ".deleted.txt"
 				fctnt  = "This was an advertisement. It has been automatically removed.\n"
 				fctnt += "Don't worry, there are no missing files, despite the gap in the numbering."
 
-				hadAdvert = True
+				hadBadFile = True
 
-			files.append((fileInfo, fctnt))
+			files.append((fileN, fctnt))
 
 		old_zfp.close()
 
 		# only replace the file if we need to
-		if hadAdvert:
+		if hadBadFile:
 			# Now, recreate the zip file without the ad
 			self.log.info("Had advert. Rebuilding zip.")
-			new_zfp = zipfile.ZipFile(zipPath, "w")
+			if archPath.endswith(".rar") or archPath.endswith(".cbr"):
+				archPath = archPath.rsplit(".", 1)[0]
+				archPath += ".zip"
+
+			new_zfp = zipfile.ZipFile(archPath, "w")
 			for fileInfo, contents in files:
 				new_zfp.writestr(fileInfo, contents)
 			new_zfp.close()
+
+			if origPath != archPath:
+				os.remove(origPath)
+
 		else:
 			self.log.info("No offending contents. No changes made to file.")
+
+		return archPath
+
 
 	# Rebuild zipfile `zipPath` that has a password as a non-password protected zip
 	# Pre-emptively checks if the zip is really password-protected, and does not
@@ -115,8 +142,7 @@ class ArchCleaner(object):
 			files = old_zfp.infolist()
 			for fileN in files:
 				old_zfp.open(fileN).read()
-			self.log.warn("Zipfile isn't actually password protected. Wat?")
-			self.log.warn("Archive = %s", zipPath)
+			self.log.info("Do not need to decrypt zip")
 			return
 
 		except RuntimeError:
@@ -144,10 +170,39 @@ class ArchCleaner(object):
 		# only replace the file if we need to
 		# Now, recreate the zip file without the ad
 		self.log.info("Rebuilding zip without password.")
+
 		new_zfp = zipfile.ZipFile(zipPath, "w")
 		for fileInfo, contents in files:
 			new_zfp.writestr(fileInfo, contents)
 		new_zfp.close()
+
+
+	def processNewArchive(self, archPath, passwd=""):
+		if magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip':
+			self.unprotectZip(archPath, passwd)
+		elif magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
+			pass
+		else:
+			self.log.error("ArchCleaner called on file that isn't a rar or zip!")
+			self.log.error("Called on file %s", archPath)
+			self.log.error("Specified password '%s'", passwd)
+			self.log.error("Inferred file type %s", magic.from_file(archPath, mime=True).decode("ascii"))
+			raise ValueError("ArchCleaner called on file that isn't a rar or zip!")
+
+		# ArchPath will convert from rar to zip if needed, and returns the name of the resulting
+		# file in either case
+		archPath = self.cleanZip(archPath)
+
+		if deduper:
+
+			dc = deduper.ArchChecker(archPath)
+			isUnique = dc.check()
+			if not isUnique:
+				self.log.warning("Archive %s isn't unique!" % archPath)
+				dc.deleteArch()
+			else:
+				self.log.info("Archive Contains unique files. Leaving alone!")
+
 
 
 if __name__ == "__main__":
@@ -157,12 +212,15 @@ if __name__ == "__main__":
 
 	run = ArchCleaner()
 
-	basePath = '/media/Storage/MP/The Gamer [++++]/'
+	basePath = '/media/Storage/Manga/'
 
-	for filePath in os.listdir(basePath):
-		fqPath = os.path.join(basePath, filePath)
-		fType = magic.from_file(fqPath, mime=True).decode("ascii")
+	for root, dirs, files in os.walk(basePath):
+		for name in files:
+			fileP = os.path.join(root, name)
+			if not os.path.exists(fileP):
+				raise ValueError
+			fType = magic.from_file(fileP, mime=True).decode("ascii")
 
-		if fType == 'application/zip':
-			run.cleanZip(fqPath)
+			if fType == 'application/zip' or fType == 'application/x-rar':
+				run.processNewArchive(fileP)
 

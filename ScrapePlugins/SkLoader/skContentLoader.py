@@ -184,7 +184,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
-		self.archCleaner.cleanZip(fqFName)
+		self.archCleaner.processNewArchive(fqFName)
 		self.log.info( "Done")
 
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName)

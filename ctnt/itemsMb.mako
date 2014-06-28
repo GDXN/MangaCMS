@@ -46,6 +46,10 @@ import urllib.parse
 
 <%
 
+picked=False
+if "picked" in request.params and request.params["picked"] == "True":
+	picked=True
+
 limit = 200
 pageNo = 0
 
@@ -92,10 +96,10 @@ else:
 
 		<div class="subdiv czId">
 			<div class="contentdiv">
-				<h3>Crazy's Manga  Series${ " - (Only distinct)" if onlyDistinct else ""}</h3>
+				<h3>MangaBaby Series${ " - (Only distinct)" if onlyDistinct else ""}</h3>
 				<a href="itemsCz?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsCz?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, tableKey="cz")}
+				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, tableKey="mb")}
 			</div>
 
 			% if pageNo > 0:

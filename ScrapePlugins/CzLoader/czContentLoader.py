@@ -20,8 +20,11 @@ import zipfile
 import hashlib
 
 
+import archCleaner
+
 class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
+	archCleaner = archCleaner.ArchCleaner()
 
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Cz.Cl"
@@ -188,6 +191,8 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
+
+		self.archCleaner.processNewArchive(fqFName, password)
 
 		self.log.info( "Done")
 
