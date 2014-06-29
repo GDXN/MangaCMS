@@ -90,7 +90,7 @@ nextPage["page"] = pageNo+2
 				</div> -->
 				<%
 				%>
-				${tableGenerators.genLegendTable()}
+				${tableGenerators.genLegendTable(hideSource=True)}
 				${tableGenerators.genPronTable("fu", offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
 			</div>
 			% if pageNo > 0:

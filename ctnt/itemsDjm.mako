@@ -142,6 +142,7 @@ nextPage["page"] = pageNo+2
 						${key} ${request.params.getall(key)}<br>
 					% endif
 				% endfor
+				${tableGenerators.genLegendTable(hideSource=True)}
 				${tableGenerators.genPronTable("djm", offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
 			</div>
 

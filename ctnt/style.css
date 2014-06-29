@@ -213,11 +213,11 @@ tr.cz_row:nth-child(odd)
 }
 tr.mt_row:nth-child(even)
 {
-	background: #ffdddd
+	background: #dddddd
 }
 tr.mt_row:nth-child(odd)
 {
-	background: #fff5f5
+	background: #f5f5f5
 }
 tr.mb_row:nth-child(even)
 {

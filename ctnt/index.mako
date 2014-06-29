@@ -67,7 +67,7 @@ import os.path
 		<div class="subdiv fuFuId">
 			<div class="contentdiv">
 				<h3>Porn!</h3>
-				${tableGenerators.genLegendTable()}
+				${tableGenerators.genLegendTable(pron=True)}
 				${tableGenerators.genPronTable(["fu", "djm"])}
 			</div>
 		</div>
@@ -88,7 +88,6 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Add legend key for what row colours mean (easy).</li>
 	<li>Coerce directory structure to match MangaUpdates naming.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes. (WIP)</li>
@@ -114,6 +113,7 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Add legend key for what row colours mean (easy).</strike></li>
 	<li><strike>Add better time-stamp granularity to Starkana Scraper.</strike> (I think?)</li>
 	<li><strike>MangaBaby.com scraper</strike></li>
 	<li><strike>Flatten any found duplicate directories, when they span more then one of the manga-folders.</strike></li>

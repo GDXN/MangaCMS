@@ -92,16 +92,15 @@ colours = {
 	"failed"          : "000000",
 	"no match"        : "FF9999",
 	"moved"           : "FFFF99",
-	"downloaded"      : "99FF99",
-	"processing"      : "9999FF",
+	"Done"            : "99FF99",
+	"working"         : "9999FF",
 	"queued"          : "FF77FF",
-	"created-dir"     : "FFE4B2",
-	"not checked"     : "FFFFFF",
+	"new dir"         : "FFE4B2",
 
 	# Categories
 
 	"valid cat"  : "FFFFFF",
-	"in picked"    : "999999"
+	"picked"    : "999999"
 	}
 
 
@@ -200,9 +199,9 @@ colours = {
 
 
 		if dlState == 2:
-			statusColour = colours["downloaded"]
+			statusColour = colours["Done"]
 		elif dlState == 1:
-			statusColour = colours["processing"]
+			statusColour = colours["working"]
 		else:
 			statusColour = colours["queued"]
 
@@ -215,13 +214,19 @@ colours = {
 				else:
 					locationColour = colours["moved"]
 			elif "/MP/" in downloadPath and not "picked" in flags:
-				locationColour = colours["in picked"]
+				locationColour = colours["picked"]
 			elif "newdir" in flags:
-				locationColour = colours["created-dir"]
+				locationColour = colours["new dir"]
 			else:
 				locationColour = colours["valid cat"]
 		else:
-			locationColour = colours["failed"]
+			if dlState == 0:
+
+				locationColour = colours["queued"]
+			elif dlState == 1:
+				locationColour = colours["working"]
+			else:
+				locationColour = colours["failed"]
 			filePath = "N.A."
 
 
@@ -310,7 +315,7 @@ colours = {
 
 		dlState = int(dlState)
 
-		# % for rowid, addDate, processing, downloaded, dlName, dlLink, itemTags, dlPath, fName in tblCtntArr:
+		# % for rowid, addDate, working, downloaded, dlName, dlLink, itemTags, dlPath, fName in tblCtntArr:
 
 		addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(retreivalTime))
 
@@ -331,9 +336,9 @@ colours = {
 		if  dlState == 2 and fSize < 0:
 			statusColour = colours["failed"]
 		elif dlState == 2:
-			statusColour = colours["downloaded"]
+			statusColour = colours["Done"]
 		elif dlState == 1:
-			statusColour = colours["processing"]
+			statusColour = colours["working"]
 		else:
 			statusColour = colours["queued"]
 		if fSize == -2:
@@ -615,10 +620,10 @@ colours = {
 
 
 
-<%def name="genLegendTable()">
+<%def name="genLegendTable(pron=False, hideSource=False)">
 	<div class="legend">
 
-		<table border="1px">
+		<table border="1px" style="display:inline-block">
 			<colgroup>
 				% for x in range(len(colours)):
 					<col style="width: ${100/len(colours)}%" />
@@ -635,6 +640,23 @@ colours = {
 				% endfor
 			</tr>
 		</table>
+		<%
+		rows = [("Starkana", "sk_row"), ("Crazy's", "cz_row"), ("MangaTraders", "mt_row"), ("MangaBaby", "mb_row")]
+		if pron:
+			rows = [("Doujin Moe", "djm_row"), ("Fufufuu", "fu_row")]
+		if hideSource:
+			rows = []
+		%>
+		% for name, row in rows:
+			<table border="1px" style="display:inline-block">
+					<tr class="${row}">
+						<td>From</td>
+					</tr>
+					<tr class="${row}">
+						<td >${name}</td>
+					</tr>
+			</table>
+		% endfor
 	</div>
 
 </%def>
