@@ -192,7 +192,7 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		#self.log.info( filePath)
 
 
-		self.archCleaner.processNewArchive(fqFName, password)
+		self.archCleaner.processNewArchive(fqFName)
 
 		self.log.info( "Done")
 

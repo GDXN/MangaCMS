@@ -41,9 +41,21 @@ except:
 
 
 
-# Utility class that scans the contents of a zip archive for any of a number of "bad" files (loaded from settings.badImageDir).
+# Utility class for common archive cleaning and manipulation tasks.
+
+# `cleanZip()` scans the contents of a archive for any of a number of "bad" files (loaded from settings.badImageDir).
 # If it finds any of the bad files in the archive, it re-creates the archive with with the bad file deleted.
-# MD5 is used for haching, because cryptographic security is not important here
+# MD5 is used for haching, because cryptographic security is not important here.
+# If `cleanZip` is passed a rar file, and it finds files it wants to delete in said rar, it will
+# convert the rar to a zip
+
+# `unprotectZip()` removes password-based encryption from a zip file
+
+# `processNewArchive()` takes an archive, and passes it through `cleanZip()` and `unprotectZip()`, and then
+# checks it to see if it's duplicated by other files aready in the database.
+# It should eventually add it to the database if it's new, or delete it if it's redundant.
+# (WIP)
+
 class ArchCleaner(object):
 
 	loggerPath = "Main.ZipClean"

@@ -25,5 +25,5 @@ python3 get-pip.py
 
 # Install the libraries we actually need
 npm -g install phantomjs
-easy_install3 pip
-pip3 install Mako CherryPy Pyramid Beautifulsoup4 Selenium FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel
+
+pip3 install Mako CherryPy Pyramid Beautifulsoup4 Selenium FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython

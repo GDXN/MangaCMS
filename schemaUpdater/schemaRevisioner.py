@@ -5,9 +5,11 @@ import sys
 
 from schemaUpdater.schemaOne2Two import updateOne2Two
 from schemaUpdater.schemaTwo2Three import schemaTwo2Three
+from schemaUpdater.schemaThree2Four import schemaThree2Four
+from schemaUpdater.schemaFour2Five import schemaFour2Five
 from schemaUpdater.schemaTwo2Three import doTableCounts
 
-CURRENT_SCHEMA = 3
+CURRENT_SCHEMA = 5
 
 def getSchemaRev(conn):
 	cur = conn.cursor()
@@ -38,6 +40,10 @@ def verifySchemaUpToDate():
 	if rev < CURRENT_SCHEMA:
 		print("Database Schema is out of date! Please run the scraper to allow it to update the database structure first!")
 		sys.exit(1)
+	elif rev > CURRENT_SCHEMA:
+		print("Schema is more recent then current? Wat?")
+		sys.exit(1)
+
 	else:
 		print("Database Schema Up to date")
 		return
@@ -77,12 +83,27 @@ def updateDatabaseSchema():
 	# Rev 2 amalgamates all the downloader tables into a single table.
 
 
-
+	rev = getSchemaRev(conn)
 	if rev == 2:
 		schemaTwo2Three(conn)
 		updateSchemaRevNo(3)
 
 	# Rev 3 adds insert and delete triggers to track table-size
+
+
+	rev = getSchemaRev(conn)
+	if rev == 3:
+		schemaThree2Four(conn)
+		updateSchemaRevNo(4)
+
+	# Rev 4 drops the MangaTraders table colums, since MT isn't coming back.
+
+	rev = getSchemaRev(conn)
+	if rev == 4:
+		schemaFour2Five(conn)
+		updateSchemaRevNo(5)
+
+
 
 
 	doTableCounts(conn)

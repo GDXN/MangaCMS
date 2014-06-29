@@ -49,23 +49,6 @@ from babel.dates import format_timedelta
 import os.path
 
 %>
-<%
-
-# cur = sqlCon.cursor()
-# cur.execute('SELECT addDate,processing,downloaded,dlName,dlLink,baseName,dlPath,fName,isMp,newDir FROM links WHERE isMp=1 ORDER BY addDate DESC LIMIT 100;')
-# mpLinks = cur.fetchall()
-# cur.execute('SELECT addDate,processing,downloaded,dlName,dlLink,baseName,dlPath,fName,isMp,newDir FROM links WHERE isMp=0 ORDER BY addDate DESC LIMIT 100;')
-# baseLinks = cur.fetchall()
-
-# cur.execute('SELECT rowid,addDate,processing,downloaded,dlName,dlLink,itemTags,dlPath,fName FROM fufufuu ORDER BY addDate DESC LIMIT 50;')
-# fuuLinks = cur.fetchall()
-
-# cur.execute('SELECT rowid,addDate,processing,downloaded,dlName,contentID,itemTags,dlPath,fName,note FROM djMoe ORDER BY addDate DESC LIMIT 25;')
-# djmLinks = cur.fetchall()
-
-
-
-%>
 <body>
 
 
@@ -105,11 +88,10 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>MangaBaby.com scraper</li>
-	<li>Add better time-stamp granularity to Starkana Scraper.</li>
+	<li>Add legend key for what row colours mean (easy).</li>
 	<li>Coerce directory structure to match MangaUpdates naming.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
-	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes.</li>
+	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes. (WIP)</li>
 	<li>Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
 	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b></li>
 	<li>Ability to disable bulk-downloading.</li>
@@ -132,6 +114,8 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Add better time-stamp granularity to Starkana Scraper.</strike> (I think?)</li>
+	<li><strike>MangaBaby.com scraper</strike></li>
 	<li><strike>Flatten any found duplicate directories, when they span more then one of the manga-folders.</strike></li>
 	<li><strike>FIX NATURAL SORTING</strike></li>
 	<li><strike>Make series monitoring tool for MT update periodically</strike></li>

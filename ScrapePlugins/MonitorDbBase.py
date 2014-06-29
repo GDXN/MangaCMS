@@ -6,6 +6,8 @@ import abc
 import traceback
 import time
 
+import nameTools as nt
+
 class MonitorDbBase(metaclass=abc.ABCMeta):
 
 	# Abstract class (must be subclassed)
@@ -341,7 +343,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 		for name in names:
-			cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+			cur.execute("""INSERT INTO %s (buId, name, )VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
 		cur.fetchall()
 
 	def getIdFromName(self, name):
@@ -417,13 +419,14 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 											dbId            INTEGER PRIMARY KEY,
 											buId            text COLLATE NOCASE,
 											name            text COLLATE NOCASE,
+											fsSafeName      text COLLATE NOCASE,
 											FOREIGN KEY(buId) REFERENCES %s(buId),
 											UNIQUE(buId, name) ON CONFLICT REPLACE
 											);''' % (self.nameMapTableName, self.tableName))
 
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId collate nocase)''' % ("%s_nameTable_mtId_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name collate nocase)''' % ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
-
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.commit()
 		self.log.info("Retreived page database created")
 
