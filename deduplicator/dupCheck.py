@@ -43,7 +43,7 @@ class ArchChecker(object):
 	def deleteArch(self):
 
 		print("Would delete archive", self.archPath)
-		return
+
 		self.db.deleteBasePath(self.archPath)
 		os.remove(self.archPath)
 

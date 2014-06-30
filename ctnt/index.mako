@@ -89,6 +89,7 @@ Shit to do:
 <b>General</b>
 <ul>
 	<li>Coerce directory structure to match MangaUpdates naming.</li>
+	<li>Allow arbitrarily nested folders in reader.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes. (WIP)</li>
 	<li>Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates

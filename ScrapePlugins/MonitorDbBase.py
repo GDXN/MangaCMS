@@ -190,7 +190,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	def getRowsByValue(self, **kwargs):
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
-		validCols = ["dbId", "mtName", "mtId", "buName", "buId"]
+		validCols = ["dbId", "buName", "buId"]
 		key, val = kwargs.popitem()
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
@@ -236,7 +236,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		return retL
 
 	def mergeItems(self, fromDict, toDict):
-		validMergeKeys = ["dbId", "mtName", "mtId", "buName", "buId"]
+		validMergeKeys = ["dbId", "buName", "buId"]
 		for modeDict in [fromDict, toDict]:
 			if len(modeDict) != 1:
 				raise ValueError("Each selector item must only be a single item long!")
@@ -358,6 +358,18 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		else:
 			return None
 
+	def getIdFromDirName(self, fsSafeName):
+
+		cur = self.conn.cursor()
+		ret = cur.execute("""SELECT buId FROM %s WHERE fsSafeName=?;""" % self.nameMapTableName, (fsSafeName, ))
+		ret = ret.fetchall()
+		if ret:
+			if len(ret[0]) != 1:
+				raise ValueError("Have ambiguous fsSafeName. Cannot definitively link to manga series.")
+			return ret[0][0]
+		else:
+			return None
+
 	def getNamesFromId(self, mId):
 
 		cur = self.conn.cursor()
@@ -424,9 +436,9 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 											UNIQUE(buId, name) ON CONFLICT REPLACE
 											);''' % (self.nameMapTableName, self.tableName))
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId collate nocase)''' % ("%s_nameTable_mtId_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name collate nocase)''' % ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId       collate nocase)''' % ("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name       collate nocase)''' % ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.commit()
 		self.log.info("Retreived page database created")
 

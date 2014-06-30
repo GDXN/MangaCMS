@@ -189,7 +189,7 @@ class ArchCleaner(object):
 		new_zfp.close()
 
 
-	def processNewArchive(self, archPath, passwd=""):
+	def processNewArchive(self, archPath, passwd="", deleteDups=False):
 		if magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip':
 			self.unprotectZip(archPath, passwd)
 		elif magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
@@ -212,9 +212,11 @@ class ArchCleaner(object):
 			if not isUnique:
 				self.log.warning("Archive %s isn't unique!" % archPath)
 				dc.deleteArch()
+				return "deleted was-duplicate"
 			else:
 				self.log.info("Archive Contains unique files. Leaving alone!")
-
+				return ""
+		return ""
 
 
 if __name__ == "__main__":

@@ -140,8 +140,18 @@ class MapWrapper(object):
 	dbPath = settings.dbName
 
 	validTables = {
-		"mangaNameMappings"  : ["mangaNameMappings",  "(mangaUpdates text NOT NULL, mangaTraders text NOT NULL, PRIMARY KEY(mangaTraders) ON CONFLICT REPLACE)"],
-		"folderNameMappings" : ["folderNameMappings", "(baseName text NOT NULL, folderName text NOT NULL, PRIMARY KEY(baseName, folderName) ON CONFLICT REPLACE)"]
+		"mangaNameMappings"  : ["mangaNameMappings",
+								'''(mangaUpdates text NOT NULL,
+									mangaTraders text NOT NULL,
+									PRIMARY KEY(mangaTraders) ON CONFLICT REPLACE)''',
+								 ("mangaUpdates", "mangaTraders")],
+		"folderNameMappings" : ["folderNameMappings",
+								'''(baseName text NOT NULL,
+									folderName text NOT NULL,
+									PRIMARY KEY(baseName, folderName) ON CONFLICT REPLACE)''',
+								("baseName", "folderName")]
+
+
 
 	}
 
@@ -156,6 +166,7 @@ class MapWrapper(object):
 		self.log.info("Loading NSLookup")
 		self.tableName = self.validTables[tableName][0]
 		self.tableSchema = self.validTables[tableName][1]
+		self.tableCols = self.validTables[tableName][2]
 		self.openDB()
 
 		self.lastUpdate = 0
@@ -195,15 +206,107 @@ class MapWrapper(object):
 		# Only query the database at most once per 5 seconds.
 		if time.time() > self.lastUpdate + 5 or force:
 			self.updateLock.acquire()
-			self.log.info("NSLookupTool updating from DB. Self - %s", self)
+			self.log.info("NSLookupTool updating from DB. Update forced: %s", force)
 			cur = self.conn.cursor()
-			cur.execute('SELECT * FROM %s;' % self.tableName)
+			cur.execute('SELECT %s, %s FROM %s;' % (self.tableCols[0], self.tableCols[1], self.tableName))
 			rets = cur.fetchall()
 
 			temp = {}
 
 			for muName, mtName in rets:
 				temp[muName] = mtName
+
+			self.items = temp
+			self.lastUpdate = time.time()
+
+
+			self.updateLock.release()
+
+	def iteritems(self):
+		self.updateFromDB()
+
+		keys = list(self.items.keys())  # I want the items sorted by name, so we have to sort the list of keys, and then iterate over that.
+		keys.sort()
+
+		for key in keys:
+			yield key, self.items[key]
+
+
+	def __getitem__(self, key):
+		self.updateFromDB()
+		return self.items[key]
+
+	def __contains__(self, key):
+		self.updateFromDB()
+		return key in self.items
+
+
+
+# Caching proxy that makes a DB look like a dict, and at the same time rate-limits the DB update queries, for when look-ups are done in a iterative loop
+# Opens a dynamically specifiable database, though the database must be one of a predefined set.
+class MtNamesMapWrapper(object):
+
+	# Make it a borg class (all instances share state)
+	_shared_state = {}
+
+	log = logging.getLogger("Main.NSLookup")
+
+	dbPath = settings.dbName
+
+	def __init__(self):
+		self.__dict__ = self._shared_state
+
+		self.updateLock = threading.Lock()
+		self.tableName = 'muNameList'
+
+
+		self.log.info("Loading NSLookup")
+
+		self.tableCols = ["buId", "fsSafeName"]
+		self.openDB()
+
+		self.lastUpdate = 0
+		self.items = {}
+		self.updateFromDB()
+
+	def stop(self):
+		self.log.info("Unoading NSLookup")
+		self.closeDB()
+
+	def openDB(self):
+		self.log.info( "NSLookup Opening DB...",)
+		self.conn = sqlite3.connect(self.dbPath, timeout=30, check_same_thread=False)
+		self.log.info("opened")
+		cur = self.conn.cursor()
+		ret = cur.execute('''SELECT name FROM sqlite_master WHERE type='table' AND name='%s';''' % self.tableName)
+		rets = ret.fetchall()
+		if rets:
+			rets = rets[0]
+		if not self.tableName in rets:   # If the DB doesn't exist, set it up.
+			self.log.info("DB Not setup for %s.", self.tableName)
+			raise ValueError
+
+	def closeDB(self):
+		self.log.info( "Closing DB...")
+		self.conn.close()
+		self.log.info( "done")
+
+	def updateFromDB(self, force=False):
+		# Only query the database at most once per 5 seconds.
+		if time.time() > self.lastUpdate + 500 or force:
+			self.updateLock.acquire()
+			self.log.info("NSLookupTool updating from DB. Update forced: %s", force)
+			cur = self.conn.cursor()
+			cur.execute('SELECT %s, %s FROM %s;' % (self.tableCols[0], self.tableCols[1], self.tableName))
+			rets = cur.fetchall()
+
+			temp = {}
+
+			for fsName, mtId in rets:
+				if fsName in temp:
+					temp[fsName].append(mtId)
+				else:
+					temp[fsName] = [mtId]
 
 			self.items = temp
 			self.lastUpdate = time.time()

@@ -184,10 +184,10 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
-		self.archCleaner.processNewArchive(fqFName)
+		dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
 		self.log.info( "Done")
 
-		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName)
+		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 		return
 
 

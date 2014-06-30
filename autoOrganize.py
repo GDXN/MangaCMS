@@ -9,6 +9,10 @@ import os
 import shutil
 import settings
 import ScrapePlugins.MonitorDbBase
+import sys
+
+import shutil
+
 
 class dbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
@@ -21,6 +25,25 @@ class dbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	def go(self):
 		pass
+
+
+def query_response(question):
+	valid = {"f":"forward",
+			 "r":"reverse",
+			 "n":False}
+
+	prompt = " [f/r/N] "
+
+	while True:
+		sys.stdout.write(question + prompt)
+		choice = input().lower()
+		if choice == '':
+			return valid["n"]
+		elif choice in valid:
+			return valid[choice]
+		else:
+			sys.stdout.write("Invalid choice\n")
+
 
 # Removes duplicate manga directories from the various paths specified in
 # settings.py. Basically, if you have a duplicate of a folder name, it moves the
@@ -58,26 +81,58 @@ def deduplicateMangaFolders():
 						shutil.move(fromPath, toPath)
 
 def updateToMangaUpdatesNaming():
+	idLut = nt.MtNamesMapWrapper()
 	db = dbInterface()
 	for key, luDict in nt.dirNameProxy.iteritems():
-		mId = db.getIdFromName(key)
+		mId = db.getIdFromDirName(key)
 
 		# Skip cases where we have no match
 		if not mId:
 			continue
 
-		row = db.getRowByValue(buId=mId)
-		fName = nt.prepFilenameForMatching(row["buName"])
-		if fName != key:
-			altNames = db.getNamesFromId(mId)
+		dups = set()
+		for name in idLut[mId]:
+			cName = nt.prepFilenameForMatching(name)
+			if cName in nt.dirNameProxy:
+				dups.add(cName)
+				db.getIdFromDirName(cName)
+		if len(dups) > 1:
+			row = db.getRowByValue(buId=mId)
+			targetName = nt.prepFilenameForMatching(row["buName"])
+			dest = nt.dirNameProxy[targetName]
+			if luDict["dirKey"] != targetName and dest["fqPath"]:
+				print("baseName = ", row["buName"], ", id = ", mId, ", names = ", dups)
+				print(" Should move files from", luDict["fqPath"])
+				print(" to directory          ", dest["fqPath"])
+				doMove = query_response("move files?")
+				if doMove == "forward":
+					files = os.listdir(luDict["fqPath"])
+					for fileN in files:
+						fSrc = os.path.join(luDict["fqPath"], fileN)
+						fDst = os.path.join(dest["fqPath"], fileN)
+						print("		moving ", fSrc)
+						print("		to     ", fDst)
+						shutil.move(fSrc, fDst)
+				elif doMove == "reverse":
+					files = os.listdir(dest["fqPath"])
+					for fileN in files:
+						fSrc = os.path.join(dest["fqPath"], fileN)
+						fDst = os.path.join(luDict["fqPath"], fileN)
+						print("		moving ", fSrc)
+						print("		to     ", fDst)
+						shutil.move(fSrc, fDst)
+		# row = db.getRowByValue(buId=mId)
+		# fName = nt.prepFilenameForMatching(row["buName"])
+		# if fName != key:
+		# 	altNames = db.getNamesFromId(mId)
 
-			for name,  in altNames:
-				mId = db.getIdFromName(name)
-				cName = nt.prepFilenameForMatching(name)
+		# 	for name,  in altNames:
+		# 		cName = nt.prepFilenameForMatching(name)
+		# 		mId = db.getIdFromDirName(cName)
 
-				if cName != key and cName in nt.dirNameProxy:
-					print("Id = %s, '%s', '%s', '%s'" % (mId, key, fName, luDict["fqPath"]))
-					print("	altName = '%s'" % name)
+		# 		if cName != key and cName in nt.dirNameProxy:
+		# 			print("Id = %s, '%s', '%s', '%s'" % (mId, key, fName, luDict["fqPath"]))
+		# 			print("	altName = '%s'" % name)
 
 if __name__ == "__main__":
 	try:

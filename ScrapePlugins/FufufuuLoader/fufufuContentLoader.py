@@ -311,11 +311,17 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			# self.log.info("geturl with processing", fileN)
 			wholePath = os.path.join(folderPath, fileN)
-			fp = open(wholePath, "wb")
-			fp.write(content)
-			fp.close()
-			self.log.info("Successfully Saved to path: %s", wholePath)
-			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=folderPath, fileName=fileN)
+			try:
+				with open(wholePath, "wb") as fp:
+					fp.write(content)
+
+					self.log.info("Successfully Saved to path: %s", wholePath)
+					self.updateDbEntry(sourceUrl, dlState=2, downloadPath=folderPath, fileName=fileN)
+
+			# if we have a text-page rather then a binary string containing the file.
+			except TypeError:
+					self.log.error("Download failed!: %s", wholePath)
+					self.updateDbEntry(sourceUrl, dlState=-1, downloadPath=folderPath, fileName=fileN)
 
 
 		else:
