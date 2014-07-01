@@ -192,11 +192,10 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		#self.log.info( filePath)
 
 
-		self.archCleaner.processNewArchive(fqFName)
-
+		dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
 		self.log.info( "Done")
+		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 
-		self.updateDbEntry(link["sourceUrl"], dlState=2, downloadPath=filePath, fileName=fileName)
 		return
 
 

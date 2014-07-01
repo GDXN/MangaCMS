@@ -215,6 +215,8 @@ class ArchCleaner(object):
 				return "deleted was-duplicate"
 			else:
 				self.log.info("Archive Contains unique files. Leaving alone!")
+				dc.addNewArch(archPath)
+
 				return ""
 		return ""
 

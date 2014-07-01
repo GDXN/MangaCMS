@@ -185,11 +185,10 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
-		self.archCleaner.processNewArchive(fqFName, password)
-
+		dedupState = self.archCleaner.processNewArchive(fqFName, passwd=password, deleteDups=True)
 		self.log.info( "Done")
+		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 
-		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName)
 		return
 
 

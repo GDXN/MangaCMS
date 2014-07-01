@@ -47,6 +47,9 @@ class ArchChecker(object):
 		self.db.deleteBasePath(self.archPath)
 		os.remove(self.archPath)
 
+	def addNewArch(self, archPath):
+		print("Implement Deduper database updating from ArchChecker!")
+
 
 def go():
 
