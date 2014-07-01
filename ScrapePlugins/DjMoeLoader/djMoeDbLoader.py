@@ -26,8 +26,13 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Retreiving feed content...",)
 		if not pageOverride:
 			pageOverride = 1
+		try:
+			feed = self.wg.getpage( urllib.parse.urljoin(self.urlBase, "/ajax/newest.php"), addlHeaders={'Referer': 'http://www.doujin-moe.us/main'}, postData={'get': pageOverride} )
+		except urllib.error.URLError:
+			self.log.critical("Could not get feed from Doujin Moe!")
+			self.log.critical(traceback.format_exc())
+			return []
 
-		feed = self.wg.getpage( urllib.parse.urljoin(self.urlBase, "/ajax/newest.php"), addlHeaders={'Referer': 'http://www.doujin-moe.us/main'}, postData={'get': pageOverride} )
 		try:
 			data = json.loads(feed)
 			self.log.info("done")

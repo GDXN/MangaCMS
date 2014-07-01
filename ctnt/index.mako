@@ -88,6 +88,9 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>Rating autosort (wtf did I mean by this?).</li>
+	<li>Prefferentially rescan MangaUpdates series that got releases today (e.g. scan https://www.mangaupdates.com/releases.html).</li>
+	<li>MangaUpdates name lookup passthrouth in nametools.</li>
 	<li>Coerce directory structure to match MangaUpdates naming.</li>
 	<li>Allow arbitrarily nested folders in reader.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>

@@ -192,11 +192,11 @@ class WebGetRobust:
 					log.error("Failed to retrieve Website : %s at %s All Attempts Exhausted", pgreq.get_full_url(), time.ctime(time.time()))
 					pgctnt = "Failed"
 					try:
-						print(("Critical Failure to retrieve page! %s at %s, attempt %s" % (pgreq.get_full_url(), time.ctime(time.time()), loopctr)))
-						print(("Error:", lastErr))
-						print("Exiting")
+						log.critical(("Critical Failure to retrieve page! %s at %s, attempt %s" % (pgreq.get_full_url(), time.ctime(time.time()), loopctr)))
+						log.critical(("Error:", lastErr))
+						log.critical("Exiting")
 					except:
-						print("And the URL could not be printed due to an encoding error")
+						log.critical("And the URL could not be printed due to an encoding error")
 					break
 
 				#print "execution", loopctr
@@ -240,9 +240,9 @@ class WebGetRobust:
 					log.warning("Error Retrieving Page! - Trying again - Waiting 2.5 seconds")
 
 					try:
-						print(("Error on page - %s" % originalString))
+						log.critical("Error on page - %s" % originalString)
 					except:
-						print("And the URL could not be printed due to an encoding error")
+						log.critical("And the URL could not be printed due to an encoding error")
 
 					time.sleep(delay)
 
@@ -335,8 +335,6 @@ class WebGetRobust:
 								self.log.critical("Unknown content type!")
 								self.log.critical(cType)
 
-								print("Unknown content type!")
-								print(cType)
 
 
 							break
@@ -350,10 +348,10 @@ class WebGetRobust:
 						log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", delay)
 
 						try:
-							print(("Critical Failure to retrieve page! %s at %s" % (pgreq.get_full_url(), time.ctime(time.time()))))
-							print("Exiting")
+							log.critical("Critical Failure to retrieve page! %s at %s" % (pgreq.get_full_url(), time.ctime(time.time())))
+							log.critical("Exiting")
 						except:
-							print("And the URL could not be printed due to an encoding error")
+							log.critical("And the URL could not be printed due to an encoding error")
 						print()
 						log.error(pghandle)
 						time.sleep(delay)
