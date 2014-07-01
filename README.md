@@ -70,6 +70,10 @@ The tools are currently not daemonized at all, and must be manually run after re
 
 ---
 
+Preliminary deduplication support is currently present, [IntraArchiveDeduplicator](using my https://github.com/fake-name/IntraArchiveDeduplicator) tool. This is intended to allow collation of files from many sources while having as few local duplicate files actually stored locally as possible.
+
+---
+
 
 Because I'm sure no one wants to just read about what MangaCMS does, here are some screenshots of the web-interface:  
 ![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)  
