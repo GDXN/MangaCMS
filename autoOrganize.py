@@ -80,8 +80,8 @@ def deduplicateMangaFolders():
 						print("	To:   ", toPath)
 						shutil.move(fromPath, toPath)
 
-def updateToMangaUpdatesNaming():
-	idLut = nt.MtNamesMapWrapper()
+def consolicateSeriesToSingleDir():
+	idLut = nt.MtNamesMapWrapper("fsName->buId")
 	db = dbInterface()
 	for key, luDict in nt.dirNameProxy.iteritems():
 		mId = db.getIdFromDirName(key)
@@ -93,6 +93,11 @@ def updateToMangaUpdatesNaming():
 		dups = set()
 		for name in idLut[mId]:
 			cName = nt.prepFilenameForMatching(name)
+
+			# Skip if it's one of the manga names that falls apart under the directory name cleaning mechanism
+			if not cName:
+				continue
+
 			if cName in nt.dirNameProxy:
 				dups.add(cName)
 				db.getIdFromDirName(cName)
@@ -102,9 +107,9 @@ def updateToMangaUpdatesNaming():
 			dest = nt.dirNameProxy[targetName]
 			if luDict["dirKey"] != targetName and dest["fqPath"]:
 				print("baseName = ", row["buName"], ", id = ", mId, ", names = ", dups)
-				print(" Should move files from", luDict["fqPath"])
-				print(" to directory          ", dest["fqPath"])
-				doMove = query_response("move files?")
+				print(" Dir 1 ", luDict["fqPath"])
+				print(" Dir 2 ", dest["fqPath"])
+				doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 2 -> dir 1. 'n' do not move)?")
 				if doMove == "forward":
 					files = os.listdir(luDict["fqPath"])
 					for fileN in files:
@@ -121,22 +126,50 @@ def updateToMangaUpdatesNaming():
 						print("		moving ", fSrc)
 						print("		to     ", fDst)
 						shutil.move(fSrc, fDst)
-		# row = db.getRowByValue(buId=mId)
-		# fName = nt.prepFilenameForMatching(row["buName"])
-		# if fName != key:
-		# 	altNames = db.getNamesFromId(mId)
 
-		# 	for name,  in altNames:
-		# 		cName = nt.prepFilenameForMatching(name)
-		# 		mId = db.getIdFromDirName(cName)
 
-		# 		if cName != key and cName in nt.dirNameProxy:
-		# 			print("Id = %s, '%s', '%s', '%s'" % (mId, key, fName, luDict["fqPath"]))
-		# 			print("	altName = '%s'" % name)
+def renameSeriesToMatchMangaUpdates(scanpath):
+	idLut = nt.MtNamesMapWrapper("fsName->buId")
+	muLut = nt.MtNamesMapWrapper("buId->buName")
+	db = dbInterface()
+	print("Scanning")
+	foundDirs = 0
+	contents = os.listdir(scanpath)
+	for dirName in contents:
+		cName = nt.prepFilenameForMatching(dirName)
+		mtId = idLut[cName]
+		if mtId and len(mtId) > 1:
+			print("Multiple mtId values for '%s' ('%s')" % (cName, dirName))
+			print("	", mtId)
+
+		elif mtId:
+			mtId = mtId.pop()
+			mtName = muLut[mtId][0]
+			cMtName = nt.prepFilenameForMatching(mtName)
+			if cMtName != cName:
+				print("Dir '%s' ('%s')" % (cName, dirName))
+				print("Should be '%s' (id: %s)" % (mtName, mtId))
+			foundDirs += 1
+
+	print("Total directories that need renaming", foundDirs)
+	#	for key, luDict in nt.dirNameProxy.iteritems():
+	# 	mId = db.getIdFromDirName(key)
+
+	# 	Skip cases where we have no match
+	# 	if not mId:
+	# 		continue
+
+	# 	dups = set()
+	# 	muNames = idLut[mId]
+	# 	print("Names", muNames)
+	# print("All items:")
+	# for key, val in idLut.iteritems():
+	# 	print("key, val:", key, val)
+	# print("exiting")
 
 if __name__ == "__main__":
 	try:
-		updateToMangaUpdatesNaming()
+		# consolicateSeriesToSingleDir()
+		renameSeriesToMatchMangaUpdates("/media/Storage/Manga")
 	finally:
-		import nameTools as nt
 		nt.dirNameProxy.stop()

@@ -88,6 +88,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
 	<li>Rating autosort (wtf did I mean by this?).</li>
 	<li>Prefferentially rescan MangaUpdates series that got releases today (e.g. scan https://www.mangaupdates.com/releases.html).</li>
 	<li>MangaUpdates name lookup passthrouth in nametools.</li>

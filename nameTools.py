@@ -57,15 +57,8 @@ bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w:]*\])")
 
 # Basically used for dir-path cleaning to prep for matching, and not much else
 def sanitizeString(inStr, flatten=True):
-
-	if inStr in nameLookup:
-		inStr = nameLookup[inStr]
-
-
 	baseName = bracketStripRe.sub(" ", inStr)				#clean brackets
 
-	if baseName in nameLookup:
-		baseName = nameLookup[baseName]
 	if flatten:
 		baseName = baseName.replace("~", "")		 # Spot fixes. We'll see if they break anything
 		baseName = baseName.replace(".", "")
@@ -82,7 +75,7 @@ def sanitizeString(inStr, flatten=True):
 	# baseName = unicodedata.normalize('NFKD', baseName).encode("ascii", errors="ignore")  # This will probably break shit
 
 
-	return baseName.lower().rstrip().lstrip()
+	return baseName.lower().strip()
 
 def extractRating(inStr):
 	search = re.search(r"^(.*?)\[([~+\-!]+)\](.*?)$", inStr)
@@ -150,8 +143,6 @@ class MapWrapper(object):
 									folderName text NOT NULL,
 									PRIMARY KEY(baseName, folderName) ON CONFLICT REPLACE)''',
 								("baseName", "folderName")]
-
-
 
 	}
 
@@ -242,32 +233,42 @@ class MapWrapper(object):
 
 
 
-# Caching proxy that makes a DB look like a dict, and at the same time rate-limits the DB update queries, for when look-ups are done in a iterative loop
+# proxy that makes a DB look like a dict
 # Opens a dynamically specifiable database, though the database must be one of a predefined set.
 class MtNamesMapWrapper(object):
 
-	# Make it a borg class (all instances share state)
-	_shared_state = {}
 
 	log = logging.getLogger("Main.NSLookup")
 
 	dbPath = settings.dbName
 
-	def __init__(self):
-		self.__dict__ = self._shared_state
+	modes = {
+		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'muNameList'},
+		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'muNameList'},
+		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'MangaSeries'}
+	}
+
+	def __init__(self, mode):
+
 
 		self.updateLock = threading.Lock()
-		self.tableName = 'muNameList'
 
 
 		self.log.info("Loading NSLookup")
 
-		self.tableCols = ["buId", "fsSafeName"]
+		if not mode in self.modes:
+			raise ValueError("Specified mapping mode not valid")
+		self.mode = self.modes[mode]
 		self.openDB()
 
 		self.lastUpdate = 0
 		self.items = {}
-		self.updateFromDB()
+
+		self.queryStr = 'SELECT %s FROM %s WHERE %s=?;' % (self.mode["cols"][1], self.mode["table"], self.mode["cols"][0])
+		self.allQueryStr = 'SELECT %s, %s FROM %s;' % (self.mode["cols"][0], self.mode["cols"][1], self.mode["table"])
+		print("Mode", mode, "Query", self.queryStr)
+		print("Mode", mode, "IteratorQuery", self.allQueryStr)
+
 
 	def stop(self):
 		self.log.info("Unoading NSLookup")
@@ -278,12 +279,12 @@ class MtNamesMapWrapper(object):
 		self.conn = sqlite3.connect(self.dbPath, timeout=30, check_same_thread=False)
 		self.log.info("opened")
 		cur = self.conn.cursor()
-		ret = cur.execute('''SELECT name FROM sqlite_master WHERE type='table' AND name='%s';''' % self.tableName)
+		ret = cur.execute('''SELECT name FROM sqlite_master WHERE type='table' AND name='%s';''' % self.mode["table"])
 		rets = ret.fetchall()
 		if rets:
 			rets = rets[0]
-		if not self.tableName in rets:   # If the DB doesn't exist, set it up.
-			self.log.info("DB Not setup for %s.", self.tableName)
+		if not self.mode["table"] in rets:   # If the DB doesn't exist, set it up.
+			self.log.info("DB Not setup for %s.", self.mode["table"])
 			raise ValueError
 
 	def closeDB(self):
@@ -291,46 +292,32 @@ class MtNamesMapWrapper(object):
 		self.conn.close()
 		self.log.info( "done")
 
-	def updateFromDB(self, force=False):
-		# Only query the database at most once per 5 seconds.
-		if time.time() > self.lastUpdate + 500 or force:
-			self.updateLock.acquire()
-			self.log.info("NSLookupTool updating from DB. Update forced: %s", force)
-			cur = self.conn.cursor()
-			cur.execute('SELECT %s, %s FROM %s;' % (self.tableCols[0], self.tableCols[1], self.tableName))
-			rets = cur.fetchall()
-
-			temp = {}
-
-			for fsName, mtId in rets:
-				if fsName in temp:
-					temp[fsName].append(mtId)
-				else:
-					temp[fsName] = [mtId]
-
-			self.items = temp
-			self.lastUpdate = time.time()
-
-
-			self.updateLock.release()
-
 	def iteritems(self):
-		self.updateFromDB()
 
-		keys = list(self.items.keys())  # I want the items sorted by name, so we have to sort the list of keys, and then iterate over that.
-		keys.sort()
+		cur = self.conn.cursor()
+		ret = cur.execute(self.allQueryStr)
+		rets = ret.fetchall()
 
-		for key in keys:
-			yield key, self.items[key]
+		for fsSafeName, buId in rets:
+			yield fsSafeName, buId
 
 
 	def __getitem__(self, key):
-		self.updateFromDB()
-		return self.items[key]
+
+		if "keyfunc" in self.mode:
+			key = self.mode["keyfunc"](key)
+		cur = self.conn.cursor()
+		ret = cur.execute(self.queryStr, (key, ))
+		rets = ret.fetchall()
+		if not rets:
+			return None
+		return [item[0] for item in rets]
 
 	def __contains__(self, key):
-		self.updateFromDB()
-		return key in self.items
+
+		if self[key] != None:
+			return True
+		return False
 
 
 
@@ -635,6 +622,7 @@ class DirNameProxy(object):
 
 	def __contains__(self, key):
 		# self.checkUpdate()
+		key = self.filterNameThroughDB(key)
 
 		baseDictKeys = list(self.dirDicts.keys())
 		baseDictKeys.sort()
