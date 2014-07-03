@@ -438,6 +438,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId       collate nocase)''' % ("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name       collate nocase)''' % ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName, name collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.commit()
 		self.log.info("Retreived page database created")

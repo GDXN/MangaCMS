@@ -20,6 +20,7 @@ random.seed()
 
 # --------------------------------------------------------------
 
+# Execution time of ~ 0.000052889607680 second (52 microseconds)
 def prepFilenameForMatching(inStr):
 	inStr = sanitizeString(inStr)
 	inStr = makeFilenameSafe(inStr)
