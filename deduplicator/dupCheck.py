@@ -42,13 +42,13 @@ class ArchChecker(object):
 
 	def deleteArch(self):
 
-		print("Would delete archive", self.archPath)
+		print("Deleteing archive", self.archPath)
 
 		self.db.deleteBasePath(self.archPath)
 		os.remove(self.archPath)
 
 	def addNewArch(self, archPath):
-		print("Implement Deduper database updating from ArchChecker!")
+		print("TODO: Implement Deduper database updating from ArchChecker!")
 
 
 def go():
