@@ -7,6 +7,8 @@ import abc
 import threading
 import logging
 
+import nameTools as nt
+
 class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	# Abstract class (must be subclassed)
@@ -123,6 +125,8 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 	def insertIntoDb(self, commit=True, **kwargs):
+
+
 		cur = self.conn.cursor()
 		keysStr, valuesStr, queryArguments = self.buildInsertArgs(**kwargs)
 
@@ -139,6 +143,10 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, sourceUrl, commit=True, **kwargs):
+
+		# Patch series name.
+		if "seriesName" in kwargs:
+			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl), kwargs)
 		queries = []

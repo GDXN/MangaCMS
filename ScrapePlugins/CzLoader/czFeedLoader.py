@@ -152,11 +152,13 @@ class CzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
 				#
 
+				seriesName = nt.getCanonicalMangaUpdatesName(link["baseName"])
+
 				self.insertIntoDb(retreivalTime = link["date"],
 									sourceUrl   = link["dlLink"],
 									originName  = link["dlName"],
 									dlState     = 0,
-									seriesName  = link["baseName"],
+									seriesName  = seriesName,
 									flags       = flagStr)
 
 

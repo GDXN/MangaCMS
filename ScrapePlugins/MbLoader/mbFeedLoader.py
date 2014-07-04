@@ -145,11 +145,13 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				if isPicked:
 					flagStr = "picked"
 
+				seriesName = nt.getCanonicalMangaUpdatesName(link["baseName"])
+
 				self.insertIntoDb(retreivalTime = link["date"],
 									sourceUrl   = link["dlLink"],
 									originName  = link["dlName"],
 									dlState     = 0,
-									seriesName  = link["baseName"],
+									seriesName  = seriesName,
 									flags       = flagStr)
 
 

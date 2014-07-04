@@ -172,7 +172,7 @@ colours = {
 		sourceUrl,     \
 		retreivalTime, \
 		sourceId,      \
-		seriesName,    \
+		sourceSeriesName,    \
 		fileName,      \
 		originName,    \
 		downloadPath,  \
@@ -181,6 +181,9 @@ colours = {
 		note = row
 
 		dlState = int(dlState)
+
+
+		seriesName = nt.getCanonicalMangaUpdatesName(sourceSeriesName)
 
 		cleanedName = nt.sanitizeString(seriesName)
 		itemInfo = rating = nt.dirNameProxy[cleanedName]
@@ -229,13 +232,16 @@ colours = {
 				locationColour = colours["failed"]
 			filePath = "N.A."
 
+		toolTip  = filePath + "<br>"
+		toolTip += "Original series name: " + sourceSeriesName + "<br>"
+		toolTip += "Proper MangaUpdates name: " + seriesName
 
 
 		%>
 		<tr class="${sourceSite}_row">
 			<td>${ut.timeAgo(retreivalTime)}</td>
-			<td bgcolor=${statusColour} class="showTT" title="${filePath}"></td>
-			<td bgcolor=${locationColour} class="showTT" title="${filePath}"></td>
+			<td bgcolor=${statusColour} class="showTT" title="${toolTip}"></td>
+			<td bgcolor=${locationColour} class="showTT" title="${toolTip}"></td>
 			<td>${ut.createReaderLink(seriesName.title(), itemInfo)}</td>
 			<td>${originName}</td>
 			<td>${rating}</td>

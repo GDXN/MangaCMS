@@ -20,7 +20,7 @@ import urllib.parse
 			var title = $(this).attr('title');
 			$(this).data('tipText', title).removeAttr('title');
 			$('<p class="tooltip"></p>')
-			.text(title)
+			.html(title)
 			.appendTo('body')
 			.fadeIn('slow');
 		}, function() {
@@ -94,7 +94,7 @@ else:
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
 
-		<div class="subdiv czId">
+		<div class="subdiv mbId">
 			<div class="contentdiv">
 				<h3>MangaBaby Series${ " - (Only distinct)" if onlyDistinct else ""}</h3>
 				<a href="itemsCz?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsCz?${urllib.parse.urlencode(nonDistinct)}">All Items</a>

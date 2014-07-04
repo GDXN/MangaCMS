@@ -27,6 +27,7 @@ def prepFilenameForMatching(inStr):
 	return inStr
 
 def makeFilenameSafe(inStr):
+
 	inStr = inStr.replace("%20", " ") \
 				 .replace("<",  " ") \
 				 .replace(">",  " ") \
@@ -48,10 +49,14 @@ def makeFilenameSafe(inStr):
 
 	return inStr
 
+def cleanUnicode(inStr):
+	return unicodedata.normalize("NFKD", inStr).encode("ascii", errors="ignore").decode()
+
+
 
 def cleanName(inStr):
 	cleanedName = sanitizeString(inStr)
-	cleanedName = unicodedata.normalize("NFKD", cleanedName).encode("ascii", errors="ignore").decode()
+
 	return cleanedName
 
 bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w:]*\])")
@@ -86,6 +91,16 @@ def extractRating(inStr):
 	else:
 		return inStr, "", ""
 
+def extractRatingToInt(inStr):
+	dummy, rating, dummy = extractRating(inStr)
+	if not rating:
+		return 0
+
+	pos = rating.count("+")
+	neg = rating.count("-")
+
+
+	return pos - neg
 
 
 def getCleanedName(inStr):
@@ -309,10 +324,11 @@ class MtNamesMapWrapper(object):
 			key = self.mode["keyfunc"](key)
 		cur = self.conn.cursor()
 		ret = cur.execute(self.queryStr, (key, ))
+
 		rets = ret.fetchall()
 		if not rets:
-			return None
-		return [item[0] for item in rets]
+			return []
+		return set([item[0] for item in rets])
 
 	def __contains__(self, key):
 
@@ -491,17 +507,23 @@ class DirNameProxy(object):
 
 		print("Item", item)
 		print("Path", self.paths[item['sourceDict']]['dir'])
-
 		oldPath = item['fqPath']
+		self.changeRatingPath(oldPath, newRating)
+
+	def changeRatingPath(self, oldPath, newRating):
+
 		prefix, dummy_rating, postfix = extractRating(oldPath)
+
+		if newRating == 0:
+			return
 
 		print("Rating change call!")
 		if newRating > 0 and newRating <= 5:
 			ratingStr = "+"*newRating
 		elif newRating == 0:
 			ratingStr = ""
-		elif newRating == -1:
-			ratingStr = "-"
+		elif newRating < 0 and newRating > -6:
+			ratingStr = "-"*newRating
 		else:
 			raise ValueError("Invalid rating value!")
 
@@ -518,17 +540,14 @@ class DirNameProxy(object):
 				raise ValueError("New path exists already!")
 			else:
 				os.rename(oldPath, newPath)
-				self.eventH.setPathDirty(self.paths[item['sourceDict']]['dir'])
+				self.eventH.setPathDirty(os.path.split(oldPath)[0])
 				print("Calling checkUpdate")
 				self.checkUpdate(skipTime=True)
 				print("checkUpdate Complete")
 
 
 	def filterNameThroughDB(self, name):
-		if name in dirsLookup:
-			return dirsLookup[name]
-		else:
-			return name
+		name = getCanonicalMangaUpdatesName(name)
 
 	def getUnsanitizedName(self, name):
 		name = self.filterNameThroughDB(name)
@@ -646,11 +665,26 @@ class DirNameProxy(object):
 
 
 
+## If we have the series name in the synonym database, look it up there, and use the ID
+## to fetch the proper name from the MangaUpdates database
+def getCanonicalMangaUpdatesName(sourceSeriesName):
 
-nameLookup = MapWrapper("mangaNameMappings")
-dirsLookup = MapWrapper("folderNameMappings")
+	fsName = prepFilenameForMatching(sourceSeriesName)
+	mId = buIdLookup[fsName]
+	if mId and len(mId) == 1:
+		correctSeriesName = idLookup[mId.pop()]
+		if correctSeriesName and len(correctSeriesName) == 1:
+			return correctSeriesName.pop()
+	return sourceSeriesName
+
+
+
+nameLookup   = MapWrapper("mangaNameMappings")
+dirsLookup   = MapWrapper("folderNameMappings")
 dirNameProxy = DirNameProxy(settings.mangaFolders)
 
+buIdLookup   = MtNamesMapWrapper("fsName->buId")
+idLookup     = MtNamesMapWrapper("buId->buName")
 
 
 if __name__ == "__main__":
