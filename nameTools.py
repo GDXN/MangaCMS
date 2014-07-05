@@ -444,6 +444,8 @@ class DirNameProxy(object):
 			fullPath = os.path.join(dlPath, dirPath)
 			if os.path.isdir(fullPath):
 				baseName = prepFilenameForMatching(dirPath)
+				baseName = getCanonicalMangaUpdatesName(baseName)
+				baseName = prepFilenameForMatching(dirPath)
 				# baseName = makeFilenameSafe(dirPath)
 				# self.log.info("%s is a dir %s Basepath %s", dirPath, fullPath, baseName)
 				# self.log.info( "RawName = ", baseName)
@@ -546,11 +548,13 @@ class DirNameProxy(object):
 				print("checkUpdate Complete")
 
 
-	def filterNameThroughDB(self, name):
+	def filterPreppedNameThroughDB(self, name):
 		name = getCanonicalMangaUpdatesName(name)
+		name = prepFilenameForMatching(name)
+		return name
 
 	def getUnsanitizedName(self, name):
-		name = self.filterNameThroughDB(name)
+		name = self.filterPreppedNameThroughDB(name)
 		return self[name]
 
 	def getPathByKey(self, key):
@@ -563,7 +567,7 @@ class DirNameProxy(object):
 		return self.dirDicts[key]
 
 	def getFromSpecificDict(self, dictKey, itemKey):
-		filteredKey = self.filterNameThroughDB(itemKey)
+		filteredKey = self.filterPreppedNameThroughDB(itemKey)
 		print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
 		if filteredKey in self.dirDicts[dictKey]:
 			tmp = self.dirDicts[dictKey][filteredKey]
@@ -631,8 +635,8 @@ class DirNameProxy(object):
 		baseDictKeys.sort()
 		for dirDictKey in baseDictKeys:
 
-			# keyLUT = self.filterNameThroughDB(key)
-			keyLUT = self.filterNameThroughDB(key)
+			# keyLUT = self.filterPreppedNameThroughDB(key)
+			keyLUT = self.filterPreppedNameThroughDB(key)
 
 			if keyLUT in self.dirDicts[dirDictKey]:
 				tmp = self.dirDicts[dirDictKey][keyLUT]
@@ -642,7 +646,7 @@ class DirNameProxy(object):
 
 	def __contains__(self, key):
 		# self.checkUpdate()
-		key = self.filterNameThroughDB(key)
+		key = self.filterPreppedNameThroughDB(key)
 
 		baseDictKeys = list(self.dirDicts.keys())
 		baseDictKeys.sort()
@@ -678,13 +682,13 @@ def getCanonicalMangaUpdatesName(sourceSeriesName):
 	return sourceSeriesName
 
 
+buIdLookup   = MtNamesMapWrapper("fsName->buId")
+idLookup     = MtNamesMapWrapper("buId->buName")
 
 nameLookup   = MapWrapper("mangaNameMappings")
 dirsLookup   = MapWrapper("folderNameMappings")
 dirNameProxy = DirNameProxy(settings.mangaFolders)
 
-buIdLookup   = MtNamesMapWrapper("fsName->buId")
-idLookup     = MtNamesMapWrapper("buId->buName")
 
 
 if __name__ == "__main__":

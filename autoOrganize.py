@@ -221,7 +221,7 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 
 if __name__ == "__main__":
 	try:
-		# consolicateSeriesToSingleDir()
+		consolicateSeriesToSingleDir()
 		renameSeriesToMatchMangaUpdates("/media/Storage/Manga")
 	finally:
 		nt.dirNameProxy.stop()

@@ -1,4 +1,4 @@
-## -*- coding: utf-8 -*-
+﻿## -*- coding: utf-8 -*-
 <!DOCTYPE html>
 <%!
 # Module level!
@@ -185,8 +185,8 @@ colours = {
 
 		seriesName = nt.getCanonicalMangaUpdatesName(sourceSeriesName)
 
-		cleanedName = nt.sanitizeString(seriesName)
-		itemInfo = rating = nt.dirNameProxy[cleanedName]
+		cleanedName = nt.prepFilenameForMatching(sourceSeriesName)
+		itemInfo = nt.dirNameProxy[cleanedName]
 		if itemInfo["rating"]:
 			rating = itemInfo["rating"]
 		else:
@@ -232,9 +232,11 @@ colours = {
 				locationColour = colours["failed"]
 			filePath = "N.A."
 
-		toolTip  = filePath + "<br>"
-		toolTip += "Original series name: " + sourceSeriesName + "<br>"
-		toolTip += "Proper MangaUpdates name: " + seriesName
+		toolTip  = filePath.replace('"', "") + "<br>"
+		toolTip += "Original series name: " + sourceSeriesName.replace('"', "") + "<br>"
+		toolTip += "Proper MangaUpdates name: " + seriesName.replace('"', "") + "<br>"
+		toolTip += "cleanedName: " + cleanedName.replace('"', "") + "<br>"
+		toolTip += "itemInfo: " + str(itemInfo).replace('"', "")
 
 
 		%>

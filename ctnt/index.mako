@@ -20,7 +20,7 @@
 			var title = $(this).attr('title');
 			$(this).data('tipText', title).removeAttr('title');
 			$('<p class="tooltip"></p>')
-			.text(title)
+			.html(title)
 			.appendTo('body')
 			.fadeIn('slow');
 		}, function() {
