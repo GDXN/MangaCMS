@@ -101,6 +101,7 @@ def consolicateSeriesToSingleDir():
 	idLut = nt.MtNamesMapWrapper("buId->fsName")
 	db = dbInterface()
 	for key, luDict in nt.dirNameProxy.iteritems():
+		# print("Key = ", key)
 		mId = db.getIdFromDirName(key)
 
 		# Skip cases where we have no match
@@ -221,6 +222,7 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 
 if __name__ == "__main__":
 	try:
+		deduplicateMangaFolders()
 		consolicateSeriesToSingleDir()
 		renameSeriesToMatchMangaUpdates("/media/Storage/Manga")
 	finally:
