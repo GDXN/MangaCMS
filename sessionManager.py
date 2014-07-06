@@ -10,7 +10,7 @@ class ViewerSession(object):
 		self.archHandle = None
 		self.lastAccess = time.time()
 
-		self.pruneAge = 60*30		 # in Seconds, prune if no access for 30 minutes
+		self.pruneAge = 60*120		 # in Seconds, prune if no access for 120 minutes
 
 	def shouldPrune(self):
 		lastChange = time.time() - self.lastAccess

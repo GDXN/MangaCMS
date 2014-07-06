@@ -292,6 +292,51 @@ class PageResource(object):
 		return self.apiInterface.handleApiCall(request)
 
 
+	# New reader!
+
+	def readerTwoPages(self, request):
+		self.log.info("Request for path: %s", request.path)
+		# print("Read file = ", request)
+		# print("Session = ", request.session)
+		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
+			self.log.info("Creating session")
+			request.session["cookieid"] = self.sessionManager.getNewSessionKey()
+			request.session.changed()
+
+		session = self.sessionManager[request.session["cookieid"]]
+
+		redir = self.checkAuth(request)
+		if redir:
+			return redir
+
+		pgTemplate = self.lookupEngine.get_template('reader2/render.mako')
+
+		self.log.info("Request for mako page %s", 'reader2/render.mako')
+		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, sessionArchTool=session)
+		self.log.info("Mako page Rendered %s", 'reader2/render.mako')
+		return Response(body=pageContent)
+
+
+
+	def readerTwoContent(self, request):
+
+		self.log.info("Request for path: %s", request.path)
+		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
+			return HTTPFound(location=request.route_url('reader-redux-container'))
+
+		session = self.sessionManager[request.session["cookieid"]]
+		redir = self.checkAuth(request)
+		if redir:
+			return redir
+
+		seqId = int(request.matchdict["sequenceid"])
+		itemFileHandle, itemPath = session.getItemByKey(seqId)
+		response = request.response
+		response.app_iter = FileIter(itemFileHandle)
+		response.content_type = self.guessItemMimeType(itemPath)
+
+		return response
+
 
 
 def buildApp():
@@ -315,24 +360,31 @@ def buildApp():
 	# config.add_route(name='get-image-by-id',         pattern='/images/byid/{imageID}')
 	# config.add_route(name='get-image-by-offset',     pattern='/images/byoffset/{artist}/{offset}')
 
-	config.add_route(name='reader-startup',    pattern='/reader/')
-	config.add_route(name='reader-dict',       pattern='/reader/{dict}')
-	config.add_route(name='reader-get-files',  pattern='/reader/{dict}/{seriesName}')
-	config.add_route(name='reader-get-arch',   pattern='/reader/{dict}/{seriesName}/{fileName}')
-	config.add_route(name='reader-get-images', pattern='/reader/{dict}/{seriesName}/{fileName}/{sequenceid}')
+	config.add_route(name='reader-startup',         pattern='/reader/')
+	config.add_route(name='reader-dict',            pattern='/reader/{dict}')
+	config.add_route(name='reader-get-files',       pattern='/reader/{dict}/{seriesName}')
+	config.add_route(name='reader-get-arch',        pattern='/reader/{dict}/{seriesName}/{fileName}')
+	config.add_route(name='reader-get-images',      pattern='/reader/{dict}/{seriesName}/{fileName}/{sequenceid}')
 
-	config.add_route(name='porn-get-arch',     pattern='/pron/{source}/{mId}')
-	config.add_route(name='porn-get-images',   pattern='/pron/{source}/{mId}/{sequenceid}')
+	config.add_route(name='reader-redux-container', pattern='/reader2/page/*page')
+	config.add_route(name='reader-redux-content',   pattern='/reader2/file/{sequenceid}')
 
-	config.add_route(name='api',               pattern='/api')
-	config.add_route(name='static-file',       pattern='/js')
-	config.add_route(name='root',              pattern='/')
-	config.add_route(name='leaf',              pattern='/*page')
+	config.add_route(name='porn-get-arch',          pattern='/pron/{source}/{mId}')
+	config.add_route(name='porn-get-images',        pattern='/pron/{source}/{mId}/{sequenceid}')
+
+	config.add_route(name='api',                    pattern='/api')
+	config.add_route(name='static-file',            pattern='/js')
+	config.add_route(name='root',                   pattern='/')
+
+	config.add_route(name='leaf',                   pattern='/*page')
 
 	# config.add_view(resource.getPageHaveAuth,          http_cache=0, route_name='login')
 	# config.add_view(resource.sign_in_out,            http_cache=0, route_name='do_login')
 	# config.add_view(resource.getImageById,           http_cache=0, route_name='get-image-by-id')
 	# config.add_view(resource.getImageByArtistOffset, http_cache=0, route_name='get-image-by-offset')
+
+	config.add_view(resource.readerTwoPages,         http_cache=0, route_name='reader-redux-container')
+	config.add_view(resource.readerTwoContent,       http_cache=0, route_name='reader-redux-content')
 
 	config.add_view(resource.readerBase,             http_cache=0, route_name='reader-startup')
 	config.add_view(resource.readerBase,             http_cache=0, route_name='reader-dict')
