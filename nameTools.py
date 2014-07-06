@@ -260,6 +260,7 @@ class MtNamesMapWrapper(object):
 
 	modes = {
 		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'muNameList'},
+		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'muNameList'},
 		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'muNameList'},
 		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'MangaSeries'}
 	}
@@ -445,7 +446,7 @@ class DirNameProxy(object):
 			if os.path.isdir(fullPath):
 				baseName = prepFilenameForMatching(dirPath)
 				baseName = getCanonicalMangaUpdatesName(baseName)
-				baseName = prepFilenameForMatching(dirPath)
+				baseName = prepFilenameForMatching(baseName)
 				# baseName = makeFilenameSafe(dirPath)
 				# self.log.info("%s is a dir %s Basepath %s", dirPath, fullPath, baseName)
 				# self.log.info( "RawName = ", baseName)
@@ -568,7 +569,7 @@ class DirNameProxy(object):
 
 	def getFromSpecificDict(self, dictKey, itemKey):
 		filteredKey = self.filterPreppedNameThroughDB(itemKey)
-		print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
+		# print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
 		if filteredKey in self.dirDicts[dictKey]:
 			tmp = self.dirDicts[dictKey][filteredKey]
 			return self._processItemIntoRet(tmp, itemKey, filteredKey, dictKey)
@@ -612,19 +613,21 @@ class DirNameProxy(object):
 	def random(self):
 		items = self.getTotalItems()
 		index = random.randint(0, items-1)
+		# print("Getting random item with indice", index)
 		return self.getByIndex(index)
 
 	def getByIndex(self, index):
 		if index < 0 or index >= self.getTotalItems():
 			raise ValueError("Index value exceeds allowable range - %s" % index)
-		for key, itemSet in self.dirDicts.items():
+		for dummy_key, itemSet in self.dirDicts.items():
 			if index > len(itemSet):
 				index -= len(itemSet)
 				continue
 			else:
 				item = itemSet[list(itemSet.keys())[index]]
 				dummy_basePath, dirName = os.path.split(item)
-				filteredKey = sanitizeString(dirName)
+				# print("Selected item with dirPath: ", item)
+				filteredKey = prepFilenameForMatching(dirName)
 				return self[filteredKey]
 		raise ValueError("Exceeded valid range?")
 
@@ -682,12 +685,13 @@ def getCanonicalMangaUpdatesName(sourceSeriesName):
 	return sourceSeriesName
 
 
-buIdLookup   = MtNamesMapWrapper("fsName->buId")
-idLookup     = MtNamesMapWrapper("buId->buName")
+buIdLookup      = MtNamesMapWrapper("fsName->buId")
+buSynonymLookup = MtNamesMapWrapper("buId->name")
+idLookup        = MtNamesMapWrapper("buId->buName")
 
-nameLookup   = MapWrapper("mangaNameMappings")
-dirsLookup   = MapWrapper("folderNameMappings")
-dirNameProxy = DirNameProxy(settings.mangaFolders)
+nameLookup      = MapWrapper("mangaNameMappings")
+dirsLookup      = MapWrapper("folderNameMappings")
+dirNameProxy    = DirNameProxy(settings.mangaFolders)
 
 
 

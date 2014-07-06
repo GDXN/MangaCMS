@@ -150,7 +150,7 @@ def getNotInDBItems(cur):
 		mtItems = getNotInDBItems(sqlCon.cursor())
 		name = nt.sanitizeString(itemDict["item"], flatten=False)
 		print(name)
-		haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
+		buId, haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
 
 
 		if haveBu:
@@ -219,7 +219,7 @@ def getNotInDBItems(cur):
 				Rating<br>
 				<%
 				rtng = itemDict["rating"]
-				print("Item rating = ", rtng)
+				# print("Item rating = ", rtng)
 				%>
 				<select name="rating" id="rating" onchange="ratingChange(this.value)">
 					<option value="-1" ${"selected='selected''" if rtng == "-"     else ""}>-     </option>
@@ -245,6 +245,25 @@ def getNotInDBItems(cur):
 			<div class="lightRect itemInfoBox">
 				Bu List: ${buList}
 			</div>
+
+			% if buId:
+
+				<div class="lightRect itemInfoBox">
+					Other names:
+					<%
+					print(buId)
+					names = nt.buSynonymLookup[buId]
+					print(names)
+					%>
+					<ul>
+						% for name in names:
+							<li>${name}</li>
+						% endfor
+
+					</ul>
+				</div>
+
+			% endif
 
 
 		</div>

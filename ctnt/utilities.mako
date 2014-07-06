@@ -117,7 +117,7 @@ import nameTools as nt
 		buId, buTags, buGenre, buList = None, None, None, None
 	else:
 		buId, buTags, buGenre, buList = rets[0]
-	print("Looked up item %s, ret=%s" % (seriesName, buId))
+	# print("Looked up item %s, ret=%s" % (seriesName, buId))
 
 	if buId:
 		haveBu = True
@@ -126,7 +126,7 @@ import nameTools as nt
 		haveBu = False
 		buLink = nameToBuSearch(seriesName)
 
-	return (haveBu, buLink, buTags, buGenre, buList)
+	return (buId, haveBu, buLink, buTags, buGenre, buList)
 	%>
 </%def>
 
