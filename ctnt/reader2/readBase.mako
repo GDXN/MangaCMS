@@ -37,6 +37,108 @@ def dequoteDict(inDict):
 
 
 
+<%def name="invalidKey()">
+
+	<html>
+		<head>
+			<title>WAT WAT IN THE READER</title>
+			<link rel="stylesheet" href="/style.css">
+			<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
+
+		</head>
+
+
+
+		<body>
+
+
+			<div>
+				${sideBar.getSideBar(sqlCon)}
+				<div class="maindiv">
+					<div class="contentdiv subdiv uncoloured">
+						<h3>Reader!</h3>
+						${invalidKeyContent()}
+					</div>
+				</div>
+			<div>
+
+		</body>
+	</html>
+
+
+</%def>
+
+
+
+<%def name="invalidKeyContent(title='Error', message=None)">
+
+	<div class="contentdiv subdiv uncoloured">
+		<h3>${title}</h3>
+		<div class="errorPattern">
+			% if message == None:
+				<h3>Invalid Manga file specified!</h3>
+			% else:
+				<h3>${message}</h3>
+			% endif
+
+			Are you trying to do something naughty?<br>
+
+			<pre>MatchDict = ${request.matchdict}</pre>
+			<pre>URI = ${request.path}</pre>
+
+			<a href="/reader/">Back</a>
+		</div>
+
+	</div>
+
+</%def>
+
+
+
+<%def name="badFileError(itemPath)">
+
+	<html>
+		<head>
+			<title>WAT WAT IN THE READER</title>
+			<link rel="stylesheet" href="/style.css">
+			<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
+
+		</head>
+
+
+
+		<body>
+
+
+			<div>
+				${sideBar.getSideBar(sqlCon)}
+				<div class="maindiv">
+					<div class="contentdiv subdiv uncoloured">
+						<h3>Reader!</h3>
+
+						<div class="errorPattern">
+							<h3>Specified file is damaged?</h3>
+							<pre>${traceback.format_exc()}</pre><br>
+						</div>
+
+						<div class="errorPattern">
+							<h3>File info:</h3>
+							<p>Exists = ${os.path.exists(itemPath)}</p>
+							<p>Magic file-type = ${magic.from_file(itemPath).decode()}</p>
+						</div>
+						<a href="/reader/">Back</a>
+					</div>
+				</div>
+			<div>
+
+		</body>
+	</html>
+
+</%def>
+
+
+
+
 <%def name="showMangaItems(filePath, keyUrls)">
 
 
@@ -94,93 +196,81 @@ def dequoteDict(inDict):
 
 
 
-<%def name="invalidKey()">
 
-	<html>
-		<head>
-			<title>WAT WAT IN THE READER</title>
-			<link rel="stylesheet" href="/style.css">
-			<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
-
-		</head>
+<%def name="generateInfoSidebar(filePath, keyUrls)">
 
 
+	<div class="readerInfo" id="searchDiv">
 
-		<body>
-
-
-			<div>
-				${sideBar.getSideBar(sqlCon)}
-				<div class="maindiv">
-					<div class="contentdiv subdiv uncoloured">
-						<h3>Reader!</h3>
-						${invalidKeyContent()}
-					</div>
-				</div>
-			<div>
-
-		</body>
-	</html>
+		<div class="lightRect itemInfoBox">
+			 ${baseName}
+		</div>
 
 
-</%def>
+		<div class="lightRect itemInfoBox">
+			${haveBu} ${buLink}
+			<form method="post" action="http://www.mangaupdates.com/series.html" id="muSearchForm" target="_blank">
+				<input type="hidden" name="act" value="series"/>
+				<input type="hidden" name="session" value=""/>
+				<input type="hidden" name="stype" value="Title">
+				<input type="hidden" name="search" value="${itemKey | h}"/>
+
+			</form>
+		</div>
+		<div class="lightRect itemInfoBox">
+			Rating<br>
+			<%
+			rtng = itemDict["rating"]
+			# print("Item rating = ", rtng)
+			%>
+			<select name="rating" id="rating" onchange="ratingChange(this.value)">
+				<option value="-1" ${"selected='selected''" if rtng == "-"     else ""}>-     </option>
+				<option value="0"  ${"selected='selected''" if rtng == ""      else ""}>NR    </option>
+				<option value="1"  ${"selected='selected''" if rtng == "+"     else ""}>+     </option>
+				<option value="2"  ${"selected='selected''" if rtng == "++"    else ""}>++    </option>
+				<option value="3"  ${"selected='selected''" if rtng == "+++"   else ""}>+++   </option>
+				<option value="4"  ${"selected='selected''" if rtng == "++++"  else ""}>++++  </option>
+				<option value="5"  ${"selected='selected''" if rtng == "+++++" else ""}>+++++ </option>
+			</select>
+			<span id="rating-status">✓</span>
+		</div>
 
 
+		<div class="lightRect itemInfoBox">
+			Bu Tags: ${buTags}
+		</div>
 
-<%def name="invalidKeyContent()">
+		<div class="lightRect itemInfoBox">
+			Bu Genre: ${buGenre}
+		</div>
 
-						<div class="errorPattern">
-							<h3>Invalid Manga file specified!</h3>
-							Are you trying to do something naughty?<br>
+		<div class="lightRect itemInfoBox">
+			Bu List: ${buList}
+		</div>
 
-							<pre>${request.matchdict}</pre>
-							<pre>${request.path}</pre>
+		% if buId:
 
-							<a href="/reader/">Back</a>
-						</div>
+			<div class="lightRect itemInfoBox">
+				Other names:
+				<%
+				print(buId)
+				names = nt.buSynonymLookup[buId]
+				print(names)
+				%>
+				<ul>
+					% for name in names:
+						<li>${name}</li>
+					% endfor
 
-</%def>
+				</ul>
+			</div>
 
-
-
-<%def name="badFileError(itemPath)">
-
-	<html>
-		<head>
-			<title>WAT WAT IN THE READER</title>
-			<link rel="stylesheet" href="/style.css">
-			<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
-
-		</head>
-
-
-
-		<body>
+		% endif
 
 
-			<div>
-				${sideBar.getSideBar(sqlCon)}
-				<div class="maindiv">
-					<div class="contentdiv subdiv uncoloured">
-						<h3>Reader!</h3>
+	</div>
 
-						<div class="errorPattern">
-							<h3>Specified file is damaged?</h3>
-							<pre>${traceback.format_exc()}</pre><br>
-						</div>
 
-						<div class="errorPattern">
-							<h3>File info:</h3>
-							<p>Exists = ${os.path.exists(itemPath)}</p>
-							<p>Magic file-type = ${magic.from_file(itemPath).decode()}</p>
-						</div>
-						<a href="/reader/">Back</a>
-					</div>
-				</div>
-			<div>
-
-		</body>
-	</html>
 
 </%def>
 

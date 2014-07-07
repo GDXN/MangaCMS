@@ -1,53 +1,29 @@
 ## -*- coding: utf-8 -*-
-<!DOCTYPE html>
+
 <%startTime = time.time()%>
-
-
-<%namespace name="reader" file="/reader/readBase.mako"/>
 <%!
-# Module level!
 import time
-import datetime
-from babel.dates import format_timedelta
-import os.path
-import os
-import urllib.parse
+styles = ["skId", "mtMonId", "czId", "mbId", "djMoeId", "navId"]
 
-from natsort import natsorted
 
-from operator import itemgetter
+
+
 
 import nameTools as nt
 import unicodedata
 import traceback
 import settings
-
-styles = ["mtMainId", "mtSubId", "djMoeId", "fuFuId"]
-
-
-def dequoteDict(inDict):
-	ret = {}
-	for key in inDict.keys():
-		ret[key] = urllib.parse.unquote_plus(inDict[key])
-	return ret
-
-def getNotInDBItems(cur):
-
-	monitored = []
-	monitorItems = {}
-	for item in monitored:
-		nameClean = nt.sanitizeString(item[2])
-
-		monitorItems[nameClean] = item
-
-	return monitorItems
-
-
+import os.path
+import urllib
+%>
+<%
+print("Rendering")
 %>
 
-<%namespace name="tableGenerators" file="/gentable.mako"/>
-<%namespace name="sideBar" file="/gensidebar.mako"/>
+
 <%namespace name="ut"              file="/utilities.mako"/>
+<%namespace name="sideBar"         file="/gensidebar.mako"/>
+<%namespace name="reader" file="/reader2/readBase.mako"/>
 
 
 <%def name="pickDirTable()">
@@ -64,214 +40,131 @@ def getNotInDBItems(cur):
 		<% tblStyle = styleTemp.pop() %>
 
 		<div class="${tblStyle}">
-			<a href="/reader/${key}">${settings.mangaFolders[key]["dir"]}</a>
+			<a href="/reader2/browse/${key}">${settings.mangaFolders[key]["dir"]}</a>
 		</div>
 	% endfor
 	</div>
 </%def>
 
-<%def name="displayDirContentsTable(dictKey)">
+
+
+
+
+
+<%def name="renderReader(dirPath)">
+
 	<div class="contentdiv subdiv uncoloured">
-		<h3>Folder: ${settings.mangaFolders[dictKey]["dir"]}</h3>
-		<%
-		itemTemp = nt.dirNameProxy.getRawDirDict(dictKey)
+		<h3>That's a file, yo!</h3>
+		Render Reader! <br>${dirPath}
+	</div>
+</%def>
 
-		keys = list(itemTemp.keys())  # Keys are pre-lower-cased from the dirNameProxy
-		keys = natsorted(keys)
 
-		%>
-		<table border="1px">
+
+<%def name="renderContents(dictKey, navPath)">
+
+	<%
+	dirPath = os.path.join(settings.mangaFolders[dictKey]["dir"], *navPath)
+	dirContents = os.listdir(dirPath)
+	dirContents.sort()
+	%>
+	Render Directory! ${dirPath}
+
+
+	<table border="1px" class="mangaFileTable">
+		<tr>
+			<th class="uncoloured" width="700">${"WAT"}</th>
+		</tr>
+
+		% for item in dirContents:
 			<tr>
-				<th class="uncoloured" width="200">BaseName</th>
-				<th class="uncoloured" width="350">Path</th>
+
+				<%
+				urlPath = list(navPath)
+				urlPath.append(item)
+
+				urlPath = [urllib.parse.quote(bytes(item, 'utf-8')) for item in urlPath]
+				urlPath = "/".join(urlPath)
+				%>
+				<td><a href="/reader2/browse/${dictKey}/${urlPath}">${item}</a></td>
 			</tr>
-			% for key in keys:
-				<tr>
-					<td><a href="/reader/${dictKey}/${urllib.parse.quote(key)}">${key.title() | h}</a></td>
-					<td><a href="/reader/${dictKey}/${urllib.parse.quote(key)}">${itemTemp[key] | h}</a></td>
-				</tr>
-			% endfor
-		</table>
-	</div>
+		% endfor
+	</table>
+
 </%def>
 
-<%def name="displayItemFiles(dictKey, itemKey)">
 
 
-	<script>
+<%def name="genDirListing(title, dictKey, navPath)">
+	<%
+	# At this point, we can be confident that `dirPath` is a path that is actually a valid directory, so list it, and
+	# display it's contents
 
-		function ajaxCallback(reqData, statusStr, jqXHR)
-		{
-			console.log("Ajax request succeeded");
-			console.log(reqData);
-			console.log(statusStr);
-
-			var status = $.parseJSON(reqData);
-			console.log(status)
-			if (status.Status == "Success")
-			{
-				$('#rating-status').html("✓");
-				location.reload();
-			}
-			else
-			{
-				$('#rating-status').html("✗");
-				alert("ERROR!\n"+status.Message)
-			}
-
-		};
-		function ratingChange(newRating)
-		{
-			$('#rating-status').html("❍");
-
-			var ret = ({});
-			ret["change-rating"] = "${itemKey}";
-			ret["new-rating"] = newRating;
-			$.ajax("/api", {"data": ret, success: ajaxCallback});
-			// alert("New value - "+newRating);
-		}
-	</script>
-
-
+	%>
 	<div class="contentdiv subdiv uncoloured">
+	<h3>${title}</h3>
 		<%
 
-		itemDict = nt.dirNameProxy[itemKey]
-
-		fullPath = itemDict['fqPath']
-		baseName = fullPath.split("/")[-1]
-
-
-
-		# itemTemp = nt.dirNameProxy.getRawDirDict(pathKey)
-		# keys = list(itemTemp.keys())
-		# keys.sort()
-
-		mtItems = getNotInDBItems(sqlCon.cursor())
-		name = nt.sanitizeString(itemDict["item"], flatten=False)
-		print(name)
-		buId, haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
-
-
-		if haveBu:
-			haveBu = "✓"
-		else:
-			haveBu = "✗"
-
-
-
+		renderContents(dictKey, navPath)
 		%>
-		<h3>Manga: ${baseName}</h3>
-
-		<div class="inlineLeft">
-			% for dirDictKey in nt.dirNameProxy.getDirDicts().keys():
-				<%
-
-					itemDict = nt.dirNameProxy.getFromSpecificDict(dirDictKey, itemKey)
-					if not itemDict["item"]:
-						continue
-					fullPath = itemDict['fqPath']
-					baseName = fullPath.split("/")[-1]
-
-					items = os.listdir(fullPath)
-					# items.sort()
-					try:
-						sort = ""
-						items = natsorted(items)
-					except:
-						sort = "<b>Natural Sort failed!</b> Using ASCIIbetical sorting as fall-back."
-						items.sort()
-				%>
-				${sort}
-				<table border="1px" class="mangaFileTable">
-					<tr>
-						<th class="uncoloured" width="700">${itemDict["fqPath"]}</th>
-					</tr>
-
-					% for item in items:
-						<tr>
-
-							<td><a href="/reader/${dirDictKey}/${urllib.parse.quote(itemKey)}/${urllib.parse.quote(bytes(item, 'utf-8'))}">${item}</a></td>
-						</tr>
-					% endfor
-				</table>
-			% endfor
-		</div>
-
-		<div class="readerInfo" id="searchDiv">
-
-			<div class="lightRect itemInfoBox">
-				 ${baseName}
-			</div>
-
-
-			<div class="lightRect itemInfoBox">
-				${haveBu} ${buLink}
-				<form method="post" action="http://www.mangaupdates.com/series.html" id="muSearchForm" target="_blank">
-					<input type="hidden" name="act" value="series"/>
-					<input type="hidden" name="session" value=""/>
-					<input type="hidden" name="stype" value="Title">
-					<input type="hidden" name="search" value="${itemKey | h}"/>
-
-				</form>
-			</div>
-			<div class="lightRect itemInfoBox">
-				Rating<br>
-				<%
-				rtng = itemDict["rating"]
-				# print("Item rating = ", rtng)
-				%>
-				<select name="rating" id="rating" onchange="ratingChange(this.value)">
-					<option value="-1" ${"selected='selected''" if rtng == "-"     else ""}>-     </option>
-					<option value="0"  ${"selected='selected''" if rtng == ""      else ""}>NR    </option>
-					<option value="1"  ${"selected='selected''" if rtng == "+"     else ""}>+     </option>
-					<option value="2"  ${"selected='selected''" if rtng == "++"    else ""}>++    </option>
-					<option value="3"  ${"selected='selected''" if rtng == "+++"   else ""}>+++   </option>
-					<option value="4"  ${"selected='selected''" if rtng == "++++"  else ""}>++++  </option>
-					<option value="5"  ${"selected='selected''" if rtng == "+++++" else ""}>+++++ </option>
-				</select>
-				<span id="rating-status">✓</span>
-			</div>
-
-
-			<div class="lightRect itemInfoBox">
-				Bu Tags: ${buTags}
-			</div>
-
-			<div class="lightRect itemInfoBox">
-				Bu Genre: ${buGenre}
-			</div>
-
-			<div class="lightRect itemInfoBox">
-				Bu List: ${buList}
-			</div>
-
-			% if buId:
-
-				<div class="lightRect itemInfoBox">
-					Other names:
-					<%
-					print(buId)
-					names = nt.buSynonymLookup[buId]
-					print(names)
-					%>
-					<ul>
-						% for name in names:
-							<li>${name}</li>
-						% endfor
-
-					</ul>
-				</div>
-
-			% endif
-
-
-		</div>
-
-
 
 	</div>
+
 </%def>
+
+
+
+
+<%def name="dirContentsContainer(navPath)">
+
+	<%
+
+	if len(navPath) < 1:
+		reader.invalidKeyContent(message="No navigation path present? How did this even happen?")
+		return
+
+	try:
+		dictIndice = int(navPath[0])
+	except ValueError:
+		reader.invalidKeyContent(message="Specified container path is not a integer!")
+
+	if not dictIndice in settings.mangaFolders.keys():
+		reader.invalidKeyContent(message="Specified container path is not valid!")
+		return
+
+	validPaths = [settings.mangaFolders[key]["dir"] for key in settings.mangaFolders.keys()]
+
+	navPath = navPath[1:]
+	currentPath = os.path.join(settings.mangaFolders[dictIndice]["dir"], *navPath)
+
+
+	# Try to block directory traversal shit.
+	# It looks like pyramid flattens the URI path before I even get it, but still.
+	currentPath = os.path.normpath(currentPath)
+	if currentPath.startswith(settings.mangaFolders[dictIndice]["dir"].rstrip('/')):
+
+		if os.path.isfile(currentPath):
+			renderReader(currentPath)
+		elif os.path.isdir(currentPath):
+
+			prefix = os.path.commonprefix(validPaths)
+			title = currentPath[len(prefix):]
+			title = "Manga Reader: {dir}".format(dir=title)
+			print("Common prefix = ", prefix)
+
+			genDirListing(title, dictIndice, navPath)
+		else:
+			reader.invalidKeyContent(title="Uh..... That's not a valid file or directory path!")
+
+	else:
+		reader.invalidKeyContent(title="No directory traversal bugs for you!",
+			message="Directory you attempted to access: {dir}".format(dir=currentPath))
+		return
+
+	%>
+
+</%def>
+
 
 
 
@@ -291,34 +184,15 @@ def getNotInDBItems(cur):
 		<div>
 			${sideBar.getSideBar(sqlCon)}
 			<div class="maindiv">
-				<%
+			<%
 
-				# request.matchdict = dequoteDict(request.matchdict)
+			# If there is no items in the request path, display the root dir
+			if len(request.matchdict["page"]) == 0:
+				pickDirTable()
+			else:
+				dirContentsContainer(request.matchdict["page"])
 
-
-				if 'dict' in request.matchdict and 'seriesName' in request.matchdict:
-					item = request.matchdict['seriesName']
-					dictKey = int(request.matchdict['dict'])
-					# print("Series name! - ", item)
-					if (not dictKey in settings.mangaFolders) or (not item in nt.dirNameProxy.getDirDicts()[dictKey]):
-						reader.invalidKeyContent()
-					else:
-						displayItemFiles(dictKey, item)
-
-				elif 'dict' in request.matchdict:
-					try:
-						dictKey = int(request.matchdict['dict'])
-						if dictKey in settings.mangaFolders:
-							displayDirContentsTable(dictKey)
-						else:
-							reader.invalidKeyContent()
-					except ValueError:
-						traceback.print_exc()
-						reader.invalidKeyContent()
-				else:
-					pickDirTable()
-
-				%>
+			%>
 
 			</div>
 		<div>

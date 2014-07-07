@@ -22,7 +22,8 @@ import unicodedata
 import traceback
 import settings
 
-styles = ["mtMainId", "mtSubId", "djMoeId", "fuFuId"]
+
+styles = ["skId", "mtMonId", "czId", "mbId", "djMoeId", "navId"]
 
 
 def dequoteDict(inDict):

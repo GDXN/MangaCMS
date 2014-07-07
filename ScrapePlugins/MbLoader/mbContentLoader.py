@@ -48,7 +48,7 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
 
 
-			baseNameLower = nt.sanitizeString(item["seriesName"])
+			baseNameLower = nt.prepFilenameForMatching(item["seriesName"])
 			safeBaseName = nt.makeFilenameSafe(item["seriesName"])
 
 

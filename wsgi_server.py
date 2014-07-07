@@ -366,7 +366,7 @@ def buildApp():
 	config.add_route(name='reader-get-arch',        pattern='/reader/{dict}/{seriesName}/{fileName}')
 	config.add_route(name='reader-get-images',      pattern='/reader/{dict}/{seriesName}/{fileName}/{sequenceid}')
 
-	config.add_route(name='reader-redux-container', pattern='/reader2/page/*page')
+	config.add_route(name='reader-redux-container', pattern='/reader2/browse/*page')
 	config.add_route(name='reader-redux-content',   pattern='/reader2/file/{sequenceid}')
 
 	config.add_route(name='porn-get-arch',          pattern='/pron/{source}/{mId}')
