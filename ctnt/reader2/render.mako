@@ -27,6 +27,11 @@ print("Rendering")
 
 
 <%def name="pickDirTable()">
+
+	<%
+	reader.readerBrowseHeader()
+	%>
+
 	<%
 	keys = list(settings.mangaFolders.keys())
 	keys.sort()
@@ -44,19 +49,19 @@ print("Rendering")
 		</div>
 	% endfor
 	</div>
+	<%
+	reader.readerBrowseFooter()
+	%>
 </%def>
 
 
 
 
 
-
-<%def name="renderReader(dirPath)">
-
-	<div class="contentdiv subdiv uncoloured">
-		<h3>That's a file, yo!</h3>
-		Render Reader! <br>${dirPath}
-	</div>
+<%def name="renderReader(filePath)">
+	<%
+	reader.showMangaItems(filePath)
+	%>
 </%def>
 
 
@@ -96,7 +101,9 @@ print("Rendering")
 
 
 <%def name="genDirListing(title, dictKey, navPath)">
+
 	<%
+	reader.readerBrowseHeader()
 	# At this point, we can be confident that `dirPath` is a path that is actually a valid directory, so list it, and
 	# display it's contents
 
@@ -109,7 +116,9 @@ print("Rendering")
 		%>
 
 	</div>
-
+	<%
+	reader.readerBrowseFooter()
+	%>
 </%def>
 
 
@@ -152,12 +161,15 @@ print("Rendering")
 			title = "Manga Reader: {dir}".format(dir=title)
 			print("Common prefix = ", prefix)
 
+
 			genDirListing(title, dictIndice, navPath)
+
 		else:
-			reader.invalidKeyContent(title="Uh..... That's not a valid file or directory path!")
+
+			reader.invalidKey(title="Uh..... That's not a valid file or directory path!")
 
 	else:
-		reader.invalidKeyContent(title="No directory traversal bugs for you!",
+		reader.invalidKey(title="No directory traversal bugs for you!",
 			message="Directory you attempted to access: {dir}".format(dir=currentPath))
 		return
 
@@ -167,42 +179,13 @@ print("Rendering")
 
 
 
+<%
 
+# If there is no items in the request path, display the root dir
+if len(request.matchdict["page"]) == 0:
+	pickDirTable()
+else:
+	dirContentsContainer(request.matchdict["page"])
 
-<html>
-	<head>
-		<title>WAT WAT IN THE READER</title>
-		${ut.headerBase()}
+%>
 
-	</head>
-
-
-
-	<body>
-
-
-		<div>
-			${sideBar.getSideBar(sqlCon)}
-			<div class="maindiv">
-			<%
-
-			# If there is no items in the request path, display the root dir
-			if len(request.matchdict["page"]) == 0:
-				pickDirTable()
-			else:
-				dirContentsContainer(request.matchdict["page"])
-
-			%>
-
-			</div>
-		<div>
-
-		<%
-		stopTime = time.time()
-		timeDelta = stopTime - startTime
-		%>
-
-		<p>This page rendered in ${timeDelta} seconds.</p>
-
-	</body>
-</html>

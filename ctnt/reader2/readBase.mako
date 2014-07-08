@@ -5,6 +5,7 @@
 <%namespace name="tableGenerators" file="/gentable.mako"/>
 <%namespace name="sideBar" file="/gensidebar.mako"/>
 
+<%namespace name="ut"              file="/utilities.mako"/>
 
 <%!
 # Module level!
@@ -36,8 +37,49 @@ def dequoteDict(inDict):
 
 
 
+<%def name="readerBrowseHeader()">
 
-<%def name="invalidKey()">
+	<html>
+		<head>
+			<title>WAT WAT IN THE READER</title>
+			${ut.headerBase()}
+
+		</head>
+
+
+
+		<body>
+
+
+			<div>
+				${sideBar.getSideBar(sqlCon)}
+				<div class="maindiv">
+
+</%def>
+
+
+<%def name="readerBrowseFooter()">
+
+
+				</div>
+			<div>
+
+			<%
+			stopTime = time.time()
+			timeDelta = stopTime - startTime
+			%>
+
+			<p>This page rendered in ${timeDelta} seconds.</p>
+
+		</body>
+	</html>
+</%def>
+
+
+
+
+
+<%def name="invalidKey(title='Error', message=None)">
 
 	<html>
 		<head>
@@ -55,10 +97,7 @@ def dequoteDict(inDict):
 			<div>
 				${sideBar.getSideBar(sqlCon)}
 				<div class="maindiv">
-					<div class="contentdiv subdiv uncoloured">
-						<h3>Reader!</h3>
-						${invalidKeyContent()}
-					</div>
+					${invalidKeyContent(title, message)}
 				</div>
 			<div>
 
@@ -105,8 +144,6 @@ def dequoteDict(inDict):
 
 		</head>
 
-
-
 		<body>
 
 
@@ -139,9 +176,37 @@ def dequoteDict(inDict):
 
 
 
-<%def name="showMangaItems(filePath, keyUrls)">
+<%def name="showMangaItems(itemPath)">
+
+	<%
+
+	if not (os.path.isfile(itemPath) and os.access(itemPath, os.R_OK)):
+		print("")
+		invalidKey(title="Trying to read file that does not exist!")
+		return
 
 
+
+	try:
+		# We have a valid file-path. Read it!
+		sessionArchTool.checkOpenArchive(itemPath)
+		print("sessionArchTool", sessionArchTool)
+		keys = sessionArchTool.getKeys()  # Keys are already sorted
+
+		print("Items in archive", keys)
+		print("Items in archive", sessionArchTool.items)
+
+		keyUrls = []
+		for indice in range(len(keys)):
+			keyUrls.append("'/reader2/file/%s'" % (indice))
+
+
+	except:
+		print("Bad file")
+		badFileError(itemPath)
+		return
+
+	%>
 
 	<html style='html: -ms-content-zooming: none; /* Disables zooming */'>
 		<head>
@@ -152,7 +217,7 @@ def dequoteDict(inDict):
 			<meta name="apple-mobile-web-app-capable" content="yes">
 			<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-			<title>Reader (${filePath.split("/")[-1]})</title>
+			<title>Reader (${itemPath.split("/")[-1]})</title>
 
 			<script src="/js/jquery-2.1.1.js"></script>
 			<script src="/comicbook/js/comicbook.js"></script>
