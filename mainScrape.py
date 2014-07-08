@@ -15,6 +15,7 @@ import time
 import runStatus
 import signal
 import nameTools as nt
+nt.dirNameProxy.startDirObservers()
 import activePlugins
 
 from apscheduler.scheduler import Scheduler

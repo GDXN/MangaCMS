@@ -397,6 +397,20 @@ class DirNameProxy(object):
 
 
 		self.paths = paths
+
+		self.lastCheck = 0
+		self.maxRate = 5
+		self.dirDicts = {}
+
+		self.observerRunning = False
+		# for watch in self.
+
+	def startDirObservers(self):
+
+		# Eventually, I want to use this to prevent crashes if the observers
+		# have not been started. Eventually.
+		self.observerRunning = True
+
 		if not "wm" in self.__dict__:
 			self.wm = pyinotify.WatchManager()
 			self.eventH = EventHandler([item["dir"] for item in self.paths.values()])
@@ -417,14 +431,9 @@ class DirNameProxy(object):
 		self.log.info("Filesystem observers initialized")
 		self.log.info("Loading DirLookup")
 
-		self.lastCheck = 0
-		self.maxRate = 5
-		self.dirDicts = {}
 		self.checkUpdate(force=True)
 		baseDictKeys = list(self.dirDicts.keys())
 		baseDictKeys.sort()
-
-		# for watch in self.
 
 	def stop(self):
 		# Only stop once (should prevent on-exit errors)
@@ -684,6 +693,17 @@ def getCanonicalMangaUpdatesName(sourceSeriesName):
 			return correctSeriesName.pop()
 	return sourceSeriesName
 
+
+
+## If we have the series name in the synonym database, look it up there, and use the ID
+## to fetch the proper name from the MangaUpdates database
+def haveCanonicalMangaUpdatesName(sourceSeriesName):
+
+	fsName = prepFilenameForMatching(sourceSeriesName)
+	mId = buIdLookup[fsName]
+	if mId and len(mId) == 1:
+		return True
+	return False
 
 buIdLookup      = MtNamesMapWrapper("fsName->buId")
 buSynonymLookup = MtNamesMapWrapper("buId->name")

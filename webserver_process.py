@@ -11,6 +11,7 @@ import wsgi_server
 
 import cherrypy
 import nameTools as nt
+nt.dirNameProxy.startDirObservers()
 
 dbName = '/media/Storage/Scripts/MTDlTool/links.db'
 
