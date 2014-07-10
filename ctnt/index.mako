@@ -88,6 +88,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+fukkit, scrape batoto.
 	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
 	<li>Rating autosort (wtf did I mean by this?).</li>
 	<li>Prefferentially rescan MangaUpdates series that got releases today (e.g. scan https://www.mangaupdates.com/releases.html).</li>
@@ -108,6 +109,7 @@ Shit to do:
 <p>
 <b>Reader</b>
 <ul>
+reader shits itself on unicode urls. 
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>

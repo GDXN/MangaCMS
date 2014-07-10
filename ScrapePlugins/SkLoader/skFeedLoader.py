@@ -49,7 +49,7 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def getItemFromContainer(self, segmentSoup, addDate):
-		seriesName, chapter = segmentSoup.get_text().strip().split(" chapter ")
+		seriesName, chapter = segmentSoup.get_text().strip().split(" chapter ", 1)
 
 		chName = "{series} - {chapter}".format(series=seriesName, chapter=chapter)
 

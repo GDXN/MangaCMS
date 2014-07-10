@@ -23,12 +23,14 @@ webCtntPath = '/SOMETHING/MangaCMS/ctnt'
 badImageDir  = r"/SOMETHING/MangaCMS/removeImages"
 
 # This is the path to the deduplication tool database API python file.
+# and the file hashing python file.
 # You only need to set this if you want to use the on-the-fly duplicate
 # removal, which is complex and not fully finished at this time.
 # You must have https://github.com/fake-name/IntraArchiveDeduplicator somewhere,
 # and have allowed it to build a database of the extant local files for it to
 # be of any use.
 dedupApiFile = '/SOMETHING/Deduper/dbApi.py'
+fileHasher   = '/SOMETHING/Deduper/hashFile.py'
 
 # Folders to scan for folders to use as download paths.
 # Directories are scanned by sorted keys
