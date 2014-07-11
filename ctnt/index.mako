@@ -111,6 +111,8 @@ Shit to do:
 <p>
 <b>Reader</b>
 <ul>
+	<li>Finish reader redesign</li>
+	<li>Add ability to rename directories to reader</li>
 	<li>reader shits itself on unicode urls.</li>
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>

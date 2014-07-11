@@ -392,7 +392,7 @@ class DirNameProxy(object):
 	def __init__(self, paths):
 		self.__dict__ = self._shared_state
 
-		self.notifierRunning = True
+		self.notifierRunning = False
 		self.updateLock = threading.Lock()
 
 
@@ -402,14 +402,15 @@ class DirNameProxy(object):
 		self.maxRate = 5
 		self.dirDicts = {}
 
-		self.observerRunning = False
+
 		# for watch in self.
 
 	def startDirObservers(self):
 
 		# Eventually, I want to use this to prevent crashes if the observers
 		# have not been started. Eventually.
-		self.observerRunning = True
+
+		self.notifierRunning = True
 
 		if not "wm" in self.__dict__:
 			self.wm = pyinotify.WatchManager()
