@@ -119,7 +119,7 @@ mtItems = getNotInDBItems(cur)
 # rating,
 # lastChanged
 print("Querying")
-cur.execute('SELECT buId,availProgress,readingProgress,buName,buList FROM MangaSeries WHERE buId IS NOT NULL;')
+cur.execute('SELECT buId,availProgress,readingProgress,buName,buList FROM MangaSeries WHERE buId IS NOT NULL and buList IS NOT NULL;')
 buItems = cur.fetchall()
 print("Query complete")
 
@@ -150,14 +150,6 @@ for item in buItems:
 
 
 	cleanedName = nt.cleanName(seriesName)
-
-
-
-# cur.execute('SELECT COUNT(DISTINCT baseName) FROM links WHERE isMp=1;')
-# mpDistinct = cur.fetchall()[0][0]
-
-# cur.execute('SELECT COUNT(DISTINCT seriesName) FROM MtMonitoredIDs;')
-# monitoredDistinct = cur.fetchall()[0][0]
 
 reSortTop = ["Win", "Fascinating", "Interesting", "Tablet search"]
 reSortTop.reverse()
@@ -219,7 +211,7 @@ mtMonRunLast = mtMonRunLast.split(".")[0]
 
 # for item in nt.dirNameProxy:
 
-
+print("Generating table")
 
 %>
 
@@ -251,43 +243,12 @@ mtMonRunLast = mtMonRunLast.split(".")[0]
 						<li> <a href="bmUpdates?hasRating=False">No Rating</a></li>
 					</ul>
 				</div>
-				<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
-
-					MT Monitor:
-					<ul style="width: 100px;">
-
-						<li>Last Update: ${mtMonRunLast}</li>
-						<li> <a href="bmUpdates?updateMU=True">Force Update</a></li>
-					</ul>
-				</div>
-				<div class="" style="white-space:nowrap; display: inline-block; margin-left: 80px; vertical-align:top">
-					<table>
-						<tr>
- 							<td>Items in MT: </td>
-							<td>${inMTcount}</td>
-						</tr>
-						<tr>
-							<td>Items not in MT: </td>
-							<td>${len(buItems) - inMTcount}</td>
-						</tr>
-						<tr>
-							<td>Partial Rows: </td>
-							<td>${badLinks}</td>
-						</tr>
-					</table>
-				</div>
 
 				<hr>
 			% for key in keys:
 				<div>
 					<div style="margin-top: 10px;">
-## 						<%
-## 						notMtCnt = 0
-##
-## 						%>
-## 						<div style="display:inline;"><h4 style="display:inline;">List: ${key}</h4></div>
-## 						<div style="display:inline; width:400px;">&nbsp;</div>
-## 						<div style="display:inline;"> - ${len(items[key])} Item${"s" if len(items[key]) > 1 else ""}, In MT: ${inMtCnt}, Not in MT: ${notMtCnt}</div>
+						<div style="display:inline;"><h4 style="display:inline;">List: ${key}</h4></div>
 					</div>
 					${genBmUpdateTable(items[key])}
 				</div>
@@ -326,7 +287,7 @@ mtMonRunLast = mtMonRunLast.split(".")[0]
 			<%
 				name = dataDict["seriesName"]
 				cleanedName = nt.cleanName(dataDict["seriesName"])
-				folderName = nt.dirNameProxy.filterNameThroughDB(cleanedName)
+				folderName = nt.getCanonicalMangaUpdatesName(cleanedName)
 				folderName = folderName.lower()
 
 				 # = nt.dirNameProxy.filterNameThroughDB(cleanedName)

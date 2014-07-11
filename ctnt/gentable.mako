@@ -432,10 +432,8 @@ colours = {
 		<tr>
 
 			<th class="uncoloured" width="5%">Last Update</th>
-			<th class="uncoloured" width="2.5%">MtID</th>
 			<th class="uncoloured" width="2.5%">MuID</th>
-			<th class="uncoloured" width="40%">MT Name</th>
-			<th class="uncoloured" width="40%">BU Name</th>
+			<th class="uncoloured" width="40%">Mu Name</th>
 			<th class="uncoloured" width="5%">Rating</th>
 			<th class="uncoloured" width="5%">Edit</th>
 
@@ -452,22 +450,16 @@ colours = {
 
 	if sortKey == "update":
 		sortKey = "ORDER BY lastChanged DESC"
-	elif sortKey == "mtName":
-		sortKey = "ORDER BY mtName,buName ASC"
 	elif sortKey == "buName":
-		sortKey = "ORDER BY buName,mtName ASC"
+		sortKey = "ORDER BY buName ASC"
 	elif sortKey == "aggregate":
 		sortKey = ""
 	else:
-		sortKey = "ORDER BY buName,mtName ASC"
+		sortKey = "ORDER BY buName ASC"
 
 
 	cur = sqlCon.cursor()
 	query = '''SELECT 			dbId,
-								mtName,
-								mtId,
-								mtTags,
-								mtList,
 								buName,
 								buId,
 								buTags,
@@ -493,19 +485,9 @@ colours = {
 			ratingShow = "rated"
 
 	def getSortKey(inArr):
-		mtName = inArr[1]
-		buName = inArr[5]
-		if not buName and not mtName:
-			raise ValueError("No keys at all?")
-		elif not mtName:
-			return buName.lower()
-		elif not buName:
-			return mtName.lower()
+		buName = inArr[1]
+		return buName.lower()
 
-		mtName = mtName.lower()
-		buName = buName.lower()
-
-		return mtName if mtName < buName else buName
 
 	if not sortKey:
 		# print("Aggregate sort")
@@ -519,10 +501,6 @@ colours = {
 
 		<%
 		dbId,            \
-		mtName,          \
-		mtId,            \
-		mtTags,          \
-		mtList,          \
 		buName,          \
 		buId,            \
 		buTags,          \
@@ -534,11 +512,8 @@ colours = {
 
 
 
-		cleanedMtName = None
 		cleanedBuName = None
 
-		if mtName != None:
-			cleanedMtName = nt.sanitizeString(mtName)
 		if buName != None:
 			cleanedBuName = nt.sanitizeString(buName)
 
@@ -548,13 +523,6 @@ colours = {
 
 		rating = ""
 
-		mtInfo = nt.dirNameProxy[cleanedMtName]
-		if mtInfo["item"] != None:
-			rating = mtInfo["rating"]
-
-			# print("muInfo", mtInfo)
-		else:
-			mtInfo = None
 
 		buInfo = nt.dirNameProxy[cleanedBuName]
 		if buInfo["item"] != None:
@@ -574,19 +542,13 @@ colours = {
 		<tr id='rowid_${dbId}'>
 			<td>${ut.timeAgo(lastChanged)}</td>
 			<td>
-				<span id="view">${ut.idToLink(mtId=mtId) if mtId else ut.nameToMtSearch(buName, linkText="Search")} </span>
-				<span id="edit" style="display:none"> <input type="text" name="mtId" originalValue='${"" if mtId == None else mtId}' value='${"" if mtId == None else mtId}' size=5/> </span>
-			</td>
-			<td>
 				<span id="view">
-					% if buId == None and mtName == None:
-						wat
-					% elif buId == None:
+					% if buId == None:
 						<form method="post" action="http://www.mangaupdates.com/series.html" id="muSearchForm_${dbId}" target="_blank">
 							<input type="hidden" name="act" value="series"/>
 							<input type="hidden" name="session" value=""/>
 							<input type="hidden" name="stype" value="Title">
-							<input type="hidden" name="search" value="${mtName | h}"/>
+
 
 							<a href="javascript: searchMUForItem('muSearchForm_${dbId}')">Search</a>
 						</form>
@@ -597,25 +559,13 @@ colours = {
 				<span id="edit" style="display:none"> <input type="text" name="buId" originalValue='${"" if buId == None else buId}' value='${"" if buId == None else buId}' size=5/> </span>
 			</td>
 
-			% if mtName != buName:
-				<td>
-					<span id="view"> ${ut.createReaderLink(mtName, mtInfo)} </span>
-					<span id="edit" style="display:none"> <input type="text" name="mtName" originalValue='${"" if mtName == None else mtName}' value='${"" if mtName == None else mtName}' size=35/> </span>
-				</td>
-				<td>
-					<span id="view"> ${ut.createReaderLink(buName, buInfo)} </span>
-					<span id="edit" style="display:none"> <input type="text" name="buName" originalValue='${"" if buName == None else buName}' value='${"" if buName == None else buName}' size=35/> </span>
-				</td>
-			% else:
-				<td colspan=2> <center>${ut.createReaderLink(mtName, mtInfo)}</center></td>
-			% endif
+			<td>
+				<span id="view"> ${ut.createReaderLink(buName, buInfo)} </span>
+				<span id="edit" style="display:none"> <input type="text" name="buName" originalValue='${"" if buName == None else buName}' value='${"" if buName == None else buName}' size=35/> </span>
+			</td>
 			<td> ${rating} </td>
 			<td>
-			% if mtName != buName or not mtId or not buId:
-				<a href="#" id='buttonid_${dbId}' onclick="ToggleEdit('${dbId}');return false;">Edit</a>
-			% else:
-				<s>Edit</s>
-			% endif
+			<a href="#" id='buttonid_${dbId}' onclick="ToggleEdit('${dbId}');return false;">Edit</a>
 			</td>
 
 		</tr>

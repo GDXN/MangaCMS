@@ -108,9 +108,6 @@ DNLDED = 2
 				<!-- <li><a href="/tagsDjM">DjM Tags</a> -->
 				<li><a href="/itemsPron?sourceSite=fu">Fu Files</a>
 				<!-- <li><a href="/tagsFu">Fu Tags</a> -->
-				<hr>
-				<hr>
-				<li><a href="/dbFix">DB Tweaker</a>
 			</ul>
 		</div>
 		<br>

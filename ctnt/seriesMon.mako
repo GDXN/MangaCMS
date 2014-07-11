@@ -20,7 +20,7 @@ ignoreList=["Good H", "Interesting H", "Meh H"]
 if "nofilter" in request.params:
 	ignoreList = []
 
-validSortKeys = ["update", "mtName", "buName", "aggregate"]
+validSortKeys = ["update", "buName", "aggregate"]
 
 sortKey = "aggregate"
 if "sortBy" in request.params:
@@ -127,7 +127,6 @@ if "sortBy" in request.params:
 					<ul>
 						<li><a href='seriesMon?sortBy=aggregate'>Aggregate Name</a></li>
 						<li><a href='seriesMon?sortBy=update'>Last Update</a></li>
-						<li><a href='seriesMon?sortBy=mtName'>MT Name</a></li>
 						<li><a href='seriesMon?sortBy=buName'>BU Name</a></li>
 					</ul>
 				</div>
