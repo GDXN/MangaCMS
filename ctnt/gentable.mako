@@ -85,6 +85,8 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None):
 	else:
 		whereStr = ""
 
+	print("tableKey, tagsFilter, seriesFilter", tableKey, tagsFilter, seriesFilter, whereItems)
+	print("Query", whereStr, queryAdditionalArgs)
 	return whereStr, queryAdditionalArgs
 
 colours = {

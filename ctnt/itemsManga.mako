@@ -46,9 +46,6 @@ import urllib.parse
 
 <%
 
-picked=False
-if "picked" in request.params and request.params["picked"] == "True":
-	picked=True
 
 limit = 200
 pageNo = 0
@@ -85,6 +82,36 @@ else:
 	onlyDistinct = False
 
 
+validPronSites = ["sk", "cz", "mb", "mt"]
+
+if "sourceSite" in request.params:
+	tmpSource = request.params.getall("sourceSite")
+	sourceFilter = [item for item in tmpSource if item in validPronSites]
+else:
+	sourceFilter = validPronSites
+
+
+if len(sourceFilter) > 1:
+	divId      = "skId"
+	sourceName = 'Manga Series'
+elif sourceFilter == ["mt"]:
+	divId      = "mtMainId"
+	sourceName = 'MT Series'
+elif sourceFilter == ["sk"]:
+	divId      = "skId"
+	sourceName = 'Starkana Series'
+elif sourceFilter == ["cz"]:
+	divId      = "czId"
+	sourceName = 'Crazy\'s Manga Series'
+elif sourceFilter == ["mb"]:
+	divId      = "mbId"
+	sourceName = 'MangaBaby Series'
+else:
+	divId      = ""
+	sourceName = 'OH SHIT WUT?'
+
+
+
 %>
 
 <body>
@@ -93,25 +120,30 @@ else:
 
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
+		<div class="subdiv ${divId}">
+			% if sourceFilter:
+				<div class="contentdiv">
+					<h3>${sourceName}${ " - (Only distinct)" if onlyDistinct else ""}</h3>
+					<a href="itemsMt?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsMt?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
+					${tableGenerators.genLegendTable()}
+					${tableGenerators.genMangaTable(tableKey=sourceFilter, limit=limit, offset=offset, distinct=onlyDistinct)}
+				</div>
 
-		<div class="subdiv mbId">
-			<div class="contentdiv">
-				<h3>MangaBaby Series${ " - (Only distinct)" if onlyDistinct else ""}</h3>
-				<a href="itemsCz?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsCz?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
-				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(limit=limit, offset=offset, distinct=onlyDistinct, tableKey="mb")}
-			</div>
-
-			% if pageNo > 0:
-				<span class="pageChangeButton" style='float:left;'>
-					<a href="itemsCz?${urllib.parse.urlencode(prevPage)}">prev</a>
+				% if pageNo > 0:
+					<span class="pageChangeButton" style='float:left;'>
+						<a href="itemsManga?${urllib.parse.urlencode(prevPage)}">prev</a>
+					</span>
+				% endif
+				<span class="pageChangeButton" style='float:right;'>
+					<a href="itemsManga?${urllib.parse.urlencode(nextPage)}">next</a>
 				</span>
-			% endif
-			<span class="pageChangeButton" style='float:right;'>
-				<a href="itemsCz?${urllib.parse.urlencode(nextPage)}">next</a>
-			</span>
 
-			</div>
+				</div>
+			% else:
+				<h4><center>NOPE!</center></h4>
+				<br>
+				Bad site source string!
+			% endif
 		</div>
 
 	</div>

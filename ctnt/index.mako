@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 <!DOCTYPE html>
 
-<%namespace name="djmTable"        file="itemsDjm.mako"/>
+
 <%namespace name="tableGenerators" file="gentable.mako"/>
 <%namespace name="sideBar"         file="gensidebar.mako"/>
 <%namespace name="ut"              file="utilities.mako"/>
@@ -88,9 +88,11 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-fukkit, scrape batoto.
+	<li>fukkit, scrape batoto.</li>
+	<li>also pururin.com</li>
+	<li>pagechange buttons for porn broken in some instances. </li>
 	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
-	<li>Rating autosort (wtf did I mean by this?).</li>
+	<li>add ability to sort directory by rating.</li>
 	<li>Prefferentially rescan MangaUpdates series that got releases today (e.g. scan https://www.mangaupdates.com/releases.html).</li>
 	<li>MangaUpdates name lookup passthrouth in nametools.</li>
 	<li>Coerce directory structure to match MangaUpdates naming.</li>
@@ -109,7 +111,7 @@ fukkit, scrape batoto.
 <p>
 <b>Reader</b>
 <ul>
-reader shits itself on unicode urls. 
+	<li>reader shits itself on unicode urls.</li>
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>

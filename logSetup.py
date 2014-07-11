@@ -121,8 +121,16 @@ def exceptHook(exc_type, exc_value, exc_traceback):
 	mainLogger.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
 
+LOGGING_INITIALIZED = False
 
 def initLogging(logLevel=logging.INFO):
+
+	global LOGGING_INITIALIZED
+	if LOGGING_INITIALIZED:
+		raise ValueError("Logging initialized twice!")
+
+	LOGGING_INITIALIZED = True
+
 	print("Setting up loggers....")
 
 	if not os.path.exists(os.path.join("./logs")):

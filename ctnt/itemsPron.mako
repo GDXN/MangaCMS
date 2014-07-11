@@ -109,14 +109,25 @@ if "byTag" in request.params:
 if "bySeries" in request.params:
 	seriesFilter = request.params.getall("bySeries")
 
+validPronSites = ["fu", "djm"]
+
+if "sourceSite" in request.params:
+	tmpSource = request.params.getall("sourceSite")
+	sourceFilter = [item for item in tmpSource if item in validPronSites]
+else:
+	sourceFilter = validPronSites
+
 print("Re-encoded query = ", urllib.parse.urlencode(request.params))
 
 
 
-prevPage = request.params.copy();
+prevPage = request.params.copy()
 prevPage["page"] = pageNo
-nextPage = request.params.copy();
+nextPage = request.params.copy()
 nextPage["page"] = pageNo+2
+
+
+
 
 %>
 
@@ -132,17 +143,31 @@ nextPage["page"] = pageNo+2
 
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
+		% if len(sourceFilter) > 1:
+			<div class="subdiv djMoeId">
+				<div class="contentdiv">
+					<h3>Aggregate Pron Series</h3>
+		% elif sourceFilter == ["djm"]:
+			<div class="subdiv djMoeId">
+				<div class="contentdiv">
+					<h3>Doujin Moe Series</h3>
+		% elif sourceFilter == ["fu"]:
+			<div class="subdiv fuFuId">
+				<div class="contentdiv">
+					<h3>Fufufuu</h3>
+		% else:
+			<div class="subdiv fuFuId">
+				<div class="contentdiv">
+					<h3>OH SHIT WUT?</h3>
+		% endif
 
-		<div class="subdiv djMoeId">
-			<div class="contentdiv">
-				<h3>Aggregate Pron Series</h3>
 				Query =<br>
 				% for key in request.params.keys():
 					% if key != "page":
 						${key} ${request.params.getall(key)}<br>
 					% endif
 				% endfor
-				${tableGenerators.genPronTable(["fu", "djm"], offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
+				${tableGenerators.genPronTable(sourceFilter, offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
 			</div>
 
 			% if pageNo > 0:

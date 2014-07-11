@@ -63,7 +63,7 @@ class WebGetRobust:
 				('Accept-Encoding'	,	'gzip')
 		]
 
-	errorOutCount = 3
+	errorOutCount = 2
 	browsers = [opera, chrome, firefox, IE]
 
 	data = None

@@ -97,19 +97,17 @@ DNLDED = 2
 				<hr>
 				<li><a href="/seriesMon">Series Monitor</a>
 				<hr>
-				<li><a href="/itemsMt?distinct=True">MT</a>
-				<li><a href="/itemsSk?distinct=True">Starkana</a>
-				<li><a href="/itemsCz?distinct=True">Crazy's Manga</a>
-				<li><a href="/itemsMb?distinct=True">MangaBaby</a>
+				<li><a href="/itemsManga?sourceSite=mt&distinct=True">MT</a>
+				<li><a href="/itemsManga?sourceSite=sk&distinct=True">Starkana</a>
+				<li><a href="/itemsManga?sourceSite=cz&distinct=True">Crazy's Manga</a>
+				<li><a href="/itemsManga?sourceSite=mb&distinct=True">MangaBaby</a>
 				<hr>
 				<hr>
 				<li><a href="/itemsPron">Pron Files</a>
-				<hr>
-				<li><a href="/itemsDjm">DjM Files</a>
-				<li><a href="/tagsDjM">DjM Tags</a>
-				<hr>
-				<li><a href="/itemsFufufuu">Fu Files</a>
-				<li><a href="/tagsFu">Fu Tags</a>
+				<li><a href="/itemsPron?sourceSite=djm">DjM Files</a>
+				<!-- <li><a href="/tagsDjM">DjM Tags</a> -->
+				<li><a href="/itemsPron?sourceSite=fu">Fu Files</a>
+				<!-- <li><a href="/tagsFu">Fu Tags</a> -->
 				<hr>
 				<hr>
 				<li><a href="/dbFix">DB Tweaker</a>
