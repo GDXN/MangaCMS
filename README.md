@@ -7,15 +7,17 @@ Plugin scrapers for:
 
 
  - Starkana.com
+ - MangaBaby.com
+ - Batoto.com
  - Crazytje.be
- - download.japanzai.com (Planned)
- - Realitylapse.com (Planned, possibly)
- - MangaTraders
  - Doujin-Moe
  - Fufufuu.net
  - MangaUpdates (metadata only).
+ - ~~MangaTraders~~ (Defunct)
+ - download.japanzai.com (Planned)
+ - Realitylapse.com (Planned, possibly)
 
-The current focus is entirely on scraping sites that provide direct-archive-downloads, though I have considered targeting image-viewer sites like batoto, etc... in the future.
+The current focus is entirely on scraping sites that provide direct-archive-downloads, though batoto is an exception. Batoto images are downloaded to memory, and then written out to an archive on-the-fly, with no temporary files used at all.
 
 Automatic ad-removal and banner-removal. Currently, Starkana inserts an irritating self-aggrandizing image at a random position in each archive downloaded from their site. This is currently automatically and silently removed from each zip-file on download.
 Any download system for sites that add source banners should crop the banners automatically, or remove any intersitial cruft.
@@ -39,6 +41,7 @@ Has lots of dependencies:
  - PyInotify
  - Dateutil
  - FeedParser (possibly defunct since MT is down).
+ - Probably more
 
 Installing:  
 Run the `installDeps.sh` script in the `setuptools` directory (note: must be run with `sudo` or as root. Please review it before running for security reasons). 
@@ -49,9 +52,8 @@ Once you have installed the dependencies, you have to configure the various opti
 Note: All paths **MUST** be absolute. Some of the threading somewhere is eating the environment information. Rather then try to track down where in the complex dependency system the environment variables are being modified, it's easier to just use absolute paths.
 (Note: this means that paths like `~/blah` will also not work. You have to specify `/home/{username}/blah`).
 
- - `pickedDir`  = This is where files on any "picked" list will go, for the scrapers that support that (I hope to remove this in the near future, there are simpler ways to achieve what I want)
- - `newDir`     = For scrapers that support downloading entire manga based on some trigger functionality, the downloaded files will go here (MN = MangaNew)
- - `baseDir`    = This is where the bulk manga downloads go.
+ - `pickedDir`  = Directories in this folder are preferentially used, and if a download goes in this directory, it is highlighted in the web interface.
+ - `baseDir`    = This is where the bulk manga downloads go, if a folder is not found in the "picked" directory..
 
  - `fufuDir`    = Where Fufufuu.net files go
  - `djMoeDir`   = And DoujinMoe files
@@ -71,6 +73,8 @@ The tools are currently not daemonized at all, and must be manually run after re
 ---
 
 Preliminary deduplication support is currently present, [IntraArchiveDeduplicator](using my https://github.com/fake-name/IntraArchiveDeduplicator) tool. This is intended to allow collation of files from many sources while having as few local duplicate files actually stored locally as possible.
+
+Archives downloaded are automatically added to the deduplication database, and if a downloaded archive is found to contain no new files, it is automatically deleted, which prevents the fact that the scraper fetches files from multiple sources from resulting in duplicate downloads.
 
 ---
 

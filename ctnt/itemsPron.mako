@@ -109,7 +109,7 @@ if "byTag" in request.params:
 if "bySeries" in request.params:
 	seriesFilter = request.params.getall("bySeries")
 
-validPronSites = ["fu", "djm"]
+validPronSites = ["fu", "djm", "pu"]
 
 if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
@@ -155,6 +155,11 @@ nextPage["page"] = pageNo+2
 			<div class="subdiv fuFuId">
 				<div class="contentdiv">
 					<h3>Fufufuu</h3>
+
+		% elif sourceFilter == ["pu"]:
+			<div class="subdiv fuFuId">
+				<div class="contentdiv">
+					<h3>Pururin</h3>
 		% else:
 			<div class="subdiv fuFuId">
 				<div class="contentdiv">
@@ -172,11 +177,11 @@ nextPage["page"] = pageNo+2
 
 			% if pageNo > 0:
 				<span class="pageChangeButton" style='float:left;'>
-					<a href="itemsDjm?${urllib.parse.urlencode(prevPage)}">prev</a>
+					<a href="itemsPron?${urllib.parse.urlencode(prevPage)}">prev</a>
 				</span>
 			% endif
 			<span class="pageChangeButton" style='float:right;'>
-				<a href="itemsDjm?${urllib.parse.urlencode(nextPage)}">next</a>
+				<a href="itemsPron?${urllib.parse.urlencode(nextPage)}">next</a>
 			</span>
 
 		</div>

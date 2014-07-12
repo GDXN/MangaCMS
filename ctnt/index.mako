@@ -68,7 +68,7 @@ import os.path
 			<div class="contentdiv">
 				<h3>Porn!</h3>
 				${tableGenerators.genLegendTable(pron=True)}
-				${tableGenerators.genPronTable(["fu", "djm"])}
+				${tableGenerators.genPronTable(["pu", "fu", "djm"])}
 			</div>
 		</div>
 ## 		<div class="subdiv djMoeId">
@@ -88,13 +88,10 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>fukkit, scrape batoto.</li>
 	<li>also pururin.com</li>
-	<li>pagechange buttons for porn broken in some instances. </li>
 	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
 	<li>add ability to sort directory by rating.</li>
 	<li>Prefferentially rescan MangaUpdates series that got releases today (e.g. scan https://www.mangaupdates.com/releases.html).</li>
-	<li>MangaUpdates name lookup passthrouth in nametools.</li>
 	<li>Coerce directory structure to match MangaUpdates naming.</li>
 	<li>Allow arbitrarily nested folders in reader.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
@@ -124,6 +121,9 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>pagechange buttons for porn broken in some instances.</strike></li>
+	<li><strike>MangaUpdates name lookup passthrouth in nametools.</strike></li>
+	<li><strike>fukkit, scrape batoto.</strike></li>
 	<li><strike>Add legend key for what row colours mean (easy).</strike></li>
 	<li><strike>Add better time-stamp granularity to Starkana Scraper.</strike> (I think?)</li>
 	<li><strike>MangaBaby.com scraper</strike></li>

@@ -232,6 +232,15 @@ tr.mb_row:nth-child(odd)
 	background: #fff5f5
 }
 
+tr.bt_row:nth-child(even)
+{
+	background: #FFFFDB
+}
+tr.bt_row:nth-child(odd)
+{
+	background: #FFFFC5
+}
+
 
 
 tr.fu_row:nth-child(even)
@@ -249,6 +258,14 @@ tr.djm_row:nth-child(even)
 tr.djm_row:nth-child(odd)
 {
 	background: #f5fff5
+}
+tr.pu_row:nth-child(even)
+{
+	background: #ffdddd
+}
+tr.pu_row:nth-child(odd)
+{
+	background: #fff5f5
 }
 
 

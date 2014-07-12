@@ -202,7 +202,8 @@ colours = {
 
 		addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(retreivalTime))
 
-
+		if not flags:
+			flags = ""
 
 		if dlState == 2:
 			statusColour = colours["Done"]
@@ -602,22 +603,24 @@ colours = {
 			</tr>
 		</table>
 		<%
-		rows = [("Starkana", "sk_row"), ("Crazy's", "cz_row"), ("MangaTraders", "mt_row"), ("MangaBaby", "mb_row")]
+		rows = [("Starkana", "sk_row"), ("Crazy's", "cz_row"), ("MangaTraders", "mt_row"), ("MangaBaby", "mb_row"), ("Batoto", "bt_row")]
 		if pron:
-			rows = [("Doujin Moe", "djm_row"), ("Fufufuu", "fu_row")]
+			rows = [("Doujin Moe", "djm_row"), ("Fufufuu", "fu_row"), ("Pururin", "pu_row")]
 		if hideSource:
 			rows = []
 		%>
-		% for name, row in rows:
-			<table border="1px" style="display:inline-block">
-					<tr class="${row}">
-						<td>From</td>
-					</tr>
-					<tr class="${row}">
-						<td >${name}</td>
-					</tr>
-			</table>
-		% endfor
+		<div>
+			% for name, row in rows:
+				<table border="1px" style="display:inline-block;">
+						<tr class="${row}">
+							<td style='padding-left: 5px; padding-right: 5px; width: 80px;'>From</td>
+						</tr>
+						<tr class="${row}">
+							<td style='padding-left: 5px; padding-right: 5px; width: 80px;'>${name}</td>
+						</tr>
+				</table>
+			% endfor
+		</div>
 	</div>
 
 </%def>
