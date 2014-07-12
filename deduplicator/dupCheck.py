@@ -48,7 +48,7 @@ class ArchChecker(object):
 
 	def deleteArch(self):
 
-		print("Deleting archive", self.archPath)
+		self.log.warning("Deleting archive '%s'", self.archPath)
 
 		self.db.deleteBasePath(self.archPath)
 		os.remove(self.archPath)
@@ -61,17 +61,23 @@ class ArchChecker(object):
 		for fName, fp in archIterator:
 
 			fCont = fp.read()
-			fName, hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fName, fCont)
+			try:
+				fName, hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fName, fCont)
 
-			baseHash, oldPHash, oldDHash = self.db.getHashes(self.archPath, fName)
-			if all((baseHash, oldPHash, oldDHash)):
-				self.log.critical("Already hashed item?")
-				self.log.critical("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
+				baseHash, oldPHash, oldDHash = self.db.getHashes(self.archPath, fName)
+				if all((baseHash, oldPHash, oldDHash)):
+					self.log.critical("Already hashed item?")
+					self.log.critical("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
 
-			if baseHash:
-				self.db.updateItem(self.archPath, fName, hexHash, pHash, dHash)
-			else:
-				self.db.insertItem(self.archPath, fName, hexHash, pHash, dHash)
+				if baseHash:
+					self.db.updateItem(self.archPath, fName, hexHash, pHash, dHash)
+				else:
+					self.db.insertItem(self.archPath, fName, hexHash, pHash, dHash)
+			except IOError as e:
+				self.log.error("Invalid/damaged image file in archive!")
+				self.log.error("Archive '%s', file '%s'", self.archPath, fName)
+				self.log.error("Error '%s'", e)
+
 
 		archIterator.close()
 		self.log.info("File hashing complete.")

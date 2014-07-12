@@ -151,7 +151,7 @@ class WebGetRobust:
 
 		log = self.log
 
-		pgctnt = "Failed"
+		pgctnt = None
 		pghandle = None
 
 		loopctr = 0
@@ -190,7 +190,7 @@ class WebGetRobust:
 
 				if loopctr > self.errorOutCount:
 					log.error("Failed to retrieve Website : %s at %s All Attempts Exhausted", pgreq.get_full_url(), time.ctime(time.time()))
-					pgctnt = "Failed"
+					pgctnt = None
 					try:
 						log.critical(("Critical Failure to retrieve page! %s at %s, attempt %s" % (pgreq.get_full_url(), time.ctime(time.time()), loopctr)))
 						log.critical(("Error:", lastErr))

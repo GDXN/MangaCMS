@@ -5,7 +5,9 @@ import sqlite3
 import abc
 
 import threading
-import logging
+import settings
+import os
+import traceback
 
 import nameTools as nt
 
@@ -40,6 +42,17 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# Messy hack to do log indirection so I can inject thread info into log statements, and give each thread it's own DB handle.
+	# Basically, intercept all class member accesses, and if the access is to either the logging interface, or the DB,
+	# look up/create a per-thread instance of each, and return that
+	#
+	# The end result is each thread just uses `self.conn` and `self.log` as normal, but actually get a instance of each that is
+	# specifically allocated for just that thread
+	#
+	# Sqlite3 doesn't like having it's DB handles shared across threads. You can turn the checking off, but I had
+	# db issues when it was disabled. This is a much more robust fix
+	#
+	# The log indirection is just so log statements include their originating thread. I like lots of logging.
+	#
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	def __getattribute__(self, name):
@@ -94,6 +107,44 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		self.log.info("Closing DB...",)
 		self.conn.close()
 		self.log.info("DB Closed")
+
+
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
+	# Filesystem stuff
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+	# either locate or create a directory for `seriesName`.
+	# If the directory cannot be found, one will be created.
+	# Returns {pathToDirectory string}, {HadToCreateDirectory bool}
+	def locateOrCreateDirectoryForSeries(self, seriesName):
+
+
+		canonSeriesName = nt.getCanonicalMangaUpdatesName(seriesName)
+		safeBaseName = nt.makeFilenameSafe(canonSeriesName)
+
+
+		if canonSeriesName in nt.dirNameProxy:
+			self.log.info( "Have target dir for '%s' Dir = '%s'", canonSeriesName, nt.dirNameProxy[canonSeriesName]['fqPath'])
+			return nt.dirNameProxy[canonSeriesName]["fqPath"], False
+		else:
+			self.log.info( "Don't have target dir for: %s, full name = %s", canonSeriesName, seriesName)
+			targetDir = os.path.join(settings.skSettings["dirs"]['mDlDir'], safeBaseName)
+			if not os.path.exists(targetDir):
+				try:
+					os.makedirs(targetDir)
+					return targetDir, True
+
+				except OSError:
+					self.log.critical("Directory creation failed?")
+					self.log.critical(traceback.format_exc())
+			else:
+				self.log.warning("Directory not found in dir-dict, but it exists!")
+				self.log.warning("Directory-Path: %s", targetDir)
+				self.log.warning("Base series name: %s", seriesName)
+				self.log.warning("Canonized series name: %s", canonSeriesName)
+				self.log.warning("Safe canonized name: %s", safeBaseName)
+			return targetDir, False
 
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -319,7 +319,7 @@ def dequoteDict(inDict):
 				Other names:
 				<%
 				print(buId)
-				names = nt.buSynonymLookup[buId]
+				names = nt.buSynonymsLookup[buId]
 				print(names)
 				%>
 				<ul>

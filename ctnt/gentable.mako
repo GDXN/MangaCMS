@@ -184,7 +184,8 @@ colours = {
 
 		dlState = int(dlState)
 
-
+		if sourceSeriesName == None:
+			sourceSeriesName = "NONE"
 		seriesName = nt.getCanonicalMangaUpdatesName(sourceSeriesName)
 
 		cleanedName = nt.prepFilenameForMatching(sourceSeriesName)

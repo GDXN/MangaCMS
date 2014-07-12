@@ -14,6 +14,7 @@ import ScrapePlugins.DjMoeLoader.Retag
 import ScrapePlugins.SkBaseManager.Run
 import ScrapePlugins.CzLoader.Run
 import ScrapePlugins.MbLoader.Run
+import ScrapePlugins.BtBaseManager.Run
 
 
 
@@ -21,14 +22,15 @@ import ScrapePlugins.MbLoader.Run
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
 # are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
-	7 : (ScrapePlugins.SkBaseManager.Run,    60*60),
+	0 : (ScrapePlugins.BtBaseManager.Run,    60*60),
 	1 : (ScrapePlugins.BuMonitor.Run,        60*60),
 	2 : (ScrapePlugins.FufufuuLoader.Run,    60*45),
-	3 : (ScrapePlugins.FufufuuLoader.Retag,  60*60),
+	# 3 : (ScrapePlugins.FufufuuLoader.Retag,  60*60),
 	4 : (ScrapePlugins.DjMoeLoader.Run,      60*45),
 	5 : (ScrapePlugins.DjMoeLoader.Retag,    60*60),
 	6 : (ScrapePlugins.CzLoader.Run,         60*60*4),   # Every 4 hours, since I have to scrape a lot of pages to update properly
-	0 : (ScrapePlugins.MbLoader.Run,         60*60)
+	7 : (ScrapePlugins.SkBaseManager.Run,    60*60),
+	8 : (ScrapePlugins.MbLoader.Run,         60*60)
 }
 
 

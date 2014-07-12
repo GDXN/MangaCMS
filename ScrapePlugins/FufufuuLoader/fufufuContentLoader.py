@@ -154,7 +154,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(sourceUrl, lastUpdate=time.time())
 			return
 
-		if cont == "Failed":
+		if cont == None:
 
 			if not retagOnly:
 				self.updateDbEntry(sourceUrl, dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED (source page 404)")

@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.SkLoader.skFeedLoader import SkFeedLoader
-from ScrapePlugins.SkLoader.skContentLoader import SkContentLoader
+from ScrapePlugins.BtLoader.btFeedLoader import BtFeedLoader
+from ScrapePlugins.BtLoader.btContentLoader import BtContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -11,15 +11,15 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Sk.Run"
+	loggerPath = "Main.Bt.Run"
 
-	pluginName = "SkLoader"
+	pluginName = "BtLoader"
 
 
 	def _go(self):
 
-		self.log.info("Checking SK feeds for updates")
-		fl = SkFeedLoader()
+		self.log.info("Checking Bt feeds for updates")
+		fl = BtFeedLoader()
 		fl.go()
 		fl.closeDB()
 
@@ -29,7 +29,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		if not runStatus.run:
 			return
 
-		cl = SkContentLoader()
+		cl = BtContentLoader()
 
 		if not runStatus.run:
 			return

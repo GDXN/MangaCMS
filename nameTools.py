@@ -24,7 +24,7 @@ random.seed()
 def prepFilenameForMatching(inStr):
 	inStr = sanitizeString(inStr)
 	inStr = makeFilenameSafe(inStr)
-	return inStr
+	return inStr.lower()
 
 def makeFilenameSafe(inStr):
 
@@ -262,7 +262,8 @@ class MtNamesMapWrapper(object):
 		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'muNameList'},
 		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'muNameList'},
 		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'muNameList'},
-		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'MangaSeries'}
+		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'MangaSeries'},
+		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'MangaSeries'}
 	}
 
 	def __init__(self, mode):
@@ -560,6 +561,8 @@ class DirNameProxy(object):
 
 
 	def filterPreppedNameThroughDB(self, name):
+		if not self.notifierRunning:
+			self.log.warning("Directory observers not started! No directory contents will have been loaded!")
 		name = getCanonicalMangaUpdatesName(name)
 		name = prepFilenameForMatching(name)
 		return name
@@ -659,6 +662,7 @@ class DirNameProxy(object):
 
 	def __contains__(self, key):
 		# self.checkUpdate()
+
 		key = self.filterPreppedNameThroughDB(key)
 
 		baseDictKeys = list(self.dirDicts.keys())
@@ -704,15 +708,42 @@ def haveCanonicalMangaUpdatesName(sourceSeriesName):
 	mId = buIdLookup[fsName]
 	if mId and len(mId) == 1:
 		return True
+	mId = buIdFromName[sourceSeriesName]
+
+	if mId and len(mId) == 1:
+		return True
 	return False
 
-buIdLookup      = MtNamesMapWrapper("fsName->buId")
-buSynonymLookup = MtNamesMapWrapper("buId->name")
-idLookup        = MtNamesMapWrapper("buId->buName")
 
-nameLookup      = MapWrapper("mangaNameMappings")
-dirsLookup      = MapWrapper("folderNameMappings")
-dirNameProxy    = DirNameProxy(settings.mangaFolders)
+buIdLookup       = MtNamesMapWrapper("fsName->buId")
+buSynonymsLookup = MtNamesMapWrapper("buId->name")
+idLookup         = MtNamesMapWrapper("buId->buName")
+buIdFromName     = MtNamesMapWrapper("buName->buId")
+
+nameLookup       = MapWrapper("mangaNameMappings")
+dirsLookup       = MapWrapper("folderNameMappings")
+dirNameProxy     = DirNameProxy(settings.mangaFolders)
+
+
+
+
+def testNameTools():
+	import unittest
+
+
+	class TestSequenceFunctions(unittest.TestCase):
+
+		def setUp(self):
+			dirNameProxy.startDirObservers()
+
+		def test_name_001(self):
+			self.assertTrue("Danshi Koukousei no Nichijou" in dirNameProxy)
+
+
+
+
+	unittest.main()
+
 
 
 
