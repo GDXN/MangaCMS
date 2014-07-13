@@ -81,6 +81,14 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if "just now" in inStr:
 			updateDate = datetime.datetime.now()
+		elif "months ago" in inStr or "month ago" in inStr:
+			monthsAgo = inStr.split()[0]
+			monthsAgo = int(monthsAgo)
+			updateDate = datetime.datetime.now() - datetime.timedelta(monthsAgo*7)
+		elif "weeks ago" in inStr or "week ago" in inStr:
+			weeksAgo = inStr.split()[0]
+			weeksAgo = int(weeksAgo)
+			updateDate = datetime.datetime.now() - datetime.timedelta(weeksAgo*7)
 		elif "days ago" in inStr or "day ago" in inStr:
 			daysAgo = inStr.split()[0]
 			daysAgo = int(daysAgo)
@@ -99,8 +107,9 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			updateDate = datetime.datetime.now() - datetime.timedelta(0, secondsAgo)
 		else:
 			self.log.warning("Date parsing failed. Using fall-back parser")
-			self.log.warning("Failing string = '%s'", inStr)
 			updateDate = dateutil.parser.parse(inStr, fuzzy=True)
+			self.log.warning("Failing string = '%s'", inStr)
+			self.log.warning("As parsed = '%s'", updateDate)
 
 		return updateDate
 

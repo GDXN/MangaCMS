@@ -32,6 +32,8 @@ DNLDED = 2
 	djMRunning,   djMRunStart,   djMLastRunDuration   = sm.getStatus(cur, "DjMoe")
 	buRunning,    buRunStart,    buLastRunDuration    = sm.getStatus(cur, "BuMon")
 	mbRunning,    mbRunStart,    mbLastRunDuration    = sm.getStatus(cur, "MbLoader")
+	btRunning,    btRunStart,    btLastRunDuration    = sm.getStatus(cur, "BtLoader")
+	puRunning,    puRunStart,    puLastRunDuration    = sm.getStatus(cur, "Pururin")
 
 
 	# Counting crap is now driven by commit/update/delete hooks
@@ -75,6 +77,11 @@ DNLDED = 2
 		mbRunState = "<b>Running</b>"
 	else:
 		mbRunState = "Not Running"
+
+	if btRunning:
+		btRunState = "<b>Running</b>"
+	else:
+		btRunState = "Not Running"
 
 
 
@@ -151,6 +158,18 @@ DNLDED = 2
 				<li>Failed: ${statusDict["mb"][FAILED]}</li>
 			</ul>
 		</div>
+		<div class="statediv btId">
+			<strong>Batoto:</strong><br />
+			${ut.timeAgo(btRunStart)}<br />
+			${btRunState}
+
+			<ul>
+				<li>Have: ${statusDict["bt"][DNLDED]}</li>
+				<li>DLing: ${statusDict["bt"][DLING]}</li>
+				<li>Want: ${statusDict["bt"][QUEUED]}</li>
+				<li>Failed: ${statusDict["bt"][FAILED]}</li>
+			</ul>
+		</div>
 		<div class="statediv djMoeId">
 			<strong>DjMoe:</strong><br />
 			${ut.timeAgo(djMRunStart)}<br />
@@ -173,6 +192,19 @@ DNLDED = 2
 				<li>DLing: ${statusDict["fu"][DLING]}</li>
 				<li>Want: ${statusDict["fu"][QUEUED]}</li>
 				<li>Failed: ${statusDict["fu"][FAILED]}</li>
+			</ul>
+
+		</div>
+		<div class="statediv fuFuId">
+			<strong>Pururin:</strong><br />
+			${ut.timeAgo(fuRunStart)}<br />
+			${puRunState}
+
+			<ul>
+				<li>Have: ${statusDict["pu"][DNLDED]}</li>
+				<li>DLing: ${statusDict["pu"][DLING]}</li>
+				<li>Want: ${statusDict["pu"][QUEUED]}</li>
+				<li>Failed: ${statusDict["pu"][FAILED]}</li>
 			</ul>
 
 		</div>

@@ -15,6 +15,7 @@ import ScrapePlugins.SkBaseManager.Run
 import ScrapePlugins.CzLoader.Run
 import ScrapePlugins.MbLoader.Run
 import ScrapePlugins.BtBaseManager.Run
+import ScrapePlugins.PururinLoader.Run
 
 
 
@@ -30,7 +31,8 @@ scrapePlugins = {
 	5 : (ScrapePlugins.DjMoeLoader.Retag,    60*60),
 	6 : (ScrapePlugins.CzLoader.Run,         60*60*4),   # Every 4 hours, since I have to scrape a lot of pages to update properly
 	7 : (ScrapePlugins.SkBaseManager.Run,    60*60),
-	8 : (ScrapePlugins.MbLoader.Run,         60*60)
+	8 : (ScrapePlugins.MbLoader.Run,         60*60),
+	9 : (ScrapePlugins.PururinLoader.Run,    60*60)
 }
 
 

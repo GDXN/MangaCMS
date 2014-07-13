@@ -7,7 +7,7 @@ import os.path
 
 import random
 import sys
-
+import zipfile
 import nameTools as nt
 
 import runStatus
@@ -18,11 +18,13 @@ import traceback
 import settings
 import bs4
 
+import archCleaner
 
 import ScrapePlugins.RetreivalDbBase
 
 class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
+	archCleaner = archCleaner.ArchCleaner()
 
 	wg = webFunctions.WebGetRobust()
 
@@ -90,7 +92,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		for contentId in inLinks:
 			print("Loopin!")
 			try:
-				url = self.getDownloadUrl(contentId)
+				url = self.getDownloadInfo(contentId)
 				self.doDownload(url)
 
 
@@ -100,7 +102,6 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				traceback.print_exc()
 				delay = 1
 
-			return
 
 			for x in range(delay):
 				time.sleep(1)
@@ -140,7 +141,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					"Ranking",
 					"Rating"]
 
-		catetory = "Unknown?"
+		category = "Unknown?"
 		for tr in tagTable.find_all("tr"):
 			if len(tr.find_all("td")) != 2:
 				continue
@@ -151,9 +152,9 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if what in ignoreTags:
 				continue
 			elif what == "Category":
-				catetory = values.get_text().strip()
-				if catetory == "Manga One-shot":
-					catetory = "=0= One-Shot"
+				category = values.get_text().strip()
+				if category == "Manga One-shot":
+					category = "=0= One-Shot"
 			elif what in formatters:
 				for li in values.find_all("li"):
 					tag = " ".join([formatters[what], li.get_text()])
@@ -162,8 +163,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					tag = tag.replace(" ", "-")
 					tags.append(tag)
 
-
-		return catetory, tags
+		return category, tags
 
 	def getNote(self, soup):
 		note = soup.find("div", class_="gallery-description")
@@ -172,26 +172,23 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			note = note.get_text()
 
-	def getDownloadUrl(self, linkDict):
+	def getDownloadInfo(self, linkDict):
 		sourcePage = linkDict["sourceUrl"]
 
 		self.log.info("Retreiving item: %s", sourcePage)
 
-		# self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
+		self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
 
 
-		cont = self.wg.getpage(sourcePage)
+		cont = self.wg.getpage(sourcePage, addlHeaders={'Referer': 'http://pururin.com/'})
 		soup = bs4.BeautifulSoup(cont)
 
 		if not soup:
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			raise IOError("Invalid webpage")
 
-
-		fileName = self.getFileName(soup)
 		category, tags = self.getCategoryTags(soup)
 		note = self.getNote(soup)
-
 		tags = ' '.join(tags)
 
 		linkDict['dirPath'] = os.path.join(settings.puSettings["dlDir"], nt.makeFilenameSafe(category))
@@ -205,7 +202,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Folderpath: %s", linkDict["dirPath"])
 		#self.log.info(os.path.join())
 
-		dlPage = soup.find("a", class_="btn-download")
+		dlPage = soup.find("a", class_="link-next")
 		linkDict["dlLink"] = urllib.parse.urljoin(self.urlBase, dlPage["href"])
 
 		self.log.debug("Linkdict = ")
@@ -213,8 +210,12 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.debug("		%s - %s", key, value)
 
 
-		if "tags" in linkDict and "note" in linkDict:
-			self.updateDbEntry(linkDict["sourceUrl"], tags=tags, note=note, seriesName=category, lastUpdate=time.time())
+		if tags:
+			self.updateDbEntry(linkDict["sourceUrl"], tags=tags, commit=False)
+		if note:
+			self.updateDbEntry(linkDict["sourceUrl"], note=note, commit=False)
+
+		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, lastUpdate=time.time())
 
 
 
@@ -223,46 +224,47 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def doDownload(self, linkDict):
 
-		print("Linkdict = ", linkDict)
 
-		gatewayPage = self.wg.getpage(linkDict["dlLink"], addlHeaders={'Referer': linkDict["sourceUrl"]})
-		if "Sorry, no more bandwith available. Try again tomorrow." in gatewayPage:
-			self.log.warning("Rate limited by Pururun")
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=0)
-			return
+		images = []
+		title = None
+		nextPage = linkDict["dlLink"]
 
-		soup = bs4.BeautifulSoup(gatewayPage)
+		while nextPage:
+			gatewayPage = self.wg.getpage(nextPage, addlHeaders={'Referer': linkDict["sourceUrl"]})
 
-		link = soup.find("div", class_="download-inset")
-		contentUrl = urllib.parse.urljoin(self.urlBase, link.a["href"])
+			soup = bs4.BeautifulSoup(gatewayPage)
+			titleCont = soup.find("div", class_="image-menu")
+
+			title = titleCont.h1.get_text()
+			title = title.replace("Reading ", "")
+			title, dummy = title.rsplit(" Page ", 1)
+			title = title.strip()
 
 
-		content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': linkDict["dlLink"]})
+			imageUrl = soup.find("img", class_="b")
+			imageUrl = urllib.parse.urljoin(self.urlBase, imageUrl["src"])
+
+			imagePath = urllib.parse.urlsplit(imageUrl)[2]
+			imageFileName = imagePath.split("/")[-1]
+
+
+			imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': nextPage})
+
+			images.append((imageFileName, imageData))
+			# Find next page
+			nextPageLink = soup.find("a", class_="link-next")
+			if not nextPageLink:
+				nextPage = None
+			elif nextPageLink["href"].startswith("/finish/"):    # Break on the last image.
+				nextPage = None
+			else:
+				nextPage = urllib.parse.urljoin(self.urlBase, nextPageLink["href"])
+
 
 		# self.log.info(len(content))
 
-		if handle:
-			# self.log.info("handle = ", handle)
-			# self.log.info("geturl", handle.geturl())
-			urlFileN = urllib.parse.unquote(urllib.parse.urlparse(handle.geturl())[2].split("/")[-1])
-			urlFileN = bs4.UnicodeDammit(urlFileN).unicode_markup
-			urlFileN.encode("utf-8")
-
-
-
-
-			# Pururin is apparently returning "zip.php" for ALL filenames.
-			# Blargh
-			if urlFileN == "zip.php":
-				urlFileN = ".zip"
-				fileN = "%s%s" % (linkDict["originName"], urlFileN)
-			else:
-				self.log.error("Unknown file extension?")
-				self.log.error("Unknown file extension?")
-				self.log.error("Dict filename = %s", linkDict["originName"])
-				self.log.error("URL filename = %s", urlFileN)
-				fileN = "%s - %s" % (linkDict["originName"], urlFileN)
-
+		if images and title:
+			fileN = title+".zip"
 			fileN = nt.makeFilenameSafe(fileN)
 
 
@@ -270,22 +272,31 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			wholePath = os.path.join(linkDict["dirPath"], fileN)
 			self.log.info("Complete filepath: %s", wholePath)
 
-			fp = open(wholePath, "wb")
-			fp.write(content)
-			fp.close()
+					#Write all downloaded files to the archive.
+			arch = zipfile.ZipFile(wholePath, "w")
+			for imageName, imageContent in images:
+				arch.writestr(imageName, imageContent)
+			arch.close()
+
+
 			self.log.info("Successfully Saved to path: %s", wholePath)
 
 			if not linkDict["tags"]:
 				linkDict["tags"] = ""
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, seriesName=linkDict["seriesName"])
+
+
+			dedupState = self.archCleaner.processNewArchive(wholePath, deleteDups=True, includePHash=True)
+			self.log.info( "Done")
+
+
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, seriesName=linkDict["seriesName"], tags=dedupState)
 
 			self.conn.commit()
+			return wholePath
 
 		else:
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
-			# cur.execute('UPDATE djmoe SET downloaded=1 WHERE contentID=?;', (linkDict["sourceUrl"], ))
-			# cur.execute('UPDATE djmoe SET dlPath=?, dlName=?, itemTags=?  WHERE contentID=?;', ("ERROR", 'ERROR: FAILED', "N/A", linkDict["contentId"]))
-			# self.log.info("fetchall = ", ret.fetchall())
 			self.conn.commit()
+			return False

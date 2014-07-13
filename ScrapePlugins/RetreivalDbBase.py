@@ -196,7 +196,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	def updateDbEntry(self, sourceUrl, commit=True, **kwargs):
 
 		# Patch series name.
-		if "seriesName" in kwargs:
+		if "seriesName" in kwargs and kwargs["seriesName"]:
 			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl), kwargs)

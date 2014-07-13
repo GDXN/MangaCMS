@@ -25,16 +25,17 @@ def customHandler(signum, stackframe):
 
 def test():
 
-	nt.dirNameProxy.startDirObservers()
 
 
-	runner = Runner()
+	# nt.dirNameProxy.startDirObservers()
+	# runner = Runner()
+	# runner.go()
 
-	runner.go()
+	loader = BtFeedLoader()
+	feedItems = loader.getMainItems(rangeOverride=25)
+	loader.log.info("Processing feed Items")
 
-	# loader = BtFeedLoader()
-	# print("Running")
-	# loader.go()
+	loader.processLinksIntoDB(feedItems)
 
 
 	# cl = BtContentLoader()

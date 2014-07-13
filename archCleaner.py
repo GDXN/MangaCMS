@@ -189,7 +189,10 @@ class ArchCleaner(object):
 		new_zfp.close()
 
 
-	def processNewArchive(self, archPath, passwd="", deleteDups=False):
+	# Process a newly downloaded archive. If deleteDups is true, and the archive is duplicated, it is deleted.
+	# If includePHash is true as well, the duplicate search is done using phashes of the images, in addition
+	# to just raw file-hashing.
+	def processNewArchive(self, archPath, passwd="", deleteDups=False, includePHash=False):
 		if magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip':
 			self.unprotectZip(archPath, passwd)
 		elif magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
@@ -205,7 +208,7 @@ class ArchCleaner(object):
 		# file in either case
 		archPath = self.cleanZip(archPath)
 
-		if deduper:
+		if deduper and deleteDups:
 
 			dc = deduper.ArchChecker(archPath)
 			isUnique = dc.check()

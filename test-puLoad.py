@@ -7,6 +7,7 @@ if __name__ == "__main__":
 
 import runStatus
 
+from ScrapePlugins.PururinLoader.Run import Runner
 from ScrapePlugins.PururinLoader.pururinDbLoader import PururinDbLoader
 from ScrapePlugins.PururinLoader.pururinContentLoader import PururinContentLoader
 import signal
@@ -26,19 +27,23 @@ def customHandler(signum, stackframe):
 def test():
 
 	# nt.dirNameProxy.startDirObservers()
-	# runner = Runner()
-	# runner.go()
+	runner = Runner()
+	runner.go()
 
 	# loader = PururinDbLoader()
-	# print("Running")
-	# items = loader.getFeed()
-	# print("items", items)
-	# loader.go()
+	# # print("Running")
+	# # items = loader.getFeed()
+	# # print("items", items)
+	# # loader.go()
 
+	# for x in range(10):
 
-	cl = PururinContentLoader()
-	cl.go()
-	# cl.loginIfNeeded()
+	# 	dat = loader.getFeed(pageOverride=x)
+	# 	loader.processLinksIntoDB(dat)
+
+	# cl = PururinContentLoader()
+	# cl.go()
+	# # cl.loginIfNeeded()
 
 
 	# cl.getContainerPages('http://www.batoto.net/read/_/257032/for-alice_ch0.5_by_misty-rain-scans/1')
