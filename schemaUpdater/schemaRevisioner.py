@@ -3,11 +3,11 @@ import sqlite3
 import settings
 import sys
 
-from schemaUpdater.schemaOne2Two import updateOne2Two
-from schemaUpdater.schemaTwo2Three import schemaTwo2Three
-from schemaUpdater.schemaThree2Four import schemaThree2Four
-from schemaUpdater.schemaFour2Five import schemaFour2Five
-from schemaUpdater.schemaTwo2Three import doTableCounts
+from schemaUpdater.schema001to002 import updateOne2Two
+from schemaUpdater.schema002to003 import schemaTwo2Three
+from schemaUpdater.schema003to004 import schemaThree2Four
+from schemaUpdater.schema004to005 import schemaFour2Five
+from schemaUpdater.schema002to003 import doTableCounts
 
 CURRENT_SCHEMA = 5
 
