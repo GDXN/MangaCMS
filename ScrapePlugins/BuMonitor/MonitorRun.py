@@ -8,7 +8,7 @@ import urllib.parse
 
 import time
 import settings
-
+import dateutil.parser
 
 import ScrapePlugins.MonitorDbBase
 
@@ -24,9 +24,11 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	pluginName       = "BakaUpdates List Monitor"
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"
+	changedTableName = "muItemChanged"
 
 	baseURL          = "http://www.mangaupdates.com/"
 	baseListURL      = r"http://www.mangaupdates.com/mylist.html"
+	baseReleasesURL  = r"https://www.mangaupdates.com/releases.html"
 
 	dbName = settings.dbName
 
@@ -66,6 +68,9 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	def go(self):
 		self.checkLogin()
+
+		self.scanRecentlyUpdated()
+
 		lists = self.getListNames()
 
 
@@ -192,6 +197,45 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		self.conn.commit()
 		self.log.info("Properly processed all items in list!")
 
+
+	#
+
+	def scanRecentlyUpdated(self):
+		ONE_DAY = 60*60*24
+		releases = self.wgH.getpage(self.baseReleasesURL)
+		soup = bs4.BeautifulSoup(releases)
+
+		content = soup.find("td", {"id": "main_content"})
+		titles = content.find_all("p", class_="titlesmall")
+		for title in titles:
+			date = title.get_text()
+			date = dateutil.parser.parse(date, fuzzy=True)
+
+			table = title.find_next_sibling("div").table
+			for row in table.find_all("tr"):
+				link = row.find("a", title="Series Info")
+
+				# Need to skip rows with no links, (they're the table header)
+				if link:
+					mId = link["href"].split("=")[-1]
+
+
+					haveRow = self.getRowByValue(buId=mId)
+					if haveRow:
+						checked = self.getLastCheckedFromId(mId)
+						if checked + ONE_DAY < time.time():
+							self.log.info("Need to check item for id '%s'", mId)
+							self.updateLastCheckedFromId(mId, 0)  # Set last checked to zero, to force the next run to update the item
+							# print("Checked, ", checked+ONE_DAY, "time", time.time())
+							# print("row", self.getRowByValue(buId=mId))
+					else:
+						name = link.get_text()
+						self.insertBareNameItems([(name, mId)])
+						self.log.info("New series! '%s', id '%s'", name, mId)
+
+
+
+
 	# -----------------------------------------------------------------------------------
 	# General MangaUpdate mirroring tool (enqueues ALL the manga items!)
 	# -----------------------------------------------------------------------------------
@@ -235,7 +279,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			series = self.getSeriesFromPage(soup)
 			if series:
 				self.log.info("Inserting %s items into name DB", len(series))
-				self.insertBareNameItems(series)
+				self.insertBareNameItems([(name, mId)])
 
 			if len(series) == 0:
 				self.log.info("No items found. At the end of the series list?")

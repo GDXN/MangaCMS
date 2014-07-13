@@ -16,8 +16,8 @@ import shutil
 
 class dbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
-	loggerPath       = "Main.Bu.Watcher"
-	pluginName       = "BakaUpdates List Monitor"
+	loggerPath       = "Main.Org.Tool"
+	pluginName       = "Organization Tool"
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"
 
@@ -65,7 +65,7 @@ def query_response_bool(question):
 # settings.py. Basically, if you have a duplicate of a folder name, it moves the
 # files from the directory with a larger index key to the smaller index key
 def deduplicateMangaFolders():
-	pass
+
 	dirDictDict = nt.dirNameProxy.getDirDicts()
 	keys = list(dirDictDict.keys())
 	keys.sort()
@@ -88,9 +88,11 @@ def deduplicateMangaFolders():
 						fromPath = os.path.join(fromDir, item)
 						toPath   = os.path.join(toDir, item)
 
-						if os.path.exists(toPath):
-							raise ValueError("Duplicate file!")
-
+						loop = 2
+						while os.path.exists(toPath):
+							pathBase, ext = os.path.splitext(toPath)
+							print("Duplicate file!")
+							toPath = "{start} ({loop}){ext}".format(start=pathBase, loop=loop, ext=ext)
 						print("	Moving: ", item)
 						print("	From: ", fromPath)
 						print("	To:   ", toPath)
@@ -221,6 +223,7 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 	# print("exiting")
 
 if __name__ == "__main__":
+	nt.dirNameProxy.startDirObservers()
 	try:
 		deduplicateMangaFolders()
 		consolicateSeriesToSingleDir()

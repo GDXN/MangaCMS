@@ -34,17 +34,17 @@ def test():
 	# runner = ScrapePlugins.BuMonitor.Run.Runner()
 	# runner.go()
 
-	chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
+	# chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
 	# chMon.go()
 	# chMon.closeDB()
 
 	# # pages = [u'8304', u'4789', u'4788', u'373']
 
-	cur = chMon.conn.cursor()
+	# cur = chMon.conn.cursor()
 
-	ret = cur.execute("SELECT dbId, buId FROM MangaSeries WHERE buId IS NOT NULL;")
-	items = ret.fetchall()
-	print("items", len(items))
+	# ret = cur.execute("SELECT dbId, buId FROM MangaSeries WHERE buId IS NOT NULL;")
+	# items = ret.fetchall()
+	# print("items", len(items))
 	# for item in items:
 	# 	pages = chMon.updateItem(*item)
 	# 	if not runStatus.run:
@@ -53,8 +53,22 @@ def test():
 
 	# chMon.closeDB()
 
-	# mon = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
 
+
+	runner = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
+	runner.scanRecentlyUpdated()
+	# runner.go()
+	# runner.closeDB()
+
+
+
+	chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
+	chMon.go()
+	chMon.closeDB()
+
+
+	# mon = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
+	# mon.scanRecentlyUpdated()
 	# mon.getAllManga()
 	# mon.closeDB()
 

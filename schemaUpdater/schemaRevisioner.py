@@ -7,9 +7,12 @@ from schemaUpdater.schema001to002 import updateOne2Two
 from schemaUpdater.schema002to003 import schemaTwo2Three
 from schemaUpdater.schema003to004 import schemaThree2Four
 from schemaUpdater.schema004to005 import schemaFour2Five
+from schemaUpdater.schema005to006 import schemaFive2Six
+
+
 from schemaUpdater.schema002to003 import doTableCounts
 
-CURRENT_SCHEMA = 5
+CURRENT_SCHEMA = 6
 
 def getSchemaRev(conn):
 	cur = conn.cursor()
@@ -102,6 +105,11 @@ def updateDatabaseSchema():
 	if rev == 4:
 		schemaFour2Five(conn)
 		updateSchemaRevNo(5)
+
+	rev = getSchemaRev(conn)
+	if rev == 5:
+		schemaFive2Six(conn)
+		updateSchemaRevNo(6)
 
 
 

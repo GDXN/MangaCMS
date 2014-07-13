@@ -127,7 +127,15 @@ def initLogging(logLevel=logging.INFO):
 
 	global LOGGING_INITIALIZED
 	if LOGGING_INITIALIZED:
-		raise ValueError("Logging initialized twice!")
+
+		print("ERROR - Logging initialized twice!")
+		print("ERROR - Logging initialized twice!")
+		print("ERROR - Logging initialized twice!")
+		print("ERROR - Logging initialized twice!")
+		print("ERROR - Logging initialized twice!")
+		print("ERROR - Logging initialized twice!")
+		print("ERROR - Logging initialized twice!")
+		return
 
 	LOGGING_INITIALIZED = True
 

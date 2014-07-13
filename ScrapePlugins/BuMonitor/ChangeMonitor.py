@@ -31,6 +31,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	pluginName       = "BakaUpdates Update Date Monitor"
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"
+	changedTableName = "muItemChanged"
 
 	baseURL          = "http://www.mangaupdates.com/"
 	itemURL          = 'http://www.mangaupdates.com/series.html?id={buId}'
@@ -98,11 +99,11 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 									(lastChecked < ? or lastChecked IS NULL)
 									AND buId IS NOT NULL
 									AND buList IS NOT NULL
-								LIMIT 50;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
+								LIMIT 100 ;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
 		rets = ret.fetchall()
 
 		# Only process non-list items if there are no list-items to process.
-		if not rets:
+		if len(rets) < 50:
 
 			ret = cur.execute('''SELECT dbId,buId
 									FROM {tableName}
@@ -111,8 +112,11 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 										AND buId IS NOT NULL
 										AND buList IS NULL
 									LIMIT 500;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
-			rets = ret.fetchall()
+			rets2 = ret.fetchall()
+			for row in rets2:
+				rets.append(row)
 
+		self.log.info("Items to check = %s", len(rets))
 		return rets
 
 		# Retreive page for mId, extract relevant information, and update the DB with the scraped info
@@ -283,7 +287,8 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		if not container:
 			return ""
 
-		return container.get_text().strip()
+
+		return ", ".join(container.strings).strip().strip(" ,")
 
 	def getArtist(self, soup):
 		header = soup.find("b", text="Artist(s)")
@@ -294,7 +299,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		if not container:
 			return ""
 
-		return container.get_text().strip()
+		return ", ".join(container.strings).strip().strip(" ,")
 
 	def getDescription(self, soup):
 		header = soup.find("b", text="Description")
@@ -305,7 +310,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		if not container:
 			return ""
 
-		return container.get_text().strip()
+		return " ".join(container.strings).strip().strip(" ,")
 
 
 	def getReleaseState(self, soup):
@@ -317,6 +322,6 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		if not container:
 			return ""
 
-		return container.get_text().strip()
+		return " ".join(container.strings).strip().strip(" ,")
 
 

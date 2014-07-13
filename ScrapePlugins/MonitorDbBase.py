@@ -38,6 +38,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 
+
 	def __init__(self):
 		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Loading %s Monitor BaseClass", self.pluginName)
@@ -312,6 +313,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	def insertBareNameItems(self, items):
 
 		cur = self.conn.cursor()
+		print("Items", items)
 		for name, mId in items:
 			row = self.getRowByValue(buId=mId)
 			if row:
@@ -381,6 +383,33 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			return None
 
 
+
+
+	def getLastCheckedFromId(self, mId):
+
+		cur = self.conn.cursor()
+		ret = cur.execute("""SELECT lastChecked FROM %s WHERE buId=?;""" % self.tableName, (mId, ))
+		ret = ret.fetchall()
+		if len(ret) > 1:
+			raise ValueError("How did you get more then one buId?")
+		if ret:
+			# Return structure is [(time)]
+			# we want to just return time
+			return ret[0][0]
+		else:
+			return None
+
+
+	def updateLastCheckedFromId(self, mId, changed):
+
+		cur = self.conn.cursor()
+		ret = cur.execute("""UPDATE %s SET lastChecked=? WHERE buId=?;""" % self.tableName, (changed, mId))
+		ret.fetchall()
+		self.conn.commit()
+
+
+
+
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Management
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -390,7 +419,8 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 		self.log.info( "Content Retreiver Opening DB...",)
 
-
+		## LastChanged is when the last scanlation release was released
+		# Last checked is when the page was actually last scanned.
 		self.conn.execute('''CREATE TABLE IF NOT EXISTS %s (
 											dbId            INTEGER PRIMARY KEY,
 
@@ -436,10 +466,10 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 											UNIQUE(buId, name) ON CONFLICT REPLACE
 											);''' % (self.nameMapTableName, self.tableName))
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId       collate nocase)''' % ("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name       collate nocase)''' % ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId       collate nocase)''' %       ("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name       collate nocase)''' %       ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName, name collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName collate nocase)''' %       ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
 		self.conn.commit()
 		self.log.info("Retreived page database created")
 
