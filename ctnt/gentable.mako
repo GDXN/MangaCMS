@@ -361,13 +361,8 @@ colours = {
 		else:
 			fSizeStr = fSizeToStr(fSize)
 
-		if sourceSite == "fu":
-			linkPage = "itemsFufufuu"
-		elif sourceSite == "djm":
-			linkPage = "itemsDjm"
-		else:
-			linkPage = "LOLNONE"
-			print("WAT?", sourceSite)
+		linkPage = "LOLWAT"
+
 
 		if seriesName and "»" in seriesName:
 			seriesNames = seriesName.split("»")

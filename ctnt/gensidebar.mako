@@ -84,6 +84,12 @@ DNLDED = 2
 		btRunState = "Not Running"
 
 
+	if puRunning:
+		puRunState = "<b>Running</b>"
+	else:
+		puRunState = "Not Running"
+
+
 
 	%>
 

@@ -172,12 +172,13 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			note = note.get_text()
 
-	def getDownloadInfo(self, linkDict):
+	def getDownloadInfo(self, linkDict, retag=False):
 		sourcePage = linkDict["sourceUrl"]
 
 		self.log.info("Retreiving item: %s", sourcePage)
 
-		self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
+		if not retag:
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
 
 
 		cont = self.wg.getpage(sourcePage, addlHeaders={'Referer': 'http://pururin.com/'})
@@ -211,9 +212,13 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		if tags:
-			self.updateDbEntry(linkDict["sourceUrl"], tags=tags, commit=False)
+			self.log.info("Adding tag info %s", tags)
+
+			self.addTags(sourceUrl=linkDict["sourceUrl"], tags=tags)
 		if note:
-			self.updateDbEntry(linkDict["sourceUrl"], note=note, commit=False)
+			self.log.info("Adding note %s", note)
+			self.updateDbEntry(linkDict["sourceUrl"], note=note)
+
 
 		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, lastUpdate=time.time())
 
@@ -289,7 +294,10 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info( "Done")
 
 
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, seriesName=linkDict["seriesName"], tags=dedupState)
+			if dedupState:
+				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
+
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, seriesName=linkDict["seriesName"])
 
 			self.conn.commit()
 			return wholePath

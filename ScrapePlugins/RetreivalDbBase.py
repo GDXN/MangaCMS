@@ -244,7 +244,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	def getRowsByValue(self, **kwargs):
 		if len(kwargs) != 1:
-			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
+			raise ValueError("getRowsByValue only supports calling with a single kwarg" % kwargs)
 		validCols = ["dbId", "sourceUrl", "dlState"]
 		key, val = kwargs.popitem()
 		if key not in validCols:
@@ -276,6 +276,36 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			keys = ["dbId", "dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note"]
 			retL.append(dict(zip(keys, row)))
 		return retL
+
+	# Insert new tags specified as a string kwarg (tags="tag Str") into the tags listing for the specified item
+	def addTags(self, **kwargs):
+		validCols = ["dbId", "sourceUrl", "dlState"]
+		if not any([name in kwargs for name in validCols]):
+			raise ValueError("addTags requires at least one fully-qualified argument (%s). Passed args = '%s'" % (validCols, kwargs))
+
+		if not "tags" in kwargs:
+			raise ValueError("You have to specify tags you want to add as a kwarg! '%s'" % (kwargs))
+
+		tags = kwargs.pop("tags")
+		row = self.getRowByValue(**kwargs)
+		if not row:
+			raise ValueError("Row specified does not exist!")
+
+		if row["tags"]:
+			existingTags = set(row["tags"])
+		else:
+			existingTags = set()
+
+		newTags = set(tags.split(" "))
+
+		tags = existingTags | newTags
+
+		tagStr = " ".join(tags)
+		while "  " in tagStr:
+			tagStr = tagStr.replace("  ", " ")
+
+		self.updateDbEntry(row["sourceUrl"], tags=tagStr)
+
 
 	# Convenience crap.
 	def getRowByValue(self, **kwargs):
