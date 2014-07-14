@@ -265,7 +265,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 							flags,
 							tags,
 							note
-							FROM AllMangaItems WHERE {key}=? AND sourceSite=?;'''.format(key=key)
+							FROM AllMangaItems WHERE {key}=? AND sourceSite=? ORDER BY retreivalTime DESC;'''.format(key=key)
 		# print("Query = ", query)
 		ret = cur.execute(query, (val, self.tableKey))
 

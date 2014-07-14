@@ -37,6 +37,15 @@ import statusManager as sm
 
 import mimetypes
 
+def fix_matchdict(request):
+	if request.matchdict:
+		for key, values in request.matchdict.items():
+			if type(values) is str:
+				request.matchdict[key] = values.encode("latin-1").decode("utf-8")
+			else:
+				request.matchdict[key] = tuple(value.encode("latin-1").decode("utf-8") for value in values)
+
+
 
 class PageResource(object):
 
@@ -139,6 +148,8 @@ class PageResource(object):
 			request.session.changed()
 
 
+		fix_matchdict(request)
+
 		self.log.info("Starting Serving request")
 		reqPath = request.path.lstrip("/")
 		if not reqPath.split("/")[-1]:
@@ -184,84 +195,10 @@ class PageResource(object):
 
 
 
-	def readerBase(self, request):
-		self.log.info("Request for path: %s", request.path)
-		# print("Read file = ", request)
-		# print("Session = ", request.session)
-		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
-			self.log.info("Creating session")
-			request.session["cookieid"] = self.sessionManager.getNewSessionKey()
-			request.session.changed()
 
-		session = self.sessionManager[request.session["cookieid"]]
-
-		redir = self.checkAuth(request)
-		if redir:
-			return redir
-
-		pgTemplate = self.lookupEngine.get_template('reader/index.mako')
-
-		self.log.info("Request for mako page %s", 'reader/index.mako')
-		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, sessionArchTool=session)
-		self.log.info("Mako page Rendered %s", 'reader/index.mako')
-		return Response(body=pageContent)
-
-
-	def getMangaReaderForFile(self, request):
-		self.log.info("Request for path: %s", request.path)
-		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
-			self.log.warning("Deeplink to Manga content without session cooke! Redirecting.")
-			return HTTPFound(location=request.route_url('reader-startup'))
-
-		session = self.sessionManager[request.session["cookieid"]]
-		redir = self.checkAuth(request)
-		if redir:
-			return redir
-
-		pgTemplate = self.lookupEngine.get_template('reader/read.mako')
-
-		self.log.info("Request for mako page %s", 'reader/read.mako')
-		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, sessionArchTool=session)
-		self.log.info("Mako page Rendered %s", 'reader/read.mako')
-		return Response(body=pageContent)
-
-	def getPornReaderForFile(self, request):
-		self.log.info("Request for path: %s", request.path)
-		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
-			self.log.warning("Deeplink to Pron content without session cooke! Redirecting.")
-			return HTTPFound(location=request.route_url('reader-startup'))
-
-		session = self.sessionManager[request.session["cookieid"]]
-		redir = self.checkAuth(request)
-		if redir:
-			return redir
-
-		pgTemplate = self.lookupEngine.get_template('reader/pron.mako')
-
-		self.log.info("Request for mako page %s", 'reader/pron.mako')
-		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, sessionArchTool=session)
-		self.log.info("Mako page Rendered %s", 'reader/pron.mako')
-		return Response(body=pageContent)
-
-	def getImageKeyOffset(self, request):
-		self.log.info("Request for path: %s", request.path)
-		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
-			return HTTPFound(location=request.route_url('reader-startup'))
-
-		session = self.sessionManager[request.session["cookieid"]]
-		redir = self.checkAuth(request)
-		if redir:
-			return redir
-
-		seqId = int(request.matchdict["sequenceid"])
-		itemFileHandle, itemPath = session.getItemByKey(seqId)
-		response = request.response
-		response.app_iter = FileIter(itemFileHandle)
-		response.content_type = self.guessItemMimeType(itemPath)
-
-		return response
 
 	def sign_in_out(self, request):
+		fix_matchdict(request)
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 		if username:
@@ -295,6 +232,7 @@ class PageResource(object):
 	# New reader!
 
 	def readerTwoPages(self, request):
+		# fix_matchdict(request)
 		self.log.info("Request for path: %s", request.path)
 		# print("Read file = ", request)
 		# print("Session = ", request.session)
@@ -318,7 +256,28 @@ class PageResource(object):
 
 
 
+	def readerTwoPorn(self, request):
+		fix_matchdict(request)
+		self.log.info("Request for path: %s", request.path)
+		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
+			self.log.warning("Deeplink to Pron content without session cooke! Redirecting.")
+			return HTTPFound(location=request.route_url('reader-redux-container'))
+
+		session = self.sessionManager[request.session["cookieid"]]
+		redir = self.checkAuth(request)
+		if redir:
+			return redir
+
+		pgTemplate = self.lookupEngine.get_template('reader2/renderPron.mako')
+
+		self.log.info("Request for mako page %s", 'reader2/renderPron.mako')
+		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, sessionArchTool=session)
+		self.log.info("Mako page Rendered %s", 'reader2/renderPron.mako')
+		return Response(body=pageContent)
+
+
 	def readerTwoContent(self, request):
+		# fix_matchdict(request)
 
 		self.log.info("Request for path: %s", request.path)
 		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
@@ -357,20 +316,13 @@ def buildApp():
 	# config.add_route(name='login',                   pattern='/login')
 	# config.add_route(name='do_login',                pattern='/login-check')
 	# config.add_route(name='auth',                    pattern='/login')
-	# config.add_route(name='get-image-by-id',         pattern='/images/byid/{imageID}')
-	# config.add_route(name='get-image-by-offset',     pattern='/images/byoffset/{artist}/{offset}')
 
-	config.add_route(name='reader-startup',         pattern='/reader/')
-	config.add_route(name='reader-dict',            pattern='/reader/{dict}')
-	config.add_route(name='reader-get-files',       pattern='/reader/{dict}/{seriesName}')
-	config.add_route(name='reader-get-arch',        pattern='/reader/{dict}/{seriesName}/{fileName}')
-	config.add_route(name='reader-get-images',      pattern='/reader/{dict}/{seriesName}/{fileName}/{sequenceid}')
 
 	config.add_route(name='reader-redux-container', pattern='/reader2/browse/*page')
 	config.add_route(name='reader-redux-content',   pattern='/reader2/file/{sequenceid}')
 
-	config.add_route(name='porn-get-arch',          pattern='/pron/{source}/{mId}')
-	config.add_route(name='porn-get-images',        pattern='/pron/{source}/{mId}/{sequenceid}')
+	config.add_route(name='porn-get-arch',          pattern='/pron/read/{mId}')
+	config.add_route(name='porn-get-images',        pattern='/pron/image/{sequenceid}')
 
 	config.add_route(name='api',                    pattern='/api')
 	config.add_route(name='static-file',            pattern='/js')
@@ -378,21 +330,11 @@ def buildApp():
 
 	config.add_route(name='leaf',                   pattern='/*page')
 
-	# config.add_view(resource.getPageHaveAuth,          http_cache=0, route_name='login')
-	# config.add_view(resource.sign_in_out,            http_cache=0, route_name='do_login')
-	# config.add_view(resource.getImageById,           http_cache=0, route_name='get-image-by-id')
-	# config.add_view(resource.getImageByArtistOffset, http_cache=0, route_name='get-image-by-offset')
-
 	config.add_view(resource.readerTwoPages,         http_cache=0, route_name='reader-redux-container')
-	config.add_view(resource.readerTwoContent,       http_cache=0, route_name='reader-redux-content')
+	config.add_view(resource.readerTwoPorn,          http_cache=0, route_name='porn-get-arch')
 
-	config.add_view(resource.readerBase,             http_cache=0, route_name='reader-startup')
-	config.add_view(resource.readerBase,             http_cache=0, route_name='reader-dict')
-	config.add_view(resource.readerBase,             http_cache=0, route_name='reader-get-files')
-	config.add_view(resource.getMangaReaderForFile,  http_cache=0, route_name='reader-get-arch')
-	config.add_view(resource.getPornReaderForFile,   http_cache=0, route_name='porn-get-arch')
-	config.add_view(resource.getImageKeyOffset,      http_cache=0, route_name='reader-get-images')
-	config.add_view(resource.getImageKeyOffset,      http_cache=0, route_name='porn-get-images')
+	config.add_view(resource.readerTwoContent,       http_cache=0, route_name='reader-redux-content')
+	config.add_view(resource.readerTwoContent,      http_cache=0, route_name='porn-get-images')
 
 	config.add_view(resource.getPage,                              route_name='static-file')
 	config.add_view(resource.getPage,                http_cache=0, route_name='root')

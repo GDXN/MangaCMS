@@ -85,8 +85,8 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None):
 	else:
 		whereStr = ""
 
-	print("tableKey, tagsFilter, seriesFilter", tableKey, tagsFilter, seriesFilter, whereItems)
-	print("Query", whereStr, queryAdditionalArgs)
+	# print("tableKey, tagsFilter, seriesFilter", tableKey, tagsFilter, seriesFilter, whereItems)
+	# print("Query", whereStr, queryAdditionalArgs)
 	return whereStr, queryAdditionalArgs
 
 colours = {
@@ -389,7 +389,7 @@ colours = {
 			% if fSize <= 0:
 				<td>${originName}</td>
 			% else:
-				<td><a href="/pron/${linkPage}/${dbId}">${originName}</a></td>
+				<td><a href="/pron/read/${dbId}">${originName}</a></td>
 			% endif
 
 

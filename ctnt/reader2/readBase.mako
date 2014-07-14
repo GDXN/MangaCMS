@@ -25,7 +25,7 @@ import traceback
 import settings
 import urllib.parse
 
-styles = ["mtMainId", "mtSubId", "djMoeId", "fuFuId"]
+styles = ["skId", "mtMonId", "czId", "mbId", "djMoeId", "navId"]
 
 def dequoteDict(inDict):
 	ret = {}
@@ -181,7 +181,7 @@ def dequoteDict(inDict):
 	<%
 
 	if not (os.path.isfile(itemPath) and os.access(itemPath, os.R_OK)):
-		print("")
+
 		invalidKey(title="Trying to read file that does not exist!")
 		return
 
@@ -190,11 +190,8 @@ def dequoteDict(inDict):
 	try:
 		# We have a valid file-path. Read it!
 		sessionArchTool.checkOpenArchive(itemPath)
-		print("sessionArchTool", sessionArchTool)
 		keys = sessionArchTool.getKeys()  # Keys are already sorted
 
-		print("Items in archive", keys)
-		print("Items in archive", sessionArchTool.items)
 
 		keyUrls = []
 		for indice in range(len(keys)):
@@ -261,9 +258,36 @@ def dequoteDict(inDict):
 
 
 
+<%def name="generateInfoSidebar(itemDict)">
 
-<%def name="generateInfoSidebar(filePath, keyUrls)">
+	<%
 
+	if not itemDict["item"]:
+		return
+
+	fullPath = itemDict['fqPath']
+	baseName = fullPath.split("/")[-1]
+
+
+
+	# itemTemp = nt.dirNameProxy.getRawDirDict(pathKey)
+	# keys = list(itemTemp.keys())
+	# keys.sort()
+
+
+	name = nt.sanitizeString(itemDict["item"], flatten=False)
+	print(name)
+	buId, haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
+
+
+	if haveBu:
+		haveBu = "✓"
+	else:
+		haveBu = "✗"
+
+
+
+	%>
 
 	<div class="readerInfo" id="searchDiv">
 
@@ -278,7 +302,7 @@ def dequoteDict(inDict):
 				<input type="hidden" name="act" value="series"/>
 				<input type="hidden" name="session" value=""/>
 				<input type="hidden" name="stype" value="Title">
-				<input type="hidden" name="search" value="${itemKey | h}"/>
+				<input type="hidden" name="search" value="${itemDict["dirKey"] | h}"/>
 
 			</form>
 		</div>

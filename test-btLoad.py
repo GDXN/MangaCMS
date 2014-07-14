@@ -32,7 +32,7 @@ def test():
 	# runner.go()
 
 	loader = BtFeedLoader()
-	feedItems = loader.getMainItems(rangeOverride=25)
+	feedItems = loader.getMainItems(rangeOverride=125)
 	loader.log.info("Processing feed Items")
 
 	loader.processLinksIntoDB(feedItems)

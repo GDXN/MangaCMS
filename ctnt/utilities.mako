@@ -64,7 +64,7 @@ import nameTools as nt
 		else:
 			return ""
 
-	return "<a href='/reader/%s/%s'>%s</a>" % (itemInfo["sourceDict"], urllib.parse.quote(itemInfo["dirKey"]), itemName)
+	return "<a href='/reader2/browse/0/%s'>%s</a>" % (urllib.parse.quote(itemInfo["dirKey"].encode("utf-8")), itemName)
 
 	%>
 </%def>

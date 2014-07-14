@@ -7,6 +7,7 @@ styles = ["skId", "mtMonId", "czId", "mbId", "djMoeId", "navId"]
 
 
 
+from natsort import natsorted
 
 
 import nameTools as nt
@@ -30,9 +31,7 @@ print("Rendering")
 
 	<%
 	reader.readerBrowseHeader()
-	%>
 
-	<%
 	keys = list(settings.mangaFolders.keys())
 	keys.sort()
 
@@ -71,7 +70,10 @@ print("Rendering")
 	<%
 	dirPath = os.path.join(settings.mangaFolders[dictKey]["dir"], *navPath)
 	dirContents = os.listdir(dirPath)
-	dirContents.sort()
+	dirContents = natsorted(dirContents)
+
+	print("Nav path = ", navPath, "dict", dictKey)
+
 	%>
 	Render Directory! ${dirPath}
 
@@ -107,18 +109,87 @@ print("Rendering")
 	# At this point, we can be confident that `dirPath` is a path that is actually a valid directory, so list it, and
 	# display it's contents
 
+	print("Navpath = ", navPath)
+
 	%>
 	<div class="contentdiv subdiv uncoloured">
 	<h3>${title}</h3>
+
+		<div class="inlineLeft">
 		<%
 
 		renderContents(dictKey, navPath)
 		%>
+		</div>
+		<%
+		if navPath:
+			reader.generateInfoSidebar(nt.dirNameProxy[navPath[-1]])
 
+		%>
 	</div>
 	<%
 	reader.readerBrowseFooter()
 	%>
+</%def>
+
+
+
+<%def name="displayItemFilesFromKey(itemKey)">
+
+	<%
+	print("itemKey", itemKey)
+
+	itemDict = nt.dirNameProxy[itemKey]
+
+	print("ItemDict", itemDict)
+	if not itemDict["item"]:
+
+		reader.invalidKey(message="No manga items found for key '%s'" % itemKey)
+		return
+
+	fullPath = itemDict['fqPath']
+	baseName = fullPath.split("/")[-1]
+
+
+
+	# itemTemp = nt.dirNameProxy.getRawDirDict(pathKey)
+	# keys = list(itemTemp.keys())
+	# keys.sort()
+
+	reader.readerBrowseHeader()
+	# At this point, we can be confident that `dirPath` is a path that is actually a valid directory, so list it, and
+	# display it's contents
+
+	%>
+	<div class="contentdiv subdiv uncoloured">
+		<h3>${baseName}</h3>
+
+		<div class="inlineLeft">
+			<%
+
+			haveItem = False
+
+			for dirDictKey in nt.dirNameProxy.getDirDicts().keys():
+				itemDictTemp = nt.dirNameProxy.getFromSpecificDict(dirDictKey, itemKey)
+				if itemDictTemp and itemDictTemp["fqPath"]:
+					key, navPath = itemDictTemp["sourceDict"], (itemDictTemp["item"], )
+					if navPath:
+						haveItem = True
+						renderContents(dirDictKey, navPath)
+			%>
+		</div>
+		<%
+		if haveItem:
+			reader.generateInfoSidebar(itemDict)
+		else:
+			# Probably excessive error checking, since we should be confident we have an item from above.
+			reader.invalidKey(message="Could not find anything for that key. Are you sure it's correct?")
+		%>
+	</div>
+	<%
+	reader.readerBrowseFooter()
+	%>
+
 </%def>
 
 
@@ -129,16 +200,28 @@ print("Rendering")
 	<%
 
 	if len(navPath) < 1:
-		reader.invalidKeyContent(message="No navigation path present? How did this even happen?")
+		reader.invalidKey(message="No navigation path present? How did this even happen?")
 		return
 
 	try:
 		dictIndice = int(navPath[0])
 	except ValueError:
-		reader.invalidKeyContent(message="Specified container path is not a integer!")
+		reader.invalidKey(message="Specified container path is not a integer!")
+		return
+
+	# key "0" puts the system in a special mode, and does lookup in nametools, rather then just specifying a path
+	if dictIndice == 0:
+		if len(navPath) != 2:
+			reader.invalidKey(message="Read mode 0 requires one (and only one) item specified in the path.")
+			return
+		displayItemFilesFromKey(navPath[1])
+		return
+
+
+	# Ok, we're not in key mode 0, and we have a valid key. Look it up, and render it.
 
 	if not dictIndice in settings.mangaFolders.keys():
-		reader.invalidKeyContent(message="Specified container path is not valid!")
+		reader.invalidKey(message="Specified container path is not valid!")
 		return
 
 	validPaths = [settings.mangaFolders[key]["dir"] for key in settings.mangaFolders.keys()]
@@ -180,9 +263,9 @@ print("Rendering")
 
 
 <%
-
+print("Matchdict", request.matchdict)
 # If there is no items in the request path, display the root dir
-if len(request.matchdict["page"]) == 0:
+if not len(request.matchdict["page"]):
 	pickDirTable()
 else:
 	dirContentsContainer(request.matchdict["page"])

@@ -100,7 +100,7 @@ DNLDED = 2
 				<li><a href="/">Index</a>
 				<hr>
 				<hr>
-				<li><a href="/reader/">Manga Reader</a>
+				<li><a href="/reader2/browse/">Manga Reader</a>
 				<hr>
 				<li>${ut.createReaderLink("Random Manga", nt.dirNameProxy.random())}
 				<hr>
