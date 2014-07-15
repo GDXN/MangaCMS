@@ -17,6 +17,7 @@ import bs4
 import re
 import ScrapePlugins.RetreivalDbBase
 
+from concurrent.futures import ThreadPoolExecutor
 
 import archCleaner
 
@@ -31,6 +32,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "bt"
 	dbName = settings.dbName
 
+	retreivalThreads = 4
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -43,7 +45,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 
 		# Anyways, limit the maximum items/hour to 50 items
-		rows = rows[:50]
+		rows = rows[:250]
 
 		items = []
 		for item in rows:
@@ -264,8 +266,6 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					continue
 
 				ret = self.getLink(link)
-				if ret == "Limited":
-					break
 
 
 				if not runStatus.run:
@@ -281,8 +281,24 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def processTodoLinks(self, links):
 		if links:
 
+			def iter_baskets_from(items, maxbaskets=3):
+				'''generates evenly balanced baskets from indexable iterable'''
+				item_count = len(items)
+				baskets = min(item_count, maxbaskets)
+				for x_i in range(baskets):
+					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
+
+			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
+
+			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
+
+				for linkList in linkLists:
+					executor.submit(self.fetchLinkList, linkList)
+
+				executor.shutdown(wait=True)
+
 			# Multithreading goes here, if I decide I want it at some point
-			self.fetchLinkList(links)
+
 
 
 	def go(self):

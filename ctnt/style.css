@@ -87,7 +87,11 @@ div.statediv
 {
 	border:2px solid;
 	/*border-radius:25px;*/
-	padding:10px
+	padding-left:10px;
+	padding-right:10px;
+	padding-top:3px;
+	padding-bottom:3px;
+	font-size: 14;
 }
 div.contentdiv
 {
@@ -122,13 +126,21 @@ div.mbId
 {
 	background-color:#FFBBBB;
 }
+div.btId
+{
+	background-color:#FFFFC5;
+}
 div.djMoeId
 {
 	background-color:#EE99EE;
 }
 div.fuFuId
 {
-	background-color:#FFBBBB;
+	background-color:#FFBE85;
+}
+div.puFuId
+{
+	background-color:#BBFFFF;
 }
 div.buMonId
 {

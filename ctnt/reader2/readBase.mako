@@ -260,6 +260,7 @@ def dequoteDict(inDict):
 
 <%def name="generateInfoSidebar(itemDict)">
 
+
 	<%
 
 	if not itemDict["item"]:
@@ -288,6 +289,44 @@ def dequoteDict(inDict):
 
 
 	%>
+
+
+
+
+	<script>
+
+		function ajaxCallback(reqData, statusStr, jqXHR)
+		{
+			console.log("Ajax request succeeded");
+			console.log(reqData);
+			console.log(statusStr);
+
+			var status = $.parseJSON(reqData);
+			console.log(status)
+			if (status.Status == "Success")
+			{
+				$('#rating-status').html("✓");
+				location.reload();
+			}
+			else
+			{
+				$('#rating-status').html("✗");
+				alert("ERROR!\n"+status.Message)
+			}
+
+		};
+		function ratingChange(newRating)
+		{
+			$('#rating-status').html("❍");
+
+			var ret = ({});
+			ret["change-rating"] = "${itemDict["dirKey"]}";
+			ret["new-rating"] = newRating;
+			$.ajax("/api", {"data": ret, success: ajaxCallback});
+			// alert("New value - "+newRating);
+		}
+	</script>
+
 
 	<div class="readerInfo" id="searchDiv">
 

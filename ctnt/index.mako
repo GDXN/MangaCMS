@@ -60,7 +60,7 @@ import os.path
 			<div class="contentdiv">
 				<h3>Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey=["bt", "sk", "cz", "mb"], distinct=True, limit=200)}
+				${tableGenerators.genMangaTable(tableKey=["bt", "sk", "cz", "mb", "jz"], distinct=True, limit=200)}
 			</div>
 		</div>
 
@@ -89,6 +89,7 @@ Shit to do:
 <b>General</b>
 <ul>
 	<li>Scrape perveden.com</li>
+	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold</li>
 	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
 	<li>Deduper - enable the ability to check for duplicates using phash as well.</li>
 	<li>add ability to sort directory by rating.</li>
@@ -123,6 +124,8 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Scrape download.japanzai.com</strike></li>
+	<li><strike>Fix rating change facility being broken by the new reader</strike></li>
 	<li><strike>Finish reader redesign</strike></li>
 	<li><strike>Fix presetting of item rating field.</strike> (Accidentally fixed, I think? Not sure how, but it's now working.)</li>
 	<li><strike>reader shits itself on unicode urls.</strike></li>

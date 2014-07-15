@@ -82,13 +82,13 @@ else:
 	onlyDistinct = False
 
 
-validPronSites = ["sk", "cz", "mb", "mt"]
+validMangaSites = ["sk", "cz", "mb", "mt", "jz"]
 
 if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
-	sourceFilter = [item for item in tmpSource if item in validPronSites]
+	sourceFilter = [item for item in tmpSource if item in validMangaSites]
 else:
-	sourceFilter = validPronSites
+	sourceFilter = validMangaSites
 
 
 if len(sourceFilter) > 1:
@@ -106,6 +106,9 @@ elif sourceFilter == ["cz"]:
 elif sourceFilter == ["mb"]:
 	divId      = "mbId"
 	sourceName = 'MangaBaby Series'
+elif sourceFilter == ["jz"]:
+	divId      = "jzId"
+	sourceName = 'Japanzai Series'
 else:
 	divId      = ""
 	sourceName = 'OH SHIT WUT?'

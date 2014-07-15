@@ -26,6 +26,8 @@ DNLDED = 2
 
 	cur = sqlConnection.cursor()
 
+	# TURN THIS SHIT INTO A LOOP BEFORE YOU GO INSANE!
+
 	skRunning,    skRunStart,    skLastRunDuration    = sm.getStatus(cur, "SkLoader")
 	czRunning,    czRunStart,    czLastRunDuration    = sm.getStatus(cur, "CzLoader")
 	fuRunning,    fuRunStart,    fuLastRunDuration    = sm.getStatus(cur, "Fufufuu")
@@ -45,6 +47,7 @@ DNLDED = 2
 		if not srcId in statusDict:
 			statusDict[srcId] = {}
 		statusDict[srcId][state] = num
+
 
 
 	if skRunning:
@@ -201,7 +204,7 @@ DNLDED = 2
 			</ul>
 
 		</div>
-		<div class="statediv fuFuId">
+		<div class="statediv puFuId">
 			<strong>Pururin:</strong><br />
 			${ut.timeAgo(fuRunStart)}<br />
 			${puRunState}

@@ -73,6 +73,16 @@ skSettings = {
 
 }
 
+jzSettings = {
+
+
+	"dirs" : {
+		"dlDir"         : pickedDir,
+		"mnDir"         : newDir,
+		"mDlDir"        : baseDir
+		}
+
+}
 mbSettings = {
 
 	"dirs" : {
@@ -83,6 +93,18 @@ mbSettings = {
 
 }
 
+czSettings = {
+
+	"dlDir"         : pickedDir,
+	"mDlDir"        : baseDir,
+
+
+	"dirs" : {
+		"dlDir"         : pickedDir,
+		"mDlDir"        : baseDir
+		}
+
+}
 
 
 fuSettings = {

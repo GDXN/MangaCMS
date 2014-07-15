@@ -13,7 +13,7 @@ class ColourHandler(logging.Handler):
 
 	def __init__(self, level=logging.DEBUG):
 		logging.Handler.__init__(self, level)
-		self.formatter = logging.Formatter(clr.Style.RESET_ALL+'\r%(colour)s%(name)s'+clr.Style.RESET_ALL+'%(padding)s - %(style)s%(levelname)s - %(message)s'+clr.Style.RESET_ALL)
+		self.formatter = logging.Formatter(clr.Style.RESET_ALL+'\r%(colour)s%(name)s'+clr.Style.RESET_ALL+'%(threadColour)s%(threadName)s'+clr.Style.RESET_ALL+'%(padding)s - %(style)s%(levelname)s - %(message)s'+clr.Style.RESET_ALL)
 		clr.init()
 
 	def emit(self, record):
@@ -39,6 +39,33 @@ class ColourHandler(logging.Handler):
 			record.colour = clr.Back.YELLOW + clr.Fore.BLUE
 		else:
 			record.colour = clr.Fore.WHITE
+
+
+
+
+		if "Thread-" in record.name:
+			threadColours = [clr.Fore.GREEN,
+					clr.Fore.YELLOW,
+					clr.Fore.BLUE,
+					clr.Fore.MAGENTA,
+					clr.Fore.CYAN]
+
+			threadNo = record.name.split("-")[-1]
+			record.name, threadName = record.name.rsplit(".", 1)
+			record.name += "."
+			threadNo = int(threadNo)
+			threadNo = (threadNo-1) % 5
+			record.threadColour = threadColours[threadNo]
+			record.threadName = threadName
+
+		else:
+			record.threadName = ""
+			record.threadColour = ""
+
+		colours = [clr.Fore.RED, clr.Fore.GREEN, clr.Fore.YELLOW, clr.Fore.MAGENTA, clr.Fore.BLUE]
+
+		if "Main.Thread " in record.name:
+			record.colour = colours[int(record.name.split()[-1]) % len(colours)-1]
 
 
 		if record.levelname == "DEBUG":
