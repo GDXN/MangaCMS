@@ -91,6 +91,10 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			url = urllib.parse.urljoin(urlBase, self.quoteUrl(linkLi.a["href"]))
 			ret.append((series, url))
 
+			if not runStatus.run:
+				self.log.info("Breaking due to exit flag being set")
+				return
+
 		return ret
 
 	def getMainItems(self):

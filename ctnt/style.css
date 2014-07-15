@@ -142,6 +142,10 @@ div.puFuId
 {
 	background-color:#BBFFFF;
 }
+div.jzId
+{
+	background-color:#B5FFFC;
+}
 div.buMonId
 {
 	background-color:#BBFFBB;
@@ -242,6 +246,15 @@ tr.mb_row:nth-child(even)
 tr.mb_row:nth-child(odd)
 {
 	background: #fff5f5
+}
+
+tr.jz_row:nth-child(even)
+{
+	background: #CEFFFD
+}
+tr.jz_row:nth-child(odd)
+{
+	background: #F2FFFE
 }
 
 tr.bt_row:nth-child(even)

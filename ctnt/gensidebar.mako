@@ -28,15 +28,6 @@ DNLDED = 2
 
 	# TURN THIS SHIT INTO A LOOP BEFORE YOU GO INSANE!
 
-	skRunning,    skRunStart,    skLastRunDuration    = sm.getStatus(cur, "SkLoader")
-	czRunning,    czRunStart,    czLastRunDuration    = sm.getStatus(cur, "CzLoader")
-	fuRunning,    fuRunStart,    fuLastRunDuration    = sm.getStatus(cur, "Fufufuu")
-	djMRunning,   djMRunStart,   djMLastRunDuration   = sm.getStatus(cur, "DjMoe")
-	buRunning,    buRunStart,    buLastRunDuration    = sm.getStatus(cur, "BuMon")
-	mbRunning,    mbRunStart,    mbLastRunDuration    = sm.getStatus(cur, "MbLoader")
-	btRunning,    btRunStart,    btLastRunDuration    = sm.getStatus(cur, "BtLoader")
-	puRunning,    puRunStart,    puLastRunDuration    = sm.getStatus(cur, "Pururin")
-
 
 	# Counting crap is now driven by commit/update/delete hooks
 	ret = cur.execute('SELECT sourceSite, dlState, quantity FROM MangaItemCounts;')
@@ -48,50 +39,17 @@ DNLDED = 2
 			statusDict[srcId] = {}
 		statusDict[srcId][state] = num
 
-
-
-	if skRunning:
-		skRunState = "<b>Running</b>"
-	else:
-		skRunState = "Not Running"
-
-	if czRunning:
-		czRunState = "<b>Running</b>"
-	else:
-		czRunState = "Not Running"
-
-
-	if fuRunning:
-		fuRunState = "<b>Running</b>"
-	else:
-		fuRunState = "Not Running"
-
-	if djMRunning:
-		djmRunState = "<b>Running</b>"
-	else:
-		djmRunState = "Not Running"
-
-	if buRunning:
-		buRunState = "<b>Running</b>"
-	else:
-		buRunState = "Not Running"
-
-	if mbRunning:
-		mbRunState = "<b>Running</b>"
-	else:
-		mbRunState = "Not Running"
-
-	if btRunning:
-		btRunState = "<b>Running</b>"
-	else:
-		btRunState = "Not Running"
-
-
-	if puRunning:
-		puRunState = "<b>Running</b>"
-	else:
-		puRunState = "Not Running"
-
+	sidebarItemList = [
+			["SkLoader", "Starkana:",      "sk", "skId"   ],
+			["CzLoader", "Crazy's Manga:", "cz", "czId"   ],
+			["MbLoader", "MangaBaby:",     "mb", "fuFuId" ],
+			["BtLoader", "Batoto:",        "bt", "puId" ],
+			["JzLoader", "Japanzai:",      "jz", "jzId" ],
+			["BuMon",    "MU Mon:",        None, "djMoeId"],
+			["DjMoe",    "DjMoe:",         "djm","btId"   ],
+			["Pururin",  "Pururin:",       "pu", "buId"   ],
+			["Fufufuu",  "Fufufuu:",       "fu", "mbId"   ]
+		]
 
 
 	%>
@@ -131,98 +89,30 @@ DNLDED = 2
 		<div class="statediv">
 			<strong>Status:</strong>
 		</div>
-		<div class="statediv skId">
-			<strong>Starkana:</strong><br />
-			${ut.timeAgo(skRunStart)}<br />
-			${skRunState}
-			<ul>
-				<li>Have: ${statusDict["sk"][DNLDED]}</li>
-				<li>DLing: ${statusDict["sk"][DLING]}</li>
-				<li>Want: ${statusDict["sk"][QUEUED]}</li>
-				<li>Failed: ${statusDict["sk"][FAILED]}</li>
-			</ul>
 
-		</div>
-		<div class="statediv czId">
-			<strong>Crazy's Manga:</strong><br />
-			${ut.timeAgo(czRunStart)}<br />
-			${czRunState}
+		% for dbKey, title, dictKey, cssClass in sidebarItemList:
+			<%
+			running, runStart, skLastRunDuration = sm.getStatus(cur, dbKey)
 
-			<ul>
-				<li>Have: ${statusDict["cz"][DNLDED]}</li>
-				<li>DLing: ${statusDict["cz"][DLING]}</li>
-				<li>Want: ${statusDict["cz"][QUEUED]}</li>
-				<li>Failed: ${statusDict["cz"][FAILED]}</li>
-			</ul>
-		</div>
-		<div class="statediv mbId">
-			<strong>MangaBaby:</strong><br />
-			${ut.timeAgo(mbRunStart)}<br />
-			${mbRunState}
-
-			<ul>
-				<li>Have: ${statusDict["mb"][DNLDED]}</li>
-				<li>DLing: ${statusDict["mb"][DLING]}</li>
-				<li>Want: ${statusDict["mb"][QUEUED]}</li>
-				<li>Failed: ${statusDict["mb"][FAILED]}</li>
-			</ul>
-		</div>
-		<div class="statediv btId">
-			<strong>Batoto:</strong><br />
-			${ut.timeAgo(btRunStart)}<br />
-			${btRunState}
-
-			<ul>
-				<li>Have: ${statusDict["bt"][DNLDED]}</li>
-				<li>DLing: ${statusDict["bt"][DLING]}</li>
-				<li>Want: ${statusDict["bt"][QUEUED]}</li>
-				<li>Failed: ${statusDict["bt"][FAILED]}</li>
-			</ul>
-		</div>
-		<div class="statediv djMoeId">
-			<strong>DjMoe:</strong><br />
-			${ut.timeAgo(djMRunStart)}<br />
-			${djmRunState}
-			<ul>
-				<li>Have: ${statusDict["djm"][DNLDED]}</li>
-				<li>DLing: ${statusDict["djm"][DLING]}</li>
-				<li>Want: ${statusDict["djm"][QUEUED]}</li>
-				<li>Failed: ${statusDict["djm"][FAILED]}</li>
-			</ul>
-
-		</div>
-		<div class="statediv fuFuId">
-			<strong>Fufufuu:</strong><br />
-			${ut.timeAgo(fuRunStart)}<br />
-			${fuRunState}
-
-			<ul>
-				<li>Have: ${statusDict["fu"][DNLDED]}</li>
-				<li>DLing: ${statusDict["fu"][DLING]}</li>
-				<li>Want: ${statusDict["fu"][QUEUED]}</li>
-				<li>Failed: ${statusDict["fu"][FAILED]}</li>
-			</ul>
-
-		</div>
-		<div class="statediv puFuId">
-			<strong>Pururin:</strong><br />
-			${ut.timeAgo(fuRunStart)}<br />
-			${puRunState}
-
-			<ul>
-				<li>Have: ${statusDict["pu"][DNLDED]}</li>
-				<li>DLing: ${statusDict["pu"][DLING]}</li>
-				<li>Want: ${statusDict["pu"][QUEUED]}</li>
-				<li>Failed: ${statusDict["pu"][FAILED]}</li>
-			</ul>
-
-		</div>
-		<div class="statediv buId">
-			<strong>MU Mon:</strong><br />
-			${ut.timeAgo(buRunStart)}<br />
-			${buRunState}
-
-		</div>
+			if running:
+				runState = "<b>Running</b>"
+			else:
+				runState = "Not Running"
+			%>
+			<div class="statediv ${cssClass}">
+				<strong>${title}</strong><br />
+				${ut.timeAgo(runStart)}<br />
+				${runState}
+				% if dictKey:
+					<ul>
+						<li>Have: ${statusDict[dictKey][DNLDED]}</li>
+						<li>DLing: ${statusDict[dictKey][DLING]}</li>
+						<li>Want: ${statusDict[dictKey][QUEUED]}</li>
+						<li>Failed: ${statusDict[dictKey][FAILED]}</li>
+					</ul>
+				% endif
+			</div>
+		% endfor
 	</div>
 
 </%def>

@@ -5,6 +5,7 @@
 <%namespace name="tableGenerators" file="gentable.mako"/>
 <%namespace name="sideBar" file="gensidebar.mako"/>
 
+<%namespace name="ut" file="utilities.mako"/>
 <html>
 <head>
 	<title>WAT WAT IN THE BATT</title>
@@ -295,8 +296,8 @@ print("Generating table")
 
 
 
-				if folderName in nt.dirNameProxy:
-					itemInfo = nt.dirNameProxy[folderName]
+				itemInfo = nt.dirNameProxy[folderName]
+				if itemInfo["item"]:
 					if not itemInfo["rating"]:
 						haveRating = "Unrated"
 						if not showRatingMissing:
@@ -312,7 +313,7 @@ print("Generating table")
 				else:
 					if not showRatingMissing:
 						continue
-					itemInfo = None
+
 					rating = None
 					linkUrl = None
 
@@ -330,12 +331,11 @@ print("Generating table")
 					continue
 
 
-
 			%>
 			<tr>
 				<td class="padded">${dataDict["mangaID"]}</td>
 				<td class="padded">${name}</td>
-				<td class="padded">${"" if linkUrl==None else linkUrl}${cleanedName} ${"" if not linkUrl else "</a>"}</td>
+				<td class="padded">${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else "None"}</td>
 
 				% if haveRating == "Unrated":
 					<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName)}">NR</td>

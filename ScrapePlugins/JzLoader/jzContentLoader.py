@@ -163,11 +163,6 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		filePath, fileName = os.path.split(fqFName)
 
-		if type(content) is str and "You have been limit reached." in content:
-			self.log.warning("Hit rate-limiting error. Breaking")
-			self.updateDbEntry(sourceUrl, dlState=0)
-			return "Limited"
-
 		try:
 			with open(fqFName, "wb") as fp:
 				fp.write(content)

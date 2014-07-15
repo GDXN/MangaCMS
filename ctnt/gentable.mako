@@ -580,10 +580,10 @@ colours = {
 <%def name="genLegendTable(pron=False, hideSource=False)">
 	<div class="legend">
 
-		<table border="1px" style="display:inline-block">
+		<table border="1px" style="width: 100%;">
 			<colgroup>
 				% for x in range(len(colours)):
-					<col style="width: ${100/len(colours)}%" />
+					<col style="width: ${int(100/len(colours))}%" />
 				% endfor
 			</colgroup>
 			<tr>
@@ -598,7 +598,7 @@ colours = {
 			</tr>
 		</table>
 		<%
-		rows = [("Starkana", "sk_row"), ("Crazy's", "cz_row"), ("MangaTraders", "mt_row"), ("MangaBaby", "mb_row"), ("Batoto", "bt_row")]
+		rows = [("Starkana", "sk_row"), ("Crazy's", "cz_row"), ("MangaTraders", "mt_row"), ("MangaBaby", "mb_row"), ("Batoto", "bt_row"), ("Japanzai", "jz_row")]
 		if pron:
 			rows = [("Doujin Moe", "djm_row"), ("Fufufuu", "fu_row"), ("Pururin", "pu_row")]
 		if hideSource:
@@ -608,10 +608,10 @@ colours = {
 			% for name, row in rows:
 				<table border="1px" style="display:inline-block;">
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 80px;'>From</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 126px;'>From</td>
 						</tr>
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 80px;'>${name}</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 126px;'>${name}</td>
 						</tr>
 				</table>
 			% endfor
