@@ -204,6 +204,8 @@ colours = {
 
 		if not flags:
 			flags = ""
+		if not tags:
+			tags = ""
 
 		if dlState == 2:
 			statusColour = colours["Done"]
@@ -249,7 +251,7 @@ colours = {
 			<td bgcolor=${statusColour} class="showTT" title="${toolTip}"></td>
 			<td bgcolor=${locationColour} class="showTT" title="${toolTip}"></td>
 			<td>${ut.createReaderLink(seriesName.title(), itemInfo)}</td>
-			<td>${originName}</td>
+			<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
 			<td>${rating}</td>
 			<td>${addDate}</td>
 		</tr>
@@ -361,8 +363,9 @@ colours = {
 		else:
 			fSizeStr = fSizeToStr(fSize)
 
-		linkPage = "LOLWAT"
 
+		if not tags:
+			tags = ""
 
 		if seriesName and "»" in seriesName:
 			seriesNames = seriesName.split("»")

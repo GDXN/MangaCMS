@@ -3,10 +3,11 @@ import logSetup
 if __name__ == "__main__":
 	logSetup.initLogging()
 
-
+import archCleaner
 
 import runStatus
 
+import deduplicator.dupCheck as deduper
 from ScrapePlugins.PururinLoader.Run import Runner
 from ScrapePlugins.PururinLoader.pururinDbLoader import PururinDbLoader
 from ScrapePlugins.PururinLoader.pururinContentLoader import PururinContentLoader
@@ -27,8 +28,8 @@ def customHandler(signum, stackframe):
 def test():
 
 	# nt.dirNameProxy.startDirObservers()
-	runner = Runner()
-	runner.go()
+	# runner = Runner()
+	# runner.go()
 
 	# loader = PururinDbLoader()
 	# # print("Running")
@@ -41,72 +42,40 @@ def test():
 	# 	dat = loader.getFeed(pageOverride=x)
 	# 	loader.processLinksIntoDB(dat)
 
-	# cl = PururinContentLoader()
+
+
+	checker1 = deduper.ArchChecker('/media/Storage/Scripts/MangaCMS/test/test1.zip')
+	checker2 = deduper.ArchChecker('/media/Storage/Scripts/MangaCMS/test/test2.zip')
+
+	h1 = checker1.getHashes()
+	h2 = checker2.getHashes()
+
+	print(h1)
+	print(h2)
+
+	'''
+	cl = PururinContentLoader()
+
+	rows = cl.getRowsByValue(dlState=2)
+	for row in rows:
+		if not "deleted" in row:
+			fileN = os.path.join(row["downloadPath"], row["fileName"])
+			if not fileN:
+				print("Archive does not exist? Wat?")
+				print(fileN)
+				continue
+			print(os.path.exists(fileN), fileN)
+
+			checker = deduper.ArchChecker(fileN)
+			checker.checkPhash()
+
+			if not runStatus.run:
+				print("Exiting!")
+				break
+
+	'''
 	# cl.go()
 	# # cl.loginIfNeeded()
-
-
-	# cl.getContainerPages('http://www.batoto.net/read/_/257032/for-alice_ch0.5_by_misty-rain-scans/1')
-	# cl.getContainerPages('http://www.batoto.net/read/_/257091/untouchable_ch7_by_royal-hearts/1')
-	# cl.getContainerPages('http://www.batoto.net/read/_/257156/gaussian-blur_ch14--v2-_by_kawa-scans/1')
-
-	# print(cl.extractFilename("Witch Craft Works - vol 8 ch 36 Page 1 | Batoto!"))
-	# print(cl.extractFilename("For Alice - ch 0.5 | Batoto!"))
-	# print(cl.extractFilename("JoJo&#39;s Bizarre Adventure Part 6: Stone Ocean - vol 65 ch 608 Page 1 | Batoto!"))
-	# print(cl.extractFilename("Eighth - vol 7 ch 26 Page 1 | Batoto!"))
-	# print(cl.extractFilename("Love Pop - vol 1 ch 5 Page 1 | Batoto!"))
-	# print(cl.extractFilename("Omairi desu yo - vol 3 ch 8a Page 1 | Batoto!"))
-
-	# cur = cl.conn.cursor()
-	# ret = cur.execute("SELECT dbId, downloadPath, fileName FROM BtMangaItems WHERE downloadPath IS NOT NULL;")
-
-
-	# for dbId, pathTo, fileName in ret.fetchall():
-	# 	pathTo = os.path.join(pathTo, fileName)
-	# 	if os.path.exists(pathTo):
-	# 		print("Exists = ", pathTo)
-	# 	else:
-	# 		print(dbId, "Not exist = ", pathTo)
-	# 		cl.deleteRowsByValue(dbId=dbId)
-
-	# cl.closeDB()
-
-
-	# runner = Runner()
-
-	# runner.go()
-
-	# loader = BtFeedLoader()
-	# print("Running")
-	# loader.go()
-
-	# loader.go()
-
-	# try:
-	# 	newItems = 0
-	# 	for x in range(270, 3000):
-	# 		print("Loop", x)
-
-	# 		itemTemp = loader.getMainItems(rangeOverride=1, rangeOffset=x)
-
-	# 		# for item in itemTemp:
-	# 		# 	print("Item", item)
-
-	# 		newItems += loader.processLinksIntoDB(itemTemp, isPicked=0)
-
-	# 		loader.log.info("Loop %s, items %s", x, newItems)
-
-	# 	loader.log.info( "Adding items to queue")
-
-
-	# finally:
-	# 	nt.dirNameProxy.stop()
-	# # runner.checkFeed()
-	# # print("Runniner = ", runner)
-
-	# # getter = BtContentLoader()
-	# # print(getter)
-
 
 
 	# todo = cl.retreiveTodoLinksFromDB()

@@ -281,6 +281,8 @@ def dequoteDict(inDict):
 	buId, haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
 
 
+
+
 	if haveBu:
 		haveBu = "✓"
 	else:
@@ -365,7 +367,20 @@ def dequoteDict(inDict):
 
 
 		<div class="lightRect itemInfoBox">
-			Bu Tags: ${buTags}
+
+			Bu Tags:
+			<ul>
+				<%
+				if not buTags:
+					buTags = ""
+
+				tags = buTags.split(" ")
+				tags.sort()
+				%>
+				% for item in tags:
+					<li>${item}</li>
+				% endfor
+			</ul>
 		</div>
 
 		<div class="lightRect itemInfoBox">

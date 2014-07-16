@@ -158,6 +158,8 @@ class ArchCleaner(object):
 			return
 
 		except RuntimeError:
+			self.log.error("Error in archive checker?")
+			self.log.error(traceback.format_exc())
 			pass
 
 		self.log.info("Removing password from zip '%s'", zipPath)
@@ -211,7 +213,10 @@ class ArchCleaner(object):
 		if deduper and deleteDups:
 
 			dc = deduper.ArchChecker(archPath)
-			isUnique = dc.check()
+			if not includePHash:
+				isUnique = dc.check()
+			else:
+				isUnique = dc.checkPhash()
 			if not isUnique:
 				self.log.warning("Archive %s isn't unique!" % archPath)
 				dc.deleteArch()

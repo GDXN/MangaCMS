@@ -134,7 +134,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		for daysAgo in range(1, dayDelta+1):
 
-			url = self.feedUrl % daysAgo
+			url = self.feedUrl % (daysAgo+rangeOffset)
 			page = self.wg.getpage(url)
 			soup = bs4.BeautifulSoup(page)
 

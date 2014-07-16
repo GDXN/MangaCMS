@@ -46,6 +46,35 @@ class ArchChecker(object):
 				self.log.info("It does not contain any unique files.")
 		return False
 
+	def checkPhash(self):
+		self.log.info("Checking if %s contains any unique files.", self.archPath)
+
+		for fileN, fileCtnt in self.arch:
+			dummy_fName, hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fileN, fileCtnt.read())
+			print("Hashes", pHash, dHash, hexHash)
+			dups = self.db.getOtherDPHashes(dHash, pHash, fsMaskPath="LOLWATTTTTTTTT")
+
+
+			# Short circuit on unique item, since we are only checking if ANY item is unique
+			if not dups:
+				self.log.info("It contains at least one unique files.")
+				return True
+
+		self.log.info("It does not contain any unique files.")
+		return False
+
+	def getHashes(self):
+
+
+		self.log.info("Getting item hashes for %s.", self.archPath)
+		ret = []
+		for fileN, fileCtnt in self.arch:
+			ret.append(self.hashModule.hashFile(self.archPath, fileN, fileCtnt.read()))
+
+
+		self.log.info("%s Fully hashed.", self.archPath)
+		return ret
+
 	def deleteArch(self):
 
 		self.log.warning("Deleting archive '%s'", self.archPath)
@@ -70,15 +99,15 @@ class ArchChecker(object):
 					self.log.critical("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
 
 				if baseHash:
-					self.db.updateItem(self.archPath, fName, hexHash, pHash, dHash)
+					self.db.updateItem(self.archPath, fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
 				else:
-					self.db.insertItem(self.archPath, fName, hexHash, pHash, dHash)
+					self.db.insertItem(self.archPath, fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
 			except IOError as e:
 				self.log.error("Invalid/damaged image file in archive!")
 				self.log.error("Archive '%s', file '%s'", self.archPath, fName)
 				self.log.error("Error '%s'", e)
 
-
+		self.db.commit()
 		archIterator.close()
 		self.log.info("File hashing complete.")
 

@@ -40,9 +40,9 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info( "Done")
 		if not rows:
+			self.log.info("No new items, nothing to do.")
 			return
 
-		rows = rows[:50]
 
 		items = []
 		for item in rows:
