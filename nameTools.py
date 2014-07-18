@@ -587,7 +587,7 @@ class DirNameProxy(object):
 			tmp = self.dirDicts[dictKey][filteredKey]
 			return self._processItemIntoRet(tmp, itemKey, filteredKey, dictKey)
 
-		return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": None, "rating": None, "sourceDict": None}
+		return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": filteredKey, "rating": None, "sourceDict": None}
 
 
 
@@ -649,16 +649,16 @@ class DirNameProxy(object):
 
 		baseDictKeys = list(self.dirDicts.keys())
 		baseDictKeys.sort()
-		for dirDictKey in baseDictKeys:
+		keyLUT = self.filterPreppedNameThroughDB(key)
 
+		for dirDictKey in baseDictKeys:
 			# keyLUT = self.filterPreppedNameThroughDB(key)
-			keyLUT = self.filterPreppedNameThroughDB(key)
 
 			if keyLUT in self.dirDicts[dirDictKey]:
 				tmp = self.dirDicts[dirDictKey][keyLUT]
 				return self._processItemIntoRet(tmp, key, keyLUT, dirDictKey)
 
-		return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": None, "rating": None}
+		return {"fqPath" : None, "item": None, "inKey" : key, "dirKey": keyLUT, "rating": None}
 
 	def __contains__(self, key):
 		# self.checkUpdate()

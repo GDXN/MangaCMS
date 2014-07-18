@@ -260,13 +260,13 @@ print("Generating table")
 <div>
 
 
-<%def name="makeTooltipTable(name, cleanedName, folderName)">
+<%def name="makeTooltipTable(name, cleanedName, folderName, itemPath)">
 <ul>
 	<li>Name: '${name | h}'</li>
 	<li>Cleaned Name: '${cleanedName | h}'</li>
 	<li>DirSort Name: '${folderName | h}'</li>
-	% if folderName in nt.dirNameProxy:
-		<li>Dir: '${nt.dirNameProxy[folderName]["fqPath"] | h}'</li>
+	% if itemPath:
+		<li>Dir: '${itemPath | h}'</li>
 	% endif
 </ul>
 
@@ -287,16 +287,15 @@ print("Generating table")
 		% for dataDict in tblData:
 			<%
 				name = dataDict["seriesName"]
-				cleanedName = nt.cleanName(dataDict["seriesName"])
-				folderName = nt.getCanonicalMangaUpdatesName(cleanedName)
-				folderName = folderName.lower()
+				cleanedName = dataDict["seriesName"]
 
 				 # = nt.dirNameProxy.filterNameThroughDB(cleanedName)
 
 
+				itemInfo = nt.dirNameProxy[cleanedName]
+				folderName = itemInfo["dirKey"]
 
 
-				itemInfo = nt.dirNameProxy[folderName]
 				if itemInfo["item"]:
 					if not itemInfo["rating"]:
 						haveRating = "Unrated"
@@ -319,12 +318,6 @@ print("Generating table")
 
 					haveRating = "No Dir Found"
 
-				# Funky short-circuiting stuff
-				if cleanedName in mtItems and not showInMT:
-					continue
-				if not cleanedName in mtItems and not showNotInMT:
-					continue
-
 				if (dataDict["currentChapter"] > 1) and not showOutOfDate:
 					continue
 				if (dataDict["currentChapter"] == -1) and not showUpToDate:
@@ -338,11 +331,11 @@ print("Generating table")
 				<td class="padded">${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else "None"}</td>
 
 				% if haveRating == "Unrated":
-					<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName)}">NR</td>
+					<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NR</td>
 				% elif haveRating == "No Dir Found":
-					<td bgcolor="${colours["notInMT"]}"  class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName)}">NDF</td>
+					<td bgcolor="${colours["notInMT"]}"  class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NDF</td>
 				% else:
-					<td class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName)}">${rating}</td>
+					<td class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">${rating}</td>
 				%endif
 
 

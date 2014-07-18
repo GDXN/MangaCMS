@@ -309,6 +309,9 @@ def buildApp():
 
 	config = Configurator(session_factory = sessionFactory)
 
+	#config.add_settings({"debugtoolbar.hosts" : ["0.0.0.0/0", "10.1.1.4"]})
+	#config.include('pyramid_debugtoolbar')
+
 
 	config.set_authentication_policy(authn_policy)
 	config.set_authorization_policy(authz_policy)
@@ -346,9 +349,6 @@ def buildApp():
 
 	# config.add_view(route_name='auth', match_param='action=in', renderer='string', request_method='POST')
 	# config.add_view(route_name='auth', match_param='action=out', renderer='string')
-
-	# config.include('pyramid_debugtoolbar')
-
 
 	app = config.make_wsgi_app()
 

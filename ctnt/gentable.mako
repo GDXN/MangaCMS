@@ -188,8 +188,8 @@ colours = {
 			sourceSeriesName = "NONE"
 		seriesName = nt.getCanonicalMangaUpdatesName(sourceSeriesName)
 
-		cleanedName = nt.prepFilenameForMatching(sourceSeriesName)
-		itemInfo = nt.dirNameProxy[cleanedName]
+		# cleanedName = nt.prepFilenameForMatching(sourceSeriesName)
+		itemInfo = nt.dirNameProxy[sourceSeriesName]
 		if itemInfo["rating"]:
 			rating = itemInfo["rating"]
 		else:
@@ -241,7 +241,7 @@ colours = {
 		toolTip  = filePath.replace('"', "") + "<br>"
 		toolTip += "Original series name: " + sourceSeriesName.replace('"', "") + "<br>"
 		toolTip += "Proper MangaUpdates name: " + seriesName.replace('"', "") + "<br>"
-		toolTip += "cleanedName: " + cleanedName.replace('"', "") + "<br>"
+		toolTip += "cleanedName: " + itemInfo["dirKey"] + "<br>"
 		toolTip += "itemInfo: " + str(itemInfo).replace('"', "")
 
 
@@ -288,6 +288,8 @@ colours = {
 	# print("whereStr = ", whereStr)
 
 	cur = sqlCon.cursor()
+
+	print("Query")
 	ret = cur.execute('''SELECT 	dbId,
 									sourceSite,
 									dlState,
@@ -308,6 +310,7 @@ colours = {
 								OFFSET ?;'''.format(query = whereStr), params)
 
 	tblCtntArr = ret.fetchall()
+	print("Queried")
 	%>
 
 	% for row in tblCtntArr:

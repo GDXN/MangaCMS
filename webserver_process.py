@@ -21,10 +21,6 @@ passWd  = "9op6yh"
 dlDir = r"/media/Storage/MP"
 mDlDir = r"/media/Storage/Manga/"
 
-watchedFeed = "http://www.mangatraders.com/rss/watched/612668"
-mainFeed = "http://www.mangatraders.com/rss/files/"
-
-
 import runStatus
 
 def doHousekeeping():
