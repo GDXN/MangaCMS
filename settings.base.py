@@ -72,6 +72,18 @@ skSettings = {
 		}
 
 }
+# Manga.Madokami
+skSettings = {
+
+	"login"         : "username",
+	"passWd"        : "password",
+
+	"dirs" : {
+		"dlDir"         : pickedDir,
+		"mDlDir"        : baseDir
+		}
+
+}
 
 jzSettings = {
 

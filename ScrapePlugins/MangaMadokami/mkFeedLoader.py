@@ -1,0 +1,163 @@
+
+import feedparser
+import webFunctions
+import bs4
+import re
+
+import urllib.parse
+import time
+import dateutil.parser
+import runStatus
+import settings
+import datetime
+
+import ScrapePlugins.RetreivalDbBase
+import nameTools as nt
+
+class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+
+
+	wg = webFunctions.WebGetRobust(creds=[("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"])])
+	loggerPath = "Main.Mk.Fl"
+	pluginName = "Manga.Madokami Link Retreiver"
+	tableKey = "mk"
+	dbName = settings.dbName
+
+
+	urlBase = "http://manga.madokami.com/Manga"
+
+
+	def checkLogin(self):
+		pass
+
+	def closeDB(self):
+		self.log.info( "Closing DB...",)
+		self.conn.close()
+		self.log.info( "done")
+
+	def getItemsFromContainer(self, dirName, dirUrl):
+
+		# Skip the needs sorting directory.
+		if dirName == 'Needs sorting':
+			return [], []
+
+		dirName = nt.removeBrackets(dirName)
+
+		self.log.info("Fetching items for directory '%s'", dirName)
+
+		self.log.info("Using URL '%s'", dirUrl)
+		itemPage = self.wg.getpage(dirUrl)
+		soup = bs4.BeautifulSoup(itemPage)
+
+		itemRet = []
+		dirRet  = []
+
+		for row in soup.find_all("tr"):
+			if "class" in row.attrs and row["class"] == ["path"]:
+				newDirName = row.a.get_text().strip()
+				dirUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
+				newDir = (newDirName, dirUrl)
+				dirRet.append(newDir)
+			elif "data-ext" in row.attrs:
+				item = {}
+				dlUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
+				item["date"]     = time.time()
+				item["dlName"]   = row.a.get_text().strip()
+				item["dlLink"]   = dlUrl
+				item["baseName"] = dirName
+
+				itemRet.append(item)
+
+			else:
+				print('"class" in row', "class" in row.attrs)
+				print('row.attrs', row.attrs)
+				raise ValueError("wat?")
+
+		return dirRet, itemRet
+
+
+	def getMainItems(self):
+		# for item in items:
+		# 	self.log.info( item)
+		#
+
+		self.log.info( "Loading Madokami Main Feed")
+
+		items = []
+
+
+		seriesPages, items = self.getItemsFromContainer("UNKNOWN", self.urlBase)
+
+		while len(seriesPages):
+			folderName, folderUrl = seriesPages.pop()
+
+			newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
+
+			for newDir in newDirs:
+				seriesPages.append(newDir)
+
+			for newItem in newItems:
+				items.append(newItem)
+
+			if not runStatus.run:
+				self.log.info("Breaking due to exit flag being set")
+				return items
+		return items
+
+
+
+
+	def processLinksIntoDB(self, linksDicts, isPicked=False):
+
+		self.log.info( "Inserting...",)
+		newItems = 0
+		for link in linksDicts:
+			if link is None:
+				print("linksDicts", linksDicts)
+				print("WAT")
+
+			row = self.getRowsByValue(sourceUrl=link["dlLink"])
+			if not row:
+				newItems += 1
+
+
+				# Patch series name.
+				seriesName = nt.getCanonicalMangaUpdatesName(link["baseName"])
+
+				self.insertIntoDb(retreivalTime = link["date"],
+									sourceUrl   = link["dlLink"],
+									originName  = link["dlName"],
+									dlState     = 0,
+									seriesName  = seriesName,
+									flags       = '')
+				# Flags has to be an empty string, because the DB is annoying.
+				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
+
+
+				self.log.info("New item: %s", (link["date"], link["dlLink"], link["baseName"], link["dlName"]))
+
+
+			else:
+				row = row.pop()
+
+
+		self.log.info( "Done")
+		self.log.info( "Committing...",)
+		self.conn.commit()
+		self.log.info( "Committed")
+
+		return newItems
+
+
+	def go(self):
+
+		self.resetStuckItems()
+		self.log.info("Getting feed items")
+
+		feedItems = self.getMainItems()
+		self.log.info("Processing feed Items")
+
+		self.processLinksIntoDB(feedItems)
+		self.log.info("Complete")
+
+

@@ -61,9 +61,15 @@ def cleanName(inStr):
 
 bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w:]*\])")
 
+def removeBrackets(inStr):
+	inStr = bracketStripRe.sub(" ", inStr)
+	while inStr.find("  ")+1:
+		inStr = inStr.replace("  ", " ")
+	return inStr
+
 # Basically used for dir-path cleaning to prep for matching, and not much else
 def sanitizeString(inStr, flatten=True):
-	baseName = bracketStripRe.sub(" ", inStr)				#clean brackets
+	baseName = removeBrackets(inStr)				#clean brackets
 
 	if flatten:
 		baseName = baseName.replace("~", "")		 # Spot fixes. We'll see if they break anything

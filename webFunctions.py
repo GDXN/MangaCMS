@@ -68,14 +68,27 @@ class WebGetRobust:
 
 	data = None
 
-	def __init__(self, test=False):
-
+	# if test=true, no resources are actually fetched (for testing)
+	# creds is a list of 3-tuples that gets inserted into the password manager.
+	# it is structured [(top_level_url1, username1, password1), (top_level_url2, username2, password2)]
+	def __init__(self, test=False, creds=None):
+		print("Webget init!")
 		self.browserHeaders = random.choice(self.browsers)
 
-		self.testMode = test					# if we don't want to actually contact the remote server, you pass a string containing
+		self.testMode = test		# if we don't want to actually contact the remote server, you pass a string containing
 									# pagecontent for testing purposes as test. It will get returned for any calls of getpage()
 
 		self.data = urllib.parse.urlencode(self.browserHeaders)
+
+
+		if creds:
+			self.log.info("Have credentials, installing password manager into urllib handler.")
+			passManager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+			for url, username, password in creds:
+				passManager.add_password(None, url, username, password)
+			self.credHandler = urllib.request.HTTPBasicAuthHandler(passManager)
+		else:
+			self.credHandler = None
 
 		self.loadCookies()
 
@@ -94,8 +107,11 @@ class WebGetRobust:
 			if http.cookiejar is not None:
 				self.log.info("Installing CookieJar")
 				self.log.debug(self.cj)
-
-				self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cj))
+				cookieHandler = urllib.request.HTTPCookieProcessor(self.cj)
+				if self.credHandler:
+					self.opener = urllib.request.build_opener(cookieHandler, self.credHandler)
+				else:
+					self.opener = urllib.request.build_opener(cookieHandler)
 				#self.opener.addheaders = [('User-Agent', 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)')]
 				self.opener.addheaders = self.browserHeaders
 				#urllib2.install_opener(self.opener)
