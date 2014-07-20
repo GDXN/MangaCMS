@@ -157,10 +157,11 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.log.warning("Found rows:")
 				self.log.warning("'%s'", rows)
 			elif len(rows) == 1:
-				self.log.info("File has been moved!")
-				self.log.info("File: '%s'", link)
 				row = rows.pop()
-				self.updateDbEntryById(row["dbId"], sourceUrl = link["dlLink"])
+				if row["sourceUrl"] != link["dlLink"]:
+					self.log.info("File has been moved!")
+					self.log.info("File: '%s'", link)
+					self.updateDbEntryById(row["dbId"], sourceUrl = link["dlLink"])
 
 			else:
 				row = row.pop()

@@ -99,9 +99,20 @@ class ArchCleaner(object):
 			raise NotAnArchive("Trying to clean a file that is not a zip/rar archive! File=%s" % archPath)
 
 
-		self.log.info("Scanning arch '%s'", archPath)
-		old_zfp = UniversalArchiveReader.ArchiveReader(archPath)
 
+
+		self.log.info("Scanning arch '%s'", archPath)
+
+		try:
+			old_zfp = UniversalArchiveReader.ArchiveReader(archPath)
+		except rarfile.BadRarFile:
+			self.log.error("Bad rar file!")
+			self.log.error(traceback.format_exc())
+			raise DamagedArchive
+		except rarfile.BadZipFile:
+			self.log.error("Bad zip file!")
+			self.log.error(traceback.format_exc())
+			raise DamagedArchive
 
 
 		files = []
@@ -179,7 +190,17 @@ class ArchCleaner(object):
 		except RuntimeError:
 			self.log.error("Error in archive checker?")
 			self.log.error(traceback.format_exc())
-			pass
+			return
+
+		except zipfile.BadZipFile:
+			self.log.error("Archive is corrupt/damaged?")
+			self.log.error(traceback.format_exc())
+			return
+
+		except zipfile.BadZipFile:
+			self.log.error("Unknown error??")
+			self.log.error(traceback.format_exc())
+			return
 
 		self.log.info("Removing password from zip '%s'", zipPath)
 		old_zfp = zipfile.ZipFile(zipPath, "r")

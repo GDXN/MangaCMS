@@ -19,6 +19,6 @@ sidebarItemList = [
 
 inHomepageMangaTable = ["bt", "sk", "cz", "mb", "jz"]
 activeNonPorn        = ["bt", "sk", "cz", "mb", "jz", "mk", "mt"]
-activePorn           = ["pu", "fu", "djm"]
+activePorn           = ["pu", "fu", "djm", "em"]
 
 %>

@@ -6,9 +6,9 @@ if __name__ == "__main__":
 
 
 import runStatus
-from ScrapePlugins.MangaMadokami.Run import Runner
-from ScrapePlugins.MangaMadokami.mkFeedLoader import MkFeedLoader
-from ScrapePlugins.MangaMadokami.mkContentLoader import MkContentLoader
+from ScrapePlugins.ExMadokami.Run import Runner
+from ScrapePlugins.ExMadokami.emFeedLoader import EmFeedLoader
+from ScrapePlugins.ExMadokami.emContentLoader import EmContentLoader
 import signal
 
 import nameTools as nt
@@ -27,8 +27,11 @@ def test():
 
 
 
-	# loader = MkFeedLoader()
-	# loader.go()
+	# loader = EmFeedLoader()
+	# for x in range(20):
+	# 	items = loader.getApiItems(page=x)
+	# 	loader.processLinksIntoDB(items)
+	# # loader.go()
 
 
 	# feedItems = loader.getMainItems()
@@ -40,13 +43,13 @@ def test():
 	# loader.processLinksIntoDB(feedItems)
 	# loader.closeDB()
 
-	nt.dirNameProxy.startDirObservers()
-	# runner = Runner()
-	# runner.go()
+	runner = Runner()
+	runner.go()
 
 
-	cl = MkContentLoader()
-	cl.go()
+	# cl = EmContentLoader()
+	# # cl.retreiveTodoLinksFromDB()
+	# cl.go()
 
 
 
