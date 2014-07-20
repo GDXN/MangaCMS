@@ -27,11 +27,11 @@ def test():
 
 
 
-	# loader = EmFeedLoader()
-	# for x in range(20):
-	# 	items = loader.getApiItems(page=x)
-	# 	loader.processLinksIntoDB(items)
-	# # loader.go()
+	loader = EmFeedLoader()
+	for x in range(20):
+		items = loader.getApiItems(page=x)
+		loader.processLinksIntoDB(items)
+	# loader.go()
 
 
 	# feedItems = loader.getMainItems()

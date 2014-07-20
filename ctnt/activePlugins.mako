@@ -14,6 +14,7 @@ sidebarItemList = [
 		["BuMon",    "MU Mon:",        None, "djMoeId"],
 		["DjMoe",    "DjMoe:",         "djm","btId"   ],
 		["Pururin",  "Pururin:",       "pu", "buId"   ],
+		["EmLoader", "ExHenMado:",     "em", "emId"   ],
 		["Fufufuu",  "Fufufuu:",       "fu", "mbId"   ]
 	]
 

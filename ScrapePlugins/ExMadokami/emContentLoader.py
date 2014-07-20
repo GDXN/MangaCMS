@@ -144,11 +144,13 @@ class EmContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.warning("Corrupt Archive!")
 			self.log.warning("Archive '%s'", fqFName)
 			dedupState = "corrupt-archive"
-			self.updateDbEntry(sourceUrl, dlState=-3, downloadPath=filePath, fileName=fileName, tags=dedupState)
+			self.addTags(sourceUrl=sourceUrl, tags=dedupState)
+			self.updateDbEntry(sourceUrl, dlState=-3, downloadPath=filePath, fileName=fileName)
 			return
 
 		self.log.info( "Done")
-		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
+		self.addTags(sourceUrl=sourceUrl, tags=dedupState)
+		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName)
 		return
 
 

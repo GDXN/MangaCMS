@@ -270,8 +270,6 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			self.conn.commit()
 
 
-
-
 	def getRowsByValue(self, **kwargs):
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg" % kwargs)
@@ -322,7 +320,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			raise ValueError("Row specified does not exist!")
 
 		if row["tags"]:
-			existingTags = set(row["tags"])
+			existingTags = set(row["tags"].split(" "))
 		else:
 			existingTags = set()
 
