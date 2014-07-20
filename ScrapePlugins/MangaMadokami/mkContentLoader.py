@@ -165,12 +165,23 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				fp.write(content)
 		except TypeError:
 			self.log.error("Failure trying to retreive content from source %s", sourceUrl)
+			self.updateDbEntry(sourceUrl, dlState=-4, downloadPath=filePath, fileName=fileName, tags=dedupState)
 			return
 		#self.log.info( filePath)
+		try:
+			dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
+		except archCleaner.NotAnArchive:
+			self.log.warning("File is not an archive!")
+			self.log.warning("File '%s'", fqFName)
+			dedupState = "not-an-archive"
+		except archCleaner.DamagedArchive:
+			self.log.warning("Corrupt Archive!")
+			self.log.warning("Archive '%s'", fqFName)
+			dedupState = "corrupt-archive"
+			self.updateDbEntry(sourceUrl, dlState=-3, downloadPath=filePath, fileName=fileName, tags=dedupState)
+			return
 
-		dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
 		self.log.info( "Done")
-
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 		return
 

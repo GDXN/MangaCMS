@@ -267,6 +267,16 @@ tr.bt_row:nth-child(odd)
 }
 
 
+tr.mk_row:nth-child(even)
+{
+	background: #FFE7C4
+}
+tr.mk_row:nth-child(odd)
+{
+	background: #FFF1DE
+}
+
+
 
 tr.fu_row:nth-child(even)
 {

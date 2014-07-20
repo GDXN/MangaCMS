@@ -5,6 +5,7 @@ import bs4
 import re
 
 import urllib.parse
+import urllib.error
 import time
 import dateutil.parser
 import runStatus
@@ -41,12 +42,25 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if dirName == 'Needs sorting':
 			return [], []
 
-		dirName = nt.removeBrackets(dirName)
+		self.log.info("Original name - %s", dirName)
 
+		bracketStripRe = re.compile(r"(\[.*?\])")
+		dirName = bracketStripRe.sub(" ", dirName)
+		while dirName.find("  ")+1:
+			dirName = dirName.replace("  ", " ")
+
+		dirName = nt.getCanonicalMangaUpdatesName(dirName)
+
+		self.log.info("Canonical name - %s", dirName)
 		self.log.info("Fetching items for directory '%s'", dirName)
 
 		self.log.info("Using URL '%s'", dirUrl)
-		itemPage = self.wg.getpage(dirUrl)
+		try:
+			itemPage = self.wg.getpage(dirUrl)
+		except urllib.error.URLError:
+			self.log.error("Could not fetch page '%s'", dirUrl)
+			return [], []
+
 		soup = bs4.BeautifulSoup(itemPage)
 
 		itemRet = []

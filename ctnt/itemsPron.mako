@@ -9,7 +9,8 @@
 <%startTime = time.time()%>
 
 <%namespace name="tableGenerators" file="gentable.mako"/>
-<%namespace name="sideBar" file="gensidebar.mako"/>
+<%namespace name="sideBar"         file="gensidebar.mako"/>
+<%namespace name="ap"              file="activePlugins.mako"/>
 
 <%!
 # Module level!
@@ -109,13 +110,13 @@ if "byTag" in request.params:
 if "bySeries" in request.params:
 	seriesFilter = request.params.getall("bySeries")
 
-validPronSites = ["fu", "djm", "pu"]
+
 
 if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
-	sourceFilter = [item for item in tmpSource if item in validPronSites]
+	sourceFilter = [item for item in tmpSource if item in ap.attr.activePorn]
 else:
-	sourceFilter = validPronSites
+	sourceFilter = ap.attr.activePorn
 
 print("Re-encoded query = ", urllib.parse.urlencode(request.params))
 

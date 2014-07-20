@@ -10,6 +10,10 @@ import logging
 import magic
 import UniversalArchiveReader
 
+import rarfile
+import zipfile
+import traceback
+
 try:
 	import pyximport
 	pyximport.install()
@@ -39,6 +43,10 @@ except:
 	deduper = None
 	print("No deduplication tools installed.")
 
+class NotAnArchive(Exception):
+	pass
+class DamagedArchive(Exception):
+	pass
 
 
 # Utility class for common archive cleaning and manipulation tasks.
@@ -88,7 +96,7 @@ class ArchCleaner(object):
 
 		if not magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip' and \
 		   not magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
-			raise ValueError("Trying to clean a file that is not a zip/rar archive! File=%s" % archPath)
+			raise NotAnArchive("Trying to clean a file that is not a zip/rar archive! File=%s" % archPath)
 
 
 		self.log.info("Scanning arch '%s'", archPath)
@@ -105,7 +113,18 @@ class ArchCleaner(object):
 				self.log.info("Had windows 'Thumbs.db' file. Removing")
 				continue
 
-			fctnt = fileCtnt.read()
+			try:
+				fctnt = fileCtnt.read()
+			except rarfile.BadRarFile:
+				self.log.error("Bad rar file!")
+				self.log.error(traceback.format_exc())
+				raise DamagedArchive
+			except rarfile.BadZipFile:
+				self.log.error("Bad zip file!")
+				self.log.error(traceback.format_exc())
+				raise DamagedArchive
+
+
 			md5 = hashlib.md5()
 			md5.update(fctnt)
 
@@ -204,7 +223,7 @@ class ArchCleaner(object):
 			self.log.error("Called on file %s", archPath)
 			self.log.error("Specified password '%s'", passwd)
 			self.log.error("Inferred file type %s", magic.from_file(archPath, mime=True).decode("ascii"))
-			raise ValueError("ArchCleaner called on file that isn't a rar or zip!")
+			raise NotAnArchive("ArchCleaner called on file that isn't a rar or zip!")
 
 		# ArchPath will convert from rar to zip if needed, and returns the name of the resulting
 		# file in either case

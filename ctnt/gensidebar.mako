@@ -18,6 +18,7 @@ DNLDED = 2
 %>
 
 <%namespace name="ut" file="utilities.mako"/>
+<%namespace name="ap" file="activePlugins.mako"/>
 
 
 <%def name="getSideBar(sqlConnection)">
@@ -38,19 +39,6 @@ DNLDED = 2
 		if not srcId in statusDict:
 			statusDict[srcId] = {}
 		statusDict[srcId][state] = num
-
-	sidebarItemList = [
-			["SkLoader", "Starkana:",      "sk", "skId"   ],
-			["CzLoader", "Crazy's Manga:", "cz", "czId"   ],
-			["MbLoader", "MangaBaby:",     "mb", "fuFuId" ],
-			["BtLoader", "Batoto:",        "bt", "puId" ],
-			["JzLoader", "Japanzai:",      "jz", "jzId" ],
-			["BuMon",    "MU Mon:",        None, "djMoeId"],
-			["DjMoe",    "DjMoe:",         "djm","btId"   ],
-			["Pururin",  "Pururin:",       "pu", "buId"   ],
-			["Fufufuu",  "Fufufuu:",       "fu", "mbId"   ]
-		]
-
 
 	%>
 
@@ -90,7 +78,7 @@ DNLDED = 2
 			<strong>Status:</strong>
 		</div>
 
-		% for dbKey, title, dictKey, cssClass in sidebarItemList:
+		% for dbKey, title, dictKey, cssClass in ap.attr.sidebarItemList:
 			<%
 			running, runStart, skLastRunDuration = sm.getStatus(cur, dbKey)
 

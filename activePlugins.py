@@ -24,7 +24,7 @@ import ScrapePlugins.MangaMadokami.Run
 # are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
 	#  3 : (ScrapePlugins.FufufuuLoader.Retag,  60*60),
-	1  : (ScrapePlugins.MangaMadokami.Run,    60*60*24),  # every 24 hours, because I have to iterate over the ENTIRE site.
+	# 1  : (ScrapePlugins.MangaMadokami.Run,    60*60*24),  # every 24 hours, because I have to iterate over the ENTIRE site.
 	10 : (ScrapePlugins.BtBaseManager.Run,    60*60),
 	11 : (ScrapePlugins.BuMonitor.Run,        60*60),
 	2  : (ScrapePlugins.FufufuuLoader.Run,    60*45),

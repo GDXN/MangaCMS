@@ -232,7 +232,7 @@ class PageResource(object):
 	# New reader!
 
 	def readerTwoPages(self, request):
-		# fix_matchdict(request)
+		fix_matchdict(request)
 		self.log.info("Request for path: %s", request.path)
 		# print("Read file = ", request)
 		# print("Session = ", request.session)
@@ -277,7 +277,7 @@ class PageResource(object):
 
 
 	def readerTwoContent(self, request):
-		# fix_matchdict(request)
+		fix_matchdict(request)
 
 		self.log.info("Request for path: %s", request.path)
 		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:

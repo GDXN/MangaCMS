@@ -41,7 +41,8 @@ import urllib.parse
 <%startTime = time.time()%>
 
 <%namespace name="tableGenerators" file="gentable.mako"/>
-<%namespace name="sideBar" file="gensidebar.mako"/>
+<%namespace name="sideBar"         file="gensidebar.mako"/>
+<%namespace name="ap"              file="activePlugins.mako"/>
 
 
 <%
@@ -82,13 +83,13 @@ else:
 	onlyDistinct = False
 
 
-validMangaSites = ["sk", "cz", "mb", "mt", "jz"]
+
 
 if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
-	sourceFilter = [item for item in tmpSource if item in validMangaSites]
+	sourceFilter = [item for item in tmpSource if item in ap.attr.activeNonPorn]
 else:
-	sourceFilter = validMangaSites
+	sourceFilter = ap.attr.activeNonPorn
 
 
 if len(sourceFilter) > 1:

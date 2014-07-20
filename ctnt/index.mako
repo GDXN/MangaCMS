@@ -5,6 +5,7 @@
 <%namespace name="tableGenerators" file="gentable.mako"/>
 <%namespace name="sideBar"         file="gensidebar.mako"/>
 <%namespace name="ut"              file="utilities.mako"/>
+<%namespace name="ap"              file="activePlugins.mako"/>
 
 <html>
 <head>
@@ -60,7 +61,7 @@ import os.path
 			<div class="contentdiv">
 				<h3>Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey=["bt", "sk", "cz", "mb", "jz"], distinct=True, limit=200)}
+				${tableGenerators.genMangaTable(tableKey=ap.attr.inHomepageMangaTable, distinct=True, limit=200)}
 			</div>
 		</div>
 
@@ -68,16 +69,9 @@ import os.path
 			<div class="contentdiv">
 				<h3>Porn!</h3>
 				${tableGenerators.genLegendTable(pron=True)}
-				${tableGenerators.genPronTable(["pu", "fu", "djm"])}
+				${tableGenerators.genPronTable(ap.attr.activePorn)}
 			</div>
 		</div>
-## 		<div class="subdiv djMoeId">
-## 			<div class="contentdiv">
-## 				<h3>Doujin Moe</h3>
-## 				${tableGenerators.genLegendTable()}
-## 				${tableGenerators.genPronTable("djm")}
-## 			</div>
-## 		</div>
 
 	</div>
 </div>
