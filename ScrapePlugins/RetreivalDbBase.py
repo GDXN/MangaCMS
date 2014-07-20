@@ -222,6 +222,36 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			self.conn.commit()
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
 
+	# Update entry with key sourceUrl with values **kwargs
+	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
+	def updateDbEntryById(self, rowId, commit=True, **kwargs):
+
+		# Patch series name.
+		if "seriesName" in kwargs and kwargs["seriesName"]:
+			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
+
+		queries = []
+		qArgs = []
+		for key in kwargs.keys():
+			if key not in self.validKwargs:
+				raise ValueError("Invalid keyword argument: %s" % key)
+			else:
+				queries.append("{k}=?".format(k=key))
+				qArgs.append(kwargs[key])
+
+		qArgs.append(rowId)
+		qArgs.append(self.tableKey)
+		column = ", ".join(queries)
+
+		cur = self.conn.cursor()
+
+		query = '''UPDATE AllMangaItems SET {v} WHERE dbId=? AND sourceSite=?;'''.format(v=column)
+		cur.execute(query, qArgs)
+
+		if commit:
+			self.conn.commit()
+		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
+
 
 	def deleteRowsByValue(self, commit=True, **kwargs):
 		if len(kwargs) != 1:
@@ -245,7 +275,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	def getRowsByValue(self, **kwargs):
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg" % kwargs)
-		validCols = ["dbId", "sourceUrl", "dlState"]
+		validCols = ["dbId", "sourceUrl", "dlState", "originName"]
 		key, val = kwargs.popitem()
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
@@ -353,6 +383,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (tags       collate nocase)'''  % ("AllMangaItems_tags_index"))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (flags      collate nocase)'''  % ("AllMangaItems_flags_index"))
 		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (dlState)'''                    % ("AllMangaItems_dlState_index"))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (originName)'''                 % ("AllMangaItems_originName_index"))
 
 		self.conn.commit()
 		self.log.info("Retreived page database created")

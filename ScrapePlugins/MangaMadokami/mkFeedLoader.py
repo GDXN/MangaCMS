@@ -130,8 +130,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				print("linksDicts", linksDicts)
 				print("WAT")
 
-			row = self.getRowsByValue(sourceUrl=link["dlLink"])
-			if not row:
+			rows = self.getRowsByValue(originName  = link["dlName"])    #We only look at filenames to determine uniqueness,
+			if not rows:
 				newItems += 1
 
 
@@ -150,6 +150,17 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				self.log.info("New item: %s", (link["date"], link["dlLink"], link["baseName"], link["dlName"]))
 
+			elif len(rows) > 1:
+				self.log.warning("Have more then one item for filename! Wat?")
+				self.log.warning("Info dict for file:")
+				self.log.warning("'%s'", link)
+				self.log.warning("Found rows:")
+				self.log.warning("'%s'", rows)
+			elif len(rows) == 1:
+				self.log.info("File has been moved!")
+				self.log.info("File: '%s'", link)
+				row = rows.pop()
+				self.updateDbEntryById(row["dbId"], sourceUrl = link["dlLink"])
 
 			else:
 				row = row.pop()

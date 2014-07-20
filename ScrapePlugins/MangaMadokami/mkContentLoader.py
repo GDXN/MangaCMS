@@ -110,7 +110,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def getLinkFile(self, fileUrl):
-		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True)
+		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "http://manga.madokami.com"})
 		pageUrl = pghandle.geturl()
 		hName = urllib.parse.urlparse(pageUrl)[2].split("/")[-1]
 		self.log.info( "HName: %s", hName, )
@@ -165,7 +165,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				fp.write(content)
 		except TypeError:
 			self.log.error("Failure trying to retreive content from source %s", sourceUrl)
-			self.updateDbEntry(sourceUrl, dlState=-4, downloadPath=filePath, fileName=fileName, tags=dedupState)
+			self.updateDbEntry(sourceUrl, dlState=-4, downloadPath=filePath, fileName=fileName)
 			return
 		#self.log.info( filePath)
 		try:
