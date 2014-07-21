@@ -1,10 +1,11 @@
 ## -*- coding: utf-8 -*-
 <!DOCTYPE html>
+<%namespace name="ut"              file="utilities.mako"/>
 <html>
 <head>
 	<meta charset="utf-8">
 	<title>WAT WAT IN THE BATT</title>
-	<link rel="stylesheet" href="style.css">
+	${ut.getCss()}
 </head>
 
 <%startTime = time.time()%>

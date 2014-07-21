@@ -130,7 +130,7 @@ class ArchCleaner(object):
 				self.log.error("Bad rar file!")
 				self.log.error(traceback.format_exc())
 				raise DamagedArchive
-			except rarfile.BadZipFile:
+			except zipfile.BadZipFile:
 				self.log.error("Bad zip file!")
 				self.log.error(traceback.format_exc())
 				raise DamagedArchive
@@ -248,7 +248,16 @@ class ArchCleaner(object):
 
 		# ArchPath will convert from rar to zip if needed, and returns the name of the resulting
 		# file in either case
-		archPath = self.cleanZip(archPath)
+		try:
+			archPath = self.cleanZip(archPath)
+
+		except zipfile.BadZipFile:
+			self.log.error("Ignoring archive because it appears damaged.")
+			return ""
+
+		except zipfile.BadZipFile:
+			self.log.error("Ignoring archive because it appears damaged.")
+			return ""
 
 		if deduper and deleteDups:
 

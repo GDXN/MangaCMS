@@ -170,6 +170,15 @@ class PageResource(object):
 				self.log.info("Mako page Rendered %s", reqPath)
 
 				return Response(body=pageContent)
+			elif reqPath.endswith(".mako.css"):
+				relPath = reqPath.replace(self.base_directory, "")
+				pgTemplate = self.lookupEngine.get_template(relPath)
+
+				self.log.info("Request for mako css file %s", reqPath)
+				pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn)
+				self.log.info("Mako page Rendered %s", reqPath)
+
+				return Response(body=pageContent, content_type='text/css')
 			else:
 				return self.getRawContent(reqPath)
 

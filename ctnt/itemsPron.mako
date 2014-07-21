@@ -1,16 +1,19 @@
 ## -*- coding: utf-8 -*-
 <!DOCTYPE html>
-<html>
-<head>
-	<title>WAT WAT IN THE BATT</title>
-	<link rel="stylesheet" href="style.css">
-</head>
-
-<%startTime = time.time()%>
 
 <%namespace name="tableGenerators" file="gentable.mako"/>
 <%namespace name="sideBar"         file="gensidebar.mako"/>
 <%namespace name="ap"              file="activePlugins.mako"/>
+<%namespace name="ut"              file="utilities.mako"/>
+
+<html>
+<head>
+	<title>WAT WAT IN THE BATT</title>
+	${ut.getCss()}
+</head>
+
+<%startTime = time.time()%>
+
 
 <%!
 # Module level!

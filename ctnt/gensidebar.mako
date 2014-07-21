@@ -27,9 +27,6 @@ DNLDED = 2
 
 	cur = sqlConnection.cursor()
 
-	# TURN THIS SHIT INTO A LOOP BEFORE YOU GO INSANE!
-
-
 	# Counting crap is now driven by commit/update/delete hooks
 	ret = cur.execute('SELECT sourceSite, dlState, quantity FROM MangaItemCounts;')
 	rets = cur.fetchall()
@@ -59,16 +56,17 @@ DNLDED = 2
 				<hr>
 				<li><a href="/seriesMon">Series Monitor</a>
 				<hr>
-				<li><a href="/itemsManga?sourceSite=mt&distinct=True">MT</a>
-				<li><a href="/itemsManga?sourceSite=sk&distinct=True">Starkana</a>
-				<li><a href="/itemsManga?sourceSite=cz&distinct=True">Crazy's Manga</a>
-				<li><a href="/itemsManga?sourceSite=mb&distinct=True">MangaBaby</a>
+				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>
+				% for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Manga"]:
+					<li><a href="/itemsManga?sourceSite=${item["dictKey"]}&distinct=True">${item["name"]}</a>
+				% endfor
+
 				<hr>
 				<hr>
-				<li><a href="/itemsPron">Pron Files</a>
-				<li><a href="/itemsPron?sourceSite=djm">DjM Files</a>
-				<!-- <li><a href="/tagsDjM">DjM Tags</a> -->
-				<li><a href="/itemsPron?sourceSite=fu">Fu Files</a>
+				<li><a href="/itemsPron"><b>All Pron</b></a>
+				% for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Porn"]:
+					<li><a href="/itemsPron?sourceSite=${item["dictKey"]}">${item["name"]}</a>
+				% endfor
 				<!-- <li><a href="/tagsFu">Fu Tags</a> -->
 			</ul>
 		</div>
@@ -78,25 +76,28 @@ DNLDED = 2
 			<strong>Status:</strong>
 		</div>
 
-		% for dbKey, title, dictKey, cssClass in ap.attr.sidebarItemList:
+		% for item in ap.attr.sidebarItemList:
 			<%
-			running, runStart, skLastRunDuration = sm.getStatus(cur, dbKey)
+			if not item["dbKey"]:
+				continue
+
+			running, runStart, skLastRunDuration = sm.getStatus(cur, item["dbKey"])
 
 			if running:
 				runState = "<b>Running</b>"
 			else:
 				runState = "Not Running"
 			%>
-			<div class="statediv ${cssClass}">
-				<strong>${title}</strong><br />
+			<div class="statediv ${item['cssClass']}">
+				<strong>${item["name"]}</strong><br />
 				${ut.timeAgo(runStart)}<br />
 				${runState}
-				% if dictKey:
+				% if item["dictKey"]:
 					<ul>
-						<li>Have: ${statusDict[dictKey][DNLDED]}</li>
-						<li>DLing: ${statusDict[dictKey][DLING]}</li>
-						<li>Want: ${statusDict[dictKey][QUEUED]}</li>
-						<li>Failed: ${statusDict[dictKey][FAILED]}</li>
+						<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
+						<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
+						<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
+						<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
 					</ul>
 				% endif
 			</div>

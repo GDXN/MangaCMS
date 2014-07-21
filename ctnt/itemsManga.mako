@@ -6,10 +6,11 @@ import time
 import urllib.parse
 %>
 
+<%namespace name="ut"              file="utilities.mako"/>
 <html>
 <head>
 	<title>WAT WAT IN THE BATT</title>
-	<link rel="stylesheet" href="style.css">
+	${ut.getCss()}
 	<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 
 	<script type="text/javascript">

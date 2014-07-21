@@ -7,9 +7,10 @@ import os.path
 import nameTools as nt
 
 import time
-
+import random
 import urllib.parse
 import re
+import sys
 import runStatus
 import traceback
 import bs4
@@ -168,18 +169,24 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(sourceUrl, dlState=-4, downloadPath=filePath, fileName=fileName)
 			return
 		#self.log.info( filePath)
-		try:
-			dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
-		except archCleaner.NotAnArchive:
-			self.log.warning("File is not an archive!")
-			self.log.warning("File '%s'", fqFName)
-			dedupState = "not-an-archive"
-		except archCleaner.DamagedArchive:
-			self.log.warning("Corrupt Archive!")
-			self.log.warning("Archive '%s'", fqFName)
-			dedupState = "corrupt-archive"
-			self.updateDbEntry(sourceUrl, dlState=-3, downloadPath=filePath, fileName=fileName, tags=dedupState)
-			return
+
+		ext = os.path.splitext(fileName)[-1]
+		imageExts = ["jpg", "png", "bmp"]
+		if not any([ext.endswith(ex) for ex in imageExts]):
+			try:
+				dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
+			except archCleaner.NotAnArchive:
+				self.log.warning("File is not an archive!")
+				self.log.warning("File '%s'", fqFName)
+				dedupState = "not-an-archive"
+			except archCleaner.DamagedArchive:
+				self.log.warning("Corrupt Archive!")
+				self.log.warning("Archive '%s'", fqFName)
+				dedupState = "corrupt-archive"
+				self.updateDbEntry(sourceUrl, dlState=-3, downloadPath=filePath, fileName=fileName, tags=dedupState)
+				return
+		else:
+			dedupState = ""
 
 		self.log.info( "Done")
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
@@ -201,6 +208,16 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
 					break
+
+				delay = random.randint(15, 60)
+				for x in range(delay):
+					time.sleep(1)
+					remaining = delay-x
+					sys.stdout.write("\rMk CL sleeping %d       " % remaining)
+					sys.stdout.flush()
+					if not runStatus.run:
+						self.log.info("Breaking due to exit flag being set")
+						return
 
 		except:
 			self.log.critical("Exception!")

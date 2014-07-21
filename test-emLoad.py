@@ -28,7 +28,7 @@ def test():
 
 
 	loader = EmFeedLoader()
-	for x in range(20):
+	for x in range(5, 50):
 		items = loader.getApiItems(page=x)
 		loader.processLinksIntoDB(items)
 	# loader.go()

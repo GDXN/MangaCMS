@@ -109,6 +109,7 @@ colours = {
 %>
 
 <%namespace name="ut" file="utilities.mako"/>
+<%namespace name="ap" file="activePlugins.mako"/>
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -393,7 +394,7 @@ colours = {
 
 
 			% if fSize <= 0:
-				<td>${originName}</td>
+				<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
 			% else:
 				<td><a href="/pron/read/${dbId}">${originName}</a></td>
 			% endif
@@ -604,11 +605,16 @@ colours = {
 			</tr>
 		</table>
 		<%
-		rows = [("Starkana", "sk_row"), ("Crazy's", "cz_row"), ("MangaTraders", "mt_row"), ("MangaBaby", "mb_row"), ("Batoto", "bt_row"), ("Japanzai", "jz_row")]
-		if pron:
-			rows = [("Doujin Moe", "djm_row"), ("Fufufuu", "fu_row"), ("Pururin", "pu_row")]
-		if hideSource:
-			rows = []
+
+		rows = []
+		if not hideSource:
+			if not pron:
+				for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Manga"]:
+					rows.append((item["name"], '{}_row'.format(item['dictKey'])))
+
+			else:
+				for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Porn"]:
+					rows.append((item["name"], '{}_row'.format(item['dictKey'])))
 		%>
 		<div>
 			% for name, row in rows:

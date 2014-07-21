@@ -1,3 +1,6 @@
+
+<%namespace name="ap"              file="activePlugins.mako"/>
+
 * {
 	font-family: Tahoma, Geneva, sans-serif;
 	font-size:0.985em;
@@ -110,50 +113,47 @@ div.legend
 	padding-left:   5px;
 }
 
-div.skId
-{
-	background-color:#BBBBFF;
-}
-div.mtMonId
-{
-	background-color:#FFF79A;
-}
-div.czId
-{
-	background-color:#BBFFBB;
-}
-div.mbId
-{
-	background-color:#FFBBBB;
-}
-div.btId
-{
-	background-color:#FFFFC5;
-}
-div.djMoeId
-{
-	background-color:#EE99EE;
-}
-div.fuFuId
-{
-	background-color:#FFBE85;
-}
-div.puFuId
-{
-	background-color:#BBFFFF;
-}
-div.jzId
-{
-	background-color:#B5FFFC;
-}
-div.buMonId
-{
-	background-color:#BBFFBB;
-}
+/* Generate CSS Classes for sidebar */
+% for itemDict in ap.attr.sidebarItemList:
+
+	div.${itemDict['cssClass']}
+	{
+		background-color:${itemDict['baseColour']};
+	}
+
+% endfor
+
 div.navId
 {
 	background-color:#EEEEEE;
 }
+
+
+/* Generate row ID classes */
+% for item in [item for item in ap.attr.sidebarItemList if item['genRow']]:
+
+	tr.${item["dictKey"]}_row:nth-child(even)
+	{
+		background: ${item["evenRow"]}
+	}
+	tr.${item["dictKey"]}_row:nth-child(odd)
+	{
+		background: ${item["oddRow"]}
+	}
+
+% endfor
+
+tr:nth-child(even)
+{
+	background: #ffffff
+}
+tr:nth-child(odd)
+{
+	background: #f0f0ff
+}
+
+
+
 
 h3
 {
@@ -213,104 +213,6 @@ table.mangaFileTable
 {
 	width: 655px;
 
-}
-
-tr.sk_row:nth-child(even)
-{
-	background: #ddddff
-}
-tr.sk_row:nth-child(odd)
-{
-	background: #f5f5ff
-}
-tr.cz_row:nth-child(even)
-{
-	background: #ddffdd
-}
-tr.cz_row:nth-child(odd)
-{
-	background: #f5fff5
-}
-tr.mt_row:nth-child(even)
-{
-	background: #dddddd
-}
-tr.mt_row:nth-child(odd)
-{
-	background: #f5f5f5
-}
-tr.mb_row:nth-child(even)
-{
-	background: #ffdddd
-}
-tr.mb_row:nth-child(odd)
-{
-	background: #fff5f5
-}
-
-tr.jz_row:nth-child(even)
-{
-	background: #CEFFFD
-}
-tr.jz_row:nth-child(odd)
-{
-	background: #F2FFFE
-}
-
-tr.bt_row:nth-child(even)
-{
-	background: #FFFFDB
-}
-tr.bt_row:nth-child(odd)
-{
-	background: #FFFFC5
-}
-
-
-tr.mk_row:nth-child(even)
-{
-	background: #FFE7C4
-}
-tr.mk_row:nth-child(odd)
-{
-	background: #FFF1DE
-}
-
-
-
-tr.fu_row:nth-child(even)
-{
-	background: #ddddff
-}
-tr.fu_row:nth-child(odd)
-{
-	background: #f5f5ff
-}
-tr.djm_row:nth-child(even)
-{
-	background: #ddffdd
-}
-tr.djm_row:nth-child(odd)
-{
-	background: #f5fff5
-}
-tr.pu_row:nth-child(even)
-{
-	background: #ffdddd
-}
-tr.pu_row:nth-child(odd)
-{
-	background: #fff5f5
-}
-
-
-tr:nth-child(even)
-{
-	background: #ffffff
-}
-tr:nth-child(odd)
-{
-	background: #f0f0ff
 }
 
 input[type="text"]

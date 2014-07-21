@@ -6,10 +6,11 @@
 <%namespace name="sideBar" file="gensidebar.mako"/>
 
 <%namespace name="ut" file="utilities.mako"/>
+<%namespace name="ut"              file="utilities.mako"/>
 <html>
 <head>
 	<title>WAT WAT IN THE BATT</title>
-	<link rel="stylesheet" href="style.css">
+	${ut.getCss()}
 
 	<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 

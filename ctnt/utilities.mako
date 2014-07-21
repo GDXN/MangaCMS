@@ -70,8 +70,17 @@ import nameTools as nt
 </%def>
 
 
+
+
+<%def name="getCss()">
+
+	<link rel="stylesheet" href="/style.mako.css">
+</%def>
+
+
+
 <%def name="headerBase()">
-	<link rel="stylesheet" href="/style.css">
+	${getCss()}
 	<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 	<script>
 

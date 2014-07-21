@@ -61,7 +61,7 @@ import os.path
 			<div class="contentdiv">
 				<h3>Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
-				${tableGenerators.genMangaTable(tableKey=ap.attr.inHomepageMangaTable, distinct=True, limit=200)}
+				${tableGenerators.genMangaTable(tableKey=[item['dictKey'] for item in ap.attr.sidebarItemList if (item["type"] == "Manga" and item["showOnHome"])], distinct=True, limit=200)}
 			</div>
 		</div>
 
@@ -69,7 +69,7 @@ import os.path
 			<div class="contentdiv">
 				<h3>Porn!</h3>
 				${tableGenerators.genLegendTable(pron=True)}
-				${tableGenerators.genPronTable(ap.attr.activePorn)}
+				${tableGenerators.genPronTable([item['dictKey'] for item in ap.attr.sidebarItemList if (item["type"] == "Porn" and item["showOnHome"])])}
 			</div>
 		</div>
 
