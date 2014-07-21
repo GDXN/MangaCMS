@@ -543,7 +543,7 @@ class DirNameProxy(object):
 		elif newRating == 0:
 			ratingStr = ""
 		elif newRating < 0 and newRating > -6:
-			ratingStr = "-"*newRating
+			ratingStr = "-"*abs(newRating)
 		else:
 			raise ValueError("Invalid rating value!")
 
