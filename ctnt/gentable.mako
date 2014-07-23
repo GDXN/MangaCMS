@@ -187,7 +187,9 @@ colours = {
 
 		if sourceSeriesName == None:
 			sourceSeriesName = "NONE"
-		seriesName = nt.getCanonicalMangaUpdatesName(sourceSeriesName)
+			seriesName = "NOT YET DETERMINED"
+		else:
+			seriesName = nt.getCanonicalMangaUpdatesName(sourceSeriesName)
 
 		# cleanedName = nt.prepFilenameForMatching(sourceSeriesName)
 		itemInfo = nt.dirNameProxy[sourceSeriesName]
@@ -243,7 +245,9 @@ colours = {
 		toolTip += "Original series name: " + sourceSeriesName.replace('"', "") + "<br>"
 		toolTip += "Proper MangaUpdates name: " + seriesName.replace('"', "") + "<br>"
 		toolTip += "cleanedName: " + itemInfo["dirKey"] + "<br>"
-		toolTip += "itemInfo: " + str(itemInfo).replace('"', "")
+		toolTip += "itemInfo: " + str(itemInfo).replace('"', "") + "<br>"
+		toolTip += "rowId: " + str(dbId) + "<br>"
+		toolTip += "sourceUrl: " + sourceUrl
 
 
 		%>
