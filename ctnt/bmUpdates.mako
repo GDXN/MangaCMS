@@ -151,7 +151,7 @@ for item in buItems:
 
 
 
-	cleanedName = nt.cleanName(seriesName)
+	cleanedName = nt.prepFilenameForMatching(seriesName)
 
 reSortTop = ["Win", "Fascinating", "Interesting", "Tablet search"]
 reSortTop.reverse()

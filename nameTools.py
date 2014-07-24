@@ -54,11 +54,6 @@ def cleanUnicode(inStr):
 
 
 
-def cleanName(inStr):
-	cleanedName = sanitizeString(inStr)
-
-	return cleanedName
-
 bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w:]*\])")
 
 def removeBrackets(inStr):
@@ -82,7 +77,8 @@ def sanitizeString(inStr, flatten=True):
 		baseName = baseName.replace('"', "")
 
 	# baseName = baseName.replace("'", "")
-	baseName = baseName.replace("  ", " ")
+	while baseName.find("  ")+1:
+		baseName = baseName.replace("  ", " ")
 
 	# baseName = unicodedata.normalize('NFKD', baseName).encode("ascii", errors="ignore")  # This will probably break shit
 
@@ -464,9 +460,7 @@ class DirNameProxy(object):
 				baseName = prepFilenameForMatching(dirPath)
 				baseName = getCanonicalMangaUpdatesName(baseName)
 				baseName = prepFilenameForMatching(baseName)
-				# baseName = makeFilenameSafe(dirPath)
-				# self.log.info("%s is a dir %s Basepath %s", dirPath, fullPath, baseName)
-				# self.log.info( "RawName = ", baseName)
+
 				targets[baseName] = fullPath
 		self.log.info( "Done")
 

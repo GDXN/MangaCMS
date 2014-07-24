@@ -39,7 +39,10 @@
 
 </head>
 
-<%startTime = time.time()%>
+<%
+startTime = time.time()
+print("Rendering begun")
+%>
 
 
 
@@ -61,17 +64,20 @@ import os.path
 			<div class="contentdiv">
 				<h3>Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
+				<%
+				print("Calling tablegen")
+				%>
 				${tableGenerators.genMangaTable(tableKey=[item['dictKey'] for item in ap.attr.sidebarItemList if (item["type"] == "Manga" and item["showOnHome"])], distinct=True, limit=200)}
 			</div>
 		</div>
 
-		<div class="subdiv fuFuId">
-			<div class="contentdiv">
-				<h3>Porn!</h3>
-				${tableGenerators.genLegendTable(pron=True)}
-				${tableGenerators.genPronTable([item['dictKey'] for item in ap.attr.sidebarItemList if (item["type"] == "Porn" and item["showOnHome"])])}
-			</div>
-		</div>
+##		<div class="subdiv fuFuId">
+##			<div class="contentdiv">
+##				<h3>Porn!</h3>
+##				${tableGenerators.genLegendTable(pron=True)}
+##				${tableGenerators.genPronTable([item['dictKey'] for item in ap.attr.sidebarItemList if (item["type"] == "Porn" and item["showOnHome"])])}
+##			</div>
+##		</div>
 
 	</div>
 </div>
@@ -82,6 +88,13 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>mangafox if they dont resize.</li>
+	<li>clean ! from matching system.</li>
+	<li>optimise name cleaning.</li>
+	<li>split porn/nonporn again?</li>
+	<li>optimize optimize optimize! 1 second for home rendering.</li>
+	<li>proxy for name lookups.</li>
+	<li>Prevent full base dir refresh on directory rename.</li>
 	<li>Scrape perveden.com</li>
 	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold</li>
 	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
@@ -90,7 +103,6 @@ Shit to do:
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Ability to disable bulk-downloading.</li>
 	<li>Add failed item introspection table.</li>
-	<li>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (Mostly complete)</li>
 	<br>
 </ul>
 </p>
@@ -118,6 +130,7 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (Mostly complete)</strike>(I'm calling this complete, since I only have two table-generator calls ATM)</li>
 	<li><strike>Scrape download.japanzai.com</strike></li>
 	<li><strike>Fix rating change facility being broken by the new reader</strike></li>
 	<li><strike>Finish reader redesign</strike></li>

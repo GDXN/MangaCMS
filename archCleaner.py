@@ -105,71 +105,66 @@ class ArchCleaner(object):
 
 		try:
 			old_zfp = UniversalArchiveReader.ArchiveReader(archPath)
+
+
+
+			files = []
+			hadBadFile = False
+			for fileN, fileCtnt in old_zfp:
+
+				if fileN.endswith("Thumbs.db"):
+					hadBadFile = True
+					self.log.info("Had windows 'Thumbs.db' file. Removing")
+					continue
+
+				fctnt = fileCtnt.read()
+
+
+				md5 = hashlib.md5()
+				md5.update(fctnt)
+
+				# Replace bad image with a text-file with the same name, and an explanation in it.
+				if md5.hexdigest() in self.badHashes:
+					self.log.info("File %s was the advert. Removing!", fileN)
+					fileN = fileN + ".deleted.txt"
+					fctnt  = "This was an advertisement. It has been automatically removed.\n"
+					fctnt += "Don't worry, there are no missing files, despite the gap in the numbering."
+
+					hadBadFile = True
+
+				files.append((fileN, fctnt))
+
+			old_zfp.close()
+
+			# only replace the file if we need to
+			if hadBadFile:
+				# Now, recreate the zip file without the ad
+				self.log.info("Had advert. Rebuilding zip.")
+				if archPath.endswith(".rar") or archPath.endswith(".cbr"):
+					archPath = archPath.rsplit(".", 1)[0]
+					archPath += ".zip"
+
+				new_zfp = zipfile.ZipFile(archPath, "w")
+				for fileInfo, contents in files:
+					new_zfp.writestr(fileInfo, contents)
+				new_zfp.close()
+
+				if origPath != archPath:
+					os.remove(origPath)
+
+			else:
+				self.log.info("No offending contents. No changes made to file.")
+
 		except rarfile.BadRarFile:
 			self.log.error("Bad rar file!")
-			self.log.error(traceback.format_exc())
+			for line in traceback.format_exc().split("\n"):
+				self.log.error(line)
 			raise DamagedArchive
 		except zipfile.BadZipFile:
 			self.log.error("Bad zip file!")
-			self.log.error(traceback.format_exc())
+			for line in traceback.format_exc().split("\n"):
+				self.log.error(line)
 			raise DamagedArchive
-
-
-		files = []
-		hadBadFile = False
-		for fileN, fileCtnt in old_zfp:
-
-			if fileN.endswith("Thumbs.db"):
-				hadBadFile = True
-				self.log.info("Had windows 'Thumbs.db' file. Removing")
-				continue
-
-			try:
-				fctnt = fileCtnt.read()
-			except rarfile.BadRarFile:
-				self.log.error("Bad rar file!")
-				self.log.error(traceback.format_exc())
-				raise DamagedArchive
-			except zipfile.BadZipFile:
-				self.log.error("Bad zip file!")
-				self.log.error(traceback.format_exc())
-				raise DamagedArchive
-
-
-			md5 = hashlib.md5()
-			md5.update(fctnt)
-
-			# Replace bad image with a text-file with the same name, and an explanation in it.
-			if md5.hexdigest() in self.badHashes:
-				self.log.info("File %s was the advert. Removing!", fileN)
-				fileN = fileN + ".deleted.txt"
-				fctnt  = "This was an advertisement. It has been automatically removed.\n"
-				fctnt += "Don't worry, there are no missing files, despite the gap in the numbering."
-
-				hadBadFile = True
-
-			files.append((fileN, fctnt))
-
-		old_zfp.close()
-
-		# only replace the file if we need to
-		if hadBadFile:
-			# Now, recreate the zip file without the ad
-			self.log.info("Had advert. Rebuilding zip.")
-			if archPath.endswith(".rar") or archPath.endswith(".cbr"):
-				archPath = archPath.rsplit(".", 1)[0]
-				archPath += ".zip"
-
-			new_zfp = zipfile.ZipFile(archPath, "w")
-			for fileInfo, contents in files:
-				new_zfp.writestr(fileInfo, contents)
-			new_zfp.close()
-
-			if origPath != archPath:
-				os.remove(origPath)
-
-		else:
-			self.log.info("No offending contents. No changes made to file.")
 
 		return archPath
 
@@ -189,17 +184,20 @@ class ArchCleaner(object):
 
 		except RuntimeError:
 			self.log.error("Error in archive checker?")
-			self.log.error(traceback.format_exc())
+			for line in traceback.format_exc().split("\n"):
+				self.log.error(line)
 			return
 
 		except zipfile.BadZipFile:
 			self.log.error("Archive is corrupt/damaged?")
-			self.log.error(traceback.format_exc())
+			for line in traceback.format_exc().split("\n"):
+				self.log.error(line)
 			return
 
 		except zipfile.BadZipFile:
 			self.log.error("Unknown error??")
-			self.log.error(traceback.format_exc())
+			for line in traceback.format_exc().split("\n"):
+				self.log.error(line)
 			return
 
 		self.log.info("Removing password from zip '%s'", zipPath)

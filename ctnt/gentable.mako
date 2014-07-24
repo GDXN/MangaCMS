@@ -115,6 +115,9 @@ colours = {
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 <%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey='mt')">
+	<%
+	print("tableGen!")
+	%>
 	<table border="1px">
 		<tr>
 				<th class="uncoloured" width="40">Date</th>
@@ -139,10 +142,13 @@ colours = {
 	else:
 		groupStr = ""
 
+	print("building query")
 
 	whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, None)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
 
+	print("built")
+	print("Querying...")
 	query = '''SELECT dbId,
 						dlState,
 						sourceSite,
@@ -163,8 +169,12 @@ colours = {
 						LIMIT ?
 						OFFSET ?;'''.format(query=whereStr, group=groupStr)
 
+	print("Query = ", query)
+	print("params = ", params)
+
 	ret = cur.execute(query, params)
 	tblCtntArr = ret.fetchall()
+	print("Done")
 	%>
 	% for row in tblCtntArr:
 		<%
@@ -284,7 +294,7 @@ colours = {
 		</tr>
 
 	<%
-
+	print("Table rendering begun")
 	offset = offset * limit
 	whereStr, queryAdditionalArgs = buildWhereQuery(siteSource, tagsFilter, seriesFilter)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
