@@ -35,7 +35,7 @@ except ValueError:
 	return
 
 cur = sqlCon.cursor()
-ret = cur.execute('''SELECT downloadPath, fileName FROM AllMangaItems WHERE dbId=?;''', (itemId, ))
+ret = cur.execute('''SELECT downloadPath, fileName FROM HentaiItems WHERE dbId=?;''', (itemId, ))
 
 rets = ret.fetchall()[0]
 if not rets:

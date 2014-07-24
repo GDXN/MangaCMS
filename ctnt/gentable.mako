@@ -114,7 +114,7 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey='mt')">
+<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey=None)">
 	<%
 	print("tableGen!")
 	%>
@@ -162,7 +162,7 @@ colours = {
 						flags,
 						tags,
 						note
-						FROM AllMangaItems
+						FROM MangaItems
 						{query}
 						{group}
 						ORDER BY retreivalTime DESC
@@ -278,7 +278,7 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<%def name="genPronTable(siteSource, limit=100, offset=0, tagsFilter=None, seriesFilter=None)">
+<%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None)">
 	<table border="1px">
 		<tr>
 
@@ -318,7 +318,7 @@ colours = {
 									flags,
 									tags,
 									note
-								FROM AllMangaItems
+								FROM HentaiItems
 								{query}
 								ORDER BY retreivalTime
 								DESC LIMIT ?

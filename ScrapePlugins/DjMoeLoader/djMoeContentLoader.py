@@ -41,13 +41,13 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		retagThresh = time.time()-settings.djSettings["retag"]
 		cur = self.conn.cursor()
 
-		ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? AND dlState=2 AND tags="" ORDER BY retreivalTime DESC;', (retagUntaggedThresh, self.tableKey))
+		ret = cur.execute('SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<? AND sourceSite=? AND dlState=2 AND tags="" ORDER BY retreivalTime DESC;'.format(tableName=self.tableName), (retagUntaggedThresh, self.tableKey))
 		rets = ret.fetchall()
 		if not rets:
 			self.log.info("No items")
 			return
 		else:
-			ret = cur.execute('SELECT sourceUrl,tags FROM AllMangaItems WHERE lastUpdate<? AND sourceSite=? AND dlState=2 AND tags="" ORDER BY retreivalTime DESC;', (retagThresh, self.tableKey))
+			ret = cur.execute('SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<? AND sourceSite=? AND dlState=2 AND tags="" ORDER BY retreivalTime DESC;'.format(tableName=self.tableName), (retagThresh, self.tableKey))
 			rets = ret.fetchall()
 			if not rets:
 				self.log.info("Done")

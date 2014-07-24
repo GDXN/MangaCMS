@@ -67,17 +67,17 @@ import os.path
 				<%
 				print("Calling tablegen")
 				%>
-				${tableGenerators.genMangaTable(tableKey=[item['dictKey'] for item in ap.attr.sidebarItemList if (item["type"] == "Manga" and item["showOnHome"])], distinct=True, limit=200)}
+				${tableGenerators.genMangaTable(distinct=True, limit=200)}
 			</div>
 		</div>
 
-##		<div class="subdiv fuFuId">
-##			<div class="contentdiv">
-##				<h3>Porn!</h3>
-##				${tableGenerators.genLegendTable(pron=True)}
-##				${tableGenerators.genPronTable([item['dictKey'] for item in ap.attr.sidebarItemList if (item["type"] == "Porn" and item["showOnHome"])])}
-##			</div>
-##		</div>
+		<div class="subdiv fuFuId">
+			<div class="contentdiv">
+				<h3>Porn!</h3>
+				${tableGenerators.genLegendTable(pron=True)}
+				${tableGenerators.genPronTable()}
+			</div>
+		</div>
 
 	</div>
 </div>
