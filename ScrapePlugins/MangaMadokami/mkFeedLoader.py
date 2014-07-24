@@ -24,7 +24,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "mk"
 	dbName = settings.dbName
 
-
+	tableName = "MangaItems"
 	urlBase = "http://manga.madokami.com/Manga"
 
 

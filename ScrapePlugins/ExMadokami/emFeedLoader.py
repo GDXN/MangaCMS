@@ -27,6 +27,7 @@ class EmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	urlBase = "http://exhen.madokami.com/"
 
+	tableName = "HentaiItems"
 	def checkLogin(self):
 		pass
 

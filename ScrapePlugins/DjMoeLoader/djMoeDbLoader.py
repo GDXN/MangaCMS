@@ -21,6 +21,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase = "http://www.doujin-moe.us/"
 
 
+	tableName = "HentaiItems"
 
 	def loadFeed(self, pageOverride=None):
 		self.log.info("Retreiving feed content...",)

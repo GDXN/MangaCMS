@@ -28,7 +28,7 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase = "http://starkana.com/"
 
 	feedUrl = "http://starkana.com/new/%d"
-
+	tableName = "MangaItems"
 
 	def checkLogin(self):
 		for cookie in self.wg.cj:

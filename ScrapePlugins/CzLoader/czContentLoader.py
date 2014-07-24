@@ -32,6 +32,7 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "cz"
 	dbName = settings.dbName
 	urlBase = "http://crazytje.be/Scanlation"
+	tableName = "MangaItems"
 
 	def retreiveTodoLinksFromDB(self):
 

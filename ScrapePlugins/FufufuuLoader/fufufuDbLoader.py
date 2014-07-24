@@ -31,6 +31,7 @@ class FuFuFuuDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase = "http://fufufuu.net/"
 
 
+	tableName = "HentaiItems"
 	def checkThruCloudFlare(self):
 		self.log.info("Stepping through possible cloudflare protection.")
 

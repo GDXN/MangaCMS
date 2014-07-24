@@ -34,6 +34,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey   = "pu"
 	urlBase = "http://pururin.com"
 
+	tableName = "HentaiItems"
 
 	def checkLogin(self):
 		acctPage = self.wg.getpage("http://pururin.com/account/home")

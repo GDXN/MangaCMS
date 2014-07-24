@@ -30,6 +30,7 @@ class CzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	feedUrl = "http://crazytje.be/Scanlation"
 
+	tableName = "MangaItems"
 
 	# No login functionality
 	def checkLogin(self):

@@ -31,6 +31,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	pluginName = "Batoto Content Retreiver"
 	tableKey = "bt"
 	dbName = settings.dbName
+	tableName = "MangaItems"
 
 	retreivalThreads = 4
 

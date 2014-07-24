@@ -34,6 +34,8 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey   = "djm"
 	urlBase = "http://www.doujin-moe.us/"
 
+	tableName = "HentaiItems"
+
 	def retag(self):
 		retagUntaggedThresh = time.time()-settings.djSettings["retagMissing"]
 		retagThresh = time.time()-settings.djSettings["retag"]

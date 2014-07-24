@@ -31,6 +31,8 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 	urlBase = "http://starkana.com/"
 
+	tableName = "MangaItems"
+
 	def retreiveTodoLinksFromDB(self):
 
 		self.log.info( "Fetching items from db...",)

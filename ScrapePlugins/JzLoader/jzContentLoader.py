@@ -32,6 +32,8 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	urlBase = "http://download.japanzai.com/"
 
+	tableName = "MangaItems"
+
 	def retreiveTodoLinksFromDB(self):
 
 		self.log.info( "Fetching items from db...",)

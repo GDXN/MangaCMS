@@ -11,6 +11,8 @@ import traceback
 
 import nameTools as nt
 
+QUERY_DEBUG = True
+
 class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	# Abstract class (must be subclassed)
@@ -34,10 +36,9 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	def tableKey(self):
 		return None
 
-
-
-
-
+	@abc.abstractmethod
+	def tableName(self):
+		return None
 
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -181,9 +182,11 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		cur = self.conn.cursor()
 		keysStr, valuesStr, queryArguments = self.buildInsertArgs(**kwargs)
 
-		query = '''INSERT INTO AllMangaItems ({keys}) VALUES ({values});'''.format(keys=keysStr, values=valuesStr)
+		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values});'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
 
-		# print("Query = ", query, queryArguments)
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", queryArguments)
 
 		cur.execute(query, queryArguments)
 
@@ -215,7 +218,12 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''UPDATE AllMangaItems SET {v} WHERE sourceUrl=? AND sourceSite=?;'''.format(v=column)
+		query = '''UPDATE {tableName} SET {v} WHERE sourceUrl=? AND sourceSite=?;'''.format(tableName=self.tableName, v=column)
+
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", qArgs)
+
 		cur.execute(query, qArgs)
 
 		if commit:
@@ -245,7 +253,12 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''UPDATE AllMangaItems SET {v} WHERE dbId=? AND sourceSite=?;'''.format(v=column)
+		query = '''UPDATE {tableName} SET {v} WHERE dbId=? AND sourceSite=?;'''.format(tableName=self.tableName, v=column)
+
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", qArgs)
+
 		cur.execute(query, qArgs)
 
 		if commit:
@@ -263,8 +276,13 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''DELETE FROM AllMangaItems WHERE {key}=? AND sourceSite=?;'''.format(key=key)
+		query = '''DELETE FROM {tableName} WHERE {key}=? AND sourceSite=?;'''.format(tableName=self.tableName, key=key)
 		# print("Query = ", query)
+
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", (val, self.tableKey))
+
 		cur.execute(query, (val, self.tableKey))
 		if commit:
 			self.conn.commit()
@@ -293,8 +311,10 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 							flags,
 							tags,
 							note
-							FROM AllMangaItems WHERE {key}=? AND sourceSite=? ORDER BY retreivalTime DESC;'''.format(key=key)
-		# print("Query = ", query)
+							FROM {tableName} WHERE {key}=? AND sourceSite=? ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("args = ", (val, self.tableKey))
 		ret = cur.execute(query, (val, self.tableKey))
 
 		rets = ret.fetchall()
@@ -346,7 +366,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	def resetStuckItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE AllMangaItems SET dlState=0 WHERE dlState=1 AND sourceSite=?''', (self.tableKey, ))
+		self.conn.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=?'''.format(tableName=self.tableName), (self.tableKey, ))
 		self.conn.commit()
 		self.log.info("Download reset complete")
 
@@ -357,7 +377,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	def checkInitPrimaryDb(self):
 
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS AllMangaItems (
+		self.conn.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 											dbId          INTEGER PRIMARY KEY,
 											sourceSite    TEXT NOT NULL,
 											dlState       text NOT NULL,
@@ -371,17 +391,17 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 											downloadPath  text,
 											flags         text,
 											tags          text,
-											note          text);''')
+											note          text);'''.format(tableName=self.tableName))
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (sourceSite)'''                 % ("AllMangaItems_source_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (retreivalTime)'''              % ("AllMangaItems_time_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (lastUpdate)'''                 % ("AllMangaItems_lastUpdate_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (sourceUrl)'''                  % ("AllMangaItems_url_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (seriesName collate nocase)'''  % ("AllMangaItems_seriesName_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (tags       collate nocase)'''  % ("AllMangaItems_tags_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (flags      collate nocase)'''  % ("AllMangaItems_flags_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (dlState)'''                    % ("AllMangaItems_dlState_index"))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON AllMangaItems (originName)'''                 % ("AllMangaItems_originName_index"))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceSite)'''                 % ("%s_source_index"     % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (retreivalTime)'''              % ("%s_time_index"       % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastUpdate)'''                 % ("%s_lastUpdate_index" % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceUrl)'''                  % ("%s_url_index"        % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName collate nocase)'''  % ("%s_seriesName_index" % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (tags       collate nocase)'''  % ("%s_tags_index"       % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (flags      collate nocase)'''  % ("%s_flags_index"      % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (dlState)'''                    % ("%s_dlState_index"    % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (originName)'''                 % ("%s_originName_index" % self.tableName, self.tableName))
 
 		self.conn.commit()
 		self.log.info("Retreived page database created")

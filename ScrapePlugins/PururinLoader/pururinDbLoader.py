@@ -20,7 +20,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey    = "pu"
 	urlBase = "http://pururin.com/"
 
-
+	tableName = "HentaiItems"
 
 	def loadFeed(self, pageOverride=None):
 		self.log.info("Retreiving feed content...",)

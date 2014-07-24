@@ -26,6 +26,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "bt"
 	dbName = settings.dbName
 
+	tableName = "MangaItems"
 
 	urlBase = "http://www.batoto.net/"
 

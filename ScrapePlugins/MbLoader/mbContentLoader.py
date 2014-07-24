@@ -29,7 +29,7 @@ class MbContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	pluginName = "MangaBaby Content Retreiver"
 	tableKey = "mb"
 	dbName = settings.dbName
-
+	tableName = "MangaItems"
 	urlBase = "http://www.mangababy.com/"
 
 	def retreiveTodoLinksFromDB(self):

@@ -27,6 +27,7 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	urlBase = "http://download.japanzai.com/"
 
+	tableName = "MangaItems"
 
 	def checkLogin(self):
 		pass

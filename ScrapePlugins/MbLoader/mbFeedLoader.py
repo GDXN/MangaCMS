@@ -25,7 +25,7 @@ class MbFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "mb"
 	dbName = settings.dbName
 
-
+	tableName = "MangaItems"
 	urlBase = "http://www.mangababy.com/"
 
 

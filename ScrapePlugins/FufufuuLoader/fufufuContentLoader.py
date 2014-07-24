@@ -32,6 +32,7 @@ class FuFuFuuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg          = webFunctions.WebGetRobust()
 
+	tableName = "HentaiItems"
 
 	def getDirDict(self, dlPath):
 
