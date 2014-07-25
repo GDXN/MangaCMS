@@ -7,15 +7,15 @@ Plugin scrapers for:
 
 
  - Starkana.com
- - MangaBaby.com
  - Batoto.com
  - Crazytje.be
  - Doujin-Moe
- - Fufufuu.net
+ - download.japanzai.com
  - MangaUpdates (metadata only).
+ - MangaBaby.com (Possibly defunct?)
  - ~~MangaTraders~~ (Defunct)
- - download.japanzai.com (Planned)
- - Realitylapse.com (Planned, possibly)
+ - ~~Fufufuu.net~~ (Defunct)
+  - Realitylapse.com (Planned, possibly)
 
 The current focus is entirely on scraping sites that provide direct-archive-downloads, though batoto is an exception. Batoto images are downloaded to memory, and then written out to an archive on-the-fly, with no temporary files used at all.
 
