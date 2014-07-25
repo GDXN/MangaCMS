@@ -8,13 +8,12 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
-# add PPAs for up-to-date node and python
-add-apt-repository -y ppa:chris-lea/node.js
+# add PPAs for up-to-date python
 add-apt-repository -y ppa:fkrull/deadsnakes
 apt-get update
 
-# install said up-to-date node and python
-apt-get install -y python3.4 python3.4-dev build-essential nodejs
+# install said up-to-date python
+apt-get install -y python3.4 python3.4-dev build-essential
 
 # link python3.4 as python3, because ubuntu thinks only python 3.2 is actually python 3
 ln -s /usr/bin/python3.4 /usr/bin/python3
@@ -24,6 +23,5 @@ wget https://bootstrap.pypa.io/get-pip.py
 python3 get-pip.py
 
 # Install the libraries we actually need
-npm -g install phantomjs
 
-pip3 install Mako CherryPy Pyramid Beautifulsoup4 Selenium FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython
+pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython

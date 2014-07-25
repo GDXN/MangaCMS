@@ -83,6 +83,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 
 	def getListNames(self):
+		self.checkLogin()
 
 		listDict = {}
 		listDict["Reading"] = r"http://www.mangaupdates.com/mylist.html"  # The reading list is not specifically named.

@@ -159,12 +159,12 @@ class ArchCleaner(object):
 			self.log.error("Bad rar file!")
 			for line in traceback.format_exc().split("\n"):
 				self.log.error(line)
-			raise DamagedArchive
+			raise DamagedArchive()
 		except zipfile.BadZipFile:
 			self.log.error("Bad zip file!")
 			for line in traceback.format_exc().split("\n"):
 				self.log.error(line)
-			raise DamagedArchive
+			raise DamagedArchive()
 
 		return archPath
 
@@ -251,17 +251,16 @@ class ArchCleaner(object):
 
 		except zipfile.BadZipFile:
 			self.log.error("Ignoring archive because it appears damaged.")
-			return ""
-
+			return "damaged"
 		except zipfile.BadZipFile:
 			self.log.error("Ignoring archive because it appears damaged.")
-			return ""
+			return "damaged"
 		except DamagedArchive:
 			self.log.error("Ignoring archive because it appears damaged.")
-			return ""
+			return "damaged"
 		except NotAnArchive:
 			self.log.error("Ignoring file because it's not an archive?")
-			return ""
+			return "damaged"
 
 
 		if deduper and deleteDups:

@@ -31,8 +31,8 @@ def test():
 	signal.signal(signal.SIGINT, customHandler)
 
 
-	# runner = ScrapePlugins.BuMonitor.Run.Runner()
-	# runner.go()
+	runner = ScrapePlugins.BuMonitor.Run.Runner()
+	runner.go()
 
 	# chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
 	# chMon.go()
@@ -55,16 +55,17 @@ def test():
 
 
 
-	runner = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
-	runner.scanRecentlyUpdated()
+	# runner = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
+	# runner.scanRecentlyUpdated()
+	# runner.getListNames()
 	# runner.go()
 	# runner.closeDB()
 
 
 
-	chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
-	chMon.go()
-	chMon.closeDB()
+	# chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
+	# chMon.go()
+	# chMon.closeDB()
 
 
 	# mon = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()

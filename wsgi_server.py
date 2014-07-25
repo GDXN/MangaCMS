@@ -318,8 +318,8 @@ def buildApp():
 
 	config = Configurator(session_factory = sessionFactory)
 
-	config.add_settings({"debugtoolbar.hosts" : ["0.0.0.0/0", "10.1.1.4"]})
-	config.include('pyramid_debugtoolbar')
+	# config.add_settings({"debugtoolbar.hosts" : ["0.0.0.0/0", "10.1.1.4"]})
+	# config.include('pyramid_debugtoolbar')
 
 
 	config.set_authentication_policy(authn_policy)

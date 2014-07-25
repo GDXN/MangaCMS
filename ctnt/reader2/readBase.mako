@@ -3,9 +3,9 @@
 <%startTime = time.time()%>
 
 <%namespace name="tableGenerators" file="/gentable.mako"/>
-<%namespace name="sideBar" file="/gensidebar.mako"/>
-
+<%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
+
 
 <%!
 # Module level!
@@ -84,7 +84,7 @@ def dequoteDict(inDict):
 	<html>
 		<head>
 			<title>WAT WAT IN THE READER</title>
-			<link rel="stylesheet" href="/style.css">
+			${getCss()}
 			<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 
 		</head>
@@ -139,7 +139,7 @@ def dequoteDict(inDict):
 	<html>
 		<head>
 			<title>WAT WAT IN THE READER</title>
-			<link rel="stylesheet" href="/style.css">
+			${ut.getCss()}
 			<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 
 		</head>
@@ -334,6 +334,10 @@ def dequoteDict(inDict):
 
 		<div class="lightRect itemInfoBox">
 			 ${baseName}
+		</div>
+
+		<div class="lightRect itemInfoBox">
+			 Cleaned = '${nt.prepFilenameForMatching(baseName)}''
 		</div>
 
 

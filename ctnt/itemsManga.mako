@@ -90,7 +90,7 @@ if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
 	sourceFilter = [item for item in tmpSource if item in ap.attr.activeNonPorn]
 else:
-	sourceFilter = ap.attr.activeNonPorn
+	sourceFilter = []
 
 
 if len(sourceFilter) > 1:
@@ -111,9 +111,16 @@ elif sourceFilter == ["mb"]:
 elif sourceFilter == ["jz"]:
 	divId      = "jzId"
 	sourceName = 'Japanzai Series'
+elif sourceFilter == ["bt"]:
+	divId      = "btId"
+	sourceName = 'Batoto Series'
+elif sourceFilter == ["mk"]:
+	divId      = "mkId"
+	sourceName = 'Manga.Madokami Series'
 else:
+	sourceFilter = None
 	divId      = ""
-	sourceName = 'OH SHIT WUT?'
+	sourceName = 'ALL DEM ITEMZ?'
 
 
 
@@ -126,10 +133,10 @@ else:
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
 		<div class="subdiv ${divId}">
-			% if sourceFilter:
+
 				<div class="contentdiv">
 					<h3>${sourceName}${ " - (Only distinct)" if onlyDistinct else ""}</h3>
-					<a href="itemsMt?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsMt?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
+					<a href="itemsManga?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsManga?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
 					${tableGenerators.genLegendTable()}
 					${tableGenerators.genMangaTable(tableKey=sourceFilter, limit=limit, offset=offset, distinct=onlyDistinct)}
 				</div>
@@ -144,11 +151,6 @@ else:
 				</span>
 
 				</div>
-			% else:
-				<h4><center>NOPE!</center></h4>
-				<br>
-				Bad site source string!
-			% endif
 		</div>
 
 	</div>

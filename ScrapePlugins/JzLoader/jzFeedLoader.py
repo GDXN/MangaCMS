@@ -1,5 +1,4 @@
 
-import feedparser
 import webFunctions
 import bs4
 import re

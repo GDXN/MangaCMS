@@ -22,11 +22,12 @@ random.seed()
 
 # Execution time of ~ 0.000052889607680 second (52 microseconds)
 def prepFilenameForMatching(inStr):
-	inStr = sanitizeString(inStr)
 	inStr = makeFilenameSafe(inStr)
+	inStr = sanitizeString(inStr)
 	return inStr.lower()
 
 def makeFilenameSafe(inStr):
+
 
 	inStr = inStr.replace("%20", " ") \
 				 .replace("<",  " ") \
@@ -40,6 +41,11 @@ def makeFilenameSafe(inStr):
 				 .replace("*",  " ") \
 				 .replace('"', " ")
 
+	# FUCK YOU SMART-QUOTES.
+	inStr = inStr.replace("“",  "\"") \
+				 .replace("”",  "\"")
+
+
 	# Collapse all the repeated spaces down.
 	while inStr.find("  ")+1:
 		inStr = inStr.replace("  ", " ")
@@ -51,7 +57,6 @@ def makeFilenameSafe(inStr):
 
 def cleanUnicode(inStr):
 	return unicodedata.normalize("NFKD", inStr).encode("ascii", errors="ignore").decode()
-
 
 
 bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w:]*\])")

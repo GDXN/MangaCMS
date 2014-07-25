@@ -35,12 +35,9 @@ Has lots of dependencies:
  - CherryPy
  - Pyramid
  - Beautifulsoup4
- - Selenium (to interface with PhantomJS)
- - PhantomJS
  - Colorama
  - PyInotify
  - Dateutil
- - FeedParser (possibly defunct since MT is down).
  - Probably more
 
 Installing:  

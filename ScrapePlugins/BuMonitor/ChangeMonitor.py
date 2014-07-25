@@ -79,6 +79,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	# -----------------------------------------------------------------------------------
 
 	def go(self):
+		self.checkLogin()
 		items = self.getItemsToCheck()
 		totItems = len(items)
 		scanned = 0

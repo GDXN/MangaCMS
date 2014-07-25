@@ -88,10 +88,9 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>mangafox if they dont resize.</li>
-	<li>clean ! from matching system.</li>
+	<li>itmesManga page isn't using activePlugins.mako</li>
+	<li>Also the itemsPron page.</li>
 	<li>optimise name cleaning.</li>
-	<li>split porn/nonporn again?</li>
 	<li>optimize optimize optimize! 1 second for home rendering.</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
@@ -130,6 +129,10 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>mangafox if they dont resize.</strike> Never mind. they took down all their Manga because licensing reasons, apparently?</li>
+	<li><strike>clean ! from matching system.</strike> (Was already done)</li>
+	<li><strike>split porn/nonporn again?</strike></li>
+	<li><strike>Fix BU Watcher login issues.</strike> Cookies are the fucking bane of my existence.</li>
 	<li><strike>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (Mostly complete)</strike>(I'm calling this complete, since I only have two table-generator calls ATM)</li>
 	<li><strike>Scrape download.japanzai.com</strike></li>
 	<li><strike>Fix rating change facility being broken by the new reader</strike></li>

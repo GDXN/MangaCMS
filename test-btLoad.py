@@ -27,15 +27,15 @@ def test():
 
 
 
-	# nt.dirNameProxy.startDirObservers()
-	# runner = Runner()
-	# runner.go()
+	nt.dirNameProxy.startDirObservers()
+	runner = Runner()
+	runner.go()
 
-	loader = BtFeedLoader()
-	feedItems = loader.getMainItems(rangeOverride=125, rangeOffset=100)
-	loader.log.info("Processing feed Items")
+	# loader = BtFeedLoader()
+	# feedItems = loader.getMainItems(rangeOverride=125, rangeOffset=100)
+	# loader.log.info("Processing feed Items")
 
-	loader.processLinksIntoDB(feedItems)
+	# loader.processLinksIntoDB(feedItems)
 
 
 	# cl = BtContentLoader()
