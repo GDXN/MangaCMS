@@ -15,7 +15,7 @@ Plugin scrapers for:
  - MangaBaby.com (Possibly defunct?)
  - ~~MangaTraders~~ (Defunct)
  - ~~Fufufuu.net~~ (Defunct)
-  - Realitylapse.com (Planned, possibly)
+ - Realitylapse.com (Planned, possibly)
 
 The current focus is entirely on scraping sites that provide direct-archive-downloads, though batoto is an exception. Batoto images are downloaded to memory, and then written out to an archive on-the-fly, with no temporary files used at all.
 
