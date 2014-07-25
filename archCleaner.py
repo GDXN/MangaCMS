@@ -11,7 +11,6 @@ import magic
 import UniversalArchiveReader
 
 import rarfile
-import zipfile
 import traceback
 
 try:
@@ -27,7 +26,6 @@ except ImportError:
 	print("")
 	print("The speedup achieved via cython can reach ~100x faster then ")
 	print("the pure-python implementation~")
-	import traceback
 	traceback.print_exc()
 
 	print("Falling back to the pure-python implementation due to the lack of cython.")
@@ -194,7 +192,7 @@ class ArchCleaner(object):
 				self.log.error(line)
 			return
 
-		except zipfile.BadZipFile:
+		except:
 			self.log.error("Unknown error??")
 			for line in traceback.format_exc().split("\n"):
 				self.log.error(line)
@@ -248,18 +246,14 @@ class ArchCleaner(object):
 		# file in either case
 		try:
 			archPath = self.cleanZip(archPath)
+		except (zipfile.BadZipFile, rarfile.BadRarFile, DamagedArchive, NotAnArchive):
+			self.log.error("Ignoring archive because it appears damaged.")
+			return "damaged"
 
-		except zipfile.BadZipFile:
-			self.log.error("Ignoring archive because it appears damaged.")
-			return "damaged"
-		except zipfile.BadZipFile:
-			self.log.error("Ignoring archive because it appears damaged.")
-			return "damaged"
-		except DamagedArchive:
-			self.log.error("Ignoring archive because it appears damaged.")
-			return "damaged"
-		except NotAnArchive:
-			self.log.error("Ignoring file because it's not an archive?")
+		except:
+			self.log.error("Unknown error??")
+			for line in traceback.format_exc().split("\n"):
+				self.log.error(line)
 			return "damaged"
 
 

@@ -90,11 +90,11 @@ Shit to do:
 <ul>
 	<li>itmesManga page isn't using activePlugins.mako</li>
 	<li>Also the itemsPron page.</li>
+	<li>Scrape Fakku</li>
 	<li>optimise name cleaning.</li>
 	<li>optimize optimize optimize! 1 second for home rendering.</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
-	<li>Scrape perveden.com</li>
 	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold</li>
 	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
 	<li>Deduper - enable the ability to check for duplicates using phash as well.</li>
@@ -154,6 +154,7 @@ Shit to do:
 	<li><strike>Automated tag update mechanism!</strike></li>
 	<li><strike>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</strike></li>
 	<li><strike>Generalize the image-cleaner to remove all annoying batoto/starkana/whatever images from downloaded archives. Possibly make it possible to run in batch mode? It should have a local directory of "bad" images that are scanned on start, and compare using hashes (or full on bitwise?).</strike></li>
+	<li><strike>Scrape perveden.com</strike> Fuck them, they watermark their shit. Never mind.</li>
 </ul>
 </p>
 

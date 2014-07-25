@@ -92,13 +92,22 @@ DNLDED = 2
 				<strong>${item["name"]}</strong><br />
 				${ut.timeAgo(runStart)}<br />
 				${runState}
-				% if item["dictKey"]:
-					<ul>
-						<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
-						<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
-						<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
-						<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
-					</ul>
+				<%
+				print( "Item - ", item)
+				print( "Key - ", item["dictKey"])
+				print( "Key - ", item["dictKey"] != None)
+				%>
+				% if item["dictKey"] != None:
+					% if item["dictKey"] in statusDict:
+						<ul>
+							<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
+							<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
+							<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
+							<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
+						</ul>
+					% else:
+						<b>WARN: No lookup dict built yet!</b>
+					% endif
 				% endif
 			</div>
 		% endfor

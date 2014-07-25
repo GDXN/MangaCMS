@@ -146,10 +146,10 @@ sidebarItemList = [
 		},
 
 		{
-			'dbKey'      : "Fufufuu",
-			'name'       : "Fufufuu",
-			'dictKey'    : "fu",
-			'cssClass'   : "mbId",
+			'dbKey'      : "FkLoader",
+			'name'       : "Fakku",
+			'dictKey'    : "fk",
+			'cssClass'   : "fkId",
 			'baseColour' : "#FFBE85",
 			'evenRow'    : "#ddddff",
 			'oddRow'     : "#f5f5ff",
@@ -157,10 +157,11 @@ sidebarItemList = [
 			'genRow'     : True,
 			'type'       : 'Porn'
 		}
+
 	]
 
 inHomepageMangaTable = ["bt", "sk", "cz", "mb", "jz"]
 activeNonPorn        = ["bt", "sk", "cz", "mb", "jz", "mk", "mt"]
-activePorn           = ["pu", "fu", "djm", "em"]
+activePorn           = ["pu", "fu", "djm", "em", "fk"]
 
 %>
