@@ -108,6 +108,7 @@ Shit to do:
 <p>
 <b>Reader</b>
 <ul>
+bu readstate in sidebar. 
 	<li>Add ability to rename directories to reader</li>
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>

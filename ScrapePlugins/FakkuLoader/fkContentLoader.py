@@ -96,16 +96,9 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					return
 
 
-	def getFileName(self, soup):
-		title = soup.find("h1", class_="otitle")
-		if not title:
-			raise ValueError("Could not find title. Wat?")
-		return title.get_text()
-
-
 	def processDownloadInfo(self, linkDict):
 
-		# self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
+		self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
 
 		sourcePage = linkDict["sourceUrl"]
 		category   = linkDict['seriesName']
@@ -133,59 +126,59 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		images = []
-		title = None
-		nextPage = linkDict["sourceUrl"]+"/read#page=1"
+		containerUrl = linkDict["sourceUrl"]+"/read"
 
+		imagePage = self.wg.getpage(containerUrl, addlHeaders={'Referer': linkDict["sourceUrl"]})
 
-		imagePage = self.wg.getpage(nextPage, addlHeaders={'Referer': linkDict["sourceUrl"]})
+		with open("tmp.html", "wb") as fp:
+			fp.write(imagePage.encode("utf-8"))
 
 		# So...... Fakku's reader is completely javascript driven. No parseable shit here.
 		# Therefore: WE DECEND TO THE LEVEL OF REGEXBOMINATIONS!
-		pathFormatterRe = re.compile(r"return '(https://t.fakku.net/images/manga/t/.*?/images/)' + x + '(.jpg)';", re.IGNORECASE)
+		pathFormatterRe = re.compile(r"return '(https://t.fakku.net/images/\w+/\w+/.+?/images/)' \+ x \+ '(.jpg)';", re.IGNORECASE)
 
 		# We need to know how many images there are, but there is no convenient way to access this information.
 		# The fakku code internally uses the length of the thumbnail array for the number of images, so
 		# we extract that array, parse it (since it's javascript, variables are JSON, after all), and
 		# just look at the length ourselves as well.
-		thumbsListRe    = re.compile(r"window.params.thumbs = (\[.*?\]);';", re.IGNORECASE)
+		thumbsListRe    = re.compile(r"window.params.thumbs = (\[.+?\]);", re.IGNORECASE)
 
-		thumbs        = thumbsListRe.findall(imagePage)
+		thumbs        = thumbsListRe.search(imagePage)
 		pathFormatter = pathFormatterRe.search(imagePage)
-		print("Thumbs = ", thumbs)
-		print("pathFormatter = ", pathFormatter)
-		return
+		# print("Thumbs = ", thumbs.group(1))
+		# print("pathFormatter = ", pathFormatter.group(1), pathFormatter.group(2))
 
-		while nextPage:
-			prevPage = nextPage
+		if not thumbs and pathFormatter:
+			self.log.error("Could not find items on page!")
+			self.log.error("URL: '%s'", containerUrl)
 
-			soup = bs4.BeautifulSoup(imagePage)
+		items = json.loads(thumbs.group(1))
 
-			imageUrl = soup.find("img", class_="current-page")
-			imageUrl = urllib.parse.urljoin(self.urlBase, imageUrl["src"])
+		imageUrls = []
+		for x in range(len(items)):
+			item = '{prefix}{num:03d}{postfix}'.format(prefix=pathFormatter.group(1), num=x+1, postfix=pathFormatter.group(2))
+			imageUrls.append(item)
+
+		# print("Prepared image URLs = ")
+		# print(imageUrls)
+
+		# print(linkDict)
+
+		images = []
+		for imageUrl in imageUrls:
 
 			imagePath = urllib.parse.urlsplit(imageUrl)[2]
 			imageFileName = imagePath.split("/")[-1]
-
-
-			imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': nextPage})
+			imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': containerUrl})
 
 			images.append((imageFileName, imageData))
 			# Find next page
-			nextPageLink = soup.find("a", title="Next Page")
-			if not nextPageLink:
-				nextPage = None
-			elif nextPageLink["href"].startswith("/finish/"):    # Break on the last image.
-				nextPage = None
-			else:
-				nextPage = urllib.parse.urljoin(self.urlBase, nextPageLink["href"])
 
-
-		return
 
 		# self.log.info(len(content))
 
-		if images and title:
-			fileN = title+".zip"
+		if images:
+			fileN = linkDict["originName"]+".zip"
 			fileN = nt.makeFilenameSafe(fileN)
 
 
@@ -209,11 +202,10 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			dedupState = self.archCleaner.processNewArchive(wholePath, deleteDups=True, includePHash=True)
 			self.log.info( "Done")
 
-
 			if dedupState:
 				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
 
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, seriesName=linkDict["seriesName"], lastUpdate=time.time())
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, lastUpdate=time.time())
 
 			self.conn.commit()
 			return wholePath

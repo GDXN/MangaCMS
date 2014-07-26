@@ -205,13 +205,13 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			row = self.getRowsByValue(sourceUrl=link["pageUrl"])
 			if not row:
 				curTime = time.time()
-				self.insertIntoDb(retreivalTime =link["date"],
-									sourceUrl   =link["pageUrl"],
-									originName  =link["dlName"],
-									seriesName  =link["seriesName"],
-									tags        =link["tags"],
-									note        =link["dlName"],
-									dlState     =0)
+				self.insertIntoDb(retreivalTime = link["date"],
+									sourceUrl   = link["pageUrl"],
+									originName  = link["dlName"],
+									seriesName  = link["seriesName"],
+									tags        = link["tags"],
+									note        = link["dlName"],
+									dlState     = 0)
 				# cur.execute('INSERT INTO fufufuu VALUES(?, ?, ?, "", ?, ?, "", ?);',(link["date"], 0, 0, link["dlLink"], link["itemTags"], link["dlName"]))
 				self.log.info("New item: %s", (curTime, link["pageUrl"], link["dlName"]))
 

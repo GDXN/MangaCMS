@@ -51,7 +51,7 @@ class ArchChecker(object):
 
 		for fileN, fileCtnt in self.arch:
 			dummy_fName, hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fileN, fileCtnt.read())
-			print("Hashes", pHash, dHash, hexHash)
+			# print("Hashes", pHash, dHash, hexHash)
 			dups = self.db.getOtherDPHashes(dHash, pHash, fsMaskPath="LOLWATTTTTTTTT")
 
 
