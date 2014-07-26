@@ -65,7 +65,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# They manage, somehow.
 			if row["retreivalTime"] < (time.time() + 60*60*18):
 				items.append(row)  # Actually the contentID
-		self.log.info("Have %s new items to retreive in PururinDownloader" % len(items))
+		self.log.info("Have %s new items to retreive in FakkuDownloader" % len(items))
 
 		return items
 
@@ -89,7 +89,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			for x in range(delay):
 				time.sleep(1)
 				remaining = delay-x
-				sys.stdout.write("\rPururin CL sleeping %d          " % remaining)
+				sys.stdout.write("\rFakku CL sleeping %d          " % remaining)
 				sys.stdout.flush()
 				if not runStatus.run:
 					self.log.info("Breaking due to exit flag being set")
