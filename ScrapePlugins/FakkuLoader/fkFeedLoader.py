@@ -76,8 +76,8 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		container = soup.find(text=key)
 
 		if not container:
-			self.log.error("Could not find item containing text '%s'?", key)
-			self.log.error("Searching in soup '%s'?", soup)
+			self.log.warning("Could not find item containing text '%s'?", key)
+			# self.log.warning("Searching in soup '%s'.", soup)
 			return []
 
 		items = []

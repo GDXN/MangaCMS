@@ -16,6 +16,7 @@ import ScrapePlugins.PururinLoader.Run
 import ScrapePlugins.JzLoader.Run
 import ScrapePlugins.MangaMadokami.Run
 import ScrapePlugins.ExMadokami.Run
+import ScrapePlugins.FakkuLoader.Run
 
 # Plugins in this dictionary are the active plugins. Comment out a plugin to disable it.
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
@@ -31,6 +32,7 @@ scrapePlugins = {
 	6  : (ScrapePlugins.CzLoader.Run,         60*60*4),   # Every 4 hours, since I have to scrape a lot of pages to update properly
 	7  : (ScrapePlugins.SkBaseManager.Run,    60*60  ),
 	8  : (ScrapePlugins.MbLoader.Run,         60*60  ),
+	8  : (ScrapePlugins.FakkuLoader.Run,      60*60  ),
 	9  : (ScrapePlugins.PururinLoader.Run,    60*60  )
 
 

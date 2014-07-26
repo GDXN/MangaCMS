@@ -105,7 +105,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info("Retreiving item: %s", sourcePage)
 
-		linkDict['dirPath'] = os.path.join(settings.puSettings["dlDir"], nt.makeFilenameSafe(category))
+		linkDict['dirPath'] = os.path.join(settings.fkSettings["dlDir"], nt.makeFilenameSafe(category))
 
 		if not os.path.exists(linkDict["dirPath"]):
 			os.makedirs(linkDict["dirPath"])

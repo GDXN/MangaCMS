@@ -37,12 +37,12 @@ def test():
 	# loader.processLinksIntoDB(feedItems)
 	# loader.closeDB()
 
-	# runner = Runner()
-	# runner.go()
+	runner = Runner()
+	runner.go()
 
 
-	cl = FakkuContentLoader()
-	cl.go()
+	# cl = FakkuContentLoader()
+	# cl.go()
 
 
 if __name__ == "__main__":

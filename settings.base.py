@@ -6,18 +6,20 @@ Add your username + password for each site.
 
 
 # Note: Paths have to be absolute.
-pickedDir   = r"/SOMETHING/MP"
-newDir      = r"/SOMETHING/MN"
-baseDir     = r"/SOMETHING/Manga/"
+pickedDir        = r"/SOMETHING/MP"
+newDir           = r"/SOMETHING/MN"
+baseDir          = r"/SOMETHING/Manga/"
 
 #
-fufuDir     = r"/SOMETHING/H/Fufufuu"
-djMoeDir    = r"/SOMETHING/H/DjMoe"
-puRinDir    = r"/SOMETHING/H/Pururun"
+fufuDir          = r"/SOMETHING/H/Fufufuu"
+djMoeDir         = r"/SOMETHING/H/DjMoe"
+puRinDir         = r"/SOMETHING/H/Pururun"
+ExhenMadokamiDir = r"/SOMETHING/H/ExhenMadokami"
+fkDir            = r"/SOMETHING/H/Fakku"
 
 # Paths for database and web content
-dbName      = '/SOMETHING/MangaCMS/links.db'
-webCtntPath = '/SOMETHING/MangaCMS/ctnt'
+dbName           = '/SOMETHING/MangaCMS/links.db'
+webCtntPath      = '/SOMETHING/MangaCMS/ctnt'
 
 
 # Path to the directory of images that get auto-removed from archives on download.
@@ -134,6 +136,14 @@ puSettings = {
 	"retag"        : 60*60*24*31,			# 1 month
 	"retagMissing" : 60*60*24*7,				# 7 Days (This is for items that have *no* tags)
 	"accountKey"   : "YOUR ACOCUNT KEY GOES HERE!"
+}
+
+
+emSettings = {
+	"dlDir"        : ExhenMadokamiDir
+}
+puSettings = {
+	"dlDir"        :  fkDir
 }
 
 # Your postgres SQL database credentials for the deduper.
