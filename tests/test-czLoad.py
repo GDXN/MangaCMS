@@ -1,4 +1,6 @@
 
+os.sys.path.insert(0,"..")
+
 import logSetup
 if __name__ == "__main__":
 	logSetup.initLogging()
