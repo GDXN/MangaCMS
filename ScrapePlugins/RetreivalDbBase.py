@@ -396,15 +396,17 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 											tags          text,
 											note          text);'''.format(tableName=self.tableName))
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceSite)'''                 % ("%s_source_index"     % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (retreivalTime)'''              % ("%s_time_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastUpdate)'''                 % ("%s_lastUpdate_index" % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceUrl)'''                  % ("%s_url_index"        % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName collate nocase)'''  % ("%s_seriesName_index" % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (tags       collate nocase)'''  % ("%s_tags_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (flags      collate nocase)'''  % ("%s_flags_index"      % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (dlState)'''                    % ("%s_dlState_index"    % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (originName)'''                 % ("%s_originName_index" % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceSite)'''                       % ("%s_source_index"     % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (retreivalTime)'''                    % ("%s_time_index"       % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastUpdate)'''                       % ("%s_lastUpdate_index" % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceUrl)'''                        % ("%s_url_index"        % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName collate nocase)'''        % ("%s_seriesName_index" % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (tags       collate nocase)'''        % ("%s_tags_index"       % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (flags      collate nocase)'''        % ("%s_flags_index"      % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (dlState)'''                          % ("%s_dlState_index"    % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (originName)'''                       % ("%s_originName_index" % self.tableName, self.tableName))
+		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName, retreivalTime, dbId)'''  % ("%s_aggregate_index"  % self.tableName, self.tableName))
+
 
 		self.conn.commit()
 		self.log.info("Retreived page database created")

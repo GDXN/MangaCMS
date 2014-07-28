@@ -66,7 +66,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dirRet  = []
 
 		for row in soup.find_all("tr"):
-			if "class" in row.attrs and row["class"] == ["path"]:
+			if "class" in row.attrs and "path" in row["class"]:
 				newDirName = row.a.get_text().strip()
 				dirUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
 				newDir = (newDirName, dirUrl)

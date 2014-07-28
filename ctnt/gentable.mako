@@ -149,28 +149,38 @@ colours = {
 
 	print("built")
 	print("Querying...")
-	query = '''SELECT dbId,
-						dlState,
-						sourceSite,
-						sourceUrl,
-						retreivalTime,
-						sourceId,
-						seriesName,
-						fileName,
-						originName,
-						downloadPath,
-						flags,
-						tags,
-						note
-						FROM MangaItems
-						{query}
-						{group}
-						ORDER BY retreivalTime DESC
-						LIMIT ?
-						OFFSET ?;'''.format(query=whereStr, group=groupStr)
+	query = '''
 
-	print("Query = ", query)
-	print("params = ", params)
+		SELECT
+				d.dbId,
+				d.dlState,
+				d.sourceSite,
+				d.sourceUrl,
+				d.retreivalTime,
+				d.sourceId,
+				d.seriesName,
+				d.fileName,
+				d.originName,
+				d.downloadPath,
+				d.flags,
+				d.tags,
+				d.note
+
+		FROM MangaItems AS d
+			JOIN
+				( SELECT dbId
+					FROM MangaItems
+					{query}
+					{group}
+					ORDER BY MAX(retreivalTime) DESC
+					LIMIT ?
+					OFFSET ?
+				) AS di
+				ON  di.dbId = d.dbId
+		ORDER BY d.retreivalTime DESC;'''.format(query=whereStr, group=groupStr)
+
+	# print("Query = ", query)
+	# print("params = ", params)
 
 	ret = cur.execute(query, params)
 	tblCtntArr = ret.fetchall()

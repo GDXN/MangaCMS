@@ -142,7 +142,8 @@ puSettings = {
 emSettings = {
 	"dlDir"        : ExhenMadokamiDir
 }
-puSettings = {
+
+fkSettings = {
 	"dlDir"        :  fkDir
 }
 

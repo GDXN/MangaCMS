@@ -92,11 +92,7 @@ DNLDED = 2
 				<strong>${item["name"]}</strong><br />
 				${ut.timeAgo(runStart)}<br />
 				${runState}
-				<%
-				print( "Item - ", item)
-				print( "Key - ", item["dictKey"])
-				print( "Key - ", item["dictKey"] != None)
-				%>
+
 				% if item["dictKey"] != None:
 					% if item["dictKey"] in statusDict:
 						<ul>

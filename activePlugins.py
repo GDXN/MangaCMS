@@ -22,7 +22,6 @@ import ScrapePlugins.FakkuLoader.Run
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
 # are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
-	# 1  : (ScrapePlugins.MangaMadokami.Run,    60*60*24),  # every 24 hours, because I have to iterate over the ENTIRE site.
 	0  : (ScrapePlugins.BtBaseManager.Run,    60*60  ),
 	1  : (ScrapePlugins.ExMadokami.Run,       60*60  ),
 	2  : (ScrapePlugins.BuMonitor.Run,        60*60  ),
@@ -32,8 +31,9 @@ scrapePlugins = {
 	6  : (ScrapePlugins.CzLoader.Run,         60*60*4),   # Every 4 hours, since I have to scrape a lot of pages to update properly
 	7  : (ScrapePlugins.SkBaseManager.Run,    60*60  ),
 	8  : (ScrapePlugins.MbLoader.Run,         60*60  ),
-	8  : (ScrapePlugins.FakkuLoader.Run,      60*60  ),
-	9  : (ScrapePlugins.PururinLoader.Run,    60*60  )
+	9  : (ScrapePlugins.PururinLoader.Run,    60*60  ),
+	10 : (ScrapePlugins.FakkuLoader.Run,      60*60  ),
+	11 : (ScrapePlugins.MangaMadokami.Run,    60*60*24)  # every 24 hours, because I have to iterate over the ENTIRE site.
 
 
 }

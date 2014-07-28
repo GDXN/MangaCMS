@@ -88,11 +88,10 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+queue whole of any mew series on batoto
+scrape mangacow
 	<li>itmesManga page isn't using activePlugins.mako</li>
 	<li>Also the itemsPron page.</li>
-	<li>Scrape Fakku</li>
-	<li>optimise name cleaning.</li>
-	<li>optimize optimize optimize! 1 second for home rendering.</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
 	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold</li>
@@ -108,7 +107,7 @@ Shit to do:
 <p>
 <b>Reader</b>
 <ul>
-bu readstate in sidebar. 
+bu readstate in sidebar.
 	<li>Add ability to rename directories to reader</li>
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
@@ -130,6 +129,9 @@ bu readstate in sidebar.
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Scrape Fakku</strike></li>
+	<li><strike>optimise name cleaning.</strike> Spent some time profiling. Not worth the effort (not much room for improvement).</li>
+	<li><strike>optimize optimize optimize! 1 second for home rendering.</strike> (~0.5 seconds! Woot!)</li>
 	<li><strike>mangafox if they dont resize.</strike> Never mind. they took down all their Manga because licensing reasons, apparently?</li>
 	<li><strike>clean ! from matching system.</strike> (Was already done)</li>
 	<li><strike>split porn/nonporn again?</strike></li>
