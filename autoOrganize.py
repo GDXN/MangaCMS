@@ -222,11 +222,53 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 	# 	print("key, val:", key, val)
 	# print("exiting")
 
-if __name__ == "__main__":
-	nt.dirNameProxy.startDirObservers()
+
+def organizeFolder(folderPath):
 	try:
+		nt.dirNameProxy.startDirObservers()
 		deduplicateMangaFolders()
 		consolicateSeriesToSingleDir()
-		renameSeriesToMatchMangaUpdates("/media/Storage/Manga")
+		renameSeriesToMatchMangaUpdates(folderPath)
 	finally:
 		nt.dirNameProxy.stop()
+
+def printHelp():
+	print("Valid arguments:")
+	print("	python3 autoOrganize organize {dirPath}")
+	print("		Run auto-organizing tools against {dirPath}")
+	print("	python3 autoOrganize lookup {name}")
+	print("		Lookup {name} in the MangaUpdates name synonym lookup table, print the results.")
+	print("	")
+
+
+def parseCommandLine():
+	if len(sys.argv) == 3:
+		cmd = sys.argv[1].lower()
+		val = sys.argv[2]
+
+		if cmd == "organize":
+			if not os.path.exists(val):
+				print("Passed path '%s' does not exist!" % val)
+				return
+			organizeFolder(val)
+			return
+		if cmd == "lookup":
+			print("Passed name = '%s'" % val)
+			haveLookup = nt.haveCanonicalMangaUpdatesName(val)
+			if not haveLookup:
+				print("Item not found in MangaUpdates name synonym table")
+				print("Processed item as searched = '%s'" % nt.prepFilenameForMatching(val))
+			else:
+				print("Item found in lookup table!")
+				print("Canonical name = '%s'" % nt.getCanonicalMangaUpdatesName(val) )
+
+		else:
+			print("Did not understand command!")
+			print("Sys.argv = ", sys.argv)
+
+	else:
+		printHelp()
+
+
+if __name__ == "__main__":
+	parseCommandLine()

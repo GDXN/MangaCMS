@@ -6,7 +6,7 @@ import abc
 import traceback
 import time
 
-# import nameTools as nt
+import nameTools as nt
 
 class MonitorDbBase(metaclass=abc.ABCMeta):
 
@@ -345,7 +345,8 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 		for name in names:
-			cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+			fsSafeName = nt.prepFilenameForMatching(name)
+			cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (?, ?, ?);""" % self.nameMapTableName, (buId, name, fsSafeName))
 		cur.fetchall()
 
 	def getIdFromName(self, name):

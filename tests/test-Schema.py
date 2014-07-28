@@ -18,6 +18,6 @@ def updateFsSafeColumn():
 	import nameTools as nt
 	nt.dirNameProxy.stop()
 if __name__ == "__main__":
-	# test()
-	updateFsSafeColumn()
+	test()
+	# updateFsSafeColumn()
 

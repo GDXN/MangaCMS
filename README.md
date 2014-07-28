@@ -80,3 +80,8 @@ Because I'm sure no one wants to just read about what MangaCMS does, here are so
 ![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)  
 ![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)  
 ![Reader](http://fake-name.github.io/MangaCMS/img/Stuff%203.png)  
+
+
+---
+
+Tests for all the various plugins are in the /tests/ directory. Because of how they hook into the rest of the system, they must be run as modules: `python3 -m tests.test-{name}`. This is required to avoid having to dick about with the contents of `sys.path`.
