@@ -1,6 +1,4 @@
 
-import hashlib
-
 from . import absImport
 import settings
 import UniversalArchiveReader
@@ -32,27 +30,39 @@ class ArchChecker(object):
 		self.log.info("Checking if %s contains any unique files.", self.archPath)
 
 		for dummy_fileN, fileCtnt in self.arch:
-			fMD5 = hashlib.md5()
-			fMD5.update(fileCtnt.read())
-			hexHash = fMD5.hexdigest()
+			hexHash = self.hashModule.getMd5Hash(fileCtnt.read())
 
-			dups = self.db.getOtherHashes(hexHash, fsMaskPath=self.archPath)
+			dupsIn = self.db.getOtherHashes(hexHash, fsMaskPath=self.archPath)
+			dups = []
+			for fsPath, internalPath, dummy_itemhash in dupsIn:
+				if os.path.exists(fsPath):
+					dups.append((fsPath, internalPath, dummy_itemhash))
+				else:
+					self.log.info("Item '%s' no longer exists - Removing from database!", fsPath)
+					self.db.deleteBasePath(fsPath)
 
 			# Short circuit on unique item, since we are only checking if ANY item is unique
 			if not dups:
 				self.log.info("It contains at least one unique files.")
 				return True
 
-				self.log.info("It does not contain any unique files.")
+		self.log.info("It does not contain any unique files.")
 		return False
 
 	def checkPhash(self):
 		self.log.info("Checking if %s contains any unique files.", self.archPath)
 
 		for fileN, fileCtnt in self.arch:
-			dummy_fName, hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fileN, fileCtnt.read())
+			dummy_fName, dummy_hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fileN, fileCtnt.read())
 			# print("Hashes", pHash, dHash, hexHash)
-			dups = self.db.getOtherDPHashes(dHash, pHash, fsMaskPath="LOLWATTTTTTTTT")
+			dupsIn = self.db.getOtherDPHashes(dHash, pHash, fsMaskPath="LOLWATTTTTTTTT")
+			dups = []
+			for fsPath, internalPath, dummy_itemhash in dupsIn:
+				if os.path.exists(fsPath):
+					dups.append((fsPath, internalPath, dummy_itemhash))
+				else:
+					self.log.info("Item '%s' no longer exists - Removing from database!", fsPath)
+					self.db.deleteBasePath(fsPath)
 
 
 			# Short circuit on unique item, since we are only checking if ANY item is unique

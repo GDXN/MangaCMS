@@ -88,15 +88,14 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-queue whole of any mew series on batoto
-scrape mangacow
-	<li>itmesManga page isn't using activePlugins.mako</li>
+	<li>Queue whole of any new series on batoto when a rating is found that's >= "++"</li>
+	<li>scrape mangacow</li>
+	<li>itemsManga page isn't using activePlugins.mako</li>
 	<li>Also the itemsPron page.</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
 	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold</li>
-	<li>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</li>
-	<li>Deduper - enable the ability to check for duplicates using phash as well.</li>
+	<li>Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)</li>
 	<li>add ability to sort directory by rating.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Ability to disable bulk-downloading.</li>
@@ -129,6 +128,7 @@ bu readstate in sidebar.
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</strike></li>
 	<li><strike>Scrape Fakku</strike></li>
 	<li><strike>optimise name cleaning.</strike> Spent some time profiling. Not worth the effort (not much room for improvement).</li>
 	<li><strike>optimize optimize optimize! 1 second for home rendering.</strike> (~0.5 seconds! Woot!)</li>
