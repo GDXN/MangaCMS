@@ -98,16 +98,19 @@ def extractRating(inStr):
 	else:
 		return inStr, "", ""
 
+def ratingStrToInt(inStr):
+
+
+	pos = inStr.count("+")
+	neg = inStr.count("-")
+
+	return pos - neg
+
 def extractRatingToInt(inStr):
 	dummy, rating, dummy = extractRating(inStr)
 	if not rating:
 		return 0
-
-	pos = rating.count("+")
-	neg = rating.count("-")
-
-
-	return pos - neg
+	return ratingStrToInt(rating)
 
 
 def getCleanedName(inStr):

@@ -24,21 +24,21 @@ def customHandler(signum, stackframe):
 def test():
 
 
-	# loader = FakkuFeedLoader()
+	loader = FakkuFeedLoader()
 	# loader.go()
 
-
-	# feedItems = loader.getItems()
+	for x in range(1, 410):
+		feedItems = loader.getItems(pageOverride=x)
+		loader.processLinksIntoDB(feedItems)
 	# # feedItems = loader.getItemsFromContainer("Ore no Kanojo + H", loader.quoteUrl("http://download.japanzai.com/Ore no Kanojo + H/index.php"))
 	# # loader.log.info("Processing feed Items")
 	# for item in feedItems:
 	# 	print("Item", item)
 
-	# loader.processLinksIntoDB(feedItems)
 	# loader.closeDB()
 
-	runner = Runner()
-	runner.go()
+	# runner = Runner()
+	# runner.go()
 
 
 	# cl = FakkuContentLoader()

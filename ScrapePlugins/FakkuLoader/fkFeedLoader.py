@@ -5,7 +5,7 @@ import traceback
 
 import bs4
 import settings
-from dateutil import parser
+import dateutil.parser
 import datetime
 import urllib.parse
 import time
@@ -38,10 +38,14 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if "just now" in inStr:
 			updateDate = datetime.datetime.now()
+		elif "years ago" in inStr or "year ago" in inStr:
+			yearsAgo = inStr.split()[0]
+			yearsAgo = int(yearsAgo)
+			updateDate = datetime.datetime.now() - datetime.timedelta(yearsAgo*365)
 		elif "months ago" in inStr or "month ago" in inStr:
 			monthsAgo = inStr.split()[0]
 			monthsAgo = int(monthsAgo)
-			updateDate = datetime.datetime.now() - datetime.timedelta(monthsAgo*7)
+			updateDate = datetime.datetime.now() - datetime.timedelta(monthsAgo*32)
 		elif "weeks ago" in inStr or "week ago" in inStr:
 			weeksAgo = inStr.split()[0]
 			weeksAgo = int(weeksAgo)
