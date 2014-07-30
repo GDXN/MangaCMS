@@ -20,7 +20,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 
 	wg              = webFunctions.WebGetRobust()
-	loggerPath      = "Main.BtS.Fl"
+	loggerPath      = "Main.BtS.Sl"
 	pluginName      = "Batoto Series Link Retreiver"
 	tableKey        = "bt"
 	dbName          = settings.dbName
@@ -38,12 +38,10 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		if not isSeries:
 			return None
 
-		print("Series TD!")
 		seriesName = isSeries.get_text().strip()
 		seriesLink = isSeries.find("a", style="font-weight:bold;")
 		seriesUrl  = seriesLink["href"]
 		seriesId = seriesUrl.split("/")[-1]
-		print("Name", seriesName, "url", seriesId)
 
 		return seriesName, seriesId
 
@@ -54,8 +52,8 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		if canonSeriesName not in nt.dirNameProxy:
 			return
 
-		rating = nt.dirNameProxy[canonSeriesName]["rating"]
-		rating = nt.ratingStrToInt(rating)
+		ratingStr = nt.dirNameProxy[canonSeriesName]["rating"]
+		rating = nt.ratingStrToInt(ratingStr)
 		if rating < 2:
 			return
 
@@ -63,7 +61,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		if len(haveRows) != 0:
 			return				# We already have the series in the DB
 
-		self.log.info("New series! '%s', '%s'", seriesName, seriesId)
+		self.log.info("New series! '%s', '%s'. Rating in local files '%s'", seriesName, seriesId, ratingStr)
 		self.insertIntoSeriesDb(seriesId=seriesId,
 								seriesName=seriesName,
 								dlState=0,
@@ -71,7 +69,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 								lastUpdate=0)
 
 
-	def ScanForSeries(self, rangeOverride=None, rangeOffset=None):
+	def scanForSeries(self, rangeOverride=None, rangeOffset=None):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -104,7 +102,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 				item = self.extractSeriesDef(row)
 				if item:
 					self.checkInsertItem(item)
-					print("Item", item)
+
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
 					break
@@ -116,7 +114,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 	def go(self):
 
 		self.log.info("Looking for new series to download")
-		self.ScanForSeries()
+		self.scanForSeries()
 
 		self.log.info("Complete")
 

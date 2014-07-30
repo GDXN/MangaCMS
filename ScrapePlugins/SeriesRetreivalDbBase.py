@@ -16,7 +16,7 @@ import ScrapePlugins.RetreivalDbBase
 # Turn on to print all db queries to STDOUT before running them.
 # Intended for debugging DB interactions.
 # Excessively verbose otherwise.
-QUERY_DEBUG = True
+QUERY_DEBUG = False
 
 class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
@@ -191,6 +191,15 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			keys = ["dbId", "seriesId", "seriesName", "dlState", "retreivalTime", "lastUpdate"]
 			retL.append(dict(zip(keys, row)))
 		return retL
+
+
+
+	def resetStuckSeriesItems(self):
+		self.log.info("Resetting stuck downloads in DB")
+		self.conn.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1'''.format(tableName=self.seriesTableName))
+		self.conn.commit()
+		self.log.info("Download reset complete")
+
 
 
 	def checkInitSeriesDb(self):

@@ -13,6 +13,8 @@ import datetime
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 
+# Only downlad items in language specified.
+# Set to None to disable filtering (e.g. fetch ALL THE FILES).
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
 class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
@@ -52,7 +54,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			dummy_blank, chapter, lang, dummy_scanlator, uploadDate = cells
 
 		# Skip uploads in other languages
-		if not DOWNLOAD_ONLY_LANGUAGE in str(lang):
+		if DOWNLOAD_ONLY_LANGUAGE and not DOWNLOAD_ONLY_LANGUAGE in str(lang):
 			return None
 
 

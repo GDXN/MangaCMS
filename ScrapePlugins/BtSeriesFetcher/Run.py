@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.BtLoader.btFeedLoader import BtFeedLoader
-from ScrapePlugins.BtLoader.btContentLoader import BtContentLoader
+from ScrapePlugins.BtSeriesFetcher.btSeriesLoader   import BtSeriesLoader
+from ScrapePlugins.BtSeriesFetcher.btSeriesEnqueuer import BtSeriesEnqueuer
 
 import ScrapePlugins.RunBase
 
@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Bt.Run"
+	loggerPath = "Main.BtS.Run"
 
 	pluginName = "BtLoader"
 
@@ -19,7 +19,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 
 		self.log.info("Checking Bt feeds for updates")
-		fl = BtFeedLoader()
+		fl = BtSeriesLoader()
 		fl.go()
 		fl.closeDB()
 
@@ -29,15 +29,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		if not runStatus.run:
 			return
 
-		cl = BtContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
+		cl = BtSeriesEnqueuer()
+		cl.go()
 		cl.closeDB()

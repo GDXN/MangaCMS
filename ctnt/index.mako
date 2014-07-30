@@ -88,7 +88,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Queue whole of any new series on batoto when a rating is found that's >= "++"</li>
+	<li>Trigger series download if on any BU list as well</li>
 	<li>scrape mangacow</li>
 	<li>itemsManga page isn't using activePlugins.mako</li>
 	<li>Also the itemsPron page.</li>
@@ -128,6 +128,7 @@ bu readstate in sidebar.
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Queue whole of any new series on batoto when a rating is found that's >= "++"</strike></li>
 	<li><strike>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</strike></li>
 	<li><strike>Scrape Fakku</strike></li>
 	<li><strike>optimise name cleaning.</strike> Spent some time profiling. Not worth the effort (not much room for improvement).</li>
