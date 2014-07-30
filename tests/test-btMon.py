@@ -27,8 +27,8 @@ def test():
 
 	nt.dirNameProxy.startDirObservers()
 
-	sMon = BtSeriesLoader()
-	sMon.scanForSeries(rangeOverride=1510)
+	# sMon = BtSeriesLoader()
+	# sMon.scanForSeries(rangeOverride=1510)
 	# sMon.go()
 
 
@@ -43,8 +43,8 @@ def test():
 	# cl = BtSeriesEnqueuer()
 	# cl.go()
 
-	# run = Runner()
-	# run.go()
+	run = Runner()
+	run.go()
 
 
 
