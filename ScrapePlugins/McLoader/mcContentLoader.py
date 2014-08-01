@@ -33,7 +33,7 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 	tableName = "MangaItems"
 
-	retreivalThreads = 8
+	retreivalThreads = 3
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -63,18 +63,6 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return items
 
 
-	def getImageFromPage(self, containerPageUrl):
-
-		soup = self.wg.getpage(containerPageUrl, soup=True)
-
-
-		img = soup.find("img", id="comic_page")
-		if not img:
-			raise ValueError("Could not find image on page '%s'!" % containerPageUrl)
-		imgUrl = img["src"]
-
-		return self.getImage(imgUrl, containerPageUrl)
-
 	def getImage(self, imageUrl, referrer):
 
 		content, handle = self.wg.getpage(imageUrl, returnMultiple=True, addlHeaders={'Referer': referrer})
@@ -86,114 +74,59 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("retreived image '%s' with a size of %0.3f K", fileN, len(content)/1000.0)
 		return fileN, content
 
-	def extractFilename(self, inString):
-		title, dummy_blurb = inString.rsplit("|", 1)
-		# title, chapter = title.rsplit("-", 1)
-
-		# Unescape htmlescaped items in the name/chapter
-		ps = html.parser.HTMLParser()
-		title = ps.unescape(title)
-
-		vol = None
-		chap = None
-		volChap = None
-
-		try:
-			if " vol " in title.lower():
-				title, volChap = title.rsplit(" vol ", 1)
-				vol, dummy = volChap.strip().split(" ", 1)
-		except ValueError:
-			self.log.error("Could not parse volume number from title %s", title)
-			traceback.print_exc()
 
 
-		try:
-			if volChap and " ch " in volChap:
-				dummy, chap = volChap.rsplit(" ch ", 1)
-
-			elif " ch " in title:
-				title, chap = title.rsplit(" ch ", 1)
-
-		except ValueError:
-			self.log.error("Could not parse chapter number from title %s", title)
-			traceback.print_exc()
-
-		if chap:
-			if "Page" in chap:
-				chap, dummy = chap.split("Page", 1)
-
-		elif title and "Page" in title:
-			title, dummy = title.split("Page", 1)
-
-		title = title.rstrip(" -")
-		haveLookup = nt.haveCanonicalMangaUpdatesName(title)
-		if not haveLookup:
-			self.log.warning("Did not find title '%s' in MangaUpdates database!", title)
-		title = nt.getCanonicalMangaUpdatesName(title).strip()
+	def getImageUrls(self, baseUrl):
 
 
-		volChap = []
 
-		if vol:
-			volChap.append("v{}".format(vol))
-		if chap:
-			volChap.append("c{}".format(chap))
-
-		chapter = " ".join(volChap)
-
-		return title, chapter
-
-
-	def getContainerPages(self, firstPageUrl):
-
-		# Korean Webtoons are non-paginated in their default state
-		# this breaks shit, so we force paginated mode.
-		if not firstPageUrl.endswith("/1"):
-			firstPageUrl += "/1"
-
-		pageCtnt = self.wg.getpage(firstPageUrl)
+		pageCtnt = self.wg.getpage(baseUrl)
 		soup = bs4.BeautifulSoup(pageCtnt)
-		title = soup.find("meta", property="og:title")
-		title = title["content"]
 
-		if 'alt="File not found"' in pageCtnt:
-			return False, False, False, False
+		selector = soup.find("select", class_="cbo_wpm_pag")
 
-		seriesName, chapterVol = self.extractFilename(title)
+		if not selector:
+			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
 
-		selector = soup.find("select", attrs={'name':'page_select'})
-		if selector:
-
-			pages = selector.find_all("option")
-			pages = [page["value"] for page in pages]
-			self.log.info("Item has %s pages.", len(pages))
-
-			return seriesName, chapterVol, pages, False
-
-		if not selector and "Want to see this chapter per page instead?" in pageCtnt:
-			self.log.info("It's a webcomic.")
-
-			contentDiv = soup.find("div", attrs={'id':'content', 'class':'clearfix'})
-			images = contentDiv.find_all("img", src=re.compile(r'img[0-9]?\.batoto\.net/comics/[0-9][0-9][0-9][0-9]'))
-
-			images = [image["src"] for image in images]
-			return seriesName, chapterVol, images, True
+		imageNos = []
+		for value in selector.find_all("option"):
+			imageNos.append(int(value.get_text()))
 
 
-		raise ValueError("Unable to find contained images on page '%s'" % firstPageUrl)
+		if not imageNos:
+			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
+
+		imageContainer = soup.find("div", class_="prw")
+		imageUrl = imageContainer.img["src"]
+
+		base, imNum = imageUrl.rsplit("/", 1)
+		imNum, imExt = imNum.rsplit(".", 1)
+
+		numLen = len(imNum)
+		imageUrls = []
+		for imNo in imageNos:
+			url      = "{base}/{name:04d}.{ext}".format(base=base, name=imNo, ext=imExt)
+			referrer = "{baseUrl}{num}/".format(baseUrl=baseUrl, num=imNo)
+			imageUrls.append((url, referrer))
+
+
+		return imageUrls
+
 
 
 
 	def getLink(self, link):
-		sourceUrl = link["sourceUrl"]
+		sourceUrl  = link["sourceUrl"]
+		seriesName = link["seriesName"]
+		chapterVol = link["originName"]
 
 
 		try:
 			self.log.info( "Should retreive url - %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=1)
 
-			seriesName, chapterVol, imageUrls, directImageLinks = self.getContainerPages(sourceUrl)
-			if not seriesName and not chapterVol and not imageUrls:
+			imageUrls = self.getImageUrls(sourceUrl)
+			if not imageUrls:
 				self.log.critical("Failure on retreiving content at %s", sourceUrl)
 				self.log.critical("Page not found - 404")
 				self.updateDbEntry(sourceUrl, dlState=-1)
@@ -209,8 +142,7 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.updateDbEntry(sourceUrl, flags=" ".join([link["flags"], "haddir"]))
 				self.conn.commit()
 
-			chapterNameRaw = " - ".join((seriesName, chapterVol))
-			chapterName = nt.makeFilenameSafe(chapterNameRaw)
+			chapterName = nt.makeFilenameSafe(chapterVol)
 
 			fqFName = os.path.join(dlPath, chapterName+".zip")
 
@@ -222,11 +154,8 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Saving to archive = %s", fqFName)
 
 			images = []
-			for imgUrl in imageUrls:
-				if directImageLinks:
-					imageName, imageContent = self.getImage(imgUrl, sourceUrl)
-				else:
-					imageName, imageContent = self.getImageFromPage(imgUrl)
+			for imgUrl, sourceUrl in imageUrls:
+				imageName, imageContent = self.getImage(imgUrl, sourceUrl)
 
 				images.append([imageName, imageContent])
 
@@ -236,6 +165,10 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					return
 
 			self.log.info("Creating archive with %s images", len(images))
+
+			if not images:
+				self.updateDbEntry(sourceUrl, dlState=-1, seriesName=seriesName, originName=chapterVol, tags="error-404")
+				return
 
 			#Write all downloaded files to the archive.
 			arch = zipfile.ZipFile(fqFName, "w")
@@ -248,7 +181,7 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)
-			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, seriesName=seriesName, originName=chapterNameRaw, tags=dedupState)
+			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, seriesName=seriesName, originName=chapterVol, tags=dedupState)
 			return
 
 
@@ -298,7 +231,6 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				executor.shutdown(wait=True)
 
-			# Multithreading goes here, if I decide I want it at some point
 
 
 

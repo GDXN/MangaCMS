@@ -237,6 +237,10 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			self.log.info("Creating archive with %s images", len(images))
 
+			if not images:
+				self.updateDbEntry(sourceUrl, dlState=-1, seriesName=seriesName, originName=chapterNameRaw, tags="error-404")
+				return
+
 			#Write all downloaded files to the archive.
 			arch = zipfile.ZipFile(fqFName, "w")
 			for imageName, imageContent in images:

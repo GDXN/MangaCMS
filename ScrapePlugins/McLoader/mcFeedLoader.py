@@ -129,7 +129,6 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		seriesPages = self.getSeriesUrls()
 
-		cnt = 0
 
 		for item in seriesPages:
 
@@ -137,9 +136,6 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			for item in itemList:
 				ret.append(item)
 
-			cnt += 1
-			if cnt > 1:
-				break
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
 				break
