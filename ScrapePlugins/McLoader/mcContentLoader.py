@@ -162,8 +162,8 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Saving to archive = %s", fqFName)
 
 			images = []
-			for imgUrl, sourceUrl in imageUrls:
-				imageName, imageContent = self.getImage(imgUrl, sourceUrl)
+			for imgUrl, referrerUrl in imageUrls:
+				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
 
 				images.append([imageName, imageContent])
 
