@@ -88,7 +88,8 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Trigger series download if on any BU list as well</li>
+	<li>Non-distinct manga view is borked</li>
+	<li>Trigger series download if on any BU list as well (partial)</li>
 	<li>scrape mangacow</li>
 	<li>itemsManga page isn't using activePlugins.mako</li>
 	<li>Also the itemsPron page.</li>
@@ -106,7 +107,7 @@ Shit to do:
 <p>
 <b>Reader</b>
 <ul>
-bu readstate in sidebar.
+	<li>Chapter read to from BU in item sidebar.</li>
 	<li>Add ability to rename directories to reader</li>
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>

@@ -92,7 +92,7 @@ if "sourceSite" in request.params:
 else:
 	sourceFilter = []
 
-
+print("sourceFilter", sourceFilter)
 if len(sourceFilter) > 1:
 	divId      = "skId"
 	sourceName = 'Manga Series'
@@ -117,6 +117,9 @@ elif sourceFilter == ["bt"]:
 elif sourceFilter == ["mk"]:
 	divId      = "mkId"
 	sourceName = 'Manga.Madokami Series'
+elif sourceFilter == ["mc"]:
+	divId      = "mcId"
+	sourceName = 'Manga Cow Series'
 else:
 	sourceFilter = None
 	divId      = ""

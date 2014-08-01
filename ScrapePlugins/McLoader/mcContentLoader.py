@@ -21,15 +21,15 @@ from concurrent.futures import ThreadPoolExecutor
 
 import archCleaner
 
-class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	archCleaner = archCleaner.ArchCleaner()
 
 	wg = webFunctions.WebGetRobust()
-	loggerPath = "Main.Bt.Cl"
-	pluginName = "Batoto Content Retreiver"
-	tableKey = "bt"
+	loggerPath = "Main.Mc.Cl"
+	pluginName = "MangaCow Content Retreiver"
+	tableKey = "mc"
 	dbName = settings.dbName
 	tableName = "MangaItems"
 

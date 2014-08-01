@@ -71,6 +71,19 @@ sidebarItemList = [
 		},
 
 		{
+			'dbKey'      : "JzLoader",
+			'name'       : "MangaCow",
+			'dictKey'    : "mc",
+			'cssClass'   : "mcId",
+			'baseColour' : "#B5FFFC",
+			'evenRow'    : "#CEFFFD",
+			'oddRow'     : "#F2FFFE",
+			'showOnHome' : True,
+			'genRow'     : True,
+			'type'       : 'Manga'
+		},
+
+		{
 			'dbKey'      : "MkLoader",
 			'name'       : "Madokami",
 			'dictKey'    : "mk",
@@ -160,8 +173,8 @@ sidebarItemList = [
 
 	]
 
-inHomepageMangaTable = ["bt", "sk", "cz", "mb", "jz"]
-activeNonPorn        = ["bt", "sk", "cz", "mb", "jz", "mk", "mt"]
+inHomepageMangaTable = ["bt", "sk", "cz", "mb", "jz", "mk", "mc"]
+activeNonPorn        = ["bt", "sk", "cz", "mb", "jz", "mk", "mt", "mc"]
 activePorn           = ["pu", "fu", "djm", "em", "fk"]
 
 %>

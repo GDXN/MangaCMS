@@ -80,6 +80,7 @@ def sanitizeString(inStr, flatten=True):
 		baseName = baseName.replace("?", "")
 		baseName = baseName.replace("!", "")
 		baseName = baseName.replace('"', "")
+		baseName = baseName.replace("'", "")
 
 	# baseName = baseName.replace("'", "")
 	while baseName.find("  ")+1:
