@@ -33,7 +33,7 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 	tableName = "MangaItems"
 
-	retreivalThreads = 3
+	retreivalThreads = 1
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -88,26 +88,34 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not selector:
 			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
 
-		imageNos = []
+		pageNumbers = []
 		for value in selector.find_all("option"):
-			imageNos.append(int(value.get_text()))
+			pageNumbers.append(int(value.get_text())-1)
 
 
-		if not imageNos:
+		if not pageNumbers:
 			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
 
-		imageContainer = soup.find("div", class_="prw")
-		imageUrl = imageContainer.img["src"]
 
-		base, imNum = imageUrl.rsplit("/", 1)
-		imNum, imExt = imNum.rsplit(".", 1)
 
-		numLen = len(imNum)
+		pageUrls = []
+		for pageNo in pageNumbers:
+			pageUrls.append("{baseUrl}{num}/".format(baseUrl=baseUrl, num=pageNo))
+
+		# print("PageUrls", pageUrls)
 		imageUrls = []
-		for imNo in imageNos:
-			url      = "{base}/{name:04d}.{ext}".format(base=base, name=imNo, ext=imExt)
-			referrer = "{baseUrl}{num}/".format(baseUrl=baseUrl, num=imNo)
-			imageUrls.append((url, referrer))
+
+		for pageUrl in pageUrls:
+
+
+			pageCtnt = self.wg.getpage(pageUrl)
+
+			soup = bs4.BeautifulSoup(pageCtnt)
+
+			imageContainer = soup.find("div", class_="prw")
+			url = imageContainer.img["src"]
+			# print("Urls - ", (url, pageUrl))
+			imageUrls.append((url, pageUrl))
 
 
 		return imageUrls
