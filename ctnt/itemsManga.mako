@@ -92,38 +92,31 @@ if "sourceSite" in request.params:
 else:
 	sourceFilter = []
 
+
+sourceItems = {}
+for item in ap.attr.sidebarItemList:
+	if item["dictKey"] in sourceFilter:
+		sourceItems[item["dictKey"]] = item
+
+
+
+
 print("sourceFilter", sourceFilter)
 if len(sourceFilter) > 1:
 	divId      = "skId"
-	sourceName = 'Manga Series'
-elif sourceFilter == ["mt"]:
-	divId      = "mtMainId"
-	sourceName = 'MT Series'
-elif sourceFilter == ["sk"]:
-	divId      = "skId"
-	sourceName = 'Starkana Series'
-elif sourceFilter == ["cz"]:
-	divId      = "czId"
-	sourceName = 'Crazy\'s Manga Series'
-elif sourceFilter == ["mb"]:
-	divId      = "mbId"
-	sourceName = 'MangaBaby Series'
-elif sourceFilter == ["jz"]:
-	divId      = "jzId"
-	sourceName = 'Japanzai Series'
-elif sourceFilter == ["bt"]:
-	divId      = "btId"
-	sourceName = 'Batoto Series'
-elif sourceFilter == ["mk"]:
-	divId      = "mkId"
-	sourceName = 'Manga.Madokami Series'
-elif sourceFilter == ["mc"]:
-	divId      = "mcId"
-	sourceName = 'Manga Cow Series'
+	sourceName = 'Manga Items'
+
+elif sourceFilter:
+	lut = sourceItems[sourceFilter[0]]
+
+	divId      = lut["cssClass"]
+	sourceName = lut["name"] + " Items"
+
+
 else:
 	sourceFilter = None
 	divId      = ""
-	sourceName = 'ALL DEM ITEMZ?'
+	sourceName = 'ALL DEM ITEMZ'
 
 
 

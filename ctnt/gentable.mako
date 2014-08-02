@@ -139,8 +139,10 @@ colours = {
 
 	if distinct:
 		groupStr = "GROUP BY seriesName"
+		orderBy  = "ORDER BY MAX(retreivalTime) DESC"
 	else:
 		groupStr = ""
+		orderBy  = "ORDER BY retreivalTime DESC"
 
 	print("building query")
 
@@ -172,12 +174,12 @@ colours = {
 					FROM MangaItems
 					{query}
 					{group}
-					ORDER BY MAX(retreivalTime) DESC
+					{order}
 					LIMIT ?
 					OFFSET ?
 				) AS di
 				ON  di.dbId = d.dbId
-		ORDER BY d.retreivalTime DESC;'''.format(query=whereStr, group=groupStr)
+		ORDER BY d.retreivalTime DESC;'''.format(query=whereStr, group=groupStr, order=orderBy)
 
 	# print("Query = ", query)
 	# print("params = ", params)
@@ -644,10 +646,10 @@ colours = {
 			% for name, row in rows:
 				<table border="1px" style="display:inline-block;">
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 126px;'>From</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 100px;'>From</td>
 						</tr>
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 126px;'>${name}</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 100px;'>${name}</td>
 						</tr>
 				</table>
 			% endfor

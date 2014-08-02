@@ -41,7 +41,7 @@ sidebarItemList = [
 			'oddRow'     : "#fff5f5",
 			'showOnHome' : True,
 			'genRow'     : True,
-			'type'       : 'Manga'
+			'type'       : 'Manga-defunct'
 		},
 
 		{
@@ -102,6 +102,7 @@ sidebarItemList = [
 			'dictKey'    : None,
 			'cssClass'   : "buId",
 			'baseColour' : "#BBFFBB",
+			'showOnHome' : False,
 			'genRow'     : False,
 			'type'       : 'Info'
 		},
@@ -173,8 +174,8 @@ sidebarItemList = [
 
 	]
 
-inHomepageMangaTable = ["bt", "sk", "cz", "mb", "jz", "mk", "mc"]
-activeNonPorn        = ["bt", "sk", "cz", "mb", "jz", "mk", "mt", "mc"]
-activePorn           = ["pu", "fu", "djm", "em", "fk"]
+inHomepageMangaTable = [item["dictKey"] for item in sidebarItemList if item["showOnHome"] and "Manga" in item["type"]]
+activeNonPorn        = [item["dictKey"] for item in sidebarItemList if                        "Manga" in item["type"]]
+activePorn           = [item["dictKey"] for item in sidebarItemList if                        "Porn"  in item["type"]]
 
 %>

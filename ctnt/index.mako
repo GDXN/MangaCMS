@@ -88,14 +88,10 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Non-distinct manga view is borked</li>
 	<li>Trigger series download if on any BU list as well (partial)</li>
-	<li>scrape mangacow</li>
-	<li>itemsManga page isn't using activePlugins.mako</li>
-	<li>Also the itemsPron page.</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
-	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold</li>
+	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)</li>
 	<li>Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)</li>
 	<li>add ability to sort directory by rating.</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
@@ -129,6 +125,10 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>itemsManga page isn't using activePlugins.mako</strike></li>
+	<li><strike>Also the itemsPron page.</strike></li>
+	<li><strike>scrape mangacow</strike></li>
+	<li><strike>Non-distinct manga view is borked</strike></li>
 	<li><strike>Queue whole of any new series on batoto when a rating is found that's >= "++"</strike></li>
 	<li><strike>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</strike></li>
 	<li><strike>Scrape Fakku</strike></li>

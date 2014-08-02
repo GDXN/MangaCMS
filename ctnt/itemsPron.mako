@@ -131,6 +131,23 @@ nextPage = request.params.copy()
 nextPage["page"] = pageNo+2
 
 
+sourceItems = {}
+for item in ap.attr.sidebarItemList:
+	if item["dictKey"] in sourceFilter:
+		sourceItems[item["dictKey"]] = item
+
+
+if len(sourceFilter) > 1:
+	divId = "djMoeId"
+	sourceName = "Aggregate Pron Items"
+
+else:
+	lut = sourceItems[sourceFilter[0]]
+
+	divId      = lut["cssClass"]
+	sourceName = lut["name"] + " Items"
+
+
 
 
 %>
@@ -147,28 +164,9 @@ nextPage["page"] = pageNo+2
 
 	${sideBar.getSideBar(sqlCon)}
 	<div class="maindiv">
-		% if len(sourceFilter) > 1:
-			<div class="subdiv djMoeId">
-				<div class="contentdiv">
-					<h3>Aggregate Pron Series</h3>
-		% elif sourceFilter == ["djm"]:
-			<div class="subdiv djMoeId">
-				<div class="contentdiv">
-					<h3>Doujin Moe Series</h3>
-		% elif sourceFilter == ["fu"]:
-			<div class="subdiv fuFuId">
-				<div class="contentdiv">
-					<h3>Fufufuu</h3>
-
-		% elif sourceFilter == ["pu"]:
-			<div class="subdiv fuFuId">
-				<div class="contentdiv">
-					<h3>Pururin</h3>
-		% else:
-			<div class="subdiv fuFuId">
-				<div class="contentdiv">
-					<h3>OH SHIT WUT?</h3>
-		% endif
+		<div class="subdiv ${divId}">
+			<div class="contentdiv">
+				<h3>${sourceName}</h3>
 
 				Query =<br>
 				% for key in request.params.keys():
