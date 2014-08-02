@@ -105,8 +105,8 @@ class ArchChecker(object):
 
 				baseHash, oldPHash, oldDHash = self.db.getHashes(self.archPath, fName)
 				if all((baseHash, oldPHash, oldDHash)):
-					self.log.critical("Already hashed item?")
-					self.log.critical("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
+					self.log.warn("Item is not duplicate?")
+					self.log.warn("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
 
 				if baseHash:
 					self.db.updateItem(self.archPath, fName, itemHash=hexHash, pHash=pHash, dHash=dHash)

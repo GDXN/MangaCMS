@@ -31,11 +31,10 @@ scrapePlugins = {
 	5  : (ScrapePlugins.DjMoeLoader.Retag,    60*60  ),
 	6  : (ScrapePlugins.CzLoader.Run,         60*60*4),   # Every 4 hours, since I have to scrape a lot of pages to update properly
 	7  : (ScrapePlugins.SkBaseManager.Run,    60*60  ),
-	8  : (ScrapePlugins.MbLoader.Run,         60*60  ),
 	9  : (ScrapePlugins.PururinLoader.Run,    60*60  ),
 	10 : (ScrapePlugins.FakkuLoader.Run,      60*60  ),
 	11 : (ScrapePlugins.MangaMadokami.Run,    60*60*24)  # every 24 hours, because I have to iterate over the ENTIRE site.
-	12 : (ScrapePlugins.McLoader.Run,         60*60*24)  # every 24 hours, it's just a single scanlator site.
+	# 12 : (ScrapePlugins.McLoader.Run,         60*60*24)  # every 24 hours, it's just a single scanlator site.
 
 
 }
