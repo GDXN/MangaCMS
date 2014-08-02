@@ -24,7 +24,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 
 	tableName = "MangaItems"
-	urlBase = "http://manga.madokami.com/Manga"
+	urlBaseManga = "http://manga.madokami.com/Manga"
+	urlBaseMT    = "http://manga.madokami.com/MangaTraders"
 
 
 	def checkLogin(self):
@@ -66,24 +67,30 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dirRet  = []
 
 		for row in soup.find_all("tr"):
-			if "class" in row.attrs and "path" in row["class"]:
-				newDirName = row.a.get_text().strip()
-				dirUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
-				newDir = (newDirName, dirUrl)
-				dirRet.append(newDir)
-			elif "data-ext" in row.attrs:
-				item = {}
-				dlUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
-				item["date"]     = time.time()
-				item["dlName"]   = row.a.get_text().strip()
-				item["dlLink"]   = dlUrl
-				item["baseName"] = dirName
+			if row.find("td", class_="name") and row.find("td", class_="tags") and row.find("td", class_="size"):
 
-				itemRet.append(item)
+				itemUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
+
+				# Files are all in the /dl/ subdirectory
+				# I don't like relying on link structure like this, but it's the most reliable thing I can think of at the moment.
+				if "http://manga.madokami.com/dl/" in itemUrl:
+					item = {}
+					itemUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
+					item["date"]     = time.time()
+					item["dlName"]   = row.a.get_text().strip()
+					item["dlLink"]   = itemUrl
+					item["baseName"] = dirName
+					itemRet.append(item)
+				else:
+					newDirName = row.a.get_text().strip()
+					newDir = (newDirName, itemUrl)
+					dirRet.append(newDir)
+					# print("dir", newDir)
+
 
 			else:
-				print('"class" in row', "class" in row.attrs)
-				print('row.attrs', row.attrs)
+				self.log.critical('"class" in row', "class" in row.attrs)
+				self.log.critical('row.attrs', row.attrs)
 				raise ValueError("wat?")
 
 		return dirRet, itemRet
@@ -99,7 +106,14 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		items = []
 
 
-		seriesPages, items = self.getItemsFromContainer("UNKNOWN", self.urlBase)
+		seriesPages, items = self.getItemsFromContainer("UNKNOWN", self.urlBaseManga)
+		seriesPages2, items2 = self.getItemsFromContainer("UNKNOWN", self.urlBaseMT)
+
+		for page in seriesPages2:
+			seriesPages.append(page)
+
+		for page in items2:
+			items.append(page)
 
 		while len(seriesPages):
 			folderName, folderUrl = seriesPages.pop()

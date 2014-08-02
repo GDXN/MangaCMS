@@ -32,6 +32,9 @@ def test():
 
 
 	# feedItems = loader.getMainItems()
+	# print("feed items")
+	# for item in feedItems:
+	# 	print("Item = ", item)
 	# # feedItems = loader.getItemsFromContainer("Ore no Kanojo + H", loader.quoteUrl("http://download.japanzai.com/Ore no Kanojo + H/index.php"))
 	# # loader.log.info("Processing feed Items")
 	# for item in feedItems:

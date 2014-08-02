@@ -33,7 +33,7 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 	tableName = "MangaItems"
 
-	retreivalThreads = 1
+	retreivalThreads = 2
 
 	def retreiveTodoLinksFromDB(self):
 
