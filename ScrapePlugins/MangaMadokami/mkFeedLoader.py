@@ -6,11 +6,9 @@ import re
 import urllib.parse
 import urllib.error
 import time
-import dateutil.parser
 import runStatus
 import settings
-import datetime
-
+import json
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 
@@ -24,8 +22,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 
 	tableName = "MangaItems"
-	urlBaseManga = "http://manga.madokami.com/dl/Manga/"
-	urlBaseMT    = "http://manga.madokami.com/dl/MangaTraders/"
+	urlBaseManga = "http://manga.madokami.com/Manga/"
+	# urlBaseManga = "http://manga.madokami.com/Manga/Admin%20Cleanup"
+	urlBaseMT    = "http://manga.madokami.com/MangaTraders/"
 
 
 	def checkLogin(self):
@@ -36,11 +35,40 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.conn.close()
 		self.log.info( "done")
 
+	def getCharacterLut(self, soup):
+		tag = soup.find("div", class_="index-container")
+		if not tag or not hasattr(tag, "data-table"):
+			raise ValueError("Could not find lookup table on page!")
+
+		table = json.loads(tag["data-table"])
+		lut = {}
+		for x in range(len(table)):
+			lut[x] = chr(table[x])
+		return lut
+
+	def parseOutLink(self, linkTag, lut):
+		if not hasattr(linkTag, "data-enc"):
+			raise ValueError("Invalid link! Link: '%s'", linkTag)
+
+		data = json.loads(linkTag["data-enc"])
+
+		url  = "".join([lut[letter] for letter in data["url"]])
+		name = "".join([lut[letter] for letter in data["name"]])
+
+
+		# print("Link data = ", data)
+		# print("Link url  = ", url)
+		# print("Link url  = ", urllib.parse.unquote(url))
+		# print("Link name = ", name)
+
+		return url, name
+
 	def getItemsFromContainer(self, dirName, dirUrl):
 
 		# Skip the needs sorting directory.
 		if dirName == 'Needs sorting':
 			return [], []
+
 
 		self.log.info("Original name - %s", dirName)
 
@@ -63,30 +91,34 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		soup = bs4.BeautifulSoup(itemPage)
 
+		charMap = self.getCharacterLut(soup)
+
+
 		itemRet = []
 		dirRet  = []
 
 		for row in soup.find_all("tr"):
-			if not len(row.find_all("td")) == 5:
+			if not len(row.find_all("td")) == 3:
 				continue
 
 
-			icon, name, modified, size, desc = row.find_all("td")
+			name, modified, tags = row.find_all("td")
 			# print(icon.img["alt"])
 			# print(name)
 			# print(modified)
 			# print(size)
 			# print(desc)
 			# print("Joining url", dirUrl, row.a["href"])
-			itemUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
+			relUrl, linkName = self.parseOutLink(row.a, charMap)
+			itemUrl = urllib.parse.urljoin(dirUrl, relUrl)
 
 			# Files are all in the /dl/ subdirectory
 			# I don't like relying on link structure like this, but it's the most reliable thing I can think of at the moment.
-			if not icon.img["alt"] == "[DIR]":
+			if name.span == None or not name.span.get_text().strip() == "/":
 				item = {}
 
 				item["date"]     = time.time()
-				item["dlName"]   = name.a.get_text().strip()
+				item["dlName"]   = linkName
 				item["dlLink"]   = itemUrl
 				item["baseName"] = dirName
 				itemRet.append(item)
@@ -128,7 +160,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		seriesPages, items = self.getItemsFromContainer("UNKNOWN", self.urlBaseManga)
-		seriesPages2, items2 = self.getItemsFromContainer("UNKNOWN", self.urlBaseMT)
+		# seriesPages2, items2 = self.getItemsFromContainer("UNKNOWN", self.urlBaseMT)
+		seriesPages2, items2 = [], []
 
 		seriesPages = set(seriesPages) | set(seriesPages2)
 
@@ -143,7 +176,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 			if folderUrl in scanned:
-				self.log.warning("Duplicate item made it into ", folderUrl)
+				self.log.warning("Duplicate item made it into %s", folderUrl)
 				continue
 
 			newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
