@@ -45,9 +45,6 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not rows:
 			return
 
-		# Anyways, limit the maximum items/hour to 500 items
-		rows = rows[:500]
-
 		items = []
 		for item in rows:
 

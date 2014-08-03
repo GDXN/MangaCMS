@@ -88,6 +88,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+fakku scraper barfs on unicode
 	<li>Trigger series download if on any BU list as well (partial)</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>

@@ -44,12 +44,12 @@ def test():
 	# loader.closeDB()
 
 	nt.dirNameProxy.startDirObservers()
-	runner = Runner()
-	runner.go()
 
+	# runner = Runner()
+	# runner.go()
 
-	# cl = MkContentLoader()
-	# cl.go()
+	cl = MkContentLoader()
+	cl.go()
 
 
 

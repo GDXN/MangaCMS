@@ -24,8 +24,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 
 	tableName = "MangaItems"
-	urlBaseManga = "http://manga.madokami.com/Manga"
-	urlBaseMT    = "http://manga.madokami.com/MangaTraders"
+	urlBaseManga = "http://manga.madokami.com/dl/Manga/"
+	urlBaseMT    = "http://manga.madokami.com/dl/MangaTraders/"
 
 
 	def checkLogin(self):
@@ -67,31 +67,46 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dirRet  = []
 
 		for row in soup.find_all("tr"):
-			if row.find("td", class_="name") and row.find("td", class_="tags") and row.find("td", class_="size"):
-
-				itemUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
-
-				# Files are all in the /dl/ subdirectory
-				# I don't like relying on link structure like this, but it's the most reliable thing I can think of at the moment.
-				if "http://manga.madokami.com/dl/" in itemUrl:
-					item = {}
-					itemUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
-					item["date"]     = time.time()
-					item["dlName"]   = row.a.get_text().strip()
-					item["dlLink"]   = itemUrl
-					item["baseName"] = dirName
-					itemRet.append(item)
-				else:
-					newDirName = row.a.get_text().strip()
-					newDir = (newDirName, itemUrl)
-					dirRet.append(newDir)
-					# print("dir", newDir)
+			if not len(row.find_all("td")) == 5:
+				continue
 
 
+			icon, name, modified, size, desc = row.find_all("td")
+			# print(icon.img["alt"])
+			# print(name)
+			# print(modified)
+			# print(size)
+			# print(desc)
+			# print("Joining url", dirUrl, row.a["href"])
+			itemUrl = urllib.parse.urljoin(dirUrl, row.a["href"])
+
+			# Files are all in the /dl/ subdirectory
+			# I don't like relying on link structure like this, but it's the most reliable thing I can think of at the moment.
+			if not icon.img["alt"] == "[DIR]":
+				item = {}
+
+				item["date"]     = time.time()
+				item["dlName"]   = name.a.get_text().strip()
+				item["dlLink"]   = itemUrl
+				item["baseName"] = dirName
+				itemRet.append(item)
+				# print("item", item["dlName"], itemUrl)
 			else:
-				self.log.critical('"class" in row', "class" in row.attrs)
-				self.log.critical('row.attrs', row.attrs)
-				raise ValueError("wat?")
+				# Mask out the incoming item directories.
+				if "http://manga.madokami.com/dl/Manga/Needs%20sorting" in itemUrl or \
+					"http://manga.madokami.com/dl/Manga/Admin%20Cleanup" in itemUrl:
+					continue
+
+				newDirName = name.a.get_text().strip()
+				newDir = (newDirName, itemUrl)
+				dirRet.append(newDir)
+				# print("dir", newDir, itemUrl)
+
+
+			# else:
+			# 	self.log.critical('"class" in row', "class" in row.attrs)
+			# 	self.log.critical('row.attrs', row.attrs)
+			# 	raise ValueError("wat?")
 
 		return dirRet, itemRet
 
@@ -101,16 +116,24 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# 	self.log.info( item)
 		#
 
+		# Muck about in the webget internal settings
+		self.wg.errorOutCount = 4
+		self.wg.retryDelay    = 5
+
 		self.log.info( "Loading Madokami Main Feed")
 
 		items = []
+
+		scanned = set((self.urlBaseManga, self.urlBaseMT))
 
 
 		seriesPages, items = self.getItemsFromContainer("UNKNOWN", self.urlBaseManga)
 		seriesPages2, items2 = self.getItemsFromContainer("UNKNOWN", self.urlBaseMT)
 
+		seriesPages = set(seriesPages) | set(seriesPages2)
+
 		for page in seriesPages2:
-			seriesPages.append(page)
+			seriesPages.add(page)
 
 		for page in items2:
 			items.append(page)
@@ -118,14 +141,22 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		while len(seriesPages):
 			folderName, folderUrl = seriesPages.pop()
 
-			newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
 
-			for newDir in newDirs:
-				seriesPages.append(newDir)
+			if folderUrl in scanned:
+				self.log.warning("Duplicate item made it into ", folderUrl)
+				continue
+
+			newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
+			scanned.add(folderUrl)
+
+
+			for newDir in [newD for newD in newDirs if newD not in scanned]:
+				seriesPages.add(newDir)
 
 			for newItem in newItems:
 				items.append(newItem)
 
+			self.log.info("Have %s items, %s pages remain to scan", len(newItems), len(seriesPages))
 			if not runStatus.run:
 				self.log.info("Breaking due to exit flag being set")
 				return items
@@ -151,14 +182,16 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# Patch series name.
 				seriesName = nt.getCanonicalMangaUpdatesName(link["baseName"])
 
+				# Flags has to be an empty string, because the DB is annoying.
+				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
 				self.insertIntoDb(retreivalTime = link["date"],
 									sourceUrl   = link["dlLink"],
 									originName  = link["dlName"],
 									dlState     = 0,
 									seriesName  = seriesName,
-									flags       = '')
-				# Flags has to be an empty string, because the DB is annoying.
-				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
+									flags       = '',
+									commit = False)  # Defer commiting changes to speed things up
+
 
 
 				self.log.info("New item: %s", (link["date"], link["dlLink"], link["baseName"], link["dlName"]))

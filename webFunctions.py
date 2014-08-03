@@ -64,6 +64,7 @@ class WebGetRobust:
 		]
 
 	errorOutCount = 2
+	retryDelay = 1.5
 	browsers = [opera, chrome, firefox, IE]
 
 	data = None
@@ -196,7 +197,6 @@ class WebGetRobust:
 		errored = False
 		lastErr = ""
 
-		delay = 1.5
 		if not self.testMode:
 			while 1:
 
@@ -228,8 +228,8 @@ class WebGetRobust:
 					#traceback.print_exc()
 					lastErr = e
 					try:
-						log.warning("Error opening page: %s at %s On Attempt %s.", pgreq.get_full_url(), time.ctime(time.time()), loopctr)
-						log.warning("Error: %s, Original URL: %s", e, originalString)
+
+						log.warning("Original URL: %s", originalString)
 						errored = True
 					except:
 						log.warning("And the URL could not be printed due to an encoding error")
@@ -239,7 +239,7 @@ class WebGetRobust:
 						log.critical("Unrecoverable - Page not found. Breaking")
 						break
 
-					time.sleep(delay)
+					time.sleep(self.retryDelay)
 
 				except UnicodeEncodeError:
 					log.critical("Unrecoverable Unicode issue retreiving page - %s", originalString)
@@ -260,7 +260,7 @@ class WebGetRobust:
 					except:
 						log.critical("And the URL could not be printed due to an encoding error")
 
-					time.sleep(delay)
+					time.sleep(self.retryDelay)
 
 
 					continue
@@ -370,7 +370,7 @@ class WebGetRobust:
 							log.critical("And the URL could not be printed due to an encoding error")
 						print()
 						log.error(pghandle)
-						time.sleep(delay)
+						time.sleep(self.retryDelay)
 
 
 

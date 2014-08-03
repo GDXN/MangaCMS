@@ -31,9 +31,11 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	pluginName = "Manga.Madokami Content Retreiver"
 	tableKey = "mk"
 	dbName = settings.dbName
-	retreivalThreads = 2
+
+	retreivalThreads = 1
+
 	tableName = "MangaItems"
-	urlBase = "http://manga.madokami.com"
+	urlBase = "http://manga.madokami.com/"
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -60,7 +62,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 			if seriesName in nt.dirNameProxy:
-				self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
+				# self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
 				item["targetDir"] = nt.dirNameProxy[seriesName]["fqPath"]
 			else:
 				self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", seriesName, item["seriesName"], item["originName"])
@@ -194,11 +196,26 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def fetchLinkList(self, linkList):
+
+		# Muck about in the webget internal settings
+		self.wg.errorOutCount = 4
+		self.wg.retryDelay    = 5
+
 		try:
 			for link in linkList:
 				if link is None:
 					self.log.error("One of the items in the link-list is none! Wat?")
 					continue
+
+				delay = random.randint(5, 10)
+				for x in range(delay):
+					time.sleep(1)
+					remaining = delay-x
+					sys.stdout.write("\rMk CL sleeping %d       " % remaining)
+					sys.stdout.flush()
+					if not runStatus.run:
+						self.log.info("Breaking due to exit flag being set")
+						return
 
 				ret = self.getLink(link)
 				if ret == "Limited":
@@ -209,16 +226,6 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.info( "Breaking due to exit flag being set")
 					break
 
-				delay = random.randint(15, 60)
-				for x in range(delay):
-					time.sleep(1)
-					remaining = delay-x
-					sys.stdout.write("\rMk CL sleeping %d       " % remaining)
-					sys.stdout.flush()
-					if not runStatus.run:
-						self.log.info("Breaking due to exit flag being set")
-						return
-
 		except:
 			self.log.critical("Exception!")
 			traceback.print_exc()
@@ -226,6 +233,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def processTodoLinks(self, links):
+
 		if links:
 
 			def iter_baskets_from(items, maxbaskets=3):

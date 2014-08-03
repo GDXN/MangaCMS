@@ -10,7 +10,6 @@ import ScrapePlugins.DjMoeLoader.Run
 import ScrapePlugins.DjMoeLoader.Retag
 import ScrapePlugins.SkBaseManager.Run
 import ScrapePlugins.CzLoader.Run
-import ScrapePlugins.MbLoader.Run
 import ScrapePlugins.BtBaseManager.Run
 import ScrapePlugins.PururinLoader.Run
 import ScrapePlugins.JzLoader.Run
@@ -33,8 +32,8 @@ scrapePlugins = {
 	7  : (ScrapePlugins.SkBaseManager.Run,    60*60  ),
 	9  : (ScrapePlugins.PururinLoader.Run,    60*60  ),
 	10 : (ScrapePlugins.FakkuLoader.Run,      60*60  ),
-	11 : (ScrapePlugins.MangaMadokami.Run,    60*60*24)  # every 24 hours, because I have to iterate over the ENTIRE site.
-	# 12 : (ScrapePlugins.McLoader.Run,         60*60*24)  # every 24 hours, it's just a single scanlator site.
+	# 11 : (ScrapePlugins.MangaMadokami.Run,    60*60*24)  # every 24 hours, because I have to iterate over the ENTIRE site.
+	12 : (ScrapePlugins.McLoader.Run,         60*60*24)  # every 24 hours, it's just a single scanlator site.
 
 
 }
