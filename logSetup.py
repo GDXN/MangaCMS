@@ -156,12 +156,7 @@ def initLogging(logLevel=logging.INFO):
 	if LOGGING_INITIALIZED:
 
 		print("ERROR - Logging initialized twice!")
-		print("ERROR - Logging initialized twice!")
-		print("ERROR - Logging initialized twice!")
-		print("ERROR - Logging initialized twice!")
-		print("ERROR - Logging initialized twice!")
-		print("ERROR - Logging initialized twice!")
-		print("ERROR - Logging initialized twice!")
+		print(traceback.format_exc())
 		return
 
 	LOGGING_INITIALIZED = True

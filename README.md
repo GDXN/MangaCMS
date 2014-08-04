@@ -11,8 +11,13 @@ Plugin scrapers for:
  - Crazytje.be
  - Doujin-Moe
  - download.japanzai.com
+ - MangaCow
+ - Manga Madokami
+ - Fakku
+ - Pururin
+ - Exhen.Madokami
  - MangaUpdates (metadata only).
- - MangaBaby.com (Possibly defunct?)
+ - ~~MangaBaby.com~~ (Defunct?)
  - ~~MangaTraders~~ (Defunct)
  - ~~Fufufuu.net~~ (Defunct)
  - Realitylapse.com (Planned, possibly)
@@ -49,11 +54,14 @@ Once you have installed the dependencies, you have to configure the various opti
 Note: All paths **MUST** be absolute. Some of the threading somewhere is eating the environment information. Rather then try to track down where in the complex dependency system the environment variables are being modified, it's easier to just use absolute paths.
 (Note: this means that paths like `~/blah` will also not work. You have to specify `/home/{username}/blah`).
 
- - `pickedDir`  = Directories in this folder are preferentially used, and if a download goes in this directory, it is highlighted in the web interface.
- - `baseDir`    = This is where the bulk manga downloads go, if a folder is not found in the "picked" directory..
+ - `pickedDir`         = Directories in this folder are preferentially used, and if a download goes in this directory, it is highlighted in the web interface.
+ - `baseDir`           = This is where the bulk manga downloads go, if a folder is not found in the "picked" directory..
 
- - `fufuDir`    = Where Fufufuu.net files go
- - `djMoeDir`   = And DoujinMoe files
+ - `djMoeDir`          = And DoujinMoe files
+ - 'puRinDir'          = Pururin Files
+ - 'ExhenMadokamiDir'  = ExHen.madokami Files
+ - 'fkDir'             = Fakku Files Files
+ - `fufuDir`           = Where Fufufuu.net files go
 
  - `dbName`      = Where to place the SQLite database used for storing downloads. I normally just put it in the repo root.
  - `webCtntPath` = Path to the `ctnt` directory in the repo. 
@@ -72,6 +80,10 @@ The tools are currently not daemonized at all, and must be manually run after re
 Preliminary deduplication support is currently present, [IntraArchiveDeduplicator](using my https://github.com/fake-name/IntraArchiveDeduplicator) tool. This is intended to allow collation of files from many sources while having as few local duplicate files actually stored locally as possible.
 
 Archives downloaded are automatically added to the deduplication database, and if a downloaded archive is found to contain no new files, it is automatically deleted, which prevents the fact that the scraper fetches files from multiple sources from resulting in duplicate downloads.
+
+There are long-term plans for doing fuzzy image matching, using some perceptual-hashing mechanisms that are alreay in-place in the file-hashing system, but it's currently delayed by the requirement to be able to search for items by hamming distance across very large datasets (currently I have ~3 million discrete phashes).  
+There is some preliminary experiments on implementing a custom BK tree for better searching, but it has non-trivial speed-issues, and will likely require at least some components to be implemented in C or a langauge that can compile to C (pyrex?).
+Another alternative is to implement the indexing mechanisms directly in postgres, using the SP-GiST indexing interface, but that requires a deeper understanding of the internal mechanisms in Postgres then I currently have (and my C is /*rusty*/, particularly for desktop use).
 
 ---
 

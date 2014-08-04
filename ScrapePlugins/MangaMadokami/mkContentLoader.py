@@ -32,7 +32,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "mk"
 	dbName = settings.dbName
 
-	retreivalThreads = 1
+	retreivalThreads = 2
 
 	tableName = "MangaItems"
 	urlBase = "http://manga.madokami.com/"

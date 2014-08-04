@@ -24,12 +24,12 @@ def customHandler(signum, stackframe):
 def test():
 
 
-	loader = FakkuFeedLoader()
+	# loader = FakkuFeedLoader()
 	# loader.go()
 
-	for x in range(1, 410):
-		feedItems = loader.getItems(pageOverride=x)
-		loader.processLinksIntoDB(feedItems)
+	# for x in range(1, 410):
+	# 	feedItems = loader.getItems(pageOverride=x)
+	# 	loader.processLinksIntoDB(feedItems)
 	# # feedItems = loader.getItemsFromContainer("Ore no Kanojo + H", loader.quoteUrl("http://download.japanzai.com/Ore no Kanojo + H/index.php"))
 	# # loader.log.info("Processing feed Items")
 	# for item in feedItems:
@@ -41,11 +41,13 @@ def test():
 	# runner.go()
 
 
-	# cl = FakkuContentLoader()
-	# cl.go()
+	cl = FakkuContentLoader()
+	cl.go()
 
 
 if __name__ == "__main__":
+
+	signal.signal(signal.SIGINT, customHandler)
 	try:
 		test()
 	finally:

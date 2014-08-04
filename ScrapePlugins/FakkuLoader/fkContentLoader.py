@@ -21,6 +21,7 @@ import re
 
 import archCleaner
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 import ScrapePlugins.RetreivalDbBase
 
@@ -37,6 +38,9 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase = "http://www.fakku.net/"
 
 	tableName = "HentaiItems"
+
+
+	retreivalThreads = 6
 
 
 	def go(self):
@@ -70,16 +74,42 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return items
 
 
-	def processTodoLinks(self, inLinks):
 
-		for contentId in inLinks:
-			print("Loopin!")
+	def processTodoLinks(self, links):
+		if links:
+
+			def iter_baskets_from(items, maxbaskets=3):
+				'''generates evenly balanced baskets from indexable iterable'''
+				item_count = len(items)
+				baskets = min(item_count, maxbaskets)
+				for x_i in range(baskets):
+					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
+
+			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
+
+			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
+
+				for linkList in linkLists:
+					fut = executor.submit(self.downloadItemsFromList, linkList)
+
+				executor.shutdown(wait=True)
+
+
+
+
+	def downloadItemsFromList(self, linkList):
+
+
+		for contentId in linkList:
+
 			try:
 				dlDict = self.processDownloadInfo(contentId)
-				self.doDownload(dlDict)
+				ret = self.doDownload(dlDict)
+				if ret:
+					delay = random.randint(5, 30)
+				else:
+					delay = 0
 
-
-				delay = random.randint(5, 30)
 			except:
 				print("ERROR WAT?")
 				traceback.print_exc()
@@ -94,7 +124,9 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				if not runStatus.run:
 					self.log.info("Breaking due to exit flag being set")
 					return
-
+			if not runStatus.run:
+				self.log.info("Breaking due to exit flag being set")
+				return
 
 	def processDownloadInfo(self, linkDict):
 
@@ -128,31 +160,53 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		images = []
 		containerUrl = linkDict["sourceUrl"]+"/read"
 
+		if "http://www.fakku.net/videos/" in containerUrl:
+			self.log.warning("Cannot download video items.")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-5, downloadPath="Video", fileName="ERROR: Video", lastUpdate=time.time())
+			return False
+
+		if "http://www.fakku.net/games/" in containerUrl:
+			self.log.warning("Cannot download game items.")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-6, downloadPath="Game", fileName="ERROR: Game", lastUpdate=time.time())
+			return False
+
+
 		imagePage = self.wg.getpage(containerUrl, addlHeaders={'Referer': linkDict["sourceUrl"]})
 
-		with open("tmp.html", "wb") as fp:
-			fp.write(imagePage.encode("utf-8"))
+		if "This content has been disabled due to a DMCA takedown notice, it is no longer available to download or read online in your region." in imagePage:
+			self.log.warning("Assholes have DMCAed this item. Not available anymore.")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-4, downloadPath="DMCA", fileName="ERROR: DMCAed", lastUpdate=time.time())
+			return False
 
-		# So...... Fakku's reader is completely javascript driven. No parseable shit here.
+		# So...... Fakku's reader is completely javascript driven. No (easily) parseable shit here.
 		# Therefore: WE DECEND TO THE LEVEL OF REGEXBOMINATIONS!
-		pathFormatterRe = re.compile(r"return '(https://t.fakku.net/images/\w+/\w+/.+?/images/)' \+ x \+ '(.jpg)';", re.IGNORECASE)
+		pathFormatterRe = re.compile(r"return '(https://t\.fakku\.net/images/.+/.+/.+?/images/)' \+ x \+ '(\.jpg)';", re.IGNORECASE)
 
 		# We need to know how many images there are, but there is no convenient way to access this information.
 		# The fakku code internally uses the length of the thumbnail array for the number of images, so
 		# we extract that array, parse it (since it's javascript, variables are JSON, after all), and
 		# just look at the length ourselves as well.
-		thumbsListRe    = re.compile(r"window.params.thumbs = (\[.+?\]);", re.IGNORECASE)
+		thumbsListRe    = re.compile(r"window\.params\.thumbs = (\[.+?\]);", re.IGNORECASE)
 
 		thumbs        = thumbsListRe.search(imagePage)
 		pathFormatter = pathFormatterRe.search(imagePage)
 		# print("Thumbs = ", thumbs.group(1))
-		# print("pathFormatter = ", pathFormatter.group(1), pathFormatter.group(2))
+		prefix, postfix = pathFormatter.group(1), pathFormatter.group(2)
+
+		prefix = prefix.encode("ascii").decode("utf-8")
+		postfix = postfix.encode("ascii").decode("utf-8")
+
+		print("pathFormatter = ", prefix, prefix)
 
 		if not thumbs and pathFormatter:
 			self.log.error("Could not find items on page!")
 			self.log.error("URL: '%s'", containerUrl)
 
 		items = json.loads(thumbs.group(1))
+
+		# for item in items:
+		# 	print("Item = ", item)
+
 
 		imageUrls = []
 		for x in range(len(items)):

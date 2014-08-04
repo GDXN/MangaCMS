@@ -88,7 +88,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-fakku scraper barfs on unicode
+	<li>Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice</li>
 	<li>Trigger series download if on any BU list as well (partial)</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
@@ -126,6 +126,7 @@ fakku scraper barfs on unicode
 
 <b>Complete:</b>
 <ul>
+	<li><strike>fakku scraper barfs on unicode</strike> (I think it's fixed?)</li>
 	<li><strike>itemsManga page isn't using activePlugins.mako</strike></li>
 	<li><strike>Also the itemsPron page.</strike></li>
 	<li><strike>scrape mangacow</strike></li>
