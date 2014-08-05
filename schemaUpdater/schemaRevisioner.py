@@ -14,7 +14,7 @@ from schemaUpdater.schema007to008 import update_8
 
 from schemaUpdater.schema006to007 import doTableCounts
 
-CURRENT_SCHEMA = 7
+CURRENT_SCHEMA = 8
 
 def getSchemaRev(conn):
 	cur = conn.cursor()
@@ -121,7 +121,7 @@ def updateDatabaseSchema():
 	rev = getSchemaRev(conn)
 	if rev == 7:
 		update_8(conn)
-		updateSchemaRevNo(7)
+		updateSchemaRevNo(8)
 
 
 

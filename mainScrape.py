@@ -4,11 +4,11 @@ if sys.version_info < ( 3, 4):
 	sys.exit("This script requires Python 3.4 or newer!")
 
 
-import schemaUpdater.schemaRevisioner
-schemaUpdater.schemaRevisioner.updateDatabaseSchema()
-
 import logSetup
 logSetup.initLogging()
+
+import schemaUpdater.schemaRevisioner
+schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 
 import time
 

@@ -36,16 +36,6 @@ img.pageDisp
 	max-height: 100%;
 }
 
-
-*.inlineRight
-{
-	 display: inline-block;
-}
-*.inlineLeft
-{
-	 display: inline-block;
-}
-
 *.uncoloured
 {
 	background-color: #ffffff
@@ -204,15 +194,17 @@ ul
 
 div.readerInfo
 {
-	position:fixed;
+	/*position:fixed;*/
+	/*float: right;*/
 	display: inline-block;
 
 	/*position: absolute;*/
 }
 table.mangaFileTable
 {
-	width: 655px;
-
+	width: 640px;
+	/*display: inline-block;*/
+	float: left;
 }
 
 input[type="text"]

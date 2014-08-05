@@ -24,7 +24,8 @@ print("Rendering")
 
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
-<%namespace name="reader" file="/reader2/readBase.mako"/>
+<%namespace name="tableGen"        file="/gentable.mako"/>
+<%namespace name="reader"          file="/reader2/readBase.mako"/>
 
 
 <%def name="pickDirTable()">
@@ -75,12 +76,10 @@ print("Rendering")
 	print("Nav path = ", navPath, "dict", dictKey)
 
 	%>
-	Render Directory! ${dirPath}
-
 
 	<table border="1px" class="mangaFileTable">
 		<tr>
-			<th class="uncoloured" width="700">${"WAT"}</th>
+			<th class="uncoloured">${dirPath}</th>
 		</tr>
 
 		% for item in dirContents:
@@ -116,6 +115,7 @@ print("Rendering")
 	<h3>${title}</h3>
 
 		<div class="inlineLeft">
+
 		<%
 
 		renderContents(dictKey, navPath)
@@ -164,7 +164,7 @@ print("Rendering")
 	<div class="contentdiv subdiv uncoloured">
 		<h3>${baseName}</h3>
 
-		<div class="inlineLeft">
+		<div>
 			<%
 
 			haveItem = False
@@ -177,14 +177,45 @@ print("Rendering")
 						haveItem = True
 						renderContents(dirDictKey, navPath)
 			%>
+
+
 		</div>
-		<%
-		if haveItem:
-			reader.generateInfoSidebar(itemDict)
-		else:
-			# Probably excessive error checking, since we should be confident we have an item from above.
-			reader.invalidKey(message="Could not find anything for that key. Are you sure it's correct?")
-		%>
+		<div>
+			<%
+			if haveItem:
+				reader.generateInfoSidebar(itemDict)
+			else:
+				# Probably excessive error checking, since we should be confident we have an item from above.
+				reader.invalidKey(message="Could not find anything for that key. Are you sure it's correct?")
+			%>
+		</div>
+		<div>
+			${tableGen.genMangaTable(seriesName=itemKey)}
+			${tableGen.genLegendTable()}
+			<script type="text/javascript">
+				$(document).ready(function() {
+				// Tooltip only Text
+				$('.showTT').hover(function(){
+					// Hover over code
+					var title = $(this).attr('title');
+					$(this).data('tipText', title).removeAttr('title');
+					$('<p class="tooltip"></p>')
+					.html(title)
+					.appendTo('body')
+					.fadeIn('slow');
+				}, function() {
+					// Hover out code
+					$(this).attr('title', $(this).data('tipText'));
+					$('.tooltip').remove();
+				}).mousemove(function(e) {
+					var mousex = e.pageX + 20; //Get X coordinates
+					var mousey = e.pageY + 10; //Get Y coordinates
+					$('.tooltip')
+					.css({ top: mousey, left: mousex })
+				});
+				});
+			</script>
+		</div>
 	</div>
 	<%
 	reader.readerBrowseFooter()

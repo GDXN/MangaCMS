@@ -278,7 +278,7 @@ def dequoteDict(inDict):
 
 	name = nt.sanitizeString(itemDict["item"], flatten=False)
 	print(name)
-	buId, haveBu, buLink, buTags, buGenre, buList = ut.getItemInfo(name)
+	buId, haveBu, buLink, buTags, buGenre, buList, readProgress, availProgress = ut.getItemInfo(name)
 
 
 
@@ -369,31 +369,55 @@ def dequoteDict(inDict):
 			<span id="rating-status">✓</span>
 		</div>
 
+		% if readProgress:
+			<div class="lightRect itemInfoBox">
+			% if readProgress >= 0:
+				% if readProgress != availProgress:
+					<b>Unread Chapters!</b><br>
+				% endif
+				Read ${readProgress} of ${availProgress} chapters.
+			% else:
+				Manga Finished!
 
-		<div class="lightRect itemInfoBox">
+			% endif
+			</div>
+		% endif
 
-			Bu Tags:
-			<ul>
-				<%
-				if not buTags:
-					buTags = ""
+		% if buList:
+			<div class="lightRect itemInfoBox">
+				Bu List: ${buList}
+			</div>
+		% else:
+			<div class="lightRect itemInfoBox">
+				Not in any MangaUpdates list
+			</div>
+		% endif
 
-				tags = buTags.split(" ")
-				tags.sort()
-				%>
-				% for item in tags:
-					<li>${item}</li>
-				% endfor
-			</ul>
-		</div>
+		% if buTags:
+			<div class="lightRect itemInfoBox">
 
-		<div class="lightRect itemInfoBox">
-			Bu Genre: ${buGenre}
-		</div>
+				Bu Tags:
+				<ul>
+					<%
+					if not buTags:
+						buTags = ""
 
-		<div class="lightRect itemInfoBox">
-			Bu List: ${buList}
-		</div>
+					tags = buTags.split(" ")
+					tags.sort()
+					%>
+					% for item in tags:
+						<li>${item}</li>
+					% endfor
+				</ul>
+			</div>
+		% endif
+
+		% if buGenre:
+			<div class="lightRect itemInfoBox">
+				Bu Genre: ${buGenre}
+			</div>
+		% endif
+
 
 		% if buId:
 

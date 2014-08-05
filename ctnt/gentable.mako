@@ -38,7 +38,7 @@ def fSizeToStr(fSize):
 	return fStr
 
 
-def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None):
+def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesName=None):
 
 	# print("Building where query. tags=", tagsFilter, "series=", seriesFilter, "tableKey", tableKey)
 	if tableKey == None:
@@ -75,10 +75,19 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None):
 	if seriesFilter != None:
 		for series in seriesFilter:
 			seriesFilterArr.append(" seriesName LIKE ? ")
+			series = nt.getCanonicalMangaUpdatesName(series)
 			queryAdditionalArgs.append("%{s}%".format(s=series))
+
+	seriesNameArr = []
+	if seriesName != None:
+		seriesFilterArr.append(" seriesName=? ")
+		series = nt.getCanonicalMangaUpdatesName(seriesName)
+		queryAdditionalArgs.append("{s}".format(s=series))
 
 	if seriesFilterArr:
 		whereItems.append(" AND ".join(seriesFilterArr))
+	if seriesNameArr:
+		whereItems.append(" AND ".join(seriesNameArr))
 
 	if whereItems:
 		whereStr = " WHERE %s " % (" AND ".join(whereItems))
@@ -114,7 +123,7 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey=None)">
+<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None)">
 	<%
 	print("tableGen!")
 	%>
@@ -146,9 +155,9 @@ colours = {
 
 	print("building query")
 
-	whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, None)
+	whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
-
+	print("Query = ", whereStr, queryAdditionalArgs)
 	print("built")
 	print("Querying...")
 	query = '''

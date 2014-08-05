@@ -13,8 +13,6 @@ def updateFsSafeNames(conn):
 
 
 def update_8(conn):
-	import logSetup
-	logSetup.initLogging()
 
 	print("Fixing all cases where fsSafeName is null")
 	updateFsSafeNames(conn)

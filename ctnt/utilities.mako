@@ -32,7 +32,12 @@ import nameTools as nt
 	if delta < 24:
 		return "{delta} h".format(delta=delta)
 	delta = delta // 24
-	return "{delta} d".format(delta=delta)
+	if delta < 999:
+		return "{delta} d".format(delta=delta)
+	delta = delta // 365
+	return "{delta} y".format(delta=delta)
+
+
 
 	%>
 </%def>
@@ -120,12 +125,12 @@ import nameTools as nt
 <%def name="getItemInfo(seriesName)">
 	<%
 	cur = sqlCon.cursor()
-	ret = cur.execute("SELECT buId,buTags,buGenre,buList FROM MangaSeries WHERE buName=?;", (seriesName, ))
+	ret = cur.execute("SELECT buId,buTags,buGenre,buList,readingProgress,availProgress  FROM MangaSeries WHERE buName=?;", (seriesName, ))
 	rets = ret.fetchall()
 	if not rets:
-		buId, buTags, buGenre, buList = None, None, None, None
+		buId, buTags, buGenre, buList, readProgress, availProgress = None, None, None, None, None, None
 	else:
-		buId, buTags, buGenre, buList = rets[0]
+		buId, buTags, buGenre, buList, readProgress, availProgress = rets[0]
 	# print("Looked up item %s, ret=%s" % (seriesName, buId))
 
 	if buId:
@@ -135,7 +140,7 @@ import nameTools as nt
 		haveBu = False
 		buLink = nameToBuSearch(seriesName)
 
-	return (buId, haveBu, buLink, buTags, buGenre, buList)
+	return (buId, haveBu, buLink, buTags, buGenre, buList, readProgress, availProgress)
 	%>
 </%def>
 

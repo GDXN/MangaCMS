@@ -51,6 +51,7 @@ import time
 import datetime
 from babel.dates import format_timedelta
 import os.path
+import settings
 
 %>
 <body>
@@ -126,6 +127,8 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>reader directory page also includes database items for series</strike></li>
+	<li><strike>show reader some general luv</strike></li>
 	<li><strike>fakku scraper barfs on unicode</strike> (I think it's fixed?)</li>
 	<li><strike>itemsManga page isn't using activePlugins.mako</strike></li>
 	<li><strike>Also the itemsPron page.</strike></li>
@@ -166,11 +169,15 @@ Shit to do:
 </p>
 
 <%
+fsInfo = os.statvfs(settings.mangaFolders[1]["dir"])
 stopTime = time.time()
 timeDelta = stopTime - startTime
 %>
 
-<p>This page rendered in ${timeDelta} seconds.</p>
+<p>
+	This page rendered in ${timeDelta} seconds.<br>
+	Disk = ${int((fsInfo.f_bsize*fsInfo.f_bavail) / (1024*1024))/1000.0} GB of  ${int((fsInfo.f_bsize*fsInfo.f_blocks) / (1024*1024))/1000.0} GB Free.
+</p>
 
 </body>
 </html>
