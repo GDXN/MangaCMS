@@ -71,7 +71,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		elif name == "conn":
 			if threadName not in self.dbConnections:
-				self.dbConnections[threadName] = sqlite3.connect(self.dbName, timeout=10)
+				self.dbConnections[threadName] = sqlite3.connect(self.dbName, timeout=30)
 				rets = self.dbConnections[threadName].execute('''PRAGMA journal_mode=wal;''')
 				rets = rets.fetchall()
 			return self.dbConnections[threadName]

@@ -39,15 +39,15 @@ def test():
 
 	nt.dirNameProxy.startDirObservers()
 
-	# r = Runner()
-	# r.go()
+	r = Runner()
+	r.go()
 
-	cl = McContentLoader()
+	# cl = McContentLoader()
 	# links = cl.retreiveTodoLinksFromDB()
 
 	# link = links.pop()
 	# cl.getLink(link)
-	cl.go()
+	# cl.go()
 
 
 

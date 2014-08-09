@@ -89,6 +89,16 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>Implement dir moving system already!</li>
+	<li>Defer dir updating to after page-load to prevent occational 20 second page-loads.</li>
+	<li>prioritize downloads by rating</li>
+	<li>total chapters not always known. Handle sanely.</li>
+	<li>properly show if things are one shot</li>
+	<li>cover images in file browser?</li>
+	<li>remove k scale from filesize readout. </li>
+	<li>mechanism for highlighting chosen tags in table</li>
+	<li>push dir updating into separate thread</li>
+	<li>Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file</li>
 	<li>Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice</li>
 	<li>Trigger series download if on any BU list as well (partial)</li>
 	<li>proxy for name lookups.</li>
@@ -102,6 +112,17 @@ Shit to do:
 	<br>
 </ul>
 </p>
+
+
+<p>
+<b>Add Scrapers for</b>
+<ul>
+	<li>imangascans</li>
+	<li>baka-tsuki/other VN translation groups?</li>
+	<li>mangajoy?</li>
+</ul>
+</p>
+
 <p>
 <b>Reader</b>
 <ul>
@@ -121,6 +142,22 @@ Shit to do:
 	<li>Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
 	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b></li>
 
+</ul>
+</p>
+
+<p>
+<p>
+<b>Nametools Issues</b>
+<ul>
+	<li>Add testing to nametool system</li>
+	<li>
+	Bad Links:
+	<ul>
+		<li>neko ane</li>
+		<li>rescue me</li>
+		<li>maken-ki!</li>
+	</ul>
+	</li>
 </ul>
 </p>
 <p>

@@ -15,7 +15,7 @@ import traceback
 import bs4
 
 import ScrapePlugins.RetreivalDbBase
-
+import urllib.error
 
 import archCleaner
 
@@ -129,8 +129,16 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.updateDbEntry(sourceUrl, dlState=1)
 		self.conn.commit()
+		try:
+			fileUrl = self.getDownloadUrl(sourceUrl)
+		except urllib.error.URLError:
+			self.log.error("Unrecoverable error retreiving content %s", link)
+			self.log.error("Traceback: %s", traceback.format_exc())
 
-		fileUrl = self.getDownloadUrl(sourceUrl)
+			self.updateDbEntry(sourceUrl, dlState=-1)
+			return
+
+
 		if fileUrl is None:
 			self.log.warning("Could not find url!")
 			self.deleteRowsByValue(sourceUrl=sourceUrl)
