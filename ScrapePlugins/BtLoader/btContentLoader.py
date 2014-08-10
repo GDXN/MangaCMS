@@ -19,12 +19,12 @@ import ScrapePlugins.RetreivalDbBase
 
 from concurrent.futures import ThreadPoolExecutor
 
-import archCleaner
+import processDownload
 
 class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	archCleaner = archCleaner.ArchCleaner()
+
 
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Bt.Cl"
@@ -248,7 +248,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			arch.close()
 
 
-			dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True)
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)

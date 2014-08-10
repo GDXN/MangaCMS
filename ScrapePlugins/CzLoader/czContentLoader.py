@@ -20,11 +20,10 @@ import zipfile
 import hashlib
 
 
-import archCleaner
+import processDownload
 
 class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-	archCleaner = archCleaner.ArchCleaner()
 
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Cz.Cl"
@@ -194,7 +193,8 @@ class CzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-		dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
+
+		dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True)
 		self.log.info( "Done")
 		self.updateDbEntry(link["sourceUrl"], dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 
