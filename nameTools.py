@@ -295,8 +295,8 @@ class MtNamesMapWrapper(object):
 
 		self.queryStr = 'SELECT %s FROM %s WHERE %s=?;' % (self.mode["cols"][1], self.mode["table"], self.mode["cols"][0])
 		self.allQueryStr = 'SELECT %s, %s FROM %s;' % (self.mode["cols"][0], self.mode["cols"][1], self.mode["table"])
-		print("Mode", mode, "Query", self.queryStr)
-		print("Mode", mode, "IteratorQuery", self.allQueryStr)
+		self.log.info("Mode %s, Query %s", mode, self.queryStr)
+		self.log.info("Mode %s, IteratorQuery %s",  mode, self.allQueryStr)
 
 
 	def stop(self):
@@ -400,6 +400,10 @@ class DirNameProxy(object):
 
 	log = logging.getLogger("Main.DirLookup")
 
+	# test-mode is when the unittesting system pre-loads the dir-dict with known values,
+	# so we don't have to start the dir observers (sloooow).
+	# Therefore, in test-mode, we don't check if the observers exist.
+	testMode = False
 
 	def __init__(self, paths):
 		self.__dict__ = self._shared_state
@@ -471,10 +475,24 @@ class DirNameProxy(object):
 				baseName = prepFilenameForMatching(baseName)
 
 				targets[baseName] = fullPath
+
+			# print("Linking '%s' to '%s'" % (fullPath, baseName))
 		self.log.info( "Done")
 
 
 		return targets
+
+	def manuallyLoadDirDict(self, dirItems):
+		tmp = {}
+		self.testMode = True
+		for name in dirItems:
+
+			baseName = prepFilenameForMatching(name)
+			baseName = getCanonicalMangaUpdatesName(baseName)
+			baseName = prepFilenameForMatching(baseName)
+			tmp[baseName] = name
+
+		self.dirDicts[0] = tmp
 
 
 	def checkUpdate(self, force=False, skipTime=False):
@@ -570,7 +588,7 @@ class DirNameProxy(object):
 
 
 	def filterPreppedNameThroughDB(self, name):
-		if not self.notifierRunning:
+		if not self.notifierRunning and self.testMode == False:
 			self.log.warning("Directory observers not started! No directory contents will have been loaded!")
 		name = getCanonicalMangaUpdatesName(name)
 		name = prepFilenameForMatching(name)

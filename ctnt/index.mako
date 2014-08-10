@@ -89,13 +89,15 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>bu page opens in new window</li>
+	<li>auto upload to madokami</li>
+	<li>irc scrapinator</li>
 	<li>Implement dir moving system already!</li>
 	<li>Defer dir updating to after page-load to prevent occational 20 second page-loads.</li>
 	<li>prioritize downloads by rating</li>
 	<li>total chapters not always known. Handle sanely.</li>
 	<li>properly show if things are one shot</li>
 	<li>cover images in file browser?</li>
-	<li>remove k scale from filesize readout. </li>
 	<li>mechanism for highlighting chosen tags in table</li>
 	<li>push dir updating into separate thread</li>
 	<li>Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file</li>
@@ -126,11 +128,11 @@ Shit to do:
 <p>
 <b>Reader</b>
 <ul>
-	<li>Chapter read to from BU in item sidebar.</li>
 	<li>Add ability to rename directories to reader</li>
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>
+	<li><strike>Chapter read to from BU in item sidebar.</strike></li>
 </ul>
 </p>
 
@@ -149,21 +151,22 @@ Shit to do:
 <p>
 <b>Nametools Issues</b>
 <ul>
-	<li>Add testing to nametool system</li>
 	<li>
-	Bad Links:
+	Bad MangaUpdates Links:
 	<ul>
 		<li>neko ane</li>
 		<li>rescue me</li>
 		<li>maken-ki!</li>
 	</ul>
 	</li>
+	<li><strike>Add testing to nametool system</strike> (Done, wasn't the problem source)</li>
 </ul>
 </p>
 <p>
 
 <b>Complete:</b>
 <ul>
+	<li><strike>remove k scale from filesize readout. </strike></li>
 	<li><strike>reader directory page also includes database items for series</strike></li>
 	<li><strike>show reader some general luv</strike></li>
 	<li><strike>fakku scraper barfs on unicode</strike> (I think it's fixed?)</li>
@@ -196,7 +199,7 @@ Shit to do:
 	<li><strike>Add better time-stamp granularity to Starkana Scraper.</strike> (I think?)</li>
 	<li><strike>MangaBaby.com scraper</strike></li>
 	<li><strike>Flatten any found duplicate directories, when they span more then one of the manga-folders.</strike></li>
-	<li><strike>FIX NATURAL SORTING</strike></li>
+	<li><strike>FIX NATURAL SORTING</strike> (Fixed upstream in the natsort package)</li>
 	<li><strike>Make series monitoring tool for MT update periodically</strike></li>
 	<li><strike>Automated tag update mechanism!</strike></li>
 	<li><strike>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</strike></li>

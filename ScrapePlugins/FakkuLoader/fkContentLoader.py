@@ -111,8 +111,9 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					delay = 0
 
 			except:
-				print("ERROR WAT?")
-				traceback.print_exc()
+				self.log.error("ERROR WAT?")
+				self.log.error(traceback.format_exc())
+				self.log.error("Continuing...")
 				delay = 1
 
 

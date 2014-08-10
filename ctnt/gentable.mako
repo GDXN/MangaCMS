@@ -29,12 +29,9 @@ def compactDateStr(dateStr):
 	return dateStr
 
 def fSizeToStr(fSize):
-	if fSize < 1.0e7:
-		fStr = fSize/1.0e3
-		fStr = "%d K" % int(fStr)
-	else:
-		fStr = fSize/1.0e6
-		fStr = "%0.2f M" % fStr
+
+	fStr = fSize/1.0e6
+	fStr = "%0.2f M" % fStr
 	return fStr
 
 

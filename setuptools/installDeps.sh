@@ -24,4 +24,4 @@ python3 get-pip.py
 
 # Install the libraries we actually need
 
-pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython
+pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython irc
