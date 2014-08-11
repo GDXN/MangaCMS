@@ -89,6 +89,9 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+automate color choices for reader
+and logging
+tag/flag for when items are mirrored
 	<li>bu page opens in new window</li>
 	<li>auto upload to madokami</li>
 	<li>irc scrapinator</li>
@@ -128,7 +131,8 @@ Shit to do:
 <p>
 <b>Reader</b>
 <ul>
-	<li>Add ability to rename directories to reader</li>
+show current image info
+	<li>Add ability to rename directories to reader</li> (res, name)
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>
