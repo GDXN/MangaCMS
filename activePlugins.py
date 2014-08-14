@@ -28,7 +28,6 @@ scrapePlugins = {
 	3  : (ScrapePlugins.JzLoader.Run,         60*60*8),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
 	4  : (ScrapePlugins.DjMoeLoader.Run,      60*45  ),
 	5  : (ScrapePlugins.DjMoeLoader.Retag,    60*60  ),
-	6  : (ScrapePlugins.CzLoader.Run,         60*60*4),   # Every 4 hours, since I have to scrape a lot of pages to update properly
 	7  : (ScrapePlugins.SkBaseManager.Run,    60*60  ),
 	9  : (ScrapePlugins.PururinLoader.Run,    60*60  ),
 	10 : (ScrapePlugins.FakkuLoader.Run,      60*60  ),

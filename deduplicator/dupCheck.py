@@ -29,6 +29,11 @@ class ArchChecker(object):
 	def check(self):
 		self.log.info("Checking if %s contains any unique files.", self.archPath)
 
+		# Patch during backup
+		self.log.info("SHIT'S BROKEN. FIXME!")
+		return True
+		# End patch
+
 		for dummy_fileN, fileCtnt in self.arch:
 			hexHash = self.hashModule.getMd5Hash(fileCtnt.read())
 

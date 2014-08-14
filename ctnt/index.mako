@@ -89,6 +89,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+check that new items in bu are updating properly
 automate color choices for reader
 and logging
 tag/flag for when items are mirrored
@@ -161,6 +162,7 @@ show current image info
 		<li>neko ane</li>
 		<li>rescue me</li>
 		<li>maken-ki!</li>
+murcielago
 	</ul>
 	</li>
 	<li><strike>Add testing to nametool system</strike> (Done, wasn't the problem source)</li>
