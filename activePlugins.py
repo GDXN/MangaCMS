@@ -9,7 +9,6 @@ import ScrapePlugins.BuMonitor.Run
 import ScrapePlugins.DjMoeLoader.Run
 import ScrapePlugins.DjMoeLoader.Retag
 import ScrapePlugins.SkBaseManager.Run
-import ScrapePlugins.CzLoader.Run
 import ScrapePlugins.BtBaseManager.Run
 import ScrapePlugins.PururinLoader.Run
 import ScrapePlugins.JzLoader.Run
@@ -36,7 +35,6 @@ scrapePlugins = {
 
 
 }
-
 
 
 if __name__ == "__main__":

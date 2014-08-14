@@ -78,6 +78,8 @@ DNLDED = 2
 
 		% for item in ap.attr.sidebarItemList:
 			<%
+			if not item["renderSideBar"]:
+				continue
 			if not item["dbKey"]:
 				continue
 
