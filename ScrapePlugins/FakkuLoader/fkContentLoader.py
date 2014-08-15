@@ -194,9 +194,6 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# print("Thumbs = ", thumbs.group(1))
 		prefix, postfix = pathFormatter.group(1), pathFormatter.group(2)
 
-		prefix = prefix.encode("utf-8").decode("utf-8")
-		postfix = postfix.encode("utf-8").decode("utf-8")
-
 		print("pathFormatter = ", prefix, prefix)
 
 		if not thumbs and pathFormatter:
