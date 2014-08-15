@@ -21,17 +21,17 @@ import ScrapePlugins.McLoader.Run
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
 # are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
-	0  : (ScrapePlugins.BtBaseManager.Run,    60*60  ),
+	0  : (ScrapePlugins.McLoader.Run,         60*60*24),  # every 24 hours, it's just a single scanlator site.
 	1  : (ScrapePlugins.ExMadokami.Run,       60*60  ),
 	2  : (ScrapePlugins.BuMonitor.Run,        60*60  ),
 	3  : (ScrapePlugins.JzLoader.Run,         60*60*8),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
 	4  : (ScrapePlugins.DjMoeLoader.Run,      60*45  ),
 	5  : (ScrapePlugins.DjMoeLoader.Retag,    60*60  ),
+	6  : (ScrapePlugins.BtBaseManager.Run,    60*60  ),
 	7  : (ScrapePlugins.SkBaseManager.Run,    60*60  ),
 	9  : (ScrapePlugins.PururinLoader.Run,    60*60  ),
-	10 : (ScrapePlugins.FakkuLoader.Run,      60*60  ),
+	10 : (ScrapePlugins.FakkuLoader.Run,      60*60  )
 	# 11 : (ScrapePlugins.MangaMadokami.Run,    60*60*24)  # every 24 hours, because I have to iterate over the ENTIRE site.
-	12 : (ScrapePlugins.McLoader.Run,         60*60*24)  # every 24 hours, it's just a single scanlator site.
 
 
 }

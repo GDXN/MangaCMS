@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import sys
-import types
+import codecs
 
 import urllib.request, urllib.parse, urllib.error
 import os.path
@@ -327,13 +327,20 @@ class WebGetRobust:
 									if coding:
 										cType = coding.group(1)
 
-									if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
+									try:
+										codecs.lookup(cType.decode("ascii"))
+										charset = cType.decode("ascii")
+									except codecs.LookupError:
 
-										dummy_docType, charset = cType.split(b";")
-										charset = charset.split(b"=")[-1]
+										# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
+										if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
 
-									else:
-										charset = "iso-8859-1"
+											dummy_docType, charset = cType.split(b";")
+											charset = charset.split(b"=")[-1]
+
+										else:
+											self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
+											charset = "iso-8859-1"
 
 								try:
 									pgctnt = str(pgctnt, charset)
@@ -361,7 +368,7 @@ class WebGetRobust:
 
 						traceback.print_exc()
 						log.error(sys.exc_info())
-						log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", delay)
+						log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", self.retryDelay)
 
 						try:
 							log.critical("Critical Failure to retrieve page! %s at %s" % (pgreq.get_full_url(), time.ctime(time.time())))

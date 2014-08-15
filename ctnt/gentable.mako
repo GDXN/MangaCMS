@@ -122,7 +122,7 @@ colours = {
 
 <%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None)">
 	<%
-	print("tableGen!")
+	# print("tableGen!")
 	%>
 	<table border="1px">
 		<tr>
@@ -150,13 +150,13 @@ colours = {
 		groupStr = ""
 		orderBy  = "ORDER BY retreivalTime DESC"
 
-	print("building query")
+	# print("building query")
 
 	whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
-	print("Query = ", whereStr, queryAdditionalArgs)
-	print("built")
-	print("Querying...")
+	# print("Query = ", whereStr, queryAdditionalArgs)
+	# print("built")
+	# print("Querying...")
 	query = '''
 
 		SELECT
@@ -192,7 +192,7 @@ colours = {
 
 	ret = cur.execute(query, params)
 	tblCtntArr = ret.fetchall()
-	print("Done")
+	# print("Done")
 	%>
 	% for row in tblCtntArr:
 		<%

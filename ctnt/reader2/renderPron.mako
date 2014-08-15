@@ -10,7 +10,7 @@ import os.path
 import urllib
 %>
 <%
-print("Rendering")
+# print("Rendering")
 %>
 
 
@@ -42,9 +42,9 @@ if not rets:
 	reader.invalidKey(message="Specified itemId does not exist in database!")
 	return
 
-print("Key", rets)
+# print("Key", rets)
 itemPath = os.path.join(*rets)
-print("dlPath = ", itemPath)
+# print("dlPath = ", itemPath)
 
 if not (os.path.isfile(itemPath) and os.access(itemPath, os.R_OK)):
 	reader.invalidKey(message="File corresponding to key does not seem to exist.")

@@ -194,8 +194,8 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# print("Thumbs = ", thumbs.group(1))
 		prefix, postfix = pathFormatter.group(1), pathFormatter.group(2)
 
-		prefix = prefix.encode("ascii").decode("utf-8")
-		postfix = postfix.encode("ascii").decode("utf-8")
+		prefix = prefix.encode("utf-8").decode("utf-8")
+		postfix = postfix.encode("utf-8").decode("utf-8")
 
 		print("pathFormatter = ", prefix, prefix)
 
@@ -220,14 +220,21 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# print(linkDict)
 
 		images = []
-		for imageUrl in imageUrls:
+		try:
+			for imageUrl in imageUrls:
 
-			imagePath = urllib.parse.urlsplit(imageUrl)[2]
-			imageFileName = imagePath.split("/")[-1]
-			imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': containerUrl})
+				imagePath = urllib.parse.urlsplit(imageUrl)[2]
+				imageFileName = imagePath.split("/")[-1]
+				imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': containerUrl})
 
-			images.append((imageFileName, imageData))
-			# Find next page
+				images.append((imageFileName, imageData))
+				# Find next page
+		except urllib.error.URLError:
+			self.log.error("Failure retreiving item images.")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: Could not retreive images!", lastUpdate=time.time())
+
+			self.conn.commit()
+			return False
 
 
 		# self.log.info(len(content))
@@ -253,8 +260,18 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if not linkDict["tags"]:
 				linkDict["tags"] = ""
 
+			try:
+				dedupState = self.archCleaner.processNewArchive(wholePath, deleteDups=True, includePHash=True)
+			except OSError:
 
-			dedupState = self.archCleaner.processNewArchive(wholePath, deleteDups=True, includePHash=True)
+				self.addTags(sourceUrl=linkDict["sourceUrl"], tags="corrupt")
+				self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: Image corrupted!", lastUpdate=time.time())
+				self.conn.commit()
+				return False
+
+
+
+
 			self.log.info( "Done")
 
 			if dedupState:

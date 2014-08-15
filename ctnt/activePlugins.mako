@@ -144,7 +144,7 @@ sidebarItemList = [
 			'dbKey'         : "DjMoe",
 			'name'          : "DjMoe",
 			'dictKey'       : "djm",
-			'cssClass'      : "btId",
+			'cssClass'      : "djmId",
 			'showOnHome'    : True,
 			'renderSideBar' : True,
 			'genRow'        : True,
@@ -200,25 +200,48 @@ def hsvToHex(ftup):
 	ret = "#{r:02x}{g:02x}{b:02x}".format(r=r, g=g, b=b)
 	return ret
 
+# I don't want to have to add all of numpy as a dependency just to get linspace,
+# so we duplicate it here.
+def linspace(a, b, n=100):
+	if n < 2:
+		return [b]
+	diff = (float(b) - a)/(n - 1)
+	ret = [diff * i + a  for i in range(n)]
+	return ret
+
 import colorsys
 
-keys = []
+mainKeys = []
+pronKeys = []
+othrKeys = []
 for index, item in enumerate(sidebarItemList):
+	if "Manga" in item["type"]:
+		mainKeys.append((item["num"], index))
+	elif "Porn" in item["type"]:
+		pronKeys.append((item["num"], index))
+	else:
+		othrKeys.append((item["num"], index))
 
-	keys.append((item["num"], index))
+mainKeys.sort()
+pronKeys.sort()
+othrKeys.sort()
 
-keys.sort()
+s_base, v_base = 0.35, 0.95
 
-for dummy_num, idx in keys:
-	h, s, v = tupToHSV(spacedColours[idx % len(spacedColours)])
 
-	baseC = (h,s,v)
-	light1 = (h,s,v+0.6)
-	light2 = (h,s,v+0.4)
+for keyset in [mainKeys, pronKeys, othrKeys]:
+	print("Loopin!")
+	hues = linspace(0.0, 1.0, n=len(keyset)+1)
+	print("Hues = ", hues, "items =", len(keyset))
+	for dummy_num, idx in keyset:
+		h = hues.pop()
+		baseC  = (h,s_base,v_base)
+		light1 = (h,s_base-0.05,v_base+0.2)
+		light2 = (h,s_base-0.15,v_base+0.2)
 
-	sidebarItemList[idx]["baseColour"] = hsvToHex(baseC)
-	sidebarItemList[idx]["evenRow"] = hsvToHex(light1)
-	sidebarItemList[idx]["oddRow"] = hsvToHex(light2)
+		sidebarItemList[idx]["baseColour"] = hsvToHex(baseC)
+		sidebarItemList[idx]["evenRow"] = hsvToHex(light1)
+		sidebarItemList[idx]["oddRow"] = hsvToHex(light2)
 
 inHomepageMangaTable = [item["dictKey"] for item in sidebarItemList if item["showOnHome"] and "Manga" in item["type"]]
 activeNonPorn        = [item["dictKey"] for item in sidebarItemList if                        "Manga" in item["type"]]

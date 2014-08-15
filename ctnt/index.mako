@@ -41,7 +41,7 @@
 
 <%
 startTime = time.time()
-print("Rendering begun")
+# print("Rendering begun")
 %>
 
 
@@ -66,7 +66,7 @@ import settings
 				<h3>Manga (distinct)</h3>
 				${tableGenerators.genLegendTable()}
 				<%
-				print("Calling tablegen")
+				# print("Calling tablegen")
 				%>
 				${tableGenerators.genMangaTable(distinct=True, limit=200)}
 			</div>
@@ -89,15 +89,12 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-check that new items in bu are updating properly
-automate color choices for reader
-and logging
-tag/flag for when items are mirrored
+	<li>check that new items in bu are updating properly</li>
+	<li>tag/flag for when items are mirrored</li>
 	<li>bu page opens in new window</li>
-	<li>auto upload to madokami</li>
 	<li>irc scrapinator</li>
 	<li>Implement dir moving system already!</li>
-	<li>Defer dir updating to after page-load to prevent occational 20 second page-loads.</li>
+	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> I think this is actually the DB loading the indexes from disk. Not sure.</li>
 	<li>prioritize downloads by rating</li>
 	<li>total chapters not always known. Handle sanely.</li>
 	<li>properly show if things are one shot</li>
@@ -132,7 +129,7 @@ tag/flag for when items are mirrored
 <p>
 <b>Reader</b>
 <ul>
-show current image info
+	<li>show current image info</li>
 	<li>Add ability to rename directories to reader</li> (res, name)
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
@@ -162,7 +159,8 @@ show current image info
 		<li>neko ane</li>
 		<li>rescue me</li>
 		<li>maken-ki!</li>
-murcielago
+		<li>murcielago</li>
+		<li>Keyman - The Hand of Judgement</li>
 	</ul>
 	</li>
 	<li><strike>Add testing to nametool system</strike> (Done, wasn't the problem source)</li>
@@ -172,6 +170,9 @@ murcielago
 
 <b>Complete:</b>
 <ul>
+	<li><strike>auto upload to madokami</strike></li>
+	<li><strike>automate color choices for reader; fukkit just do a naive implementstion of rotation in a hsv colour space</strike></li>
+	<li><strike>split item color generation into hemtai and manga to provide better control</strike></li>
 	<li><strike>remove k scale from filesize readout. </strike></li>
 	<li><strike>reader directory page also includes database items for series</strike></li>
 	<li><strike>show reader some general luv</strike></li>

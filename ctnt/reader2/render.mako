@@ -18,7 +18,7 @@ import os.path
 import urllib
 %>
 <%
-print("Rendering")
+# print("Rendering")
 %>
 
 
@@ -73,7 +73,7 @@ print("Rendering")
 	dirContents = os.listdir(dirPath)
 	dirContents = natsorted(dirContents)
 
-	print("Nav path = ", navPath, "dict", dictKey)
+	# print("Nav path = ", navPath, "dict", dictKey)
 
 	%>
 
@@ -108,7 +108,7 @@ print("Rendering")
 	# At this point, we can be confident that `dirPath` is a path that is actually a valid directory, so list it, and
 	# display it's contents
 
-	print("Navpath = ", navPath)
+	# print("Navpath = ", navPath)
 
 	%>
 	<div class="contentdiv subdiv uncoloured">
@@ -137,11 +137,11 @@ print("Rendering")
 <%def name="displayItemFilesFromKey(itemKey)">
 
 	<%
-	print("itemKey", itemKey)
+	# print("itemKey", itemKey)
 
 	itemDict = nt.dirNameProxy[itemKey]
 
-	print("ItemDict", itemDict)
+	# print("ItemDict", itemDict)
 	if not itemDict["item"]:
 
 		reader.invalidKey(message="No manga items found for key '%s'" % itemKey)
