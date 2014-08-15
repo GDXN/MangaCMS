@@ -324,13 +324,14 @@ class WebGetRobust:
 									coding = re.search(b"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pgctnt, flags=re.IGNORECASE)
 
 									cType = b""
-									if coding:
-										cType = coding.group(1)
-
+									charset = None
 									try:
-										codecs.lookup(cType.decode("ascii"))
-										charset = cType.decode("ascii")
-									except codecs.LookupError:
+										if coding:
+											cType = coding.group(1)
+											codecs.lookup(cType.decode("ascii"))
+											charset = cType.decode("ascii")
+
+									except LookupError:
 
 										# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
 										if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
@@ -338,9 +339,9 @@ class WebGetRobust:
 											dummy_docType, charset = cType.split(b";")
 											charset = charset.split(b"=")[-1]
 
-										else:
-											self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
-											charset = "iso-8859-1"
+									if not charset:
+										self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
+										charset = "iso-8859-1"
 
 								try:
 									pgctnt = str(pgctnt, charset)

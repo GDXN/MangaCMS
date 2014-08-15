@@ -291,7 +291,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			self.conn.commit()
 
 
-	def getRowsByValue(self, **kwargs):
+	def getRowsByValue(self, limitByKey=True, **kwargs):
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg" % kwargs)
 		validCols = ["dbId", "sourceUrl", "dlState", "originName"]
@@ -301,24 +301,49 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''SELECT dbId,
-							dlState,
-							sourceUrl,
-							retreivalTime,
-							lastUpdate,
-							sourceId,
-							seriesName,
-							fileName,
-							originName,
-							downloadPath,
-							flags,
-							tags,
-							note
-							FROM {tableName} WHERE {key}=? AND sourceSite=? ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
+		# HACKY alternate query for limitByKey. Fix?
+		if limitByKey:
+			query = '''SELECT dbId,
+								dlState,
+								sourceUrl,
+								retreivalTime,
+								lastUpdate,
+								sourceId,
+								seriesName,
+								fileName,
+								originName,
+								downloadPath,
+								flags,
+								tags,
+								note
+								FROM {tableName} WHERE {key}=? AND sourceSite=? ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
+			quargs = (val, self.tableKey)
+
+		else:
+			query = '''SELECT dbId,
+								dlState,
+								sourceUrl,
+								retreivalTime,
+								lastUpdate,
+								sourceId,
+								seriesName,
+								fileName,
+								originName,
+								downloadPath,
+								flags,
+								tags,
+								note
+								FROM {tableName} WHERE {key}=? ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
+			quargs = (val, )
+
+
 		if QUERY_DEBUG:
 			print("Query = ", query)
-			print("args = ", (val, self.tableKey))
-		ret = cur.execute(query, (val, self.tableKey))
+			print("args = ", quargs)
+
+		ret = cur.execute(query, quargs)
+
+
 
 		rets = ret.fetchall()
 		retL = []

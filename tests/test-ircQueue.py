@@ -8,6 +8,8 @@ if __name__ == "__main__":
 import runStatus
 
 from ScrapePlugins.IrcGrabber.ViScans.ViScrape import ViTriggerLoader
+from ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape import IMSTriggerLoader
+from ScrapePlugins.IrcGrabber.StupidCommotion.StupidCommotionQueue import StupidCommotionTriggerLoader
 import signal
 
 import os.path
@@ -24,6 +26,13 @@ def test():
 
 
 	cl = ViTriggerLoader()
+	cl.go()
+
+	cl = IMSTriggerLoader()
+	cl.go()
+
+	cl = StupidCommotionTriggerLoader()
+	# cl.getMainItems()
 	cl.go()
 
 

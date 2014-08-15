@@ -13,12 +13,14 @@ import irc.strings
 from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
 class TestBot(irc.bot.SingleServerIRCBot):
-	def __init__(self, channel, nickname, server, port=9999):
+	def __init__(self, nickname, server, port=9999):
 		ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
 		irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname, connect_factory=ssl_factory)
-		self.channel = channel
+
 
 		self.received_bytes = 0
+
+		self.welcomed = False
 
 	def on_ctcp(self, c, e):
 		"""Default handler for ctcp events.
@@ -70,9 +72,10 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		connection.nick(connection.get_nickname() + "_")
 
 	def on_welcome(self, c, e):
-		print("On Welcome. Joining '%s'" % self.channel)
-		c.join(self.channel)
-		print("Joined ", self.channel)
+		print("On Welcome.")
+		self.welcomed = True
+		# c.join(self.channel)
+		# print("Joined ", self.channel)
 
 
 	def on_privmsg(self, c, e):

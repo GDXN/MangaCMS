@@ -16,21 +16,22 @@ import pickle
 import ScrapePlugins.IrcGrabber.IrcQueueBase
 
 
-class ViTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
+
+class IMSTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
 	wg = webFunctions.WebGetRobust()
-	loggerPath = "Main.Vi.Fl"
-	pluginName = "Vi-Scans Link Retreiver"
-	tableKey = "vi"
+	loggerPath = "Main.IMS.Fl"
+	pluginName = "IMangaScans Link Retreiver"
+	tableKey = "ims"
 	dbName = settings.dbName
 
 	tableName = "MangaItems"
 
-	feedUrl = "http://vi-scans.com/bort/search.php"
+	feedUrl = "https://imangascans.org/icebox/"
 
-	extractRe = re.compile(r"p\.k\[\d+\] = ({.*?});")
+	extractRe = re.compile(r"packlist\.packs\[\d+\] = ({.*?});")
 
 	def closeDB(self):
 		self.log.info( "Closing DB...",)
@@ -53,7 +54,7 @@ class ViTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		# 	self.log.info( item)
 		#
 
-		self.log.info( "Loading ViScans Main Feed")
+		self.log.info( "Loading iMangaScans Main Feed")
 
 		ret = []
 
@@ -73,15 +74,17 @@ class ViTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		self.log.info("Doing YAML data load")
 		data = yaml.load(yamlData, Loader=yaml.CLoader)
 
+		ims_botname = "[ims]icebox"           # Hardcoded. Bad idea?
+
 		for item in data:
 			item["server"] = "irchighway"
-			item["channel"] = "viscans"
+			item["channel"] = "imangascans"
 
 			# rename a few keys that are rather confusing
-			item["size"] = item.pop("s")
-			item["pkgNum"] = item.pop("n")
-			item["botName"] = item.pop("b")
-			item["fName"] = item.pop("f")
+			item["size"] = item.pop("size")
+			item["pkgNum"] = item.pop("number")
+			item["botName"] = ims_botname
+			item["fName"] = item.pop("name")
 
 			# I'm using the filename+botname for the unique key to the database.
 			itemKey = item["fName"]+item["botName"]

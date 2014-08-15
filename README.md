@@ -97,3 +97,9 @@ Because I'm sure no one wants to just read about what MangaCMS does, here are so
 ---
 
 Tests for all the various plugins are in the /tests/ directory. Because of how they hook into the rest of the system, they must be run as modules: `python3 -m tests.test-{name}`. This is required to avoid having to dick about with the contents of `sys.path`.
+
+---
+
+This was written as much for programming excercise as for practical use, so there may be some NIH-y things going on. For example, I wrote my own database abstraction layer (see MonitorDbBase.py, RetreivalDbBase.py), primarily as an opportunity to teach myself SQL. Some of the interitence structures are for a similar purpose (I wanted to play with abstract classes).
+
+As with about everything I do, the first run through teaches me all the things I /wish/ I had done differently.

@@ -30,13 +30,15 @@ def test():
 
 	signal.signal(signal.SIGINT, signal_handler)
 
-	runner = Runner()
-	print(runner)
-	runner.go()
+	cl = DjMoeDbLoader()
+	cl.go()
+	# runner = Runner()
+	# print(runner)
+	# # runner.go()
 
-	runner = TagRunner()
-	print(runner)
-	runner.go()
+	# runner = TagRunner()
+	# print(runner)
+	# runner.go()
 
 	# dbLoader = DjMoeContentLoader()
 	# rows = dbLoader.retreiveTodoLinksFromDB()
