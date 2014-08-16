@@ -19,7 +19,7 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.IRC.db"
 
 	dbName = settings.dbName
-	tableKey = "irc"
+	tableKey = "irc-irh"
 	tableName = "MangaItems"
 
 	# override __init__, catch tabkeKey value, call parent __init__ with the rest of the args
@@ -34,10 +34,13 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def retreiveTodoLinksFromDB(self):
 
+		self.resetStuckItems()
 		self.log.info( "Fetching items from db...",)
 
-		rows = self.getRowsByValue(dlState=0)[:100]
+		rows = self.getRowsByValue(dlState=0)
 
+		rows = sorted(rows, key=lambda k: k["retreivalTime"], reverse=True)
+		rows = rows[:100]
 		self.log.info( "Done")
 		if not rows:
 			self.log.info("No new items, nothing to do.")
@@ -65,7 +68,7 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			else:
 				item["seriesName"] = nt.getCanonicalMangaUpdatesName(matchName)
 
-			self.updateDbEntry(item["sourceUrl"], seriesName=item["seriesName"], dlState=1)
+			self.updateDbEntry(item["sourceUrl"], seriesName=item["seriesName"])
 
 			total += 1
 
@@ -105,7 +108,7 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Saving to archive = %s", fqFName)
 
 
-		self.updateDbEntry(item["sourceUrl"], downloadPath=dlPath, fileName=fName)
+		self.updateDbEntry(item["sourceUrl"], downloadPath=dlPath, fileName=fName, originName=fName)
 
 		return fqFName
 
@@ -143,6 +146,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			return False
 
 		self.log.info("XDCC Transfer starting!")
+		self.received_bytes = 0
 		self.changeState("xdcc receiving")
 		return True
 
@@ -183,6 +187,8 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		self.connection.privmsg(reqItem["info"]["botName"], reqStr)
 		self.log.info("Request = '%s - %s'", reqItem["info"]["botName"], reqStr)
 
+		self.db.updateDbEntry(reqItem["sourceUrl"], seriesName=reqItem["seriesName"], dlState=1)
+
 	def markDownloadFailed(self):
 		self.log.error("Timed out on XDCC Request!")
 		self.log.error("Failed item = '%s'", self.currentItem)
@@ -201,7 +207,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			if not self.todo:   # Nothing to do.
 				return
 
-			self.requestItem(self.todo.pop())
+			self.requestItem(self.todo.pop(0))
 			self.timer = time.time()
 
 		elif self.state == "xdcc requested":
@@ -222,10 +228,10 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 
 	def processQueue(self):
 		if not self.run:
-			self.die("lolwat?")
+			self.die("Whoops, herped my derp.")
 
 		# self.log.info("QueueProcessor")
-		self.log.info("Current state = %s", self.state)
+		self.log.info("Current state = %s, rec bytes = %s", self.state, self.received_bytes)
 		self.stepStateMachine()
 
 	def welcome_func(self):
@@ -241,7 +247,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 class IrcRetreivalInterface(object):
 	def __init__(self):
 		server = "irc.irchighway.net"
-		self.bot = FetcherBot(DbWrapper("irc.irh"), settings.ircBot["name"], settings.ircBot["rName"], server)
+		self.bot = FetcherBot(DbWrapper("irc-irh"), settings.ircBot["name"], settings.ircBot["rName"], server)
 
 	def startBot(self):
 

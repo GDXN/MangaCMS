@@ -31,7 +31,7 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		to the on_dccchat method.
 		"""
 
-		print("On CTCP", c, e, e.arguments)
+		print("On CTCP", e.arguments)
 		nick = e.source.nick
 		if e.arguments[0] == "VERSION":
 			c.ctcp_reply(nick, "VERSION " + self.get_version())

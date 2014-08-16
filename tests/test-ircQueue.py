@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
 import runStatus
 
-from ScrapePlugins.IrcGrabber.ViScans.ViScrape import ViTriggerLoader
+from ScrapePlugins.IrcGrabber.IrcEnqueueRun import Runner
 import signal
 
 import os.path
@@ -23,7 +23,7 @@ def customHandler(signum, stackframe):
 def test():
 
 
-	cl = ViTriggerLoader()
+	cl = Runner()
 	cl.go()
 
 

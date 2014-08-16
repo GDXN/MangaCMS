@@ -104,6 +104,18 @@ sidebarItemList = [
 		},
 
 		{
+			"num"           : 14,
+			'dbKey'         : "IrcEnueue",
+			'name'          : "IRC",
+			'dictKey'       : "irc-irh",
+			'cssClass'      : "irc-irhId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
+		{
 			"num"           : 7,
 			'dbKey'         : "MkLoader",
 			'name'          : "Madokami",

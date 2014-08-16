@@ -23,7 +23,7 @@ class ViTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Vi.Fl"
 	pluginName = "Vi-Scans Link Retreiver"
-	tableKey = "irc.irh"
+	tableKey = "irc-irh"
 	dbName = settings.dbName
 
 	tableName = "MangaItems"
