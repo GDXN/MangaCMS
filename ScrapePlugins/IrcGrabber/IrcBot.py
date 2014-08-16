@@ -7,16 +7,59 @@ import sys
 import ssl
 import logging
 import irc.logging
+import irc.buffer
+import irc.client
 import irc.bot
 import irc.strings
 import settings
-
+from bs4 import UnicodeDammit
+import re
 from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
+
+# Horrible hackyclass that I'm using to monkey-patch the line decoder. Unfortunately,
+# short of subclassing ALL THE THINGS, I can't very easily override the decoder.
+# As such, we just stick a patched decoder into the class at runtime.
+class TolerantDecodingLineBuffer(object):
+
+	line_sep_exp = re.compile(b'\r?\n')
+
+	def __init__(self):
+		self.buffer = b''
+
+	def feed(self, inBytes):
+		self.buffer += inBytes
+
+
+	def __iter__(self):
+		return self.lines()
+
+	def __len__(self):
+		return len(self.buffer)
+
+	encodings = ['utf-8', "iso-8859-1", "latin-1"]
+	errors = 'strict'
+
+	def lines(self):
+		lines = self.line_sep_exp.split(self.buffer)
+		# save the last, unfinished, possibly empty line
+		self.buffer = lines.pop()
+
+		for line in lines:
+			ret = UnicodeDammit(line, self.encodings).unicode_markup
+			if not ret:
+				raise UnicodeDecodeError("Could not decode '%s'" % line)
+			yield ret
 
 class TestBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, nickname, realname, server, port=9999):
 		ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+
+		# Horrible monkey-patch the ServerConnection instance so we can fix some encoding issues.
+		print("Old buffer class", irc.client.ServerConnection.buffer_class)
+		irc.client.ServerConnection.buffer_class = TolerantDecodingLineBuffer
+		print("New buffer class", irc.client.ServerConnection.buffer_class)
+
 		irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, realname, connect_factory=ssl_factory)
 
 		self.log = logging.getLogger("Main.IRC")
