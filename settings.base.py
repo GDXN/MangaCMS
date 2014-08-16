@@ -147,6 +147,16 @@ fkSettings = {
 	"dlDir"        :  fkDir
 }
 
+
+ircBot = {
+	"name"           : "YOUR-BOT-NAME",
+	"rName"          : "YOUR BOT REAL NAME",
+	"unknown-series" : "WHERE TO PUT ITEMS FOR WHICH THE SERIES CANNOT BE INFERRED FROM THE TITLE",
+	"pubmsg_prefix"  : "PREFIX TO MESSAGES TO THE BOT THAT CAUSES THE BOT TO SAY THEM ",
+	"dlDir"          : pickedDir
+
+}
+
 # Your postgres SQL database credentials for the deduper.
 # the PSQL_USER must have write access to the database PSQL_DB_NAME
 

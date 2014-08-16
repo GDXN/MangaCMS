@@ -8,21 +8,22 @@ Plugin scrapers for:
 
  - Starkana.com
  - Batoto.com
- - Crazytje.be
  - Doujin-Moe
  - download.japanzai.com
  - MangaCow
- - Manga Madokami
+ - Manga.Madokami
+ - Numerous IRC bots.
  - Fakku
  - Pururin
  - Exhen.Madokami
  - MangaUpdates (metadata only).
+ - ~~Crazytje.be~~ (Defunct)
  - ~~MangaBaby.com~~ (Defunct?)
  - ~~MangaTraders~~ (Defunct)
  - ~~Fufufuu.net~~ (Defunct)
  - Realitylapse.com (Planned, possibly)
 
-The current focus is entirely on scraping sites that provide direct-archive-downloads, though batoto is an exception. Batoto images are downloaded to memory, and then written out to an archive on-the-fly, with no temporary files used at all.
+I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives.
 
 Automatic ad-removal and banner-removal. Currently, Starkana inserts an irritating self-aggrandizing image at a random position in each archive downloaded from their site. This is currently automatically and silently removed from each zip-file on download.
 Any download system for sites that add source banners should crop the banners automatically, or remove any intersitial cruft.
@@ -40,9 +41,16 @@ Has lots of dependencies:
  - CherryPy
  - Pyramid
  - Beautifulsoup4
- - Colorama
- - PyInotify
- - Dateutil
+ - FeedParser
+ - colorama
+ - pyinotify
+ - python-dateutil
+ - apscheduler
+ - rarfile
+ - python-magic
+ - babel
+ - cython
+ - irc
  - Probably more
 
 Installing:  

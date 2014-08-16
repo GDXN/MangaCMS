@@ -92,7 +92,6 @@ Shit to do:
 	<li>check that new items in bu are updating properly</li>
 	<li>tag/flag for when items are mirrored</li>
 	<li>bu page opens in new window</li>
-	<li>irc scrapinator</li>
 	<li>Implement dir moving system already!</li>
 	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> I think this is actually the DB loading the indexes from disk. Not sure.</li>
 	<li>prioritize downloads by rating</li>
@@ -170,6 +169,7 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>irc scrapinator</strike></li>
 	<li><strike>auto upload to madokami</strike></li>
 	<li><strike>automate color choices for reader; fukkit just do a naive implementstion of rotation in a hsv colour space</strike></li>
 	<li><strike>split item color generation into hemtai and manga to provide better control</strike></li>
