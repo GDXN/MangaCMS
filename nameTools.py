@@ -20,6 +20,45 @@ random.seed()
 
 # --------------------------------------------------------------
 
+# Asshole scanlators who don't put their name in "[]"
+# Fuck you people. Seriously
+shitScanlators = ["rhs", "rh", "mri", "rhn", "se", "rhfk", "mw-rhs"]
+
+chapVolRe     = re.compile(r"(?:(?:ch?|v(?:ol(?:ume)?)?|(?:ep)|(?:stage)|(?:pa?r?t)|(?:chapter)|(?:story)|(?:extra)|(?:load)|(?:log)) ?\d+)", re.IGNORECASE)
+trailingNumRe = re.compile(r"(\d+$)", re.IGNORECASE)
+
+def guessSeriesFromFilename(inStr):
+	inStr = inStr.lower()
+	# if there is a "." in the last 6 chars, it's probably an extension. remove it.
+	inStr = removeBrackets(inStr)
+
+	if "." in inStr[-6:]:
+		inStr, dummy_ext = inStr.rsplit(".", 1)
+
+	for shitScanlator in shitScanlators:
+		if inStr.lower().endswith(shitScanlator.lower()):
+			inStr = inStr[:len(shitScanlator)*-1]
+
+	inStr = inStr.replace("+", " ")
+	inStr = inStr.replace("_", " ")
+	inStr = inStr.replace("the4koma", " ")
+	inStr = inStr.replace("4koma", " ")
+
+	inStr = stripChapVol(inStr)
+
+	inStr = inStr.strip()
+	inStr = stripTrailingNumbers(inStr)
+
+	inStr = prepFilenameForMatching(inStr)
+	return inStr
+
+def stripChapVol(inStr):
+	inStr = chapVolRe.sub(" ", inStr)
+	return inStr
+def stripTrailingNumbers(inStr):
+	inStr = trailingNumRe.sub(" ", inStr)
+	return inStr
+
 # Execution time of ~ 0.000052889607680 second (52 microseconds)
 def prepFilenameForMatching(inStr):
 	inStr = makeFilenameSafe(inStr)
@@ -59,7 +98,7 @@ def cleanUnicode(inStr):
 	return unicodedata.normalize("NFKD", inStr).encode("ascii", errors="ignore").decode()
 
 
-bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w:]*\])")
+bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w &:]*\])")
 
 def removeBrackets(inStr):
 	inStr = bracketStripRe.sub(" ", inStr)

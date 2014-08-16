@@ -5,19 +5,21 @@ import struct
 import sys
 
 import ssl
-
+import logging
 import irc.logging
 import irc.bot
 import irc.strings
+import settings
 
 from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
 
+
 class TestBot(irc.bot.SingleServerIRCBot):
-	def __init__(self, nickname, server, port=9999):
+	def __init__(self, nickname, realname, server, port=9999):
 		ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
-		irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname, connect_factory=ssl_factory)
+		irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, realname, connect_factory=ssl_factory)
 
-
+		self.log = logging.getLogger("Main.IRC")
 		self.received_bytes = 0
 
 		self.welcomed = False
@@ -41,19 +43,31 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 			args = e.arguments[1].split()
 			if args[0] != "SEND":
-				print("Not DCC Send. Wat? '%s'" % e.arguments)
+				self.log.warning("Not DCC Send. Wat? '%s'", e.arguments)
 				return
-			self.filename = os.path.basename(args[1])
 
-			print("Saving to '%s'" % self.filename)
+			self.log.info("Received DCC send command - '%s'", e)
 
-			if os.path.exists(self.filename):
-				print("A file named", self.filename,)
-				print("already exists. Refusing to save it.")
-				# self.connection.quit()
+			if hasattr(self, "get_filehandle"):
+				self.file = self.get_filehandle(args[1])
 			else:
-				print("Saving item to ", self.filename)
-			self.file = open(self.filename, "wb")
+				self.filename = os.path.basename(args[1])
+
+				self.log.info("Saving to '%s'" % self.filename)
+
+				if os.path.exists(self.filename):
+					self.log.error("A file named", self.filename,)
+					self.log.error("already exists. Refusing to save it.")
+					# self.connection.quit()
+				else:
+					self.log.info("Saving item to ", self.filename)
+				self.file = open(self.filename, "wb")
+
+			if hasattr(self, "xdcc_receive_start"):
+				status = self.xdcc_receive_start()
+				if not status:
+					return
+
 			peeraddress = irc.client.ip_numstr_to_quad(args[2])
 			peerport = int(args[3])
 			self.dcc = self.dcc_connect(peeraddress, peerport, "raw")
@@ -66,33 +80,36 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 	def on_dcc_disconnect(self, connection, event):
 		self.file.close()
-		print("Received file %s (%d bytes)." % (self.filename, self.received_bytes))
+		self.log.info("Received file - %d bytes." % (self.received_bytes))
+		if hasattr(self, "xdcc_receive_finish"):
+			self.xdcc_receive_finish()
 
 	def on_nicknameinuse(self, connection, event):
 		connection.nick(connection.get_nickname() + "_")
 
 	def on_welcome(self, c, e):
-		print("On Welcome.")
+		self.log.info("On Welcome.")
+		if hasattr(self, "welcome_func"):
+			self.welcome_func()
 		self.welcomed = True
-		# c.join(self.channel)
-		# print("Joined ", self.channel)
+
 
 
 	def on_privmsg(self, c, e):
-		print("On Privmsg", c, e)
+		self.log.info("On Privmsg", c, e)
 		self.say_command(e, e.arguments[0])
 
 	def on_pubmsg(self, c, e):
 
 		a = e.arguments[0].split(":", 1)
-		print("Name = ", a)
+		self.log.info("Name = ", a)
 		if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
-			print("Executing command", a[1])
+			self.log.info("Executing command", a[1])
 			self.say_command(e, a[1].strip())
 		return
 
 	def on_dccchat(self, c, e):
-		print("On DccChat")
+		self.log.info("On DccChat")
 		if len(e.arguments) != 2:
 			return
 		args = e.arguments[1].split()
@@ -109,17 +126,22 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		nick = e.source.nick
 		c = self.connection
 
-		if cmd.startswith("say "):
-			c.privmsg(self.channel, str(cmd[4:]))
+		if cmd.startswith(settings.ircBot["pubmsg_prefix"]):
+			c.privmsg(e.channel, str(cmd[len(settings.ircBot["pubmsg_prefix"]):]))
 		elif cmd == "dcc":
 			dcc = self.dcc_listen()
-			print("Starting DCC - Command: '%s'", "CHAT chat %s %d" % (ip_quad_to_numstr(dcc.localaddress), dcc.localport))
+			self.log.info("Starting DCC - Command: '%s'", "CHAT chat %s %d" % (ip_quad_to_numstr(dcc.localaddress), dcc.localport))
 			c.ctcp("DCC", nick, "CHAT chat %s %d" % (ip_quad_to_numstr(dcc.localaddress), dcc.localport))
 		else:
-			print("Unknown command = '%s'" % cmd)
+			self.log.error("Unknown command = '%s'" % cmd)
+
+
+	def startup(self):
+		self.log.info("Bot entering select loop")
+		self.start()
+
 
 def main():
-	import sys
 	print("Sys argv length = ", len(sys.argv))
 	if len(sys.argv) != 4:
 		print("Usage: testbot <server[:port]> <channel> <nickname>")
