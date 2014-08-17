@@ -89,6 +89,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+findorcreate only chosimg dirs in picked. 
 	<li>check that new items in bu are updating properly</li>
 	<li>tag/flag for when items are mirrored</li>
 	<li>bu page opens in new window</li>

@@ -124,15 +124,16 @@ colours = {
 	<%
 	# print("tableGen!")
 	%>
-	<table border="1px">
+	<table border="1px" style="width: 100%;">
+
 		<tr>
-				<th class="uncoloured" width="40">Date</th>
-				<th class="uncoloured" width="20">St</th>
-				<th class="uncoloured" width="20">Lo</th>
-				<th class="uncoloured" width="295">Series</th>
-				<th class="uncoloured" width="350">BaseName</th>
-				<th class="uncoloured" width="40">Rating</th>
-				<th class="uncoloured" width="105">DLTime</th>
+				<th class="uncoloured" style="width: 40px; min-width: 40px;">Date</th>
+				<th class="uncoloured" style="width: 20px; min-width: 20px;">St</th>
+				<th class="uncoloured" style="width: 20px; min-width: 20px;">Lo</th>
+				<th class="uncoloured" style="width: 250px; min-width: 200px;">Series</th>
+				<th class="uncoloured">BaseName</th>
+				<th class="uncoloured" style="width: 45px; min-width: 45px;">Rating</th>
+				<th class="uncoloured" style="width: 105px; min-width: 105px;">DLTime</th>
 		</tr>
 
 	<%

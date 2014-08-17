@@ -1,0 +1,20 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"pylinter":
+		{
+			"python_path":
+			[
+				"N:/Scripts/MangaCMS"
+			],
+			"use_icons": "true"
+		}
+	}
+}

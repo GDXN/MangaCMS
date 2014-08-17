@@ -7,23 +7,32 @@
 }
 table, td
 {
+
 	border-color: #006;
 	border-style: solid;
+
 }
 
 table
 {
+
 	margin-top: 5px;
 	border-width: 0 0 1px 1px;
 	border-spacing: 0;
 	border-collapse: collapse;
+	table-layout: fixed
+
 }
+
 td
 {
 	margin: 0;
 	padding: 1px;
 	border-width: 1px 1px 0 0;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
+
 
 td.legend
 {

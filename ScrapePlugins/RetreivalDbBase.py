@@ -133,7 +133,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			return nt.dirNameProxy[canonSeriesName]["fqPath"], False
 		else:
 			self.log.info( "Don't have target dir for: %s, full name = %s", canonSeriesName, seriesName)
-			targetDir = os.path.join(settings.skSettings["dirs"]['mDlDir'], safeBaseName)
+			targetDir = os.path.join(settings.baseDir, safeBaseName)
 			if not os.path.exists(targetDir):
 				try:
 					os.makedirs(targetDir)
