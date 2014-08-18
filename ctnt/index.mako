@@ -90,14 +90,11 @@ Shit to do:
 <b>General</b>
 <ul>
 	<li>7z support in archtool</li>
-	<li>find or create only choosing dirs in picked. </li>
 	<li>check that new items in bu are updating properly</li>
-	<li>tag/flag for when items are mirrored</li>
+	<li>tag/flag for when items are mirrored to mk?</li>
 	<li>bu page opens in new window</li>
-	<li>Implement dir moving system already!</li>
 	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> I think this is actually the DB loading the indexes from disk. Not sure.</li>
 	<li>prioritize downloads by rating</li>
-	<li>total chapters not always known. Handle sanely.</li>
 	<li>properly show if things are one shot</li>
 	<li>cover images in file browser?</li>
 	<li>mechanism for highlighting chosen tags in table</li>
@@ -171,6 +168,9 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Implement dir moving system already!</strike></li>
+	<li><strike>total chapters not always known. Handle sanely.</strike></li>
+	<li><strike>find or create only choosing dirs in picked.</strike> (Fixed a while ago)</li>
 	<li><strike>irc scrapinator</strike></li>
 	<li><strike>auto upload to madokami</strike></li>
 	<li><strike>automate color choices for reader; fukkit just do a naive implementstion of rotation in a hsv colour space</strike></li>

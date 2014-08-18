@@ -372,10 +372,16 @@ def dequoteDict(inDict):
 		% if readProgress:
 			<div class="lightRect itemInfoBox">
 			% if readProgress >= 0:
-				% if readProgress != availProgress:
-					<b>Unread Chapters!</b><br>
+				% if availProgress > 0:
+					% if readProgress != availProgress:
+						<b>Unread Chapters!</b><br>
+					% endif
+					Read ${readProgress} of ${availProgress} chapters.
+
+				% else:
+					Read ${readProgress} chapters.
+
 				% endif
-				Read ${readProgress} of ${availProgress} chapters.
 			% else:
 				Manga Finished!
 

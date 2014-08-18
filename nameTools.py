@@ -131,6 +131,7 @@ def sanitizeString(inStr, flatten=True):
 	return baseName.lower().strip()
 
 def extractRating(inStr):
+	# print("ExtractRating = '%s', '%s'" % (inStr, type(inStr)))
 	search = re.search(r"^(.*?)\[([~+\-!]+)\](.*?)$", inStr)
 	if search:
 		# print("Found rating! Prefix = {pre}, rating = {rat}, postfix = {pos}".format(pre=search.group(1), rat=search.group(2), pos=search.group(3)))
@@ -538,7 +539,7 @@ class DirNameProxy(object):
 
 		updateTime = time.time()
 		if not updateTime > (self.lastCheck + self.maxRate) and (not force) and (not skipTime):
-			print("DirDicts not stale!")
+			# print("DirDicts not stale!")
 			return
 		self.updateLock.acquire()
 
@@ -590,14 +591,31 @@ class DirNameProxy(object):
 		oldPath = item['fqPath']
 		self.changeRatingPath(oldPath, newRating)
 
+	def _checkLookupNewDir(self, fromPath):
+		for key in settings.ratingsSort["fromkey"]:
+			if fromPath.startswith(settings.mangaFolders[key]["dir"]):
+				fromBase = settings.mangaFolders[key]["dir"]
+				toBase   = settings.mangaFolders[settings.ratingsSort["tokey"]]["dir"]
+				print("Replacing base '%s with base '%s" % (fromBase, toBase))
+				return fromPath.replace(fromBase, toBase)
+
+		# If we don't have a directory we want to replace, we just return the string as passed
+		return fromPath
+
 	def changeRatingPath(self, oldPath, newRating):
 
-		prefix, dummy_rating, postfix = extractRating(oldPath)
+		tmpPath = oldPath
+		if hasattr(settings, "ratingsSort"):
+			if newRating >= settings.ratingsSort["thresh"]:
+					tmpPath = self._checkLookupNewDir(oldPath)
+
+		prefix, dummy_rating, postfix = extractRating(tmpPath)
 
 		if newRating == 0:
 			return
 
-		print("Rating change call!")
+
+		# print("Rating change call!")
 		if newRating > 0 and newRating <= 5:
 			ratingStr = "+"*newRating
 		elif newRating == 0:
@@ -613,8 +631,8 @@ class DirNameProxy(object):
 		newPath = "{pre}{rat}{pos}".format(pre=prefix, rat=ratingStr, pos=postfix)
 		newPath = newPath.rstrip(" ").lstrip(" ")
 
-		print("Oldpath = ", oldPath)
-		print("Newpath = ", newPath)
+		# print("Oldpath = ", oldPath)
+		# print("Newpath = ", newPath)
 		if oldPath != newPath:
 			if os.path.exists(newPath):
 				raise ValueError("New path exists already!")
