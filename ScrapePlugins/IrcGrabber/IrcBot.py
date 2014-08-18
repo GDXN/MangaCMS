@@ -139,13 +139,13 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 
 	def on_privmsg(self, c, e):
-		self.log.info("On Privmsg", c, e)
+		self.log.info("On Privmsg = '%s', '%s'", c, e)
 		self.say_command(e, e.arguments[0])
 
 	def on_pubmsg(self, c, e):
 
 		a = e.arguments[0].split(":", 1)
-		self.log.info("Name = ", a)
+		self.log.info("Name = %s", a)
 		if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
 			self.log.info("Executing command", a[1])
 			self.say_command(e, a[1].strip())
@@ -169,9 +169,9 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		nick = e.source.nick
 		c = self.connection
 
-		if cmd.startswith(settings.ircBot["pubmsg_prefix"]):
-			c.privmsg(e.channel, str(cmd[len(settings.ircBot["pubmsg_prefix"]):]))
-		elif cmd == "dcc":
+		# if cmd.startswith(settings.ircBot["pubmsg_prefix"]):
+		# 	c.privmsg(e.channel, str(cmd[len(settings.ircBot["pubmsg_prefix"]):]))
+		if cmd == "dcc":
 			dcc = self.dcc_listen()
 			self.log.info("Starting DCC - Command: '%s'", "CHAT chat %s %d" % (ip_quad_to_numstr(dcc.localaddress), dcc.localport))
 			c.ctcp("DCC", nick, "CHAT chat %s %d" % (ip_quad_to_numstr(dcc.localaddress), dcc.localport))

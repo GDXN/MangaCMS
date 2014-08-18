@@ -10,7 +10,12 @@ import traceback
 def processDownload(seriesName, archivePath, pron=False, **kwargs):
 	archCleaner = ac.ArchCleaner()
 	log = logging.getLogger("Main.DlProc")
-	dedupState = archCleaner.processNewArchive(archivePath, **kwargs)
+	try:
+		dedupState = archCleaner.processNewArchive(archivePath, **kwargs)
+	except:
+		log.critical("Error processing archive '%s'", archivePath)
+		log.critical(traceback.format_exc())
+		dedupState = "corrupt unprocessable"
 
 	# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 	# Since we don't want to upload either, we skip if dedupState is anything other then ""

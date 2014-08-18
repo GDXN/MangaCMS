@@ -171,8 +171,13 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-6, downloadPath="Game", fileName="ERROR: Game", lastUpdate=time.time())
 			return False
 
+		try:
+			imagePage = self.wg.getpage(containerUrl, addlHeaders={'Referer': linkDict["sourceUrl"]})
+		except urllib.error.URLError:
+			self.log.warning("Failure to retreive base page!.")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR", lastUpdate=time.time())
+			return False
 
-		imagePage = self.wg.getpage(containerUrl, addlHeaders={'Referer': linkDict["sourceUrl"]})
 
 		if "This content has been disabled due to a DMCA takedown notice, it is no longer available to download or read online in your region." in imagePage:
 			self.log.warning("Assholes have DMCAed this item. Not available anymore.")
