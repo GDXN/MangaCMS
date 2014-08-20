@@ -11,7 +11,7 @@ import irc.buffer
 import irc.client
 import irc.bot
 import irc.strings
-import settings
+
 from bs4 import UnicodeDammit
 import re
 from irc.client import ip_numstr_to_quad, ip_quad_to_numstr
@@ -93,6 +93,9 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 			if hasattr(self, "get_filehandle"):
 				self.file = self.get_filehandle(args[1])
+				if not self.file:
+					self.log.error("Could not get filehandle. XDCC is being dropped.")
+					raise irc.client.DCCConnectionError
 			else:
 				self.filename = os.path.basename(args[1])
 
@@ -113,6 +116,7 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 			peeraddress = irc.client.ip_numstr_to_quad(args[2])
 			peerport = int(args[3])
+
 			self.dcc = self.dcc_connect(peeraddress, peerport, "raw")
 
 	def on_dccmsg(self, connection, event):
@@ -145,7 +149,7 @@ class TestBot(irc.bot.SingleServerIRCBot):
 	def on_pubmsg(self, c, e):
 
 		a = e.arguments[0].split(":", 1)
-		self.log.info("Name = %s", a)
+		self.log.info("Pubmessage = %s", e.arguments)
 		if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
 			self.log.info("Executing command", a[1])
 			self.say_command(e, a[1].strip())

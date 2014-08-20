@@ -2,6 +2,7 @@
 
 import ScrapePlugins.RetreivalDbBase
 import ScrapePlugins.IrcGrabber.IrcBot
+import irc.client
 
 import threading
 import nameTools as nt
@@ -9,6 +10,8 @@ import settings
 import os
 import time
 import json
+
+import traceback
 
 import processDownload
 
@@ -128,14 +131,17 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		self.todo        = []
 
 		self.timer            = None
-		self.xdcc_wait_time   = 20
+
+		# Time to wait between requesting someing over XDCC, and marking the request as failed due to timeout
+		self.xdcc_wait_time   = 120
 
 		super(FetcherBot, self).__init__(*args, **kwargs)
 
 	def get_filehandle(self, fileName):
 		# We're already receiving the file at this point, apparently.
 		if self.state != "xdcc requested":
-			raise ValueError("DCC SEND Received when not waiting for DCC transfer! Current state = %s" % self.state)
+			self.log.error("DCC SEND Received when not waiting for DCC transfer! Current state = %s" % self.state)
+			return False
 		self.currentItem["downloadPath"] = self.db.getDownloadPath(self.currentItem, fileName)
 		return open(self.currentItem["downloadPath"], "wb")
 
@@ -144,11 +150,33 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			self.log.error("DCC Receive start when no item requested?")
 			self.changeState("idle")
 			return False
-
+		if not self.checkState("xdcc requested"):
+			self.log.error("XDCC Transfer started when it was not requested!")
+			self.changeState("idle")
+			return False
 		self.log.info("XDCC Transfer starting!")
-		self.received_bytes = 0
+
 		self.changeState("xdcc receiving")
 		return True
+
+		# Intercept on on_ctcp, so we can catch errors there (connection failures, etc...)
+	def on_ctcp(self, c, e):
+		try:
+			super().on_ctcp(c, e)
+		except (ConnectionRefusedError, irc.client.DCCConnectionError):
+			self.log.error("Failed to establish DCC connection!")
+			self.log.error(traceback.format_exc())
+			self.changeState("xdcc failed")
+
+	def on_dccmsg(self, c, e):
+		if not self.checkState("xdcc requested") and \
+			not self.checkState("xdcc receiving"):
+			self.log.error("DCC Message when not receiving data!")
+			self._dcc_disconnect(c, e)
+
+		else:
+			super().on_dccmsg(c, e)
+
 
 	def xdcc_receive_finish(self):
 		self.log.info("XDCC Transfer starting!")
@@ -168,6 +196,11 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		for item in self.db.retreiveTodoLinksFromDB():
 			self.todo.append(item)
 
+	def checkState(self, checkState):
+		if not checkState in self.states:
+			raise ValueError("Tried to set check if invalid state! Invalid state state = %s" % checkState)
+		return self.state == checkState
+
 	def changeState(self, newState):
 		if not newState in self.states:
 			raise ValueError("Tried to set invalid state! New state = %s" % newState)
@@ -180,6 +213,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			self.log.info("Need to join channel %s", reqItem["info"]["channel"])
 			self.log.info("Already on channels %s", self.channels)
 			self.connection.join("#"+reqItem["info"]["channel"])
+			time.sleep(3)
 
 		self.currentItem = reqItem
 		self.changeState("xdcc requested")
@@ -200,6 +234,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		self.log.info("XDCC Finished!")
 		self.log.info("Item = '%s'", self.currentItem)
 		self.currentItem = None
+		self.received_bytes = 0
 
 
 	def stepStateMachine(self):

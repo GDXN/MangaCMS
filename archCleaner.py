@@ -115,6 +115,16 @@ class ArchCleaner(object):
 					self.log.info("Had windows 'Thumbs.db' file. Removing")
 					continue
 
+				if "/__MACOSX/" in fileN:
+					hadBadFile = True
+					self.log.info("Have apple bullshit files. Removing")
+					continue
+
+				if ".DS_Store" in fileN:
+					hadBadFile = True
+					self.log.info("Have apple bullshit '.DS_Store' files. Removing")
+					continue
+
 				fctnt = fileCtnt.read()
 
 
