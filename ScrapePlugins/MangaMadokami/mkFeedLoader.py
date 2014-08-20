@@ -51,10 +51,11 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			raise ValueError("Invalid link! Link: '%s'", linkTag)
 
 		data = json.loads(linkTag["data-enc"])
+		# print("Link json data = ", data)
 
-		url  = "".join([lut[letter] for letter in data["url"]])
-		name = "".join([lut[letter] for letter in data["name"]])
-
+		url  = "".join([lut[letter^0x33] for letter in data["url"]])
+		name = url.split("/")[-1]
+		name = urllib.parse.unquote(name)
 
 		# print("Link data = ", data)
 		# print("Link url  = ", url)
@@ -67,6 +68,10 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# Skip the needs sorting directory.
 		if dirName == 'Needs sorting':
+			return [], []
+		if dirName == 'Raws':
+			return [], []
+		if dirName == 'Requests':
 			return [], []
 
 
@@ -125,8 +130,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# print("item", item["dlName"], itemUrl)
 			else:
 				# Mask out the incoming item directories.
-				if "http://manga.madokami.com/dl/Manga/Needs%20sorting" in itemUrl or \
-					"http://manga.madokami.com/dl/Manga/Admin%20Cleanup" in itemUrl:
+				if "https://manga.madokami.com/dl/Raws" in itemUrl or \
+					"https://manga.madokami.com/dl/Raws" in itemUrl or \
+					"https://manga.madokami.com/dl/Requests" in itemUrl:
 					continue
 
 				newDirName = name.a.get_text().strip()
@@ -189,7 +195,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			for newItem in newItems:
 				items.append(newItem)
 
-			self.log.info("Have %s items, %s pages remain to scan", len(newItems), len(seriesPages))
+			self.log.info("Have %s items %s total, %s pages remain to scan", len(newItems), len(items), len(seriesPages))
 			if not runStatus.run:
 				self.log.info("Breaking due to exit flag being set")
 				return items
@@ -208,6 +214,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				print("WAT")
 
 			rows = self.getRowsByValue(originName  = link["dlName"])    #We only look at filenames to determine uniqueness,
+			if not rows:
+				rows = self.getRowsByValue(sourceUrl  = link["dlLink"])    #Check against URLs as well, so we don't break the UNIQUE constraint
+
 			if not rows:
 				newItems += 1
 

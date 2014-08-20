@@ -108,10 +108,10 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			secondsAgo = int(secondsAgo)
 			updateDate = datetime.datetime.now() - datetime.timedelta(0, secondsAgo)
 		else:
-			self.log.warning("Date parsing failed. Using fall-back parser")
+			# self.log.warning("Date parsing failed. Using fall-back parser")
 			updateDate = dateutil.parser.parse(inStr, fuzzy=True)
-			self.log.warning("Failing string = '%s'", inStr)
-			self.log.warning("As parsed = '%s'", updateDate)
+			# self.log.warning("Failing string = '%s'", inStr)
+			# self.log.warning("As parsed = '%s'", updateDate)
 
 		return updateDate
 
@@ -127,7 +127,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		seriesPages = []
 
 		if not rangeOverride:
-			dayDelta = 1
+			dayDelta = 3
 		else:
 			dayDelta = int(rangeOverride)
 		if not rangeOffset:

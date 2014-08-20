@@ -89,6 +89,16 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li>Fix Madokami scraper</li>
+	<li>proper transaction system for DB (or just go to postgres)</li>
+	<li>fix lo colums?</li>
+	<li>irc defer dir search to actual download (mk too)</li>
+	<li>scrape http://www.cxcscans.com/</li>
+	<li>scan downloads, retry missing not deduped</li>
+	<li>different tag for phash desuplication</li>
+	<li>strip metainfo from links in h (artist-, scanlators-, etc)</li>
+	<li>artist and author in filebrowser if i have it</li>
+	<li>ability to browse by mu tags</li>
 	<li>7z support in archtool</li>
 	<li>check that new items in bu are updating properly</li>
 	<li>tag/flag for when items are mirrored to mk?</li>
@@ -97,7 +107,7 @@ Shit to do:
 	<li>prioritize downloads by rating</li>
 	<li>properly show if things are one shot</li>
 	<li>cover images in file browser?</li>
-	<li>mechanism for highlighting chosen tags in table</li>
+	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
 	<li>push dir updating into separate thread</li>
 	<li>Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file</li>
 	<li>Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice</li>
@@ -168,6 +178,7 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>batoto cross verify number of images</strike> Never mind, it's not a blind exploration, it's actually using the image navigator dropdown to generate image urls.</li>
 	<li><strike>Implement dir moving system already!</strike></li>
 	<li><strike>total chapters not always known. Handle sanely.</strike></li>
 	<li><strike>find or create only choosing dirs in picked.</strike> (Fixed a while ago)</li>

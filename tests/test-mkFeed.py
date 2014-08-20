@@ -42,8 +42,8 @@ def test():
 	# for item in feedItems:
 	# 	print("Item", item)
 
-	# loader.processLinksIntoDB(feedItems)
-	# loader.closeDB()
+	loader.processLinksIntoDB(feedItems)
+	loader.closeDB()
 
 	# nt.dirNameProxy.startDirObservers()
 
