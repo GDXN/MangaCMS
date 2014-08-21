@@ -242,9 +242,7 @@ s_base, v_base = 0.35, 0.95
 
 
 for keyset in [mainKeys, pronKeys, othrKeys]:
-	print("Loopin!")
 	hues = linspace(0.0, 1.0, n=len(keyset)+1)
-	print("Hues = ", hues, "items =", len(keyset))
 	for dummy_num, idx in keyset:
 		h = hues.pop()
 		baseC  = (h,s_base,v_base)

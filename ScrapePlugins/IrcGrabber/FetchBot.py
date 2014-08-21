@@ -172,7 +172,10 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		if not self.checkState("xdcc requested") and \
 			not self.checkState("xdcc receiving"):
 			self.log.error("DCC Message when not receiving data!")
-			self._dcc_disconnect(c, e)
+			try:
+				self._dcc_disconnect(c, e)
+			except ValueError:
+				self.log.error("Connection not yet open, cannot close")
 
 		else:
 			super().on_dccmsg(c, e)

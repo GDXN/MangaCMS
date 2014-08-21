@@ -164,6 +164,7 @@ Shit to do:
 	<li>
 	Bad MangaUpdates Links:
 	<ul>
+Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka 
 		<li>neko ane</li>
 		<li>rescue me</li>
 		<li>maken-ki!</li>
