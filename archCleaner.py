@@ -115,7 +115,7 @@ class ArchCleaner(object):
 					self.log.info("Had windows 'Thumbs.db' file. Removing")
 					continue
 
-				if "/__MACOSX/" in fileN:
+				if "/__MACOSX/" in fileN or fileN.startswith("__MACOSX/"):
 					hadBadFile = True
 					self.log.info("Have apple bullshit files. Removing")
 					continue
