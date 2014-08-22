@@ -89,7 +89,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li>Fix Madokami scraper</li>
+	<li>IRC scraper is broken for filenames with spaces.... Yeah....</li>
 	<li>proper transaction system for DB (or just go to postgres)</li>
 	<li>fix lo colums?</li>
 	<li>irc defer dir search to actual download (mk too)</li>
@@ -164,7 +164,7 @@ Shit to do:
 	<li>
 	Bad MangaUpdates Links:
 	<ul>
-Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka 
+		<li>Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka</li>
 		<li>neko ane</li>
 		<li>rescue me</li>
 		<li>maken-ki!</li>
@@ -179,6 +179,7 @@ Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Fix Madokami scraper</strike></li>
 	<li><strike>batoto cross verify number of images</strike> Never mind, it's not a blind exploration, it's actually using the image navigator dropdown to generate image urls.</li>
 	<li><strike>Implement dir moving system already!</strike></li>
 	<li><strike>total chapters not always known. Handle sanely.</strike></li>

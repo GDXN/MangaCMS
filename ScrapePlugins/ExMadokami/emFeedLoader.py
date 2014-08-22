@@ -149,6 +149,8 @@ class EmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			rows = self.getRowsByValue(originName  = link["dlName"])    #We only look at filenames to determine uniqueness,
 			if not rows:
+				rows = self.getRowsByValue(sourceUrl     = link["dlLink"])    #We only look at filenames to determine uniqueness,
+			if not rows:
 				newItems += 1
 
 
