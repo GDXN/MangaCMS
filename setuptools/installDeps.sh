@@ -22,6 +22,7 @@ ln -s /usr/bin/python3.4 /usr/bin/python3
 wget https://bootstrap.pypa.io/get-pip.py
 python3 get-pip.py
 
-# Install the libraries we actually need
+echo TODO: ADD PostgreSQL >= 9.3 install stuff here!
 
-pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython irc
+# Install the libraries we actually need
+pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython irc psycopg2

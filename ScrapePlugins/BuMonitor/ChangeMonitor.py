@@ -101,7 +101,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 									AND buId IS NOT NULL
 									AND buList IS NOT NULL
 								LIMIT 100 ;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
-		rets = ret.fetchall()
+		rets = cur.fetchall()
 
 		# Only process non-list items if there are no list-items to process.
 		if len(rets) < 50:
@@ -113,7 +113,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 										AND buId IS NOT NULL
 										AND buList IS NULL
 									LIMIT 500;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
-			rets2 = ret.fetchall()
+			rets2 = cur.fetchall()
 			for row in rets2:
 				rets.append(row)
 

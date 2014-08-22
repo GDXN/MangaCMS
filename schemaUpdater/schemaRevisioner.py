@@ -11,15 +11,18 @@ from schemaUpdater.schema005to006 import schemaFive2Six
 from schemaUpdater.schema006to007 import schemaSix2Seven
 from schemaUpdater.schema007to008 import update_8
 
+from schemaUpdater.schema008to009 import update_9         # Rev 9 is the first postgres rev
+
 
 from schemaUpdater.schema006to007 import doTableCounts
+from schemaUpdater.schema008to009 import doTableCountsPostgre
 
-CURRENT_SCHEMA = 8
+CURRENT_SCHEMA = 9
 
 def getSchemaRev(conn):
 	cur = conn.cursor()
-	ret = cur.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
-	rets = ret.fetchall()
+	cur.execute('''SELECT name FROM sqlite_master WHERE type='table';''')
+	rets = cur.fetchall()
 	tables = [item for sublist in rets for item in sublist]
 	if len(tables) == 0:
 		print("First run.")
@@ -32,7 +35,7 @@ def getSchemaRev(conn):
 			return 0
 	else:
 		ret = cur.execute("SELECT schemaVersion FROM schemaRev;")
-		rets = ret.fetchall()
+		rets = cur.fetchall()
 		if rets and len(rets) != 1:
 			print("ret = ", rets)
 			raise ValueError("Schema version table should only have one row!")
@@ -64,7 +67,7 @@ def createSchemaRevTable(conn):
 	conn.execute('''INSERT INTO schemaRev VALUES (1);''')
 	conn.commit()
 
-def updateDatabaseSchema():
+def updateDatabaseSchema(fastExit=False):
 	conn = sqlite3.connect(settings.dbName, timeout=10)
 
 	rev = getSchemaRev(conn)
@@ -123,10 +126,21 @@ def updateDatabaseSchema():
 		update_8(conn)
 		updateSchemaRevNo(8)
 
+	rev = getSchemaRev(conn)
+	if rev == 8:
+		# update_9(conn)
+		updateSchemaRevNo(9)
+	rev = getSchemaRev(conn)
+	if fastExit:
+		return
 
 
+	if rev >= 9:
+		pass
+		# doTableCountsPostgre(conn)
+	else:
+		doTableCounts(conn)
 
-	doTableCounts(conn)
 	rev = getSchemaRev(conn)
 	print("Current Rev = ", rev)
 	print("Database structure us up to date.")

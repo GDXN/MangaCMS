@@ -157,6 +157,15 @@ ircBot = {
 
 }
 
+
+# Your postgres SQL database credentials for the primary database.
+# the DATABASE_USER must have write access to the database DATABASE_DB_NAME
+DATABASE_USER    = "MangaCMSUser"
+DATABASE_PASS    = "{yourpassword}"
+DATABASE_DB_NAME = "MangaCMS"
+DATABASE_IP      = "127.0.0.1"
+
+
 # Your postgres SQL database credentials for the deduper.
 # the PSQL_USER must have write access to the database PSQL_DB_NAME
 

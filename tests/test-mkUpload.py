@@ -3,7 +3,7 @@ import logSetup
 if __name__ == "__main__":
 	logSetup.initLogging()
 
-import sqlite3
+
 
 import UploadPlugins.Madokami.uploader as up
 import os

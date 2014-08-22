@@ -82,8 +82,11 @@ DNLDED = 2
 				continue
 			if not item["dbKey"]:
 				continue
-
-			running, runStart, skLastRunDuration = sm.getStatus(cur, item["dbKey"])
+			vals = sm.getStatus(cur, item["dbKey"])
+			if vals:
+				running, runStart, skLastRunDuration = vals
+			else:
+				running, runStart, skLastRunDuration = None, None, None
 
 			if running:
 				runState = "<b>Running</b>"

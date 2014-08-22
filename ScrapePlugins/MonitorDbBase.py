@@ -1,7 +1,7 @@
 
 
 import logging
-import sqlite3
+import psycopg2
 import abc
 import traceback
 import time
@@ -86,14 +86,9 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 	def openDB(self):
 		self.log.info("Opening DB...",)
-		self.conn = sqlite3.connect(self.dbName, timeout=10)
+		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 
-		self.log.info("DB opened. Activating 'wal' mode, exclusive locking")
-		rets = self.conn.execute('''PRAGMA journal_mode=wal;''')
-		# rets = self.conn.execute('''PRAGMA locking_mode=EXCLUSIVE;''')
-		rets = rets.fetchall()
-
-		self.log.info("PRAGMA return value = %s", rets)
+		self.log.info("DB opened.")
 
 	def closeDB(self):
 		self.log.info("Closing DB...",)
@@ -117,7 +112,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			if key not in self.validKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			keys.append("{key}".format(key=key))
-			values.append("?")
+			values.append("%s")
 			queryAdditionalArgs.append("{s}".format(s=kwargs[key]))
 
 		keysStr = ",".join(keys)
@@ -161,7 +156,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			if key not in self.validKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			else:
-				queries.append("{k}=?".format(k=key))
+				queries.append("{k}=%s".format(k=key))
 				qArgs.append(kwargs[key])
 
 		qArgs.append(dbId)
@@ -169,7 +164,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''UPDATE {t} SET {v} WHERE dbId=?;'''.format(t=self.tableName, v=column)
+		query = '''UPDATE {t} SET {v} WHERE dbId=%s;'''.format(t=self.tableName, v=column)
 		cur.execute(query, qArgs)
 
 
@@ -181,7 +176,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		cur = self.conn.cursor()
 
 
-		query = ''' DELETE FROM {tableN} WHERE dbId=?;'''.format(tableN=self.tableName)
+		query = ''' DELETE FROM {tableN} WHERE dbId=%s;'''.format(tableN=self.tableName)
 		qArgs = (rowId, )
 		cur.execute(query, qArgs)
 
@@ -198,7 +193,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''SELECT {cols} FROM {tableN} WHERE {key}=?;'''.format(cols=", ".join(self.validColName), tableN=self.tableName, key=key)
+		query = '''SELECT {cols} FROM {tableN} WHERE {key}=%s;'''.format(cols=", ".join(self.validColName), tableN=self.tableName, key=key)
 		# print("Query = ", query)
 		ret = cur.execute(query, (val, ))
 
@@ -287,7 +282,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			self.updateDbEntry(dbId, commit=False, **toRow)
 			self.conn.commit()
 
-		except (sqlite3.OperationalError, sqlite3.IntegrityError) as e:
+		except (psycopg2.OperationalError, psycopg2.IntegrityError) as e:
 			self.log.critical("Encountered error!")
 			self.log.critical(e)
 			traceback.print_exc()
@@ -419,14 +414,14 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	def checkInitPrimaryDb(self):
 
 		self.log.info( "Content Retreiver Opening DB...",)
-
+		cur = self.conn.cursor()
 		## LastChanged is when the last scanlation release was released
 		# Last checked is when the page was actually last scanned.
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS %s (
+		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
 											dbId            INTEGER PRIMARY KEY,
 
-											buName          text COLLATE NOCASE UNIQUE,
-											buId            text COLLATE NOCASE UNIQUE,
+											buName          text,
+											buId            text,
 											buTags          text,
 											buGenre         text,
 											buList          text,
@@ -446,31 +441,48 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 											itemAdded       real NOT NULL
 											);''' % self.tableName)
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastChanged)'''            % ("%s_lastChanged_index"  % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastChecked)'''            % ("%s_lastChecked_index"  % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (itemAdded)'''              % ("%s_itemAdded_index"    % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (rating)'''                 % ("%s_rating_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buName collate nocase)'''  % ("%s_buName_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId   collate nocase)'''  % ("%s_buId_index"         % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buTags collate nocase)'''  % ("%s_buTags_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buGenre collate nocase)''' % ("%s_buGenre_index"      % self.tableName, self.tableName))
+		cur.execute("SELECT relname FROM pg_class;")
+		haveIndexes = cur.fetchall()
+		haveIndexes = [index[0] for index in haveIndexes]
 
 
 
+		indexes = [	("%s_lastChanged_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChanged)'''),
+					("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
+					("%s_itemAdded_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (itemAdded)'''  ),
+					("%s_rating_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (rating)'''     ),
+					("%s_buName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buName)''' ),
+					("%s_buId_index"         % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buId  )''' ),
+					("%s_buTags_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buTags)''' ),
+					("%s_buGenre_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buGenre)''')
+		]
+		for name, table, nameFormat in indexes:
+			if not name.lower() in haveIndexes:
+				cur.execute(nameFormat % (name, table))
 
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS %s (
+
+		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
 											dbId            INTEGER PRIMARY KEY,
-											buId            text COLLATE NOCASE,
-											name            text COLLATE NOCASE,
-											fsSafeName      text COLLATE NOCASE,
+											buId            text,
+											name            text,
+											fsSafeName      text,
 											FOREIGN KEY(buId) REFERENCES %s(buId),
 											UNIQUE(buId, name) ON CONFLICT REPLACE
 											);''' % (self.nameMapTableName, self.tableName))
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId       collate nocase)''' %       ("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name       collate nocase)''' %       ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName, name collate nocase)''' % ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (fsSafeName collate nocase)''' %       ("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName))
+
+
+		indexes = [	("%s_nameTable_buId_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (buId      )'''       ),
+					("%s_nameTable_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (name      )'''       ),
+					("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
+					("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName)'''       )
+		]
+
+		for name, table, nameFormat in indexes:
+			if not name.lower() in haveIndexes:
+				cur.execute(nameFormat % (name, table))
+
+
 		self.conn.commit()
 		self.log.info("Retreived page database created")
 

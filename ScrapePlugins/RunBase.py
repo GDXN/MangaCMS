@@ -2,7 +2,7 @@
 
 import logging
 import settings
-import sqlite3
+import psycopg2
 import time
 import abc
 
@@ -29,24 +29,24 @@ class ScraperBase(metaclass=abc.ABCMeta):
 		self.checkInitStatusTable()
 
 	def checkInitStatusTable(self):
+		con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 
-		con = sqlite3.connect(settings.dbName, timeout=30)
 		con.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text,
 																running boolean,
 																lastRun real,
 																lastRunTime real,
 																PRIMARY KEY(name) ON CONFLICT REPLACE)''')
 		print(self.pluginName)
-		con.execute('''INSERT INTO pluginStatus (name, running, lastRun, lastRunTime) VALUES (?, ?, ?, ?)''', (self.pluginName, False, -1, -1))
+		con.execute('''INSERT INTO pluginStatus (name, running, lastRun, lastRunTime) VALUES (%s, %s, %s, %s)''', (self.pluginName, False, -1, -1))
 		con.commit()
 
 		con.close()
 
 	def amRunning(self):
 
-		con = sqlite3.connect(settings.dbName, timeout=30)
+		con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		cur = con.cursor()
-		ret = cur.execute("""SELECT running FROM pluginStatus WHERE name=?""", (self.pluginName, ))
+		ret = cur.execute("""SELECT running FROM pluginStatus WHERE name=%s""", (self.pluginName, ))
 		rets = ret.fetchone()[0]
 		self.log.info("%s is running = '%s', as bool = '%s'", self.pluginName, rets, bool(rets))
 		return rets
@@ -55,13 +55,13 @@ class ScraperBase(metaclass=abc.ABCMeta):
 		if pluginName == None:
 			pluginName=self.pluginName
 
-		con = sqlite3.connect(settings.dbName, timeout=30)
+		con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		if running != None:  # Note: Can be set to "False". This is valid!
-			con.execute('''UPDATE pluginStatus SET running=? WHERE name=?;''', (running, pluginName))
+			con.execute('''UPDATE pluginStatus SET running=%s WHERE name=%s;''', (running, pluginName))
 		if lastRun != None:
-			con.execute('''UPDATE pluginStatus SET lastRun=? WHERE name=?;''', (lastRun, pluginName))
+			con.execute('''UPDATE pluginStatus SET lastRun=%s WHERE name=%s;''', (lastRun, pluginName))
 		if lastRunTime != None:
-			con.execute('''UPDATE pluginStatus SET lastRunTime=? WHERE name=?;''', (lastRunTime, pluginName))
+			con.execute('''UPDATE pluginStatus SET lastRunTime=%s WHERE name=%s;''', (lastRunTime, pluginName))
 
 		con.commit()
 		con.close()

@@ -31,7 +31,7 @@ def userCheck(userid, dummy_request):
 		return False
 
 import logging
-import sqlite3
+import psycopg2
 import traceback
 import statusManager as sm
 
@@ -70,14 +70,7 @@ class PageResource(object):
 	def openDB(self):
 		self.log.info("WSGI Server Opening DB...")
 		self.log.info("DB Path = %s", self.dbPath)
-		self.conn = sqlite3.connect(self.dbPath, check_same_thread=False)
-
-		self.log.info("DB opened. Activating 'wal' mode")
-		rets = self.conn.execute('''PRAGMA journal_mode=wal;''')
-		rets = self.conn.execute('''PRAGMA locking_mode=EXCLUSIVE;''')
-		rets = rets.fetchall()
-
-		self.log.info("PRAGMA return value = %s", rets)
+		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 
 		sm.checkStatusTableExists()
 

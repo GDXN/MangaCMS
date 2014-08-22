@@ -1,36 +1,38 @@
 
-import sqlite3
+import psycopg2
 import settings
 
 
 def checkStatusTableExists():
-	con = sqlite3.connect(settings.dbName, timeout=30)
-	con.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text, running boolean, lastRun real, lastRunTime real, PRIMARY KEY(name) ON CONFLICT REPLACE)''')
+	con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+	cur = con.cursor()
+	cur.execute('''CREATE TABLE IF NOT EXISTS pluginstatus (name text, running boolean, lastRun real, lastRunTime real, PRIMARY KEY(name))''')
 	con.commit()
 	con.close()
 
 
 def checkInitStatusTable(pluginName):
 
-	con = sqlite3.connect(settings.dbName, timeout=30)
-	con.execute('''INSERT INTO pluginStatus (name, running, lastRun, lastRunTime) VALUES (?, ?, ?, ?)''', (pluginName, False, -1, -1))
+	con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+	con.execute('''INSERT INTO pluginstatus (name, running, lastRun, lastRunTime) VALUES (%s, %s, %s, %s)''', (pluginName, False, -1, -1))
 	con.commit()
 	con.close()
 
 def getStatus(cur, pluginName):
-	ret = cur.execute("""SELECT running,lastRun,lastRunTime FROM pluginStatus WHERE name=?""", (pluginName, ))
-	rets = ret.fetchall()[0]
+	cur.execute("""SELECT running,lastRun,lastRunTime FROM pluginstatus WHERE name=%s""", (pluginName, ))
+	rets = cur.fetchall()
 	return rets
 
 def setStatus(pluginName, running=None, lastRun=None, lastRunTime=None):
 
-	con = sqlite3.connect(settings.dbName, timeout=30)
+	con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+	cur = con.cursor()
 	if running != None:  # Note: Can be set to "False". This is valid!
-		con.execute('''UPDATE pluginStatus SET running=? WHERE name=?;''', (running, pluginName))
+		cur.execute('''UPDATE pluginstatus SET running=%s WHERE name=%s;''', (running, pluginName))
 	if lastRun != None:
-		con.execute('''UPDATE pluginStatus SET lastRun=? WHERE name=?;''', (lastRun, pluginName))
+		cur.execute('''UPDATE pluginstatus SET lastRun=%s WHERE name=%s;''', (lastRun, pluginName))
 	if lastRunTime != None:
-		con.execute('''UPDATE pluginStatus SET lastRunTime=? WHERE name=?;''', (lastRunTime, pluginName))
+		cur.execute('''UPDATE pluginstatus SET lastRunTime=%s WHERE name=%s;''', (lastRunTime, pluginName))
 
 	con.commit()
 	con.close()

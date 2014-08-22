@@ -4,7 +4,7 @@ import re
 
 import settings
 import logging
-import sqlite3
+import psycopg2
 import time
 import logSetup
 import threading
@@ -200,12 +200,12 @@ class MapWrapper(object):
 	dbPath = settings.dbName
 
 	validTables = {
-		"mangaNameMappings"  : ["mangaNameMappings",
+		"mangaNameMappings"  : ["manganamemappings",
 								'''(mangaUpdates text NOT NULL,
 									mangaTraders text NOT NULL,
 									PRIMARY KEY(mangaTraders) ON CONFLICT REPLACE)''',
 								 ("mangaUpdates", "mangaTraders")],
-		"folderNameMappings" : ["folderNameMappings",
+		"folderNameMappings" : ["foldernamemappings",
 								'''(baseName text NOT NULL,
 									folderName text NOT NULL,
 									PRIMARY KEY(baseName, folderName) ON CONFLICT REPLACE)''',
@@ -237,21 +237,19 @@ class MapWrapper(object):
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
-		self.conn = sqlite3.connect(self.dbPath, timeout=30, check_same_thread=False)
+		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.log.info("opened")
 		cur = self.conn.cursor()
-		ret = cur.execute('''SELECT name FROM sqlite_master WHERE type='table' AND name='%s';''' % self.tableName)
-		rets = ret.fetchall()
+		cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.tableName)
+		rets = cur.fetchall()
 		if rets:
 			rets = rets[0]
 		if not self.tableName in rets:   # If the DB doesn't exist, set it up.
 			self.log.info("DB Not setup for %s. Creating table", self.tableName)
-			self.conn.execute('''CREATE TABLE %s %s''' % (self.tableName, self.tableSchema))
-			# raise ValueError("%s Database does not exist. Name mapper cannot work." % self.tableName)
-
-		self.log.info("Activating 'wal' mode")
-		rets = self.conn.execute('''PRAGMA journal_mode=wal;''')
-		rets = rets.fetchall()
+			# cur = self.conn.cursor()
+			# cur.execute('''CREATE TABLE %s %s''' % (self.tableName, self.tableSchema))
+			# cur.commit()
+			raise ValueError("%s Database does not exist. Name mapper cannot work." % self.tableName)
 
 		self.log.info("PRAGMA return value = %s", rets)
 
@@ -310,11 +308,11 @@ class MtNamesMapWrapper(object):
 	dbPath = settings.dbName
 
 	modes = {
-		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'muNameList'},
-		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'muNameList'},
-		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'muNameList'},
-		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'MangaSeries'},
-		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'MangaSeries'}
+		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'munamelist'},
+		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'munamelist'},
+		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'munamelist'},
+		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'mangaseries'},
+		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'mangaseries'}
 	}
 
 	def __init__(self, mode):
@@ -333,7 +331,7 @@ class MtNamesMapWrapper(object):
 		self.lastUpdate = 0
 		self.items = {}
 
-		self.queryStr = 'SELECT %s FROM %s WHERE %s=?;' % (self.mode["cols"][1], self.mode["table"], self.mode["cols"][0])
+		self.queryStr = 'SELECT %s FROM %s WHERE %s=%%s;' % (self.mode["cols"][1], self.mode["table"], self.mode["cols"][0])
 		self.allQueryStr = 'SELECT %s, %s FROM %s;' % (self.mode["cols"][0], self.mode["cols"][1], self.mode["table"])
 		self.log.info("Mode %s, Query %s", mode, self.queryStr)
 		self.log.info("Mode %s, IteratorQuery %s",  mode, self.allQueryStr)
@@ -345,11 +343,11 @@ class MtNamesMapWrapper(object):
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
-		self.conn = sqlite3.connect(self.dbPath, timeout=30, check_same_thread=False)
+		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.log.info("opened")
 		cur = self.conn.cursor()
-		ret = cur.execute('''SELECT name FROM sqlite_master WHERE type='table' AND name='%s';''' % self.mode["table"])
-		rets = ret.fetchall()
+		cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.mode["table"])
+		rets = cur.fetchall()
 		if rets:
 			rets = rets[0]
 		if not self.mode["table"] in rets:   # If the DB doesn't exist, set it up.
@@ -364,8 +362,8 @@ class MtNamesMapWrapper(object):
 	def iteritems(self):
 
 		cur = self.conn.cursor()
-		ret = cur.execute(self.allQueryStr)
-		rets = ret.fetchall()
+		cur.execute(self.allQueryStr)
+		rets = cur.fetchall()
 
 		for fsSafeName, buId in rets:
 			yield fsSafeName, buId
@@ -376,9 +374,9 @@ class MtNamesMapWrapper(object):
 		if "keyfunc" in self.mode:
 			key = self.mode["keyfunc"](key)
 		cur = self.conn.cursor()
-		ret = cur.execute(self.queryStr, (key, ))
+		cur.execute(self.queryStr, (key, ))
 
-		rets = ret.fetchall()
+		rets = cur.fetchall()
 		if not rets:
 			return []
 		return set([item[0] for item in rets])
@@ -394,7 +392,7 @@ class MtNamesMapWrapper(object):
 
 class EventHandler(pyinotify.ProcessEvent):
 	def __init__(self, paths):
-		super(pyinotify.ProcessEvent, self).__init__()
+		super(EventHandler, self).__init__()
 		self.paths = {}
 		for path in paths:
 			self.paths[path] = False

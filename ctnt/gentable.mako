@@ -4,7 +4,7 @@
 # Module level!
 
 import re
-
+import psycopg2
 import time
 import datetime
 from babel.dates import format_timedelta
@@ -43,14 +43,14 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesNam
 		queryAdditionalArgs = []
 
 	elif type(tableKey) is str:
-		whereItems = ["sourceSite=?"]
+		whereItems = ["sourceSite=%s"]
 		queryAdditionalArgs = [tableKey]
 
 	elif type(tableKey) is list or type(tableKey) is tuple:
 		items = []
 		queryAdditionalArgs = []
 		for key in tableKey:
-			items.append("sourceSite=?")
+			items.append("sourceSite=%s")
 			queryAdditionalArgs.append(key)
 
 		selectStr = " OR ".join(items)    # Convert down to a single string
@@ -62,7 +62,7 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesNam
 	tagsFilterArr = []
 	if tagsFilter != None:
 		for tag in tagsFilter:
-			tagsFilterArr.append(" tags LIKE ? ")
+			tagsFilterArr.append(" tags LIKE %s ")
 			queryAdditionalArgs.append("%{s}%".format(s=tag))
 
 	if tagsFilterArr:
@@ -71,13 +71,13 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesNam
 	seriesFilterArr = []
 	if seriesFilter != None:
 		for series in seriesFilter:
-			seriesFilterArr.append(" seriesName LIKE ? ")
+			seriesFilterArr.append(" seriesName LIKE %s ")
 			series = nt.getCanonicalMangaUpdatesName(series)
 			queryAdditionalArgs.append("%{s}%".format(s=series))
 
 	seriesNameArr = []
 	if seriesName != None:
-		seriesFilterArr.append(" seriesName=? ")
+		seriesFilterArr.append(" seriesName=%s ")
 		series = nt.getCanonicalMangaUpdatesName(seriesName)
 		queryAdditionalArgs.append("{s}".format(s=series))
 
@@ -138,14 +138,13 @@ colours = {
 
 	<%
 	cur = sqlCon.cursor()
-
 	if flags != '':
 		print("Query string not properly generated at the moment")
 		print("FIX ME!")
 
 
 	if distinct:
-		groupStr = "GROUP BY seriesName"
+		groupStr = "GROUP BY seriesName,dbId"
 		orderBy  = "ORDER BY MAX(retreivalTime) DESC"
 	else:
 		groupStr = ""
@@ -182,8 +181,8 @@ colours = {
 					{query}
 					{group}
 					{order}
-					LIMIT ?
-					OFFSET ?
+					LIMIT %s
+					OFFSET %s
 				) AS di
 				ON  di.dbId = d.dbId
 		ORDER BY d.retreivalTime DESC;'''.format(query=whereStr, group=groupStr, order=orderBy)
@@ -191,8 +190,18 @@ colours = {
 	# print("Query = ", query)
 	# print("params = ", params)
 
-	ret = cur.execute(query, params)
-	tblCtntArr = ret.fetchall()
+	try:
+		ret = cur.execute(query, params)
+	except psycopg2.InternalError:
+		cur.execute("rollback;")
+		# cur.fetchall()
+		raise
+	except psycopg2.ProgrammingError:
+		cur.execute("rollback;")
+		# cur.fetchall()
+		raise
+
+	tblCtntArr = cur.fetchall()
 	# print("Done")
 	%>
 	% for row in tblCtntArr:
@@ -340,10 +349,10 @@ colours = {
 								FROM HentaiItems
 								{query}
 								ORDER BY retreivalTime
-								DESC LIMIT ?
-								OFFSET ?;'''.format(query = whereStr), params)
+								DESC LIMIT %s
+								OFFSET %s;'''.format(query = whereStr), params)
 
-	tblCtntArr = ret.fetchall()
+	tblCtntArr = cur.fetchall()
 	print("Queried")
 	%>
 
@@ -511,7 +520,7 @@ colours = {
 
 	# print ("Query = ", query)
 	ret = cur.execute(query, params)
-	tblCtntArr = ret.fetchall()
+	tblCtntArr = cur.fetchall()
 
 	ratingShow = "all"
 

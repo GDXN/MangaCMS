@@ -1,7 +1,7 @@
 
 
 import logging
-import sqlite3
+import psycopg2
 import abc
 
 import threading
@@ -14,7 +14,7 @@ import nameTools as nt
 # Turn on to print all db queries to STDOUT before running them.
 # Intended for debugging DB interactions.
 # Excessively verbose otherwise.
-QUERY_DEBUG = False
+QUERY_DEBUG = True
 
 class ScraperDbBase(metaclass=abc.ABCMeta):
 
@@ -52,8 +52,10 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	# The end result is each thread just uses `self.conn` and `self.log` as normal, but actually get a instance of each that is
 	# specifically allocated for just that thread
 	#
-	# Sqlite3 doesn't like having it's DB handles shared across threads. You can turn the checking off, but I had
-	# db issues when it was disabled. This is a much more robust fix
+	# ~~Sqlite 3 doesn't like having it's DB handles shared across threads. You can turn the checking off, but I had
+	# db issues when it was disabled. This is a much more robust fix~~
+	#
+	# Migrated to PostgreSQL. We'll see how that works out.
 	#
 	# The log indirection is just so log statements include their originating thread. I like lots of logging.
 	#
@@ -71,9 +73,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		elif name == "conn":
 			if threadName not in self.dbConnections:
-				self.dbConnections[threadName] = sqlite3.connect(self.dbName, timeout=30)
-				rets = self.dbConnections[threadName].execute('''PRAGMA journal_mode=wal;''')
-				rets = rets.fetchall()
+				self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 			return self.dbConnections[threadName]
 
 
@@ -94,18 +94,11 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		self.openDB()
 		self.checkInitPrimaryDb()
 
-
+	# Deferred to special hook in __getattribute__ that provides separate
+	# db interfaces to each thread.
 	def openDB(self):
 		pass
-		# self.log.info("Opening DB...",)
-		# self.conn = sqlite3.connect(self.dbName, timeout=10)
 
-		# self.log.info("DB opened. Activating 'wal' mode, exclusive locking")
-		# rets = self.conn.execute('''PRAGMA journal_mode=wal;''')
-		# # rets = self.conn.execute('''PRAGMA locking_mode=EXCLUSIVE;''')
-		# rets = rets.fetchall()
-
-		# self.log.info("PRAGMA return value = %s", rets)
 
 	def closeDB(self):
 		self.log.info("Closing DB...",)
@@ -160,14 +153,14 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		# Pre-populate with the table keys.
 		keys = ["sourceSite"]
-		values = ["?"]
+		values = ["%s"]
 		queryArguments = [self.tableKey]
 
 		for key in kwargs.keys():
 			if key not in self.validKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			keys.append("{key}".format(key=key))
-			values.append("?")
+			values.append("%s")
 			queryArguments.append("{s}".format(s=kwargs[key]))
 
 		keysStr = ",".join(keys)
@@ -212,7 +205,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			if key not in self.validKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			else:
-				queries.append("{k}=?".format(k=key))
+				queries.append("{k}=%s".format(k=key))
 				qArgs.append(kwargs[key])
 
 		qArgs.append(sourceUrl)
@@ -221,7 +214,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''UPDATE {tableName} SET {v} WHERE sourceUrl=? AND sourceSite=?;'''.format(tableName=self.tableName, v=column)
+		query = '''UPDATE {tableName} SET {v} WHERE sourceUrl=%s AND sourceSite=%s;'''.format(tableName=self.tableName, v=column)
 
 		if QUERY_DEBUG:
 			print("Query = ", query)
@@ -247,7 +240,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			if key not in self.validKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			else:
-				queries.append("{k}=?".format(k=key))
+				queries.append("{k}=%s".format(k=key))
 				qArgs.append(kwargs[key])
 
 		qArgs.append(rowId)
@@ -256,7 +249,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''UPDATE {tableName} SET {v} WHERE dbId=? AND sourceSite=?;'''.format(tableName=self.tableName, v=column)
+		query = '''UPDATE {tableName} SET {v} WHERE dbId=%s AND sourceSite=%s;'''.format(tableName=self.tableName, v=column)
 
 		if QUERY_DEBUG:
 			print("Query = ", query)
@@ -279,7 +272,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 		cur = self.conn.cursor()
 
-		query = '''DELETE FROM {tableName} WHERE {key}=? AND sourceSite=?;'''.format(tableName=self.tableName, key=key)
+		query = '''DELETE FROM {tableName} WHERE {key}=%s AND sourceSite=%s;'''.format(tableName=self.tableName, key=key)
 		# print("Query = ", query)
 
 		if QUERY_DEBUG:
@@ -316,7 +309,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 								flags,
 								tags,
 								note
-								FROM {tableName} WHERE {key}=? AND sourceSite=? ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
+								FROM {tableName} WHERE {key}=%s AND sourceSite=%s ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
 			quargs = (val, self.tableKey)
 
 		else:
@@ -333,7 +326,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 								flags,
 								tags,
 								note
-								FROM {tableName} WHERE {key}=? ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
+								FROM {tableName} WHERE {key}=%s ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
 			quargs = (val, )
 
 
@@ -341,11 +334,11 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("args = ", quargs)
 
-		ret = cur.execute(query, quargs)
+		cur.execute(query, quargs)
 
 
 
-		rets = ret.fetchall()
+		rets = cur.fetchall()
 		retL = []
 		for row in rets:
 
@@ -394,7 +387,8 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	def resetStuckItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=?'''.format(tableName=self.tableName), (self.tableKey, ))
+		cur = self.conn.cursor()
+		cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=%s'''.format(tableName=self.tableName), (self.tableKey, ))
 		self.conn.commit()
 		self.log.info("Download reset complete")
 
@@ -404,11 +398,12 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	def checkInitPrimaryDb(self):
+		cur = self.conn.cursor()
 
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
+		cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 											dbId          INTEGER PRIMARY KEY,
 											sourceSite    TEXT NOT NULL,
-											dlState       text NOT NULL,
+											dlState       INTEGER NOT NULL,
 											sourceUrl     text UNIQUE NOT NULL,
 											retreivalTime real NOT NULL,
 											lastUpdate    real DEFAULT 0,
@@ -421,16 +416,29 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 											tags          text,
 											note          text);'''.format(tableName=self.tableName))
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceSite)'''                       % ("%s_source_index"     % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (retreivalTime)'''                    % ("%s_time_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastUpdate)'''                       % ("%s_lastUpdate_index" % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (sourceUrl)'''                        % ("%s_url_index"        % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName collate nocase)'''        % ("%s_seriesName_index" % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (tags       collate nocase)'''        % ("%s_tags_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (flags      collate nocase)'''        % ("%s_flags_index"      % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (dlState)'''                          % ("%s_dlState_index"    % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (originName)'''                       % ("%s_originName_index" % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName, retreivalTime, dbId)'''  % ("%s_aggregate_index"  % self.tableName, self.tableName))
+
+		cur.execute("SELECT relname FROM pg_class;")
+		haveIndexes = cur.fetchall()
+		haveIndexes = [index[0] for index in haveIndexes]
+
+
+
+		indexes = [	("%s_source_index"     % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (sourceSite)'''                     ),
+					("%s_time_index"       % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (retreivalTime)'''                  ),
+					("%s_lastUpdate_index" % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (lastUpdate)'''                     ),
+					("%s_url_index"        % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (sourceUrl)'''                      ),
+					("%s_seriesName_index" % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (seriesName )'''                    ),
+					("%s_tags_index"       % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (tags       )'''                    ),
+					("%s_flags_index"      % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (flags      )'''                    ),
+					("%s_dlState_index"    % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (dlState)'''                        ),
+					("%s_originName_index" % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (originName)'''                     ),
+					("%s_aggregate_index"  % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId)''')
+		]
+
+		for name, table, nameFormat in indexes:
+			if not name.lower() in haveIndexes:
+				cur.execute(nameFormat % (name, table))
+
 
 
 		self.conn.commit()

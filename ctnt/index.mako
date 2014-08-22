@@ -161,10 +161,11 @@ Shit to do:
 <p>
 <b>Nametools Issues</b>
 <ul>
+	<li>Everything is getting sorted into '[zion]'</li>
 	<li>
 	Bad MangaUpdates Links:
 	<ul>
-Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka 
+Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka
 		<li>neko ane</li>
 		<li>rescue me</li>
 		<li>maken-ki!</li>

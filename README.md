@@ -40,6 +40,7 @@ Has lots of dependencies:
  - Mako
  - CherryPy
  - Pyramid
+ - Psycopg (And a PostgreSQL install!)
  - Beautifulsoup4
  - FeedParser
  - colorama
@@ -82,6 +83,35 @@ Finally, the actual scraper has two halves. `mainWeb.py` is the web-interface, a
 Currently, if you run `mainWeb.py` having never run `mainScrape.py`, it will *probably* fail, because the scraper is responsible for setting up the database. Simply run `mainScrape.py` first. (All are run `python3 mainScrape.py` or `python3 mainWeb.py`).
 
 The tools are currently not daemonized at all, and must be manually run after restarting. I normally just leave them running in a [screen](http://www.gnu.org/software/screen/) session on my server. 
+
+---
+
+The database must be somewhat manually set up at this time.
+
+```
+postgres=# CREATE USER mangacmsuser;
+CREATE ROLE
+postgres=# \password mangacmsuser
+Enter new password:   { Type your Password }
+Enter it again:   { Type your Password }
+postgres=# CREATE DATABASE mangacms;
+CREATE DATABASE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE mangacms to mangacmsuser;
+GRANT
+
+```
+
+Note: using capitals in usernames/tablenames/columnames in postgre is rather difficult, just don't do it.
+
+You must then specify the Database server's IP, the username, databasename, and password in the `settings.py` file. 
+
+You also have to add the line 
+
+`local   mangacms        all                                     md5`
+
+to `/etc/postgresql/9.3/main/pg_hba.conf`, to allow local connections to the postgre database with password auth.
+
+
 
 ---
 

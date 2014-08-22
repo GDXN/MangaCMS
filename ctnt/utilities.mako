@@ -125,8 +125,8 @@ import nameTools as nt
 <%def name="getItemInfo(seriesName)">
 	<%
 	cur = sqlCon.cursor()
-	ret = cur.execute("SELECT buId,buTags,buGenre,buList,readingProgress,availProgress  FROM MangaSeries WHERE buName=?;", (seriesName, ))
-	rets = ret.fetchall()
+	ret = cur.execute("SELECT buId,buTags,buGenre,buList,readingProgress,availProgress  FROM MangaSeries WHERE buName=%s;", (seriesName, ))
+	rets = cur.fetchall()
 	if not rets:
 		buId, buTags, buGenre, buList, readProgress, availProgress = None, None, None, None, None, None
 	else:
