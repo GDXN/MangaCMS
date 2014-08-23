@@ -55,6 +55,16 @@ mangaFolders = {
 		}
 }
 
+tagHighlight = [
+	"tags",
+	"to",
+	"highlight",
+	"in",
+	"the",
+	"hentai"
+	"table"
+	]
+
 # Manga Updates
 buSettings = {
 	"login"         : "username",

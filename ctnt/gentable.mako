@@ -10,7 +10,7 @@ import datetime
 from babel.dates import format_timedelta
 import os.path
 import urllib.parse
-
+import settings
 import nameTools as nt
 
 def compactDateStr(dateStr):
@@ -446,7 +446,23 @@ colours = {
 				<td>
 
 				% for tag in tags.split():
-					<a href="/itemsPron?byTag=${tag.strip()|u}">${tag}</a>
+					<%
+					tagname = tag.lower().replace("artist-", "") \
+								.replace("scanlator-", "") \
+								.replace("scanlators-", "") \
+								.replace("parody-", "") \
+								.replace("group-", "") \
+								.replace("character-", "") \
+								.replace("convention-", "") \
+								.strip()
+					highlight = False
+					for toHighlighTag in settings.tagHighlight:
+						if toHighlighTag in tagname:
+							highlight = True
+					%>
+					${"<b>" if highlight else ""}
+					<a href="/itemsPron?byTag=${tagname|u}">${tag}</a>
+					${"</b>" if highlight else ""}
 				% endfor
 				</td>
 			% else:

@@ -89,22 +89,20 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+	<li><b>Distinct filter not working!</b></li>
+	<li>make tags case-insensitive</li>
 
-	<li>IRC scraper is broken for filenames with spaces.... Yeah....</li>
-	<li>proper transaction system for DB (or just go to postgres)</li>
 	<li>fix lo colums?</li>
 	<li>irc defer dir search to actual download (mk too)</li>
 	<li>scrape http://www.cxcscans.com/</li>
 	<li>scan downloads, retry missing not deduped</li>
 	<li>different tag for phash desuplication</li>
-	<li>strip metainfo from links in h (artist-, scanlators-, etc)</li>
 	<li>artist and author in filebrowser if i have it</li>
 	<li>ability to browse by mu tags</li>
 	<li>7z support in archtool</li>
 	<li>check that new items in bu are updating properly</li>
 	<li>tag/flag for when items are mirrored to mk?</li>
 	<li>bu page opens in new window</li>
-	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> I think this is actually the DB loading the indexes from disk. Not sure.</li>
 	<li>prioritize downloads by rating</li>
 	<li>properly show if things are one shot</li>
 	<li>cover images in file browser?</li>
@@ -181,6 +179,10 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike>strip metainfo from links in h (artist-, scanlators-, etc)</strike> (Also added a configurable tag highlighter)</li>
+	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> <strike>I think this is actually the DB loading the indexes from disk. Not sure.</strike> (Hopefully fixed by move to Postgre</li>
+	<li><strike>IRC scraper is broken for filenames with spaces.... Yeah....</strike></li>
+	<li><strike>proper transaction system for DB (or just go to postgres)</strike> (went to postgre)</li>
 	<li><strike>Fix Madokami scraper</strike></li>
 	<li><strike>batoto cross verify number of images</strike> Never mind, it's not a blind exploration, it's actually using the image navigator dropdown to generate image urls.</li>
 	<li><strike>Implement dir moving system already!</strike></li>
