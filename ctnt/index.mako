@@ -89,6 +89,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+
 	<li>IRC scraper is broken for filenames with spaces.... Yeah....</li>
 	<li>proper transaction system for DB (or just go to postgres)</li>
 	<li>fix lo colums?</li>
@@ -161,6 +162,7 @@ Shit to do:
 <p>
 <b>Nametools Issues</b>
 <ul>
+	<li>Everything is getting sorted into '[zion]'</li>
 	<li>
 	Bad MangaUpdates Links:
 	<ul>

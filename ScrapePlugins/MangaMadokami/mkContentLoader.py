@@ -51,7 +51,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		items = []
 		for item in rows:
-
+			print("Item", item)
 			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
 
 
@@ -62,7 +62,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 			if seriesName in nt.dirNameProxy:
-				# self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
+				self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
 				item["targetDir"] = nt.dirNameProxy[seriesName]["fqPath"]
 			else:
 				self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", seriesName, item["seriesName"], item["originName"])

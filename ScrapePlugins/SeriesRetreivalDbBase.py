@@ -1,13 +1,8 @@
 
 
 import logging
-import sqlite3
 import abc
 
-import threading
-import settings
-import os
-import traceback
 
 import nameTools as nt
 
@@ -58,7 +53,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if key not in self.validSeriesKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			keys.append("{key}".format(key=key))
-			values.append("?")
+			values.append("%s")
 			queryArguments.append("{s}".format(s=kwargs[key]))
 
 		keysStr = ",".join(keys)
@@ -104,7 +99,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if key not in self.validSeriesKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			else:
-				queries.append("{k}=?".format(k=key))
+				queries.append("{k}=%s".format(k=key))
 				qArgs.append(kwargs[key])
 
 		qArgs.append(seriesId)
@@ -113,7 +108,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		cur = self.conn.cursor()
 
-		query = '''UPDATE {tableName} SET {v} WHERE seriesId=?;'''.format(tableName=self.seriesTableName, v=column)
+		query = '''UPDATE {tableName} SET {v} WHERE seriesId=%s;'''.format(tableName=self.seriesTableName, v=column)
 
 		if QUERY_DEBUG:
 			print("Query = ", query)
@@ -138,7 +133,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if key not in self.validSeriesKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			else:
-				queries.append("{k}=?".format(k=key))
+				queries.append("{k}=%s".format(k=key))
 				qArgs.append(kwargs[key])
 
 		qArgs.append(rowId)
@@ -147,7 +142,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		cur = self.conn.cursor()
 
-		query = '''UPDATE {tableName} SET {v} WHERE dbId=?;'''.format(tableName=self.seriesTableName, v=column)
+		query = '''UPDATE {tableName} SET {v} WHERE dbId=%s;'''.format(tableName=self.seriesTableName, v=column)
 
 		if QUERY_DEBUG:
 			print("Query = ", query)
@@ -178,13 +173,13 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 						dlState,
 						retreivalTime,
 						lastUpdate
-						FROM {tableName} WHERE {key}=? ORDER BY retreivalTime DESC;'''.format(tableName=self.seriesTableName, key=key)
+						FROM {tableName} WHERE {key}=%s ORDER BY retreivalTime DESC;'''.format(tableName=self.seriesTableName, key=key)
 		if QUERY_DEBUG:
 			print("Query = ", query)
 			print("args = ", (val))
-		ret = cur.execute(query, (val,))
+		cur.execute(query, (val,))
 
-		rets = ret.fetchall()
+		rets = cur.fetchall()
 		retL = []
 		for row in rets:
 
@@ -196,7 +191,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def resetStuckSeriesItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		self.conn.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1'''.format(tableName=self.seriesTableName))
+		cur = self.conn.cursor()
+		cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1'''.format(tableName=self.seriesTableName))
 		self.conn.commit()
 		self.log.info("Download reset complete")
 
@@ -204,7 +200,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def checkInitSeriesDb(self):
 
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
+		cur = self.conn.cursor()
+		cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 											dbId          INTEGER PRIMARY KEY,
 											seriesId      TEXT NOT NULL,
 											seriesName    TEXT NOT NULL,
@@ -213,11 +210,24 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 											lastUpdate    real DEFAULT 0
 											);'''.format(tableName=self.seriesTableName))
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesId)'''                         % ("%s_serId_index"      % self.seriesTableName, self.seriesTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (retreivalTime)'''                    % ("%s_time_index"       % self.seriesTableName, self.seriesTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastUpdate)'''                       % ("%s_lastUpdate_index" % self.seriesTableName, self.seriesTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (seriesName)'''                       % ("%s_seriesName_index" % self.seriesTableName, self.seriesTableName))
 
+
+
+		cur.execute("SELECT relname FROM pg_class;")
+		haveIndexes = cur.fetchall()
+		haveIndexes = [index[0] for index in haveIndexes]
+
+
+
+		indexes = [	("%s_serId_index"      % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (seriesId)'''      ),
+					("%s_time_index"       % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (retreivalTime)''' ),
+					("%s_lastUpdate_index" % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (lastUpdate)'''    ),
+					("%s_seriesName_index" % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (seriesName)'''    )
+		]
+
+		for name, table, nameFormat in indexes:
+			if not name.lower() in haveIndexes:
+				cur.execute(nameFormat % (name, table))
 
 		self.conn.commit()
 		self.log.info("Retreived page database created")

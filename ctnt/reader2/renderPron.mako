@@ -35,9 +35,9 @@ except ValueError:
 	return
 
 cur = sqlCon.cursor()
-ret = cur.execute('''SELECT downloadPath, fileName FROM HentaiItems WHERE dbId=?;''', (itemId, ))
+ret = cur.execute('''SELECT downloadPath, fileName FROM HentaiItems WHERE dbId=%s;''', (itemId, ))
 
-rets = ret.fetchall()[0]
+rets = cur.fetchall()[0]
 if not rets:
 	reader.invalidKey(message="Specified itemId does not exist in database!")
 	return

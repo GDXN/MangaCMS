@@ -4,6 +4,8 @@ import os
 import struct
 import sys
 
+import shlex
+
 import ssl
 import logging
 import irc.logging
@@ -84,7 +86,9 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 		elif e.arguments[0] == "DCC":
 
-			args = e.arguments[1].split()
+			# Use shlex.split because filenames can have spaces.
+			# it's crazy. I know.
+			args = shlex.split(e.arguments[1].split)
 			if args[0] != "SEND":
 				self.log.warning("Not DCC Send. Wat? '%s'", e.arguments)
 				return

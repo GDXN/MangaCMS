@@ -82,8 +82,12 @@ DNLDED = 2
 				continue
 			if not item["dbKey"]:
 				continue
-
-			running, runStart, skLastRunDuration = sm.getStatus(cur, item["dbKey"])
+			vals = sm.getStatus(cur, item["dbKey"])
+			if vals:
+				running, runStart, lastRunDuration = vals
+				runStart = ut.timeAgo(runStart)
+			else:
+				running, runStart, lastRunDuration = False, "Never!", None
 
 			if running:
 				runState = "<b>Running</b>"
@@ -92,9 +96,9 @@ DNLDED = 2
 			%>
 			<div class="statediv ${item['cssClass']}">
 				<strong>${item["name"]}</strong><br />
-				${ut.timeAgo(runStart)}<br />
+				${runStart}<br />
 				${runState}
-
+				<!--
 				% if item["dictKey"] != None:
 					% if item["dictKey"] in statusDict:
 						<ul>
@@ -107,6 +111,7 @@ DNLDED = 2
 						<b>WARN: No lookup dict built yet!</b>
 					% endif
 				% endif
+				 -->
 			</div>
 		% endfor
 	</div>
