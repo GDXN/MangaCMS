@@ -13,26 +13,23 @@ def migrateDb(conn):
 							password=settings.DATABASE_PASS)
 	pcur = pgconn.cursor()
 
-	print("Querying db contents", pcur.execute("SELECT * FROM mangaitems;"))
-	print(cur.fetchall())
-
 
 
 	cur = conn.cursor()
 	print("Conn = ", conn)
 
 
-	print("Cleaning out bad keys")
-	ret = cur.execute("SELECT DISTINCT(buId) FROM muNameList;")
-	print("Scanning")
-	for item in ret.fetchall():
-		dup = cur.execute("SELECT * FROM MangaSeries WHERE buId=?", (item[0], ))
-		dups = dup.fetchall()
-		if not dups:
-			print("Item missing primary key link!", item)
-			cur.execute("DELETE FROM muNameList WHERE buId=?", (item[0], ))
-	conn.commit()
-	print("All primary key constraints should now be valid.")
+	# print("Cleaning out bad keys")
+	# ret = cur.execute("SELECT DISTINCT(buId) FROM muNameList;")
+	# print("Scanning")
+	# for item in ret.fetchall():
+	# 	dup = cur.execute("SELECT * FROM MangaSeries WHERE buId=?", (item[0], ))
+	# 	dups = dup.fetchall()
+	# 	if not dups:
+	# 		print("Item missing primary key link!", item)
+	# 		cur.execute("DELETE FROM muNameList WHERE buId=?", (item[0], ))
+	# conn.commit()
+	# print("All primary key constraints should now be valid.")
 
 
 
@@ -110,6 +107,7 @@ def migrateDb(conn):
 		rowNum += 1
 		if rowNum % 1000 == 0:
 			print("On row %s" % rowNum)
+			print("Row '%s'" % row)
 	# outf.close()
 
 	print("Querying db contents", pcur.execute("SELECT * FROM mangaitems;"))

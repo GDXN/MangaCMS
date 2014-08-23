@@ -84,9 +84,10 @@ DNLDED = 2
 				continue
 			vals = sm.getStatus(cur, item["dbKey"])
 			if vals:
-				running, runStart, skLastRunDuration = vals
+				running, runStart, lastRunDuration = vals
+				runStart = ut.timeAgo(runStart)
 			else:
-				running, runStart, skLastRunDuration = None, None, None
+				running, runStart, lastRunDuration = False, "Never!", None
 
 			if running:
 				runState = "<b>Running</b>"
@@ -95,7 +96,7 @@ DNLDED = 2
 			%>
 			<div class="statediv ${item['cssClass']}">
 				<strong>${item["name"]}</strong><br />
-				${ut.timeAgo(runStart)}<br />
+				${runStart}<br />
 				${runState}
 
 				% if item["dictKey"] != None:

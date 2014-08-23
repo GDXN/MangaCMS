@@ -81,6 +81,11 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dirName = bracketStripRe.sub(" ", dirName)
 		while dirName.find("  ")+1:
 			dirName = dirName.replace("  ", " ")
+		dirName = dirName.strip()
+
+		if not dirName:
+			self.log.critical("Empty dirname = '%s', baseURL = '%s'", dirName, dirUrl)
+			raise ValueError("No dir name for directory!")
 
 		dirName = nt.getCanonicalMangaUpdatesName(dirName)
 
@@ -135,7 +140,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					"https://manga.madokami.com/dl/Requests" in itemUrl:
 					continue
 
-				newDirName = name.a.get_text().strip()
+				# Pull the name out of the URL path. I don't like doing this, but it's actually what Okawus is doing
+				# to generate the pages anways, so what the hell.
+				newDirName = urllib.parse.unquote(itemUrl.split("/")[-1])
 				newDir = (newDirName, itemUrl)
 				dirRet.append(newDir)
 				# print("dir", newDir, itemUrl)
@@ -193,6 +200,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				seriesPages.add(newDir)
 
 			for newItem in newItems:
+
+
 				items.append(newItem)
 
 			self.log.info("Have %s items %s total, %s pages remain to scan", len(newItems), len(items), len(seriesPages))
@@ -219,7 +228,6 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			if not rows:
 				newItems += 1
-
 
 				# Patch series name.
 				seriesName = nt.getCanonicalMangaUpdatesName(link["baseName"])
