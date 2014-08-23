@@ -14,7 +14,7 @@ import nameTools as nt
 # Turn on to print all db queries to STDOUT before running them.
 # Intended for debugging DB interactions.
 # Excessively verbose otherwise.
-QUERY_DEBUG = True
+QUERY_DEBUG = False
 
 class ScraperDbBase(metaclass=abc.ABCMeta):
 

@@ -98,7 +98,7 @@ DNLDED = 2
 				<strong>${item["name"]}</strong><br />
 				${runStart}<br />
 				${runState}
-
+				<!--
 				% if item["dictKey"] != None:
 					% if item["dictKey"] in statusDict:
 						<ul>
@@ -111,6 +111,7 @@ DNLDED = 2
 						<b>WARN: No lookup dict built yet!</b>
 					% endif
 				% endif
+				 -->
 			</div>
 		% endfor
 	</div>
