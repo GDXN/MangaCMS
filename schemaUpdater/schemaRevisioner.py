@@ -126,11 +126,11 @@ def updateDatabaseSchema(fastExit=False):
 		update_8(conn)
 		updateSchemaRevNo(8)
 
-	updateSchemaRevNo(8)
 	rev = getSchemaRev(conn)
 	if rev == 8:
 		update_9(conn)
-		# updateSchemaRevNo(9)
+		updateSchemaRevNo(9)
+
 	rev = getSchemaRev(conn)
 	if fastExit:
 		return
@@ -138,6 +138,7 @@ def updateDatabaseSchema(fastExit=False):
 
 	if rev >= 9:
 		pass
+		print("FIX TABLE COUNTS FOR POSTGRE")
 		# doTableCountsPostgre(conn)
 	else:
 		doTableCounts(conn)

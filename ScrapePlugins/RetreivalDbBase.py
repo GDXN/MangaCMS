@@ -401,7 +401,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		cur = self.conn.cursor()
 
 		cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
-											dbId          INTEGER PRIMARY KEY,
+											dbId          SERIAL PRIMARY KEY,
 											sourceSite    TEXT NOT NULL,
 											dlState       INTEGER NOT NULL,
 											sourceUrl     text UNIQUE NOT NULL,

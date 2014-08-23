@@ -418,7 +418,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		## LastChanged is when the last scanlation release was released
 		# Last checked is when the page was actually last scanned.
 		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
-											dbId            INTEGER PRIMARY KEY,
+											dbId            SERIAL PRIMARY KEY,
 
 											buName          text,
 											buId            text,
@@ -462,7 +462,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
-											dbId            INTEGER PRIMARY KEY,
+											dbId            SERIAL PRIMARY KEY,
 											buId            text,
 											name            text,
 											fsSafeName      text,

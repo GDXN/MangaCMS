@@ -191,24 +191,27 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if folderUrl in scanned:
 				self.log.warning("Duplicate item made it into %s", folderUrl)
 				continue
+			try:
+				newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
+			except ValueError:
+				pass
 
-			newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
 			scanned.add(folderUrl)
 
 
 			for newDir in [newD for newD in newDirs if newD not in scanned]:
 				seriesPages.add(newDir)
 
-			for newItem in newItems:
-
-
-				items.append(newItem)
+			if newItems:
+				self.processLinksIntoDB(newItems)
+				for newItem in newItems:
+					items.append(newItem)
 
 			self.log.info("Have %s items %s total, %s pages remain to scan", len(newItems), len(items), len(seriesPages))
 			if not runStatus.run:
 				self.log.info("Breaking due to exit flag being set")
-				return items
-		return items
+
+
 
 
 
@@ -217,6 +220,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info( "Inserting...",)
 		newItems = 0
+		oldItems = 0
 		for link in linksDicts:
 			if link is None:
 				print("linksDicts", linksDicts)
@@ -258,15 +262,23 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.info("File has been moved!")
 					self.log.info("File: '%s'", link)
 					self.updateDbEntryById(row["dbId"], sourceUrl = link["dlLink"])
+				else:
+					oldItems += 1
+					# self.log.info("Existing item: %s", (link["date"], link["dlName"]))
 
 			else:
 				row = row.pop()
 
-
 		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
+
+		if newItems:
+
+			self.log.info( "Committing...",)
+			self.conn.commit()
+			self.log.info( "Committed")
+		else:
+			self.log.info("No new items, %s old items.", oldItems)
+
 
 		return newItems
 
@@ -277,9 +289,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Getting feed items")
 
 		feedItems = self.getMainItems()
-		self.log.info("Processing feed Items")
+		# self.log.info("Processing feed Items")
 
-		self.processLinksIntoDB(feedItems)
+		# self.processLinksIntoDB(feedItems)
 		self.log.info("Complete")
 
 

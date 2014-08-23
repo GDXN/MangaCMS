@@ -84,7 +84,8 @@ DNLDED = 2
 				continue
 			vals = sm.getStatus(cur, item["dbKey"])
 			if vals:
-				running, runStart, lastRunDuration = vals
+				print("Have vals = ", vals)
+				running, runStart, lastRunDuration = vals[0]
 				runStart = ut.timeAgo(runStart)
 			else:
 				running, runStart, lastRunDuration = False, "Never!", None
