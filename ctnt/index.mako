@@ -89,7 +89,6 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-	<li><b>Distinct filter not working!</b></li>
 	<li>make tags case-insensitive</li>
 
 	<li>fix lo colums?</li>
@@ -179,6 +178,7 @@ Shit to do:
 
 <b>Complete:</b>
 <ul>
+	<li><strike><b>Distinct filter not working!</b></strike></li>
 	<li><strike>strip metainfo from links in h (artist-, scanlators-, etc)</strike> (Also added a configurable tag highlighter)</li>
 	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> <strike>I think this is actually the DB loading the indexes from disk. Not sure.</strike> (Hopefully fixed by move to Postgre</li>
 	<li><strike>IRC scraper is broken for filenames with spaces.... Yeah....</strike></li>

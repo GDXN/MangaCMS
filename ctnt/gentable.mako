@@ -144,11 +144,22 @@ colours = {
 
 
 	if distinct:
-		groupStr = "GROUP BY seriesName,dbId"
-		orderBy  = "ORDER BY MAX(retreivalTime) DESC"
+		subquery = """
+				SELECT MAX(dbid) AS dbid, seriesName
+					FROM MangaItems
+					{query}
+					GROUP BY seriesName
+					ORDER BY MAX(retreivalTime) DESC
+					LIMIT %s
+					OFFSET %s"""
 	else:
-		groupStr = ""
-		orderBy  = "ORDER BY retreivalTime DESC"
+		subquery = """
+				SELECT dbid, seriesName
+					FROM MangaItems
+					{query}
+					ORDER BY retreivalTime DESC
+					LIMIT %s
+					OFFSET %s"""
 
 	# print("building query")
 
@@ -176,16 +187,11 @@ colours = {
 
 		FROM MangaItems AS d
 			JOIN
-				( SELECT dbId
-					FROM MangaItems
-					{query}
-					{group}
-					{order}
-					LIMIT %s
-					OFFSET %s
+				(
+					{subquery}
 				) AS di
-				ON  di.dbId = d.dbId
-		ORDER BY d.retreivalTime DESC;'''.format(query=whereStr, group=groupStr, order=orderBy)
+				ON  di.dbid = d.dbid
+		ORDER BY d.retreivalTime DESC;'''.format(subquery=subquery.format(query=whereStr))
 
 	# print("Query = ", query)
 	# print("params = ", params)
