@@ -43,7 +43,7 @@ def test():
 	# loader.processLinksIntoDB(feedItems)
 	# loader.closeDB()
 
-	# nt.dirNameProxy.startDirObservers()
+	nt.dirNameProxy.startDirObservers()
 
 	# runner = Runner()
 	# runner.go()

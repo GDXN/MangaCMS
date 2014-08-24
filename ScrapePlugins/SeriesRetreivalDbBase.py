@@ -202,12 +202,12 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		cur = self.conn.cursor()
 		cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
-											dbId          INTEGER PRIMARY KEY,
+											dbId          SERIAL PRIMARY KEY,
 											seriesId      TEXT NOT NULL,
 											seriesName    TEXT NOT NULL,
 											dlState       text NOT NULL,
-											retreivalTime real NOT NULL,
-											lastUpdate    real DEFAULT 0
+											retreivalTime double precision NOT NULL,
+											lastUpdate    double precision DEFAULT 0
 											);'''.format(tableName=self.seriesTableName))
 
 

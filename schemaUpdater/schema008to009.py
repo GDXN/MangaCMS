@@ -93,6 +93,8 @@ def migrateDb(conn):
 		row = row.replace("COLLATE", " ").replace("collate", " ")
 		row = row.replace("NOCASE", " ").replace("nocase", " ")
 
+		row = row.replace(" REAL ", " DOUBLE PRECISION ")
+
 		# print("Row",  row)
 		# outf.write(row+"\n")
 		try:
@@ -177,6 +179,8 @@ def doTableCount(conn, table):
 	rets = ret.fetchall()
 	values = [val[0] for val in rets]
 	values = set(values)
+
+
 
 
 	values.add(-1)

@@ -33,8 +33,8 @@ class ScraperBase(metaclass=abc.ABCMeta):
 		cur = con.cursor()
 		cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text,
 																running boolean,
-																lastRun real,
-																lastRunTime real,
+																lastRun double precision,
+																lastRunTime double precision,
 																PRIMARY KEY(name))''')
 		print(self.pluginName)
 
@@ -81,9 +81,13 @@ class ScraperBase(metaclass=abc.ABCMeta):
 
 			runStart = time.time()
 			self.setStatus(self.pluginName, running=True, lastRun=runStart)
-			self._go()
-			self.setStatus(self.pluginName, running=False, lastRunTime=time.time()-runStart)
-			self.log.info("%s finished.", self.pluginName)
+			try:
+				self._go()
+			finally:
+				self.setStatus(self.pluginName, running=False, lastRunTime=time.time()-runStart)
+				self.log.info("%s finished.", self.pluginName)
+
+
 
 
 	@abc.abstractmethod

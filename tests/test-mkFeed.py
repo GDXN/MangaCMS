@@ -31,18 +31,13 @@ def test():
 	# loader.go()
 
 
-	feedItems = loader.getMainItems()
-	print("feed items")
-	for item in feedItems:
-		print("Item = ", item)
-	print("end feed items")
+	loader.getMainItems()
 
 	# # feedItems = loader.getItemsFromContainer("Ore no Kanojo + H", loader.quoteUrl("http://download.japanzai.com/Ore no Kanojo + H/index.php"))
 	# # loader.log.info("Processing feed Items")
 	# for item in feedItems:
 	# 	print("Item", item)
 
-	loader.processLinksIntoDB(feedItems)
 	loader.closeDB()
 
 	# nt.dirNameProxy.startDirObservers()

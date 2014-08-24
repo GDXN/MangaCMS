@@ -97,7 +97,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		ret = cur.execute('''SELECT dbId,buId
 								FROM {tableName}
 								WHERE
-									(lastChecked < ? or lastChecked IS NULL)
+									(lastChecked < %s or lastChecked IS NULL)
 									AND buId IS NOT NULL
 									AND buList IS NOT NULL
 								LIMIT 100 ;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
@@ -109,7 +109,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			ret = cur.execute('''SELECT dbId,buId
 									FROM {tableName}
 									WHERE
-										(lastChecked < ? or lastChecked IS NULL)
+										(lastChecked < %s or lastChecked IS NULL)
 										AND buId IS NOT NULL
 										AND buList IS NULL
 									LIMIT 500;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
