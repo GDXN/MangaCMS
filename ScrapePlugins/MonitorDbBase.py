@@ -427,11 +427,11 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
 											dbId            SERIAL PRIMARY KEY,
 
-											buName          text,
-											buId            text,
-											buTags          text,
-											buGenre         text,
-											buList          text,
+											buName          CITEXT,
+											buId            CITEXT,
+											buTags          CITEXT,
+											buGenre         CITEXT,
+											buList          CITEXT,
 
 											buArtist        text,
 											buAuthor        text,
@@ -454,6 +454,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 
+
 		indexes = [	("%s_lastChanged_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChanged)'''),
 					("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
 					("%s_itemAdded_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (itemAdded)'''  ),
@@ -471,8 +472,8 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
 											dbId            SERIAL PRIMARY KEY,
 											buId            text,
-											name            text,
-											fsSafeName      text,
+											name            CITEXT,
+											fsSafeName      CITEXT,
 											FOREIGN KEY(buId) REFERENCES %s(buId),
 											UNIQUE(buId, name)
 											);''' % (self.nameMapTableName, self.tableName))

@@ -30,22 +30,22 @@ def test():
 
 	signal.signal(signal.SIGINT, signal_handler)
 
-	cl = DjMoeDbLoader()
-	cl.go()
+	# cl = DjMoeDbLoader()
+	# cl.go()
 	# runner = Runner()
 	# print(runner)
 	# # runner.go()
 
-	# runner = TagRunner()
-	# print(runner)
-	# runner.go()
+	runner = TagRunner()
+	print(runner)
+	runner.go()
 
 	# dbLoader = DjMoeContentLoader()
 	# rows = dbLoader.retreiveTodoLinksFromDB()
 	# for row in rows:
 	# 	print(row)
 
-	nt.dirNameProxy.stop()
+	#nt.dirNameProxy.stop()
 
 
 

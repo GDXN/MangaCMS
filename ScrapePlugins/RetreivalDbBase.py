@@ -408,12 +408,12 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 											retreivalTime double precision NOT NULL,
 											lastUpdate    double precision DEFAULT 0,
 											sourceId      text,
-											seriesName    text,
+											seriesName    CITEXT,
 											fileName      text,
 											originName    text,
 											downloadPath  text,
-											flags         text,
-											tags          text,
+											flags         CITEXT,
+											tags          CITEXT,
 											note          text);'''.format(tableName=self.tableName))
 
 

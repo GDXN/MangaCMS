@@ -193,8 +193,8 @@ colours = {
 				ON  di.dbid = d.dbid
 		ORDER BY d.retreivalTime DESC;'''.format(subquery=subquery.format(query=whereStr))
 
-	# print("Query = ", query)
-	# print("params = ", params)
+	print("Query = ", query)
+	print("params = ", params)
 
 	try:
 		ret = cur.execute(query, params)

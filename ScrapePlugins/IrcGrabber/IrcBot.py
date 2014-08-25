@@ -86,9 +86,14 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 		elif e.arguments[0] == "DCC":
 
-			# Use shlex.split because filenames can have spaces.
-			# it's crazy. I know.
-			args = shlex.split(e.arguments[1])
+			# Filenames are a giant PITA. Basically, we try to split the
+			# CTCP command. If we get more then 5 items, the name must
+			# have spaces, so we then try `shlex.split`. This works
+			# around the issue that filenames without spaces
+			# can have single quotation marks.
+			args = e.arguments[1].strip().split()
+			if len(args) != 5:
+				args = shlex.split(e.arguments[1])
 			if args[0] != "SEND":
 				self.log.warning("Not DCC Send. Wat? '%s'", e.arguments)
 				return

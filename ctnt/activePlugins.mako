@@ -121,7 +121,7 @@ sidebarItemList = [
 			'name'          : "Madokami",
 			'dictKey'       : "mk",
 			'cssClass'      : "mkId",
-			'showOnHome'    : True,
+			'showOnHome'    : False,
 			'renderSideBar' : True,
 			'genRow'        : True,
 			'type'          : 'Manga'

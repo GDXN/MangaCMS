@@ -68,7 +68,7 @@ import settings
 				<%
 				# print("Calling tablegen")
 				%>
-				${tableGenerators.genMangaTable(distinct=True, limit=200)}
+				${tableGenerators.genMangaTable(tableKey=ap.attr.inHomepageMangaTable, distinct=True, limit=200)}
 			</div>
 		</div>
 
@@ -89,8 +89,11 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+mu cross references all broken
+switch relevant columns to CITEXT
+	<li>Recreate triggers to update counts on insert/delete</li>
+	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
 	<li>make tags case-insensitive</li>
-
 	<li>fix lo colums?</li>
 	<li>irc defer dir search to actual download (mk too)</li>
 	<li>scrape http://www.cxcscans.com/</li>
@@ -159,7 +162,7 @@ Shit to do:
 <p>
 <b>Nametools Issues</b>
 <ul>
-	<li>Everything is getting sorted into '[zion]'</li>
+Getsurin ni Kiri Saku
 	<li>
 	Bad MangaUpdates Links:
 	<ul>
@@ -171,7 +174,10 @@ Shit to do:
 		<li>Keyman - The Hand of Judgement</li>
 	</ul>
 	</li>
+</ul>
+<ul>
 	<li><strike>Add testing to nametool system</strike> (Done, wasn't the problem source)</li>
+	<li><strike>Everything is getting sorted into '[zion]'</strike> Fixed, it was a scraper bug. Derp</li>
 </ul>
 </p>
 <p>
