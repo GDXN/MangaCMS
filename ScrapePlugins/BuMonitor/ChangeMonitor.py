@@ -93,29 +93,29 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	def getItemsToCheck(self):
 
-		cur = self.conn.cursor()
-		ret = cur.execute('''SELECT dbId,buId
-								FROM {tableName}
-								WHERE
-									(lastChecked < %s or lastChecked IS NULL)
-									AND buId IS NOT NULL
-									AND buList IS NOT NULL
-								LIMIT 100 ;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
-		rets = cur.fetchall()
-
-		# Only process non-list items if there are no list-items to process.
-		if len(rets) < 50:
-
+		with self.conn.cursor() as cur:
 			ret = cur.execute('''SELECT dbId,buId
 									FROM {tableName}
 									WHERE
 										(lastChecked < %s or lastChecked IS NULL)
 										AND buId IS NOT NULL
-										AND buList IS NULL
-									LIMIT 500;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
-			rets2 = cur.fetchall()
-			for row in rets2:
-				rets.append(row)
+										AND buList IS NOT NULL
+									LIMIT 100 ;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
+			rets = cur.fetchall()
+
+			# Only process non-list items if there are no list-items to process.
+			if len(rets) < 50:
+
+				ret = cur.execute('''SELECT dbId,buId
+										FROM {tableName}
+										WHERE
+											(lastChecked < %s or lastChecked IS NULL)
+											AND buId IS NOT NULL
+											AND buList IS NULL
+										LIMIT 500;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
+				rets2 = cur.fetchall()
+				for row in rets2:
+					rets.append(row)
 
 		self.log.info("Items to check = %s", len(rets))
 		return rets

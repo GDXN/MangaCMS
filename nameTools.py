@@ -239,9 +239,11 @@ class MapWrapper(object):
 		self.log.info( "NSLookup Opening DB...",)
 		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.log.info("opened")
-		cur = self.conn.cursor()
-		cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.tableName)
-		rets = cur.fetchall()
+
+		with self.conn.cursor() as cur:
+			cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.tableName)
+			rets = cur.fetchall()
+
 		if rets:
 			rets = rets[0]
 		if not self.tableName in rets:   # If the DB doesn't exist, set it up.
@@ -263,9 +265,10 @@ class MapWrapper(object):
 		if time.time() > self.lastUpdate + 5 or force:
 			self.updateLock.acquire()
 			self.log.info("NSLookupTool updating from DB. Update forced: %s", force)
-			cur = self.conn.cursor()
-			cur.execute('SELECT %s, %s FROM %s;' % (self.tableCols[0], self.tableCols[1], self.tableName))
-			rets = cur.fetchall()
+
+			with self.conn.cursor() as cur:
+				cur.execute('SELECT %s, %s FROM %s;' % (self.tableCols[0], self.tableCols[1], self.tableName))
+				rets = cur.fetchall()
 
 			temp = {}
 
@@ -345,9 +348,10 @@ class MtNamesMapWrapper(object):
 		self.log.info( "NSLookup Opening DB...",)
 		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.log.info("opened")
-		cur = self.conn.cursor()
-		cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.mode["table"])
-		rets = cur.fetchall()
+
+		with self.conn.cursor() as cur:
+			cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.mode["table"])
+			rets = cur.fetchall()
 		if rets:
 			rets = rets[0]
 		if not self.mode["table"] in rets:   # If the DB doesn't exist, set it up.
@@ -361,9 +365,10 @@ class MtNamesMapWrapper(object):
 
 	def iteritems(self):
 
-		cur = self.conn.cursor()
-		cur.execute(self.allQueryStr)
-		rets = cur.fetchall()
+
+		with self.conn.cursor() as cur:
+			cur.execute(self.allQueryStr)
+			rets = cur.fetchall()
 
 		for fsSafeName, buId in rets:
 			yield fsSafeName, buId
@@ -373,10 +378,11 @@ class MtNamesMapWrapper(object):
 
 		if "keyfunc" in self.mode:
 			key = self.mode["keyfunc"](key)
-		cur = self.conn.cursor()
-		cur.execute(self.queryStr, (key, ))
 
-		rets = cur.fetchall()
+		with self.conn.cursor() as cur:
+			cur.execute(self.queryStr, (key, ))
+			rets = cur.fetchall()
+
 		if not rets:
 			return []
 		return set([item[0] for item in rets])

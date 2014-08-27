@@ -175,7 +175,6 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	def insertIntoDb(self, commit=True, **kwargs):
 
 
-		cur = self.conn.cursor()
 		keysStr, valuesStr, queryArguments = self.buildInsertArgs(**kwargs)
 
 		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values});'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
@@ -184,7 +183,8 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		cur.execute(query, queryArguments)
+		with self.conn.cursor() as cur:
+			cur.execute(query, queryArguments)
 
 		if commit:
 			self.conn.commit()
@@ -212,7 +212,6 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		qArgs.append(self.tableKey)
 		column = ", ".join(queries)
 
-		cur = self.conn.cursor()
 
 		query = '''UPDATE {tableName} SET {v} WHERE sourceUrl=%s AND sourceSite=%s;'''.format(tableName=self.tableName, v=column)
 
@@ -220,7 +219,8 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("Args = ", qArgs)
 
-		cur.execute(query, qArgs)
+		with self.conn.cursor() as cur:
+			cur.execute(query, qArgs)
 
 		if commit:
 			self.conn.commit()
@@ -247,7 +247,6 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		qArgs.append(self.tableKey)
 		column = ", ".join(queries)
 
-		cur = self.conn.cursor()
 
 		query = '''UPDATE {tableName} SET {v} WHERE dbId=%s AND sourceSite=%s;'''.format(tableName=self.tableName, v=column)
 
@@ -255,7 +254,8 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("Args = ", qArgs)
 
-		cur.execute(query, qArgs)
+		with self.conn.cursor() as cur:
+			cur.execute(query, qArgs)
 
 		if commit:
 			self.conn.commit()
@@ -270,7 +270,6 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
 
-		cur = self.conn.cursor()
 
 		query = '''DELETE FROM {tableName} WHERE {key}=%s AND sourceSite=%s;'''.format(tableName=self.tableName, key=key)
 		# print("Query = ", query)
@@ -279,7 +278,8 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("Args = ", (val, self.tableKey))
 
-		cur.execute(query, (val, self.tableKey))
+		with self.conn.cursor() as cur:
+			cur.execute(query, (val, self.tableKey))
 		if commit:
 			self.conn.commit()
 
@@ -292,7 +292,6 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
 
-		cur = self.conn.cursor()
 
 		# HACKY alternate query for limitByKey. Fix?
 		if limitByKey:
@@ -334,11 +333,12 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("args = ", quargs)
 
-		cur.execute(query, quargs)
+		with self.conn.cursor() as cur:
+			cur.execute(query, quargs)
+			rets = cur.fetchall()
 
 
 
-		rets = cur.fetchall()
 		retL = []
 		for row in rets:
 
@@ -387,8 +387,8 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 	def resetStuckItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		cur = self.conn.cursor()
-		cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=%s'''.format(tableName=self.tableName), (self.tableKey, ))
+		with self.conn.cursor() as cur:
+			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=%s'''.format(tableName=self.tableName), (self.tableKey, ))
 		self.conn.commit()
 		self.log.info("Download reset complete")
 
@@ -398,46 +398,49 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	def checkInitPrimaryDb(self):
-		cur = self.conn.cursor()
+		with self.conn.cursor() as cur:
 
-		cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
-											dbId          SERIAL PRIMARY KEY,
-											sourceSite    TEXT NOT NULL,
-											dlState       INTEGER NOT NULL,
-											sourceUrl     text UNIQUE NOT NULL,
-											retreivalTime double precision NOT NULL,
-											lastUpdate    double precision DEFAULT 0,
-											sourceId      text,
-											seriesName    CITEXT,
-											fileName      text,
-											originName    text,
-											downloadPath  text,
-											flags         CITEXT,
-											tags          CITEXT,
-											note          text);'''.format(tableName=self.tableName))
-
-
-		cur.execute("SELECT relname FROM pg_class;")
-		haveIndexes = cur.fetchall()
-		haveIndexes = [index[0] for index in haveIndexes]
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
+												dbId          SERIAL PRIMARY KEY,
+												sourceSite    TEXT NOT NULL,
+												dlState       INTEGER NOT NULL,
+												sourceUrl     text UNIQUE NOT NULL,
+												retreivalTime double precision NOT NULL,
+												lastUpdate    double precision DEFAULT 0,
+												sourceId      text,
+												seriesName    CITEXT,
+												fileName      text,
+												originName    text,
+												downloadPath  text,
+												flags         CITEXT,
+												tags          CITEXT,
+												note          text);'''.format(tableName=self.tableName))
 
 
+			cur.execute("SELECT relname FROM pg_class;")
+			haveIndexes = cur.fetchall()
+			haveIndexes = [index[0] for index in haveIndexes]
 
-		indexes = [	("%s_source_index"     % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (sourceSite)'''                     ),
-					("%s_time_index"       % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (retreivalTime)'''                  ),
-					("%s_lastUpdate_index" % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (lastUpdate)'''                     ),
-					("%s_url_index"        % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (sourceUrl)'''                      ),
-					("%s_seriesName_index" % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (seriesName )'''                    ),
-					("%s_tags_index"       % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (tags       )'''                    ),
-					("%s_flags_index"      % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (flags      )'''                    ),
-					("%s_dlState_index"    % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (dlState)'''                        ),
-					("%s_originName_index" % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (originName)'''                     ),
-					("%s_aggregate_index"  % self.tableName, self.tableName,'''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId)''')
-		]
 
-		for name, table, nameFormat in indexes:
-			if not name.lower() in haveIndexes:
-				cur.execute(nameFormat % (name, table))
+
+			indexes = [	("%s_source_index"           % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite)'''                                             ),
+						("%s_time_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivalTime)'''                                          ),
+						("%s_lastUpdate_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastUpdate)'''                                             ),
+						("%s_url_index"              % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceUrl)'''                                              ),
+						("%s_seriesName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName )'''                                            ),
+						("%s_tags_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (tags       )'''                                            ),
+						("%s_flags_index"            % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (flags      )'''                                            ),
+						("%s_dlState_index"          % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlState)'''                                                ),
+						("%s_originName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (originName)'''                                             ),
+						("%s_aggregate_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId)'''                        ),
+						('%s_special_full_idx'       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivaltime DESC, seriesName DESC, dbid);'''             ),
+						('%s_special_granulated_idx' % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite, retreivaltime DESC, seriesName DESC, dbid);''' )
+			]
+
+
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(nameFormat % (name, table))
 
 
 

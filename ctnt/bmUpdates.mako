@@ -1,4 +1,4 @@
-## -*- coding: utf-8 -*-
+﻿## -*- coding: utf-8 -*-
 <!DOCTYPE html>
 
 <%startTime = time.time()%>
@@ -104,26 +104,13 @@ def getNotInDBItems(cur):
 # page generation section.
 # Execution begins here
 # ------------------------------------------------------------------------
+with sqlCon.cursor() as cur:
 
-cur = sqlCon.cursor()
-
-mtItems = getNotInDBItems(cur)
-
-# mtId,
-# mtTags,
-# mtList,
-# buName,
-# buId,
-# buTags,
-# buList,
-# readingProgress,
-# availProgress,
-# rating,
-# lastChanged
-print("Querying")
-cur.execute('SELECT buId,availProgress,readingProgress,buName,buList FROM MangaSeries WHERE buId IS NOT NULL and buList IS NOT NULL;')
-buItems = cur.fetchall()
-print("Query complete")
+	mtItems = getNotInDBItems(cur)
+	print("Querying")
+	cur.execute('SELECT buId,availProgress,readingProgress,buName,buList FROM MangaSeries WHERE buId IS NOT NULL and buList IS NOT NULL;')
+	buItems = cur.fetchall()
+	print("Query complete")
 
 
 inMTcount = 0
@@ -204,9 +191,9 @@ if "hasRating" in request.params:
 
 # nt.dirNameProxy = nt.()  # dirListFunc() is provided by the resource
 
-running, lastRun, lastRunTime = sm.getStatus(cur, "MtMonitor")
-delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(lastRun)
-mtMonRunLast = "%s" % delta
+#running, lastRun, lastRunTime = sm.getStatus(cur, "MtMonitor")
+#delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(lastRun)
+mtMonRunLast = "%s" % 0#delta
 mtMonRunLast = mtMonRunLast.split(".")[0]
 
 # mtMonRunLast = format_timedelta(delta, locale='en_US')

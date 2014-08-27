@@ -3,7 +3,7 @@ import schemaUpdater.schemaRevisioner
 
 def test():
 
-	schemaUpdater.schemaRevisioner.updateDatabaseSchema(fastExit=True)
+	schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 
 
 

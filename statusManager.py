@@ -14,8 +14,9 @@ def checkStatusTableExists():
 def checkInitStatusTable(pluginName):
 
 	con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-	con.execute('''INSERT INTO pluginstatus (name, running, lastRun, lastRunTime) VALUES (%s, %s, %s, %s)''', (pluginName, False, -1, -1))
-	con.commit()
+	cur = con.cursor()
+	cur.execute('''INSERT INTO pluginstatus (name, running, lastRun, lastRunTime) VALUES (%s, %s, %s, %s)''', (pluginName, False, -1, -1))
+	cur.commit()
 	con.close()
 
 def getStatus(cur, pluginName):

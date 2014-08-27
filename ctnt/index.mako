@@ -89,14 +89,12 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-mu cross references all broken
-switch relevant columns to CITEXT
+
+	<li>automover patch path in db for moved items</li>
 	<li>Recreate triggers to update counts on insert/delete</li>
 	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
-	<li>make tags case-insensitive</li>
 	<li>fix lo colums?</li>
 	<li>irc defer dir search to actual download (mk too)</li>
-	<li>scrape http://www.cxcscans.com/</li>
 	<li>scan downloads, retry missing not deduped</li>
 	<li>different tag for phash desuplication</li>
 	<li>artist and author in filebrowser if i have it</li>
@@ -129,6 +127,7 @@ switch relevant columns to CITEXT
 <p>
 <b>Add Scrapers for</b>
 <ul>
+	<li>http://www.cxcscans.com/</li>
 	<li>imangascans</li>
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>mangajoy?</li>
@@ -172,10 +171,11 @@ Getsurin ni Kiri Saku
 		<li>maken-ki!</li>
 		<li>murcielago</li>
 		<li>Keyman - The Hand of Judgement</li>
-	</ul>
+	</ul>v
 	</li>
 </ul>
 <ul>
+	<li>'Hero Co., Ltd.'' link only working one way</li>
 	<li><strike>Add testing to nametool system</strike> (Done, wasn't the problem source)</li>
 	<li><strike>Everything is getting sorted into '[zion]'</strike> Fixed, it was a scraper bug. Derp</li>
 </ul>
@@ -184,6 +184,9 @@ Getsurin ni Kiri Saku
 
 <b>Complete:</b>
 <ul>
+	<li><strike>make tags case-insensitive</strike> (Switch to CITEXT should do this, added .lower() to query generator anyways)</li>
+	<li><strike>mu cross references all broken</strike></li>
+	<li><strike>switch relevant columns to CITEXT</strike></li>
 	<li><strike><b>Distinct filter not working!</b></strike></li>
 	<li><strike>strip metainfo from links in h (artist-, scanlators-, etc)</strike> (Also added a configurable tag highlighter)</li>
 	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> <strike>I think this is actually the DB loading the indexes from disk. Not sure.</strike> (Hopefully fixed by move to Postgre</li>

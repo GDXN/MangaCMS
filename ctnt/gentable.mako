@@ -63,7 +63,7 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesNam
 	if tagsFilter != None:
 		for tag in tagsFilter:
 			tagsFilterArr.append(" tags LIKE %s ")
-			queryAdditionalArgs.append("%{s}%".format(s=tag))
+			queryAdditionalArgs.append("%{s}%".format(s=tag.lower()))
 
 	if tagsFilterArr:
 		whereItems.append(" AND ".join(tagsFilterArr))
@@ -137,77 +137,77 @@ colours = {
 		</tr>
 
 	<%
-	cur = sqlCon.cursor()
-	if flags != '':
-		print("Query string not properly generated at the moment")
-		print("FIX ME!")
+	with sqlCon.cursor() as cur:
+		if flags != '':
+			print("Query string not properly generated at the moment")
+			print("FIX ME!")
 
 
-	if distinct:
-		subquery = """
-				SELECT MAX(dbid) AS dbid, seriesName
-					FROM MangaItems
-					{query}
-					GROUP BY seriesName
-					ORDER BY MAX(retreivalTime) DESC
-					LIMIT %s
-					OFFSET %s"""
-	else:
-		subquery = """
-				SELECT dbid, seriesName
-					FROM MangaItems
-					{query}
-					ORDER BY retreivalTime DESC
-					LIMIT %s
-					OFFSET %s"""
+		if distinct:
+			subquery = """
+					SELECT MAX(dbid) AS dbid, seriesName
+						FROM MangaItems
+						{query}
+						GROUP BY seriesName
+						ORDER BY MAX(retreivalTime) DESC
+						LIMIT %s
+						OFFSET %s"""
+		else:
+			subquery = """
+					SELECT dbid, seriesName
+						FROM MangaItems
+						{query}
+						ORDER BY retreivalTime DESC
+						LIMIT %s
+						OFFSET %s"""
 
-	# print("building query")
+		# print("building query")
 
-	whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
-	params = tuple(queryAdditionalArgs)+(limit, offset)
-	# print("Query = ", whereStr, queryAdditionalArgs)
-	# print("built")
-	# print("Querying...")
-	query = '''
+		whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
+		params = tuple(queryAdditionalArgs)+(limit, offset)
+		# print("Query = ", whereStr, queryAdditionalArgs)
+		# print("built")
+		# print("Querying...")
+		query = '''
 
-		SELECT
-				d.dbId,
-				d.dlState,
-				d.sourceSite,
-				d.sourceUrl,
-				d.retreivalTime,
-				d.sourceId,
-				d.seriesName,
-				d.fileName,
-				d.originName,
-				d.downloadPath,
-				d.flags,
-				d.tags,
-				d.note
+			SELECT
+					d.dbId,
+					d.dlState,
+					d.sourceSite,
+					d.sourceUrl,
+					d.retreivalTime,
+					d.sourceId,
+					d.seriesName,
+					d.fileName,
+					d.originName,
+					d.downloadPath,
+					d.flags,
+					d.tags,
+					d.note
 
-		FROM MangaItems AS d
-			JOIN
-				(
-					{subquery}
-				) AS di
-				ON  di.dbid = d.dbid
-		ORDER BY d.retreivalTime DESC;'''.format(subquery=subquery.format(query=whereStr))
+			FROM MangaItems AS d
+				JOIN
+					(
+						{subquery}
+					) AS di
+					ON  di.dbid = d.dbid
+			ORDER BY d.retreivalTime DESC;'''.format(subquery=subquery.format(query=whereStr))
 
-	print("Query = ", query)
-	print("params = ", params)
+		print("Query = ", query)
+		print("params = ", params)
 
-	try:
-		ret = cur.execute(query, params)
-	except psycopg2.InternalError:
-		cur.execute("rollback;")
-		# cur.fetchall()
-		raise
-	except psycopg2.ProgrammingError:
-		cur.execute("rollback;")
-		# cur.fetchall()
-		raise
+		try:
+			ret = cur.execute(query, params)
+		except psycopg2.InternalError:
+			cur.execute("rollback;")
+			# cur.fetchall()
+			raise
+		except psycopg2.ProgrammingError:
+			cur.execute("rollback;")
+			# cur.fetchall()
+			raise
 
-	tblCtntArr = cur.fetchall()
+		tblCtntArr = cur.fetchall()
 	# print("Done")
 	%>
 	% for row in tblCtntArr:
@@ -336,30 +336,31 @@ colours = {
 	# print("Params = ", params)
 	# print("whereStr = ", whereStr)
 
-	cur = sqlCon.cursor()
+	with sqlCon.cursor() as cur:
 
-	print("Query")
-	ret = cur.execute('''SELECT 	dbId,
-									sourceSite,
-									dlState,
-									sourceUrl,
-									retreivalTime,
-									sourceId,
-									seriesName,
-									fileName,
-									originName,
-									downloadPath,
-									flags,
-									tags,
-									note
-								FROM HentaiItems
-								{query}
-								ORDER BY retreivalTime
-								DESC LIMIT %s
-								OFFSET %s;'''.format(query = whereStr), params)
+		print("Query")
+		ret = cur.execute('''SELECT 	dbId,
+										sourceSite,
+										dlState,
+										sourceUrl,
+										retreivalTime,
+										sourceId,
+										seriesName,
+										fileName,
+										originName,
+										downloadPath,
+										flags,
+										tags,
+										note
+									FROM HentaiItems
+									{query}
+									ORDER BY retreivalTime
+									DESC LIMIT %s
+									OFFSET %s;'''.format(query = whereStr), params)
 
-	tblCtntArr = cur.fetchall()
-	print("Queried")
+		tblCtntArr = cur.fetchall()
+		print("Queried")
+
 	%>
 
 	% for row in tblCtntArr:
@@ -526,23 +527,23 @@ colours = {
 		sortKey = "ORDER BY buName ASC"
 
 
-	cur = sqlCon.cursor()
-	query = '''SELECT 			dbId,
-								buName,
-								buId,
-								buTags,
-								buList,
-								readingProgress,
-								availProgress,
-								rating,
-								lastChanged
-								FROM MangaSeries
-								{query}
-								{orderBy};'''.format(query=whereStr, orderBy=sortKey)
+	with sqlCon.cursor() as cur:
+		query = '''SELECT 			dbId,
+									buName,
+									buId,
+									buTags,
+									buList,
+									readingProgress,
+									availProgress,
+									rating,
+									lastChanged
+									FROM MangaSeries
+									{query}
+									{orderBy};'''.format(query=whereStr, orderBy=sortKey)
 
-	# print ("Query = ", query)
-	ret = cur.execute(query, params)
-	tblCtntArr = cur.fetchall()
+		# print ("Query = ", query)
+		ret = cur.execute(query, params)
+		tblCtntArr = cur.fetchall()
 
 	ratingShow = "all"
 

@@ -125,14 +125,14 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 	def insertIntoDb(self, commit=True, **kwargs):
-		cur = self.conn.cursor()
 		keysStr, valuesStr, queryAdditionalArgs = self.buildInsertArgs(**kwargs)
 
 		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values});'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
 
 		# print("Query = ", query, queryAdditionalArgs)
 
-		cur.execute(query, queryAdditionalArgs)
+		with self.conn.cursor() as cur:
+			cur.execute(query, queryAdditionalArgs)
 
 		if commit:
 			self.conn.commit()
@@ -162,10 +162,11 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		qArgs.append(dbId)
 		column = ", ".join(queries)
 
-		cur = self.conn.cursor()
 
 		query = '''UPDATE {t} SET {v} WHERE dbId=%s;'''.format(t=self.tableName, v=column)
-		cur.execute(query, qArgs)
+
+		with self.conn.cursor() as cur:
+			cur.execute(query, qArgs)
 
 
 		if commit:
@@ -173,12 +174,13 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 	def deleteRowById(self, rowId, commit=True):
 
-		cur = self.conn.cursor()
 
 
 		query = ''' DELETE FROM {tableN} WHERE dbId=%s;'''.format(tableN=self.tableName)
 		qArgs = (rowId, )
-		cur.execute(query, qArgs)
+
+		with self.conn.cursor() as cur:
+			cur.execute(query, qArgs)
 
 		if commit:
 			self.conn.commit()
@@ -191,7 +193,6 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
 
-		cur = self.conn.cursor()
 
 		# work around the auto-cast of numeric strings to integers
 		typeSpecifier = ''
@@ -201,9 +202,11 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 		query = '''SELECT {cols} FROM {tableN} WHERE {key}=%s{type};'''.format(cols=", ".join(self.validColName), tableN=self.tableName, key=key, type=typeSpecifier)
 		# print("Query = ", query)
-		cur.execute(query, (val, ))
 
-		rets = cur.fetchall()
+		with self.conn.cursor() as cur:
+			cur.execute(query, (val, ))
+			rets = cur.fetchall()
+
 		retL = []
 		if rets:
 			keys = self.validColName
@@ -223,14 +226,15 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 	def getColumnItems(self, colName):
-		cur = self.conn.cursor()
 		if not colName in self.validColName:
 			raise ValueError("getColumn must be called with a valid column name", colName)
 
 		query = ''' SELECT ({colName}) FROM {tableN};'''.format(colName=colName, tableN=self.tableName)
-		ret = cur.execute(query)
 
-		rets = cur.fetchall()
+		with self.conn.cursor() as cur:
+			ret = cur.execute(query)
+			rets = cur.fetchall()
+
 		retL = []
 		if rets:
 			for item in rets:
@@ -305,15 +309,15 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			print("	", keyStr, " "*(20-len(keyStr)), inDict[key])
 
 	def printDb(self):
-		cur = self.conn.cursor()
-		ret = cur.execute('SELECT * FROM {db};'.format(db=self.tableName))
-		for line in cur.fetchall():
-			print(line)
+		with self.conn.cursor() as cur:
+			cur.execute('SELECT * FROM {db};'.format(db=self.tableName))
+			for line in cur.fetchall():
+				print(line)
 
 
 	def insertBareNameItems(self, items):
 
-		cur = self.conn.cursor()
+
 		print("Items", items)
 		for name, mId in items:
 			row = self.getRowByValue(buId=mId)
@@ -344,20 +348,20 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 	def insertNames(self, buId, names):
 
-		cur = self.conn.cursor()
-		for name in names:
-			fsSafeName = nt.prepFilenameForMatching(name)
-			cur.execute("""SELECT COUNT(*) FROM %s WHERE buId=%%s AND name=%%s;""" % self.nameMapTableName, (buId, name))
-			ret = cur.fetchall()
-			if not ret:
-				cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (buId, name, fsSafeName))
+		with self.conn.cursor() as cur:
+			for name in names:
+				fsSafeName = nt.prepFilenameForMatching(name)
+				cur.execute("""SELECT COUNT(*) FROM %s WHERE buId=%%s AND name=%%s;""" % self.nameMapTableName, (buId, name))
+				ret = cur.fetchall()
+				if not ret:
+					cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (buId, name, fsSafeName))
 
 
 	def getIdFromName(self, name):
 
-		cur = self.conn.cursor()
-		ret = cur.execute("""SELECT buId FROM %s WHERE name=%%s;""" % self.nameMapTableName, (name, ))
-		ret = cur.fetchall()
+		with self.conn.cursor() as cur:
+			cur.execute("""SELECT buId FROM %s WHERE name=%%s;""" % self.nameMapTableName, (name, ))
+			ret = cur.fetchall()
 		if ret:
 			if len(ret[0]) != 1:
 				raise ValueError("Have ambiguous name. Cannot definitively link to manga series.")
@@ -367,9 +371,9 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 	def getIdFromDirName(self, fsSafeName):
 
-		cur = self.conn.cursor()
-		ret = cur.execute("""SELECT buId FROM %s WHERE fsSafeName=%%s;""" % self.nameMapTableName, (fsSafeName, ))
-		ret = cur.fetchall()
+		with self.conn.cursor() as cur:
+			cur.execute("""SELECT buId FROM %s WHERE fsSafeName=%%s;""" % self.nameMapTableName, (fsSafeName, ))
+			ret = cur.fetchall()
 		if ret:
 			if len(ret[0]) != 1:
 				raise ValueError("Have ambiguous fsSafeName. Cannot definitively link to manga series.")
@@ -379,9 +383,9 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 	def getNamesFromId(self, mId):
 
-		cur = self.conn.cursor()
-		ret = cur.execute("""SELECT name FROM %s WHERE buId=%%s::TEXT;""" % self.nameMapTableName, (mId, ))
-		ret = cur.fetchall()
+		with self.conn.cursor() as cur:
+			cur.execute("""SELECT name FROM %s WHERE buId=%%s::TEXT;""" % self.nameMapTableName, (mId, ))
+			ret = cur.fetchall()
 		if ret:
 			return ret
 		else:
@@ -392,9 +396,9 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 	def getLastCheckedFromId(self, mId):
 
-		cur = self.conn.cursor()
-		ret = cur.execute("""SELECT lastChecked FROM %s WHERE buId=%%s::TEXT;""" % self.tableName, (mId, ))
-		ret = cur.fetchall()
+		with self.conn.cursor() as cur:
+			ret = cur.execute("""SELECT lastChecked FROM %s WHERE buId=%%s::TEXT;""" % self.tableName, (mId, ))
+			ret = cur.fetchall()
 		if len(ret) > 1:
 			raise ValueError("How did you get more then one buId?")
 		if ret:
@@ -406,8 +410,8 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 	def updateLastCheckedFromId(self, mId, changed):
-		cur = self.conn.cursor()
-		cur.execute("""UPDATE %s SET lastChecked=%%s WHERE buId=%%s::TEXT;""" % self.tableName, (changed, mId))
+		with self.conn.cursor() as cur:
+			cur.execute("""UPDATE %s SET lastChecked=%%s WHERE buId=%%s::TEXT;""" % self.tableName, (changed, mId))
 		self.conn.commit()
 
 
@@ -421,74 +425,74 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	def checkInitPrimaryDb(self):
 
 		self.log.info( "Content Retreiver Opening DB...",)
-		cur = self.conn.cursor()
-		## LastChanged is when the last scanlation release was released
-		# Last checked is when the page was actually last scanned.
-		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
-											dbId            SERIAL PRIMARY KEY,
+		with self.conn.cursor() as cur:
+			## LastChanged is when the last scanlation release was released
+			# Last checked is when the page was actually last scanned.
+			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
+												dbId            SERIAL PRIMARY KEY,
 
-											buName          CITEXT,
-											buId            CITEXT,
-											buTags          CITEXT,
-											buGenre         CITEXT,
-											buList          CITEXT,
+												buName          CITEXT,
+												buId            CITEXT,
+												buTags          CITEXT,
+												buGenre         CITEXT,
+												buList          CITEXT,
 
-											buArtist        text,
-											buAuthor        text,
-											buOriginState   text,
-											buDescription   text,
-											buRelState      text,
+												buArtist        text,
+												buAuthor        text,
+												buOriginState   text,
+												buDescription   text,
+												buRelState      text,
 
-											readingProgress int,
-											availProgress   int,
+												readingProgress int,
+												availProgress   int,
 
-											rating          int,
-											lastChanged     double precision,
-											lastChecked     double precision,
-											itemAdded       double precision NOT NULL
-											);''' % self.tableName)
+												rating          int,
+												lastChanged     double precision,
+												lastChecked     double precision,
+												itemAdded       double precision NOT NULL
+												);''' % self.tableName)
 
-		cur.execute("SELECT relname FROM pg_class;")
-		haveIndexes = cur.fetchall()
-		haveIndexes = [index[0] for index in haveIndexes]
-
-
-
-
-		indexes = [	("%s_lastChanged_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChanged)'''),
-					("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
-					("%s_itemAdded_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (itemAdded)'''  ),
-					("%s_rating_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (rating)'''     ),
-					("%s_buName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buName)''' ),
-					("%s_buId_index"         % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buId  )''' ),
-					("%s_buTags_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buTags)''' ),
-					("%s_buGenre_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buGenre)''')
-		]
-		for name, table, nameFormat in indexes:
-			if not name.lower() in haveIndexes:
-				cur.execute(nameFormat % (name, table))
-
-
-		cur.execute('''CREATE TABLE IF NOT EXISTS %s (
-											dbId            SERIAL PRIMARY KEY,
-											buId            text,
-											name            CITEXT,
-											fsSafeName      CITEXT,
-											FOREIGN KEY(buId) REFERENCES %s(buId),
-											UNIQUE(buId, name)
-											);''' % (self.nameMapTableName, self.tableName))
+			cur.execute("SELECT relname FROM pg_class;")
+			haveIndexes = cur.fetchall()
+			haveIndexes = [index[0] for index in haveIndexes]
 
 
 
-		indexes = [	("%s_nameTable_buId_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (buId      )'''       ),
-					("%s_nameTable_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (name      )'''       ),
-					("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
-					("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName)'''       )
-		]
 
-		for name, table, nameFormat in indexes:
-			if not name.lower() in haveIndexes:
-				cur.execute(nameFormat % (name, table))
+			indexes = [	("%s_lastChanged_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChanged)'''),
+						("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
+						("%s_itemAdded_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (itemAdded)'''  ),
+						("%s_rating_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (rating)'''     ),
+						("%s_buName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buName)''' ),
+						("%s_buId_index"         % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buId  )''' ),
+						("%s_buTags_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buTags)''' ),
+						("%s_buGenre_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buGenre)''')
+			]
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(nameFormat % (name, table))
+
+
+			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
+												dbId            SERIAL PRIMARY KEY,
+												buId            text,
+												name            CITEXT,
+												fsSafeName      CITEXT,
+												FOREIGN KEY(buId) REFERENCES %s(buId),
+												UNIQUE(buId, name)
+												);''' % (self.nameMapTableName, self.tableName))
+
+
+
+			indexes = [	("%s_nameTable_buId_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (buId      )'''       ),
+						("%s_nameTable_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (name      )'''       ),
+						("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
+						("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName)'''       )
+			]
+
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(nameFormat % (name, table))
 
 
 		self.conn.commit()

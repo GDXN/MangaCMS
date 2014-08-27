@@ -68,7 +68,6 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def insertIntoSeriesDb(self, commit=True, **kwargs):
 
 
-		cur = self.conn.cursor()
 		keysStr, valuesStr, queryArguments = self.buildSeriesInsertArgs(**kwargs)
 
 		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values});'''.format(tableName=self.seriesTableName, keys=keysStr, values=valuesStr)
@@ -77,7 +76,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		cur.execute(query, queryArguments)
+		with self.conn.cursor() as cur:
+			cur.execute(query, queryArguments)
 
 		if commit:
 			self.conn.commit()
@@ -106,7 +106,6 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		column = ", ".join(queries)
 
-		cur = self.conn.cursor()
 
 		query = '''UPDATE {tableName} SET {v} WHERE seriesId=%s;'''.format(tableName=self.seriesTableName, v=column)
 
@@ -114,7 +113,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Query = ", query)
 			print("Args = ", qArgs)
 
-		cur.execute(query, qArgs)
+		with self.conn.cursor() as cur:
+			cur.execute(query, qArgs)
 
 		if commit:
 			self.conn.commit()
@@ -140,7 +140,6 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		column = ", ".join(queries)
 
-		cur = self.conn.cursor()
 
 		query = '''UPDATE {tableName} SET {v} WHERE dbId=%s;'''.format(tableName=self.seriesTableName, v=column)
 
@@ -148,7 +147,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Query = ", query)
 			print("Args = ", qArgs)
 
-		cur.execute(query, qArgs)
+		with self.conn.cursor() as cur:
+			cur.execute(query, qArgs)
 
 		if commit:
 			self.conn.commit()
@@ -164,7 +164,6 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
 
-		cur = self.conn.cursor()
 
 		query = '''SELECT
 						dbId,
@@ -177,7 +176,9 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if QUERY_DEBUG:
 			print("Query = ", query)
 			print("args = ", (val))
-		cur.execute(query, (val,))
+
+		with self.conn.cursor() as cur:
+			cur.execute(query, (val,))
 
 		rets = cur.fetchall()
 		retL = []
@@ -191,8 +192,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def resetStuckSeriesItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		cur = self.conn.cursor()
-		cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1'''.format(tableName=self.seriesTableName))
+		with self.conn.cursor() as cur:
+			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1'''.format(tableName=self.seriesTableName))
 		self.conn.commit()
 		self.log.info("Download reset complete")
 
@@ -200,22 +201,22 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def checkInitSeriesDb(self):
 
-		cur = self.conn.cursor()
-		cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
-											dbId          SERIAL PRIMARY KEY,
-											seriesId      TEXT NOT NULL,
-											seriesName    TEXT NOT NULL,
-											dlState       text NOT NULL,
-											retreivalTime double precision NOT NULL,
-											lastUpdate    double precision DEFAULT 0
-											);'''.format(tableName=self.seriesTableName))
+		with self.conn.cursor() as cur:
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
+												dbId          SERIAL PRIMARY KEY,
+												seriesId      TEXT NOT NULL,
+												seriesName    TEXT NOT NULL,
+												dlState       text NOT NULL,
+												retreivalTime double precision NOT NULL,
+												lastUpdate    double precision DEFAULT 0
+												);'''.format(tableName=self.seriesTableName))
 
 
 
 
-		cur.execute("SELECT relname FROM pg_class;")
-		haveIndexes = cur.fetchall()
-		haveIndexes = [index[0] for index in haveIndexes]
+			cur.execute("SELECT relname FROM pg_class;")
+			haveIndexes = cur.fetchall()
+			haveIndexes = [index[0] for index in haveIndexes]
 
 
 

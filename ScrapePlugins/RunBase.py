@@ -30,28 +30,28 @@ class ScraperBase(metaclass=abc.ABCMeta):
 
 	def checkInitStatusTable(self):
 		con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-		cur = con.cursor()
-		cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text,
-																running boolean,
-																lastRun double precision,
-																lastRunTime double precision,
-																PRIMARY KEY(name))''')
-		print(self.pluginName)
+		with con.cursor() as cur:
+			cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text,
+																	running boolean,
+																	lastRun double precision,
+																	lastRunTime double precision,
+																	PRIMARY KEY(name))''')
+			print(self.pluginName)
 
-		cur.execute('''SELECT name FROM pluginStatus WHERE name=%s''', (self.pluginName,))
-		ret = cur.fetchall()
-		if not ret:
-			cur.execute('''INSERT INTO pluginStatus (name, running, lastRun, lastRunTime) VALUES (%s, %s, %s, %s)''', (self.pluginName, False, -1, -1))
-			con.commit()
+			cur.execute('''SELECT name FROM pluginStatus WHERE name=%s''', (self.pluginName,))
+			ret = cur.fetchall()
+			if not ret:
+				cur.execute('''INSERT INTO pluginStatus (name, running, lastRun, lastRunTime) VALUES (%s, %s, %s, %s)''', (self.pluginName, False, -1, -1))
+				con.commit()
 
 		con.close()
 
 	def amRunning(self):
 
 		con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-		cur = con.cursor()
-		cur.execute("""SELECT running FROM pluginStatus WHERE name=%s""", (self.pluginName, ))
-		rets = cur.fetchone()[0]
+		with con.cursor() as cur:
+			cur.execute("""SELECT running FROM pluginStatus WHERE name=%s""", (self.pluginName, ))
+			rets = cur.fetchone()[0]
 		self.log.info("%s is running = '%s', as bool = '%s'", self.pluginName, rets, bool(rets))
 		return rets
 
@@ -60,13 +60,13 @@ class ScraperBase(metaclass=abc.ABCMeta):
 			pluginName=self.pluginName
 
 		con = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-		cur = con.cursor()
-		if running != None:  # Note: Can be set to "False". This is valid!
-			cur.execute('''UPDATE pluginStatus SET running=%s WHERE name=%s;''', (running, pluginName))
-		if lastRun != None:
-			cur.execute('''UPDATE pluginStatus SET lastRun=%s WHERE name=%s;''', (lastRun, pluginName))
-		if lastRunTime != None:
-			cur.execute('''UPDATE pluginStatus SET lastRunTime=%s WHERE name=%s;''', (lastRunTime, pluginName))
+		with con.cursor() as cur:
+			if running != None:  # Note: Can be set to "False". This is valid!
+				cur.execute('''UPDATE pluginStatus SET running=%s WHERE name=%s;''', (running, pluginName))
+			if lastRun != None:
+				cur.execute('''UPDATE pluginStatus SET lastRun=%s WHERE name=%s;''', (lastRun, pluginName))
+			if lastRunTime != None:
+				cur.execute('''UPDATE pluginStatus SET lastRunTime=%s WHERE name=%s;''', (lastRunTime, pluginName))
 
 		con.commit()
 		con.close()

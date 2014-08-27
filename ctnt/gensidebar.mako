@@ -35,8 +35,12 @@ DNLDED = 2
 	for srcId, state, num in rets:
 		if not srcId in statusDict:
 			statusDict[srcId] = {}
-		statusDict[srcId][state] = num
-
+		if not state in statusDict[srcId]:
+			statusDict[srcId][state] = num
+		else:
+			statusDict[srcId][state] += num
+		# print("row", srcId, state, num)
+	# print("statusDict", statusDict)
 	%>
 
 	<div class="statusdiv">
@@ -99,7 +103,7 @@ DNLDED = 2
 				<strong>${item["name"]}</strong><br />
 				${runStart}<br />
 				${runState}
-				<!--
+
 				% if item["dictKey"] != None:
 					% if item["dictKey"] in statusDict:
 						<ul>
@@ -112,7 +116,7 @@ DNLDED = 2
 						<b>WARN: No lookup dict built yet!</b>
 					% endif
 				% endif
-				 -->
+
 			</div>
 		% endfor
 	</div>

@@ -58,97 +58,97 @@ def updateNameDBifneeded():
 
 	print("request.params", request.params)
 
-	cur = sqlCon.cursor()
-	if 'target' in request.params and request.params['target'] == "mu-mt":
-		if 'originalName' in request.params and  'newName' in request.params and  'columnName' in request.params:
+	with sqlCon.cursor() as cur:
+		if 'target' in request.params and request.params['target'] == "mu-mt":
+			if 'originalName' in request.params and  'newName' in request.params and  'columnName' in request.params:
 
-			columnName = request.params['columnName']
-			oldName = request.params['originalName']
-			newName = request.params['newName']
+				columnName = request.params['columnName']
+				oldName = request.params['originalName']
+				newName = request.params['newName']
 
-			logger.info("Changing column '%s' from '%s' to '%s'", columnName, oldName, newName)
+				logger.info("Changing column '%s' from '%s' to '%s'", columnName, oldName, newName)
 
-			validColumns = ["mangaUpdates", "mangaTraders"]
-			if columnName not in validColumns:
-				print("Invalid column!")
-				return False
-			else:
+				validColumns = ["mangaUpdates", "mangaTraders"]
+				if columnName not in validColumns:
+					print("Invalid column!")
+					return False
+				else:
 
-				cur.execute('UPDATE mangaNameMappings SET %s=? WHERE %s=?;' % (columnName, columnName), (newName, oldName))
-				print(cur.fetchall())
-				sqlCon.commit()
+					cur.execute('UPDATE mangaNameMappings SET %s=? WHERE %s=?;' % (columnName, columnName), (newName, oldName))
+					print(cur.fetchall())
+					sqlCon.commit()
 
-				return True
+					return True
 
-		elif 'muName' in request.params and 'mtName' in request.params:
-			if 'delete' in request.params:
-				print("Should Delete!")
-				muName = request.params['muName']
-				mtName = request.params['mtName']
-				logger.info("deleting name-mapping: mu - %s -> mt - %s", muName, mtName)
+			elif 'muName' in request.params and 'mtName' in request.params:
+				if 'delete' in request.params:
+					print("Should Delete!")
+					muName = request.params['muName']
+					mtName = request.params['mtName']
+					logger.info("deleting name-mapping: mu - %s -> mt - %s", muName, mtName)
 
-				cur.execute(u"DELETE FROM mangaNameMappings WHERE mangaUpdates=? AND mangaTraders=?;", (muName, mtName))
-				print(cur.fetchall())
-				sqlCon.commit()
+					cur.execute(u"DELETE FROM mangaNameMappings WHERE mangaUpdates=? AND mangaTraders=?;", (muName, mtName))
+					print(cur.fetchall())
+					sqlCon.commit()
 
-			elif 'add' in request.params:
+				elif 'add' in request.params:
 
-				muName = request.params['muName']
-				mtName = request.params['mtName']
-				logger.info("Adding new name-mapping item: mu - %s -> mt - %s", muName, mtName)
+					muName = request.params['muName']
+					mtName = request.params['mtName']
+					logger.info("Adding new name-mapping item: mu - %s -> mt - %s", muName, mtName)
 
-				cur.execute('INSERT INTO mangaNameMappings VALUES (?, ?);', (muName, mtName))
-				print(cur.fetchall())
-				sqlCon.commit()
-			else:
-				print("wut")
-	elif 'target' in request.params and request.params['target'] == "mt-dir":
-		if 'originalName' in request.params and  'newName' in request.params and  'columnName' in request.params:
+					cur.execute('INSERT INTO mangaNameMappings VALUES (?, ?);', (muName, mtName))
+					print(cur.fetchall())
+					sqlCon.commit()
+				else:
+					print("wut")
+		elif 'target' in request.params and request.params['target'] == "mt-dir":
+			if 'originalName' in request.params and  'newName' in request.params and  'columnName' in request.params:
 
-			columnName = request.params['columnName'].rstrip().lstrip()
-			oldName = request.params['originalName'].rstrip().lstrip()
-			newName = request.params['newName'].rstrip().lstrip()
+				columnName = request.params['columnName'].rstrip().lstrip()
+				oldName = request.params['originalName'].rstrip().lstrip()
+				newName = request.params['newName'].rstrip().lstrip()
 
-			logger.info("Changing column '%s' from '%s' to '%s'", columnName, oldName, newName)
+				logger.info("Changing column '%s' from '%s' to '%s'", columnName, oldName, newName)
 
-			validColumns = ["baseName", "folderName"]
-			if columnName not in validColumns:
-				print("Invalid column!")
-				return False
-			else:
+				validColumns = ["baseName", "folderName"]
+				if columnName not in validColumns:
+					print("Invalid column!")
+					return False
+				else:
 
-				cur.execute('UPDATE folderNameMappings SET %s=? WHERE %s=?;' % (columnName, columnName), (newName, oldName))
-				print(cur.fetchall())
-				sqlCon.commit()
+					cur.execute('UPDATE folderNameMappings SET %s=? WHERE %s=?;' % (columnName, columnName), (newName, oldName))
+					print(cur.fetchall())
+					sqlCon.commit()
 
-				return True
+					return True
 
-		elif 'muName' in request.params and 'mtName' in request.params:
-			if 'delete' in request.params:
-				print("Should Delete!")
-				muName = request.params['muName'].rstrip().lstrip()
-				mtName = request.params['mtName'].rstrip().lstrip()
-				logger.info("deleting name-mapping: mu - %s -> mt - %s", muName, mtName)
+			elif 'muName' in request.params and 'mtName' in request.params:
+				if 'delete' in request.params:
+					print("Should Delete!")
+					muName = request.params['muName'].rstrip().lstrip()
+					mtName = request.params['mtName'].rstrip().lstrip()
+					logger.info("deleting name-mapping: mu - %s -> mt - %s", muName, mtName)
 
-				cur.execute(u"DELETE FROM folderNameMappings WHERE baseName=? AND folderName=?;", (muName, mtName))
-				print(cur.fetchall())
-				sqlCon.commit()
+					cur.execute(u"DELETE FROM folderNameMappings WHERE baseName=? AND folderName=?;", (muName, mtName))
+					print(cur.fetchall())
+					sqlCon.commit()
 
-			elif 'add' in request.params:
+				elif 'add' in request.params:
 
-				muName = nt.sanitizeString(request.params['muName'])
-				mtName = request.params['mtName'].rstrip().lstrip()
-				logger.info("Adding new name-mapping item: base - %s -> dir - %s", muName, mtName)
+					muName = nt.sanitizeString(request.params['muName'])
+					mtName = request.params['mtName'].rstrip().lstrip()
+					logger.info("Adding new name-mapping item: base - %s -> dir - %s", muName, mtName)
 
-				cur.execute('INSERT INTO folderNameMappings VALUES (?, ?);', (muName, mtName))
-				print(cur.fetchall())
-				sqlCon.commit()
-			else:
-				print("wut")
+					cur.execute('INSERT INTO folderNameMappings VALUES (?, ?);', (muName, mtName))
+					print(cur.fetchall())
+					sqlCon.commit()
+				else:
+					print("wut")
 
-	else:
-		print('target' in request.params)
-		logger.warning("Didn't know how to parse GET args!")
+		else:
+			print('target' in request.params)
+			logger.warning("Didn't know how to parse GET args!")
 
 nameFixer = {}
 # checkInitDB()
@@ -267,7 +267,7 @@ print("DirsLookup = ",  nt.dirsLookup.items)
 # Execution begins here
 # ------------------------------------------------------------------------
 
-cur = sqlCon.cursor()
+
 
 
 

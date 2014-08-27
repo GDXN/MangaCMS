@@ -34,10 +34,10 @@ except ValueError:
 	reader.invalidKey(message="Specified itemId is not a integer!")
 	return
 
-cur = sqlCon.cursor()
-ret = cur.execute('''SELECT downloadPath, fileName FROM HentaiItems WHERE dbId=%s;''', (itemId, ))
+with sqlCon.cursor() as cur:
+	ret = cur.execute('''SELECT downloadPath, fileName FROM HentaiItems WHERE dbId=%s;''', (itemId, ))
+	rets = cur.fetchall()[0]
 
-rets = cur.fetchall()[0]
 if not rets:
 	reader.invalidKey(message="Specified itemId does not exist in database!")
 	return

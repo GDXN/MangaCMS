@@ -39,19 +39,19 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def retag(self):
 		retagUntaggedThresh = time.time()-settings.djSettings["retagMissing"]
 		retagThresh = time.time()-settings.djSettings["retag"]
-		cur = self.conn.cursor()
+		with self.conn.cursor() as cur:
 
-		ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND tags IS NULL ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagUntaggedThresh, self.tableKey))
-		rets = cur.fetchall()
-		if not rets:
-			self.log.info("No items")
-			return
-		else:
-			ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND tags IS NULL ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagThresh, self.tableKey))
+			ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND tags IS NULL ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagUntaggedThresh, self.tableKey))
 			rets = cur.fetchall()
 			if not rets:
-				self.log.info("Done")
+				self.log.info("No items")
 				return
+			else:
+				ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND tags IS NULL ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagThresh, self.tableKey))
+				rets = cur.fetchall()
+				if not rets:
+					self.log.info("Done")
+					return
 
 		items = []
 		for row in rets:
