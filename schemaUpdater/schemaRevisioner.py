@@ -3,12 +3,12 @@ import psycopg2
 import settings
 import sys
 
-from schemaUpdater.schema008to009 import update_9         # Rev 9 is the first postgres rev
-from schemaUpdater.rowCountTracker import doTableCountsPostgre         # Rev 9 is the first postgres rev
+
+from schemaUpdater.rowCountTracker import setupTableCountersPostgre         # Rev 9 is the first postgres rev
 
 
 
-CURRENT_SCHEMA = 9
+CURRENT_SCHEMA = 10
 
 def getSchemaRev(conn):
 	cur = conn.cursor()
@@ -76,14 +76,19 @@ def updateDatabaseSchema(fastExit=False):
 	if rev == -1:
 		createSchemaRevTable(conn)
 
-	updateSchemaRevNo(9)
+		updateSchemaRevNo(9)
 
 	rev = getSchemaRev(conn)
+	if rev == 9:
+		setupTableCountersPostgre(conn)
+		updateSchemaRevNo(10)
+
+	rev = getSchemaRev(conn)
+
 	if fastExit:
 		return
 
 
-	doTableCountsPostgre(conn)
 
 	rev = getSchemaRev(conn)
 	print("Current Rev = ", rev)

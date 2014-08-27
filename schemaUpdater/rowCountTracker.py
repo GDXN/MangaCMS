@@ -1,5 +1,5 @@
 
-def doTableCountsPostgre(conn):
+def setupTableCountersPostgre(conn):
 	doTableCount(conn, "MangaItems")
 	doTableCount(conn, "HentaiItems")
 
@@ -43,25 +43,26 @@ CREATE OR REPLACE FUNCTION update_row_counts() RETURNS trigger AS $$
 $$ LANGUAGE plpgsql;
 	''')
 
-	cur.execute('''
 
-CREATE OR REPLACE FUNCTION rowcount_cleanse() RETURNS INTEGER AS $$
-	DECLARE
-		prec RECORD;
-	BEGIN
+	# 	cur.execute('''
 
-		LOCK TABLE MangaItemCounts NOWAIT;
-		FOR prec IN SELECT sourceSite, dlState, SUM(quantity) AS SUM, COUNT(*) AS count FROM MangaItemCounts GROUP BY sourceSite,dlState LOOP
-			IF prec.count > 1 THEN
-				DELETE FROM MangaItemCounts WHERE sourceSite = prec.sourceSite AND dlState = prec.dlState;
-				INSERT INTO MangaItemCounts (sourceSite, dlState, quantity) VALUES (prec.sourceSite, prec.dlState, prec.sum);
-			END IF;
-		END LOOP;
+	# CREATE OR REPLACE FUNCTION rowcount_cleanse() RETURNS INTEGER AS $$
+	# 	DECLARE
+	# 		prec RECORD;
+	# 	BEGIN
 
-		RETURN 0;
-	END;
-$$ LANGUAGE plpgsql;
-	''')
+	# 		LOCK TABLE MangaItemCounts NOWAIT;
+	# 		FOR prec IN SELECT sourceSite, dlState, SUM(quantity) AS SUM, COUNT(*) AS count FROM MangaItemCounts GROUP BY sourceSite,dlState LOOP
+	# 			IF prec.count > 1 THEN
+	# 				DELETE FROM MangaItemCounts WHERE sourceSite = prec.sourceSite AND dlState = prec.dlState;
+	# 				INSERT INTO MangaItemCounts (sourceSite, dlState, quantity) VALUES (prec.sourceSite, prec.dlState, prec.sum);
+	# 			END IF;
+	# 		END LOOP;
+
+	# 		RETURN 0;
+	# 	END;
+	# $$ LANGUAGE plpgsql;
+	# 	''')
 
 
 
