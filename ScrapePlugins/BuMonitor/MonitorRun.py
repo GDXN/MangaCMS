@@ -32,7 +32,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	dbName = settings.dbName
 
-	wgH = webFunctions.WebGetRobust()
+	wgH = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 
 	# -----------------------------------------------------------------------------------

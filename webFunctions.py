@@ -19,7 +19,8 @@ import bs4
 
 import re
 
-#pylint: disable-msg=E1101, C0325, R0201
+#pylint: disable-msg=E1101, C0325, R0201, W0702, W0703
+
 # A urllib2 wrapper that provides error handling and logging, as well as cookie management. It's a bit crude, but it works.
 
 import gzip
@@ -37,7 +38,7 @@ class WebGetRobust:
 	cookielib = None
 	opener = None
 
-	log = logging.getLogger("Main.Web")
+
 	# Due to general internet people douchebaggyness, I've basically said to hell with it and decided to spoof a whole assortment of browsers
 	# It should keep people from blocking this scraper *too* easily
 	opera = [	('User-Agent'		,	'Mozilla/5.0 (Windows NT 6.1; en; rv:2.0) Gecko/20100101 Firefox/4.0 Opera 11.61'),
@@ -72,8 +73,9 @@ class WebGetRobust:
 	# if test=true, no resources are actually fetched (for testing)
 	# creds is a list of 3-tuples that gets inserted into the password manager.
 	# it is structured [(top_level_url1, username1, password1), (top_level_url2, username2, password2)]
-	def __init__(self, test=False, creds=None):
-		print("Webget init!")
+	def __init__(self, test=False, creds=None, logPath="Main.Web"):
+		self.log = logging.getLogger(logPath)
+		print("Webget init! Logpath = ", logPath)
 		self.browserHeaders = random.choice(self.browsers)
 
 		self.testMode = test		# if we don't want to actually contact the remote server, you pass a string containing
@@ -166,7 +168,6 @@ class WebGetRobust:
 
 		originalString = pgreq
 
-		log = self.log
 
 		pgctnt = None
 		pghandle = None
@@ -180,18 +181,18 @@ class WebGetRobust:
 		try:
 			# TODO: make this more sensible
 			if addlHeaders != None and  postData != None:
-				log.info("Making a post-request with additional headers!")
+				self.log.info("Making a post-request with additional headers!")
 				pgreq = urllib.request.Request(pgreq, headers=addlHeaders, data=urllib.parse.urlencode(postData).encode("utf-8"))
 			elif addlHeaders != None:
 				pgreq = urllib.request.Request(pgreq, headers=addlHeaders)
 			elif postData != None:
-				log.info("Making a post request!")
+				self.log.info("Making a post request!")
 				pgreq = urllib.request.Request(pgreq, data=urllib.parse.urlencode(postData).encode("utf-8"))
 
 			else:
 				pgreq = urllib.request.Request(pgreq)
 		except:
-			log.critical("Invalid header or url")
+			self.log.critical("Invalid header or url")
 			raise
 
 		errored = False
@@ -205,14 +206,14 @@ class WebGetRobust:
 
 
 				if loopctr > self.errorOutCount:
-					log.error("Failed to retrieve Website : %s at %s All Attempts Exhausted", pgreq.get_full_url(), time.ctime(time.time()))
+					self.log.error("Failed to retrieve Website : %s at %s All Attempts Exhausted", pgreq.get_full_url(), time.ctime(time.time()))
 					pgctnt = None
 					try:
-						log.critical(("Critical Failure to retrieve page! %s at %s, attempt %s" % (pgreq.get_full_url(), time.ctime(time.time()), loopctr)))
-						log.critical(("Error:", lastErr))
-						log.critical("Exiting")
+						self.log.critical(("Critical Failure to retrieve page! %s at %s, attempt %s" % (pgreq.get_full_url(), time.ctime(time.time()), loopctr)))
+						self.log.critical(("Error:", lastErr))
+						self.log.critical("Exiting")
 					except:
-						log.critical("And the URL could not be printed due to an encoding error")
+						self.log.critical("And the URL could not be printed due to an encoding error")
 					break
 
 				#print "execution", loopctr
@@ -222,43 +223,43 @@ class WebGetRobust:
 					pghandle = self.opener.open(pgreq)					# Get Webpage
 
 				except urllib.error.HTTPError as e:								# Lotta logging
-					log.warning("Error opening page: %s at %s On Attempt %s.", pgreq.get_full_url(), time.ctime(time.time()), loopctr)
-					log.warning("Error Code: %s", e)
+					self.log.warning("Error opening page: %s at %s On Attempt %s.", pgreq.get_full_url(), time.ctime(time.time()), loopctr)
+					self.log.warning("Error Code: %s", e)
 
 					#traceback.print_exc()
 					lastErr = e
 					try:
 
-						log.warning("Original URL: %s", originalString)
+						self.log.warning("Original URL: %s", originalString)
 						errored = True
 					except:
-						log.warning("And the URL could not be printed due to an encoding error")
+						self.log.warning("And the URL could not be printed due to an encoding error")
 
 					if e.code == 404:
 						#print "Unrecoverable - Page not found. Breaking"
-						log.critical("Unrecoverable - Page not found. Breaking")
+						self.log.critical("Unrecoverable - Page not found. Breaking")
 						break
 
 					time.sleep(self.retryDelay)
 
 				except UnicodeEncodeError:
-					log.critical("Unrecoverable Unicode issue retreiving page - %s", originalString)
+					self.log.critical("Unrecoverable Unicode issue retreiving page - %s", originalString)
 					break
 
 				except Exception:
 					errored = True
 					#traceback.print_exc()
 					lastErr = sys.exc_info()
-					log.warning("Retreival failed. Traceback:")
-					log.warning(lastErr)
-					log.warning(traceback.format_exc())
+					self.log.warning("Retreival failed. Traceback:")
+					self.log.warning(lastErr)
+					self.log.warning(traceback.format_exc())
 
-					log.warning("Error Retrieving Page! - Trying again - Waiting 2.5 seconds")
+					self.log.warning("Error Retrieving Page! - Trying again - Waiting 2.5 seconds")
 
 					try:
-						log.critical("Error on page - %s" % originalString)
+						self.log.critical("Error on page - %s" % originalString)
 					except:
-						log.critical("And the URL could not be printed due to an encoding error")
+						self.log.critical("And the URL could not be printed due to an encoding error")
 
 					time.sleep(self.retryDelay)
 
@@ -268,14 +269,14 @@ class WebGetRobust:
 				if pghandle != None:
 					try:
 
-						log.info("Request for URL: %s succeeded at %s On Attempt %s. Recieving...", pgreq.get_full_url(), time.ctime(time.time()), loopctr)
+						self.log.info("Request for URL: %s succeeded at %s On Attempt %s. Recieving...", pgreq.get_full_url(), time.ctime(time.time()), loopctr)
 						if callBack:
 							pgctnt = self.chunkRead(pghandle, 2 ** 17, reportHook = callBack)
 						else:
 							pgctnt = pghandle.read()
 						if pgctnt != None:
 
-							log.info("URL fully retrieved.")
+							self.log.info("URL fully retrieved.")
 
 							preDecompSize = len(pgctnt)/1000.0
 
@@ -321,7 +322,7 @@ class WebGetRobust:
 
 									# Regex is of bytes type, since we can't convert a string to unicode until we know the encoding the
 									# bytes string is using, and we need the regex to get that encoding
-									coding = re.search(b"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pgctnt, flags=re.IGNORECASE)
+									coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pgctnt, flags=re.IGNORECASE)
 
 									cType = b""
 									charset = None
@@ -368,16 +369,16 @@ class WebGetRobust:
 						print(("pghandle = ", pghandle))
 
 						traceback.print_exc()
-						log.error(sys.exc_info())
-						log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", self.retryDelay)
+						self.log.error(sys.exc_info())
+						self.log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", self.retryDelay)
 
 						try:
-							log.critical("Critical Failure to retrieve page! %s at %s" % (pgreq.get_full_url(), time.ctime(time.time())))
-							log.critical("Exiting")
+							self.log.critical("Critical Failure to retrieve page! %s at %s" % (pgreq.get_full_url(), time.ctime(time.time())))
+							self.log.critical("Exiting")
 						except:
-							log.critical("And the URL could not be printed due to an encoding error")
+							self.log.critical("And the URL could not be printed due to an encoding error")
 						print()
-						log.error(pghandle)
+						self.log.error(pghandle)
 						time.sleep(self.retryDelay)
 
 

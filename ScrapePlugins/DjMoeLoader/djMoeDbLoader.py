@@ -12,7 +12,6 @@ import time
 import ScrapePlugins.RetreivalDbBase
 class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-	wg = webFunctions.WebGetRobust()
 
 	dbName = settings.dbName
 	loggerPath = "Main.DjM.Fl"
@@ -20,6 +19,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey    = "djm"
 	urlBase = "http://www.doujin-moe.us/"
 
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "HentaiItems"
 

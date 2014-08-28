@@ -7,8 +7,9 @@ import traceback
 import time
 import settings
 import nameTools as nt
+import ScrapePlugins.DbBase
 
-class MonitorDbBase(metaclass=abc.ABCMeta):
+class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
@@ -84,17 +85,6 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 							"lastChecked",
 							"itemAdded"]
 
-	def openDB(self):
-		self.log.info("Opening DB...",)
-		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-
-		self.log.info("DB opened.")
-
-	def closeDB(self):
-		self.log.info("Closing DB...",)
-		self.conn.close()
-		self.log.info("DB Closed")
-
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Tools
@@ -132,7 +122,14 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		# print("Query = ", query, queryAdditionalArgs)
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, queryAdditionalArgs)
+
+			if commit:
+				cur.execute("COMMIT;")
 
 		if commit:
 			self.conn.commit()
@@ -166,21 +163,46 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		query = '''UPDATE {t} SET {v} WHERE dbId=%s;'''.format(t=self.tableName, v=column)
 
 		with self.conn.cursor() as cur:
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, qArgs)
 
+			if commit:
+				cur.execute("COMMIT;")
 
-		if commit:
-			self.conn.commit()
+
 
 	def deleteRowById(self, rowId, commit=True):
-
-
-
 		query = ''' DELETE FROM {tableN} WHERE dbId=%s;'''.format(tableN=self.tableName)
 		qArgs = (rowId, )
 
 		with self.conn.cursor() as cur:
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, qArgs)
+
+			if commit:
+				cur.execute("COMMIT;")
+
+
+	def deleteRowByBuId(self, buId, commit=True):
+		buId = str(buId)
+		query1 = ''' DELETE FROM {tableN} WHERE buId=%s;'''.format(tableN=self.nameMapTableName)
+		qArgs = (buId, )
+		query2 = ''' DELETE FROM {tableN} WHERE buId=%s;'''.format(tableN=self.tableName)
+		qArgs = (buId, )
+
+		with self.conn.cursor() as cur:
+			if commit:
+				cur.execute("BEGIN;")
+
+			cur.execute(query1, qArgs)
+			cur.execute(query2, qArgs)
+
+			if commit:
+				cur.execute("COMMIT;")
 
 		if commit:
 			self.conn.commit()
@@ -287,10 +309,12 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		try:
 			dbId = toRow["dbId"]
 			toRow.pop("dbId")
-			self.conn.commit()
-			self.deleteRowById(fromRow["dbId"], commit=False)
-			self.updateDbEntry(dbId, commit=False, **toRow)
-			self.conn.commit()
+
+			with self.conn.cursor() as cur:
+				cur.execute("BEGIN;")
+				self.deleteRowById(fromRow["dbId"], commit=False)
+				self.updateDbEntry(dbId, commit=False, **toRow)
+				cur.execute("COMMIT;")
 
 		except (psycopg2.OperationalError, psycopg2.IntegrityError) as e:
 			self.log.critical("Encountered error!")
@@ -319,43 +343,48 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 		print("Items", items)
-		for name, mId in items:
-			row = self.getRowByValue(buId=mId)
-			if row:
-				if name.lower() != row["buName"].lower():
-					self.log.warning("Name disconnect!")
-					self.log.warning("New name='%s', old name='%s'.", name, row["buName"])
-					self.log.warning("Whole row=%s", row)
-					self.updateDbEntry(row["dbId"], buName=name, commit=False)
 
-			else:
-				row = self.getRowByValue(buName=name)
+		with self.conn.cursor() as cur:
+			cur.execute("BEGIN;")
+
+			for name, mId in items:
+				row = self.getRowByValue(buId=mId)
 				if row:
-					self.log.error("Conflicting with existing series?")
-					self.log.error("Existing row = %s, %s", row["buName"], row["buId"])
-					self.log.error("Current item = %s, %s", name, mId)
-					self.updateDbEntry(row["dbId"], buName=name, commit=False)
-				else:
-					self.insertIntoDb(buName=name,
-									buId=mId,
-									lastChanged=0,
-									lastChecked=0,
-									itemAdded=time.time(),
-									commit=False)
-				# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+					if name.lower() != row["buName"].lower():
+						self.log.warning("Name disconnect!")
+						self.log.warning("New name='%s', old name='%s'.", name, row["buName"])
+						self.log.warning("Whole row=%s", row)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False)
 
-		self.conn.commit()
+				else:
+					row = self.getRowByValue(buName=name)
+					if row:
+						self.log.error("Conflicting with existing series?")
+						self.log.error("Existing row = %s, %s", row["buName"], row["buId"])
+						self.log.error("Current item = %s, %s", name, mId)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False)
+					else:
+						self.insertIntoDb(buName=name,
+										buId=mId,
+										lastChanged=0,
+										lastChecked=0,
+										itemAdded=time.time(),
+										commit=False)
+					# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+
+			cur.execute("COMMIT;")
 
 	def insertNames(self, buId, names):
 
 		with self.conn.cursor() as cur:
+			cur.execute("BEGIN;")
 			for name in names:
 				fsSafeName = nt.prepFilenameForMatching(name)
 				cur.execute("""SELECT COUNT(*) FROM %s WHERE buId=%%s AND name=%%s;""" % self.nameMapTableName, (buId, name))
 				ret = cur.fetchall()
 				if not ret:
 					cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (buId, name, fsSafeName))
-
+			cur.execute("COMMIT;")
 
 	def getIdFromName(self, name):
 
@@ -432,7 +461,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 												dbId            SERIAL PRIMARY KEY,
 
 												buName          CITEXT,
-												buId            CITEXT,
+												buId            CITEXT UNIQUE,
 												buTags          CITEXT,
 												buGenre         CITEXT,
 												buList          CITEXT,

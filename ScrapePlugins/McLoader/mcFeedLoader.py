@@ -21,11 +21,12 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Mc.Fl"
 	pluginName = "MangaCow Link Retreiver"
 	tableKey = "mc"
 	dbName = settings.dbName
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "MangaItems"
 

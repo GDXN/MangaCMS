@@ -17,12 +17,12 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Sk.Fl"
 	pluginName = "Starkana Link Retreiver"
 	tableKey = "sk"
 	dbName = settings.dbName
 
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://starkana.com/"
 

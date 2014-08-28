@@ -17,12 +17,12 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Jz.Fl"
 	pluginName = "Japanzai Link Retreiver"
 	tableKey = "jz"
 	dbName = settings.dbName
 
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://download.japanzai.com/"
 

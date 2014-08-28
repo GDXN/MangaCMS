@@ -40,7 +40,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	dbName = settings.dbName
 
-	wgH = webFunctions.WebGetRobust()
+	wgH = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 
 
@@ -126,7 +126,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		pageCtnt  = self.wgH.getpage(self.itemURL.format(buId=mId))
 
 		if "You specified an invalid series id." in pageCtnt:
-			self.deleteRowById(dbId)
+			self.deleteRowByBuId(dbId)
 			self.log.warning("Invalid MU ID! ID: %s", mId)
 			return
 

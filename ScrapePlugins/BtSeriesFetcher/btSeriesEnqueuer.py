@@ -24,11 +24,12 @@ DOWNLOAD_ONLY_LANGUAGE = "English"
 
 class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
-	wg              = webFunctions.WebGetRobust()
 	loggerPath      = "Main.BtS.Sl"
 	pluginName      = "Batoto Series Link Retreiver"
 	tableKey        = "bt"
 	dbName          = settings.dbName
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName       = "MangaItems"
 

@@ -12,13 +12,14 @@ import time
 import ScrapePlugins.RetreivalDbBase
 class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-	wg = webFunctions.WebGetRobust()
 
 	dbName = settings.dbName
 	loggerPath = "Main.Pururin.Fl"
 	pluginName = "Pururin Link Retreiver"
 	tableKey    = "pu"
 	urlBase = "http://pururin.com/"
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "HentaiItems"
 

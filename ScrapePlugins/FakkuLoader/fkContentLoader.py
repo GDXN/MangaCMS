@@ -29,7 +29,6 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	archCleaner = archCleaner.ArchCleaner()
 
-	wg = webFunctions.WebGetRobust()
 
 	dbName = settings.dbName
 	loggerPath = "Main.Fakku.Cl"
@@ -39,6 +38,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	tableName = "HentaiItems"
 
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	retreivalThreads = 6
 

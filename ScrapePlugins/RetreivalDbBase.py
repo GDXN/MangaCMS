@@ -74,6 +74,7 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 		elif name == "conn":
 			if threadName not in self.dbConnections:
 				self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+				self.dbConnections[threadName].autocommit = True
 			return self.dbConnections[threadName]
 
 
@@ -184,10 +185,15 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Args = ", queryArguments)
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, queryArguments)
 
-		if commit:
-			self.conn.commit()
+			if commit:
+				cur.execute("COMMIT;")
+
 
 
 	# Update entry with key sourceUrl with values **kwargs
@@ -220,10 +226,15 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Args = ", qArgs)
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, qArgs)
 
-		if commit:
-			self.conn.commit()
+			if commit:
+				cur.execute("COMMIT;")
+
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
 
 	# Update entry with key sourceUrl with values **kwargs
@@ -255,10 +266,15 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Args = ", qArgs)
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, qArgs)
 
-		if commit:
-			self.conn.commit()
+			if commit:
+				cur.execute("COMMIT;")
+
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
 
 
@@ -279,9 +295,14 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 			print("Args = ", (val, self.tableKey))
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, (val, self.tableKey))
-		if commit:
-			self.conn.commit()
+
+			if commit:
+				cur.execute("COMMIT;")
 
 
 	def getRowsByValue(self, limitByKey=True, **kwargs):

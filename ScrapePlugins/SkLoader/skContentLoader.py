@@ -24,12 +24,13 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	archCleaner = archCleaner.ArchCleaner()
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Sk.Cl"
 	pluginName = "Starkana Content Retreiver"
 	tableKey = "sk"
 	dbName = settings.dbName
 	urlBase = "http://starkana.com/"
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "MangaItems"
 

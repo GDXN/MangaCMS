@@ -44,28 +44,6 @@ $$ LANGUAGE plpgsql;
 	''')
 
 
-	# 	cur.execute('''
-
-	# CREATE OR REPLACE FUNCTION rowcount_cleanse() RETURNS INTEGER AS $$
-	# 	DECLARE
-	# 		prec RECORD;
-	# 	BEGIN
-
-	# 		LOCK TABLE MangaItemCounts NOWAIT;
-	# 		FOR prec IN SELECT sourceSite, dlState, SUM(quantity) AS SUM, COUNT(*) AS count FROM MangaItemCounts GROUP BY sourceSite,dlState LOOP
-	# 			IF prec.count > 1 THEN
-	# 				DELETE FROM MangaItemCounts WHERE sourceSite = prec.sourceSite AND dlState = prec.dlState;
-	# 				INSERT INTO MangaItemCounts (sourceSite, dlState, quantity) VALUES (prec.sourceSite, prec.dlState, prec.sum);
-	# 			END IF;
-	# 		END LOOP;
-
-	# 		RETURN 0;
-	# 	END;
-	# $$ LANGUAGE plpgsql;
-	# 	''')
-
-
-
 
 	cur.execute('''DROP TRIGGER IF EXISTS update_row_count_trigger ON {tableName};'''.format(tableName=table))
 	cur.execute('''CREATE TRIGGER update_row_count_trigger

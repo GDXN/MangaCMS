@@ -89,9 +89,7 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
-
 	<li>automover patch path in db for moved items</li>
-	<li>Recreate triggers to update counts on insert/delete</li>
 	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
 	<li>fix lo colums?</li>
 	<li>irc defer dir search to actual download (mk too)</li>
@@ -128,9 +126,10 @@ Shit to do:
 <b>Add Scrapers for</b>
 <ul>
 	<li>http://www.cxcscans.com/</li>
-	<li>imangascans</li>
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>mangajoy?</li>
+	<li>Tadanohito as a H source</li>
+	<li><strike>imangascans</strike> (Done, as part of IRC scraper)</li>
 </ul>
 </p>
 
@@ -184,6 +183,9 @@ Getsurin ni Kiri Saku
 
 <b>Complete:</b>
 <ul>
+	<li><strike>UNIQUE constraint on buId for mangaseries table</strike></li>
+	<li><strike>Add parent-thread info to logger path for webUtilities.</strike></li>
+	<li><strike>Recreate triggers to update counts on insert/delete</strike></li>
 	<li><strike>make tags case-insensitive</strike> (Switch to CITEXT should do this, added .lower() to query generator anyways)</li>
 	<li><strike>mu cross references all broken</strike></li>
 	<li><strike>switch relevant columns to CITEXT</strike></li>

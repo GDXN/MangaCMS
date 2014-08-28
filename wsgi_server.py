@@ -71,7 +71,7 @@ class PageResource(object):
 		self.log.info("WSGI Server Opening DB...")
 		self.log.info("DB Path = %s", self.dbPath)
 		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-
+		self.conn.autocommit = True
 		sm.checkStatusTableExists()
 
 	def closeDB(self):

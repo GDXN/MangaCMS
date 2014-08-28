@@ -25,12 +25,13 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Mc.Cl"
 	pluginName = "MangaCow Content Retreiver"
 	tableKey = "mc"
 	dbName = settings.dbName
 	tableName = "MangaItems"
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	retreivalThreads = 2
 

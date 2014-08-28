@@ -21,11 +21,13 @@ class IMSTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	wg = webFunctions.WebGetRobust()
+
 	loggerPath = "Main.IMS.Fl"
 	pluginName = "IMangaScans Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.dbName
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "MangaItems"
 
@@ -108,34 +110,38 @@ class IMSTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 		self.log.info( "Inserting...",)
 		newItems = 0
-		for itemKey, itemData in itemDataSets:
-			if itemData is None:
-				print("itemDataSets", itemDataSets)
-				print("WAT")
 
-			row = self.getRowsByValue(limitByKey=False, sourceUrl=itemKey)
-			if not row:
-				newItems += 1
+		with self.conn.cursor() as cur:
+			cur.execute("BEGIN;")
 
+			for itemKey, itemData in itemDataSets:
+				if itemData is None:
+					print("itemDataSets", itemDataSets)
+					print("WAT")
 
-				# Flags has to be an empty string, because the DB is annoying.
-				#
-				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
-				#
-				self.insertIntoDb(retreivalTime = time.time(),
-									sourceUrl   = itemKey,
-									sourceId    = itemData,
-									dlState     = 0,
-									flags       = '',
-									commit=False)
-
-				self.log.info("New item: %s", itemData)
+				row = self.getRowsByValue(limitByKey=False, sourceUrl=itemKey)
+				if not row:
+					newItems += 1
 
 
-		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
+					# Flags has to be an empty string, because the DB is annoying.
+					#
+					# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
+					#
+					self.insertIntoDb(retreivalTime = time.time(),
+										sourceUrl   = itemKey,
+										sourceId    = itemData,
+										dlState     = 0,
+										flags       = '',
+										commit=False)
+
+					self.log.info("New item: %s", itemData)
+
+
+			self.log.info( "Done")
+			self.log.info( "Committing...",)
+			cur.execute("COMMIT;")
+			self.log.info( "Committed")
 
 		return newItems
 

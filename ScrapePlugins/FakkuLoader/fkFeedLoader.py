@@ -13,13 +13,14 @@ import time
 import ScrapePlugins.RetreivalDbBase
 class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-	wg = webFunctions.WebGetRobust()
 
 	dbName = settings.dbName
 	loggerPath = "Main.Fakku.Fl"
 	pluginName = "Fakku Link Retreiver"
 	tableKey    = "fk"
 	urlBase = "http://www.fakku.net/"
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "HentaiItems"
 

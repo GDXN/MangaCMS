@@ -77,10 +77,15 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Args = ", queryArguments)
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, queryArguments)
 
-		if commit:
-			self.conn.commit()
+			if commit:
+				cur.execute("COMMIT;")
+
 
 
 
@@ -114,10 +119,15 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Args = ", qArgs)
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, qArgs)
 
-		if commit:
-			self.conn.commit()
+			if commit:
+				cur.execute("COMMIT;")
+
 
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
@@ -148,10 +158,15 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Args = ", qArgs)
 
 		with self.conn.cursor() as cur:
+
+			if commit:
+				cur.execute("BEGIN;")
+
 			cur.execute(query, qArgs)
 
-		if commit:
-			self.conn.commit()
+			if commit:
+				cur.execute("COMMIT;")
+
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
 
 
@@ -179,8 +194,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		with self.conn.cursor() as cur:
 			cur.execute(query, (val,))
+			rets = cur.fetchall()
 
-		rets = cur.fetchall()
 		retL = []
 		for row in rets:
 

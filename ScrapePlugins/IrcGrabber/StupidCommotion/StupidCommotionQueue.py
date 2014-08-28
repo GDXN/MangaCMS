@@ -20,11 +20,13 @@ class StupidCommotionTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueu
 
 
 
-	wg = webFunctions.WebGetRobust()
+
 	loggerPath = "Main.SC.Fl"
 	pluginName = "StupidCommotion Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.dbName
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "MangaItems"
 

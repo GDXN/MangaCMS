@@ -24,11 +24,12 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	archCleaner = archCleaner.ArchCleaner()
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Jz.Cl"
 	pluginName = "Japanzai Content Retreiver"
 	tableKey = "jz"
 	dbName = settings.dbName
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://download.japanzai.com/"
 

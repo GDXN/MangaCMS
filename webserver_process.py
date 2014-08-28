@@ -1,11 +1,4 @@
 
-
-
-import time
-
-import threading
-
-
 import logging
 import wsgi_server
 
@@ -13,19 +6,15 @@ import cherrypy
 import nameTools as nt
 nt.dirNameProxy.startDirObservers()
 
-dbName = '/media/Storage/Scripts/MTDlTool/links.db'
 
-login   = "fake0name"
-passWd  = "9op6yh"
-
-dlDir = r"/media/Storage/MP"
-mDlDir = r"/media/Storage/Manga/"
-
-import runStatus
+import DbManagement.countCleaner
 
 def doHousekeeping():
 	nt.dirNameProxy.checkUpdate()
 
+def trimDatabase():
+	cc = DbManagement.countCleaner.CountCleaner()
+	cc.clean()
 
 
 def fixup_cherrypy_logs():
@@ -37,7 +26,6 @@ def fixup_cherrypy_logs():
 
 
 def runServer():
-
 
 	cherrypy.tree.graft(wsgi_server.app, "/")
 
@@ -77,7 +65,8 @@ def runServer():
 	# It crashes on restart unless the whole python interpreter is restarted.
 	# cherrypy.config.update({'engine.autoreload.on':False})
 
-	cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(5, doHousekeeping)
+	cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(5,       doHousekeeping)  # Check if dir-dicts need updating
+	cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(60*60*1, trimDatabase)    # Flatten tracking table for item counts. Hourly
 	cherrypy.engine.housekeeper.start()
 
 	cherrypy.engine.monitorPlugin = MonitorPlugin(cherrypy.engine)

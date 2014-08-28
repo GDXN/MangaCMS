@@ -26,7 +26,6 @@ import ScrapePlugins.RetreivalDbBase
 class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	log = logging.getLogger("Main.DjM.Cl")
 
-	wg = webFunctions.WebGetRobust()
 
 	dbName = settings.dbName
 	loggerPath = "Main.DjM.Cl"
@@ -34,6 +33,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey   = "djm"
 	urlBase = "http://www.doujin-moe.us/"
 
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 	tableName = "HentaiItems"
 
 	def retag(self):

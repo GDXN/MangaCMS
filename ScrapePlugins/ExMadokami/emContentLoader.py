@@ -24,11 +24,12 @@ class EmContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	archCleaner = archCleaner.ArchCleaner()
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Em.Cl"
 	pluginName = "Exhen.Madokami Content Retreiver"
 	tableKey = "em"
 	dbName = settings.dbName
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://exhen.madokami.com/"
 	tableName = "HentaiItems"

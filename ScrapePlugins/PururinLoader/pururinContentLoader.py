@@ -26,13 +26,14 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	archCleaner = archCleaner.ArchCleaner()
 
-	wg = webFunctions.WebGetRobust()
 
 	dbName = settings.dbName
 	loggerPath = "Main.Pururin.Cl"
 	pluginName = "Pururin Content Retreiver"
 	tableKey   = "pu"
 	urlBase = "http://pururin.com"
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "HentaiItems"
 

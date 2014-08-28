@@ -18,11 +18,12 @@ import nameTools as nt
 class EmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	wg = webFunctions.WebGetRobust()
 	loggerPath = "Main.Em.Fl"
 	pluginName = "Exhen.Madokami Link Retreiver"
 	tableKey = "em"
 	dbName = settings.dbName
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://exhen.madokami.com/"
 
