@@ -467,6 +467,9 @@ class DirNameProxy(object):
 
 		# for watch in self.
 
+	def observersActive(self):
+		return self.notifierRunning
+
 	def startDirObservers(self):
 
 		# Eventually, I want to use this to prevent crashes if the observers

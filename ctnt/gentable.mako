@@ -291,7 +291,11 @@ colours = {
 		toolTip += "cleanedName: " + itemInfo["dirKey"] + "<br>"
 		toolTip += "itemInfo: " + str(itemInfo).replace('"', "") + "<br>"
 		toolTip += "rowId: " + str(dbId) + "<br>"
-		toolTip += "sourceUrl: " + sourceUrl
+		toolTip += "sourceUrl: " + sourceUrl + "<br>"
+		if os.path.exists(filePath):
+			toolTip += "File found."
+		else:
+			toolTip += "File is missing!"
 
 
 		%>

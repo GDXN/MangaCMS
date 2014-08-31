@@ -13,6 +13,10 @@ import sys
 
 import shutil
 
+from utilities.cleanDb import PathCleaner
+import utilities.dedupDir
+
+from deduplicator.DbUtilities import DedupManager
 
 class dbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
@@ -70,6 +74,11 @@ def deduplicateMangaFolders():
 	keys = list(dirDictDict.keys())
 	keys.sort()
 
+	pc = PathCleaner()
+	pc.openDB()
+	dm = DedupManager()
+
+
 	for offset in range(len(keys)):
 		curDict = dirDictDict[keys[offset]]
 		curKeys = curDict.keys()
@@ -96,6 +105,8 @@ def deduplicateMangaFolders():
 						print("	Moving: ", item)
 						print("	From: ", fromPath)
 						print("	To:   ", toPath)
+						pc.moveFile(fromPath, toPath)
+						dm.moveFile(fromPath, toPath)
 						shutil.move(fromPath, toPath)
 
 def consolicateSeriesToSingleDir():
@@ -236,10 +247,21 @@ def printHelp():
 	print("Valid arguments:")
 	print("	python3 autoOrganize organize {dirPath}")
 	print("		Run auto-organizing tools against {dirPath}")
+	print()
 	print("	python3 autoOrganize lookup {name}")
 	print("		Lookup {name} in the MangaUpdates name synonym lookup table, print the results.")
+	print()
+	print("	python3 autoOrganize dirs-clean {target-path} {del-dir}")
+	print("		Find duplicates in each subdir of {target-path}, and remove them.")
+	print("		Functions on a per-directory basis, so only duplicates in the same folder will be considered")
+	print("		Does not currently use phashing.")
+	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
+	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
 	print("	")
-
+	print("	python3 autoOrganize dirs-restore {target-path}")
+	print("		Reverses the action of 'dirs-clean'. {target-path} is the directory specified as ")
+	print("		{del-dir} when running 'dirs-clean' ")
+	print("	")
 
 def parseCommandLine():
 	if len(sys.argv) == 3:
@@ -252,6 +274,7 @@ def parseCommandLine():
 				return
 			organizeFolder(val)
 			return
+
 		if cmd == "lookup":
 			print("Passed name = '%s'" % val)
 			haveLookup = nt.haveCanonicalMangaUpdatesName(val)
@@ -262,10 +285,36 @@ def parseCommandLine():
 				print("Item found in lookup table!")
 				print("Canonical name = '%s'" % nt.getCanonicalMangaUpdatesName(val) )
 
+
+		if cmd == "dirs-restore":
+			if not os.path.exists(val):
+				print("Passed path '%s' does not exist!" % val)
+				return
+			utilities.dedupDir.runRestoreDeduper(val)
+			return
+
+
 		else:
 			print("Did not understand command!")
 			print("Sys.argv = ", sys.argv)
 
+
+	elif len(sys.argv) == 4:
+
+		cmd = sys.argv[1].lower()
+		arg1 = sys.argv[2]
+		arg2 = sys.argv[3]
+
+		if cmd == "dirs-clean":
+			if not os.path.exists(arg1) or not os.path.exists(arg2):
+				print("Passed path '%s' does not exist!" % val)
+				return
+			utilities.dedupDir.runDeduper(arg1, arg2)
+			return
+
+		else:
+			print("Did not understand command!")
+			print("Sys.argv = ", sys.argv)
 	else:
 		printHelp()
 

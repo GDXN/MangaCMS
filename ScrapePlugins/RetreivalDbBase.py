@@ -10,13 +10,14 @@ import os
 import traceback
 
 import nameTools as nt
+import ScrapePlugins.DbBase
 
 # Turn on to print all db queries to STDOUT before running them.
 # Intended for debugging DB interactions.
 # Excessively verbose otherwise.
 QUERY_DEBUG = False
 
-class ScraperDbBase(metaclass=abc.ABCMeta):
+class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
@@ -123,10 +124,10 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 
 		if canonSeriesName in nt.dirNameProxy:
-			self.log.info( "Have target dir for '%s' Dir = '%s'", canonSeriesName, nt.dirNameProxy[canonSeriesName]['fqPath'])
+			self.log.info("Have target dir for '%s' Dir = '%s'", canonSeriesName, nt.dirNameProxy[canonSeriesName]['fqPath'])
 			return nt.dirNameProxy[canonSeriesName]["fqPath"], False
 		else:
-			self.log.info( "Don't have target dir for: %s, full name = %s", canonSeriesName, seriesName)
+			self.log.info("Don't have target dir for: %s, full name = %s", canonSeriesName, seriesName)
 			targetDir = os.path.join(settings.baseDir, safeBaseName)
 			if not os.path.exists(targetDir):
 				try:
@@ -444,18 +445,19 @@ class ScraperDbBase(metaclass=abc.ABCMeta):
 
 
 
-			indexes = [	("%s_source_index"           % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite)'''                                             ),
-						("%s_time_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivalTime)'''                                          ),
-						("%s_lastUpdate_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastUpdate)'''                                             ),
-						("%s_url_index"              % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceUrl)'''                                              ),
-						("%s_seriesName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName )'''                                            ),
-						("%s_tags_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (tags       )'''                                            ),
-						("%s_flags_index"            % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (flags      )'''                                            ),
-						("%s_dlState_index"          % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlState)'''                                                ),
-						("%s_originName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (originName)'''                                             ),
-						("%s_aggregate_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId)'''                        ),
-						('%s_special_full_idx'       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivaltime DESC, seriesName DESC, dbid);'''             ),
-						('%s_special_granulated_idx' % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite, retreivaltime DESC, seriesName DESC, dbid);''' )
+			indexes = [
+				("%s_source_index"           % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite)'''                                             ),
+				("%s_time_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivalTime)'''                                          ),
+				("%s_lastUpdate_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastUpdate)'''                                             ),
+				("%s_url_index"              % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceUrl)'''                                              ),
+				("%s_seriesName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName )'''                                            ),
+				("%s_tags_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (tags       )'''                                            ),
+				("%s_flags_index"            % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (flags      )'''                                            ),
+				("%s_dlState_index"          % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlState)'''                                                ),
+				("%s_originName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (originName)'''                                             ),
+				("%s_aggregate_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId)'''                        ),
+				('%s_special_full_idx'       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivaltime DESC, seriesName DESC, dbid);'''             ),
+				('%s_special_granulated_idx' % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite, retreivaltime DESC, seriesName DESC, dbid);''' )
 			]
 
 

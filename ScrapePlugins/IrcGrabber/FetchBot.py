@@ -52,32 +52,14 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		items = []
 
-		bad_matches = 0
-		total = 0
 		for item in rows:
 
 			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
 			# print("Item = ", item)
 
-			info = json.loads(item["sourceId"])
-			item["info"] = info
-			# print("info", info["fName"])
-			matchName = nt.guessSeriesFromFilename(info["fName"])
-			# if not matchName or not matchName in nt.dirNameProxy:
-			if not nt.haveCanonicalMangaUpdatesName(matchName):
-				item["seriesName"] = settings.ircBot["unknown-series"]
-
-				bad_matches += 1
-			else:
-				item["seriesName"] = nt.getCanonicalMangaUpdatesName(matchName)
-
-			self.updateDbEntry(item["sourceUrl"], seriesName=item["seriesName"])
-
-			total += 1
 
 			items.append(item)
 
-		self.log.info("Bad matches = %s, total %s", bad_matches, total)
 		self.log.info( "Have %s new items to retreive in IrcDownloader" % len(items))
 
 
@@ -211,6 +193,23 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		self.state = newState
 
 	def requestItem(self, reqItem):
+
+
+		info = json.loads(reqItem["sourceId"])
+		reqItem["info"] = info
+		# print("info", info["fName"])
+		matchName = nt.guessSeriesFromFilename(info["fName"])
+		# if not matchName or not matchName in nt.dirNameProxy:
+		if not nt.haveCanonicalMangaUpdatesName(matchName):
+			reqItem["seriesName"] = settings.ircBot["unknown-series"]
+
+
+		else:
+			reqItem["seriesName"] = nt.getCanonicalMangaUpdatesName(matchName)
+
+		self.updateDbEntry(reqItem["sourceUrl"], seriesName=reqItem["seriesName"])
+
+
 
 		if not "#"+reqItem["info"]["channel"] in self.channels:
 			self.log.info("Need to join channel %s", reqItem["info"]["channel"])

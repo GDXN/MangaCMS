@@ -51,47 +51,12 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		items = []
 		for item in rows:
-			print("Item", item)
+			# print("Item", item)
 			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
-
-
-			seriesName = item["seriesName"]
-			seriesName = seriesName.replace("[", "(").replace("]", "(")
-			safeBaseName = nt.makeFilenameSafe(item["seriesName"])
-
-
-
-			if seriesName in nt.dirNameProxy:
-				self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
-				item["targetDir"] = nt.dirNameProxy[seriesName]["fqPath"]
-			else:
-				self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", seriesName, item["seriesName"], item["originName"])
-				if "picked" in item["flags"]:
-					targetDir = os.path.join(settings.jzSettings["dirs"]['mnDir'], safeBaseName)
-				else:
-					targetDir = os.path.join(settings.jzSettings["dirs"]['mDlDir'], safeBaseName)
-				if not os.path.exists(targetDir):
-					try:
-						os.makedirs(targetDir)
-						item["targetDir"] = targetDir
-						self.updateDbEntry(item["sourceUrl"],flags=" ".join([item["flags"], "newdir"]))
-						self.conn.commit()
-
-						self.conn.commit()
-					except OSError:
-						self.log.critical("Directory creation failed?")
-						self.log.critical(traceback.format_exc())
-				else:
-					self.log.warning("Directory not found in dir-dict, but it exists!")
-					self.log.warning("Directory-Path: %s", targetDir)
-					item["targetDir"] = targetDir
-
-					self.updateDbEntry(item["sourceUrl"],flags=" ".join([item["flags"], "haddir"]))
-					self.conn.commit()
 
 			items.append(item)
 
-		self.log.info( "Have %s new items to retreive in JzDownloader" % len(items))
+		self.log.info( "Have %s new items to retreive in MkDownloader" % len(items))
 
 
 		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
@@ -124,6 +89,45 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def getLink(self, link):
+
+
+		seriesName = link["seriesName"]
+		seriesName = seriesName.replace("[", "(").replace("]", "(")
+		safeBaseName = nt.makeFilenameSafe(link["seriesName"])
+
+
+
+		if seriesName in nt.dirNameProxy:
+			self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
+			link["targetDir"] = nt.dirNameProxy[seriesName]["fqPath"]
+		else:
+			self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", seriesName, link["seriesName"], link["originName"])
+			if "picked" in link["flags"]:
+				targetDir = os.path.join(settings.jzSettings["dirs"]['mnDir'], safeBaseName)
+			else:
+				targetDir = os.path.join(settings.jzSettings["dirs"]['mDlDir'], safeBaseName)
+			if not os.path.exists(targetDir):
+				try:
+					os.makedirs(targetDir)
+					link["targetDir"] = targetDir
+					self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "newdir"]))
+					self.conn.commit()
+
+					self.conn.commit()
+				except OSError:
+					self.log.critical("Directory creation failed?")
+					self.log.critical(traceback.format_exc())
+			else:
+				self.log.warning("Directory not found in dir-dict, but it exists!")
+				self.log.warning("Directory-Path: %s", targetDir)
+				link["targetDir"] = targetDir
+
+				self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "haddir"]))
+				self.conn.commit()
+
+
+
+
 		sourceUrl, originFileName = link["sourceUrl"], link["originName"]
 
 		self.log.info( "Should retreive: %s, url - %s", originFileName, sourceUrl)

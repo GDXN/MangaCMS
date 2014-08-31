@@ -39,6 +39,8 @@
 
 </head>
 
+
+
 <%
 startTime = time.time()
 # print("Rendering begun")
@@ -89,10 +91,16 @@ Shit to do:
 <p>
 <b>General</b>
 <ul>
+
+	<li>IRC grabber needs a transfer stall timeout.</li>
+	<li>consolidation system for h tags</li>
+	<li>key not found error resulting in HTTP 500 for bad path after rating change</li>
+	<li>filtered h isn't being properly skipped</li>
+	<li>tagging in web interface</li>
+	<li>Migrate to new queries from tests.test-Queries</li>
 	<li>automover patch path in db for moved items</li>
 	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
 	<li>fix lo colums?</li>
-	<li>irc defer dir search to actual download (mk too)</li>
 	<li>scan downloads, retry missing not deduped</li>
 	<li>different tag for phash desuplication</li>
 	<li>artist and author in filebrowser if i have it</li>
@@ -105,9 +113,7 @@ Shit to do:
 	<li>properly show if things are one shot</li>
 	<li>cover images in file browser?</li>
 	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
-	<li>push dir updating into separate thread</li>
 	<li>Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file</li>
-	<li>Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice</li>
 	<li>Trigger series download if on any BU list as well (partial)</li>
 	<li>proxy for name lookups.</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
@@ -181,8 +187,18 @@ Getsurin ni Kiri Saku
 </p>
 <p>
 
+./Valkyria Nainen Kikan [++]
+./Ai wa Noroi no Nihon Ningyou [E][+]
+./Hime-sama Tanuki no Koisanyou [+++]
+
 <b>Complete:</b>
 <ul>
+	<li><strike>irc defer dir search to actual download (mk too)</strike></li>
+	<li><strike>push dir updating into separate thread</strike> The issue wasn't dir-updating, it was the DB loading it's cache from disk. Fixed by postgre</li>
+	<li><strike>Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice</strike></li>
+	<li><strike>Add file existence check to tooltip in manga table</li> I'll have to see if 200 file existence checks is a problem for page-rendering time.</strike></li>
+	<li><strike>Logger output coloring system</strike></li>
+	<li><strike>mangacow missing last page</strike> Fucking off-by-one error</li>
 	<li><strike>UNIQUE constraint on buId for mangaseries table</strike></li>
 	<li><strike>Add parent-thread info to logger path for webUtilities.</strike></li>
 	<li><strike>Recreate triggers to update counts on insert/delete</strike></li>
