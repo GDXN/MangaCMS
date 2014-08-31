@@ -37,7 +37,7 @@ sidebarItemList = [
 			'name'          : "Starkana",
 			'dictKey'       : "sk",
 			'cssClass'      : "skId",
-			'showOnHome'    : True,
+			'showOnHome'    : False,
 			'renderSideBar' : True,
 			'genRow'        : True,
 			'type'          : 'Manga'

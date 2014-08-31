@@ -9,64 +9,47 @@ import time
 import traceback
 # Pyling can't figure out what's in the record library for some reason
 #pylint: disable-msg=E1101
+
+colours = [clr.Fore.BLUE, clr.Fore.RED, clr.Fore.GREEN, clr.Fore.YELLOW, clr.Fore.MAGENTA, clr.Fore.CYAN, clr.Back.YELLOW + clr.Fore.BLACK, clr.Back.YELLOW + clr.Fore.BLUE, clr.Fore.WHITE]
+
+def getColor(idx):
+	return colours[idx%len(colours)]
+
 class ColourHandler(logging.Handler):
 
 	def __init__(self, level=logging.DEBUG):
 		logging.Handler.__init__(self, level)
-		self.formatter = logging.Formatter(clr.Style.RESET_ALL+'\r%(colour)s%(name)s'+clr.Style.RESET_ALL+'%(threadColour)s%(threadName)s'+clr.Style.RESET_ALL+'%(padding)s - %(style)s%(levelname)s - %(message)s'+clr.Style.RESET_ALL)
+		self.formatter = logging.Formatter('\r%(name)s%(padding)s - %(style)s%(levelname)s - %(message)s'+clr.Style.RESET_ALL)
 		clr.init()
+
+		self.logPaths = {}
 
 	def emit(self, record):
 
 		# print record.levelname
 		# print record.name
 
-		if record.name == "Main.Mt.Watcher":
-			record.colour = clr.Fore.BLUE
-		elif record.name == "Main.Mt.Cl":
-			record.colour = clr.Fore.RED
-		elif record.name == "Main.Mt.Fl":
-			record.colour = clr.Fore.GREEN
-		elif record.name == "Main.Fu.Fl":
-			record.colour = clr.Fore.YELLOW
-		elif record.name == "Main.Fu.Cl":
-			record.colour = clr.Fore.MAGENTA
-		elif record.name == "Main.Web":
-			record.colour = clr.Fore.CYAN
-		elif record.name == "Main.WebSrv":
-			record.colour = clr.Back.YELLOW + clr.Fore.BLACK
-		elif record.name == "Main.NSLookup":
-			record.colour = clr.Back.YELLOW + clr.Fore.BLUE
-		else:
-			record.colour = clr.Fore.WHITE
+		segments = record.name.split(".")
+		if segments[0] == "Main":
+			segments.pop(0)
+			segments[0] = "Main."+segments[0]
+
+		nameList = []
+
+		for indice, pathSegment in enumerate(segments):
+			if not indice in self.logPaths:
+				self.logPaths[indice] = [pathSegment]
+			elif not pathSegment in self.logPaths[indice]:
+				self.logPaths[indice].append(pathSegment)
+
+			name = clr.Style.RESET_ALL
+			name += getColor(self.logPaths[indice].index(pathSegment))
+			name += pathSegment
+			name += clr.Style.RESET_ALL
+			nameList.append(name)
 
 
-
-
-		if "Thread-" in record.name:
-			threadColours = [clr.Fore.GREEN,
-					clr.Fore.YELLOW,
-					clr.Fore.BLUE,
-					clr.Fore.MAGENTA,
-					clr.Fore.CYAN]
-
-			threadNo = record.name.split("-")[-1]
-			record.name, threadName = record.name.rsplit(".", 1)
-			record.name += "."
-			threadNo = int(threadNo)
-			threadNo = (threadNo-1) % 5
-			record.threadColour = threadColours[threadNo]
-			record.threadName = threadName
-
-		else:
-			record.threadName = ""
-			record.threadColour = ""
-
-		colours = [clr.Fore.RED, clr.Fore.GREEN, clr.Fore.YELLOW, clr.Fore.MAGENTA, clr.Fore.BLUE]
-
-		if "Main.Thread " in record.name:
-			record.colour = colours[int(record.name.split()[-1]) % len(colours)-1]
-
+		record.name = ".".join(nameList)
 
 		if record.levelname == "DEBUG":
 			record.style = clr.Style.DIM
@@ -79,22 +62,6 @@ class ColourHandler(logging.Handler):
 		else:
 			record.style = clr.Style.NORMAL
 
-		# record.padding = " "*(15-len(record.name))
-		# text = self.format(record)
-		# if "\n" in text:
-		# 	print text
-		# else:
-		# 	lenOffset = (tt.get_terminal_width()-3) + len(record.style) + len(record.colour) + len(clr.Style.RESET_ALL)*2
-		# 	if len(text)> lenOffset:
-		# 		print text[:lenOffset]
-		# 		text = text[lenOffset:]
-		# 		width = tt.get_terminal_width()-3
-		# 		while len(text) > width:
-		# 			print clr.Style.NORMAL+" "*20+record.style+"%s" % text[:width-20]
-		# 			text = text[width-20:]
-		# 	else:
-				# print text
-
 		record.padding = ""
 		print((self.format(record)))
 
@@ -102,8 +69,6 @@ class RobustFileHandler(logging.FileHandler):
 	"""
 	A handler class which writes formatted logging records to disk files.
 	"""
-
-
 
 	def emit(self, record):
 		"""

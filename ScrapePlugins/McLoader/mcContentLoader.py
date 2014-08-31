@@ -87,7 +87,7 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		pageNumbers = []
 		for value in selector.find_all("option"):
-			pageNumbers.append(int(value.get_text())-1)
+			pageNumbers.append(int(value.get_text()))
 
 
 		if not pageNumbers:

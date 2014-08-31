@@ -22,7 +22,7 @@ import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
 # are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
-	0  : (ScrapePlugins.McLoader.Run,             60*60*24),  # every 24 hours, it's just a single scanlator site.
+	0  : (ScrapePlugins.McLoader.Run,             60*60*12),  # every 24 hours, it's just a single scanlator site.
 	1  : (ScrapePlugins.ExMadokami.Run,           60*60   ),
 	2  : (ScrapePlugins.BuMonitor.Run,            60*60   ),
 	3  : (ScrapePlugins.JzLoader.Run,             60*60*8 ),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
