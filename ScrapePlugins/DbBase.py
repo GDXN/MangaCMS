@@ -22,7 +22,7 @@ class DbBase(metaclass=abc.ABCMeta):
 
 	def openDB(self):
 		self.log.info("Opening DB...",)
-		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.conn.autocommit = True
 		self.log.info("DB opened.")
 

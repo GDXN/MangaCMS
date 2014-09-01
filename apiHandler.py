@@ -6,6 +6,7 @@ import DbManagement.MonitorTool
 import nameTools as nt
 import logging
 import json
+import settings
 
 class ApiInterface(object):
 
@@ -104,6 +105,10 @@ class ApiInterface(object):
 	def handleApiCall(self, request):
 
 		print("API Call!", request.params)
+
+		if request.remote_addr in settings.noHighlightAddresses:
+			return Response(body=json.dumps({"Status": "Failed", "Message": "API calls are blocked from the reverse-proxy IP."}))
+
 
 		if "change-rating" in request.params:
 			print("Rating change!")

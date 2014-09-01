@@ -11,7 +11,7 @@ import runStatus
 
 import ScrapePlugins.DbBase
 import nameTools as nt
-
+import sys
 import signal
 
 
@@ -71,9 +71,9 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		with self.conn.cursor() as cur:
 			cur.execute("UPDATE {tableName}  SET dlState=%s WHERE dbId=%s".format(tableName=self.tableName), (newState, dbId))
 
-	def scanDb(self):
+	def resetMissingDownloads(self):
 
-		alterSites = ["mk", "bt", "jz", "mc"]
+		alterSites = ["bt", "jz", "mc"]
 
 		if not nt.dirNameProxy.observersActive():
 			nt.dirNameProxy.startDirObservers()
@@ -104,8 +104,8 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 				migPath = self.findIfMigrated(filePath)
 				if not migPath:
 					if sourceSite in alterSites:
+						print("Resetting download for ", filePath, "source=", sourceSite)
 						self.resetDlState(dbId, 0)
-						print("Resetting download for ", filePath)
 
 					else:
 						print("Missing", filePath)
@@ -118,10 +118,42 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 			loops += 1
 			if loops % 1000 == 0:
 				cur.execute("COMMIT;")
+				print("Incremental Commit!")
 				cur.execute("BEGIN;")
 
 		cur.execute("COMMIT;")
 
+	def updateTags(self, dbId, newTags):
+		cur = self.conn.cursor()
+		cur.execute("UPDATE {tableName} SET tags=%s WHERE dbId=%s;".format(tableName=self.tableName), (newTags, dbId))
+
+
+	def clearInvalidDedupTags(self):
+
+
+		cur = self.conn.cursor()
+		cur.execute("BEGIN;")
+		print("Querying")
+		cur.execute("SELECT dbId, downloadPath, fileName, tags FROM {tableName}".format(tableName=self.tableName))
+		print("Queried. Fetching results")
+		ret = cur.fetchall()
+		cur.execute("COMMIT;")
+		print("Have results. Processing")
+
+		cur.execute("BEGIN;")
+		for  dbId, downloadPath, fileName, tags in ret:
+			if tags == None: tags = ""
+			if "deleted" in tags and "was-duplicate" in tags:
+				fPath = os.path.join(downloadPath, fileName)
+				if os.path.exists(fPath):
+					tags = set(tags.split(" "))
+					tags.remove("deleted")
+					tags.remove("was-duplicate")
+					tags = " ".join(tags)
+					print("File ", fPath, "exists!", dbId, )
+					self.updateTags(dbId, tags)
+
+		cur.execute("COMMIT;")
 
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
@@ -135,10 +167,27 @@ def test():
 
 	signal.signal(signal.SIGINT, customHandler)
 
+	if len(sys.argv) < 2:
+		print("This script requires command line parameters")
+		print("Args:")
+		print("	'reset-missing' - Reset downloads where the file is missing, and the download is not tagged as deduplicated.")
+		print("	'clear-bad-dedup' - Remove deduplicated tag from any files where the file exists.")
+		return
+
+	mainArg = sys.argv[1]
+
+	print ("Passed arg", mainArg)
+
+
 	pc = PathCleaner()
 	pc.openDB()
 
-	pc.scanDb()
+	if mainArg.lower() == "reset-missing":
+		pc.resetMissingDownloads()
+	elif mainArg.lower() == "clear-bad-dedup":
+		pc.clearInvalidDedupTags()
+	else:
+		print("Unknown arg!")
 
 	pc.closeDB()
 

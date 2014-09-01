@@ -104,6 +104,7 @@ colours = {
 	"working"         : "9999FF",
 	"queued"          : "FF77FF",
 	"new dir"         : "FFE4B2",
+	"error"           : "FF0000",
 
 	# Categories
 
@@ -213,18 +214,18 @@ colours = {
 	% for row in tblCtntArr:
 		<%
 
-		dbId,          \
-		dlState,       \
-		sourceSite,    \
-		sourceUrl,     \
-		retreivalTime, \
-		sourceId,      \
-		sourceSeriesName,    \
-		fileName,      \
-		originName,    \
-		downloadPath,  \
-		flags,         \
-		tags,          \
+		dbId,              \
+		dlState,           \
+		sourceSite,        \
+		sourceUrl,         \
+		retreivalTime,     \
+		sourceId,          \
+		sourceSeriesName,  \
+		fileName,          \
+		originName,        \
+		downloadPath,      \
+		flags,             \
+		tags,              \
 		note = row
 
 		dlState = int(dlState)
@@ -258,8 +259,10 @@ colours = {
 			statusColour = colours["Done"]
 		elif dlState == 1:
 			statusColour = colours["working"]
-		else:
+		elif dlState == 0:
 			statusColour = colours["queued"]
+		else:
+			statusColour = colours["error"]
 
 
 		if downloadPath and fileName:
@@ -277,7 +280,6 @@ colours = {
 				locationColour = colours["valid cat"]
 		else:
 			if dlState == 0:
-
 				locationColour = colours["queued"]
 			elif dlState == 1:
 				locationColour = colours["working"]
@@ -292,6 +294,7 @@ colours = {
 		toolTip += "itemInfo: " + str(itemInfo).replace('"', "") + "<br>"
 		toolTip += "rowId: " + str(dbId) + "<br>"
 		toolTip += "sourceUrl: " + sourceUrl + "<br>"
+		toolTip += "dlState: " + str(dlState) + "<br>"
 		if os.path.exists(filePath):
 			toolTip += "File found."
 		else:
@@ -467,9 +470,10 @@ colours = {
 								.replace("convention-", "") \
 								.strip()
 					highlight = False
-					for toHighlighTag in settings.tagHighlight:
-						if toHighlighTag in tagname:
-							highlight = True
+					if not request.remote_addr in settings.noHighlightAddresses:
+						for toHighlighTag in settings.tagHighlight:
+							if toHighlighTag in tagname:
+								highlight = True
 					%>
 					${"<b>" if highlight else ""}
 					<a href="/itemsPron?byTag=${tagname|u}">${tag}</a>

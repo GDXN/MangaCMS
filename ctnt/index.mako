@@ -40,12 +40,10 @@
 </head>
 
 
-
 <%
 startTime = time.time()
 # print("Rendering begun")
 %>
-
 
 
 <%!
@@ -86,43 +84,41 @@ import settings
 </div>
 
 <h2>
-Shit to do:
+	Shit to do:
 </h2>
-<p>
+
 <b>General</b>
 <ul>
-
-	<li>IRC grabber needs a transfer stall timeout.</li>
-	<li>consolidation system for h tags</li>
-	<li>key not found error resulting in HTTP 500 for bad path after rating change</li>
-	<li>filtered h isn't being properly skipped</li>
-	<li>tagging in web interface</li>
-	<li>Migrate to new queries from tests.test-Queries</li>
-	<li>automover patch path in db for moved items</li>
-	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
-	<li>fix lo colums?</li>
-	<li>scan downloads, retry missing not deduped</li>
-	<li>different tag for phash desuplication</li>
-	<li>artist and author in filebrowser if i have it</li>
-	<li>ability to browse by mu tags</li>
 	<li>7z support in archtool</li>
-	<li>check that new items in bu are updating properly</li>
-	<li>tag/flag for when items are mirrored to mk?</li>
+	<li>ability to browse by mu tags</li>
+	<li>Ability to disable bulk-downloading.</li>
+	<li>add ability to sort directory by rating.</li>
+	<li>Add failed item introspection table.</li>
+	<li>artist and author in filebrowser if i have it</li>
+	<li>automover patch path in db for moved items</li>
 	<li>bu page opens in new window</li>
+	<li>check that new items in bu are updating properly</li>
+	<li>consolidation system for h tags</li>
+	<li>cover images in file browser?</li>
+	<li>Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)</li>
+	<li>different tag for phash desuplication</li>
+	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
+	<li>filtered h isn't being properly skipped</li>
+	<li>fix lo colums?</li>
+	<li>IRC grabber needs a transfer stall timeout.</li>
+	<li>key not found error resulting in HTTP 500 for bad path after rating change</li>
+	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
+	<li>Migrate to new queries from tests.test-Queries</li>
+	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
+	<li>Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file</li>
+	<li>Prevent full base dir refresh on directory rename.</li>
 	<li>prioritize downloads by rating</li>
 	<li>properly show if things are one shot</li>
-	<li>cover images in file browser?</li>
-	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
-	<li>Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file</li>
-	<li>Trigger series download if on any BU list as well (partial)</li>
 	<li>proxy for name lookups.</li>
-	<li>Prevent full base dir refresh on directory rename.</li>
+	<li>tag/flag for when items are mirrored to mk?</li>
+	<li>tagging in web interface</li>
 	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)</li>
-	<li>Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)</li>
-	<li>add ability to sort directory by rating.</li>
-	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
-	<li>Ability to disable bulk-downloading.</li>
-	<li>Add failed item introspection table.</li>
+	<li>Trigger series download if on any BU list as well (partial)</li>
 	<br>
 </ul>
 </p>
@@ -193,6 +189,7 @@ Getsurin ni Kiri Saku
 
 <b>Complete:</b>
 <ul>
+	<li><strike>scan downloads, retry missing not deduped</strike> Functin added to utilities.cleanDb</li>
 	<li><strike>irc defer dir search to actual download (mk too)</strike></li>
 	<li><strike>push dir updating into separate thread</strike> The issue wasn't dir-updating, it was the DB loading it's cache from disk. Fixed by postgre</li>
 	<li><strike>Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice</strike></li>

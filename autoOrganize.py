@@ -1,4 +1,7 @@
 
+# Yes, this whole file is kind of a mish-mash of random
+# script segments.
+
 
 import logSetup
 logSetup.initLogging()
@@ -239,7 +242,7 @@ def organizeFolder(folderPath):
 		nt.dirNameProxy.startDirObservers()
 		deduplicateMangaFolders()
 		consolicateSeriesToSingleDir()
-		renameSeriesToMatchMangaUpdates(folderPath)
+
 	finally:
 		nt.dirNameProxy.stop()
 
@@ -247,6 +250,9 @@ def printHelp():
 	print("Valid arguments:")
 	print("	python3 autoOrganize organize {dirPath}")
 	print("		Run auto-organizing tools against {dirPath}")
+	print()
+	print("	python3 autoOrganize rename {dirPath}")
+	print("		Rename directories in {dirPath} to match MangaUpdates naming")
 	print()
 	print("	python3 autoOrganize lookup {name}")
 	print("		Lookup {name} in the MangaUpdates name synonym lookup table, print the results.")
@@ -273,6 +279,13 @@ def parseCommandLine():
 				print("Passed path '%s' does not exist!" % val)
 				return
 			organizeFolder(val)
+			return
+
+		if cmd == "rename":
+			if not os.path.exists(val):
+				print("Passed path '%s' does not exist!" % val)
+				return
+			renameSeriesToMatchMangaUpdates(val)
 			return
 
 		if cmd == "lookup":

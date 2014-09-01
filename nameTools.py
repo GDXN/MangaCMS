@@ -237,7 +237,7 @@ class MapWrapper(object):
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
-		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.conn.autocommit = True
 		self.log.info("opened")
 
@@ -347,7 +347,7 @@ class MtNamesMapWrapper(object):
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
-		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.conn.autocommit = True
 		self.log.info("opened")
 
@@ -647,10 +647,11 @@ class DirNameProxy(object):
 				raise ValueError("New path exists already!")
 			else:
 				os.rename(oldPath, newPath)
-				self.eventH.setPathDirty(os.path.split(oldPath)[0])
-				print("Calling checkUpdate")
-				self.checkUpdate(skipTime=True)
-				print("checkUpdate Complete")
+				if self.notifierRunning:
+					self.eventH.setPathDirty(os.path.split(oldPath)[0])
+					print("Calling checkUpdate")
+					self.checkUpdate(skipTime=True)
+					print("checkUpdate Complete")
 
 
 	def filterPreppedNameThroughDB(self, name):

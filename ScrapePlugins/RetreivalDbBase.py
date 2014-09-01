@@ -74,7 +74,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 		elif name == "conn":
 			if threadName not in self.dbConnections:
-				self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+				self.dbConnections[threadName] = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 				self.dbConnections[threadName].autocommit = True
 			return self.dbConnections[threadName]
 

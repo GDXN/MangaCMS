@@ -207,7 +207,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		else:
 			reqItem["seriesName"] = nt.getCanonicalMangaUpdatesName(matchName)
 
-		self.updateDbEntry(reqItem["sourceUrl"], seriesName=reqItem["seriesName"])
+		self.db.updateDbEntry(reqItem["sourceUrl"], seriesName=reqItem["seriesName"])
 
 
 

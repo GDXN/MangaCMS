@@ -70,7 +70,7 @@ class PageResource(object):
 	def openDB(self):
 		self.log.info("WSGI Server Opening DB...")
 		self.log.info("DB Path = %s", self.dbPath)
-		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		self.conn.autocommit = True
 		sm.checkStatusTableExists()
 
@@ -104,6 +104,7 @@ class PageResource(object):
 			return ret
 
 	def getPage(self, request):
+
 		redir = self.checkAuth(request)
 		if redir:
 			return redir
@@ -143,7 +144,7 @@ class PageResource(object):
 
 		fix_matchdict(request)
 
-		self.log.info("Starting Serving request")
+		self.log.info("Starting Serving request from %s", request.remote_addr)
 		reqPath = request.path.lstrip("/")
 		if not reqPath.split("/")[-1]:
 			reqPath += "index.mako"
