@@ -26,6 +26,7 @@ DNLDED = 2
 	<%
 
 	cur = sqlConnection.cursor()
+	cur.execute("ROLLBACK;")
 
 	# Counting crap is now driven by commit/update/delete hooks
 	ret = cur.execute('SELECT sourceSite, dlState, quantity FROM MangaItemCounts;')

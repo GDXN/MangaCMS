@@ -73,7 +73,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 	def resetMissingDownloads(self):
 
-		alterSites = ["bt", "jz", "mc"]
+		alterSites = ["bt", "jz", "mc", "mk", "irc-irh"]
 
 		if not nt.dirNameProxy.observersActive():
 			nt.dirNameProxy.startDirObservers()
@@ -83,7 +83,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 
 		cur.execute("BEGIN;")
-		cur.execute("SELECT dbId, sourceSite, downloadPath, fileName, tags FROM {tableName} WHERE dlState=%s".format(tableName=self.tableName), (2, ))
+		cur.execute("SELECT dbId, sourceSite, downloadPath, fileName, tags FROM {tableName} WHERE dlState=%s ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (2, ))
 		ret = cur.fetchall()
 
 		cur.execute("COMMIT;")
@@ -108,7 +108,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 						self.resetDlState(dbId, 0)
 
 					else:
-						print("Missing", filePath)
+						print("Missing", filePath, "from", sourceSite)
 				else:
 					print("Moved!")
 					print("		Old = '%s'" % filePath)

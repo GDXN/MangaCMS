@@ -70,8 +70,12 @@ class PageResource(object):
 	def openDB(self):
 		self.log.info("WSGI Server Opening DB...")
 		self.log.info("DB Path = %s", self.dbPath)
-		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-		self.conn.autocommit = True
+
+		# Local sockets are MUCH faster if the DB is on the same machine as the server
+		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
+		# self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		# self.conn.autocommit = True
 		sm.checkStatusTableExists()
 
 	def closeDB(self):

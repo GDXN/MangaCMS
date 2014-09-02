@@ -238,12 +238,14 @@ class MapWrapper(object):
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
 		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-		self.conn.autocommit = True
+		# self.conn.autocommit = True
 		self.log.info("opened")
 
 		with self.conn.cursor() as cur:
 			cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.tableName)
 			rets = cur.fetchall()
+
+		self.conn.commit()
 
 		if rets:
 			rets = rets[0]
@@ -270,6 +272,9 @@ class MapWrapper(object):
 			with self.conn.cursor() as cur:
 				cur.execute('SELECT %s, %s FROM %s;' % (self.tableCols[0], self.tableCols[1], self.tableName))
 				rets = cur.fetchall()
+
+
+			self.conn.commit()
 
 			temp = {}
 
@@ -348,12 +353,14 @@ class MtNamesMapWrapper(object):
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
 		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-		self.conn.autocommit = True
+		# self.conn.autocommit = True
 		self.log.info("opened")
 
 		with self.conn.cursor() as cur:
 			cur.execute('''SELECT tablename FROM pg_catalog.pg_tables WHERE tablename='%s';''' % self.mode["table"])
 			rets = cur.fetchall()
+
+		self.conn.commit()
 		if rets:
 			rets = rets[0]
 		if not self.mode["table"] in rets:   # If the DB doesn't exist, set it up.
@@ -372,6 +379,8 @@ class MtNamesMapWrapper(object):
 			cur.execute(self.allQueryStr)
 			rets = cur.fetchall()
 
+		self.conn.commit()
+
 		for fsSafeName, buId in rets:
 			yield fsSafeName, buId
 
@@ -384,6 +393,8 @@ class MtNamesMapWrapper(object):
 		with self.conn.cursor() as cur:
 			cur.execute(self.queryStr, (key, ))
 			rets = cur.fetchall()
+
+		self.conn.commit()
 
 		if not rets:
 			return []

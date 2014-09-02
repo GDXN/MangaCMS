@@ -5,6 +5,7 @@
 
 import re
 import psycopg2
+import psycopg2.extras
 import time
 import datetime
 from babel.dates import format_timedelta
@@ -12,6 +13,8 @@ import os.path
 import urllib.parse
 import settings
 import nameTools as nt
+
+import time
 
 def compactDateStr(dateStr):
 	dateStr = dateStr.replace("months", "mo")
@@ -121,6 +124,74 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+<%def name="fetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None)">
+	<%
+		if distinct and seriesName:
+			raise ValueError("Cannot filter for distinct on a single series!")
+
+		if flags:
+			raise ValueError("TODO: Implement flag filtering!")
+
+		whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
+		params = tuple(queryAdditionalArgs)
+
+
+		anonCur = sqlCon.cursor()
+		anonCur.execute("BEGIN;")
+
+		cur = sqlCon.cursor(name='test-cursor-1')
+		cur.arraysize = 250
+		query = '''
+
+			SELECT
+					dbId, dlState, sourceSite,
+					sourceUrl, retreivalTime,
+					sourceId, seriesName,
+					fileName, originName,
+					downloadPath, flags, tags, note
+			FROM MangaItems
+			{query}
+			ORDER BY retreivalTime DESC;'''.format(query=whereStr)
+
+		start = time.time()
+
+		cur.execute(query, params)
+
+		seenItems = []
+		rowsBuf = cur.fetchmany()
+
+		rowsRead = 0
+
+		while len(seenItems) < offset:
+			if not rowsBuf:
+				rowsBuf = cur.fetchmany()
+			row = rowsBuf.pop(0)
+			rowsRead += 1
+			if row[6] not in seenItems or not distinct:
+				seenItems.append(row[6])
+
+		retRows = []
+
+		while len(seenItems) < offset+limit:
+			if not rowsBuf:
+				rowsBuf = cur.fetchmany()
+			row = rowsBuf.pop(0)
+			rowsRead += 1
+			if row[6] not in seenItems or not distinct:
+				retRows.append(row)
+				seenItems.append(row[6])
+
+		cur.close()
+		anonCur.execute("COMMIT;")
+
+		return retRows
+	%>
+
+</%def>
+
+
 <%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None)">
 	<%
 	# print("tableGen!")
@@ -138,67 +209,14 @@ colours = {
 		</tr>
 
 	<%
+
+
 	with sqlCon.cursor() as cur:
-		if flags != '':
-			print("Query string not properly generated at the moment")
-			print("FIX ME!")
-
-
-		if distinct:
-			subquery = """
-					SELECT MAX(dbid) AS dbid, seriesName
-						FROM MangaItems
-						{query}
-						GROUP BY seriesName
-						ORDER BY MAX(retreivalTime) DESC
-						LIMIT %s
-						OFFSET %s"""
-		else:
-			subquery = """
-					SELECT dbid, seriesName
-						FROM MangaItems
-						{query}
-						ORDER BY retreivalTime DESC
-						LIMIT %s
-						OFFSET %s"""
-
-		# print("building query")
-
-		whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
-		params = tuple(queryAdditionalArgs)+(limit, offset)
-		# print("Query = ", whereStr, queryAdditionalArgs)
-		# print("built")
-		# print("Querying...")
-		query = '''
-
-			SELECT
-					d.dbId,
-					d.dlState,
-					d.sourceSite,
-					d.sourceUrl,
-					d.retreivalTime,
-					d.sourceId,
-					d.seriesName,
-					d.fileName,
-					d.originName,
-					d.downloadPath,
-					d.flags,
-					d.tags,
-					d.note
-
-			FROM MangaItems AS d
-				JOIN
-					(
-						{subquery}
-					) AS di
-					ON  di.dbid = d.dbid
-			ORDER BY d.retreivalTime DESC;'''.format(subquery=subquery.format(query=whereStr))
-
-		# print("Query = ", query)
-		# print("params = ", params)
 
 		try:
-			ret = cur.execute(query, params)
+			# ret = cur.execute(query, params)
+
+			tblCtntArr = fetchMangaItems(flags, limit, offset, distinct, tableKey, seriesName)
 		except psycopg2.InternalError:
 			cur.execute("rollback;")
 			# cur.fetchall()
@@ -208,7 +226,6 @@ colours = {
 			# cur.fetchall()
 			raise
 
-		tblCtntArr = cur.fetchall()
 	# print("Done")
 	%>
 	% for row in tblCtntArr:

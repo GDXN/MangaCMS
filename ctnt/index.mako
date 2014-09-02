@@ -89,6 +89,8 @@ import settings
 
 <b>General</b>
 <ul>
+aggregation query is fuxked. somehow. 
+sort bu lists contents alphabetically
 	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>
 	<li>Ability to disable bulk-downloading.</li>
@@ -128,6 +130,7 @@ import settings
 <b>Add Scrapers for</b>
 <ul>
 	<li>http://www.cxcscans.com/</li>
+http://desperatescanners.weebly.com/
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>mangajoy?</li>
 	<li>Tadanohito as a H source</li>

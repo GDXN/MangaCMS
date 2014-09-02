@@ -7,7 +7,7 @@
 templates['loadingOverlay'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "\r\n<div id=\"cb-loading-overlay\" class=\"cb-control\"></div>\r\n";
@@ -15,7 +15,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['navigateLeft'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"left\" class=\"cb-control navigate navigate-left \">\r\n	<span class=\"icon-arrow-left\"></span>\r\n</div>\r\n";
@@ -23,7 +23,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['navigateRight'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"right\" class=\"cb-control navigate navigate-right\">\r\n	<span class=\"icon-arrow-right\"></span>\r\n</div>\r\n";
@@ -31,7 +31,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['progressbar'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "<div id=\"cb-status\" class=\"cb-control\">\r\n	<div id=\"cb-progress-bar\">\r\n		<div class=\"progressbar-value\"></div>\r\n	</div>\r\n</div>\r\n";
@@ -39,7 +39,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['toggleMode'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"bottom\" class=\"cb-control navigate navigate-center-bottom\">\r\n	<span class=\"icon-spinner\"></span>\r\n</div>\r\n";
@@ -47,7 +47,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['toggleToolbar'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"center\" class=\"cb-control navigate navigate-center-top\">\r\n	<span class=\"icon-open-toolbar\"></span>\r\n</div>\r\n";
@@ -55,7 +55,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['toolbar'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "\r\n<div class=\"toolbar\">\r\n\r\n	<ul class=\"pull-left\">\r\n		<li class=\"close\">\r\n			<button data-trigger=\"click\" data-action=\"close\" title=\"close\" class=\"icon-remove-sign\"></button>\r\n		</li>\r\n		<li class=\"close separator\"></li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"zoomOut\" title=\"Zoom out\" class=\"icon-zoom-out\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"zoomIn\" title=\"Zoom in\" class=\"icon-zoom-in\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"fitWidth\" title=\"Fit page to window width\" class=\"icon-expand\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"originalSize\" title=\"Do not scale image\" class=\"icon-expand-2\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"fitWindow\" title=\"Fit page to window\" class=\"icon-contract\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-right-3 manga-false\"></button>\r\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-left-3 manga-true\"></button>\r\n		</li>\r\n	</ul>\r\n\r\n	<ul class=\"pull-right\">\r\n		<li><span id=\"current-page\"></span> / <span id=\"page-count\"></span></li>\r\n	</ul>\r\n\r\n</div>\r\n";
@@ -117,8 +117,10 @@ var ComicBook = (function ($) {
 			manga: false,     // true / false
 			enhance: {},
 			keyboard: {
-				next: 78,
-				previous: 80,
+				// next: 78,
+				next: 39,
+				// previous: 80,
+				previous: 37,
 				toolbar: 84,
 				toggleLayout: 76
 			},
