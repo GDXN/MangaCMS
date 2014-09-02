@@ -127,9 +127,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		cur = self.conn.cursor()
 		cur.execute("UPDATE {tableName} SET tags=%s WHERE dbId=%s;".format(tableName=self.tableName), (newTags, dbId))
 
-
 	def clearInvalidDedupTags(self):
-
 
 		cur = self.conn.cursor()
 		cur.execute("BEGIN;")
@@ -155,6 +153,40 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 		cur.execute("COMMIT;")
 
+
+
+	def patchBatotoLinks(self):
+
+
+		cur = self.conn.cursor()
+		cur.execute("BEGIN;")
+		print("Querying")
+		cur.execute("SELECT dbId, sourceUrl FROM {tableName} WHERE sourceSite='bt';".format(tableName=self.tableName))
+		print("Queried. Fetching results")
+		ret = cur.fetchall()
+		cur.execute("COMMIT;")
+		print("Have results. Processing")
+
+		cur.execute("BEGIN;")
+		for  dbId, sourceUrl in ret:
+			if "batoto" in sourceUrl.lower():
+				sourceUrl = sourceUrl.replace("http://www.batoto.net/", "http://bato.to/")
+				print("Link", sourceUrl)
+
+				cur.execute("SELECT dbId FROM {tableName} WHERE sourceUrl=%s;".format(tableName=self.tableName), (sourceUrl, ))
+				ret = cur.fetchall()
+				if not ret:
+					print("Updating")
+					cur.execute("UPDATE {tableName} SET sourceUrl=%s WHERE dbId=%s;".format(tableName=self.tableName), (sourceUrl, dbId))
+
+				else:
+					print("Replacing")
+					cur.execute("DELETE FROM {tableName} WHERE sourceUrl=%s;".format(tableName=self.tableName), (sourceUrl, ))
+					cur.execute("UPDATE {tableName} SET sourceUrl=%s WHERE dbId=%s;".format(tableName=self.tableName), (sourceUrl, dbId))
+
+
+		cur.execute("COMMIT;")
+
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
 		runStatus.run = False
@@ -172,6 +204,7 @@ def test():
 		print("Args:")
 		print("	'reset-missing' - Reset downloads where the file is missing, and the download is not tagged as deduplicated.")
 		print("	'clear-bad-dedup' - Remove deduplicated tag from any files where the file exists.")
+		print("	'fix-bt-links' - Fix links for Batoto that point to batoto.com, rather then bato.to.")
 		return
 
 	mainArg = sys.argv[1]
@@ -186,6 +219,8 @@ def test():
 		pc.resetMissingDownloads()
 	elif mainArg.lower() == "clear-bad-dedup":
 		pc.clearInvalidDedupTags()
+	elif mainArg.lower() == "fix-bt-links":
+		pc.patchBatotoLinks()
 	else:
 		print("Unknown arg!")
 

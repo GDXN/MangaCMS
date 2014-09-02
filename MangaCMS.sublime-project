@@ -8,16 +8,19 @@
 		{
 			"follow_symlinks": true,
 			"path": "N:\\Scripts\\Deduper"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "N:\\Scripts\\MangaCMS/"
 		}
 	],
 	"settings":
 	{
 		"pylinter":
 		{
-			"python_path":
-			[
-				"N:/Scripts/MangaCMS"
-			],
+			"python_path": [
+								"N:/Scripts/MangaCMS/"
+							],
 			"use_icons": "true"
 		}
 	}

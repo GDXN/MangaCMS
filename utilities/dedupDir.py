@@ -81,12 +81,14 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 			cur.execute('''UPDATE MangaItems SET tags=%s WHERE dbId=%s;''', (" ".join(tags), rowId))
 
-	def cleanDirectory(self, dirPath, delDir):
+	def setupDbApi(self):
 		dbModule         = deduplicator.absImport.absImport(settings.dedupApiFile)
 		if not dbModule:
 			raise ImportError
 		self.db = dbModule.DbApi()
 
+
+	def cleanDirectory(self, dirPath, delDir):
 
 		self.log.info("Cleaning path '%s'", dirPath)
 		items = os.listdir(dirPath)
@@ -101,6 +103,8 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def cleanSingleDir(self, dirPath, delDir):
 
 		self.log.info("Processing subdirectory '%s'", dirPath)
+		if not dirPath.endswith("/"):
+			dirPath = dirPath + '/'
 		items = self.db.getLikeBasePath(dirPath)
 
 		hashLUT, fileLUT = createLuts(items)
@@ -111,13 +115,16 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 		for dummy_num, basePath in parsedItems:
 
-
+			# print("Scanning ", basePath)
 			containedFiles = fileLUT[basePath]
 			itemItems = len(containedFiles)
 			unique = []
 
 			otherPaths = {}
 			for internalPath, itemHash in containedFiles:
+
+				# print("len", len(hashLUT[itemHash]), (internalPath, itemHash))
+
 				if not itemHash in hashLUT:
 					raise ValueError ("WAT")
 
@@ -134,12 +141,14 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 							else:
 								otherPaths[fsPath]  = 1
 
-				hashLUT[itemHash].remove((basePath, internalPath))
-				if len(hashLUT[itemHash]) == 0:
-					hashLUT.pop(itemHash)
 
 			if not unique:
-				print()
+				print("Not Unique!", basePath)
+				for internalPath, itemHash in containedFiles:
+					hashLUT[itemHash].remove((basePath, internalPath))
+					if len(hashLUT[itemHash]) == 0:
+						hashLUT.pop(itemHash)
+
 				self.log.info("Not unique %s", basePath)
 				self.log.info("Duplicated in :	")
 				for oPath in [i for i in otherPaths.keys() if otherPaths[i] > 1]:
@@ -189,6 +198,7 @@ def runRestoreDeduper(sourcePath):
 
 	dd = DirDeduper()
 	dd.openDB()
+	dd.setupDbApi()
 
 	dd.restoreDirectory(sourcePath)
 
@@ -198,8 +208,21 @@ def runDeduper(basePath, deletePath):
 
 	dd = DirDeduper()
 	dd.openDB()
+	dd.setupDbApi()
 
 	dd.cleanDirectory(basePath, deletePath)
+
+	dd.closeDB()
+
+def runSingleDirDeduper(dirPath, deletePath):
+
+	dd = DirDeduper()
+	dd.openDB()
+	dd.setupDbApi()
+	if not os.path.isdir(dirPath):
+		raise ValueError("Passed path is not a directory! Path: '%s'" % dirPath)
+
+	dd.cleanSingleDir(dirPath, deletePath)
 
 	dd.closeDB()
 

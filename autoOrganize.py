@@ -263,6 +263,13 @@ def printHelp():
 	print("		Does not currently use phashing.")
 	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
 	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
+	print()
+	print("	python3 autoOrganize dir-clean {target-path} {del-dir}")
+	print("		Find duplicates in {target-path}, and remove them.")
+	print("		Functions on a per-directory basis, so only duplicates in the same folder will be considered")
+	print("		Does not currently use phashing.")
+	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
+	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
 	print("	")
 	print("	python3 autoOrganize dirs-restore {target-path}")
 	print("		Reverses the action of 'dirs-clean'. {target-path} is the directory specified as ")
@@ -322,7 +329,19 @@ def parseCommandLine():
 			if not os.path.exists(arg1) or not os.path.exists(arg2):
 				print("Passed path '%s' does not exist!" % val)
 				return
+			if not os.path.exists(arg2):
+				print("Passed path '%s' does not exist!" % arg2)
+				return
 			utilities.dedupDir.runDeduper(arg1, arg2)
+			return
+		if cmd == "dir-clean":
+			if not os.path.exists(arg1):
+				print("Passed path '%s' does not exist!" % arg1)
+				return
+			if not os.path.exists(arg2):
+				print("Passed path '%s' does not exist!" % arg2)
+				return
+			utilities.dedupDir.runSingleDirDeduper(arg1, arg2)
 			return
 
 		else:
