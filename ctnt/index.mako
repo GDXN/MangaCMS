@@ -89,8 +89,7 @@ import settings
 
 <b>General</b>
 <ul>
-aggregation query is fuxked. somehow. 
-sort bu lists contents alphabetically
+
 	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>
 	<li>Ability to disable bulk-downloading.</li>
@@ -129,11 +128,11 @@ sort bu lists contents alphabetically
 <p>
 <b>Add Scrapers for</b>
 <ul>
-	<li>http://www.cxcscans.com/</li>
-http://desperatescanners.weebly.com/
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>mangajoy?</li>
 	<li>Tadanohito as a H source</li>
+	<li><strike>http://www.cxcscans.com/</strike></li>
+	<li><strike>http://desperatescanners.weebly.com/</strike> (They release on batoto)</li>
 	<li><strike>imangascans</strike> (Done, as part of IRC scraper)</li>
 </ul>
 </p>
@@ -192,6 +191,8 @@ Getsurin ni Kiri Saku
 
 <b>Complete:</b>
 <ul>
+	<li><strike>sort bu lists contents alphabetically</strike></li>
+	<li><strike>aggregation query is fucked. somehow.</strike> Fixed with procedural filtering system.</li>
 	<li><strike>scan downloads, retry missing not deduped</strike> Functin added to utilities.cleanDb</li>
 	<li><strike>irc defer dir search to actual download (mk too)</strike></li>
 	<li><strike>push dir updating into separate thread</strike> The issue wasn't dir-updating, it was the DB loading it's cache from disk. Fixed by postgre</li>

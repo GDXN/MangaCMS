@@ -53,7 +53,7 @@ class McContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			items.append(item)
 
-		self.log.info( "Have %s new items to retreive in BtDownloader" % len(items))
+		self.log.info( "Have %s new items to retreive in McDownloader" % len(items))
 
 
 		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)

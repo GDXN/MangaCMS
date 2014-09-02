@@ -137,9 +137,6 @@ for item in buItems:
 
 
 
-
-	cleanedName = nt.prepFilenameForMatching(seriesName)
-
 reSortTop = ["Win", "Fascinating", "Interesting", "Tablet search"]
 reSortTop.reverse()
 reSortBottom = ["Interesting and Untranslated", "Vaguely Interesting", "Novels of interest", "Good H", "Interesting H", "Meh H", "Complete"]
@@ -272,8 +269,13 @@ print("Generating table")
 				<th class="padded" width="60">Read-To Chapter</th>
 					</tr>
 
+		<%
+		print("tableGen")
+		tblData.sort(key=lambda x: x["seriesName"])  # Sort list by seriesName
+		%>
 		% for dataDict in tblData:
 			<%
+
 				name = dataDict["seriesName"]
 				cleanedName = dataDict["seriesName"]
 

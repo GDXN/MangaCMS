@@ -104,6 +104,18 @@ sidebarItemList = [
 		},
 
 		{
+			"num"           : 15,
+			'dbKey'         : "CxLoader",
+			'name'          : "CXC Scans",
+			'dictKey'       : "cx",
+			'cssClass'      : "cxId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
+		{
 			"num"           : 14,
 			'dbKey'         : "IrcEnueue",
 			'name'          : "IRC",

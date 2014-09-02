@@ -687,6 +687,7 @@ class DirNameProxy(object):
 
 	def getFromSpecificDict(self, dictKey, itemKey):
 		filteredKey = self.filterPreppedNameThroughDB(itemKey)
+		print("ItemKey", itemKey, filteredKey)
 		# print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
 		if filteredKey in self.dirDicts[dictKey]:
 			tmp = self.dirDicts[dictKey][filteredKey]

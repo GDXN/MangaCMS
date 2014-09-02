@@ -5,6 +5,7 @@ import sys
 
 
 from schemaUpdater.rowCountTracker import setupTableCountersPostgre         # Rev 9 is the first postgres rev
+from schemaUpdater.rowCountTracker import doTableCountsPostgre         # Rev 9 is the first postgres rev
 
 
 
@@ -91,7 +92,7 @@ def updateDatabaseSchema(fastExit=False):
 	if fastExit:
 		return
 
-
+	doTableCountsPostgre(conn)
 
 	rev = getSchemaRev(conn)
 	print("Current Rev = ", rev)

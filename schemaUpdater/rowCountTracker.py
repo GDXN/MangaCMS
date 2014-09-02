@@ -1,9 +1,14 @@
 
 def setupTableCountersPostgre(conn):
-	doTableCount(conn, "MangaItems")
-	doTableCount(conn, "HentaiItems")
+	initTableCounts(conn, "MangaItems")
+	initTableCounts(conn, "HentaiItems")
 
-def doTableCount(conn, table):
+def doTableCountsPostgre(conn):
+
+	doTableCounts(conn, "MangaItems")
+	doTableCounts(conn, "HentaiItems")
+
+def initTableCounts(conn, table):
 
 	cur = conn.cursor()
 
@@ -50,6 +55,11 @@ $$ LANGUAGE plpgsql;
 						AFTER INSERT OR UPDATE OR DELETE ON {tableName}
 						FOR EACH ROW EXECUTE PROCEDURE update_row_counts();'''.format(tableName=table))
 
+	print("Hooks created.")
+
+def doTableCounts(conn, table):
+
+	cur = conn.cursor()
 
 	print("Pre-Counting table items in table %s." % table)
 
@@ -69,7 +79,6 @@ $$ LANGUAGE plpgsql;
 	sources = [val[0] for val in rets]
 
 
-	print("Hooks created. Doing initial table item count")
 
 
 	# We need to zero the existing data.
@@ -80,7 +89,7 @@ $$ LANGUAGE plpgsql;
 		for val in values:
 			cur.execute("""SELECT COUNT(*) FROM {tableName} WHERE sourceSite=%s AND dlState=%s;""".format(tableName=table), (source, val))
 			count = cur.fetchall().pop()[0]
-			print("Row", source, val, count)
+			# print("Row", source, val, count)
 			cur.execute("INSERT INTO MangaItemCounts (sourceSite, dlState, quantity) VALUES (%s, %s, %s);", (source, val, count))
 
 	print("Items counted. Good to go!")
