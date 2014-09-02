@@ -34,7 +34,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 8
+	retreivalThreads = 5
 
 	def retreiveTodoLinksFromDB(self):
 

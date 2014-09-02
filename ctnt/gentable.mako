@@ -159,29 +159,32 @@ colours = {
 
 		cur.execute(query, params)
 
-		seenItems = []
-		rowsBuf = cur.fetchmany()
+		if not limit:
+			retRows = cur.fetchall()
+		else:
+			seenItems = []
+			rowsBuf = cur.fetchmany()
 
-		rowsRead = 0
+			rowsRead = 0
 
-		while len(seenItems) < offset:
-			if not rowsBuf:
-				rowsBuf = cur.fetchmany()
-			row = rowsBuf.pop(0)
-			rowsRead += 1
-			if row[6] not in seenItems or not distinct:
-				seenItems.append(row[6])
+			while len(seenItems) < offset:
+				if not rowsBuf:
+					rowsBuf = cur.fetchmany()
+				row = rowsBuf.pop(0)
+				rowsRead += 1
+				if row[6] not in seenItems or not distinct:
+					seenItems.append(row[6])
 
-		retRows = []
+			retRows = []
 
-		while len(seenItems) < offset+limit:
-			if not rowsBuf:
-				rowsBuf = cur.fetchmany()
-			row = rowsBuf.pop(0)
-			rowsRead += 1
-			if row[6] not in seenItems or not distinct:
-				retRows.append(row)
-				seenItems.append(row[6])
+			while len(seenItems) < offset+limit:
+				if not rowsBuf:
+					rowsBuf = cur.fetchmany()
+				row = rowsBuf.pop(0)
+				rowsRead += 1
+				if row[6] not in seenItems or not distinct:
+					retRows.append(row)
+					seenItems.append(row[6])
 
 		cur.close()
 		anonCur.execute("COMMIT;")
@@ -225,7 +228,7 @@ colours = {
 			cur.execute("rollback;")
 			# cur.fetchall()
 			raise
-
+	print("Have data. Rendering.")
 	# print("Done")
 	%>
 	% for row in tblCtntArr:

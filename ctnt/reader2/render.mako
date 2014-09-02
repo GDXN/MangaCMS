@@ -190,7 +190,7 @@ import urllib
 			%>
 		</div>
 		<div>
-			${tableGen.genMangaTable(seriesName=itemKey)}
+			${tableGen.genMangaTable(seriesName=itemKey, limit=None)}
 			${tableGen.genLegendTable()}
 			<script type="text/javascript">
 				$(document).ready(function() {
