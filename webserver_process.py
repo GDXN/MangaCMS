@@ -9,13 +9,9 @@ nt.dirNameProxy.startDirObservers()
 
 import DbManagement.countCleaner
 
-def doHousekeeping():
-	nt.dirNameProxy.checkUpdate()
-
 def trimDatabase():
 	cc = DbManagement.countCleaner.CountCleaner()
 	cc.clean()
-
 
 def fixup_cherrypy_logs():
 	loggers = logging.Logger.manager.loggerDict.keys()
@@ -65,8 +61,16 @@ def runServer():
 	# It crashes on restart unless the whole python interpreter is restarted.
 	# cherrypy.config.update({'engine.autoreload.on':False})
 
-	cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(5,       doHousekeeping)  # Check if dir-dicts need updating
-	cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(60*60*1, trimDatabase)    # Flatten tracking table for item counts. Hourly
+	for name, cls in nt.__dict__.items():
+		if  isinstance(cls, type) or not hasattr(cls, "NEEDS_REFRESHING"):
+			continue
+		print("Have item to schedule - ", name, cls, "every", cls.REFRESH_INTERVAL, "seconds.")
+		cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(cls.REFRESH_INTERVAL, cls.refresh)  # Check if dir-dicts need updating
+
+
+	# Flatten tracking table for item counts. Hourly
+	# I can't easily wire this into the dynamic lookup above, so it's still manual.
+	cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(60*60*1, trimDatabase)
 	cherrypy.engine.housekeeper.start()
 
 	cherrypy.engine.monitorPlugin = MonitorPlugin(cherrypy.engine)

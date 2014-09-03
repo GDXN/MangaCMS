@@ -89,7 +89,7 @@ import settings
 
 <b>General</b>
 <ul>
-
+	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>
 	<li>Ability to disable bulk-downloading.</li>
@@ -128,6 +128,7 @@ import settings
 <p>
 <b>Add Scrapers for</b>
 <ul>
+	<li>http://lonemanga.com/</li>
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>mangajoy?</li>
 	<li>Tadanohito as a H source</li>

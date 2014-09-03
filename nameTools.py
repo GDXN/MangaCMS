@@ -324,6 +324,14 @@ class MtNamesMapWrapper(object):
 		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'mangaseries'}
 	}
 
+
+	# special class members that are picked up by the maintenance service, and used to trigger periodic updates from the DB
+	# TL;DR magical runtime-introspection bullshit. Basically, if there is an
+	# object defined in this file's namespace, with the `NEEDS_REFRESHING` attribute, the houskeeping task
+	# will call {object}.refresh() every REFRESH_INTERVAL seconds.
+	NEEDS_REFRESHING = True
+	REFRESH_INTERVAL = 60*2.5
+
 	def __init__(self, mode):
 
 
@@ -334,6 +342,7 @@ class MtNamesMapWrapper(object):
 
 		if not mode in self.modes:
 			raise ValueError("Specified mapping mode not valid")
+		self.modeKey = mode
 		self.mode = self.modes[mode]
 		self.openDB()
 
@@ -345,10 +354,22 @@ class MtNamesMapWrapper(object):
 		self.log.info("Mode %s, Query %s", mode, self.queryStr)
 		self.log.info("Mode %s, IteratorQuery %s",  mode, self.allQueryStr)
 
+		self.refresh()
 
 	def stop(self):
 		self.log.info("Unoading NSLookup")
 		self.closeDB()
+
+	def refresh(self):
+		self.log.info("Refresh call! for %s mapping cache.", self.modeKey)
+		tmp = {}
+		for key, buId in self.iteritems():
+			if not key in tmp:
+				tmp[key] = set([buId])
+			else:
+				tmp[key].add(buId)
+		self.log.info("Loaded")
+		self.items = tmp
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
@@ -390,19 +411,19 @@ class MtNamesMapWrapper(object):
 		if "keyfunc" in self.mode:
 			key = self.mode["keyfunc"](key)
 
-		with self.conn.cursor() as cur:
-			cur.execute(self.queryStr, (key, ))
-			rets = cur.fetchall()
+		# with self.conn.cursor() as cur:
+		# 	cur.execute(self.queryStr, (key, ))
+		# 	rets = cur.fetchall()
 
-		self.conn.commit()
+		# self.conn.commit()
 
-		if not rets:
+		if not key in self.items:
 			return []
-		return set([item[0] for item in rets])
+		return self.items[key]
 
 	def __contains__(self, key):
 
-		if self[key] != None:
+		if self[key]:
 			return True
 		return False
 
@@ -477,6 +498,17 @@ class DirNameProxy(object):
 
 
 		# for watch in self.
+
+
+	# special class members that are picked up by the maintenance service, and used to trigger periodic updates from the DB
+	# Basically, if there is an object defined in this file's namespace, with the `NEEDS_REFRESHING` attribute, the houskeeping task
+	# will call {object}.refresh() every REFRESH_INTERVAL seconds.
+	# TL;DR magical runtime-introspection bullshit.
+	NEEDS_REFRESHING = True
+	REFRESH_INTERVAL = 10
+
+	def refresh(self):
+		self.checkUpdate()
 
 	def observersActive(self):
 		return self.notifierRunning
@@ -787,7 +819,7 @@ class DirNameProxy(object):
 	def __len__(self):
 		ret = 0
 		for dirDictKey in self.dirDicts.keys():
-			ret += self.dirDicts[dirDictKey]
+			ret += len(self.dirDicts[dirDictKey])
 		return ret
 
 
@@ -856,22 +888,22 @@ def testNameTools():
 if __name__ == "__main__":
 	logSetup.initLogging()
 	print("wat")
-	dirNameProxy.checkUpdate(force=True)
-	dirNameProxy.checkUpdate()
-	print("running")
+	# dirNameProxy.checkUpdate(force=True)
+	# dirNameProxy.checkUpdate()
+	# print("running")
 
 
-	names = set(["fractale", "fractale", "fractale", "fractale", "fractale", "kaze to ki no uta", "boku ni koi suru mechanical", "kaze to ki no uta", "boku ni koi suru mechanical", "magi", "k - days of blue", "k - days of blue", "gurenki - creo the crimson crises", "gurenki - creo the crimson crises", "soredemo sekai wa utsukushii", "gurenki - creo the crimson crises", "fuuka", "claymore", "himeyaka na tousaku", "himeyaka na tousaku", "himeyaka na tousaku", "kyoushi mo iroiro aru wake de", "ah my goddess", "akb49", "koroshiya ichi bangaihen", "koroshiya ichi bangaihen", "koi no okite"])
-	print (names)
-	for keyTmp, stats in dirNameProxy.iteritems():
-		if keyTmp in names:
-			print("Item in dict? ", keyTmp)
+	# names = set(["fractale", "fractale", "fractale", "fractale", "fractale", "kaze to ki no uta", "boku ni koi suru mechanical", "kaze to ki no uta", "boku ni koi suru mechanical", "magi", "k - days of blue", "k - days of blue", "gurenki - creo the crimson crises", "gurenki - creo the crimson crises", "soredemo sekai wa utsukushii", "gurenki - creo the crimson crises", "fuuka", "claymore", "himeyaka na tousaku", "himeyaka na tousaku", "himeyaka na tousaku", "kyoushi mo iroiro aru wake de", "ah my goddess", "akb49", "koroshiya ichi bangaihen", "koroshiya ichi bangaihen", "koi no okite"])
+	# print (names)
+	# for keyTmp, stats in dirNameProxy.iteritems():
+	# 	if keyTmp in names:
+	# 		print("Item in dict? ", keyTmp)
 
-	for nameTmp in names:
-		if nameTmp in dirNameProxy:
-			print("Have name", nameTmp)
-		else:
-			print("Do not have name", nameTmp)
+	# for nameTmp in names:
+	# 	if nameTmp in dirNameProxy:
+	# 		print("Have name", nameTmp)
+	# 	else:
+	# 		print("Do not have name", nameTmp)
 
 
 	# try:

@@ -713,10 +713,10 @@ colours = {
 			% for name, row in rows:
 				<table border="1px" style="display:inline-block;">
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 100px;'>From</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 90px;'>From</td>
 						</tr>
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 100px;'>${name}</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 90px;'>${name}</td>
 						</tr>
 				</table>
 			% endfor
