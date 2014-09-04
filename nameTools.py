@@ -2,6 +2,8 @@
 
 import re
 
+import runStatus
+
 import settings
 import logging
 import psycopg2
@@ -324,7 +326,7 @@ class MtNamesMapWrapper(object):
 		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'mangaseries'}
 	}
 
-
+	loaded = False
 	# special class members that are picked up by the maintenance service, and used to trigger periodic updates from the DB
 	# TL;DR magical runtime-introspection bullshit. Basically, if there is an
 	# object defined in this file's namespace, with the `NEEDS_REFRESHING` attribute, the houskeeping task
@@ -354,7 +356,9 @@ class MtNamesMapWrapper(object):
 		self.log.info("Mode %s, Query %s", mode, self.queryStr)
 		self.log.info("Mode %s, IteratorQuery %s",  mode, self.allQueryStr)
 
-		self.refresh()
+		if runStatus.preloadDicts:
+			self.loaded = True
+			self.refresh()
 
 	def stop(self):
 		self.log.info("Unoading NSLookup")
@@ -407,6 +411,9 @@ class MtNamesMapWrapper(object):
 
 
 	def __getitem__(self, key):
+		if not self.loaded:
+			self.loaded = True
+			self.refresh()
 
 		if "keyfunc" in self.mode:
 			key = self.mode["keyfunc"](key)

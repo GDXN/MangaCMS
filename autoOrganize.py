@@ -288,14 +288,14 @@ def parseCommandLine():
 			organizeFolder(val)
 			return
 
-		if cmd == "rename":
+		elif cmd == "rename":
 			if not os.path.exists(val):
 				print("Passed path '%s' does not exist!" % val)
 				return
 			renameSeriesToMatchMangaUpdates(val)
 			return
 
-		if cmd == "lookup":
+		elif cmd == "lookup":
 			print("Passed name = '%s'" % val)
 			haveLookup = nt.haveCanonicalMangaUpdatesName(val)
 			if not haveLookup:
@@ -306,7 +306,7 @@ def parseCommandLine():
 				print("Canonical name = '%s'" % nt.getCanonicalMangaUpdatesName(val) )
 
 
-		if cmd == "dirs-restore":
+		elif cmd == "dirs-restore":
 			if not os.path.exists(val):
 				print("Passed path '%s' does not exist!" % val)
 				return

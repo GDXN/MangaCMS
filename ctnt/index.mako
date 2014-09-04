@@ -135,6 +135,7 @@ mu not in sidebar
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>mangajoy?</li>
 	<li>Tadanohito as a H source</li>
+	<li>http://www.hbrowse.com/ as a H source</li>
 	<li><strike>http://www.cxcscans.com/</strike></li>
 	<li><strike>http://desperatescanners.weebly.com/</strike> (They release on batoto)</li>
 	<li><strike>imangascans</strike> (Done, as part of IRC scraper)</li>
