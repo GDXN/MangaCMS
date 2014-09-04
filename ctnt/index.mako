@@ -89,6 +89,9 @@ import settings
 
 <b>General</b>
 <ul>
+mu not in sidebar
+	<li>Load tables asynchronously from base page</li>
+	<li>Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?</li>
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>

@@ -7,6 +7,7 @@ if __name__ == "__main__":
 
 import runStatus
 from ScrapePlugins.BtBaseManager.Run import Runner
+from ScrapePlugins.BtLoader.btFeedLoader import BtFeedLoader
 from ScrapePlugins.BtLoader.btContentLoader import BtContentLoader
 import signal
 
@@ -26,15 +27,23 @@ def test():
 
 
 
-	nt.dirNameProxy.startDirObservers()
+	# nt.dirNameProxy.startDirObservers()
+	# runner = Runner()
+	# runner.go()
+
+	loader = BtFeedLoader()
+	for x in range(500):
+		feedItems = loader.getMainItems(rangeOffset=x, rangeOverride=1)
+		loader.log.info("Processing feed Items")
+
+		loader.processLinksIntoDB(feedItems)
 
 
+	# cl = BtContentLoader()
+	# cl.go()
 
-	cl = BtContentLoader()
-	cl.go()
 
-
-	# print(cl.getContainerPages('http://bato.to/read/_/266671/domino-kick_ch3_by_boon-scanlation'))
+	# cl.getContainerPages('http://www.batoto.net/read/_/257032/for-alice_ch0.5_by_misty-rain-scans/1')
 	# cl.getContainerPages('http://www.batoto.net/read/_/257091/untouchable_ch7_by_royal-hearts/1')
 	# cl.getContainerPages('http://www.batoto.net/read/_/257156/gaussian-blur_ch14--v2-_by_kawa-scans/1')
 

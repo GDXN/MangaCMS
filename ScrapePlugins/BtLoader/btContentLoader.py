@@ -175,7 +175,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("It's a webcomic.")
 
 			contentDiv = soup.find("div", attrs={'id':'content', 'class':'clearfix'})
-			images = contentDiv.find_all("img", src=re.compile(r'img[0-9]?\.batoto\.net/comics/[0-9][0-9][0-9][0-9]'))
+			images = contentDiv.find_all("img", src=re.compile(r'img[0-9]?\.bato\.to/comics/[0-9][0-9][0-9][0-9]'))
 
 			images = [image["src"] for image in images]
 			return seriesName, chapterVol, images, True
