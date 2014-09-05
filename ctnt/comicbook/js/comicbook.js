@@ -7,7 +7,7 @@
 templates['loadingOverlay'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-
+  
 
 
   return "\r\n<div id=\"cb-loading-overlay\" class=\"cb-control\"></div>\r\n";
@@ -15,7 +15,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['navigateLeft'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-
+  
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"left\" class=\"cb-control navigate navigate-left \">\r\n	<span class=\"icon-arrow-left\"></span>\r\n</div>\r\n";
@@ -23,7 +23,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['navigateRight'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-
+  
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"right\" class=\"cb-control navigate navigate-right\">\r\n	<span class=\"icon-arrow-right\"></span>\r\n</div>\r\n";
@@ -31,7 +31,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['progressbar'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-
+  
 
 
   return "<div id=\"cb-status\" class=\"cb-control\">\r\n	<div id=\"cb-progress-bar\">\r\n		<div class=\"progressbar-value\"></div>\r\n	</div>\r\n</div>\r\n";
@@ -39,7 +39,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['toggleMode'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-
+  
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"bottom\" class=\"cb-control navigate navigate-center-bottom\">\r\n	<span class=\"icon-spinner\"></span>\r\n</div>\r\n";
@@ -47,7 +47,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['toggleToolbar'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-
+  
 
 
   return "\r\n<div data-trigger=\"click\" data-action=\"navigation\" data-navigate-side=\"center\" class=\"cb-control navigate navigate-center-top\">\r\n	<span class=\"icon-open-toolbar\"></span>\r\n</div>\r\n";
@@ -55,7 +55,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['toolbar'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-
+  
 
 
   return "\r\n<div class=\"toolbar\">\r\n\r\n	<ul class=\"pull-left\">\r\n		<li class=\"close\">\r\n			<button data-trigger=\"click\" data-action=\"close\" title=\"close\" class=\"icon-remove-sign\"></button>\r\n		</li>\r\n		<li class=\"close separator\"></li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"zoomOut\" title=\"Zoom out\" class=\"icon-zoom-out\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"zoomIn\" title=\"Zoom in\" class=\"icon-zoom-in\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"fitWidth\" title=\"Fit page to window width\" class=\"icon-expand\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"originalSize\" title=\"Do not scale image\" class=\"icon-expand-2\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"fitWindow\" title=\"Fit page to window\" class=\"icon-contract\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-right-3 manga-false\"></button>\r\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-left-3 manga-true\"></button>\r\n		</li>\r\n	</ul>\r\n\r\n	<ul class=\"pull-right\">\r\n		<li><span id=\"current-page\"></span> / <span id=\"page-count\"></span></li>\r\n	</ul>\r\n\r\n</div>\r\n";
@@ -113,7 +113,7 @@ var ComicBook = (function ($) {
 		this.srcs = srcs; // array of image srcs for pages
 
 		var defaults = {
-			zoomMode: 'fitWindow', // manual / originalSize / fitWidth / fitWindow
+			zoomMode: 'smart', // manual / originalSize / fitWidth / fitWindow
 			manga: false,     // true / false
 			enhance: {},
 			keyboard: {
@@ -130,7 +130,7 @@ var ComicBook = (function ($) {
 
 		// Possible zoom modes that are cycled through when you hit the cycle-zoom-mode button
 		// TODO: Add "smart" zoom mode that looks at aspect ratio and reading direction, to make two-page splits display in a sane matter.
-		var zoomModes = ['originalSize', 'fitWindow'];
+		var zoomModes = ['smart', 'originalSize', 'fitWindow'];
 		// 'manual' is disabled because you enter it by clicking the zoom buttons, 'fitWidth' is disabled because I never use it.
 
 		this.isMobile = false;
@@ -162,6 +162,8 @@ var ComicBook = (function ($) {
 		var controlsRendered = false;   // have the user controls been inserted into the dom yet?
 		var page_requested = false;     // used to request non preloaded pages
 		var shiv = false;
+
+		var smartActualSize = false;    // Once the smart-sizer has triggered into actual-size mode, it need to be sticky.
 
 		/**
 		 * Gets the window.innerWidth - scrollbars
@@ -491,6 +493,10 @@ var ComicBook = (function ($) {
 
 			var width = page.width, height = page.height;
 
+			var width_scale;
+			var windowHeight;
+			var height_scale;
+
 
 			// update the page scale if a non manual mode has been chosen
 			switch (options.zoomMode) {
@@ -520,16 +526,49 @@ var ComicBook = (function ($) {
 			case 'fitWindow':
 				document.body.style.overflowX = 'hidden';
 
-				var width_scale = (windowWidth() > width) ?
+				width_scale = (windowWidth() > width) ?
 					((windowWidth() - width) / windowWidth()) + 1 // scale up if the window is wider than the page
 					: windowWidth() / width; // scale down if the window is narrower than the page
-				var windowHeight = window.innerHeight;
-				var height_scale = (windowHeight > height) ?
+				windowHeight = window.innerHeight;
+				height_scale = (windowHeight > height) ?
 					((windowHeight - height) / windowHeight) + 1 // scale up if the window is wider than the page
 					: windowHeight / height; // scale down if the window is narrower than the page
 
 				zoom_scale = (width_scale > height_scale) ? height_scale : width_scale;
 				scale = zoom_scale;
+				break;
+
+
+			case 'smart':
+
+				// Fit to window if page has an aspect ratio smaller then 2.5.
+				// Otherwise, show original size.
+
+				if ((height / width) > 2.5 )
+				{
+					smartActualSize = true;
+				}
+				if (smartActualSize)
+				{
+					document.body.style.overflowX = 'auto';
+					zoom_scale = 1;
+					scale = zoom_scale;
+				}
+				else
+				{
+					document.body.style.overflowX = 'hidden';
+
+					width_scale = (windowWidth() > width) ?
+						((windowWidth() - width) / windowWidth()) + 1 // scale up if the window is wider than the page
+						: windowWidth() / width; // scale down if the window is narrower than the page
+					windowHeight = window.innerHeight;
+					height_scale = (windowHeight > height) ?
+						((windowHeight - height) / windowHeight) + 1 // scale up if the window is wider than the page
+						: windowHeight / height; // scale down if the window is narrower than the page
+
+					zoom_scale = (width_scale > height_scale) ? height_scale : width_scale;
+					scale = zoom_scale;
+				}
 				break;
 
 			default:
