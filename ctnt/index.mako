@@ -89,9 +89,10 @@ import settings
 
 <b>General</b>
 <ul>
-mu not in sidebar
+	<li>scan times to deduper for rescanning</li>
+
 	<li>Load tables asynchronously from base page</li>
-	<li>Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?</li>
+
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>
@@ -196,6 +197,8 @@ Getsurin ni Kiri Saku
 
 <b>Complete:</b>
 <ul>
+	<li><strike>mu not in sidebar</strike> Fucked to the flags at some point.</li>
+	<li><strike>Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?</strike> Simple regex implemented. I'll have to see how it pans out</li>
 	<li><strike>sort bu lists contents alphabetically</strike></li>
 	<li><strike>aggregation query is fucked. somehow.</strike> Fixed with procedural filtering system.</li>
 	<li><strike>scan downloads, retry missing not deduped</strike> Functin added to utilities.cleanDb</li>

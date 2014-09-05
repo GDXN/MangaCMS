@@ -146,7 +146,7 @@ sidebarItemList = [
 			'dictKey'       : None,
 			'cssClass'      : "buId",
 			'showOnHome'    : False,
-			'renderSideBar' : False,
+			'renderSideBar' : True,
 			'genRow'        : False,
 			'type'          : 'Info'
 		},

@@ -16,6 +16,7 @@ import traceback
 import settings
 import os.path
 import urllib
+import re
 %>
 <%
 # print("Rendering")
@@ -71,9 +72,30 @@ import urllib
 	<%
 	dirPath = os.path.join(settings.mangaFolders[dictKey]["dir"], *navPath)
 	dirContents = os.listdir(dirPath)
-	dirContents = natsorted(dirContents)
 
+	chpRe = re.compile(r"(?: chapter |ch|c| )(\d+)")
+	volRe = re.compile(r"(?: volume |vol|v)(\d+)")
 	# print("Nav path = ", navPath, "dict", dictKey)
+
+	tmp = []
+	for item in dirContents:
+		chapKey = chpRe.findall(item)
+		volKey = volRe.findall(item)
+		if chapKey:
+			chapKey = float(chapKey.pop(0))
+		else:
+			chapKey = float(0)
+		if volKey and not chapKey:
+
+			volKey = float(volKey.pop(0))
+		else:
+			volKey = float(0)
+		tmp.append((volKey, chapKey, item))
+
+
+	dirContents = natsorted(tmp)
+
+	dirContents = [item[2] for item in dirContents]
 
 	%>
 
@@ -86,6 +108,7 @@ import urllib
 			<tr>
 
 				<%
+
 				urlPath = list(navPath)
 				urlPath.append(item)
 
