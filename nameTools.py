@@ -63,7 +63,7 @@ def stripTrailingNumbers(inStr):
 
 # Execution time of ~ 0.000052889607680 second (52 microseconds)
 def prepFilenameForMatching(inStr):
-	inStr = cleanUnicode(inStr)
+	# inStr = cleanUnicode(inStr)
 	inStr = makeFilenameSafe(inStr)
 	inStr = sanitizeString(inStr)
 	return inStr.lower()
@@ -231,7 +231,7 @@ class MapWrapper(object):
 		self.openDB()
 
 		self.lastUpdate = 0
-		self.items = {}
+		self.lutItems = {}
 		self.updateFromDB()
 
 	def stop(self):
@@ -369,12 +369,14 @@ class MtNamesMapWrapper(object):
 		self.log.info("Refresh call! for %s mapping cache.", self.modeKey)
 		tmp = {}
 		for key, buId in self.iteritems():
+			key = key.lower()
+
 			if not key in tmp:
 				tmp[key] = set([buId])
 			else:
 				tmp[key].add(buId)
 		self.log.info("Loaded")
-		self.items = tmp
+		self.lutItems = tmp
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
@@ -416,22 +418,23 @@ class MtNamesMapWrapper(object):
 			self.loaded = True
 			self.refresh()
 
+		# if we have a key filtering function, run the key through it
 		if "keyfunc" in self.mode:
 			key = self.mode["keyfunc"](key)
 
-		# with self.conn.cursor() as cur:
-		# 	cur.execute(self.queryStr, (key, ))
-		# 	rets = cur.fetchall()
+		# db is all CITEXT, so we emulate that by calling lower on ALL THE THINGS
+		key = key.lower()
 
-		# self.conn.commit()
-
-		if not key in self.items:
+		if not key in self.lutItems:
 			return []
-		return self.items[key]
+
+		# Have to do list comprehension so we don't return the item by reference,
+		# which can lead to it getting clobbered.
+		return [item for item in self.lutItems[key]]
 
 	def __contains__(self, key):
 
-		if self[key]:
+		if key in self.lutItems[key]:
 			return True
 		return False
 
@@ -570,8 +573,7 @@ class DirNameProxy(object):
 		for dirPath in targetContents:
 			fullPath = os.path.join(dlPath, dirPath)
 			if os.path.isdir(fullPath):
-				baseName = prepFilenameForMatching(dirPath)
-				baseName = getCanonicalMangaUpdatesName(baseName)
+				baseName = getCanonicalMangaUpdatesName(dirPath)
 				baseName = prepFilenameForMatching(baseName)
 
 				targets[baseName] = fullPath
@@ -587,8 +589,7 @@ class DirNameProxy(object):
 		self.testMode = True
 		for name in dirItems:
 
-			baseName = prepFilenameForMatching(name)
-			baseName = getCanonicalMangaUpdatesName(baseName)
+			baseName = getCanonicalMangaUpdatesName(name)
 			baseName = prepFilenameForMatching(baseName)
 			tmp[baseName] = name
 
@@ -848,16 +849,30 @@ def getCanonicalMangaUpdatesName(sourceSeriesName):
 
 ## If we have the series name in the synonym database, look it up there, and use the ID
 ## to fetch the proper name from the MangaUpdates database
-def haveCanonicalMangaUpdatesName(sourceSeriesName):
+def getMangaUpdatesId(sourceSeriesName):
 
 	fsName = prepFilenameForMatching(sourceSeriesName)
 	mId = buIdLookup[fsName]
 	if mId and len(mId) == 1:
-		return True
-	mId = buIdFromName[sourceSeriesName]
+		return mId.pop()
+	return False
 
+
+
+## If we have the series name in the synonym database, look it up there, and use the ID
+## to fetch the proper name from the MangaUpdates database
+def haveCanonicalMangaUpdatesName(sourceSeriesName):
+
+	fsName = prepFilenameForMatching(sourceSeriesName)
+	print("Item", sourceSeriesName, fsName)
+	mId = buIdLookup[fsName]
+
+	print("Lookup result", mId)
 	if mId and len(mId) == 1:
 		return True
+	# mId = buIdFromName[sourceSeriesName]
+	# if mId and len(mId) == 1:
+	# 	return True
 	return False
 
 

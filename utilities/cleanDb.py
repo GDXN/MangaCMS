@@ -8,6 +8,8 @@ if __name__ == "__main__":
 
 
 import runStatus
+runStatus.preloadDicts = False
+
 
 import ScrapePlugins.DbBase
 import nameTools as nt
@@ -187,6 +189,134 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 		cur.execute("COMMIT;")
 
+
+
+
+	def insertNames(self, buId, names):
+
+		with self.conn.cursor() as cur:
+			for name in names:
+				fsSafeName = nt.prepFilenameForMatching(name)
+				cur.execute("""SELECT COUNT(*) FROM munamelist WHERE buId=%s AND name=%s;""", (buId, name))
+				ret = cur.fetchone()
+				if not ret[0]:
+					cur.execute("""INSERT INTO munamelist (buId, name, fsSafeName) VALUES (%s, %s, %s);""", (buId, name, fsSafeName))
+				else:
+					print("wat", ret[0], bool(ret[0]))
+
+	def crossSyncNames(self):
+
+		cur = self.conn.cursor()
+		cur.execute("BEGIN;")
+		print("Querying")
+		cur.execute("SELECT DISTINCT ON (buname) buname, buId FROM mangaseries ORDER BY buname, buid;")
+		print("Queried. Fetching results")
+		ret = cur.fetchall()
+		cur.execute("COMMIT;")
+		print("Have results. Processing")
+
+		cur.execute("BEGIN;")
+
+		missing = 0
+		for item in ret:
+			buName, buId = item
+			if not buName:
+				continue
+
+			cur.execute("SELECT * FROM munamelist WHERE name=%s;", (buName, ))
+			ret = cur.fetchall()
+			# mId = nt.getMangaUpdatesId(buName)
+
+			if not ret:
+				print("Item missing '{item}', mid:{mid}".format(item=item, mid=ret))
+				self.insertNames(buId, [buName])
+				missing += 1
+
+			if not runStatus.run:
+				break
+				# print("Item '{old}', '{new}', mid:{mid}".format(old=item, new=nt.getCanonicalMangaUpdatesName(item), mid=mId))
+		print("Total: ", len(ret))
+		print("Missing: ", missing)
+
+
+	def consolidateSeriesNaming(self):
+
+
+		cur = self.conn.cursor()
+		# cur.execute("BEGIN;")
+		# print("Querying")
+		# cur.execute("SELECT DISTINCT(seriesName) FROM {tableName};".format(tableName=self.tableName))
+		# print("Queried. Fetching results")
+		# ret = cur.fetchall()
+		# cur.execute("COMMIT;")
+		# print("Have results. Processing")
+
+		# for item in ret:
+		# 	item = item[0]
+		# 	if not item:
+		# 		continue
+
+		# 	mId = nt.getMangaUpdatesId(item)
+		# 	if not mId:
+		# 		print("Item '{old}', '{new}', mid:{mid}".format(old=item, new=nt.getCanonicalMangaUpdatesName(item), mid=mId))
+		# print("Total: ", len(ret))
+
+		items = ["Murciélago", "Murcielago", "Murciélago"]
+
+		for item in items:
+			print("------", item, nt.getCanonicalMangaUpdatesName(item), nt.haveCanonicalMangaUpdatesName(item))
+
+		# cur.execute("BEGIN;")
+		# print("Querying")
+		# cur.execute("SELECT DISTINCT ON (buname) buname, buId FROM mangaseries ORDER BY buname, buid;")
+		# print("Queried. Fetching results")
+		# ret = cur.fetchall()
+		# cur.execute("COMMIT;")
+		# print("Have results. Processing")
+
+		# cur.execute("BEGIN;")
+
+		# missing = 0
+		# for item in ret:
+		# 	buName, buId = item
+		# 	if not buName:
+		# 		continue
+
+		# 	cur.execute("SELECT * FROM munamelist WHERE name=%s;", (buName, ))
+		# 	ret = cur.fetchall()
+		# 	# mId = nt.getMangaUpdatesId(buName)
+
+		# 	if not ret:
+		# 		print("Item missing '{item}', mid:{mid}".format(item=item, mid=ret))
+		# 		self.insertNames(buId, [buName])
+		# 		missing += 1
+
+		# 	if not runStatus.run:
+		# 		break
+		# 		# print("Item '{old}', '{new}', mid:{mid}".format(old=item, new=nt.getCanonicalMangaUpdatesName(item), mid=mId))
+		# print("Total: ", len(ret))
+		# print("Missing: ", missing)
+
+
+		# for  dbId, sourceUrl in ret:
+		# 	if "batoto" in sourceUrl.lower():
+		# 		sourceUrl = sourceUrl.replace("http://www.batoto.net/", "http://bato.to/")
+		# 		print("Link", sourceUrl)
+
+		# 		cur.execute("SELECT dbId FROM {tableName} WHERE sourceUrl=%s;".format(tableName=self.tableName), (sourceUrl, ))
+		# 		ret = cur.fetchall()
+		# 		if not ret:
+		# 			print("Updating")
+		# 			cur.execute("UPDATE {tableName} SET sourceUrl=%s WHERE dbId=%s;".format(tableName=self.tableName), (sourceUrl, dbId))
+
+		# 		else:
+		# 			print("Replacing")
+		# 			cur.execute("DELETE FROM {tableName} WHERE sourceUrl=%s;".format(tableName=self.tableName), (sourceUrl, ))
+		# 			cur.execute("UPDATE {tableName} SET sourceUrl=%s WHERE dbId=%s;".format(tableName=self.tableName), (sourceUrl, dbId))
+
+
+		cur.execute("COMMIT;")
+
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
 		runStatus.run = False
@@ -205,6 +335,8 @@ def test():
 		print("	'reset-missing' - Reset downloads where the file is missing, and the download is not tagged as deduplicated.")
 		print("	'clear-bad-dedup' - Remove deduplicated tag from any files where the file exists.")
 		print("	'fix-bt-links' - Fix links for Batoto that point to batoto.com, rather then bato.to.")
+		print("	'cross-sync' - Sync name lookup table with seen series.")
+		print("	'fix-bad-series' - Consolidate series names to MangaUpdates standard naming.")
 		return
 
 	mainArg = sys.argv[1]
@@ -221,6 +353,10 @@ def test():
 		pc.clearInvalidDedupTags()
 	elif mainArg.lower() == "fix-bt-links":
 		pc.patchBatotoLinks()
+	elif mainArg.lower() == "cross-sync":
+		pc.crossSyncNames()
+	elif mainArg.lower() == "fix-bad-series":
+		pc.consolidateSeriesNaming()
 	else:
 		print("Unknown arg!")
 
