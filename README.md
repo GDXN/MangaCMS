@@ -23,7 +23,7 @@ Plugin scrapers for:
  - ~~Fufufuu.net~~ (Defunct)
  - Realitylapse.com (Planned, possibly)
 
-I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives.
+I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives. My only absolute criteria for inclusion at this time is that the site not resize or watermark files, since that prevents the deduplication system from working properly (note: I'm more relaxed about this for the H sites, primarily out of necessity).
 
 Automatic ad-removal and banner-removal. Currently, Starkana inserts an irritating self-aggrandizing image at a random position in each archive downloaded from their site. This is currently automatically and silently removed from each zip-file on download.
 Any download system for sites that add source banners should crop the banners automatically, or remove any intersitial cruft.
@@ -54,11 +54,11 @@ Has lots of dependencies:
  - irc
  - Probably more
 
-Installing:  
-Run the `installDeps.sh` script in the `setuptools` directory (note: must be run with `sudo` or as root. Please review it before running for security reasons). 
+Installing:
+Run the `installDeps.sh` script in the `setuptools` directory (note: must be run with `sudo` or as root. Please review it before running for security reasons).
 Note that the setup script will forcefully update your python 3 version to python 3.4.
 
-Once you have installed the dependencies, you have to configure the various options. Copy `settings.base.py` to `settings.py`, and then edit it:  
+Once you have installed the dependencies, you have to configure the various options. Copy `settings.base.py` to `settings.py`, and then edit it:
 
 Note: All paths **MUST** be absolute. Some of the threading somewhere is eating the environment information. Rather then try to track down where in the complex dependency system the environment variables are being modified, it's easier to just use absolute paths.
 (Note: this means that paths like `~/blah` will also not work. You have to specify `/home/{username}/blah`).
@@ -73,16 +73,16 @@ Note: All paths **MUST** be absolute. Some of the threading somewhere is eating 
  - `fufuDir`           = Where Fufufuu.net files go
 
  - `dbName`      = Where to place the SQLite database used for storing downloads. I normally just put it in the repo root.
- - `webCtntPath` = Path to the `ctnt` directory in the repo. 
+ - `webCtntPath` = Path to the `ctnt` directory in the repo.
 
 
 If you want to pull down MangaUpdate metadata, you need to specify your username and password in the `buSettings` fields (mangaupdate = Baka-Updates).
 Eventually the starkana scraper will pull down information about your watched series as well, which is why there are fields for starkana username+pass as well. This is currently not implemented.
 
-Finally, the actual scraper has two halves. `mainWeb.py` is the web-interface, and `mainScrape.py` is the scraper. 
+Finally, the actual scraper has two halves. `mainWeb.py` is the web-interface, and `mainScrape.py` is the scraper.
 Currently, if you run `mainWeb.py` having never run `mainScrape.py`, it will *probably* fail, because the scraper is responsible for setting up the database. Simply run `mainScrape.py` first. (All are run `python3 mainScrape.py` or `python3 mainWeb.py`).
 
-The tools are currently not daemonized at all, and must be manually run after restarting. I normally just leave them running in a [screen](http://www.gnu.org/software/screen/) session on my server. 
+The tools are currently not daemonized at all, and must be manually run after restarting. I normally just leave them running in a [screen](http://www.gnu.org/software/screen/) session on my server.
 
 ---
 
@@ -103,9 +103,9 @@ GRANT
 
 Note: using capitals in usernames/tablenames/columnames in postgre is rather difficult, just don't do it.
 
-You must then specify the Database server's IP, the username, databasename, and password in the `settings.py` file. 
+You must then specify the Database server's IP, the username, databasename, and password in the `settings.py` file.
 
-You also have to add the line 
+You also have to add the line
 
 `local   mangacms        all                                     md5`
 
@@ -119,17 +119,17 @@ Preliminary deduplication support is currently present, [IntraArchiveDeduplicato
 
 Archives downloaded are automatically added to the deduplication database, and if a downloaded archive is found to contain no new files, it is automatically deleted, which prevents the fact that the scraper fetches files from multiple sources from resulting in duplicate downloads.
 
-There are long-term plans for doing fuzzy image matching, using some perceptual-hashing mechanisms that are alreay in-place in the file-hashing system, but it's currently delayed by the requirement to be able to search for items by hamming distance across very large datasets (currently I have ~3 million discrete phashes).  
+There are long-term plans for doing fuzzy image matching, using some perceptual-hashing mechanisms that are alreay in-place in the file-hashing system, but it's currently delayed by the requirement to be able to search for items by hamming distance across very large datasets (currently I have ~3 million discrete phashes).
 There is some preliminary experiments on implementing a custom BK tree for better searching, but it has non-trivial speed-issues, and will likely require at least some components to be implemented in C or a langauge that can compile to C (pyrex?).
 Another alternative is to implement the indexing mechanisms directly in postgres, using the SP-GiST indexing interface, but that requires a deeper understanding of the internal mechanisms in Postgres then I currently have (and my C is /*rusty*/, particularly for desktop use).
 
 ---
 
 
-Because I'm sure no one wants to just read about what MangaCMS does, here are some screenshots of the web-interface:  
-![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)  
-![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)  
-![Reader](http://fake-name.github.io/MangaCMS/img/Stuff%203.png)  
+Because I'm sure no one wants to just read about what MangaCMS does, here are some screenshots of the web-interface:
+![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)
+![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)
+![Reader](http://fake-name.github.io/MangaCMS/img/Stuff%203.png)
 
 
 ---

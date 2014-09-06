@@ -89,13 +89,11 @@ import settings
 
 <b>General</b>
 <ul>
-color code mangaupdates status in reader
-Murcielago. again
-highlight chapters < 10
+	<li>Make user-agent randomize</li>
+	<li>color code mangaupdates status in reader</li>
+	<li>highlight chapters < 10</li>
 	<li>scan times to deduper for rescanning</li>
-
 	<li>Load tables asynchronously from base page</li>
-
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>
@@ -201,7 +199,8 @@ Imasugu Onii-chan ni Imouto da tte Iitai!
 
 <b>Complete:</b>
 <ul>
-	<li><strike>mu not in sidebar</strike> Fucked to the flags at some point.</li>
+	<li><strike>Murcielago. again</strike> Hopefully fixed by forcing NFKD unicode normalization.</li>
+	<li><strike>mu not in sidebar</strike> Fucked up the flags at some point. Fixed.</li>
 	<li><strike>Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?</strike> Simple regex implemented. I'll have to see how it pans out</li>
 	<li><strike>sort bu lists contents alphabetically</strike></li>
 	<li><strike>aggregation query is fucked. somehow.</strike> Fixed with procedural filtering system.</li>

@@ -17,6 +17,7 @@ import ScrapePlugins.ExMadokami.Run
 import ScrapePlugins.FakkuLoader.Run
 import ScrapePlugins.McLoader.Run
 import ScrapePlugins.CxLoader.Run
+import ScrapePlugins.MjLoader.Run
 import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 
 # Plugins in this dictionary are the active plugins. Comment out a plugin to disable it.
@@ -34,7 +35,8 @@ scrapePlugins = {
 	8  : (ScrapePlugins.IrcGrabber.IrcEnqueueRun, 60*60*12),  # Queue up new items from IRC bots.
 	9  : (ScrapePlugins.PururinLoader.Run,        60*60   ),
 	10 : (ScrapePlugins.FakkuLoader.Run,          60*60   ),
-	11 : (ScrapePlugins.CxLoader.Run,             60*60*12)  # every 12 hours, it's just a single scanlator site.
+	11 : (ScrapePlugins.CxLoader.Run,             60*60*12),  # every 12 hours, it's just a single scanlator site.
+	11 : (ScrapePlugins.MjLoader.Run,             60*60   )
 	# 11 : (ScrapePlugins.MangaMadokami.Run,    60*60*24)  # every 24 hours, because I have to iterate over the ENTIRE site.
 
 

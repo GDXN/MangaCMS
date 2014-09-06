@@ -446,18 +446,18 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 
 			indexes = [
-				("%s_source_index"           % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite)'''                                             ),
-				("%s_time_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivalTime)'''                                          ),
-				("%s_lastUpdate_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastUpdate)'''                                             ),
-				("%s_url_index"              % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceUrl)'''                                              ),
-				("%s_seriesName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName )'''                                            ),
-				("%s_tags_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (tags       )'''                                            ),
-				("%s_flags_index"            % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (flags      )'''                                            ),
-				("%s_dlState_index"          % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlState)'''                                                ),
-				("%s_originName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (originName)'''                                             ),
-				("%s_aggregate_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId)'''                        ),
-				('%s_special_full_idx'       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivaltime DESC, seriesName DESC, dbid);'''             ),
-				('%s_special_granulated_idx' % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite, retreivaltime DESC, seriesName DESC, dbid);''' )
+				("%s_source_index"           % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite                                            );'''  ),
+				("%s_time_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivalTime                                         );'''  ),
+				("%s_lastUpdate_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastUpdate                                            );'''  ),
+				("%s_url_index"              % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceUrl                                             );'''  ),
+				("%s_seriesName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName                                            );'''  ),
+				("%s_tags_index"             % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (tags                                                  );'''  ),
+				("%s_flags_index"            % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (flags                                                 );'''  ),
+				("%s_dlState_index"          % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlState                                               );'''  ),
+				("%s_originName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (originName                                            );'''  ),
+				("%s_aggregate_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId                       );'''  ),
+				('%s_special_full_idx'       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivaltime DESC, seriesName DESC, dbid             );'''  ),
+				('%s_special_granulated_idx' % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite, retreivaltime DESC, seriesName DESC, dbid );'''  )
 			]
 
 

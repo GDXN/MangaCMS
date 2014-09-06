@@ -116,6 +116,18 @@ sidebarItemList = [
 		},
 
 		{
+			"num"           : 16,
+			'dbKey'         : "MjLoader",
+			'name'          : "MangaJoy",
+			'dictKey'       : "mj",
+			'cssClass'      : "mjId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
+		{
 			"num"           : 14,
 			'dbKey'         : "IrcEnueue",
 			'name'          : "IRC",
