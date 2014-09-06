@@ -38,3 +38,13 @@ def setStatus(pluginName, running=None, lastRun=None, lastRunTime=None):
 	con.commit()
 	con.close()
 
+
+def resetAllRunningFlags():
+	print("Resetting run state for all plugins!")
+	con = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+	cur = con.cursor()
+	cur.execute('''UPDATE pluginstatus SET running=false;''')
+	con.commit()
+	con.close()
+
+

@@ -63,6 +63,7 @@ def stripTrailingNumbers(inStr):
 
 # Execution time of ~ 0.000052889607680 second (52 microseconds)
 def prepFilenameForMatching(inStr):
+	inStr = cleanUnicode(inStr)
 	inStr = makeFilenameSafe(inStr)
 	inStr = sanitizeString(inStr)
 	return inStr.lower()

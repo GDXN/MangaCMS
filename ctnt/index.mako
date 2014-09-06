@@ -89,6 +89,9 @@ import settings
 
 <b>General</b>
 <ul>
+color code mangaupdates status in reader
+Murcielago. again
+highlight chapters < 10
 	<li>scan times to deduper for rescanning</li>
 
 	<li>Load tables asynchronously from base page</li>
@@ -132,9 +135,9 @@ import settings
 <p>
 <b>Add Scrapers for</b>
 <ul>
+	<li>mangajoy</li>
 	<li>http://lonemanga.com/</li>
 	<li>baka-tsuki/other VN translation groups?</li>
-	<li>mangajoy?</li>
 	<li>Tadanohito as a H source</li>
 	<li>http://www.hbrowse.com/ as a H source</li>
 	<li><strike>http://www.cxcscans.com/</strike></li>
@@ -171,6 +174,7 @@ import settings
 <b>Nametools Issues</b>
 <ul>
 Getsurin ni Kiri Saku
+Imasugu Onii-chan ni Imouto da tte Iitai!
 	<li>
 	Bad MangaUpdates Links:
 	<ul>

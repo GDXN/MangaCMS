@@ -5,17 +5,15 @@ if sys.version_info < ( 3, 4):
 
 
 import logSetup
-logSetup.initLogging()
 
 import schemaUpdater.schemaRevisioner
-schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 
+import statusManager
 import time
 
 import runStatus
 import signal
 import nameTools as nt
-nt.dirNameProxy.startDirObservers()
 import activePlugins
 
 from apscheduler.scheduler import Scheduler
@@ -82,9 +80,16 @@ def scheduleJobs(sched, timeToStart):
 
 
 
+def preflight():
+	logSetup.initLogging()
+	schemaUpdater.schemaRevisioner.updateDatabaseSchema()
+	statusManager.resetAllRunningFlags()
 
+	nt.dirNameProxy.startDirObservers()
 
 def go():
+	preflight()
+
 
 	sched = Scheduler()
 
