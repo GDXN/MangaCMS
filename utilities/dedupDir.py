@@ -14,7 +14,8 @@ import ScrapePlugins.DbBase
 import deduplicator.absImport
 import signal
 import traceback
-
+import os
+import deduplicator.dupCheck
 
 def createLuts(inList):
 	# Each item is 'fsPath,internalPath,itemhash'
@@ -182,8 +183,61 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					self.log.error(traceback.format_exc())
 
 
-			# else:
-			# 	print("unique", basePath)
+	def purgeDedupTemps(self, dirPath):
+
+		self.log.info("Cleaning path '%s'", dirPath)
+		items = os.listdir(dirPath)
+		for itemInDelDir in items:
+
+			origPath = itemInDelDir.replace(";", "/")
+			basePath, fName = os.path.split(origPath)
+			if not os.path.isdir(basePath):
+				print("Skipping ", itemInDelDir)
+				continue
+			else:
+				fqPath = os.path.join(dirPath, itemInDelDir)
+				dc = deduplicator.dupCheck.ArchChecker(fqPath)
+				fileHashes = dc.getHashes(shouldPhash=False)
+				itemHashes = set([item[1] for item in fileHashes])
+
+
+				if not basePath.endswith("/"):
+					basePath += "/"
+
+				haveFiles = self.db.getLikeBasePath(basePath)
+				haveHashes = set([item[-1] for item in haveFiles])
+
+				dirItems  = [item[0] for item in haveFiles]
+
+				allOnPath = [basePath in item  for item in dirItems]
+				allExist  = [os.path.isfile(item) for item in set(dirItems)]
+				haveOther = [item in haveHashes for item in itemHashes]
+
+				# Check the SHIT OUTTA DAT
+				# Check if all items in the DB exist,
+				# print("allExist", all(allExist))
+
+				# that they're all where they should be
+				# print("AllOnPath", all(allOnPath))
+
+				# and that they contain a complete superset of the items in the archive we're looking at
+				# print("Completely duplicated", all(haveOther))
+
+				shouldDelete = all([all(allOnPath), all(allExist), all(haveOther)])
+
+				if not shouldDelete:
+					self.log.critical("Scan failed? '%s'", itemInDelDir)
+					self.log.critical("allOnPath '%s'", allOnPath)
+					self.log.critical("allExist '%s'", allExist)
+					self.log.critical("haveOther '%s'", haveOther)
+				else:
+					self.log.critical("DELETING '%s'", fqPath)
+					os.unlink(fqPath)
+		# items.sort()
+		# for item in items:
+		# 	item = os.path.join(dirPath, item)
+		# 	if os.path.isdir(item):
+		# 		self.cleanSingleDir(item, delDir)
 
 
 	def restoreDirectory(self, dirPath):
@@ -231,6 +285,15 @@ def runDeduper(basePath, deletePath):
 
 	dd.cleanDirectory(basePath, deletePath)
 
+	dd.closeDB()
+
+
+def purgeDedupTemps(basePath):
+
+	dd = DirDeduper()
+	dd.openDB()
+	dd.setupDbApi()
+	dd.purgeDedupTemps(basePath)
 	dd.closeDB()
 
 def runSingleDirDeduper(dirPath, deletePath):

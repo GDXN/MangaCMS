@@ -73,13 +73,13 @@ class ArchChecker(object):
 		self.log.info("It does not contain any unique files.")
 		return False
 
-	def getHashes(self):
+	def getHashes(self, shouldPhash=True):
 
 
 		self.log.info("Getting item hashes for %s.", self.archPath)
 		ret = []
 		for fileN, fileCtnt in self.arch:
-			ret.append(self.hashModule.hashFile(self.archPath, fileN, fileCtnt.read()))
+			ret.append(self.hashModule.hashFile(self.archPath, fileN, fileCtnt.read(), shouldPhash=shouldPhash))
 
 
 		self.log.info("%s Fully hashed.", self.archPath)

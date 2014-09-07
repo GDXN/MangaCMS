@@ -285,6 +285,11 @@ def printHelp():
 	print("		Reverses the action of 'dirs-clean'. {target-path} is the directory specified as ")
 	print("		{del-dir} when running 'dirs-clean' ")
 	print("	")
+	print("	python3 autoOrganize purge-dir {target-path}")
+	print("		Processes the output of 'dirs-clean'. {target-path} is the directory specified as ")
+	print("		{del-dir} when running 'dirs-clean'. ")
+	print("		Each item in {del-dir} is re-confirmed to be a complete duplicate, and then truly deleted. ")
+	print("	")
 
 def parseCommandLine():
 	if len(sys.argv) == 3:
@@ -315,6 +320,13 @@ def parseCommandLine():
 				print("Item found in lookup table!")
 				print("Canonical name = '%s'" % nt.getCanonicalMangaUpdatesName(val) )
 
+
+		elif cmd == "purge-dir":
+			if not os.path.exists(val):
+				print("Passed path '%s' does not exist!" % val)
+				return
+			utilities.dedupDir.purgeDedupTemps(val)
+			return
 
 		elif cmd == "dirs-restore":
 			if not os.path.exists(val):
