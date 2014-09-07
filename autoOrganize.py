@@ -2,6 +2,9 @@
 # Yes, this whole file is kind of a mish-mash of random
 # script segments.
 
+import runStatus
+runStatus.preloadDicts = False
+
 
 import logSetup
 logSetup.initLogging()
@@ -21,7 +24,7 @@ import utilities.dedupDir
 
 from deduplicator.DbUtilities import DedupManager
 
-class dbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
+class DbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	loggerPath       = "Main.Org.Tool"
 	pluginName       = "Organization Tool"
@@ -115,7 +118,7 @@ def deduplicateMangaFolders():
 def consolicateSeriesToSingleDir():
 	print("Looking for series directories that can be flattened to a single dir")
 	idLut = nt.MtNamesMapWrapper("buId->fsName")
-	db = dbInterface()
+	db = DbInterface()
 	for key, luDict in nt.dirNameProxy.iteritems():
 		# print("Key = ", key)
 		mId = db.getIdFromDirName(key)
@@ -165,7 +168,7 @@ def moveFiles(srcDir, dstDir):
 def renameSeriesToMatchMangaUpdates(scanpath):
 	idLut = nt.MtNamesMapWrapper("fsName->buId")
 	muLut = nt.MtNamesMapWrapper("buId->buName")
-	db = dbInterface()
+	db = DbInterface()
 	print("Scanning")
 	foundDirs = 0
 	contents = os.listdir(scanpath)
@@ -236,6 +239,13 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 	# 	print("key, val:", key, val)
 	# print("exiting")
 
+
+def testDelete():
+	db = DbInterface()
+	cur = db.conn.cursor()
+	cur.execute("INSERT INTO munamelist (buId, name) VALUES ('1000', 'LOLERCOASTER');")
+	cur.execute("DELETE FROM munamelist WHERE name='LOLERCOASTER'")
+	print("Results = ", cur.rowcount)
 
 def organizeFolder(folderPath):
 	try:
@@ -347,6 +357,11 @@ def parseCommandLine():
 		else:
 			print("Did not understand command!")
 			print("Sys.argv = ", sys.argv)
+	elif len(sys.argv) == 2:
+		cmd = sys.argv[1].lower()
+		if cmd == "test":
+			testDelete()
+			return
 	else:
 		printHelp()
 

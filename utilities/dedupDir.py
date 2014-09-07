@@ -6,13 +6,14 @@ import logSetup
 if __name__ == "__main__":
 	logSetup.initLogging()
 
-
 import runStatus
+
 import shutil
 import settings
 import ScrapePlugins.DbBase
 import deduplicator.absImport
 import signal
+import traceback
 
 
 def createLuts(inList):
@@ -44,7 +45,9 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 	def addTag(self, srcPath, newTags):
 		with self.conn.cursor() as cur:
+			cur.execute("BEGIN;")
 			basePath, fName = os.path.split(srcPath)
+			# print("fname='%s', path='%s'" % (fName, basePath))
 			cur.execute('''SELECT dbId, tags FROM MangaItems WHERE fileName=%s AND downloadPath=%s;''', (fName, basePath))
 			rows = cur.fetchall()
 			if len(rows) > 1:
@@ -65,8 +68,14 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 						print(" = ", row)
 						print(" = ", "deleted" in row, not "missing" in row, not "duplicate" in row)
 
-					raise ValueError("More then one row for the same path! Wat?")
+					self.log.error("More then one row for the same path! Wat?")
+
+					row = rows.pop()
+					tags = row[1]
+					rowId = row[0]
+
 			elif not rows:
+				self.log.warn("Do not have item {fname} in manga database!".format(fname=srcPath))
 				return
 			else:
 				row = rows.pop()
@@ -80,7 +89,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				tags.add(tag)
 
 			cur.execute('''UPDATE MangaItems SET tags=%s WHERE dbId=%s;''', (" ".join(tags), rowId))
-
+			cur.execute("COMMIT;")
 	def setupDbApi(self):
 		dbModule         = deduplicator.absImport.absImport(settings.dedupApiFile)
 		if not dbModule:
@@ -143,24 +152,34 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 			if not unique:
-				print("Not Unique!", basePath)
+				# print("Not Unique!", basePath)
+
 				for internalPath, itemHash in containedFiles:
 					hashLUT[itemHash].remove((basePath, internalPath))
 					if len(hashLUT[itemHash]) == 0:
 						hashLUT.pop(itemHash)
 
-				self.log.info("Not unique %s", basePath)
-				self.log.info("Duplicated in :	")
-				for oPath in [i for i in otherPaths.keys() if otherPaths[i] > 1]:
-					self.log.info("		%s/%s: %s", otherPaths[oPath], itemItems, oPath)
 
-				self.addTag(basePath, "deleted was-duplicate")
-				self.db.deleteLikeBasePath(basePath)
+
 				dst = basePath.replace("/", ";")
 				dst = os.path.join(delDir, dst)
 				self.log.info("Moving item from '%s'", basePath)
 				self.log.info("	to '%s'", dst)
-				shutil.move(basePath, dst)
+				try:
+					shutil.move(basePath, dst)
+
+					self.addTag(basePath, "deleted was-duplicate")
+
+					self.log.info("Not unique %s", basePath)
+					self.log.info("Duplicated in :	")
+					for oPath in [i for i in otherPaths.keys() if otherPaths[i] > 1]:
+						self.log.info("		%s/%s: %s", otherPaths[oPath], itemItems, oPath)
+					self.db.deleteBasePath(basePath)
+				except KeyboardInterrupt:
+					raise
+				except OSError:
+					self.log.error("ERROR - Could not move file!")
+					self.log.error(traceback.format_exc())
 
 
 			# else:

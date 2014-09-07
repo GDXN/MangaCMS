@@ -315,6 +315,7 @@ colours = {
 		toolTip += "rowId: " + str(dbId) + "<br>"
 		toolTip += "sourceUrl: " + sourceUrl + "<br>"
 		toolTip += "dlState: " + str(dlState) + "<br>"
+		toolTip += "tags: " + str(tags) + "<br>"
 		if os.path.exists(filePath):
 			toolTip += "File found."
 		else:

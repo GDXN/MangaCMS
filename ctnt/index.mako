@@ -89,6 +89,8 @@ import settings
 
 <b>General</b>
 <ul>
+	<li>change db table generation to use found item paths for tables in directory view.</li>
+	<li>djm retagger no longer running?</li>
 	<li>Make user-agent randomize</li>
 	<li>color code mangaupdates status in reader</li>
 	<li>highlight chapters < 10</li>
