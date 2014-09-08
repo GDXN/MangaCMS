@@ -295,3 +295,17 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Complete")
 
 
+
+
+class Runner(ScrapePlugins.RunBase.ScraperBase):
+	loggerPath = "Main.MkL.Run"
+
+	pluginName = "MkFLoader"
+
+
+	def _go(self):
+
+		self.log.info("Checking Mk feeds for updates")
+		fl = MkFeedLoader()
+		fl.go()
+		fl.closeDB()

@@ -26,8 +26,13 @@ class ArchiveReader(object):
 			self.archType = "rar"
 		elif self.fType == 'application/zip':
 			#print "Zip File"
-			self.archHandle = zipfile.ZipFile(self.archPath) # self.iterZipFiles()
-			self.archType = "zip"
+			try:
+				self.archHandle = zipfile.ZipFile(self.archPath) # self.iterZipFiles()
+				self.archType = "zip"
+			except zipfile.BadZipfile:
+				print("Invalid zip file!")
+				traceback.print_exc()
+				raise ValueError
 		else:
 			print("Returned MIME Type for file = ", self.fType )
 			raise ValueError("Tried to create ArchiveReader on a non-archive file")

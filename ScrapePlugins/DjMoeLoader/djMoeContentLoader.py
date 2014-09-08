@@ -41,13 +41,10 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		retagThresh = time.time()-settings.djSettings["retag"]
 		with self.conn.cursor() as cur:
 
-			ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND tags IS NULL ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagUntaggedThresh, self.tableKey))
+			ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND (tags IS NULL OR tags='') ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagUntaggedThresh, self.tableKey))
 			rets = cur.fetchall()
 			if not rets:
-				self.log.info("No items")
-				return
-			else:
-				ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND tags IS NULL ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagThresh, self.tableKey))
+				ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND (tags IS NULL OR tags='') ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagThresh, self.tableKey))
 				rets = cur.fetchall()
 				if not rets:
 					self.log.info("Done")
@@ -61,7 +58,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			items.append(contentId)
 		self.log.info("Have %s new items to retag in Doujin Moe Retagger" % len(items))
 
-		for contentId in items[:50]:
+		for contentId in items:
 			# print("contentId = ", contentId)
 			conf = {"sourceUrl" : contentId}
 			ret = self.getDownloadUrl(conf, retag=True)

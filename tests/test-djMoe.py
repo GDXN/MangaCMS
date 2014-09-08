@@ -1,5 +1,8 @@
 
 
+import runStatus
+runStatus.preloadDicts = False
+
 import logSetup
 if __name__ == "__main__":
 	logSetup.initLogging()

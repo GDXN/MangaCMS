@@ -196,8 +196,26 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				continue
 			else:
 				fqPath = os.path.join(dirPath, itemInDelDir)
-				dc = deduplicator.dupCheck.ArchChecker(fqPath)
-				fileHashes = dc.getHashes(shouldPhash=False)
+				try:
+					dc = deduplicator.dupCheck.ArchChecker(fqPath)
+				except ValueError:
+					self.log.critical("Failed to create archive reader??")
+					self.log.critical(traceback.format_exc())
+					self.log.critical("File = '%s'", fqPath)
+					self.log.critical("Skipping file")
+					continue
+
+
+				try:
+
+					fileHashes = dc.getHashes(shouldPhash=False)
+				except:
+					self.log.critical("Failed to hash file? How did this even get marked for deletion?")
+					self.log.critical(traceback.format_exc())
+					self.log.critical("File = '%s'", fqPath)
+					self.log.critical("Skipping file")
+					continue
+
 				itemHashes = set([item[1] for item in fileHashes])
 
 

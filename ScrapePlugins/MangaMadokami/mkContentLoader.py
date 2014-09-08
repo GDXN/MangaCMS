@@ -60,7 +60,8 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
-		return items
+
+		return items[:500]
 
 
 
@@ -263,3 +264,19 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not runStatus.run:
 			return
 		self.processTodoLinks(todo)
+
+
+
+
+class Runner(ScrapePlugins.RunBase.ScraperBase):
+	loggerPath = "Main.MkC.Run"
+
+	pluginName = "MkCLoader"
+
+
+	def _go(self):
+
+		self.log.info("Checking Mk feeds for updates")
+		fl = MkContentLoader()
+		fl.go()
+		fl.closeDB()

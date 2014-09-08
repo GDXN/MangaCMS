@@ -12,13 +12,16 @@ import ScrapePlugins.SkBaseManager.Run
 import ScrapePlugins.BtBaseManager.Run
 import ScrapePlugins.PururinLoader.Run
 import ScrapePlugins.JzLoader.Run
-import ScrapePlugins.MangaMadokami.Run
 import ScrapePlugins.ExMadokami.Run
 import ScrapePlugins.FakkuLoader.Run
 import ScrapePlugins.McLoader.Run
 import ScrapePlugins.CxLoader.Run
 import ScrapePlugins.MjLoader.Run
 import ScrapePlugins.IrcGrabber.IrcEnqueueRun
+import ScrapePlugins.IrcGrabber.BotRunner
+
+import ScrapePlugins.MangaMadokami.mkContentLoader
+import ScrapePlugins.MangaMadokami.mkFeedLoader
 
 # Plugins in this dictionary are the active plugins. Comment out a plugin to disable it.
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
@@ -36,8 +39,13 @@ scrapePlugins = {
 	9  : (ScrapePlugins.PururinLoader.Run,        60*60   ),
 	10 : (ScrapePlugins.FakkuLoader.Run,          60*60   ),
 	11 : (ScrapePlugins.CxLoader.Run,             60*60*12),  # every 12 hours, it's just a single scanlator site.
-	11 : (ScrapePlugins.MjLoader.Run,             60*60   )
-	# 11 : (ScrapePlugins.MangaMadokami.Run,    60*60*24)  # every 24 hours, because I have to iterate over the ENTIRE site.
+	12 : (ScrapePlugins.MjLoader.Run,             60*60   ),
+	13 : (ScrapePlugins.IrcGrabber.BotRunner,     60*60   ),  # Irc bot never returns. It's runs while the app is live. Rerun interval doesn't matter, as a result.
+
+	# Madokami is two separate sections, because the feedLoader takes
+	# 5+ hours just to run.
+	20  : (ScrapePlugins.MangaMadokami.mkContentLoader,    60*60),
+	500 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       60*60*24*4)  # every 4 days, because I have to iterate over the ENTIRE site.
 
 
 }
