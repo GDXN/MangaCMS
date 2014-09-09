@@ -89,8 +89,10 @@ import settings
 
 <b>General</b>
 <ul>
+	<li>import archived djm stuff?</li>
+	<li>rescan series on batoto</li>
+	<li>do some clever set shit to check for misplaced items in directories</li>
 	<li>change db table generation to use found item paths for tables in directory view.</li>
-	<li>djm retagger no longer running?</li>
 	<li>Make user-agent randomize</li>
 	<li>color code mangaupdates status in reader</li>
 	<li>highlight chapters < 10</li>
@@ -99,20 +101,14 @@ import settings
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>
-	<li>Ability to disable bulk-downloading.</li>
 	<li>add ability to sort directory by rating.</li>
 	<li>Add failed item introspection table.</li>
 	<li>artist and author in filebrowser if i have it</li>
-	<li>automover patch path in db for moved items</li>
 	<li>bu page opens in new window</li>
-	<li>check that new items in bu are updating properly</li>
 	<li>consolidation system for h tags</li>
-	<li>cover images in file browser?</li>
-	<li>Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)</li>
 	<li>different tag for phash desuplication</li>
 	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
 	<li>filtered h isn't being properly skipped</li>
-	<li>fix lo colums?</li>
 	<li>IRC grabber needs a transfer stall timeout.</li>
 	<li>key not found error resulting in HTTP 500 for bad path after rating change</li>
 	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
@@ -122,7 +118,6 @@ import settings
 	<li>Prevent full base dir refresh on directory rename.</li>
 	<li>prioritize downloads by rating</li>
 	<li>properly show if things are one shot</li>
-	<li>proxy for name lookups.</li>
 	<li>tag/flag for when items are mirrored to mk?</li>
 	<li>tagging in web interface</li>
 	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)</li>
@@ -131,15 +126,24 @@ import settings
 </ul>
 </p>
 
+<p>
+<b>Maybe in the future:</b>
+<ul>
+	<li>Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)</li>
+	<li>cover images in file browser?</li>
+	<li>Ability to disable bulk-downloading.</li>
+</ul>
+</p>
+
 
 <p>
 <b>Add Scrapers for</b>
 <ul>
-	<li>mangajoy</li>
 	<li>http://lonemanga.com/</li>
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>Tadanohito as a H source</li>
 	<li>http://www.hbrowse.com/ as a H source</li>
+	<li><strike>mangajoy</strike></li>
 	<li><strike>http://www.cxcscans.com/</strike></li>
 	<li><strike>http://desperatescanners.weebly.com/</strike> (They release on batoto)</li>
 	<li><strike>imangascans</strike> (Done, as part of IRC scraper)</li>
@@ -173,8 +177,8 @@ import settings
 <p>
 <b>Nametools Issues</b>
 <ul>
-Getsurin ni Kiri Saku
-Imasugu Onii-chan ni Imouto da tte Iitai!
+	<li>Getsurin ni Kiri Saku</li>
+	<li>Imasugu Onii-chan ni Imouto da tte Iitai!</li>
 	<li>
 	Bad MangaUpdates Links:
 	<ul>
@@ -184,23 +188,26 @@ Imasugu Onii-chan ni Imouto da tte Iitai!
 		<li>maken-ki!</li>
 		<li>murcielago</li>
 		<li>Keyman - The Hand of Judgement</li>
-	</ul>v
+	</ul>
 	</li>
 </ul>
 <ul>
-	<li>'Hero Co., Ltd.'' link only working one way</li>
+	<li>'Hero Co., Ltd.' link only working one way</li>
 	<li><strike>Add testing to nametool system</strike> (Done, wasn't the problem source)</li>
 	<li><strike>Everything is getting sorted into '[zion]'</strike> Fixed, it was a scraper bug. Derp</li>
 </ul>
 </p>
 <p>
 
-./Valkyria Nainen Kikan [++]
-./Ai wa Noroi no Nihon Ningyou [E][+]
-./Hime-sama Tanuki no Koisanyou [+++]
-
 <b>Complete:</b>
 <ul>
+	<li><strike>proxy for name lookups.</strike></li>
+	<li><strike>fix lo colums?</strike></li>
+	<li><strike>automover patch path in db for moved items</strike> Added `fix-dl-paths` to `cleanDb`.</li>
+	<li><strike>mangajoy sometimes only fetches one image</strike> Added some delay, hopefully it'll fix things.</li>
+	<li><strike>look into pu sorting issues.</strike> Stupid logic error in download delay mechanism.</li>
+	<li><strike>check that new items in bu are updating properly</strike></li>
+	<li><strike>djm retagger no longer running?</strike></li>
 	<li><strike>Murcielago. again</strike> Hopefully fixed by forcing NFKD unicode normalization.</li>
 	<li><strike>mu not in sidebar</strike> Fucked up the flags at some point. Fixed.</li>
 	<li><strike>Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?</strike> Simple regex implemented. I'll have to see how it pans out</li>

@@ -292,7 +292,7 @@ colours = {
 					locationColour = colours["no match"]
 				else:
 					locationColour = colours["moved"]
-			elif "/MP/" in downloadPath and not "picked" in flags:
+			elif settings.pickedDir in downloadPath:
 				locationColour = colours["picked"]
 			elif "newdir" in flags:
 				locationColour = colours["new dir"]

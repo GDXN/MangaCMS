@@ -54,10 +54,15 @@ class MjContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		items = []
 		for item in rows:
 
-			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
 
-
-			items.append(item)
+			# Delay 30 minutes, to allow things to settle
+			# (Sometimes, if you scrape a series too quickly, it can be missing things
+			# I guess their update system takes some time to buffer (load balancer, or sommat))
+			if item["retreivalTime"] < (time.time() - 60*30):
+				item["retreivalTime"] = time.gmtime(item["retreivalTime"])
+				items.append(item)
+			else:
+				print("skipping item = ", item)
 
 		self.log.info( "Have %s new items to retreive in MjDownloader" % len(items))
 

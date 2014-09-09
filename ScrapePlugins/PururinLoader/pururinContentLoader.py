@@ -87,7 +87,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# are almost always in a fucked up order at the start
 			# Seriously, these kind of things are sequentially numbered. How can you fuck that up?
 			# They manage, somehow.
-			if row["retreivalTime"] < (time.time() + 60*60*36):
+			if row["retreivalTime"] > (time.time() - 60*60*36):
 				items.append(row)  # Actually the contentID
 		self.log.info("Have %s new items to retreive in PururinDownloader" % len(items))
 

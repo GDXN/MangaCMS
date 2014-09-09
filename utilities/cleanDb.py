@@ -317,6 +317,38 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 		cur.execute("COMMIT;")
 
+	def renameDlPaths(self):
+		nt.dirNameProxy.startDirObservers()
+		cur = self.conn.cursor()
+		cur.execute("BEGIN ;")
+		cur.execute("SELECT dbId, downloadPath, seriesName FROM mangaitems ORDER BY retreivalTime DESC;")
+		rows = cur.fetchall()
+		print("Processing %s items" % len(rows))
+		cnt = 0
+		for row in rows:
+			dbId, filePath, seriesName = row
+			if filePath == None:
+				filePath = ''
+			if seriesName == '' or seriesName == None:
+				print("No series name", row)
+				continue
+
+			if not os.path.exists(filePath):
+				if seriesName in nt.dirNameProxy:
+					itemPath = nt.dirNameProxy[seriesName]['fqPath']
+					if os.path.exists(itemPath):
+						print("Need to change", filePath, itemPath)
+						cur.execute("UPDATE mangaitems SET downloadPath=%s WHERE dbId=%s", (itemPath, dbId))
+
+			cnt += 1
+			if cnt % 1000 == 0:
+				print("ON row ", cnt)
+				cur.execute("COMMIT;")
+				cur.execute("BEGIN;")
+
+		cur.execute("COMMIT;")
+		nt.dirNameProxy.stop()
+
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
 		runStatus.run = False
@@ -357,6 +389,8 @@ def test():
 		pc.crossSyncNames()
 	elif mainArg.lower() == "fix-bad-series":
 		pc.consolidateSeriesNaming()
+	elif mainArg.lower() == "fix-dl-paths":
+		pc.renameDlPaths()
 	else:
 		print("Unknown arg!")
 
