@@ -10,12 +10,15 @@ if __name__ == "__main__":
 import runStatus
 runStatus.preloadDicts = False
 
-
+import re
 import ScrapePlugins.DbBase
 import nameTools as nt
-import sys
+import shutil
 import signal
+import settings
+import hashlib
 
+import utilities.EmptyRetreivalDb
 
 class PathCleaner(ScrapePlugins.DbBase.DbBase):
 	loggerPath = "Main.Pc"
@@ -349,6 +352,66 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		cur.execute("COMMIT;")
 		nt.dirNameProxy.stop()
 
+	def extractTags(self, name):
+		tagre = re.compile(r'{\(Tags\)(.+?)}')
+		tagout = tagre.findall(name)
+		tagout = set(" ".join(tagout).strip().split(" "))
+		if "none" in tagout:
+			tagout.remove("none")
+
+
+	def importDjMItems(self, sourcePath):
+
+		# Horrible tweak the class definition before instantiating.
+		utilities.EmptyRetreivalDb.ScraperDbTool.tableKey = "djm"
+		dbInt = utilities.EmptyRetreivalDb.ScraperDbTool()
+		print("DbInt", dbInt)
+
+
+		items = os.listdir(sourcePath)
+		for item in items:
+
+			srcStr = 'import-{hash}'.format(hash=hashlib.md5(item.encode("utf-8")).hexdigest())
+			itemtags = self.extractTags(item)
+
+			fPath = os.path.join(settings.djMoeDir, "imported")
+
+			if not os.path.exists(fPath):
+				os.makedirs(fPath)
+
+			srcPath = os.path.join(sourcePath, item)
+			dstPath = os.path.join(fPath, item)
+
+			if os.path.exists(dstPath):
+				raise ValueError("Destination path already exists? = '%s'" % dstPath)
+			shutil.move(srcPath, dstPath)
+
+			print("os.path.exists", os.path.exists(srcPath), os.path.exists(dstPath))
+
+
+			dbInt.insertIntoDb(retreivalTime=200,
+								sourceUrl=srcStr,
+								originName=item,
+								dlState=2,
+								downloadPath=fPath,
+								fileName=item,
+								seriesName="imported",
+								tags=' '.join(itemtags))
+
+
+
+
+			dedupState = dbInt.archCleaner.processNewArchive(dstPath, deleteDups=True)
+			dbInt.log.info( "Done")
+
+
+			if dedupState:
+				dbInt.addTags(sourceUrl=srcStr, tags=dedupState)
+
+			dbInt.conn.commit()
+
+
+
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
 		runStatus.run = False
@@ -389,8 +452,12 @@ def test():
 		pc.crossSyncNames()
 	elif mainArg.lower() == "fix-bad-series":
 		pc.consolidateSeriesNaming()
-	elif mainArg.lower() == "fix-dl-paths":
-		pc.renameDlPaths()
+	elif mainArg.lower() == "import-djm":
+		if not len(sys.argv) == 3:
+			print("You must specify a path to import from!")
+			return
+		sourcePath = sys.argv[2]
+		pc.importDjMItems(sourcePath)
 	else:
 		print("Unknown arg!")
 
