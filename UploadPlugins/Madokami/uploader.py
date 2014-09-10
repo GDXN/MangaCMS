@@ -5,6 +5,9 @@ from settings import mkSettings
 import logging
 import os
 import nameTools as nt
+import Levenshtein as lv
+
+COMPLAIN_ABOUT_DUPS = False
 
 class MkUploader(object):
 	log = logging.getLogger("Main.Mk.Uploader")
@@ -12,23 +15,104 @@ class MkUploader(object):
 		self.ftp = ftplib.FTP(host=mkSettings["ftpAddr"])
 		self.ftp.login()
 
-		self.haveDirs = {}
+		self.mainDirs     = {}
+		self.unsortedDirs = {}
 
-	def loadRemoteDirectory(self, fullPath):
-		self.haveDirs = {}
+
+	def aggregateDirs(self, pathBase, dir1, dir2):
+		canonName = nt.getCanonicalMangaUpdatesName(dir1)
+		canonNameAlt = nt.getCanonicalMangaUpdatesName(dir2)
+		if canonName != canonNameAlt:
+			print(dir1, dir2)
+			print(canonName, canonNameAlt)
+			raise ValueError("Identical and yet not?")
+		self.log.info("Aggregating directories for canon name '%s':", canonName)
+
+		n1 = lv.distance(dir1, canonName)
+		n2 = lv.distance(dir2, canonName)
+
+		self.log.info("	%s - '%s'", n1, dir1)
+		self.log.info("	%s - '%s'", n2, dir2)
+
+		# I'm using less then or equal, so situations where
+		# both names are equadistant get aggregated anyways.
+		if n1 <= n2:
+			src = dir2
+			dst = dir1
+		else:
+			src = dir1
+			dst = dir2
+
+		src = os.path.join(pathBase, src)
+		dst = os.path.join(pathBase, dst)
+
+		# FTP is /weird/. Rename apparently really wants to use the cwd for the srcpath param, even if the
+		# path starts with "/". Therefore, we have to reset the CWD.
+		self.ftp.cwd("/")
+		for itemName, dummy_stats in self.ftp.mlsd(src):
+			if itemName == ".." or itemName == ".":
+				continue
+			srcPath = os.path.join(src, itemName)
+			dstPath = os.path.join(dst, itemName)
+			self.ftp.rename(srcPath, dstPath)
+			self.log.info("	Moved from '%s'", srcPath)
+			self.log.info("	        to '%s'", dstPath)
+
+		self.log.info("Removing directory '%s'", src)
+		self.ftp.rmd(src)
+
+		return dst
+
+	def loadRemoteDirectory(self, fullPath, aggregate=False):
+		ret = {}
 		for dirName, stats in self.ftp.mlsd(fullPath):
 
 			# Skip items that aren't directories
 			if stats["type"]!="dir":
 				continue
 
-			matchingName = nt.getCanonicalMangaUpdatesName(dirName)
-			matchingName = nt.prepFilenameForMatching(matchingName)
+			canonName = nt.getCanonicalMangaUpdatesName(dirName)
+			matchingName = nt.prepFilenameForMatching(canonName)
 
-			if matchingName in self.haveDirs:
-				raise ValueError("Duplicate items in directory!")
+			fqPath = os.path.join(fullPath, dirName)
 
-			self.haveDirs[matchingName] = dirName
+			if matchingName in ret:
+				if aggregate:
+					fqPath = self.aggregateDirs(fullPath, dirName, ret[matchingName])
+				else:
+					if COMPLAIN_ABOUT_DUPS:
+						self.log.warning("Duplicate directories for series '%s'!", canonName)
+						self.log.warning("	'%s'", dirName)
+						self.log.warning("	'%s'", matchingName)
+					ret[matchingName].append(fqPath)
+			if aggregate:
+				ret[matchingName] = fqPath
+			else:
+				ret[matchingName] = [fqPath]
+
+		return ret
+
+	def loadMainDirs(self):
+		ret = {}
+		try:
+			dirs = list(self.ftp.mlsd(mkSettings["mainContainerDir"]))
+		except ftplib.error_perm:
+			self.log.critical("Container dir ('%s') does not exist!", mkSettings["mainContainerDir"])
+		for dirPath, dummy_stats in dirs:
+			if dirPath == ".." or dirPath == ".":
+				continue
+			dirPath = os.path.join(mkSettings["mainContainerDir"], dirPath)
+			items = self.loadRemoteDirectory(dirPath)
+			for key, value in items.items():
+				if key not in ret:
+					ret[key] = value
+				else:
+					for item in value:
+						ret[key].append(item)
+
+			self.log.info("Loading contents of FTP dir '%s'.", dirPath)
+		self.log.info("Have '%s remote directories on FTP server.", len(ret))
+		return ret
 
 	def checkInitDirs(self):
 		try:
@@ -44,25 +128,33 @@ class MkUploader(object):
 		else:
 			self.log.info("Base container directory exists.")
 
-		self.loadRemoteDirectory(fullPath)
-
+		self.mainDirs     = self.loadMainDirs()
+		self.unsortedDirs = self.loadRemoteDirectory(fullPath, aggregate=True)
 
 
 	def uploadFile(self, seriesName, filePath):
 		seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
-		safeSeriesName = nt.makeFilenameSafe(seriesName)
+		safeFilename = nt.makeFilenameSafe(seriesName)
 		matchName = nt.prepFilenameForMatching(seriesName)
-		if not matchName in self.haveDirs:
-			self.log.info("Need to create container directory for %s", seriesName)
-			newDir = os.path.join(mkSettings["uploadContainerDir"], mkSettings["uploadDir"], safeSeriesName)
-			self.ftp.mkd(newDir)
+
+		if matchName in self.mainDirs and len(self.mainDirs[matchName]) == 1:
+			newDir = self.mainDirs[matchName][0]
+
+		elif matchName in self.unsortedDirs:
+			newDir = self.unsortedDirs[matchName]
 		else:
-			newDir = os.path.join(mkSettings["uploadContainerDir"], mkSettings["uploadDir"], self.haveDirs[matchName])
+
+			self.log.info("Need to create container directory for %s", seriesName)
+			newDir = os.path.join(mkSettings["uploadContainerDir"], mkSettings["uploadDir"], safeFilename)
+			self.ftp.mkd(newDir)
 
 		dummy_path, filename = os.path.split(filePath)
 		self.log.info("Uploading file %s", filePath)
-		print("target dir = ", newDir)
+		self.log.info("From series %s", seriesName)
+		self.log.info("To container directory %s", newDir)
 		self.ftp.cwd(newDir)
+
+
 		self.ftp.storbinary("STOR %s" % filename, open(filePath, "rb"))
 		self.log.info("File Uploaded")
 

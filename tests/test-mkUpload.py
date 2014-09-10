@@ -5,17 +5,22 @@ if __name__ == "__main__":
 
 
 
+import runStatus
+runStatus.preloadDicts = False
+
+
 import UploadPlugins.Madokami.uploader as up
 import os
 import os.path
 
-TESTPATH = "/media/Storage/MP/The Gamer [++++]/"
+TESTPATH = "/media/Storage/MP/Koalove [++]/"
 def test():
 	con = up.MkUploader()
 	con.checkInitDirs()
+
 	for fileN in os.listdir(TESTPATH):
 		fqPath = os.path.join(TESTPATH, fileN)
-		con.uploadFile("The Gamer", fqPath)
+		con.uploadFile("Koalove", fqPath)
 
 
 if __name__ == "__main__":

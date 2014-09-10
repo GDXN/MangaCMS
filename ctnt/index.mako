@@ -89,7 +89,6 @@ import settings
 
 <b>General</b>
 <ul>
-	<li>tie mk uploader in properly</li>
 	<li>ability to specify MU id in name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
 	<li>import all existing files somehow</li>
@@ -205,6 +204,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>tie mk uploader in properly</strike></li>
 	<li><strike>proxy for name lookups.</strike></li>
 	<li><strike>fix lo colums?</strike></li>
 	<li><strike>automover patch path in db for moved items</strike> Added `fix-dl-paths` to `cleanDb`.</li>

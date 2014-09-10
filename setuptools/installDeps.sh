@@ -25,4 +25,4 @@ python3 get-pip.py
 echo TODO: ADD PostgreSQL >= 9.3 install stuff here!
 
 # Install the libraries we actually need
-pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython irc psycopg2
+pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama pyinotify python-dateutil apscheduler rarfile python-magic babel cython irc psycopg2 python-levenshtein
