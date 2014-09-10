@@ -17,12 +17,9 @@ import bs4
 import ScrapePlugins.RetreivalDbBase
 import urllib.error
 
-import archCleaner
+import processDownload
 
 class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
-
-
-	archCleaner = archCleaner.ArchCleaner()
 
 	loggerPath = "Main.Sk.Cl"
 	pluginName = "Starkana Content Retreiver"
@@ -93,7 +90,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			items.append(item)
 
-		self.log.info( "Have %s new items to retreive in SkDownloader" % len(items))
+		self.log.info( "Have %s new items to retreive in SkDownloader", len(items))
 
 
 		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
@@ -195,7 +192,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
-		dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
+		dedupState = processDownload.processDownload(link["seriesName"], fqFName, deleteDups=True)
 		self.log.info( "Done")
 
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
