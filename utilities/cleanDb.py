@@ -10,6 +10,7 @@ if __name__ == "__main__":
 import runStatus
 runStatus.preloadDicts = False
 
+import traceback
 import re
 import ScrapePlugins.DbBase
 import nameTools as nt
@@ -17,6 +18,8 @@ import shutil
 import signal
 import settings
 import hashlib
+
+from concurrent.futures import ThreadPoolExecutor
 
 import utilities.EmptyRetreivalDb
 import processDownload
@@ -361,64 +364,97 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 			tagout.remove("none")
 
 
+	def fetchLinkList(self, itemList):
+
+		dbInt = utilities.EmptyRetreivalDb.ScraperDbTool()
+
+		try:
+			for item in itemList:
+
+				srcStr = 'import-{hash}'.format(hash=hashlib.md5(item.encode("utf-8")).hexdigest())
+				itemtags = self.extractTags(item)
+				if itemtags == "None" or itemtags == None:
+					itemtags = ''
+				fPath = os.path.join(settings.djMoeDir, "imported")
+
+				if not os.path.exists(fPath):
+					os.makedirs(fPath)
+
+				srcPath = os.path.join(self.sourcePath, item)
+				dstPath = os.path.join(fPath, item)
+
+				if os.path.exists(dstPath):
+					raise ValueError("Destination path already exists? = '%s'" % dstPath)
+
+
+
+				# print("os.path.exists", os.path.exists(srcPath), os.path.exists(dstPath))
+
+				# print("Item '%s' '%s' '%s'" % (srcPath, dstPath, itemtags))
+				shutil.move(srcPath, dstPath)
+				dbInt.insertIntoDb(retreivalTime=200,
+									sourceUrl=srcStr,
+									originName=item,
+									dlState=2,
+									downloadPath=fPath,
+									fileName=item,
+									seriesName="imported",
+									tags=' '.join(itemtags))
+
+
+
+
+				dedupState = processDownload.processDownload("imported", dstPath, pron=True, deleteDups=True)
+
+				if dedupState:
+					dbInt.addTags(sourceUrl=srcStr, tags=dedupState)
+
+				self.log.info( "Done")
+
+				if not runStatus.run:
+					self.log.info( "Breaking due to exit flag being set")
+					break
+
+		except:
+			self.log.critical("Exception!")
+			traceback.print_exc()
+			self.log.critical(traceback.format_exc())
+
+
+	def processTodoItems(self, items):
+		if items:
+
+			def iter_baskets_from(items, maxbaskets=3):
+				'''generates evenly balanced baskets from indexable iterable'''
+				item_count = len(items)
+				baskets = min(item_count, maxbaskets)
+				for x_i in range(baskets):
+					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
+
+			linkLists = iter_baskets_from(items, maxbaskets=3)
+
+			with ThreadPoolExecutor(max_workers=3) as executor:
+
+				for linkList in linkLists:
+					executor.submit(self.fetchLinkList, linkList)
+
+				executor.shutdown(wait=True)
+
+			# Multithreading goes here, if I decide I want it at some point
+
+
+
 	def importDjMItems(self, sourcePath):
 
 		# Horrible tweak the class definition before instantiating.
 		utilities.EmptyRetreivalDb.ScraperDbTool.tableKey = "djm"
-		dbInt = utilities.EmptyRetreivalDb.ScraperDbTool()
-		print("DbInt", dbInt)
+		self.sourcePath = sourcePath
 
 
 		items = os.listdir(sourcePath)
-		cnt = 0
-		for item in items:
-			cnt += 1
-			srcStr = 'import-{hash}'.format(hash=hashlib.md5(item.encode("utf-8")).hexdigest())
-			itemtags = self.extractTags(item)
-			if itemtags == "None" or itemtags == None:
-				itemtags = ''
-			fPath = os.path.join(settings.djMoeDir, "imported")
-
-			if not os.path.exists(fPath):
-				os.makedirs(fPath)
-
-			srcPath = os.path.join(sourcePath, item)
-			dstPath = os.path.join(fPath, item)
-
-			if os.path.exists(dstPath):
-				raise ValueError("Destination path already exists? = '%s'" % dstPath)
 
 
-
-			# print("os.path.exists", os.path.exists(srcPath), os.path.exists(dstPath))
-
-			# print("Item '%s' '%s' '%s'" % (srcPath, dstPath, itemtags))
-			print("On item %s of %s" % (cnt, len(items)))
-			shutil.move(srcPath, dstPath)
-			dbInt.insertIntoDb(retreivalTime=200,
-								sourceUrl=srcStr,
-								originName=item,
-								dlState=2,
-								downloadPath=fPath,
-								fileName=item,
-								seriesName="imported",
-								tags=' '.join(itemtags))
-
-
-
-
-			dedupState = processDownload.processDownload("imported", dstPath, pron=True, deleteDups=True)
-
-			dbInt.log.info( "Done")
-
-
-			if dedupState:
-				dbInt.addTags(sourceUrl=srcStr, tags=dedupState)
-
-			dbInt.conn.commit()
-
-			if not runStatus.run:
-				return
+		self.processTodoItems(items)
 
 
 

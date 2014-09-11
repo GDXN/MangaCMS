@@ -95,7 +95,6 @@ import settings
 	<li>rescan series on batoto</li>
 	<li>do some clever set shit to check for misplaced items in directories</li>
 	<li>change db table generation to use found item paths for tables in directory view.</li>
-	<li>Make user-agent randomize</li>
 	<li>color code mangaupdates status in reader</li>
 	<li>highlight chapters < 10</li>
 	<li>scan times to deduper for rescanning</li>
@@ -109,7 +108,6 @@ import settings
 	<li>bu page opens in new window</li>
 	<li>consolidation system for h tags</li>
 	<li>different tag for phash desuplication</li>
-	<li>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</li>
 	<li>filtered h isn't being properly skipped</li>
 	<li>IRC grabber needs a transfer stall timeout.</li>
 	<li>key not found error resulting in HTTP 500 for bad path after rating change</li>
@@ -203,6 +201,8 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</strike> Someone had put "None" in the alternative names for the "It takes a Wizard" manga. Whoops?</li>
+	<li><strike>Make user-agent randomize</strike> Should have something like ~32K possible configurations now.</li>
 	<li><strike>import archived djm stuff?</strike></li>
 	<li><strike>tie mk uploader in properly</strike></li>
 	<li><strike>proxy for name lookups.</strike></li>

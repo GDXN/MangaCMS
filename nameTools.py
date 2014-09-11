@@ -380,7 +380,12 @@ class MtNamesMapWrapper(object):
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
-		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
+		try:
+			self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		except psycopg2.OperationalError:
+			self.conn = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
 		# self.conn.autocommit = True
 		self.log.info("opened")
 
@@ -849,6 +854,9 @@ class DirNameProxy(object):
 def getCanonicalMangaUpdatesName(sourceSeriesName):
 
 	fsName = prepFilenameForMatching(sourceSeriesName)
+	if not fsName:
+		return sourceSeriesName
+
 	mId = buIdLookup[fsName]
 	if mId and len(mId) == 1:
 		correctSeriesName = idLookup[mId.pop()]
