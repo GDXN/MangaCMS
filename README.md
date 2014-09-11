@@ -11,6 +11,8 @@ Plugin scrapers for:
  - Doujin-Moe
  - download.japanzai.com
  - MangaCow
+ - MangaJoy
+ - CXC Scans
  - Manga.Madokami
  - Numerous IRC bots.
  - Fakku
@@ -135,6 +137,16 @@ Because I'm sure no one wants to just read about what MangaCMS does, here are so
 ---
 
 Tests for all the various plugins are in the /tests/ directory. Because of how they hook into the rest of the system, they must be run as modules: `python3 -m tests.test-{name}`. This is required to avoid having to dick about with the contents of `sys.path`.
+
+---
+
+# Q&A
+
+ - Q: Is this hard to use?
+ - A: It requires at minimum a decent familiarity with the Linux command line. Python and/or SQL knowledge is also helpful.
+
+ - Q: You're scraping my site! Don't do that!
+ - A: Your *web-site*. That you posted **publically**. You don't really understand how this whole "internet" thing works, do you?
 
 ---
 
