@@ -19,6 +19,7 @@ import settings
 import hashlib
 
 import utilities.EmptyRetreivalDb
+import processDownload
 
 class PathCleaner(ScrapePlugins.DbBase.DbBase):
 	loggerPath = "Main.Pc"
@@ -369,11 +370,13 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 
 		items = os.listdir(sourcePath)
+		cnt = 0
 		for item in items:
-
+			cnt += 1
 			srcStr = 'import-{hash}'.format(hash=hashlib.md5(item.encode("utf-8")).hexdigest())
 			itemtags = self.extractTags(item)
-
+			if itemtags == "None" or itemtags == None:
+				itemtags = ''
 			fPath = os.path.join(settings.djMoeDir, "imported")
 
 			if not os.path.exists(fPath):
@@ -384,11 +387,14 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 			if os.path.exists(dstPath):
 				raise ValueError("Destination path already exists? = '%s'" % dstPath)
+
+
+
+			# print("os.path.exists", os.path.exists(srcPath), os.path.exists(dstPath))
+
+			# print("Item '%s' '%s' '%s'" % (srcPath, dstPath, itemtags))
+			print("On item %s of %s" % (cnt, len(items)))
 			shutil.move(srcPath, dstPath)
-
-			print("os.path.exists", os.path.exists(srcPath), os.path.exists(dstPath))
-
-
 			dbInt.insertIntoDb(retreivalTime=200,
 								sourceUrl=srcStr,
 								originName=item,
@@ -401,7 +407,8 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 
 
-			dedupState = dbInt.archCleaner.processNewArchive(dstPath, deleteDups=True)
+			dedupState = processDownload.processDownload("imported", dstPath, pron=True, deleteDups=True)
+
 			dbInt.log.info( "Done")
 
 
@@ -409,6 +416,9 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 				dbInt.addTags(sourceUrl=srcStr, tags=dedupState)
 
 			dbInt.conn.commit()
+
+			if not runStatus.run:
+				return
 
 
 

@@ -89,10 +89,9 @@ import settings
 
 <b>General</b>
 <ul>
-	<li>ability to specify MU id in name? [Lnnn] or sommat?</li>
+	<li>ability to specify MU id in directory name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
 	<li>import all existing files somehow</li>
-	<li>import archived djm stuff?</li>
 	<li>rescan series on batoto</li>
 	<li>do some clever set shit to check for misplaced items in directories</li>
 	<li>change db table generation to use found item paths for tables in directory view.</li>
@@ -204,6 +203,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>import archived djm stuff?</strike></li>
 	<li><strike>tie mk uploader in properly</strike></li>
 	<li><strike>proxy for name lookups.</strike></li>
 	<li><strike>fix lo colums?</strike></li>

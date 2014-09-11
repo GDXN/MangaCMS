@@ -88,7 +88,10 @@ class MjContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		imgDiv = pageSoup.find("div", class_='prw')
 		images = imgDiv.find_all("img")
 
+		images = [image for image in images if "mangajoy" in image['src']]
 		if len(images) != 1:
+			for image in images:
+				print("Image", image)
 			raise ValueError("Too many images found on page!")
 
 		imgUrl = images[0]["src"]
@@ -118,7 +121,7 @@ class MjContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# URLs from the number of pages, we have to actually walk every image page in the manga
 			# to get all the proper image URLs.
 
-			scanPages = ["{base}/{cnt}/".format(base=firstPageUrl, cnt=page["value"]) for page in pages]
+			scanPages = ["{base}{cnt}/".format(base=firstPageUrl, cnt=page["value"]) for page in pages]
 			for page in scanPages:
 				pageCtnt = self.wg.getpage(page)
 				soup = bs4.BeautifulSoup(pageCtnt)

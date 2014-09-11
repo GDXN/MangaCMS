@@ -3,7 +3,7 @@
 import re
 
 import runStatus
-
+import copy
 import settings
 import logging
 import psycopg2
@@ -486,13 +486,13 @@ class DirNameProxy(object):
 	# Make it a borg class (all instances share state)
 	_shared_state = {}
 
-
 	log = logging.getLogger("Main.DirLookup")
 
 	# test-mode is when the unittesting system pre-loads the dir-dict with known values,
 	# so we don't have to start the dir observers (sloooow).
 	# Therefore, in test-mode, we don't check if the observers exist.
 	testMode = False
+
 
 	def __init__(self, paths):
 		self.__dict__ = self._shared_state
@@ -710,11 +710,12 @@ class DirNameProxy(object):
 		if not self.notifierRunning and self.testMode == False:
 			self.log.warning("Directory observers not started! No directory contents will have been loaded!")
 		name = getCanonicalMangaUpdatesName(name)
+		if not name:
+			return ""
 		name = prepFilenameForMatching(name)
 		return name
 
 	def getUnsanitizedName(self, name):
-		name = self.filterPreppedNameThroughDB(name)
 		return self[name]
 
 	def getPathByKey(self, key):
@@ -728,6 +729,9 @@ class DirNameProxy(object):
 
 	def getFromSpecificDict(self, dictKey, itemKey):
 		filteredKey = self.filterPreppedNameThroughDB(itemKey)
+		if not filteredKey:
+			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": filteredKey, "rating": None, "sourceDict": None}
+
 		print("ItemKey", itemKey, filteredKey)
 		# print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
 		if filteredKey in self.dirDicts[dictKey]:
@@ -793,24 +797,31 @@ class DirNameProxy(object):
 
 	def __getitem__(self, key):
 		# self.checkUpdate()
+		if len(key.strip()) == 0:
+			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": key, "rating": None, "sourceDict": None}
+
+		filteredKey = self.filterPreppedNameThroughDB(key)
+		if not filteredKey:
+			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": filteredKey, "rating": None, "sourceDict": None}
 
 		baseDictKeys = list(self.dirDicts.keys())
 		baseDictKeys.sort()
-		keyLUT = self.filterPreppedNameThroughDB(key)
+
 
 		for dirDictKey in baseDictKeys:
-			# keyLUT = self.filterPreppedNameThroughDB(key)
+			if filteredKey in self.dirDicts[dirDictKey]:
+				tmp = self.dirDicts[dirDictKey][filteredKey]
+				return self._processItemIntoRet(tmp, key, filteredKey, dirDictKey)
 
-			if keyLUT in self.dirDicts[dirDictKey]:
-				tmp = self.dirDicts[dirDictKey][keyLUT]
-				return self._processItemIntoRet(tmp, key, keyLUT, dirDictKey)
-
-		return {"fqPath" : None, "item": None, "inKey" : key, "dirKey": keyLUT, "rating": None}
+		return {"fqPath" : None, "item": None, "inKey" : key, "dirKey": filteredKey, "rating": None}
 
 	def __contains__(self, key):
 		# self.checkUpdate()
 
 		key = self.filterPreppedNameThroughDB(key)
+
+		if not key:
+			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": key, "rating": None, "sourceDict": None}
 
 		baseDictKeys = list(self.dirDicts.keys())
 		baseDictKeys.sort()

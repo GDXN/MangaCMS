@@ -129,9 +129,9 @@ Another alternative is to implement the indexing mechanisms directly in postgres
 
 
 Because I'm sure no one wants to just read about what MangaCMS does, here are some screenshots of the web-interface:
-![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)
-![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)
-![Reader](http://fake-name.github.io/MangaCMS/img/Stuff%203.png)
+![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)  
+![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)  
+![Reader](http://fake-name.github.io/MangaCMS/img/Stuff%203.png)  
 
 
 ---
@@ -140,13 +140,14 @@ Tests for all the various plugins are in the /tests/ directory. Because of how t
 
 ---
 
-# Q&A
+### Q&A
 
- - Q: Is this hard to use?
- - A: It requires at minimum a decent familiarity with the Linux command line. Python and/or SQL knowledge is also helpful.
+Q: Is this hard to use?  
+A: It requires at minimum a decent familiarity with the Linux command line. Python and/or SQL knowledge is also helpful.    
+   I generally idle in #madokami on irchighway, so you can ask me questions if you need there, though I'm not actually present behind my client a lot of the time. I'll help with whatever, though I can't exactly give a complete lesson on "how to linux" or so forth.
 
- - Q: You're scraping my site! Don't do that!
- - A: Your *web-site*. That you posted **publically**. You don't really understand how this whole "internet" thing works, do you?
+Q: You're scraping my site! Don't do that!  
+A: Your *web-site*. That you posted **publically**. You don't really understand how this whole "internet" thing works, do you?  
 
 ---
 

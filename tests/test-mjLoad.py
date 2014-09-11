@@ -31,17 +31,17 @@ def test():
 
 
 
-	nt.dirNameProxy.startDirObservers()
-	runner = Runner()
-	runner.go()
+	# nt.dirNameProxy.startDirObservers()
+	# runner = Runner()
+	# runner.go()
 
 	# loader = MjFeedLoader()
 	# loader.go()
 
-	# nt.dirNameProxy.startDirObservers()
-	# cl = MjContentLoader()
+	nt.dirNameProxy.startDirObservers()
+	cl = MjContentLoader()
 
-	# cl.go()
+	cl.go()
 
 	# item = {'note': None,
 	# 	 'dbId': 266183,

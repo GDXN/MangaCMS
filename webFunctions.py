@@ -11,12 +11,9 @@ import http.cookiejar
 import traceback
 
 import logging
-
-import random
 import zlib
-
 import bs4
-
+import userAgents
 import re
 
 #pylint: disable-msg=E1101, C0325, R0201, W0702, W0703
@@ -39,34 +36,10 @@ class WebGetRobust:
 	opener = None
 
 
-	# Due to general internet people douchebaggyness, I've basically said to hell with it and decided to spoof a whole assortment of browsers
-	# It should keep people from blocking this scraper *too* easily
-	opera = [	('User-Agent'		,	'Mozilla/5.0 (Windows NT 6.1; en; rv:2.0) Gecko/20100101 Firefox/4.0 Opera 11.61'),
-				('Accept-Language'	,	'en-US,en;q=0.9'),
-				('Accept-Encoding'	,	'gzip'),
-				('Accept'			,	'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.81')
-		]
-	firefox = [	('User-Agent'		,	'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:8.0.1) Gecko/20100101 Firefox/8.0.1'),
-				('Accept-Language'	,	'en-us,en;q=0.5'),
-				('Accept'			,	'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
-				('Accept-Encoding'	,	'gzip'),
-				('Accept-Charset'	,	'ISO-8859-1,utf-8;q=0.7,*;q=0.7')
-		]
-	chrome = [	('User-Agent'		,	'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2'),
-				('Accept-Language'	,	'en-US,en;q=0.8'),
-				('Accept'			,	'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
-				('Accept-Encoding'	,	'gzip,deflate,sdch'),
-				('Accept-Charset'	,	'ISO-8859-1,utf-8;q=0.7,*;q=0.3')
-		]
-	IE = [		('User-Agent'		,	'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)'),
-				('Accept-Language'	,	'en-US'),
-				('Accept'			,	'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
-				('Accept-Encoding'	,	'gzip')
-		]
 
 	errorOutCount = 2
 	retryDelay = 1.5
-	browsers = [opera, chrome, firefox, IE]
+
 
 	data = None
 
@@ -76,7 +49,10 @@ class WebGetRobust:
 	def __init__(self, test=False, creds=None, logPath="Main.Web"):
 		self.log = logging.getLogger(logPath)
 		print("Webget init! Logpath = ", logPath)
-		self.browserHeaders = random.choice(self.browsers)
+
+		# Due to general internet people douchebaggyness, I've basically said to hell with it and decided to spoof a whole assortment of browsers
+		# It should keep people from blocking this scraper *too* easily
+		self.browserHeaders = userAgents.getUserAgent()
 
 		self.testMode = test		# if we don't want to actually contact the remote server, you pass a string containing
 									# pagecontent for testing purposes as test. It will get returned for any calls of getpage()

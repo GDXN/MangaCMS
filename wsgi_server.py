@@ -268,7 +268,7 @@ class PageResource(object):
 		self.log.info("Request for path: %s", request.path)
 		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
 			self.log.warning("Deeplink to Pron content without session cooke! Redirecting.")
-			return HTTPFound(location=request.route_url('reader-redux-container'))
+			return HTTPFound(location=request.route_url('root'))
 
 		session = self.sessionManager[request.session["cookieid"]]
 		redir = self.checkAuth(request)
@@ -288,7 +288,8 @@ class PageResource(object):
 
 		self.log.info("Request for path: %s", request.path)
 		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
-			return HTTPFound(location=request.route_url('reader-redux-container'))
+			self.log.warning("Deeplink to Manga content without session cooke! Redirecting.")
+			return HTTPFound(location=request.route_url('root'))
 
 		session = self.sessionManager[request.session["cookieid"]]
 		redir = self.checkAuth(request)
