@@ -432,8 +432,8 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
 
 			linkLists = iter_baskets_from(items, maxbaskets=3)
-
-			with ThreadPoolExecutor(max_workers=3) as executor:
+			print("Starting threadpool!")
+			with ThreadPoolExecutor(max_workers=4) as executor:
 
 				for linkList in linkLists:
 					executor.submit(self.fetchLinkList, linkList)

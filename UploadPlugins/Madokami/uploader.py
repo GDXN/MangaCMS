@@ -1,22 +1,53 @@
 
 
 import ftplib
-from settings import mkSettings
+import settings
 import logging
 import os
 import nameTools as nt
 import Levenshtein as lv
+import time
 
 COMPLAIN_ABOUT_DUPS = False
 
-class MkUploader(object):
+import urllib.parse
+import ScrapePlugins.RetreivalDbBase
+
+class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	log = logging.getLogger("Main.Mk.Uploader")
+
+	loggerPath = "Main.Mk.Up"
+	pluginName = "Manga.Madokami Content Retreiver"
+	tableKey = "mk"
+	dbName = settings.dbName
+
+	tableName = "MangaItems"
+
 	def __init__(self):
-		self.ftp = ftplib.FTP(host=mkSettings["ftpAddr"])
+
+		super().__init__()
+
+		self.ftp = ftplib.FTP(host=settings.mkSettings["ftpAddr"])
 		self.ftp.login()
 
 		self.mainDirs     = {}
 		self.unsortedDirs = {}
+
+	def go(self):
+		pass
+
+	def moveItemsInDir(self, srcDirPath, dstDirPath):
+		# FTP is /weird/. Rename apparently really wants to use the cwd for the srcpath param, even if the
+		# path starts with "/". Therefore, we have to reset the CWD.
+		self.ftp.cwd("/")
+		for itemName, dummy_stats in self.ftp.mlsd(srcDirPath):
+			if itemName == ".." or itemName == ".":
+				continue
+			srcPath = os.path.join(srcDirPath, itemName)
+			dstPath = os.path.join(dstDirPath, itemName)
+			self.ftp.rename(srcPath, dstPath)
+			self.log.info("	Moved from '%s'", srcPath)
+			self.log.info("	        to '%s'", dstPath)
 
 
 	def aggregateDirs(self, pathBase, dir1, dir2):
@@ -46,18 +77,7 @@ class MkUploader(object):
 		src = os.path.join(pathBase, src)
 		dst = os.path.join(pathBase, dst)
 
-		# FTP is /weird/. Rename apparently really wants to use the cwd for the srcpath param, even if the
-		# path starts with "/". Therefore, we have to reset the CWD.
-		self.ftp.cwd("/")
-		for itemName, dummy_stats in self.ftp.mlsd(src):
-			if itemName == ".." or itemName == ".":
-				continue
-			srcPath = os.path.join(src, itemName)
-			dstPath = os.path.join(dst, itemName)
-			self.ftp.rename(srcPath, dstPath)
-			self.log.info("	Moved from '%s'", srcPath)
-			self.log.info("	        to '%s'", dstPath)
-
+		self.moveItemsInDir(src, dst)
 		self.log.info("Removing directory '%s'", src)
 		self.ftp.rmd(src)
 
@@ -95,13 +115,13 @@ class MkUploader(object):
 	def loadMainDirs(self):
 		ret = {}
 		try:
-			dirs = list(self.ftp.mlsd(mkSettings["mainContainerDir"]))
+			dirs = list(self.ftp.mlsd(settings.mkSettings["mainContainerDir"]))
 		except ftplib.error_perm:
-			self.log.critical("Container dir ('%s') does not exist!", mkSettings["mainContainerDir"])
+			self.log.critical("Container dir ('%s') does not exist!", settings.mkSettings["mainContainerDir"])
 		for dirPath, dummy_stats in dirs:
 			if dirPath == ".." or dirPath == ".":
 				continue
-			dirPath = os.path.join(mkSettings["mainContainerDir"], dirPath)
+			dirPath = os.path.join(settings.mkSettings["mainContainerDir"], dirPath)
 			items = self.loadRemoteDirectory(dirPath)
 			for key, value in items.items():
 				if key not in ret:
@@ -116,13 +136,13 @@ class MkUploader(object):
 
 	def checkInitDirs(self):
 		try:
-			dirs = list(self.ftp.mlsd(mkSettings["uploadContainerDir"]))
+			dirs = list(self.ftp.mlsd(settings.mkSettings["uploadContainerDir"]))
 		except ftplib.error_perm:
-			self.log.critical("Container dir for uploads ('%s') does not exist!", mkSettings["uploadContainerDir"])
+			self.log.critical("Container dir for uploads ('%s') does not exist!", settings.mkSettings["uploadContainerDir"])
 			raise
 
-		fullPath = os.path.join(mkSettings["uploadContainerDir"], mkSettings["uploadDir"])
-		if mkSettings["uploadDir"] not in [item[0] for item in dirs]:
+		fullPath = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"])
+		if settings.mkSettings["uploadDir"] not in [item[0] for item in dirs]:
 			self.log.info("Need to create base container path")
 			self.ftp.mkd(fullPath)
 		else:
@@ -131,6 +151,19 @@ class MkUploader(object):
 		self.mainDirs     = self.loadMainDirs()
 		self.unsortedDirs = self.loadRemoteDirectory(fullPath, aggregate=True)
 
+
+	def migrateTempDirContents(self):
+		for key in self.unsortedDirs.keys():
+			if key in self.mainDirs and len(self.mainDirs[key]) == 1:
+				print("Should move", key)
+				print("	Src:", self.unsortedDirs[key])
+				print("	Dst:", self.mainDirs[key][0])
+				src = self.unsortedDirs[key]
+				dst = self.mainDirs[key][0]
+
+				self.moveItemsInDir(src, dst)
+				self.log.info("Removing directory '%s'", src)
+				self.ftp.rmd(src)
 
 	def uploadFile(self, seriesName, filePath):
 		seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
@@ -145,7 +178,7 @@ class MkUploader(object):
 		else:
 
 			self.log.info("Need to create container directory for %s", seriesName)
-			newDir = os.path.join(mkSettings["uploadContainerDir"], mkSettings["uploadDir"], safeFilename)
+			newDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
 			self.ftp.mkd(newDir)
 
 		dummy_path, filename = os.path.split(filePath)
@@ -157,6 +190,22 @@ class MkUploader(object):
 
 		self.ftp.storbinary("STOR %s" % filename, open(filePath, "rb"))
 		self.log.info("File Uploaded")
+
+
+		dummy_fPath, fName = os.path.split(filePath)
+		url = urllib.parse.urljoin("http://manga.madokami.com", urllib.parse.quote(filePath.strip("/")))
+
+		self.insertIntoDb(retreivalTime = time.time(),
+							sourceUrl   = url,
+							originName  = fName,
+							dlState     = 3,
+							seriesName  = seriesName,
+							flags       = '',
+							tags="uploaded",
+							commit = True)  # Defer commiting changes to speed things up
+
+
+
 
 
 def uploadFile(seriesName, filePath):

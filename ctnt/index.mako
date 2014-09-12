@@ -89,6 +89,10 @@ import settings
 
 <b>General</b>
 <ul>
+steal code from free manga downloader?
+tags by number for h
+filesize in browser
+mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred
 	<li>ability to specify MU id in directory name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
 	<li>import all existing files somehow</li>

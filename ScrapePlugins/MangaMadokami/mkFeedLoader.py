@@ -69,6 +69,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# Skip the needs sorting directory.
 		if dirName == 'Needs sorting':
 			return [], []
+		if dirName == 'Admin Cleanup':
+			return [], []
 		if dirName == 'Raws':
 			return [], []
 		if dirName == 'Requests':

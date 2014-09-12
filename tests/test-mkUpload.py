@@ -18,9 +18,11 @@ def test():
 	con = up.MkUploader()
 	con.checkInitDirs()
 
-	for fileN in os.listdir(TESTPATH):
-		fqPath = os.path.join(TESTPATH, fileN)
-		con.uploadFile("Koalove", fqPath)
+	con.migrateTempDirContents()
+
+	# for fileN in os.listdir(TESTPATH):
+	# 	fqPath = os.path.join(TESTPATH, fileN)
+	# 	con.uploadFile("Koalove", fqPath)
 
 
 if __name__ == "__main__":

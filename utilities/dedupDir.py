@@ -173,7 +173,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 					self.log.info("Not unique %s", basePath)
 					self.log.info("Duplicated in :	")
-					for oPath in [i for i in otherPaths.keys() if otherPaths[i] > 1]:
+					for oPath in [i for i in otherPaths.keys() if otherPaths[i] >= 1]:
 						self.log.info("		%s/%s: %s", otherPaths[oPath], itemItems, oPath)
 					self.db.deleteBasePath(basePath)
 				except KeyboardInterrupt:

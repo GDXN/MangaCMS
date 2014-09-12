@@ -83,7 +83,9 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		items = self.getItemsToCheck()
 		totItems = len(items)
 		scanned = 0
-		for dbId, mId in items:
+		while items:
+			dbId, mId = items.pop(0)
+
 			self.updateItem(dbId, mId)
 			scanned += 1
 			self.log.info("Scanned %s of %s manga pages. %s%% done.", scanned, totItems, (1.0*scanned)/totItems*100)
@@ -94,6 +96,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def getItemsToCheck(self):
 
 		with self.conn.cursor() as cur:
+			cur.execute("BEGIN;")
 			ret = cur.execute('''SELECT dbId,buId
 									FROM {tableName}
 									WHERE
@@ -117,6 +120,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 				for row in rets2:
 					rets.append(row)
 
+			cur.execute("COMMIT;")
 		self.log.info("Items to check = %s", len(rets))
 		return rets
 
@@ -163,7 +167,14 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		if genres:
 			kwds["buGenre"] = " ".join(genres)
 
+		haveRows = self.getRowByValue(buName=baseName)
 
+		if haveRows and haveRows["dbId"] != dbId:
+
+			self.log.error("Multiple items for the same row?")
+			self.log.error("Insert will collide!")
+			self.deleteRowByBuId(haveRows["dbId"])
+			self.insertBareNameItems([("UNKNOWN - {buId}".format(buId=haveRows["buId"]), haveRows["buId"])])
 
 		self.insertNames(mId, altNames)
 
