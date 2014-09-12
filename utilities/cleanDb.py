@@ -356,6 +356,30 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		cur.execute("COMMIT;")
 		nt.dirNameProxy.stop()
 
+	def regenerateNameMappings(self):
+		cur = self.conn.cursor()
+		cur.execute("BEGIN ;")
+		cur.execute("SELECT dbId, name, fsSafeName FROM munamelist;")
+		rows = cur.fetchall()
+		print("Processing %s items" % len(rows))
+		cnt = 0
+		for row in rows:
+			dbId, name, fsSafeName = row
+
+			prepped = nt.prepFilenameForMatching(name)
+			if not prepped or (len(name) - len(prepped)) > 2:
+				continue
+
+			if prepped != fsSafeName:
+				print("Bad match", row, prepped)
+				cur.execute("UPDATE munamelist SET fsSafeName=%s WHERE dbId=%s", (prepped, dbId))
+			cnt += 1
+			if cnt % 1000 == 0:
+				print("ON row ", cnt)
+
+		cur.execute("COMMIT;")
+		nt.dirNameProxy.stop()
+
 	def extractTags(self, name):
 		tagre = re.compile(r'{\(Tags\)(.+?)}')
 		tagout = tagre.findall(name)
@@ -477,6 +501,7 @@ def test():
 		print("	'clear-bad-dedup' - Remove deduplicated tag from any files where the file exists.")
 		print("	'fix-bt-links' - Fix links for Batoto that point to batoto.com, rather then bato.to.")
 		print("	'cross-sync' - Sync name lookup table with seen series.")
+		print("	'update-bu-lut' - Regernate lookup strings for MangaUpdates table (needed if the `prepFilenameForMatching` call in nameTools is modified).")
 		print("	'fix-bad-series' - Consolidate series names to MangaUpdates standard naming.")
 		return
 
@@ -496,6 +521,8 @@ def test():
 		pc.patchBatotoLinks()
 	elif mainArg.lower() == "cross-sync":
 		pc.crossSyncNames()
+	elif mainArg.lower() == "update-bu-lut":
+		pc.regenerateNameMappings()
 	elif mainArg.lower() == "fix-bad-series":
 		pc.consolidateSeriesNaming()
 	elif mainArg.lower() == "import-djm":

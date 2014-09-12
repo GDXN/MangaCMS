@@ -98,7 +98,7 @@ def makeFilenameSafe(inStr):
 	return inStr
 
 def cleanUnicode(inStr):
-	return unicodedata.normalize("NFKD", inStr).encode("ascii", errors="ignore").decode()
+	return unicodedata.normalize("NFKD", inStr).encode("ascii", errors="replace").decode()
 
 
 bracketStripRe = re.compile(r"(\[[\+\~\-\!\d\w &:]*\])")
@@ -114,6 +114,9 @@ def sanitizeString(inStr, flatten=True):
 	baseName = removeBrackets(inStr)				#clean brackets
 
 	if flatten:
+		# Adding "-" processing.
+		baseName = baseName.replace("-", " ")
+
 		baseName = baseName.replace("~", "")		 # Spot fixes. We'll see if they break anything
 		baseName = baseName.replace(".", "")
 		baseName = baseName.replace(";", "")
@@ -123,6 +126,8 @@ def sanitizeString(inStr, flatten=True):
 		baseName = baseName.replace("!", "")
 		baseName = baseName.replace('"', "")
 		baseName = baseName.replace("'", "")
+
+
 
 	# baseName = baseName.replace("'", "")
 	while baseName.find("  ")+1:
@@ -529,32 +534,39 @@ class DirNameProxy(object):
 	def observersActive(self):
 		return self.notifierRunning
 
-	def startDirObservers(self):
+	def startDirObservers(self, useObservers=True):
+		# Observers do not need to be started for simple use, particularly
+		# for quick-scripts where the filesystem is not expected to change significantly.
+		# Pass useObservers=False to avoid the significant delay
+		# in allocating directory observers.
 
-		# Eventually, I want to use this to prevent crashes if the observers
-		# have not been started. Eventually.
 
 		self.notifierRunning = True
+		# Used to check that the directories have been loaded.
+		# Should probably be broken up into `notifierRunning` and `dirsLoaded` flags.
 
-		if not "wm" in self.__dict__:
-			self.wm = pyinotify.WatchManager()
+		if useObservers:
+			if not "wm" in self.__dict__:
+				self.wm = pyinotify.WatchManager()
+				self.eventH = EventHandler([item["dir"] for item in self.paths.values()])
+				self.notifier = pyinotify.ThreadedNotifier(self.wm, self.eventH)
+
+			self.log.info("Setting up filesystem observers")
+			for key in self.paths.keys():
+				if not "observer" in self.paths[key]:
+					self.log.info("Instantiating observer for path %s" % self.paths[key]["dir"])
+
+					self.paths[key]["observer"] = self.wm.add_watch(self.paths[key]["dir"], MONITORED_FS_EVENTS, rec=True)
+
+
+				else:
+					self.log.info("WARNING = DirNameProxy Instantiated multiple times!")
+
+			self.notifier.start()
+			self.log.info("Filesystem observers initialized")
+			self.log.info("Loading DirLookup")
+		else:
 			self.eventH = EventHandler([item["dir"] for item in self.paths.values()])
-			self.notifier = pyinotify.ThreadedNotifier(self.wm, self.eventH)
-
-		self.log.info("Setting up filesystem observers")
-		for key in self.paths.keys():
-			if not "observer" in self.paths[key]:
-				self.log.info("Instantiating observer for path %s" % self.paths[key]["dir"])
-
-				self.paths[key]["observer"] = self.wm.add_watch(self.paths[key]["dir"], MONITORED_FS_EVENTS, rec=True)
-
-
-			else:
-				self.log.info("WARNING = DirNameProxy Instantiated multiple times!")
-
-		self.notifier.start()
-		self.log.info("Filesystem observers initialized")
-		self.log.info("Loading DirLookup")
 
 		self.checkUpdate(force=True)
 		baseDictKeys = list(self.dirDicts.keys())
@@ -581,6 +593,11 @@ class DirNameProxy(object):
 				baseName = getCanonicalMangaUpdatesName(dirPath)
 				baseName = prepFilenameForMatching(baseName)
 
+				if baseName in targets:
+					print("ERROR")
+					print("Current dir = '%s'" % dirPath)
+					print("Other   dir = '%s'" % targets[baseName])
+					# raise ValueError("Have muliple entries for directory!")
 				targets[baseName] = fullPath
 
 			# print("Linking '%s' to '%s'" % (fullPath, baseName))

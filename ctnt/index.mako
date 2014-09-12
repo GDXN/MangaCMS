@@ -89,10 +89,10 @@ import settings
 
 <b>General</b>
 <ul>
-steal code from free manga downloader?
-tags by number for h
-filesize in browser
-mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred
+	<li>steal code from free manga downloader?</li>
+	<li>tags by number for h</li>
+	<li>filesize in browser</li>
+	<li>mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred</li>
 	<li>ability to specify MU id in directory name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
 	<li>import all existing files somehow</li>
@@ -101,7 +101,7 @@ mk uploader needs to add uploaded files to the mk downloader list so they dont g
 	<li>change db table generation to use found item paths for tables in directory view.</li>
 	<li>color code mangaupdates status in reader</li>
 	<li>highlight chapters < 10</li>
-	<li>scan times to deduper for rescanning</li>
+	<li>scan times to deduper for rescanning. Also filesizes</li>
 	<li>Load tables asynchronously from base page</li>
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>7z support in archtool</li>

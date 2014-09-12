@@ -17,10 +17,12 @@ import settings
 import ScrapePlugins.MonitorDbBase
 import sys
 
-import shutil
+import psycopg2
 
 from utilities.cleanDb import PathCleaner
 import utilities.dedupDir
+import utilities.approxFileSorter
+from utilities.askUser import query_response, query_response_bool
 
 from deduplicator.DbUtilities import DedupManager
 
@@ -37,40 +39,103 @@ class DbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		pass
 
 
-def query_response(question):
-	valid = {"f":"forward",
-			 "r":"reverse",
-			 "n":False}
-
-	prompt = " [f/r/N] "
-
-	while True:
-		sys.stdout.write(question + prompt)
-		choice = input().lower()
-		if choice == '':
-			return valid["n"]
-		elif choice in valid:
-			return valid[choice]
-		else:
-			sys.stdout.write("Invalid choice\n")
-
-def query_response_bool(question):
-	valid = {"y":True,
-			 "n":False}
-
-	prompt = " [y/N] "
-
-	while True:
-		sys.stdout.write(question + prompt)
-		choice = input().lower()
-		if choice == '':
-			return valid["n"]
-		elif choice in valid:
-			return valid[choice]
-		else:
-			sys.stdout.write("Invalid choice\n")
 
 
+# Removes duplicate manga directories from the various paths specified in
+# settings.py. Basically, if you have a duplicate of a folder name, it moves the
+# files from the directory with a larger index key to the smaller index key
+def consolidateMangaFolders(dirPath):
+
+
+	idLut = nt.MtNamesMapWrapper("fsName->buId")
+
+	pc = PathCleaner()
+	pc.openDB()
+	dm = DedupManager()
+
+
+	count = 0
+	print("Dir", dirPath)
+	items = os.listdir(dirPath)
+	items.sort()
+	for item in items:
+		item = os.path.join(dirPath, item)
+		if os.path.isdir(item):
+			fPath, dirName = os.path.split(item)
+
+			lookup = nt.dirNameProxy[dirName]
+			if lookup["fqPath"] != item:
+
+				canonName = nt.getCanonicalMangaUpdatesName(dirName)
+				print("Duplicate Directory '%s' - Canon = '%s'" % (dirName, canonName))
+
+				count += 1
+
+				mtId = idLut[nt.prepFilenameForMatching(dirName)]
+				for num in mtId:
+					print("	URL: https://www.mangaupdates.com/series.html?id=%s" % (num, ))
+
+				fPath, dir2Name = os.path.split(lookup["fqPath"])
+
+
+				mtId2 = idLut[nt.prepFilenameForMatching(dir2Name)]
+				if mtId != mtId2:
+					print("DISCORDANT ID NUMBERS!")
+					for num in mtId:
+						print("	URL: https://www.mangaupdates.com/series.html?id=%s" % (num, ))
+
+
+				if not os.path.exists(item):
+					print("'%s' has been removed. Skipping" % item)
+					continue
+				if not os.path.exists(lookup["fqPath"]):
+					print("'%s' has been removed. Skipping" % lookup["fqPath"])
+					continue
+
+				print("	1: ", item)
+				print("		({num} items)".format(num=len(os.listdir(item))))
+				print("	2: ", lookup["fqPath"])
+				print("		({num} items)".format(num=len(os.listdir(lookup["fqPath"]))))
+
+
+				doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 1 <- dir 2. 'n' do not move)?")
+				if doMove == "forward":
+					fromDir = item
+					toDir   = lookup["fqPath"]
+				elif doMove == "reverse":
+					fromDir = lookup["fqPath"]
+					toDir   = item
+				else:
+					print("Skipping")
+					continue
+
+
+				items = os.listdir(fromDir)
+				for item in items:
+					fromPath = os.path.join(fromDir, item)
+					toPath   = os.path.join(toDir, item)
+
+					loop = 2
+					while os.path.exists(toPath):
+						pathBase, ext = os.path.splitext(toPath)
+						print("Duplicate file!")
+						toPath = "{start} ({loop}){ext}".format(start=pathBase, loop=loop, ext=ext)
+					print("	Moving: ", item)
+					print("	From: ", fromPath)
+					print("	To:   ", toPath)
+					pc.moveFile(fromPath, toPath)
+
+					try:
+						dm.moveFile(fromPath, toPath)
+					except psycopg2.IntegrityError:
+						print("Error moving item in dedup database. Removing files")
+						dm.deletePath(fromPath)
+						dm.deletePath(toPath)
+
+					shutil.move(fromPath, toPath)
+				os.rmdir(fromDir)
+
+	print("total items", count)
 # Removes duplicate manga directories from the various paths specified in
 # settings.py. Basically, if you have a duplicate of a folder name, it moves the
 # files from the directory with a larger index key to the smaller index key
@@ -89,6 +154,9 @@ def deduplicateMangaFolders():
 		curDict = dirDictDict[keys[offset]]
 		curKeys = curDict.keys()
 		for curKey in curKeys:
+			if not curKey:
+				print("Invalid key!", curKey)
+				continue
 			for subKey in keys[offset+1:]:
 				if curKey in dirDictDict[subKey]:
 					print("Duplicate Directory", curKey)
@@ -108,7 +176,7 @@ def deduplicateMangaFolders():
 							pathBase, ext = os.path.splitext(toPath)
 							print("Duplicate file!")
 							toPath = "{start} ({loop}){ext}".format(start=pathBase, loop=loop, ext=ext)
-						print("	Moving: ", item)
+						print("Moving: ", item)
 						print("	From: ", fromPath)
 						print("	To:   ", toPath)
 						pc.moveFile(fromPath, toPath)
@@ -240,21 +308,20 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 	# print("exiting")
 
 
-def testDelete():
-	db = DbInterface()
-	cur = db.conn.cursor()
-	cur.execute("INSERT INTO munamelist (buId, name) VALUES ('1000', 'LOLERCOASTER');")
-	cur.execute("DELETE FROM munamelist WHERE name='LOLERCOASTER'")
-	print("Results = ", cur.rowcount)
-
 def organizeFolder(folderPath):
 	try:
-		nt.dirNameProxy.startDirObservers()
+		nt.dirNameProxy.startDirObservers(useObservers=False)
+		consolidateMangaFolders(folderPath)
 		deduplicateMangaFolders()
 		consolicateSeriesToSingleDir()
 
 	finally:
-		nt.dirNameProxy.stop()
+		try:
+			nt.dirNameProxy.stop()
+		except:
+			print("Observer not running?")
+
+
 
 def printHelp():
 	print("Valid arguments:")
@@ -289,6 +356,11 @@ def printHelp():
 	print("		Processes the output of 'dirs-clean'. {target-path} is the directory specified as ")
 	print("		{del-dir} when running 'dirs-clean'. ")
 	print("		Each item in {del-dir} is re-confirmed to be a complete duplicate, and then truly deleted. ")
+	print("	")
+	print("	python3 autoOrganize sort-dir-contents {target-path}")
+	print("		Scan the contents of {target-path}, and try to infer the series for each file in said folders.")
+	print("		If file doesn't match the series for the folder, and does match a known, valid folder, prompt")
+	print("		to move to valid folder.")
 	print("	")
 
 def parseCommandLine():
@@ -335,6 +407,13 @@ def parseCommandLine():
 			utilities.dedupDir.runRestoreDeduper(val)
 			return
 
+		elif cmd == "sort-dir-contents":
+			if not os.path.exists(val):
+				print("Passed path '%s' does not exist!" % val)
+				return
+			utilities.approxFileSorter.scanDirectories(val)
+			return
+
 
 		else:
 			print("Did not understand command!")
@@ -370,10 +449,7 @@ def parseCommandLine():
 			print("Did not understand command!")
 			print("Sys.argv = ", sys.argv)
 	elif len(sys.argv) == 2:
-		cmd = sys.argv[1].lower()
-		if cmd == "test":
-			testDelete()
-			return
+		printHelp()
 	else:
 		printHelp()
 

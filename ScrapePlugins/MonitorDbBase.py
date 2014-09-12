@@ -380,6 +380,9 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			cur.execute("BEGIN;")
 			for name in names:
 				fsSafeName = nt.prepFilenameForMatching(name)
+				if not fsSafeName:
+					fsSafeName = nt.makeFilenameSafe(name)
+
 				cur.execute("""SELECT COUNT(*) FROM %s WHERE buId=%%s AND name=%%s;""" % self.nameMapTableName, (buId, name))
 				ret = cur.fetchall()
 				if not ret:
@@ -419,8 +422,6 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			return ret
 		else:
 			return None
-
-
 
 
 	def getLastCheckedFromId(self, mId):
