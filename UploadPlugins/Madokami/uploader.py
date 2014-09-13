@@ -170,10 +170,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		safeFilename = nt.makeFilenameSafe(seriesName)
 		matchName = nt.prepFilenameForMatching(seriesName)
 
-		if matchName in self.mainDirs and len(self.mainDirs[matchName]) == 1:
-			newDir = self.mainDirs[matchName][0]
+		# if matchName in self.mainDirs and len(self.mainDirs[matchName]) == 1:
+		# 	newDir = self.mainDirs[matchName][0]
 
-		elif matchName in self.unsortedDirs:
+		# elif matchName in self.unsortedDirs:
+		if matchName in self.unsortedDirs:
 			newDir = self.unsortedDirs[matchName]
 		else:
 

@@ -31,7 +31,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 	def moveFile(self, srcPath, dstPath):
 		dlPath, fName = os.path.split(srcPath)
-		print("dlPath, fName", dlPath, fName)
+		# print("dlPath, fName", dlPath, fName)
 		cur = self.conn.cursor()
 
 		cur.execute("BEGIN;")
@@ -462,9 +462,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 				for linkList in linkLists:
 					executor.submit(self.fetchLinkList, linkList)
 
-				executor.shutdown(wait=True)
 
-			# Multithreading goes here, if I decide I want it at some point
 
 
 

@@ -18,6 +18,7 @@ import ScrapePlugins.MonitorDbBase
 import sys
 
 import psycopg2
+import Levenshtein as lv
 
 from utilities.cleanDb import PathCleaner
 import utilities.dedupDir
@@ -25,6 +26,7 @@ import utilities.approxFileSorter
 from utilities.askUser import query_response, query_response_bool
 
 from deduplicator.DbUtilities import DedupManager
+
 
 class DbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
@@ -66,6 +68,7 @@ def consolidateMangaFolders(dirPath):
 			lookup = nt.dirNameProxy[dirName]
 			if lookup["fqPath"] != item:
 
+				print("------------------------------------------------------")
 				canonName = nt.getCanonicalMangaUpdatesName(dirName)
 				print("Duplicate Directory '%s' - Canon = '%s'" % (dirName, canonName))
 
@@ -78,13 +81,6 @@ def consolidateMangaFolders(dirPath):
 				fPath, dir2Name = os.path.split(lookup["fqPath"])
 
 
-				mtId2 = idLut[nt.prepFilenameForMatching(dir2Name)]
-				if mtId != mtId2:
-					print("DISCORDANT ID NUMBERS!")
-					for num in mtId:
-						print("	URL: https://www.mangaupdates.com/series.html?id=%s" % (num, ))
-
-
 				if not os.path.exists(item):
 					print("'%s' has been removed. Skipping" % item)
 					continue
@@ -93,21 +89,52 @@ def consolidateMangaFolders(dirPath):
 					continue
 
 				print("	1: ", item)
+				print("		", nt.getCanonicalMangaUpdatesName(dirName))
 				print("		({num} items)".format(num=len(os.listdir(item))))
+
 				print("	2: ", lookup["fqPath"])
+				print("		", nt.getCanonicalMangaUpdatesName(dir2Name))
 				print("		({num} items)".format(num=len(os.listdir(lookup["fqPath"]))))
 
 
-				doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 1 <- dir 2. 'n' do not move)?")
-				if doMove == "forward":
-					fromDir = item
-					toDir   = lookup["fqPath"]
-				elif doMove == "reverse":
+
+				mtId2 = idLut[nt.prepFilenameForMatching(dir2Name)]
+				if mtId != mtId2:
+					print("DISCORDANT ID NUMBERS - {num1}, {num2}!".format(num1=mtId, num2=mtId2))
+					for num in mtId2:
+						print("	URL: https://www.mangaupdates.com/series.html?id=%s" % (num, ))
+
+					continue
+
+				# doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 1 <- dir 2. 'n' do not move)?")
+				# if doMove == "forward":
+				# 	fromDir = item
+				# 	toDir   = lookup["fqPath"]
+				# elif doMove == "reverse":
+				# 	fromDir = lookup["fqPath"]
+				# 	toDir   = item
+				# else:
+				# 	print("Skipping")
+				# 	continue
+
+				n1 = lv.distance(dirName, canonName)
+				n2 = lv.distance(dir2Name, canonName)
+
+				print("	%s - '%s'" % (n1, dirName))
+				print("	%s - '%s'" % (n2, dir2Name))
+
+
+				# I'm using less then or equal, so situations where
+				# both names are equadistant get aggregated anyways.
+				if n1 <= n2:
 					fromDir = lookup["fqPath"]
 					toDir   = item
 				else:
-					print("Skipping")
-					continue
+					fromDir = item
+					toDir   = lookup["fqPath"]
+				print("moving from: '%s' " % fromDir)
+				print("         to: '%s' " % toDir)
+
 
 
 				items = os.listdir(fromDir)
@@ -118,21 +145,24 @@ def consolidateMangaFolders(dirPath):
 					loop = 2
 					while os.path.exists(toPath):
 						pathBase, ext = os.path.splitext(toPath)
-						print("Duplicate file!")
+						print("	Duplicate file!")
 						toPath = "{start} ({loop}){ext}".format(start=pathBase, loop=loop, ext=ext)
-					print("	Moving: ", item)
-					print("	From: ", fromPath)
-					print("	To:   ", toPath)
+					print("		Moving: ", item)
+					print("		From: ", fromPath)
+					print("		To:   ", toPath)
 					pc.moveFile(fromPath, toPath)
 
 					try:
 						dm.moveFile(fromPath, toPath)
 					except psycopg2.IntegrityError:
 						print("Error moving item in dedup database. Removing files")
-						dm.deletePath(fromPath)
+
 						dm.deletePath(toPath)
 
 					shutil.move(fromPath, toPath)
+
+
+				print("Deleting directory")
 				os.rmdir(fromDir)
 
 	print("total items", count)
@@ -214,13 +244,13 @@ def consolicateSeriesToSingleDir():
 				print("baseName = ", row["buName"], ", id = ", mId, ", names = ", dups)
 				print(" Dir 1 ", luDict["fqPath"])
 				print(" Dir 2 ", dest["fqPath"])
-				doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 2 -> dir 1. 'n' do not move)?")
-				if doMove == "forward":
-					moveFiles(luDict["fqPath"], dest["fqPath"])
-					os.rmdir(luDict["fqPath"])
-				elif doMove == "reverse":
-					moveFiles(dest["fqPath"], luDict["fqPath"])
-					os.rmdir(dest["fqPath"])
+				# doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 2 -> dir 1. 'n' do not move)?")
+				# if doMove == "forward":
+				# 	moveFiles(luDict["fqPath"], dest["fqPath"])
+				# 	os.rmdir(luDict["fqPath"])
+				# elif doMove == "reverse":
+				# 	moveFiles(dest["fqPath"], luDict["fqPath"])
+				# 	os.rmdir(dest["fqPath"])
 
 
 def moveFiles(srcDir, dstDir):
@@ -276,19 +306,19 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 				if rating != 0:
 					print("	Need to add rating = ", rating)
 
-				mv = query_response_bool("	rename?")
+				# mv = query_response_bool("	rename?")
 
-				if mv:
+				# if mv:
 
-					#
-					if os.path.exists(newPath):
-						print("Target dir exists! Moving files instead")
-						moveFiles(oldPath, newPath)
-						os.rmdir(oldPath)
-						nt.dirNameProxy.changeRatingPath(newPath, rating)
-					else:
-						os.rename(oldPath, newPath)
-						nt.dirNameProxy.changeRatingPath(newPath, rating)
+				# 	#
+				# 	if os.path.exists(newPath):
+				# 		print("Target dir exists! Moving files instead")
+				# 		moveFiles(oldPath, newPath)
+				# 		os.rmdir(oldPath)
+				# 		nt.dirNameProxy.changeRatingPath(newPath, rating)
+				# 	else:
+				# 		os.rename(oldPath, newPath)
+				# 		nt.dirNameProxy.changeRatingPath(newPath, rating)
 			foundDirs += 1
 
 	print("Total directories that need renaming", foundDirs)

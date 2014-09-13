@@ -63,7 +63,7 @@ def stripTrailingNumbers(inStr):
 
 # Execution time of ~ 0.000052889607680 second (52 microseconds)
 def prepFilenameForMatching(inStr):
-	inStr = cleanUnicode(inStr)
+	# inStr = cleanUnicode(inStr)
 	inStr = makeFilenameSafe(inStr)
 	inStr = sanitizeString(inStr)
 	return inStr.lower()
@@ -92,7 +92,10 @@ def makeFilenameSafe(inStr):
 	while inStr.find("  ")+1:
 		inStr = inStr.replace("  ", " ")
 
-	inStr = inStr.rstrip(".")  # Windows file names can't end in dot. For some reason.
+
+	# inStr = inStr.rstrip(".")  # Windows file names can't end in dot. For some reason.
+	# Fukkit, just run on linux.
+
 	inStr = inStr.strip(" ")   # And can't have leading or trailing spaces
 
 	return inStr
@@ -123,7 +126,6 @@ def sanitizeString(inStr, flatten=True):
 		baseName = baseName.replace(":", "")
 		baseName = baseName.replace("-", "")
 		baseName = baseName.replace("?", "")
-		baseName = baseName.replace("!", "")
 		baseName = baseName.replace('"', "")
 		baseName = baseName.replace("'", "")
 
