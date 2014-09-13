@@ -203,6 +203,7 @@ def dequoteDict(inDict):
 		badFileError(itemPath)
 		return
 
+
 	%>
 
 	<html style='html: -ms-content-zooming: none; /* Disables zooming */'>
@@ -241,7 +242,7 @@ def dequoteDict(inDict):
 
 
 				], {
-
+					"fileName":'${itemPath.split("/")[-1]}'
 				});
 
 				book.draw();

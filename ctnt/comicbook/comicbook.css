@@ -312,7 +312,7 @@ body:not(.mobile) .navigate:hover {
 	box-shadow: none;
 }
 
-#cb-status {
+#cb-status-right {
 	z-index: 101;
 	font-size: 12px;
 	right: 0;
@@ -320,17 +320,33 @@ body:not(.mobile) .navigate:hover {
 	margin: 8px;
 	border-radius: 4px;
 }
+#cb-status-left {
+	z-index: 101;
+	font-size: 12px;
+	left: 0;
+	bottom: 0;
+	margin: 8px;
+	border-radius: 4px;
+}
 
-#cb-progress-bar {
+#cb-progress-bar
+{
+	width: 200px;
+}
+
+#cb-info-panel
+{
 	width: 200px;
 }
 
 #cb-progress-bar,
-#cb-progress-bar .progressbar-value {
+#cb-progress-bar .progressbar-value
+{
 	height: 3px;
 }
 
-#cb-progress-bar .progressbar-value {
+#cb-progress-bar .progressbar-value
+{
 	width: 0;
 	background: #86C441;
 	border-color: #3E7600;
