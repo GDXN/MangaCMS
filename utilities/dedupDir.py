@@ -76,7 +76,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					rowId = row[0]
 
 			elif not rows:
-				self.log.warn("Do not have item {fname} in manga database!".format(fname=srcPath))
+				self.log.info("File {fname} not in manga database!".format(fname=srcPath))
 				return
 			else:
 				row = rows.pop()

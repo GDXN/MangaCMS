@@ -92,16 +92,23 @@ class ArchChecker(object):
 		self.db.deleteBasePath(self.archPath)
 		os.remove(self.archPath)
 
-	def addNewArch(self):
+	def addNewArch(self, shouldPhash=True):
 
 		self.log.info("Hashing file %s" % self.archPath)
-		archIterator = UniversalArchiveReader.ArchiveReader(self.archPath)
 
+		# Do overall hash of archive:
+		with open(self.archPath, "rb") as fp:
+			dummy_fName, hexHash, dummy_pHash, dummy_dHash = self.hashModule.hashFile(self.archPath, '', fp.read(), shouldPhash=False)
+		self.db.insertItem(self.archPath, "", itemHash=hexHash)
+
+
+		# Next, hash the file contents.
+		archIterator = UniversalArchiveReader.ArchiveReader(self.archPath)
 		for fName, fp in archIterator:
 
 			fCont = fp.read()
 			try:
-				fName, hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fName, fCont)
+				fName, hexHash, pHash, dHash = self.hashModule.hashFile(self.archPath, fName, fCont, shouldPhash=shouldPhash)
 
 				baseHash, oldPHash, oldDHash = self.db.getHashes(self.archPath, fName)
 				if all((baseHash, oldPHash, oldDHash)):
@@ -119,6 +126,7 @@ class ArchChecker(object):
 
 		self.db.commit()
 		archIterator.close()
+
 		self.log.info("File hashing complete.")
 
 def go():

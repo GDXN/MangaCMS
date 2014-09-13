@@ -157,11 +157,11 @@ import settings
 <p>
 <b>Reader</b>
 <ul>
-	<li>show current image info</li>
 	<li>Add ability to rename directories to reader</li> (res, name)
 	<li>Add current page position bar when popup menus are visible.</li>
-	<li>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>
+	<li><strike>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</strike></li>
+	<li><strike>show current image info</strike></li>
 	<li><strike>Chapter read to from BU in item sidebar.</strike></li>
 </ul>
 </p>
