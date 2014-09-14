@@ -77,25 +77,40 @@ import re
 	volRe = re.compile(r"(?: volume |vol|v)(\d+)")
 	# print("Nav path = ", navPath, "dict", dictKey)
 
+	# print("Folder items")
+	# for item in dirContents:
+	# 	print("File -> '%s'" % item)
+
 	tmp = []
 	for item in dirContents:
 		chapKey = chpRe.findall(item)
 		volKey = volRe.findall(item)
-		if chapKey:
-			chapKey = float(chapKey.pop(0))
-		else:
-			chapKey = float(0)
-		if volKey and not chapKey:
 
-			volKey = float(volKey.pop(0))
-		else:
-			volKey = float(0)
+		chapKey = float(chapKey.pop(0)) if chapKey                else 0
+		volKey  = float(volKey.pop(0))  if volKey and not chapKey else 0
+
 		tmp.append((volKey, chapKey, item))
+
+	# print("Preprocessed items")
+	# for item in tmp:
+	# 	print("Item -> '%s'" % (item, ))
 
 
 	dirContents = natsorted(tmp)
 
+
+	# print("Sorted items")
+	# for item in dirContents:
+	# 	print("Item -> '%s'" % (item, ))
+
+
 	dirContents = [item[2] for item in dirContents]
+
+
+
+	# print("Sorted fileNames")
+	# for item in dirContents:
+	# 	print("Item -> '%s'" % (item, ))
 
 	%>
 

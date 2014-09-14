@@ -242,7 +242,7 @@ def dequoteDict(inDict):
 
 
 				], {
-					"fileName":'${itemPath.split("/")[-1]}'
+					"fileName":"${itemPath.split("/")[-1]}"
 				});
 
 				book.draw();

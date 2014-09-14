@@ -386,7 +386,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		tagout = set(" ".join(tagout).strip().split(" "))
 		if "none" in tagout:
 			tagout.remove("none")
-
+		return tagout
 
 	def fetchLinkList(self, itemList):
 
@@ -422,16 +422,18 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 									dlState=2,
 									downloadPath=fPath,
 									fileName=item,
-									seriesName="imported",
-									tags=' '.join(itemtags))
+									seriesName="imported")
 
 
 
 
 				dedupState = processDownload.processDownload("imported", dstPath, pron=True, deleteDups=True)
 
+
+				tags = dedupState + ' ' + ' '.join(itemtags)
+				tags = tags.strip()
 				if dedupState:
-					dbInt.addTags(sourceUrl=srcStr, tags=dedupState)
+					dbInt.addTags(sourceUrl=srcStr, tags=tags)
 
 				self.log.info( "Done")
 
@@ -460,13 +462,33 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		utilities.EmptyRetreivalDb.ScraperDbTool.tableKey = "djm"
 		self.sourcePath = sourcePath
 
-
 		items = os.listdir(sourcePath)
-
-
 		self.processTodoItems(items)
 
+	def fixDjMItems(self):
 
+		# Horrible tweak the class definition before instantiating.
+		utilities.EmptyRetreivalDb.ScraperDbTool.tableKey = "djm"
+
+		dbInt = utilities.EmptyRetreivalDb.ScraperDbTool()
+		cur = dbInt.conn.cursor()
+		print("Cursor", cur)
+		cur.execute("SELECT sourceUrl, fileName, tags FROM HentaiItems WHERE sourceSite='djm' AND retreivalTime=200;")
+		rows = cur.fetchall()
+
+		bad = 0
+		for row in rows:
+			sourceUrl, fileName, tags = row
+			itemtags = self.extractTags(fileName)
+			if itemtags == "None" or itemtags == None:
+				itemtags = ''
+
+			if tags != itemtags and itemtags:
+				bad += 1
+				print("Wat?", tags, itemtags)
+				dbInt.addTags(sourceUrl=sourceUrl, tags=" ".join(itemtags))
+
+		print("need to fix", bad, "of", len(rows))
 
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
@@ -511,6 +533,8 @@ def test():
 		pc.regenerateNameMappings()
 	elif mainArg.lower() == "fix-bad-series":
 		pc.consolidateSeriesNaming()
+	elif mainArg.lower() == "fix-djm":
+		pc.fixDjMItems()
 	elif mainArg.lower() == "import-djm":
 		if not len(sys.argv) == 3:
 			print("You must specify a path to import from!")
