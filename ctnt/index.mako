@@ -89,10 +89,10 @@ import settings
 
 <b>General</b>
 <ul>
+	<li>Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.</li>
 	<li>steal code from free manga downloader?</li>
 	<li>tags by number for h</li>
 	<li>filesize in browser</li>
-	<li>mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred</li>
 	<li>ability to specify MU id in directory name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
 	<li>import all existing files somehow</li>
@@ -104,7 +104,6 @@ import settings
 	<li>scan times to deduper for rescanning. Also filesizes</li>
 	<li>Load tables asynchronously from base page</li>
 	<li>Group the smaller scanlators into a single colour-code?</li>
-	<li>7z support in archtool</li>
 	<li>ability to browse by mu tags</li>
 	<li>add ability to sort directory by rating.</li>
 	<li>Add failed item introspection table.</li>
@@ -144,6 +143,7 @@ import settings
 <b>Add Scrapers for</b>
 <ul>
 	<li>http://lonemanga.com/</li>
+	<li>redhawkscans.com</li>
 	<li>baka-tsuki/other VN translation groups?</li>
 	<li>Tadanohito as a H source</li>
 	<li>http://www.hbrowse.com/ as a H source</li>
@@ -205,6 +205,8 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred</strike> Should be done, I think?</li>
+	<li><strike>7z support in archtool</strike> Added as a result of wanting to add it to the deduper. Shared code FTW.</li>
 	<li><strike>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</strike> Someone had put "None" in the alternative names for the "It takes a Wizard" manga. Whoops?</li>
 	<li><strike>Make user-agent randomize</strike> Should have something like ~32K possible configurations now.</li>
 	<li><strike>import archived djm stuff?</strike></li>

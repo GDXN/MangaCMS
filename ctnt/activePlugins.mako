@@ -46,7 +46,7 @@ sidebarItemList = [
 		{
 			"num"           : 2,
 			'dbKey'         : "CzLoader",
-			'name'          : "Crazy's Manga",
+			'name'          : "Crazy's",
 			'dictKey'       : "cz",
 			'cssClass'      : "czId",
 			'showOnHome'    : True,

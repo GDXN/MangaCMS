@@ -133,6 +133,7 @@ import re
 				<td><a href="/reader2/browse/${dictKey}/${urlPath}">${item}</a></td>
 			</tr>
 		% endfor
+		 <div style="clear:both"></div>
 	</table>
 
 </%def>
@@ -164,6 +165,7 @@ import re
 			reader.generateInfoSidebar(nt.dirNameProxy[navPath[-1]])
 
 		%>
+		<div style="clear:both"></div>
 	</div>
 	<%
 	reader.readerBrowseFooter()

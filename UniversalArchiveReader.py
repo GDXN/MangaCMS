@@ -6,14 +6,18 @@ import zlib
 
 import zipfile
 import rarfile
+import io
 
 import logging
 import traceback
+import py7zlib
 
 
 class ArchiveReader(object):
 
-	def __init__(self, archPath):
+	fp = None
+
+	def __init__(self, archPath, fileContents=None):
 		self.logger = logging.getLogger("Main.ArchTool")
 		self.archPath = archPath
 
@@ -27,8 +31,27 @@ class ArchiveReader(object):
 		elif self.fType == 'application/zip':
 			#print "Zip File"
 			try:
-				self.archHandle = zipfile.ZipFile(self.archPath) # self.iterZipFiles()
+				if fileContents:  # Use pre-read fileContents whenever possible.
+					self.archHandle = zipfile.ZipFile(io.BytesIO(fileContents))
+				else:
+					self.archHandle = zipfile.ZipFile(self.archPath) # self.iterZipFiles()
+
 				self.archType = "zip"
+			except zipfile.BadZipfile:
+				print("Invalid zip file!")
+				traceback.print_exc()
+				raise ValueError
+		elif self.fType == 'application/x-7z-compressed':
+			#print "Zip File"
+			try:
+				if fileContents:  # Use pre-read fileContents whenever possible.
+					self.archHandle = py7zlib.Archive7z(io.BytesIO(fileContents))
+				else:
+					self.fp = open(archPath, "rb")
+					self.archHandle = py7zlib.Archive7z(self.fp) # self.iterZipFiles()
+
+				self.archType = "zip"  # py7zlib.Archive7z mimics the interface of zipfile.ZipFile, so we'll use the zipfile.ZipFile codepaths
+
 			except zipfile.BadZipfile:
 				print("Invalid zip file!")
 				traceback.print_exc()
@@ -122,4 +145,5 @@ class ArchiveReader(object):
 
 	def close(self):
 		self.archHandle.close()
-
+		if self.fp:
+			self.fp.close()
