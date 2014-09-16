@@ -49,6 +49,8 @@ class WebGetRobust:
 	def __init__(self, test=False, creds=None, logPath="Main.Web"):
 		self.log = logging.getLogger(logPath)
 		print("Webget init! Logpath = ", logPath)
+		if test:
+			self.log.warning("WebGet in testing mode!")
 
 		# Due to general internet people douchebaggyness, I've basically said to hell with it and decided to spoof a whole assortment of browsers
 		# It should keep people from blocking this scraper *too* easily
@@ -139,8 +141,6 @@ class WebGetRobust:
 	def getpage(self, pgreq, addlHeaders = None, returnMultiple = False, callBack=None, postData=None, soup=False):
 
 		# pgreq = fixurl(pgreq)
-		# print pgreq
-		# print type(pgreq)
 
 		originalString = pgreq
 

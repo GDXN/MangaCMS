@@ -15,6 +15,7 @@ import runStatus
 import traceback
 import bs4
 import re
+import json
 import ScrapePlugins.RetreivalDbBase
 
 from concurrent.futures import ThreadPoolExecutor
@@ -80,39 +81,31 @@ class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		pageCtnt = self.wg.getpage(baseUrl)
 		soup = bs4.BeautifulSoup(pageCtnt)
 
-		selector = soup.find("select", class_="cbo_wpm_pag")
+		container = soup.find("div", id="page")
 
-		if not selector:
+		if not container:
+			raise ValueError("Unable to find javascript container div '%s'" % baseUrl)
+
+		container.find('div', id='bottombar').extract()
+
+		scriptText = container.script.get_text()
+		if not scriptText:
+			raise ValueError("No contents in script tag? '%s'" % baseUrl)
+
+		jsonRe = re.compile(r'var pages = (\[.+?\]);', re.DOTALL)
+		jsons = jsonRe.findall(scriptText)
+
+		if not jsons:
+			raise ValueError("No JSON variable in script! '%s'" % baseUrl)
+
+		arr = json.loads(jsons.pop())
+
+
+		imageUrls = [(item['filename'], item['url'], baseUrl) for item in arr]
+
+		if not imageUrls:
 			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
 
-		pageNumbers = []
-		for value in selector.find_all("option"):
-			pageNumbers.append(int(value.get_text()))
-
-
-		if not pageNumbers:
-			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
-
-
-
-		pageUrls = []
-		for pageNo in pageNumbers:
-			pageUrls.append("{baseUrl}{num}/".format(baseUrl=baseUrl, num=pageNo))
-
-		# print("PageUrls", pageUrls)
-		imageUrls = []
-
-		for pageUrl in pageUrls:
-
-
-			pageCtnt = self.wg.getpage(pageUrl)
-
-			soup = bs4.BeautifulSoup(pageCtnt)
-
-			imageContainer = soup.find("div", class_="prw")
-			url = imageContainer.img["src"]
-			# print("Urls - ", (url, pageUrl))
-			imageUrls.append((url, pageUrl))
 
 
 		return imageUrls
@@ -137,7 +130,9 @@ class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.updateDbEntry(sourceUrl, dlState=-1)
 				return
 
-			self.log.info("Downloading = '%s', '%s'", seriesName, chapterVol)
+
+
+			self.log.info("Downloading = '%s', '%s' ('%s images)", seriesName, chapterVol, len(imageUrls))
 			dlPath, newDir = self.locateOrCreateDirectoryForSeries(seriesName)
 
 			if link["flags"] == None:
@@ -159,9 +154,8 @@ class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Saving to archive = %s", fqFName)
 
 			images = []
-			for imgUrl, referrerUrl in imageUrls:
-				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
-
+			for imageName, imgUrl, referrerUrl in imageUrls:
+				dummy_imageName, imageContent = self.getImage(imgUrl, referrerUrl)
 				images.append([imageName, imageContent])
 
 				if not runStatus.run:

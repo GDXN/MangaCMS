@@ -16,7 +16,8 @@ apt-get update
 apt-get install -y python3.4 python3.4-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.3 unrar
 
 # PIL/Pillow support stuff
-sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev
+sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
+
 
 
 # link python3.4 as python3, because ubuntu thinks only python 3.2 is actually python 3
@@ -43,3 +44,6 @@ sudo apt-get install -y gfortran libopenblas-dev liblapack-dev
 
 # And numpy itself
 pip3 install numpy scipy
+
+# Readability (python 3 port)
+sudo pip3 install git+https://github.com/stalkerg/python-readability

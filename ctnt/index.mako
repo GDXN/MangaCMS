@@ -89,6 +89,9 @@ import settings
 
 <b>General</b>
 <ul>
+linebreaks in long dilenames in reader popup need work
+zoom mode indicator for smart mode in reader
+fit width only if oversize?
 	<li>Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.</li>
 	<li>steal code from free manga downloader?</li>
 	<li>tags by number for h</li>

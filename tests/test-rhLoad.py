@@ -4,13 +4,15 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 
 
-
 import runStatus
-from ScrapePlugins.MangaMadokami.Run import Runner
-from ScrapePlugins.MangaMadokami.mkFeedLoader import MkFeedLoader
-from ScrapePlugins.MangaMadokami.mkContentLoader import MkContentLoader
-import signal
+runStatus.preloadDicts = False
 
+from ScrapePlugins.RhLoader.Run import Runner
+from ScrapePlugins.RhLoader.RhFeedLoader import RhFeedLoader
+from ScrapePlugins.RhLoader.RhContentLoader import RhContentLoader
+
+import signal
+import time
 import nameTools as nt
 
 import os.path
@@ -45,11 +47,31 @@ def test():
 
 	nt.dirNameProxy.startDirObservers()
 
-	# runner = Runner()
-	# runner.go()
+	runner = Runner()
+	runner.go()
 
-	cl = MkContentLoader()
-	cl.go()
+	# cl = RhContentLoader()
+
+	# link = {'dbId': 284780,
+	# 		'fileName': None,
+	# 		'downloadPath': None,
+	# 		'lastUpdate': 0.0,
+	# 		'sourceUrl': 'http://manga.redhawkscans.com/reader/read/kimi_no_iru_machi/en/0/94/',
+	# 		'flags': None,
+	# 		'seriesName': 'Kimi no Iru Machi',
+	# 		'dlState': 0,
+	# 		'note': None,
+	# 		'originName': 'Kimi no Iru Machi - Chapter 94',
+	# 		'tags': None,
+	# 		'sourceId': None}
+
+	# cl.getLink(link)
+
+	# links = cl.retreiveTodoLinksFromDB()
+	# for link in links:
+	# 	print("Link", link)
+
+	# cl.go()
 
 
 
