@@ -84,7 +84,7 @@ def dequoteDict(inDict):
 	<html>
 		<head>
 			<title>WAT WAT IN THE READER</title>
-			${getCss()}
+			${ut.getCss()}
 			<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 
 		</head>
@@ -125,7 +125,7 @@ def dequoteDict(inDict):
 			<pre>MatchDict = ${request.matchdict}</pre>
 			<pre>URI = ${request.path}</pre>
 
-			<a href="/reader/">Back</a>
+			<a href="/reader2/browse/">Back</a>
 		</div>
 
 	</div>
@@ -163,7 +163,7 @@ def dequoteDict(inDict):
 							<p>Exists = ${os.path.exists(itemPath)}</p>
 							<p>Magic file-type = ${magic.from_file(itemPath).decode()}</p>
 						</div>
-						<a href="/reader/">Back</a>
+						<a href="/reader2/browse/">Back</a>
 					</div>
 				</div>
 			<div>

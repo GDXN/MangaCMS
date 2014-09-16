@@ -756,7 +756,7 @@ class DirNameProxy(object):
 		if not filteredKey:
 			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": filteredKey, "rating": None, "sourceDict": None}
 
-		print("ItemKey", itemKey, filteredKey)
+		# print("ItemKey", itemKey, filteredKey)
 		# print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
 		if filteredKey in self.dirDicts[dictKey]:
 			tmp = self.dirDicts[dictKey][filteredKey]
