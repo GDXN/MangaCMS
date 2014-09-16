@@ -170,6 +170,8 @@ colours = {
 			while len(seenItems) < offset:
 				if not rowsBuf:
 					rowsBuf = cur.fetchmany()
+				if not rowsBuf:
+					break
 				row = rowsBuf.pop(0)
 				rowsRead += 1
 				if row[6] not in seenItems or not distinct:
@@ -180,6 +182,8 @@ colours = {
 			while len(seenItems) < offset+limit:
 				if not rowsBuf:
 					rowsBuf = cur.fetchmany()
+				if not rowsBuf:
+					break
 				row = rowsBuf.pop(0)
 				rowsRead += 1
 				if row[6] not in seenItems or not distinct:
