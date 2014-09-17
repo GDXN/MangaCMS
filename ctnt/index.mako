@@ -89,9 +89,17 @@ import settings
 
 <b>General</b>
 <ul>
-linebreaks in long dilenames in reader popup need work
-zoom mode indicator for smart mode in reader
-fit width only if oversize?
+	<li>h tag collation system</li>
+	<li>reset download button in mangatable for specific key view</li>
+	<li>smart zoom mode in overlay</li>
+	<li>make zoom mode pop up last longer</li>
+	<li>fancy fade out when toolbars hidden?</li>
+	<li>colons in seriesnames</li>
+	<li>out of row colours</li>
+	<li>fix pururin page ordering already</li>
+	<li>linebreaks in long dilenames in reader popup need work</li>
+	<li>zoom mode indicator for smart mode in reader</li>
+	<li>fit width only if oversize?</li>
 	<li>Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.</li>
 	<li>steal code from free manga downloader?</li>
 	<li>tags by number for h</li>
@@ -145,6 +153,7 @@ fit width only if oversize?
 <p>
 <b>Add Scrapers for</b>
 <ul>
+	<li>http://egscans.com/</li>
 	<li>http://lonemanga.com/</li>
 	<li>redhawkscans.com</li>
 	<li>baka-tsuki/other VN translation groups?</li>

@@ -596,10 +596,11 @@ class DirNameProxy(object):
 				baseName = prepFilenameForMatching(baseName)
 
 				if baseName in targets:
-					print("ERROR")
+					print("ERROR - Have muliple entries for directory!")
 					print("Current dir = '%s'" % dirPath)
 					print("Other   dir = '%s'" % targets[baseName])
 					# raise ValueError("Have muliple entries for directory!")
+
 				targets[baseName] = fullPath
 
 			# print("Linking '%s' to '%s'" % (fullPath, baseName))

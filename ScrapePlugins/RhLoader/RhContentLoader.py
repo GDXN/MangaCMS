@@ -16,13 +16,13 @@ import traceback
 import bs4
 import re
 import json
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
 from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
 
-class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class RhContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
@@ -35,31 +35,6 @@ class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	retreivalThreads = 2
-
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info( "Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-
-		self.log.info( "Done")
-		if not rows:
-			return
-
-		items = []
-		for item in rows:
-
-			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
-
-
-			items.append(item)
-
-		self.log.info( "Have %s new items to retreive in RhDownloader" % len(items))
-
-
-		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
-		return items
-
 
 	def getImage(self, imageUrl, referrer):
 
@@ -79,6 +54,12 @@ class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		pageCtnt = self.wg.getpage(baseUrl)
+
+		if "This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt:
+			self.log.info("Adult check page. Confirming...")
+			pageCtnt = self.wg.getpage(baseUrl, postData={"adult": "true"})
+
+
 		soup = bs4.BeautifulSoup(pageCtnt)
 
 		container = soup.find("div", id="page")
@@ -100,8 +81,14 @@ class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		arr = json.loads(jsons.pop())
 
+		imageUrls = []
 
-		imageUrls = [(item['filename'], item['url'], baseUrl) for item in arr]
+		for item in arr:
+			scheme, netloc, path, query, fragment = urllib.parse.urlsplit(item['url'])
+			path = urllib.parse.quote(path)
+			itemUrl = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+
+			imageUrls = [(item['filename'], itemUrl, baseUrl)]
 
 		if not imageUrls:
 			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
@@ -190,52 +177,3 @@ class RhContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
 
-
-	def fetchLinkList(self, linkList):
-		try:
-			for link in linkList:
-				if link is None:
-					self.log.error("One of the items in the link-list is none! Wat?")
-					continue
-
-				ret = self.getLink(link)
-
-
-				if not runStatus.run:
-					self.log.info( "Breaking due to exit flag being set")
-					break
-
-		except:
-			self.log.critical("Exception!")
-			traceback.print_exc()
-			self.log.critical(traceback.format_exc())
-
-
-	def processTodoLinks(self, links):
-		if links:
-
-			def iter_baskets_from(items, maxbaskets=3):
-				'''generates evenly balanced baskets from indexable iterable'''
-				item_count = len(items)
-				baskets = min(item_count, maxbaskets)
-				for x_i in range(baskets):
-					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
-
-			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
-
-			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
-
-				for linkList in linkLists:
-					executor.submit(self.fetchLinkList, linkList)
-
-				executor.shutdown(wait=True)
-
-
-
-
-	def go(self):
-
-		todo = self.retreiveTodoLinksFromDB()
-		if not runStatus.run:
-			return
-		self.processTodoLinks(todo)
