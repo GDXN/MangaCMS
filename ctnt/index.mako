@@ -89,16 +89,15 @@ import settings
 
 <b>General</b>
 <ul>
-sorter 'volume'
+
 	<li>h tag collation system</li>
 	<li>reset download button in mangatable for specific key view</li>
 	<li>smart zoom mode in overlay</li>
 	<li>make zoom mode pop up last longer</li>
 	<li>fancy fade out when toolbars hidden?</li>
-	<li>colons in seriesnames</li>
 	<li>out of row colours</li>
 	<li>fix pururin page ordering already</li>
-	<li>linebreaks in long dilenames in reader popup need work</li>
+	<li>linebreaks in long filenames in reader popup need work</li>
 	<li>zoom mode indicator for smart mode in reader</li>
 	<li>fit width only if oversize?</li>
 	<li>Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.</li>
@@ -125,7 +124,6 @@ sorter 'volume'
 	<li>different tag for phash desuplication</li>
 	<li>filtered h isn't being properly skipped</li>
 	<li>IRC grabber needs a transfer stall timeout.</li>
-	<li>key not found error resulting in HTTP 500 for bad path after rating change</li>
 	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
 	<li>Migrate to new queries from tests.test-Queries</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
@@ -153,17 +151,26 @@ sorter 'volume'
 
 <p>
 <b>Add Scrapers for</b>
+
 <ul>
-	<li>http://egscans.com/</li>
-	<li>http://lonemanga.com/</li>
-	<li>redhawkscans.com</li>
-	<li>baka-tsuki/other VN translation groups?</li>
-	<li>Tadanohito as a H source</li>
-	<li>http://www.hbrowse.com/ as a H source</li>
-	<li><strike>mangajoy</strike></li>
-	<li><strike>http://www.cxcscans.com/</strike></li>
-	<li><strike>http://desperatescanners.weebly.com/</strike> (They release on batoto)</li>
-	<li><strike>imangascans</strike> (Done, as part of IRC scraper)</li>
+	<li>Manga</li>
+	<ul>
+		<li>http://egscans.com/</li>
+		<li>http://lonemanga.com/</li>
+		<li>redhawkscans.com</li>
+		<li>Tadanohito as a H source</li>
+		<li>http://www.hbrowse.com/ as a H source</li>
+		<li><strike>mangajoy</strike></li>
+		<li><strike>http://www.cxcscans.com/</strike></li>
+		<li><strike>http://desperatescanners.weebly.com/</strike> (They release on batoto)</li>
+		<li><strike>imangascans</strike> (Done, as part of IRC scraper)</li>
+	</ul>
+	<li>Light Novels
+	<ul>
+		<li>Re:Translations</li>
+		<li>Baka-Tsuki</li>
+		<li>JapTem</li>
+	</ul>
 </ul>
 </p>
 
@@ -218,6 +225,9 @@ sorter 'volume'
 
 <b>Complete:</b>
 <ul>
+	<li><strike>key not found error resulting in HTTP 500 for bad path after rating change</strike></li>
+	<li><strike>colons in seriesnames</strike> Should already be removed. Not sure what's going on</li>
+	<li><strike>sorter not properly handling items with only volume number in filename (generally prepended by "volume {xxx}").</strike></li>
 	<li><strike>mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred</strike> Should be done, I think?</li>
 	<li><strike>7z support in archtool</strike> Added as a result of wanting to add it to the deduper. Shared code FTW.</li>
 	<li><strike>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</strike> Someone had put "None" in the alternative names for the "It takes a Wizard" manga. Whoops?</li>

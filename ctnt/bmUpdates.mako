@@ -158,8 +158,6 @@ for val in reSortTop:
 	keys.insert(0, item)
 
 
-showInMT = True
-showNotInMT = True
 showOutOfDate = True
 showUpToDate = True
 
@@ -167,17 +165,17 @@ showRatingFound  = True
 showRatingMissing = True
 
 if "readStatus" in request.params:
-	if request.params["readStatus"] == ["upToDate"]:
+	if request.params["readStatus"] == "upToDate":
 		showOutOfDate = False
 
-	elif request.params["readStatus"] == ["outOfDate"]:
+	elif request.params["readStatus"] == "outOfDate":
 		showUpToDate = False
 
 if "hasRating" in request.params:
-	if request.params["hasRating"] == ["True"]:
+	if request.params["hasRating"] == "True":
 		showRatingMissing = False
 
-	elif request.params["hasRating"] == ["False"]:
+	elif request.params["hasRating"] == "False":
 		showRatingFound = False
 
 # if "updateMU" in request.params:
@@ -270,7 +268,7 @@ print("Generating table")
 					</tr>
 
 		<%
-		print("tableGen")
+		# print("tableGen")
 		tblData.sort(key=lambda x: x["seriesName"])  # Sort list by seriesName
 		%>
 		% for dataDict in tblData:
@@ -312,6 +310,7 @@ print("Generating table")
 					continue
 				if (dataDict["currentChapter"] == -1) and not showUpToDate:
 					continue
+
 
 
 			%>

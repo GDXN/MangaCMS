@@ -72,7 +72,8 @@ DNLDED = 2
 				% for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Porn"]:
 					<li><a href="/itemsPron?sourceSite=${item["dictKey"]}">${item["name"]}</a>
 				% endfor
-				<!-- <li><a href="/tagsFu">Fu Tags</a> -->
+				<hr>
+				<li><a href="/hTags">H Tags</a>
 			</ul>
 		</div>
 		<br>

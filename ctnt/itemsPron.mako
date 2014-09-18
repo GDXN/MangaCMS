@@ -113,8 +113,6 @@ if "byTag" in request.params:
 if "bySeries" in request.params:
 	seriesFilter = request.params.getall("bySeries")
 
-
-
 if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
 	sourceFilter = [item for item in tmpSource if item in ap.attr.activePorn]
@@ -147,16 +145,7 @@ else:
 	divId      = lut["cssClass"]
 	sourceName = lut["name"] + " Items"
 
-
-
-
 %>
-
-
-
-
-
-
 
 <body>
 

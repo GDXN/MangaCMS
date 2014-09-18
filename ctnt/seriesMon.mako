@@ -130,7 +130,8 @@ if "sortBy" in request.params:
 						<li><a href='seriesMon?sortBy=buName'>BU Name</a></li>
 					</ul>
 				</div>
-					${tableGenerators.genMangaSeriesTable(ignoreList=ignoreList, sortKey=sortKey)}
+					${None}
+					tableGenerators.genMangaSeriesTable(ignoreList=ignoreList, sortKey=sortKey)
 				</div>
 			</div>
 		</div>

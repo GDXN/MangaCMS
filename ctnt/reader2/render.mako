@@ -73,7 +73,7 @@ import re
 	dirPath = os.path.join(settings.mangaFolders[dictKey]["dir"], *navPath)
 	dirContents = os.listdir(dirPath)
 
-	chpRe = re.compile(r"(?: chapter |ch|c| )(\d+)", re.IGNORECASE)
+	chpRe = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of) ?(?:chapter |ch|c| )(\d+)", re.IGNORECASE)
 	volRe = re.compile(r"(?: volume |vol|v)(\d+)", re.IGNORECASE)
 	# print("Nav path = ", navPath, "dict", dictKey)
 
@@ -86,8 +86,8 @@ import re
 		chapKey = chpRe.findall(item)
 		volKey = volRe.findall(item)
 
-		chapKey = float(chapKey.pop(0)) if chapKey                else 0
-		volKey  = float(volKey.pop(0))  if volKey and not chapKey else 0
+		chapKey = float(chapKey.pop(0)) if chapKey  else 0
+		volKey  = float(volKey.pop(0))  if volKey    else 0
 
 		tmp.append((volKey, chapKey, item))
 
