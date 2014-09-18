@@ -89,6 +89,7 @@ import settings
 
 <b>General</b>
 <ul>
+sorter 'volume'
 	<li>h tag collation system</li>
 	<li>reset download button in mangatable for specific key view</li>
 	<li>smart zoom mode in overlay</li>
