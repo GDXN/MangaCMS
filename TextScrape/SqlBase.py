@@ -56,6 +56,7 @@ class TextScraper(object):
 		pass
 
 	def __init__(self):
+		self.log.info("Tsuki startup")
 		engine_conf = saurl.URL(drivername='postgresql',
 								username = settings.DATABASE_USER,
 								password = settings.DATABASE_PASS,
@@ -63,12 +64,10 @@ class TextScraper(object):
 								# host = settings.DATABASE_IP,
 								)
 
-		self.engine = sa.create_engine(engine_conf, echo=True)
+		self.engine = sa.create_engine(engine_conf)
 		self.sessionFactory = saorm.sessionmaker(bind=self.engine)
 		self.session = self.sessionFactory()
 
-
-		self.log = logging.getLogger(self.loggerPath)
 
 		self.loggers = {}
 		self.dbSessions = {}
@@ -85,7 +84,7 @@ class TextScraper(object):
 		threadName = threading.current_thread().name
 		if name == "log" and "Thread-" in threadName:
 			if threadName not in self.loggers:
-				self.loggers[threadName] = logging.getLogger("Main.%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
+				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
 				self.lastLoggerIndex += 1
 			return self.loggers[threadName]
 

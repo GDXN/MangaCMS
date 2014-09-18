@@ -424,13 +424,14 @@ class WebGetRobust:
 		self.cj.set_cookie(cookie)
 
 	def initLogging(self):
-			mainLogger = logging.getLogger("Main")			# Main logger
-			mainLogger.setLevel(logging.DEBUG)
+		print("WARNING - Webget logging re-initialized?")
+		mainLogger = logging.getLogger("Main")			# Main logger
+		mainLogger.setLevel(logging.DEBUG)
 
-			ch = logging.StreamHandler(sys.stdout)
-			formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-			ch.setFormatter(formatter)
-			mainLogger.addHandler(ch)
+		ch = logging.StreamHandler(sys.stdout)
+		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+		ch.setFormatter(formatter)
+		mainLogger.addHandler(ch)
 
 	def saveCookies(self, halting=False):
 
