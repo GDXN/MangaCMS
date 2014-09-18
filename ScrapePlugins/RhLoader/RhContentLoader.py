@@ -67,7 +67,7 @@ class RhContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		if not container:
 			raise ValueError("Unable to find javascript container div '%s'" % baseUrl)
 
-		container.find('div', id='bottombar').extract()
+		container.find('div', id='bottombar').decompose()
 
 		scriptText = container.script.get_text()
 		if not scriptText:

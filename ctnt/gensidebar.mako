@@ -59,7 +59,7 @@ DNLDED = 2
 				<li><a href="/bmUpdates">Baka Manga</a>
 				<li><a href="/dirListing">Dir Listing</a>
 				<hr>
-				<li><a href="/seriesMon">Series Monitor</a>
+				<li><a href="/books/">Books!</a>
 				<hr>
 				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>
 				% for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Manga"]:

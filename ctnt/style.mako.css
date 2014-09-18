@@ -79,6 +79,13 @@ div.maindiv
 	display: inline-block;
 	overflow:hidden;
 }
+div.bookdiv
+{
+	margin: 0 auto;
+	width: 482px;
+	display: inline-block;
+	overflow:hidden;
+}
 
 div.subdiv
 {

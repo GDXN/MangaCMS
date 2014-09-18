@@ -89,7 +89,7 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 		# Permute page tree, extract (and therefore remove) all nav tags.
 		for tag in soup.find_all(role="navigation"):
-			tag.extract()
+			tag.decompose()
 
 		return doc.title(), soup.prettify()
 
