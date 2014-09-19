@@ -6,24 +6,33 @@ Comic/Manga Download tool and reader.
 Plugin scrapers for:
 
 
- - Starkana.com
- - Batoto.com
- - Doujin-Moe
- - download.japanzai.com
- - MangaCow
- - MangaJoy
- - CXC Scans
- - Manga.Madokami
- - Numerous IRC bots.
- - Fakku
- - Pururin
- - Exhen.Madokami
- - MangaUpdates (metadata only).
- - ~~Crazytje.be~~ (Defunct)
- - ~~MangaBaby.com~~ (Defunct?)
- - ~~MangaTraders~~ (Defunct)
- - ~~Fufufuu.net~~ (Defunct)
- - Realitylapse.com (Planned, possibly)
+ - Manga Sites:
+	 - Starkana.com
+	 - Batoto.com
+	 - Doujin-Moe
+	 - download.japanzai.com
+	 - MangaCow
+	 - MangaJoy
+	 - CXC Scans
+	 - RedHawk Scans
+	 - Manga.Madokami
+	 - Numerous IRC bots.
+ - Hentai Sites:
+	 - Fakku
+	 - Pururin
+	 - Exhen.Madokami
+ - Light Novels:
+	 - Baka-Tsuki 
+	 - JapTem (Planned)
+	 - Re:Translations (Planned)
+ - Metadata:
+	 - MangaUpdates (metadata only).
+ - Defunct:
+	 - ~~Crazytje.be~~ (Defunct)
+	 - ~~MangaBaby.com~~ (Defunct?)
+	 - ~~MangaTraders~~ (Defunct)
+	 - ~~Fufufuu.net~~ (Defunct)
+	 - Realitylapse.com (Planned, possibly)
 
 I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives. My only absolute criteria for inclusion at this time is that the site not resize or watermark files, since that prevents the deduplication system from working properly (note: I'm more relaxed about this for the H sites, primarily out of necessity).
 
@@ -128,9 +137,9 @@ Another alternative is to implement the indexing mechanisms directly in postgres
 ---
 
 
-Because I'm sure no one wants to just read about what MangaCMS does, here are some screenshots of the web-interface:
-![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)  
-![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)  
+Because I'm sure no one wants to just read about what MangaCMS does, here are some screenshots of the web-interface:  
+![MangaUpdates link tool](http://fake-name.github.io/MangaCMS/img/Stuff%201.png)    
+![Directory Browser](http://fake-name.github.io/MangaCMS/img/Stuff%202.png)    
 ![Reader](http://fake-name.github.io/MangaCMS/img/Stuff%203.png)  
 
 
@@ -147,10 +156,13 @@ A: It requires at minimum a decent familiarity with the Linux command line. Pyth
    I generally idle in #madokami on irchighway, so you can ask me questions if you need there, though I'm not actually present behind my client a lot of the time. I'll help with whatever, though I can't exactly give a complete lesson on "how to linux" or so forth.
 
 Q: You're scraping my site! Don't do that!  
-A: Your *web-site*. That you posted **publically**. You don't really understand how this whole "internet" thing works, do you?  
+A: Your *web-site*. That you posted **publically**. You don't really understand how this whole "internet" thing works, do you?
+  TL;DR No.  
 
 ---
 
 This was written as much for programming excercise as for practical use, so there may be some NIH-y things going on. For example, I wrote my own database abstraction layer (see MonitorDbBase.py, RetreivalDbBase.py), primarily as an opportunity to teach myself SQL. Some of the interitence structures are for a similar purpose (I wanted to play with abstract classes).
+
+The light-novel scraper uses SqlAlchemy, so it's not all NIH.
 
 As with about everything I do, the first run through teaches me all the things I /wish/ I had done differently.

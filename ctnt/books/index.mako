@@ -53,6 +53,7 @@ from babel.dates import format_timedelta
 import os.path
 import settings
 
+import urllib.parse
 %>
 <body>
 
@@ -66,7 +67,7 @@ import settings
 			<%
 			cursor = sqlCon.cursor()
 
-			cursor.execute("SELECT rowid, title FROM tsuki_pages ORDER BY title;")
+			cursor.execute("SELECT url, rowid, title FROM book_items ORDER BY title;")
 			ret = cursor.fetchall()
 			%>
 
@@ -76,11 +77,11 @@ import settings
 						<th class="uncoloured" style="width: 500px; min-width: 200px;">Title</th>
 				</tr>
 
-				% for dbid, title in ret:
+				% for url, dbId, title in ret:
 
 					<tr>
-						<td>${dbid}</td>
-						<td><a href='/books/render?pageid=${dbid}'>${title.replace(" - Baka-Tsuki", "")}</a></td>
+						<td>${dbId}</td>
+						<td><a href='/books/render?url=${urllib.parse.quote(url)}'>${title}</a></td>
 					</tr>
 				% endfor
 			</table>

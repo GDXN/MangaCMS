@@ -7,6 +7,7 @@ import logging
 
 import TextScrape.SqlBase
 
+import traceback
 import readability.readability
 import webFunctions
 import bs4
@@ -22,8 +23,16 @@ from concurrent.futures import ThreadPoolExecutor
 # If we have TextScrape.SqlBase.PageRow inherit from TextScrape.SqlBase.Base, the
 # Base funkyness captures the parent-class tablename and bind to it or something,
 # so when it's overridden, the linkage fails.
-class TsukiRow(TextScrape.SqlBase.PageRow, TextScrape.SqlBase.Base):
-	__tablename__ = 'tsuki_pages'
+class TsukiRow(TextScrape.SqlBase.Base):
+	_source_key = 'tsuki'
+
+
+	# Set the default value of `src`. Somehow, despite the fact that `self.src` is being set
+	# to a string, it still works.
+	def __init__(self, *args, **kwds):
+		self.src = self._source_key
+		print("Setting self.src", self.src)
+		super().__init__(*args, **kwds)
 
 class TsukiScrape(TextScrape.SqlBase.TextScraper):
 	rowClass = TsukiRow
@@ -79,10 +88,14 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 				"title=Special:Book"]
 
 
+	def convertToReaderUrl(self, inUrl):
+		url = urllib.parse.urljoin(self.baseUrl, inUrl)
+		url = '/books/render?url=%s' % urllib.parse.quote(url)
+		return url
 
-	def cleanBtPage(self, inPage, srcUrl=None):
+	def cleanBtPage(self, inPage):
 
-		doc = readability.readability.Document(inPage, base_url=srcUrl, negative_keywords=['mw-normal-catlinks', "printfooter", "mw-panel", 'portal'])
+		doc = readability.readability.Document(inPage, negative_keywords=['mw-normal-catlinks', "printfooter", "mw-panel", 'portal'])
 		doc.parse()
 		content = doc.content()
 		soup = bs4.BeautifulSoup(content)
@@ -90,8 +103,35 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 		# Permute page tree, extract (and therefore remove) all nav tags.
 		for tag in soup.find_all(role="navigation"):
 			tag.decompose()
+		contents = ''
 
-		return doc.title(), soup.prettify()
+
+		for aTag in soup.find_all("a"):
+			try:
+				aTag["href"] = self.convertToReaderUrl(aTag["href"])
+			except KeyError:
+				continue
+
+		for imtag in soup.find_all("img"):
+			try:
+				imtag["src"] = self.convertToReaderUrl(imtag["src"])
+			except KeyError:
+				continue
+
+
+
+
+		for item in soup.body.contents:
+			if type(item) is bs4.Tag:
+				contents += item.prettify()
+			elif type(item) is bs4.NavigableString:
+				contents += item
+			else:
+				print("Wat", item)
+
+		title = doc.title()
+		title = title.replace(" - Baka-Tsuki", "")
+		return title, contents
 
 	def extractLinks(self, pageCtnt):
 		soup = bs4.BeautifulSoup(pageCtnt)
@@ -129,7 +169,8 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 		haveRow = self.session.query(TsukiRow).filter_by(url=pgUrl).first()
 		if not haveRow:
-			newRow = TsukiRow(url=pgUrl, title=pgTitle, series=None, contents=pgBody)
+			print(TsukiRow)
+			newRow = TsukiRow(url=pgUrl, title=pgTitle, series=None, contents=pgBody, istext=False)
 			self.session.add(newRow)
 			self.session.commit()
 
@@ -145,28 +186,31 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 	def queueLoop(self, inQueue, outQueue):
 
-		# Timeouts is used to track when queues are empty
-		# Since I have multiple threads, and there are known
-		# situations where we can be certain that there will be
-		# only one request (such as at startup), we need to
-		# have a mechanism for retrying fetches from a queue a few
-		# times before concluding there is nothing left to do
-		timeouts = 0
-		while runStatus.run:
-			try:
-				url = inQueue.get_nowait()
-				ret = self.fetchPage(url)
-				for url in ret:
-					outQueue.put(url)
-				timeouts = 0
-			except queue.Empty:
-				timeouts += 1
-				time.sleep(1)
+		try:
+			# Timeouts is used to track when queues are empty
+			# Since I have multiple threads, and there are known
+			# situations where we can be certain that there will be
+			# only one request (such as at startup), we need to
+			# have a mechanism for retrying fetches from a queue a few
+			# times before concluding there is nothing left to do
+			timeouts = 0
+			while runStatus.run:
+				try:
+					url = inQueue.get_nowait()
+					ret = self.fetchPage(url)
+					for url in ret:
+						outQueue.put(url)
+					timeouts = 0
+				except queue.Empty:
+					timeouts += 1
+					time.sleep(1)
 
-			if timeouts > 5:
-				break
+				if timeouts > 5:
+					break
 
-		self.log.info("Fetch thread exiting!")
+			self.log.info("Fetch thread exiting!")
+		except Exception:
+			traceback.print_exc()
 
 	def crawl(self):
 

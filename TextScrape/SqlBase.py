@@ -1,7 +1,4 @@
 
-# This seems to be a funky global state tracking mechanism in SQLAlchemy
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
 
 
 
@@ -18,26 +15,37 @@ import os
 import traceback
 
 
-class PageRow(object):
+class ItemRow(object):
+
+
+	__tablename__ = 'book_items'
 
 	@abc.abstractmethod
-	def __tablename__(self):
+	def _source_key(self):
 		pass
 
-	rowid    = sa.Column(sa.Integer, sa.Sequence('ts_page_id_seq'), primary_key=True)
-	url      = sa.Column(sa.String, nullable=False, unique=True)
+	rowid    = sa.Column(sa.Integer, sa.Sequence('book_page_id_seq'), primary_key=True)
+	src      = sa.Column(sa.String, nullable=False, index=True, default=_source_key)
+	url      = sa.Column(sa.String, nullable=False, unique=True, index=True)
 	title    = sa.Column(sa.String)
 	series   = sa.Column(sa.String)
 	contents = sa.Column(sa.String)
+	istext   = sa.Column(sa.Boolean, index=True, nullable=False)
+	mimetype = sa.Column(sa.String)
+	fsPath   = sa.Column(sa.String)
 
-	# This requires inheriting from Base, which has to be done in the subclasses
+
 	@classmethod
 	def getColums(self):
 		# What a fucking mess.
 		return list(self.__table__.columns._data.keys())
 
-	def __repr__(self):
-		return "<title(rowId='%s', url='%s', name='%s', contents='%s', series='%s')>" % (self.rowid, self.url, self.title, self.contents, self.series)
+
+# This seems to be a funky global state tracking mechanism in SQLAlchemy
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base(cls=ItemRow)
+
+
 
 class TextScraper(object):
 
@@ -76,7 +84,10 @@ class TextScraper(object):
 		self.log.info("Loading %s Runner BaseClass", self.pluginName)
 
 		self.columns = self.rowClass.getColums()
-		print("Columns", self.columns)
+
+		Base.metadata.create_all(self.engine)
+
+
 
 	# More hackiness to make sessions intrinsically thread-safe.
 	def __getattribute__(self, name):

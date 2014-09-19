@@ -89,7 +89,9 @@ import settings
 
 <b>General</b>
 <ul>
-
+dlstate 3 not rendering right
+add half star rating options
+have vol and chap in separate columns
 	<li>h tag collation system</li>
 	<li>reset download button in mangatable for specific key view</li>
 	<li>smart zoom mode in overlay</li>

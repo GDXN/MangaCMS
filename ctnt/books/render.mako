@@ -5,22 +5,19 @@
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 
 <%!
-import bs4
+import urllib.parse
 %>
 
 
 <%def name="badId()">
-	Bad PageID!<br>
-	Nope!
+	Bad Page Reference!<br>
+	Page either not archived, or invalid.
 
 </%def>
 
 
 
 <%def name="renderPage(title, contents)">
-	<%
-	contents = contents.replace("<html>", "").replace("</html>", "").replace("<body>", "").replace("</body>", "")
-	%>
 	<html>
 		<head>
 			<title>${title}</title>
@@ -41,10 +38,10 @@ import bs4
 
 </%def>
 
-<%def name="renderId(pageId)">
+<%def name="renderId(itemUrl)">
 	<%
 	cur = sqlCon.cursor()
-	cur.execute("SELECT title, series, contents FROM tsuki_pages WHERE rowid=%s;", (pageId, ))
+	cur.execute("SELECT title, series, contents FROM book_items WHERE url=%s;", (itemUrl, ))
 	page = cur.fetchall()
 	if len(page) != 1:
 		badId()
@@ -63,9 +60,9 @@ import bs4
 print("Matchdict", request.matchdict)
 print("Matchdict", request.params)
 
-if "pageid" in request.params:
-
-	renderId(request.params["pageid"])
+if "url" in request.params:
+	url = urllib.parse.unquote(request.params["url"])
+	renderId(url)
 else:
 	badId()
 %>
