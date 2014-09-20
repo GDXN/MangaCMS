@@ -89,9 +89,7 @@ import settings
 
 <b>General</b>
 <ul>
-dlstate 3 not rendering right
-add half star rating options
-have vol and chap in separate columns
+	<li>add half star rating options</li>
 	<li>h tag collation system</li>
 	<li>reset download button in mangatable for specific key view</li>
 	<li>smart zoom mode in overlay</li>
@@ -227,6 +225,8 @@ have vol and chap in separate columns
 
 <b>Complete:</b>
 <ul>
+	<li><strike>dlstate 3 not rendering right</strike></li>
+	<li><strike>have vol and chap in separate columns</strike></li>
 	<li><strike>key not found error resulting in HTTP 500 for bad path after rating change</strike></li>
 	<li><strike>colons in seriesnames</strike> Should already be removed. Not sure what's going on</li>
 	<li><strike>sorter not properly handling items with only volume number in filename (generally prepended by "volume {xxx}").</strike></li>

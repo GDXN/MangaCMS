@@ -104,7 +104,7 @@ import re
 	# 	print("Item -> '%s'" % (item, ))
 
 
-	dirContents = [item[2] for item in dirContents]
+	# dirContents = [item[2] for item in dirContents]
 
 
 
@@ -116,10 +116,12 @@ import re
 
 	<table border="1px" class="mangaFileTable">
 		<tr>
+			<th class="uncoloured" style='width:30'>Vol</th>
+			<th class="uncoloured" style='width:30'>Chp</th>
 			<th class="uncoloured">${dirPath}</th>
 		</tr>
 
-		% for item in dirContents:
+		% for vol, chap, item in dirContents:
 			<tr>
 
 				<%
@@ -130,6 +132,8 @@ import re
 				urlPath = [urllib.parse.quote(bytes(item, 'utf-8')) for item in urlPath]
 				urlPath = "/".join(urlPath)
 				%>
+				<td>${str(vol).rstrip('0').rstrip('.')}</td>
+				<td>${str(chap).rstrip('0').rstrip('.')}</td>
 				<td><a href="/reader2/browse/${dictKey}/${urlPath}">${item}</a></td>
 			</tr>
 		% endfor

@@ -104,6 +104,7 @@ colours = {
 	"no match"        : "FF9999",
 	"moved"           : "FFFF99",
 	"Done"            : "99FF99",
+	"Uploaded"        : "90e0FF",
 	"working"         : "9999FF",
 	"queued"          : "FF77FF",
 	"new dir"         : "FFE4B2",
@@ -281,6 +282,8 @@ colours = {
 
 		if dlState == 2:
 			statusColour = colours["Done"]
+		elif dlState == 3:
+			statusColour = colours["Uploaded"]
 		elif dlState == 1:
 			statusColour = colours["working"]
 		elif dlState == 0:
@@ -305,6 +308,8 @@ colours = {
 		else:
 			if dlState == 0:
 				locationColour = colours["queued"]
+			elif dlState == 3:
+				locationColour = colours["valid cat"]
 			elif dlState == 1:
 				locationColour = colours["working"]
 			else:
@@ -329,7 +334,7 @@ colours = {
 		%>
 		<tr class="${sourceSite}_row">
 			<td>${ut.timeAgo(retreivalTime)}</td>
-			<td bgcolor=${statusColour} class="showTT" title="${toolTip}"></td>
+			<td bgcolor=${statusColour} class="showTT" title="${toolTip}">${ '<center>↑</center>' if dlState==3 else ''}</td>
 			<td bgcolor=${locationColour} class="showTT" title="${toolTip}"></td>
 			<td>${ut.createReaderLink(seriesName.title(), itemInfo)}</td>
 			<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
