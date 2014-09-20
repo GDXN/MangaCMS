@@ -20,6 +20,7 @@ fkDir            = r"/SOMETHING/H/Fakku"
 # Paths for database and web content
 dbName           = '/SOMETHING/MangaCMS/links.db'
 webCtntPath      = '/SOMETHING/MangaCMS/ctnt'
+bookCachePath    = '/SOMETHING/MangaCMS/BookCache'
 
 
 # Path to the directory of images that get auto-removed from archives on download.

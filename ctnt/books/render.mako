@@ -1,5 +1,5 @@
 ## -*- coding: utf-8 -*-
-<!DOCTYPE html>
+
 
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
@@ -18,6 +18,7 @@ import urllib.parse
 
 
 <%def name="renderPage(title, contents)">
+	<!DOCTYPE html>
 	<html>
 		<head>
 			<title>${title}</title>
@@ -41,12 +42,13 @@ import urllib.parse
 <%def name="renderId(itemUrl)">
 	<%
 	cur = sqlCon.cursor()
-	cur.execute("SELECT title, series, contents FROM book_items WHERE url=%s;", (itemUrl, ))
+	cur.execute("SELECT title, series, mimetype, fsPath, contents FROM book_items WHERE url=%s;", (itemUrl, ))
 	page = cur.fetchall()
 	if len(page) != 1:
+		print("Bad URL", itemUrl)
 		badId()
 	else:
-		title, series, contents = page.pop()
+		title, series, mimetype, fsPath, contents = page.pop()
 		renderPage(title, contents)
 	%>
 
@@ -57,8 +59,8 @@ import urllib.parse
 
 <%
 # print("Rendering")
-print("Matchdict", request.matchdict)
-print("Matchdict", request.params)
+# print("Matchdict", request.matchdict)
+# print("Matchdict", request.params)
 
 if "url" in request.params:
 	url = urllib.parse.unquote(request.params["url"])

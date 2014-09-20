@@ -88,6 +88,28 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 				"title=Special:Book"]
 
 
+
+
+	def getItem(self, itemUrl):
+
+		content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
+		if not content or not handle:
+			raise ValueError("Failed to retreive image from page '%s'!" % itemUrl)
+
+		fileN = urllib.parse.unquote(urllib.parse.urlparse(handle.geturl())[2].split("/")[-1])
+		fileN = bs4.UnicodeDammit(fileN).unicode_markup
+		mType = handle.info()['Content-Type']
+
+		# If there is an encoding in the content-type (or any other info), strip it out.
+		# We don't care about the encoding, since WebFunctions will already have handled that,
+		# and returned a decoded unicode object.
+		if ";" in mType:
+			mType = mType.split(";")[0].strip()
+
+		self.log.info("Retreived file of type '%s', name of '%s' with a size of %0.3f K", mType, fileN, len(content)/1000.0)
+		return content, fileN, mType
+
+
 	def convertToReaderUrl(self, inUrl):
 		url = urllib.parse.urljoin(self.baseUrl, inUrl)
 		url = '/books/render?url=%s' % urllib.parse.quote(url)
@@ -158,31 +180,88 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 			if hadbad:
 				continue
 
-			if not url in retLinks:
-				retLinks.add(url)
+			# the fact that retLinks is a set takes care of preventing duplicates.
+			retLinks.add(url)
+
+
+
+		for imtag in soup.find_all("img"):
+						# Skip empty anchor tags
+			try:
+				turl = imtag["src"]
+			except KeyError:
+				continue
+
+			# Skip tags with `img src=""`.
+			# No idea why they're there, but they are
+			if not url:
+				continue
+
+			url = urllib.parse.urljoin(self.baseUrl, turl)
+
+			# Filter by domain
+			if not self.baseUrl in url:
+				continue
+
+			# and by blocked words
+			hadbad = False
+			for badword in self.badwords:
+				if badword in url:
+					hadbad = True
+			if hadbad:
+				continue
+
+
+			retLinks.add(url)
 
 		return retLinks
 
 
-	def addPage(self, pgUrl, pgTitle, pgBody):
+
+
+	def addPage(self, pgUrl, pgTitle, pgBody, mimeType):
 		# TODO: Update logic!
 
-		haveRow = self.session.query(TsukiRow).filter_by(url=pgUrl).first()
+		haveRow = self.session.query(self.rowClass).filter_by(url=pgUrl).first()
 		if not haveRow:
-			print(TsukiRow)
-			newRow = TsukiRow(url=pgUrl, title=pgTitle, series=None, contents=pgBody, istext=False)
+			print(self.rowClass)
+			newRow = self.rowClass(url=pgUrl, title=pgTitle, series=None, contents=pgBody, istext=True, mimetype=mimeType)
 			self.session.add(newRow)
-			self.session.commit()
+		self.session.commit()
 
-	def fetchPage(self, url):
-		self.log.info("Fetching page '%s'", url)
-		gotPage = self.wg.getpage(url)
 
-		pgTitle, pgBody = self.cleanBtPage(gotPage)
-		links = self.extractLinks(gotPage)
-		self.addPage(url, pgTitle, pgBody)
+	def processPage(self, url, content, mimeType):
+
+
+		pgTitle, pgBody = self.cleanBtPage(content)
+		links = self.extractLinks(content)
+		self.addPage(url, pgTitle, pgBody, mimeType)
 
 		return links
+
+
+	# Retreive remote content at `url`, call the appropriate handler for the
+	# transferred content (e.g. is it an image/html page/binary file)
+	def retreiveItemFromUrl(self, url):
+		self.log.info("Fetching page '%s'", url)
+		gotPage = self.wg.getpage(url)
+		content, fName, mimeType = self.getItem(url)
+
+		links = []
+
+		if mimeType == 'text/html':
+			self.log.info("Processing '%s' as HTML.", url)
+			links = self.processPage(url, content, mimeType)
+		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
+			self.log.info("Processing '%s' as an image file.", url)
+			self.saveFile(url, mimeType, fName, content)
+		else:
+			self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
+		self.log.info("%s new links" % len(links))
+
+		return links
+
+
 
 	def queueLoop(self, inQueue, outQueue):
 
@@ -197,7 +276,7 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 			while runStatus.run:
 				try:
 					url = inQueue.get_nowait()
-					ret = self.fetchPage(url)
+					ret = self.retreiveItemFromUrl(url)
 					for url in ret:
 						outQueue.put(url)
 					timeouts = 0
@@ -220,7 +299,7 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 		toScanQueue = queue.Queue()
 		linkReturnQueue = queue.Queue()
 
-		toScanQueue.put(self.baseUrl)
+		toScanQueue.put('http://www.baka-tsuki.org/project/index.php?title=Main_Page')
 
 
 		with ThreadPoolExecutor(max_workers=self.threads) as executor:

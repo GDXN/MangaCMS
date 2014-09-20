@@ -2,6 +2,7 @@
 
 import traceback
 from pyramid.response import Response
+import os.path
 import DbManagement.MonitorTool
 import nameTools as nt
 import logging
@@ -102,6 +103,7 @@ class ApiInterface(object):
 		return Response(body=json.dumps({"Status": "Success", "Message": "Directory Renamed"}))
 
 
+
 	def handleApiCall(self, request):
 
 		print("API Call!", request.params)
@@ -117,5 +119,6 @@ class ApiInterface(object):
 		elif "update-series" in request.params:
 			print("Update series!")
 			return self.updateSeries(request)
+
 		else:
 			return Response(body="wat?")

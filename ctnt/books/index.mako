@@ -67,7 +67,7 @@ import urllib.parse
 			<%
 			cursor = sqlCon.cursor()
 
-			cursor.execute("SELECT url, rowid, title FROM book_items ORDER BY title;")
+			cursor.execute("SELECT url, rowid, title FROM book_items WHERE mimetype = %s ORDER BY title;", ('text/html', ))
 			ret = cursor.fetchall()
 			%>
 

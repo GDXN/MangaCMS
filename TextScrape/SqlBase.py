@@ -1,6 +1,9 @@
 
 
 
+import runStatus
+runStatus.preloadDicts = False
+
 
 import sqlalchemy as sa
 import sqlalchemy.engine.url as saurl
@@ -13,6 +16,8 @@ import logging
 import threading
 import os
 import traceback
+
+import nameTools
 
 
 class ItemRow(object):
@@ -32,7 +37,7 @@ class ItemRow(object):
 	contents = sa.Column(sa.String)
 	istext   = sa.Column(sa.Boolean, index=True, nullable=False)
 	mimetype = sa.Column(sa.String)
-	fsPath   = sa.Column(sa.String)
+	fspath   = sa.Column(sa.String)
 
 
 	@classmethod
@@ -74,7 +79,7 @@ class TextScraper(object):
 
 		self.engine = sa.create_engine(engine_conf)
 		self.sessionFactory = saorm.sessionmaker(bind=self.engine)
-		self.session = self.sessionFactory()
+
 
 
 		self.loggers = {}
@@ -102,14 +107,64 @@ class TextScraper(object):
 
 		elif name == "session":
 			if threadName not in self.dbSessions:
+				self.log.info("New session for thread '%s'", threadName)
 				self.dbSessions[threadName] = self.sessionFactory()
-				# self.dbSessions[threadName].autocommit = True
+
 			return self.dbSessions[threadName]
 
 
 		else:
 			return object.__getattribute__(self, name)
 
+
+	def getFilenameFromIdName(self, rowid, filename):
+		if not os.path.exists(settings.bookCachePath):
+			self.log.warn("Cache directory for book items did not exist. Creating")
+			self.log.warn("Directory at path '%s'", settings.bookCachePath)
+			os.makedirs(settings.bookCachePath)
+
+		# one new directory per 1000 items.
+		dirName = '%s' % (rowid // 1000)
+		dirPath = os.path.join(settings.bookCachePath, dirName)
+		if not os.path.exists(dirPath):
+			os.mkdir(dirPath)
+
+		filename = 'ID%s - %s' % (rowid, filename)
+		filename = nameTools.makeFilenameSafe(filename)
+		fqpath = os.path.join(dirPath, filename)
+
+		return fqpath
+
+	def saveFile(self, url, mimetype, fileName, content):
+
+
+		row = self.session.query(self.rowClass) \
+					.filter_by(url=url).first()
+
+		print("row", row)
+		if row:
+			if fileName in row.fspath and len(content) == int(row.contents) and mimetype == row.mimetype:
+				self.log.info("Item has not changed. Skipping.")
+				return
+			else:
+				self.log.info("Item has changed! Deleting row!")
+				self.session.delete(row)
+
+				# You have to commit for the delete to show up anywhere, because stupid?
+				self.session.commit()
+
+		newRow = self.rowClass(url=url, series=None, contents=len(content), istext=False, mimetype=mimetype, fspath='')
+		self.session.add(newRow)
+		self.session.commit()
+
+
+		fqPath = self.getFilenameFromIdName(newRow.rowid, fileName)
+		newRow.fspath = fqPath
+
+		with open(fqPath, "wb") as fp:
+			fp.write(content)
+
+		self.session.commit()
 
 	def printSchema(self):
 		ret = Base.metadata.create_all(self.engine)

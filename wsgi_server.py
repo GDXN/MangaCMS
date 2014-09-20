@@ -2,7 +2,7 @@
 #pylint: disable-msg=F0401, W0142
 
 from pyramid.config import Configurator
-from pyramid.response import Response, FileIter
+from pyramid.response import Response, FileIter, FileResponse
 from pyramid.exceptions import NotFound
 from pyramid.httpexceptions import HTTPFound
 from pyramid.authentication import AuthTktAuthenticationPolicy
@@ -15,6 +15,7 @@ import mako.exceptions
 from mako.lookup import TemplateLookup
 import cherrypy
 import settings
+import urllib.parse
 import apiHandler
 
 import sessionManager
@@ -209,7 +210,7 @@ class PageResource(object):
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 		if username:
-			self.log.info("Login attempt: u = %s, pass = %s" % (username, password))
+			self.log.info("Login attempt: u = %s, pass = %s", username, password)
 			if username in users and users[username] == password:
 				self.log.info("Successful Login!")
 				age = 60*60*24*32
@@ -306,6 +307,43 @@ class PageResource(object):
 
 
 
+	def renderBook(self, request):
+		fix_matchdict(request)
+		self.log.info("Request for book content. Matchdict = '%s'", request.params)
+
+		if "url" in request.params:
+
+			itemUrl = urllib.parse.unquote(request.params["url"])
+
+			# self.conn
+			cur = self.conn.cursor()
+			cur.execute('BEGIN')
+			cur.execute("SELECT mimetype, fsPath FROM book_items WHERE url=%s;", (itemUrl, ))
+
+			ret = cur.fetchall()
+
+			if not ret:
+				self.log.warn("Request for book content '%s' failed because it's not in the database.", itemUrl)
+				return Response(status_int=404, body='Item not found in Book item database!')
+
+			mimetype, fsPath = ret.pop()
+
+			if mimetype != 'text/html':
+				self.log.warn("Request for book content '%s' failed because the file is missing.", itemUrl)
+				if not os.path.exists(fsPath):
+					return Response(status_int=404, body='File for book item is missing!')
+				return FileResponse(path=fsPath, content_type=mimetype)
+
+
+
+		pgTemplate = self.lookupEngine.get_template('books/render.mako')
+		self.log.info("Rendering mako page %s", 'books/render.mako')
+		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn)
+		self.log.info("Mako page Rendered %s", 'books/render.mako')
+		return Response(body=pageContent)
+
+
+
 def buildApp():
 
 	resource = PageResource()
@@ -329,6 +367,9 @@ def buildApp():
 	# config.add_route(name='auth',                    pattern='/login')
 
 
+	config.add_route(name='book-render',             pattern='/books/render')
+
+
 	config.add_route(name='reader-redux-container', pattern='/reader2/browse/*page')
 	config.add_route(name='reader-redux-content',   pattern='/reader2/file/{sequenceid}')
 
@@ -345,9 +386,10 @@ def buildApp():
 	config.add_view(resource.readerTwoPorn,          http_cache=0, route_name='porn-get-arch')
 
 	config.add_view(resource.readerTwoContent,       http_cache=0, route_name='reader-redux-content')
-	config.add_view(resource.readerTwoContent,      http_cache=0, route_name='porn-get-images')
+	config.add_view(resource.readerTwoContent,       http_cache=0, route_name='porn-get-images')
 
 	config.add_view(resource.getPage,                              route_name='static-file')
+	config.add_view(resource.renderBook,             http_cache=0, route_name='book-render')
 	config.add_view(resource.getPage,                http_cache=0, route_name='root')
 	config.add_view(resource.getPage,                http_cache=0, route_name='leaf')
 	config.add_view(resource.getPage,                http_cache=0, context=NotFound)
