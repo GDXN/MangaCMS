@@ -87,7 +87,7 @@ import re
 		volKey = volRe.findall(item)
 
 		chapKey = float(chapKey.pop(0)) if chapKey  else 0
-		volKey  = float(volKey.pop(0))  if volKey    else 0
+		volKey  = float(volKey.pop(0))  if volKey    else 999
 
 		tmp.append((volKey, chapKey, item))
 
@@ -132,7 +132,7 @@ import re
 				urlPath = [urllib.parse.quote(bytes(item, 'utf-8')) for item in urlPath]
 				urlPath = "/".join(urlPath)
 				%>
-				<td>${str(vol).rstrip('0').rstrip('.')}</td>
+				<td>${str(vol).rstrip('0').rstrip('.') if vol < 990 else ''}</td>
 				<td>${str(chap).rstrip('0').rstrip('.')}</td>
 				<td><a href="/reader2/browse/${dictKey}/${urlPath}">${item}</a></td>
 			</tr>
