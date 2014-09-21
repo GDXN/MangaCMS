@@ -5,10 +5,8 @@ import runStatus
 runStatus.preloadDicts = False
 
 
-import sqlalchemy as sa
-import sqlalchemy.engine.url as saurl
-import sqlalchemy.orm as saorm
 
+import logging
 import settings
 import abc
 import threading
@@ -16,43 +14,37 @@ import urllib.parse
 
 
 import logging
-import threading
+import psycopg2
 import os
 import traceback
 import bs4
+import time
+import queue
+from concurrent.futures import ThreadPoolExecutor
 
 import nameTools
 
+from contextlib import contextmanager
 
-class ItemRow(object):
+QUERY_DEBUG = False
 
+@contextmanager
+def transaction(cursor, commit=True):
+	if commit:
+		cursor.execute("BEGIN;")
 
-	__tablename__ = 'book_items'
+	try:
+		yield
 
-	@abc.abstractproperty
-	def _source_key(self):
-		pass
+	except Exception as e:
+		if commit:
+			cursor.execute("ROLLBACK;")
+		raise e
 
-	rowid    = sa.Column(sa.Integer, sa.Sequence('book_page_id_seq'), primary_key=True)
-	src      = sa.Column(sa.String,  nullable=False, index=True, default=_source_key)
-	dlstate  = sa.Column(sa.Integer, nullable=False, index=True, default=0)
-	url      = sa.Column(sa.String,  nullable=False, unique=True, index=True)
-	title    = sa.Column(sa.String)
-	series   = sa.Column(sa.String)
-	contents = sa.Column(sa.String)
-	istext   = sa.Column(sa.Boolean, index=True, nullable=False, default=True)
-	mimetype = sa.Column(sa.String)
-	fspath   = sa.Column(sa.String, default='')
+	finally:
+		if commit:
+			cursor.execute("COMMIT;")
 
-	@classmethod
-	def getColums(self):
-		# What a fucking mess.
-		return list(self.__table__.columns._data.keys())
-
-
-# This seems to be a funky global state tracking mechanism in SQLAlchemy
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base(cls=ItemRow)
 
 
 class RowExistsException(Exception):
@@ -60,8 +52,6 @@ class RowExistsException(Exception):
 
 
 class TextScraper(object):
-
-
 
 	validKwargs = ["rowid",
 					"src",
@@ -75,6 +65,10 @@ class TextScraper(object):
 					"fspath"]
 
 
+	tableName = "book_items"
+
+	threads = 1
+
 	@abc.abstractproperty
 	def pluginName(self):
 		pass
@@ -84,10 +78,17 @@ class TextScraper(object):
 		pass
 
 	@abc.abstractproperty
-	def rowClass(self):
+	def tableKey(self):
 		pass
 
+	@abc.abstractproperty
+	def baseUrl(self):
+		pass
+
+
+
 	def __init__(self):
+		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Tsuki startup")
 
 		# I have to wrap the DB in locks, since two pages may return
@@ -96,31 +97,17 @@ class TextScraper(object):
 		# Most of the time is spent in processing pages anyways
 		self.dbLock = threading.Lock()
 
-
-		engine_conf = saurl.URL(drivername='postgresql',
-								host     = settings.DATABASE_IP,
-								username = settings.DATABASE_USER,
-								password = settings.DATABASE_PASS,
-								database = settings.DATABASE_DB_NAME
-								)
-
-		self.engine = sa.create_engine(engine_conf)
-		self.sessionFactory = saorm.sessionmaker(bind=self.engine)
-
-
-
 		self.loggers = {}
-		self.dbSessions = {}
+		self.dbConnections = {}
+
+		self.newLinkQueue = queue.Queue()
+
 		self.lastLoggerIndex = 1
 
 		self.log.info("Loading %s Runner BaseClass", self.pluginName)
 
-		self.columns = self.rowClass.getColums()
 
-
-		Base.metadata.create_all(self.engine)
-
-
+		self.checkInitPrimaryDb()
 
 	# More hackiness to make sessions intrinsically thread-safe.
 	def __getattribute__(self, name):
@@ -133,136 +120,26 @@ class TextScraper(object):
 			return self.loggers[threadName]
 
 
-		elif name == "session":
-			if threadName not in self.dbSessions:
-				self.log.info("New session for thread '%s'", threadName)
-				self.dbSessions[threadName] = self.sessionFactory()
+		elif name == "conn":
+			if threadName not in self.dbConnections:
 
-			return self.dbSessions[threadName]
+				# First try local socket connection, fall back to a IP-based connection.
+				# That way, if the server is local, we get the better performance of a local socket.
+				try:
+					self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+				except psycopg2.OperationalError:
+					self.dbConnections[threadName] = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
+				# self.dbConnections[threadName].autocommit = True
+			return self.dbConnections[threadName]
+
 
 
 		else:
 			return object.__getattribute__(self, name)
 
 
-	# ------------------------------------------------------------------------------------------------------------------
-	#                      DB Interfacing stuff
-	# ------------------------------------------------------------------------------------------------------------------
 
-
-	def upsert(self, pgUrl, **kwargs):
-		try:
-			self.addPage(pgUrl, **kwargs)
-		except RowExistsException:
-			if kwargs:
-				self.updatePage(pgUrl, **kwargs)
-
-
-	def addPage(self, pgUrl, **kwargs):
-		for key in kwargs:
-			if not key in self.validKwargs:
-				raise ValueError("Invalid key to insert into dict! '%s'" % key)
-
-		haveRow = self.session.query(self.rowClass).filter_by(url=pgUrl).first()
-		if not haveRow:
-
-			insertArgs = {"url": pgUrl}
-
-			for key, value in kwargs.items():
-				insertArgs[key] = value
-
-			newRow = self.rowClass(**insertArgs)
-			self.session.add(newRow)
-		else:
-			raise RowExistsException("Doing duplicate insert?")
-		self.session.commit()
-
-
-	def updatePage(self, pgUrl, **kwargs):
-		for key in kwargs:
-			if not key in self.validKwargs:
-				raise ValueError("Invalid key to insert into dict! '%s'" % key)
-
-
-
-
-		result = self.session.query(self.rowClass).filter_by(url=pgUrl)
-		result.one()
-
-		insertArgs = {}
-
-		for key, value in kwargs.items():
-			insertArgs[key] = value
-
-		result.update(insertArgs)
-
-		self.session.commit()
-
-
-
-	def saveFile(self, url, mimetype, fileName, content):
-
-
-
-		# print("Begin savefile")
-		row = self.session.query(self.rowClass) \
-					.filter_by(url=url).first()
-
-		if row:
-			if fileName in row.fspath and len(content) == int(row.contents) and mimetype == row.mimetype:
-				self.log.info("Item has not changed. Skipping.")
-
-				return
-			else:
-				self.log.info("Item has changed! Deleting row!")
-				self.session.delete(row)
-
-				# You have to commit for the delete to show up anywhere, because stupid?
-				self.session.commit()
-
-		newRowDict = {  "url":url,
-						"dlstate":2,
-						"series":None,
-						"contents":len(content),
-						"istext":False,
-						"mimetype":mimetype,
-						"fspath":'' }
-
-		newRow = self.rowClass(**newRowDict)
-		self.session.add(newRow)
-
-		# rowid isn't populated until commit()
-		self.session.commit()
-
-		fqPath = self.getFilenameFromIdName(newRow.rowid, fileName)
-		newRow.fspath = fqPath
-
-		self.session.commit()
-
-		# print("Begin savefile")
-
-
-		with open(fqPath, "wb") as fp:
-			fp.write(content)
-
-	def printSchema(self):
-		ret = Base.metadata.create_all(self.engine)
-		print(ret)
-
-	def getToDo(self):
-
-		# Retreiving todo items must be atomic, so we lock for that.
-		with self.dbLock:
-			row = self.session.query(self.rowClass)              \
-						.filter_by(dlstate=0)                    \
-						.order_by(sa.asc(self.rowClass.istext))  \
-						.first()
-			if not row:
-				return False
-			else:
-				row.dlstate = 1
-				self.session.commit()
-				return row
 
 	# ------------------------------------------------------------------------------------------------------------------
 	#                      Web Scraping stuff
@@ -322,7 +199,8 @@ class TextScraper(object):
 				continue
 
 			# upsert for `url`. Reset dlstate if needed
-			self.upsert(url, dlstate=0)
+
+			self.newLinkQueue.put(url)
 
 
 
@@ -374,3 +252,280 @@ class TextScraper(object):
 		fqpath = os.path.join(dirPath, filename)
 
 		return fqpath
+
+
+	########################################################################################################################
+	#                      Process management
+	########################################################################################################################
+
+	def queueLoop(self):
+		self.log.info("Fetch thread starting")
+		try:
+			# Timeouts is used to track when queues are empty
+			# Since I have multiple threads, and there are known
+			# situations where we can be certain that there will be
+			# only one request (such as at startup), we need to
+			# have a mechanism for retrying fetches from a queue a few
+			# times before concluding there is nothing left to do
+			timeouts = 0
+			while runStatus.run:
+
+				url = self.getToDo()
+				if url:
+
+
+					self.retreiveItemFromUrl(url)
+
+				else:
+					timeouts += 1
+					time.sleep(1)
+
+				if timeouts > 5:
+					break
+
+			self.log.info("Fetch thread exiting!")
+		except Exception:
+			traceback.print_exc()
+
+	def crawl(self):
+
+		haveUrls = set()
+		self.upsert(self.baseUrl, dlstate=0)
+
+		with ThreadPoolExecutor(max_workers=self.threads) as executor:
+
+			processes = []
+			for dummy_x in range(self.threads):
+				self.log.info("Starting child-thread!")
+				processes.append(executor.submit(self.queueLoop))
+
+
+			while runStatus.run:
+				try:
+					got = self.newLinkQueue.get_nowait()
+					if not got in haveUrls:
+						self.upsert(got, dlstate=0)
+					else:
+						print("Skipping", got)
+
+				except queue.Empty:
+					time.sleep(0.01)
+
+
+
+
+				if not any([proc.running() for proc in processes]):
+					self.log.info("All threads stopped. Main thread exiting.")
+					break
+
+		self.log.info("Crawler scanned a total of '%s' pages", len(haveUrls))
+		self.log.info("Queue Feeder thread exiting!")
+
+	##############################################################################################################################################
+	#                      DB Interfacing
+	##############################################################################################################################################
+
+
+	def upsert(self, pgUrl, commit=True, **kwargs):
+
+		cur = self.conn.cursor()
+
+
+
+		with transaction(cur, commit=commit):
+
+			cur.execute("SELECT COUNT(*) FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (pgUrl, ))
+			ret = cur.fetchone()[0]
+			if not ret:
+				self.insertIntoDb(commit=False, url=pgUrl, **kwargs)
+			else:
+				if kwargs:
+					self.updateDbEntry(url=pgUrl, **kwargs)
+
+
+
+
+	def buildInsertArgs(self, **kwargs):
+
+		# Pre-populate with the table keys.
+		keys = ["src"]
+		values = ["%s"]
+		queryArguments = [self.tableKey]
+
+		for key in kwargs.keys():
+			if key not in self.validKwargs:
+				raise ValueError("Invalid keyword argument: %s" % key)
+			keys.append("{key}".format(key=key))
+			values.append("%s")
+			queryArguments.append("{s}".format(s=kwargs[key]))
+
+		keysStr = ",".join(keys)
+		valuesStr = ",".join(values)
+
+		return keysStr, valuesStr, queryArguments
+
+
+	# Insert new item into DB.
+	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
+	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
+	# Return value is the primary key of the new row.
+	def insertIntoDb(self, commit=True, **kwargs):
+
+
+		keysStr, valuesStr, queryArguments = self.buildInsertArgs(**kwargs)
+
+		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values})  RETURNING dbid;'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
+
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", queryArguments)
+
+		with self.conn.cursor() as cur:
+
+			with transaction(cur, commit=commit):
+				cur.execute(query, queryArguments)
+				ret = cur.fetchone()
+
+		if QUERY_DEBUG:
+			print("Query ret = ", ret)
+
+		return ret[0]
+
+
+
+	# Update entry with key sourceUrl with values **kwargs
+	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
+	def updateDbEntry(self, dbid=None, url=None, commit=True, **kwargs):
+
+		if not dbid and not url:
+			raise ValueError("You need to pass a uniquely identifying value to update a row.")
+		if dbid and url:
+			raise ValueError("Updating with dbid and url is not currently supported.")
+
+		if dbid:
+			setkey = 'dbid'
+			rowkey = dbid
+		if url:
+			setkey = 'url'
+			rowkey = url
+
+		queries = []
+		qArgs = []
+		for key in kwargs.keys():
+			if key not in self.validKwargs:
+				raise ValueError("Invalid keyword argument: %s" % key)
+			else:
+				queries.append("{k}=%s".format(k=key))
+				qArgs.append(kwargs[key])
+
+		qArgs.append(rowkey)
+		qArgs.append(self.tableKey)
+		column = ", ".join(queries)
+
+
+		query = '''UPDATE {tableName} SET {v} WHERE {setkey}=%s AND src=%s;'''.format(tableName=self.tableName, setkey=setkey, v=column)
+
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", qArgs)
+
+		with self.conn.cursor() as cur:
+			with transaction(cur, commit=commit):
+				cur.execute(query, qArgs)
+
+
+
+	def saveFile(self, url, mimetype, fileName, content):
+
+
+
+		with self.conn.cursor() as cur:
+			with transaction(cur):
+
+				cur.execute("SELECT dbid, fspath, contents, mimetype  FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (url, ))
+				dbid, havePath, haveCtnt, haveMime = cur.fetchone()
+				self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
+
+
+				fqPath = self.getFilenameFromIdName(dbid, fileName)
+
+				newRowDict = {  "dlstate" : 2,
+								"series"  : None,
+								"contents": len(content),
+								"istext"  : False,
+								"mimetype": mimetype,
+								"fspath"  : fqPath}
+
+
+				self.updateDbEntry(url=url, commit=False, **newRowDict)
+
+
+
+		with open(fqPath, "wb") as fp:
+			fp.write(content)
+
+
+
+
+	def getToDo(self):
+		cur = self.conn.cursor()
+
+		# Retreiving todo items must be atomic, so we lock for that.
+		with self.dbLock:
+			with transaction(cur):
+
+				cur.execute('''SELECT dbid, url FROM {tableName} WHERE dlstate=%s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, ))
+				row = cur.fetchone()
+
+
+
+
+				if not row:
+					return False
+				else:
+					dbid, url = row
+					cur.execute('UPDATE {tableName} SET dlstate=%s WHERE dbid=%s;'.format(tableName=self.tableName), (1, dbid))
+					return url
+
+
+	def checkInitPrimaryDb(self):
+		with self.conn.cursor() as cur:
+
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
+												dbid      SERIAL PRIMARY KEY,
+												src       TEXT NOT NULL,
+												dlstate   INTEGER DEFAULT 0,
+												url       text UNIQUE NOT NULL,
+
+												title     text,
+												series    text,
+												contents  text,
+												istext    boolean DEFAULT TRUE,
+												mimetype  text,
+												fspath    text DEFAULT '');'''.format(tableName=self.tableName))
+
+
+			cur.execute("SELECT relname FROM pg_class;")
+			haveIndexes = cur.fetchall()
+			haveIndexes = [index[0] for index in haveIndexes]
+
+
+
+			indexes = [
+				("%s_source_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (src     );'''  ),
+				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext  );'''  ),
+				("%s_dlstate_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlstate );'''  ),
+				("%s_url_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (url     );'''  )
+			]
+
+
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(nameFormat % (name, table))
+
+
+
+		self.conn.commit()
+		self.log.info("Retreived page database created")
+
+
