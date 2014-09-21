@@ -198,6 +198,9 @@ class TextScraper(object):
 			if hadbad:
 				continue
 
+			# Remove any URL fragments causing multiple retreival of the same resource.
+			url = url.split("#")[0]
+
 			# upsert for `url`. Reset dlstate if needed
 
 			self.newLinkQueue.put(url)
@@ -229,6 +232,8 @@ class TextScraper(object):
 					hadbad = True
 			if hadbad:
 				continue
+
+			url = url.split("#")[0]
 
 			# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
 			self.upsert(url, istext=False)
@@ -305,8 +310,7 @@ class TextScraper(object):
 					got = self.newLinkQueue.get_nowait()
 					if not got in haveUrls:
 						self.upsert(got, dlstate=0)
-					else:
-						print("Skipping", got)
+						haveUrls.add(got)
 
 				except queue.Empty:
 					time.sleep(0.01)
@@ -444,7 +448,7 @@ class TextScraper(object):
 
 				cur.execute("SELECT dbid, fspath, contents, mimetype  FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (url, ))
 				dbid, havePath, haveCtnt, haveMime = cur.fetchone()
-				self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
+				# self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
 
 
 				fqPath = self.getFilenameFromIdName(dbid, fileName)
@@ -474,7 +478,7 @@ class TextScraper(object):
 		with self.dbLock:
 			with transaction(cur):
 
-				cur.execute('''SELECT dbid, url FROM {tableName} WHERE dlstate=%s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, ))
+				cur.execute('''SELECT dbid, url FROM {tableName} WHERE dlstate=%s AND src=%s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey))
 				row = cur.fetchone()
 
 
@@ -515,7 +519,8 @@ class TextScraper(object):
 				("%s_source_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (src     );'''  ),
 				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext  );'''  ),
 				("%s_dlstate_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlstate );'''  ),
-				("%s_url_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (url     );'''  )
+				("%s_url_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (url     );'''  ),
+				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title   );'''  )
 			]
 
 
@@ -526,6 +531,7 @@ class TextScraper(object):
 
 
 		self.conn.commit()
+
 		self.log.info("Retreived page database created")
 
 

@@ -15,29 +15,62 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
-		// Tooltip only Text
-		$('.showTT').hover(function(){
-			// Hover over code
-			var title = $(this).attr('title');
-			$(this).data('tipText', title).removeAttr('title');
-			$('<p class="tooltip"></p>')
-			.html(title)
-			.appendTo('body')
-			.fadeIn('slow');
-		}, function() {
-			// Hover out code
-			$(this).attr('title', $(this).data('tipText'));
-			$('.tooltip').remove();
-		}).mousemove(function(e) {
-			var mousex = e.pageX + 20; //Get X coordinates
-			var mousey = e.pageY + 10; //Get Y coordinates
-			$('.tooltip')
-			.css({ top: mousey, left: mousex })
-		});
+			// Tooltip only Text
+			$('.showTT').hover(function(){
+				// Hover over code
+				var title = $(this).attr('title');
+				$(this).data('tipText', title).removeAttr('title');
+				$('<p class="tooltip"></p>')
+				.html(title)
+				.appendTo('body')
+				.fadeIn('slow');
+			}, function() {
+				// Hover out code
+				$(this).attr('title', $(this).data('tipText'));
+				$('.tooltip').remove();
+			}).mousemove(function(e) {
+				var mousex = e.pageX + 20; //Get X coordinates
+				var mousey = e.pageY + 10; //Get Y coordinates
+				$('.tooltip')
+				.css({ top: mousey, left: mousex })
+			});
+
+			$.get("/fetchtable?table=manga",
+				function( response, status, xhr )
+				{
+					if ( status == "error" )
+					{
+						var msg = "Sorry but there was an error: ";
+						$( "#error" ).html( msg + xhr.status + " " + xhr.statusText );
+					}
+					else
+					{
+						$('#mangatable').html(response);
+					}
+				}
+			);
+
+
+			$.get("/fetchtable?table=pron",
+				function( response, status, xhr )
+				{
+					if ( status == "error" )
+					{
+						var msg = "Sorry but there was an error: ";
+						$( "#error" ).html( msg + xhr.status + " " + xhr.statusText );
+					}
+					else
+					{
+						$('#prontable').html(response);
+					}
+				}
+			);
+
 		});
 	</script>
 
 </head>
+
 
 
 <%
@@ -64,19 +97,18 @@ import settings
 		<div class="subdiv skId">
 			<div class="contentdiv">
 				<h3>Manga (distinct)</h3>
-				${tableGenerators.genLegendTable()}
-				<%
-				# print("Calling tablegen")
-				%>
-				${tableGenerators.genMangaTable(tableKey=ap.attr.inHomepageMangaTable, distinct=True, limit=200)}
+				<div id='mangatable'>
+					<center><img src='/js/loading.gif' /></center>
+				</div>
 			</div>
 		</div>
 
 		<div class="subdiv fuFuId">
 			<div class="contentdiv">
 				<h3>Porn!</h3>
-				${tableGenerators.genLegendTable(pron=True)}
-				${tableGenerators.genPronTable()}
+				<div id='prontable'>
+					<center><img src='/js/loading.gif' /></center>
+				</div>
 			</div>
 		</div>
 
@@ -167,9 +199,9 @@ import settings
 	</ul>
 	<li>Light Novels
 	<ul>
-		<li>Re:Translations</li>
-		<li>Baka-Tsuki</li>
-		<li>JapTem</li>
+		<li>Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)</li>
+		<li><strike>Baka-Tsuki</strike></li>
+		<li><strike>JapTem</strike></li>
 	</ul>
 </ul>
 </p>

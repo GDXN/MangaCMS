@@ -8,11 +8,13 @@ import runStatus
 runStatus.preloadDicts = False
 
 from TextScrape.BakaTsuki.tsukiScrape import TsukiScrape
+from TextScrape.JapTem.japtemScrape import JaptemScrape
 import signal
 
 import readability.readability
 import webFunctions
 import bs4
+import sys
 # import nameTools as nt
 
 import os.path
@@ -27,7 +29,13 @@ def customHandler(signum, stackframe):
 
 def test():
 
-	scraper = TsukiScrape()
+	if "j" in sys.argv:
+		scraper = JaptemScrape()
+	elif "b" in sys.argv:
+		scraper = TsukiScrape()
+	else:
+		raise ValueError("You have to specify the scraper you want.")
+
 	scraper.crawl()
 
 if __name__ == "__main__":
