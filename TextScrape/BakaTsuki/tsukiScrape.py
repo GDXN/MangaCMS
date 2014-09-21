@@ -11,6 +11,7 @@ import traceback
 import readability.readability
 import webFunctions
 import bs4
+import threading
 import urllib.parse
 
 import runStatus
@@ -31,7 +32,6 @@ class TsukiRow(TextScrape.SqlBase.Base):
 	# to a string, it still works.
 	def __init__(self, *args, **kwds):
 		self.src = self._source_key
-		print("Setting self.src", self.src)
 		super().__init__(*args, **kwds)
 
 class TsukiScrape(TextScrape.SqlBase.TextScraper):
@@ -42,7 +42,8 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 	log = logging.getLogger(loggerPath)
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 4
+	threads = 1
+
 
 	baseUrl = "http://www.baka-tsuki.org/"
 
@@ -88,33 +89,6 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 				"title=Special:Book"]
 
 
-
-
-	def getItem(self, itemUrl):
-
-		content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
-		if not content or not handle:
-			raise ValueError("Failed to retreive image from page '%s'!" % itemUrl)
-
-		fileN = urllib.parse.unquote(urllib.parse.urlparse(handle.geturl())[2].split("/")[-1])
-		fileN = bs4.UnicodeDammit(fileN).unicode_markup
-		mType = handle.info()['Content-Type']
-
-		# If there is an encoding in the content-type (or any other info), strip it out.
-		# We don't care about the encoding, since WebFunctions will already have handled that,
-		# and returned a decoded unicode object.
-		if ";" in mType:
-			mType = mType.split(";")[0].strip()
-
-		self.log.info("Retreived file of type '%s', name of '%s' with a size of %0.3f K", mType, fileN, len(content)/1000.0)
-		return content, fileN, mType
-
-
-	def convertToReaderUrl(self, inUrl):
-		url = urllib.parse.urljoin(self.baseUrl, inUrl)
-		url = '/books/render?url=%s' % urllib.parse.quote(url)
-		return url
-
 	def cleanBtPage(self, inPage):
 
 		doc = readability.readability.Document(inPage, negative_keywords=['mw-normal-catlinks', "printfooter", "mw-panel", 'portal'])
@@ -153,91 +127,17 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 		title = doc.title()
 		title = title.replace(" - Baka-Tsuki", "")
+
 		return title, contents
 
-	def extractLinks(self, pageCtnt):
-		soup = bs4.BeautifulSoup(pageCtnt)
-		retLinks = set()
-		for link in soup.find_all("a"):
-
-			# Skip empty anchor tags
-			try:
-				turl = link["href"]
-			except KeyError:
-				continue
-
-			url = urllib.parse.urljoin(self.baseUrl, turl)
-
-			# Filter by domain
-			if not self.baseUrl in url:
-				continue
-
-			# and by blocked words
-			hadbad = False
-			for badword in self.badwords:
-				if badword in url:
-					hadbad = True
-			if hadbad:
-				continue
-
-			# the fact that retLinks is a set takes care of preventing duplicates.
-			retLinks.add(url)
-
-
-
-		for imtag in soup.find_all("img"):
-						# Skip empty anchor tags
-			try:
-				turl = imtag["src"]
-			except KeyError:
-				continue
-
-			# Skip tags with `img src=""`.
-			# No idea why they're there, but they are
-			if not url:
-				continue
-
-			url = urllib.parse.urljoin(self.baseUrl, turl)
-
-			# Filter by domain
-			if not self.baseUrl in url:
-				continue
-
-			# and by blocked words
-			hadbad = False
-			for badword in self.badwords:
-				if badword in url:
-					hadbad = True
-			if hadbad:
-				continue
-
-
-			retLinks.add(url)
-
-		return retLinks
-
-
-
-
-	def addPage(self, pgUrl, pgTitle, pgBody, mimeType):
-		# TODO: Update logic!
-
-		haveRow = self.session.query(self.rowClass).filter_by(url=pgUrl).first()
-		if not haveRow:
-			print(self.rowClass)
-			newRow = self.rowClass(url=pgUrl, title=pgTitle, series=None, contents=pgBody, istext=True, mimetype=mimeType)
-			self.session.add(newRow)
-		self.session.commit()
 
 
 	def processPage(self, url, content, mimeType):
 
 
 		pgTitle, pgBody = self.cleanBtPage(content)
-		links = self.extractLinks(content)
-		self.addPage(url, pgTitle, pgBody, mimeType)
-
-		return links
+		self.extractLinks(content)
+		self.updatePage(url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
 
 	# Retreive remote content at `url`, call the appropriate handler for the
@@ -251,20 +151,20 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 		if mimeType == 'text/html':
 			self.log.info("Processing '%s' as HTML.", url)
-			links = self.processPage(url, content, mimeType)
+			self.processPage(url, content, mimeType)
 		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
 			self.log.info("Processing '%s' as an image file.", url)
 			self.saveFile(url, mimeType, fName, content)
 		else:
 			self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
-		self.log.info("%s new links" % len(links))
+
 
 		return links
 
 
 
-	def queueLoop(self, inQueue, outQueue):
-
+	def queueLoop(self, outQueue):
+		self.log.info("Fetch thread starting")
 		try:
 			# Timeouts is used to track when queues are empty
 			# Since I have multiple threads, and there are known
@@ -274,13 +174,15 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 			# times before concluding there is nothing left to do
 			timeouts = 0
 			while runStatus.run:
-				try:
-					url = inQueue.get_nowait()
-					ret = self.retreiveItemFromUrl(url)
-					for url in ret:
-						outQueue.put(url)
-					timeouts = 0
-				except queue.Empty:
+
+				url = self.getToDo()
+				if url:
+
+					fetchUrl = url.url
+
+					self.retreiveItemFromUrl(fetchUrl)
+					outQueue.put(fetchUrl)
+				else:
 					timeouts += 1
 					time.sleep(1)
 
@@ -296,41 +198,45 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 		haveUrls = set([self.baseUrl])
 
 
-		toScanQueue = queue.Queue()
-		linkReturnQueue = queue.Queue()
 
-		toScanQueue.put('http://www.baka-tsuki.org/project/index.php?title=Main_Page')
+		scannedQueue = queue.Queue()
 
+		startUrl = 'http://www.baka-tsuki.org/'
+		self.upsert(startUrl)
+		self.updatePage(startUrl, dlstate=0)
+
+		scanned = []
 
 		with ThreadPoolExecutor(max_workers=self.threads) as executor:
 
 			processes = []
 			for dummy_x in range(self.threads):
-				processes.append(executor.submit(self.queueLoop, toScanQueue, linkReturnQueue))
+				self.log.info("Starting child-thread!")
+				processes.append(executor.submit(self.queueLoop, scannedQueue))
 
 
-			newUrls = 0
 			while runStatus.run:
 
 
+
+				time.sleep(0.01)
+
 				try:
-					url = linkReturnQueue.get_nowait()
+					got = scannedQueue.get_nowait()
+					if got in scanned:
+						runStatus.run = False
+						self.log.error("Repeated scan of item at URL '%s'", got)
+						raise ValueError("Double-scanned item '%s' !" % got)
 
-					if not url in haveUrls:
-						toScanQueue.put(url)
-						haveUrls.add(url)
-						newUrls += 1
-
-
+					scanned.append(got)
 				except queue.Empty:
+					pass
 
-					if newUrls:
-						self.log.info("%s new URLs to scan", newUrls)
-						newUrls = 0
 
-					time.sleep(0.01)
+
 
 				if not any([proc.running() for proc in processes]):
+					self.log.info("All threads stopped. Main thread exiting.")
 					break
 
 		self.log.info("Crawler scanned a total of '%s' pages", len(haveUrls))
