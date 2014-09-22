@@ -18,7 +18,7 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 8
+	threads = 3
 
 
 	baseUrl = "http://www.baka-tsuki.org/"

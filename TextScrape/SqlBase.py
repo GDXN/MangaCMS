@@ -89,7 +89,7 @@ class TextScraper(object):
 
 	def __init__(self):
 		self.log = logging.getLogger(self.loggerPath)
-		self.log.info("Tsuki startup")
+		self.log.info("TextScrape Base startup")
 
 		# I have to wrap the DB in locks, since two pages may return
 		# identical links at the same time.
@@ -216,7 +216,7 @@ class TextScraper(object):
 
 			# Skip tags with `img src=""`.
 			# No idea why they're there, but they are
-			if not url:
+			if not turl:
 				continue
 
 			url = urllib.parse.urljoin(self.baseUrl, turl)
@@ -294,6 +294,8 @@ class TextScraper(object):
 
 	def crawl(self):
 
+		self.resetStuckItems()
+
 		haveUrls = set()
 		self.upsert(self.baseUrl, dlstate=0)
 
@@ -334,20 +336,16 @@ class TextScraper(object):
 
 		cur = self.conn.cursor()
 
-
-
-		with transaction(cur, commit=commit):
-
-			cur.execute("SELECT COUNT(*) FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (pgUrl, ))
-			ret = cur.fetchone()[0]
-			if not ret:
+		try:
+			with transaction(cur, commit=commit):
 				self.insertIntoDb(commit=False, url=pgUrl, **kwargs)
-			else:
-				if kwargs:
+				return
+		except psycopg2.IntegrityError:
+
+
+			if kwargs:
+				with transaction(cur, commit=commit):
 					self.updateDbEntry(url=pgUrl, **kwargs)
-
-
-
 
 	def buildInsertArgs(self, **kwargs):
 
@@ -492,6 +490,16 @@ class TextScraper(object):
 					return url
 
 
+
+	def resetStuckItems(self):
+		self.log.info("Resetting stuck downloads in DB")
+		with self.conn.cursor() as cur:
+			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND src=%s'''.format(tableName=self.tableName), (self.tableKey, ))
+		self.conn.commit()
+		self.log.info("Download reset complete")
+
+
+
 	def checkInitPrimaryDb(self):
 		with self.conn.cursor() as cur:
 
@@ -533,5 +541,7 @@ class TextScraper(object):
 		self.conn.commit()
 
 		self.log.info("Retreived page database created")
+
+
 
 

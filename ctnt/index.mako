@@ -145,7 +145,7 @@ import settings
 	<li>color code mangaupdates status in reader</li>
 	<li>highlight chapters < 10</li>
 	<li>scan times to deduper for rescanning. Also filesizes</li>
-	<li>Load tables asynchronously from base page</li>
+
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>ability to browse by mu tags</li>
 	<li>add ability to sort directory by rating.</li>
@@ -257,6 +257,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Load tables asynchronously from base page</strike></li>
 	<li><strike>dlstate 3 not rendering right</strike></li>
 	<li><strike>have vol and chap in separate columns</strike></li>
 	<li><strike>key not found error resulting in HTTP 500 for bad path after rating change</strike></li>
