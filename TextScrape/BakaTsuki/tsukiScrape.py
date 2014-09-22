@@ -130,6 +130,9 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
 			self.log.info("Processing '%s' as an image file.", url)
 			self.saveFile(url, mimeType, fName, content)
+		elif mimeType in ["application/octet-stream"]:
+			self.log.info("Processing '%s' as an binary file.", url)
+			self.saveFile(url, mimeType, fName, content)
 		else:
 			self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
 

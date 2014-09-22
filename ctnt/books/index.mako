@@ -6,6 +6,7 @@
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
+<%namespace name="treeRender"      file="/books/render.mako"/>
 
 <html>
 <head>
@@ -54,6 +55,7 @@ import datetime
 from babel.dates import format_timedelta
 import os.path
 import settings
+import string
 
 import urllib.parse
 %>
@@ -102,9 +104,11 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 
 
-<%def name="renderDirectory(iterable, name, keyBase, keyNum, isBase=False)">
+
+
+<%def name="renderTreeRoot(keys)">
 	<%
-	curBase = keyBase + '-%s' % keyNum
+	curBase = 'item-%s' % int(time.time()*1000)
 
 	childNum = 0
 	# print(trie)
@@ -113,26 +117,12 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 	<ul>
 
-		<li><input type="checkbox" id="${curBase}" ${'checked="checked"' if not isBase else ''} /><label for="${curBase}">${'Baka-Tsuki' if not name else name}</label>
+		<li><input type="checkbox" id="${curBase}" checked="checked" /><label for="${curBase}">Baka-Tsuki</label>
 			<ul>
-				% for key, value in iterable.items():
-
-					% if key == "_end_":
-						<%
-							url, dbId, title = value
-						%>
-
-						<li>
-							<div id='rowid'>${dbId}</div>
-							<div id='rowLink'><a href='/books/render?url=${urllib.parse.quote(url)}'>${title}</a></div>
-						</li>
-					% else:
-						<%
-							renderDirectory(value, name+key, curBase, childNum, isBase=True)
-							childNum += 1
-
-						%>
-					% endif
+				% for key in keys:
+					<li>
+					${treeRender.lazyTreeNode(key)}
+					</li>
 				% endfor
 			</ul>
 		</li>
@@ -152,26 +142,44 @@ def build_trie(iterItem, getKey=lambda x: x):
 			<%
 			cursor = sqlCon.cursor()
 
-			cursor.execute("SELECT url, rowid, title FROM book_items WHERE mimetype = %s ORDER BY title;", ('text/html', ))
-			ret = cursor.fetchall()
+			# cursor.execute("SELECT url, dbid, title FROM book_items WHERE mimetype = %s ORDER BY title;", ('text/html', ))
+			# ret = cursor.fetchall()
 
-			items = []
-			for item in ret:
-				filter = item[2].lower()
-				if filter.startswith("template:") or filter.startswith("talk:") or filter.startswith("ирис"):
-					continue
+			# items = []
+			# for item in ret:
+			# 	filter = item[2].lower()
+			# 	if filter.startswith("template:") or filter.startswith("talk:") or filter.startswith("ирис"):
+			# 		continue
 
 
-				items.append(item)
+			# 	items.append(item)
 
-			trie = build_trie(items, lambda x: x[2])
+			ret = {}
+			print("start")
+			for char in string.ascii_letters + string.digits:
+				cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s LIMIT 1;", ('{char}%'.format(char=char), ))
+				ret[char] = cursor.fetchone()
+
+
+			for key in string.ascii_lowercase:
+				if ret[key]:
+					ret[key.upper()] = ret[key]
+					del(ret[key])
+			have = list(set([key.upper() for key, val in ret.items() if val ]))
+			have.sort()
+
+			print("done")
+			print(have)
+			# trie = build_trie(items, lambda x: x[2])
+
+
+
 
 			%>
 
 
-
 			<div class="css-treeview">
-				${renderDirectory(trie, '', "item", 0)}
+				${renderTreeRoot(have)}
 			</div>
 
 
@@ -180,6 +188,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 </div>
 
 
+<!--
 <div class="css-treeview">
 	<ul>
 		<li><input type="checkbox" id="item-0" /><label for="item-0">This Folder is Closed By Default</label>
@@ -285,7 +294,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 		</li>
 	</ul>
 </div>
-
+ -->
 <%
 fsInfo = os.statvfs(settings.mangaFolders[1]["dir"])
 stopTime = time.time()

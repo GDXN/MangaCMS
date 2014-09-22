@@ -278,8 +278,14 @@ class TextScraper(object):
 				url = self.getToDo()
 				if url:
 
+					try:
+						self.retreiveItemFromUrl(url)
+					except urllib.error.URLError:
+						content = "DOWNLOAD FAILED"
+						content += "<br>"
+						content += traceback.format_exc()
+						self.upsert(url, dlstate=-1, contents=content)
 
-					self.retreiveItemFromUrl(url)
 
 				else:
 					timeouts += 1
@@ -528,8 +534,15 @@ class TextScraper(object):
 				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext  );'''  ),
 				("%s_dlstate_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlstate );'''  ),
 				("%s_url_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (url     );'''  ),
-				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title   );'''  )
+				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title   );'''  ),
+				("%s_title_coll_index" % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING BTREE (title COLLATE "en_US" text_pattern_ops);'''  )
 			]
+
+
+# CREATE INDEX  book_items_title_coll_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
+
+# CREATE INDEX title_collate_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
+# EXPLAIN ANALYZE SELECT COUNT(*) FROM book_items WHERE title LIKE 's%';
 
 
 			for name, table, nameFormat in indexes:
