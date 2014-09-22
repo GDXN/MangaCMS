@@ -61,53 +61,31 @@ import urllib.parse
 %>
 <%
 
-def compress_trie(key, childIn):
-	if len(childIn) == 1:
-		kidKey = list(childIn.keys())[0]
-		if isinstance(childIn[kidKey], dict):
-			key += kidKey
-			return compress_trie(key, childIn[kidKey])
-		return key, childIn
-	else:
-		for kidKey in list(childIn.keys()):
-			if isinstance(childIn[kidKey], dict):
-				retKey, retDict = compress_trie(kidKey, childIn[kidKey])
-				childIn[retKey] = retDict
-				if kidKey != retKey:
-					del childIn[kidKey]
-		return key, childIn
-
-def build_trie(iterItem, getKey=lambda x: x):
-	base = {}
-
-
-	scan = []
-
-	print("Building Trie")
-	for item in iterItem:
-		scan.append((getKey(item).lower(), item))
-
-	for key, item in scan:
-
-		floating_dict = base
-		for letter in key:
-			floating_dict = floating_dict.setdefault(letter, {})
-		floating_dict["_end_"] = item
-
-	print("Flattening")
-	compress_trie('', base)
-	print("Done")
-
-	return base
-
 %>
 
 
 
 
 
-<%def name="renderTreeRoot(keys)">
+<%def name="renderTreeRoot(rootKey, rootTitle)">
 	<%
+
+
+	ret = {}
+	for char in string.ascii_letters + string.digits:
+		cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s AND src=%s LIMIT 1;", ('{char}%'.format(char=char), rootKey))
+		ret[char] = cursor.fetchone()
+
+
+	for key in string.ascii_lowercase:
+		if ret[key]:
+			ret[key.upper()] = ret[key]
+			del(ret[key])
+	have = list(set([key.upper() for key, val in ret.items() if val ]))
+	have.sort()
+
+
+
 	curBase = 'item-%s' % int(time.time()*1000)
 
 	childNum = 0
@@ -117,11 +95,11 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 	<ul>
 
-		<li><input type="checkbox" id="${curBase}" checked="checked" /><label for="${curBase}">Baka-Tsuki</label>
+		<li><input type="checkbox" id="${curBase}" checked="checked" /><label for="${curBase}">${rootTitle}</label>
 			<ul>
-				% for key in keys:
+				% for key in have:
 					<li>
-					${treeRender.lazyTreeNode(key)}
+					${treeRender.lazyTreeNode(rootKey, key)}
 					</li>
 				% endfor
 			</ul>
@@ -154,32 +132,17 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 			# 	items.append(item)
 
-			ret = {}
-			print("start")
-			for char in string.ascii_letters + string.digits:
-				cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s LIMIT 1;", ('{char}%'.format(char=char), ))
-				ret[char] = cursor.fetchone()
 
-
-			for key in string.ascii_lowercase:
-				if ret[key]:
-					ret[key.upper()] = ret[key]
-					del(ret[key])
-			have = list(set([key.upper() for key, val in ret.items() if val ]))
-			have.sort()
-
-			print("done")
-			print(have)
 			# trie = build_trie(items, lambda x: x[2])
-
-
-
 
 			%>
 
 
 			<div class="css-treeview">
-				${renderTreeRoot(have)}
+				${renderTreeRoot('tsuki', 'Baka-Tsuki')}
+			</div>
+			<div class="css-treeview">
+				${renderTreeRoot('japtem', 'JapTem')}
 			</div>
 
 
