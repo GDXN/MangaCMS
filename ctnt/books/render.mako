@@ -9,30 +9,38 @@ import urllib.parse
 import time
 import uuid
 
+def compact_trie(inKey, inDict):
 
-def compress_trie(key, childIn):
-	if len(childIn) == 1:
-		kidKey = list(childIn.keys())[0]
-		if isinstance(childIn[kidKey], dict):
-			key += kidKey
-			return compress_trie(key, childIn[kidKey])
-		return key, childIn
-	else:
-		for kidKey in list(childIn.keys()):
-			if isinstance(childIn[kidKey], dict):
-				retKey, retDict = compress_trie(kidKey, childIn[kidKey])
-				childIn[retKey] = retDict
-				if kidKey != retKey:
-					del childIn[kidKey]
-		return key, childIn
+	if len(inDict) == 0:
+		raise ValueError("Wat? Item in dict with zero length!")
+	elif len(inDict) == 1:
+
+		curKey, curDict = inDict.popitem()
+
+		# Don't munge the end key
+		if curKey == "_end_":
+			return inKey, {curKey : curDict}
+
+		curKey, curDict = compact_trie(curKey, curDict)
+		return inKey+curKey, curDict
+
+	else:   # len(inDict) > 1
+
+		ret = {}
+		for key, value in inDict.items():
+			if key != "_end_":
+				key, value = compact_trie(key, value)
+			ret[key] = value
+
+		return inKey, ret
+
 
 def build_trie(iterItem, getKey=lambda x: x):
 	base = {}
 
 
+	# Build a trie data structure that represents the strings passed using nested dicts
 	scan = []
-
-	print("Building Trie")
 	for item in iterItem:
 		scan.append((getKey(item).lower(), item))
 
@@ -43,23 +51,95 @@ def build_trie(iterItem, getKey=lambda x: x):
 			floating_dict = floating_dict.setdefault(letter, {})
 		floating_dict["_end_"] = item
 
-	print("Flattening")
-	compress_trie('', base)
-	print("Done")
+	# Flatten cases where nested dicts have only one item. convert {"a": {"b" : sommat}} to {"ab" : sommat}
+	key, val = compact_trie('', base)
+	out = {key : val}
 
-	return base
+	return out
 
 
 %>
 
 
 <%def name="badId()">
-	Bad Page Reference!<br>
+	Error: Bad Page Reference!<br>
 	Page either not archived, or invalid.
 </%def>
 
 <%def name="needId()">
 	Treeview Requests require a valid source site key.
+</%def>
+
+
+
+
+<%def name="renderDirectory(inDict, name, keyBase, keyNum, isBase=False)">
+	<%
+	curBase = 'item-%s' % uuid.uuid1(0)
+
+	childNum = 0
+
+	keys = list(inDict.keys())
+	keys.sort()
+	%>
+
+	<ul>
+
+		% if not isBase:
+			<li><input type="checkbox" id="${curBase}" checked="checked" /><label for="${curBase}">${'Baka-Tsuki' if not name else name}</label>
+				<ul>
+		% endif
+				% for key in keys:
+					% if "_end_" in key:
+						<%
+							url, dbId, title = inDict[key]
+						%>
+
+						<li>
+							<div id='rowid'>${dbId}</div>
+							<div id='rowLink'><a href='/books/render?url=${urllib.parse.quote(url)}'>${title}</a></div>
+						</li>
+					% else:
+						<%
+							renderDirectory(inDict[key], name+key, curBase, childNum)
+							childNum += 1
+
+						%>
+					% endif
+				% endfor
+		% if not isBase:
+			</ul>
+		% endif
+		</li>
+	</ul>
+</%def>
+
+
+<%def name="renderWholeBranch(rootKey, keyBase)">
+	<%
+
+		cur = sqlCon.cursor()
+		cur.execute("SELECT url, dbid, title FROM book_items WHERE src = %s AND mimetype = %s AND lower(title) LIKE lower(%s) ORDER BY title;", (rootKey, 'text/html', keyBase+'%'))
+		ret = cur.fetchall()
+
+		if not ret:
+			context.write("No items for key? Did something go wrong?")
+			return ''
+
+		items = []
+		for item in ret:
+			filter = item[2].lower()
+
+
+			items.append(item)
+
+		trie = build_trie(items, lambda x: x[2])
+
+
+	%>
+
+	${renderDirectory(trie, '', "item", 0, isBase=True)}
+
 </%def>
 
 
@@ -101,12 +181,6 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 </%def>
 
-
-
-
-
-
-
 <%def name="lazyTreeNode(rootKey, treeKey)">
 	<%
 	curBase = 'item-%s' % uuid.uuid1(0)
@@ -141,8 +215,6 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 </%def>
 
-
-
 <%def name="lazyTreeRender(rootKey, treeKey)">
 	<%
 	curBase = 'item-%s' % uuid.uuid1(0)
@@ -154,15 +226,16 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 	cur.execute("""SELECT DISTINCT(substring(title for {len})) FROM book_items WHERE lower(title) LIKE %s AND src=%s;""".format(len=len(treeKey)+1), (treeKey.lower()+'%', rootKey))
 	ret = cur.fetchall()
-	print("Have", ret)
+	print("Dictinct = ", ret)
 
+	ret = set([item[0].lower() for item in ret])
 	%>
 	% if len(ret) > 1:
-		% for item, in ret:
+		% for item in ret:
 			${lazyTreeNode(rootKey, item)}
 		% endfor
 	% else:
-		LOLWAT?
+		${renderWholeBranch(rootKey, treeKey)}
 	% endif
 
 
@@ -170,19 +243,14 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 
 
-
 <%
-# print("Rendering")
-# print("Matchdict", request.matchdict)
-# print("Matchdict", request.params)
-
 
 
 
 if "url" in request.params:
 	url = urllib.parse.unquote(request.params["url"])
 	renderId(url)
-if "tree" in request.params:
+elif "tree" in request.params:
 
 	if not "key" in request.params:
 		needId()
@@ -195,6 +263,7 @@ if "tree" in request.params:
 
 	prefix = urllib.parse.unquote(request.params["tree"])
 	lazyTreeRender(key, prefix)
+
 else:
 	badId()
 %>
