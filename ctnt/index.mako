@@ -279,6 +279,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>fakku is broken?</strike> Fixed</li>
 	<li><strike>Load tables asynchronously from base page</strike></li>
 	<li><strike>dlstate 3 not rendering right</strike></li>
 	<li><strike>have vol and chap in separate columns</strike></li>

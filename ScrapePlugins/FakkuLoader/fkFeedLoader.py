@@ -86,7 +86,8 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return []
 
 		items = []
-		containerDiv = container.find_parent("div")
+		containerDiv = container.find_parent("div", class_='row')
+
 		tagTags = containerDiv.find_all("a")
 
 		for tagTag in tagTags:
@@ -95,6 +96,8 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			while "  " in tagStr:
 				tagStr = tagStr.replace("  ", " ")
 			tagStr = tagStr.replace(" ", "-")
+			if tagStr == "...":
+				continue
 			items.append(tagStr)
 
 		return items
@@ -104,9 +107,9 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		tags = []
 
 
-		tags = self.extractLinksFromContainer(soup, 'Tags:')
-		parody = self.extractLinksFromContainer(soup, 'Series:')
-		artists = self.extractLinksFromContainer(soup, 'Artist:')
+		tags = self.extractLinksFromContainer(soup, 'Tags')
+		parody = self.extractLinksFromContainer(soup, 'Series')
+		artists = self.extractLinksFromContainer(soup, 'Artist')
 
 		for item in parody:
 			tags.append(item)
@@ -116,13 +119,12 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		tags = ' '.join(tags)
 		tags = tags.lower()
-
 		return tags
 
 
 	def extractNote(self, soup):
 
-		noteHeader = soup.find(text='Description:')
+		noteHeader = soup.find(text='Description')
 
 		note = noteHeader.parent.next_sibling
 		note = note.strip()
@@ -220,7 +222,8 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# cur.execute('INSERT INTO fufufuu VALUES(?, ?, ?, "", ?, ?, "", ?);',(link["date"], 0, 0, link["dlLink"], link["itemTags"], link["dlName"]))
 				self.log.info("New item: %s", (curTime, link["pageUrl"], link["dlName"]))
 
-
+			else:
+				self.addTags(sourceUrl=link["pageUrl"], tags=link['tags'])
 
 		self.log.info("Done")
 		self.log.info("Committing...",)
