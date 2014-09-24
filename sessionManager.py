@@ -43,16 +43,20 @@ class ViewerSession(object):
 
 	def buildImageLookupDict(self):
 		names = self.getImageNames()
-		names = natsorted(names)
-		names.reverse()
+
+		# Natsorted evaluates '-' to mean a negative number
+		# This breaks sorting (it reverses it) for filenames where the spaces
+		# have been replaced with hyphens.
+		# As a work-around, and since I do not currently anticipate the need to
+		# properly sort negative numbers, use a lambda
+		# to replace all hyphens with spaces for sorting.
+		names = natsorted(names, key=lambda x: x.replace("-", " "))
 
 		self.items = dict(zip(range(len(names)), names))
 
 	def getKeys(self):
 		try:
 			keys = list(self.items.keys())
-			keys = natsorted(keys)
-			keys.reverse()
 			return keys
 
 		except AttributeError:
