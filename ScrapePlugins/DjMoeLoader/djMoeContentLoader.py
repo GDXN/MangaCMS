@@ -102,8 +102,9 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Loopin!")
 			try:
 				url = self.getDownloadUrl(contentId)
-				self.doDownload(url)
-				delay = random.randint(5, 30)
+				if url:
+					self.doDownload(url)
+					delay = random.randint(5, 30)
 			except:
 				print("ERROR WAT?")
 				traceback.print_exc()
@@ -199,8 +200,15 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				tagList.append(tagStr.lower().rstrip(", ").lstrip(", ").replace(" ", "-"))
 		else:
 			tagList = []
-		linkDict["tags"] = ' '.join(tagList)
 
+		tagStr = ' '.join(tagList)
+
+		for skipTag in settings.skipTags:
+			if skipTag in tagStr:
+				self.log.info("Skipped tag '%s' in tags '%s'. Do not want.", skipTag, tagStr)
+				return None
+
+		linkDict["tags"] = tagStr
 
 		if not os.path.exists(linkDict["dirPath"]):
 			os.makedirs(linkDict["dirPath"])

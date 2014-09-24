@@ -97,13 +97,15 @@ class EmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			item = {}
 
-			item["tags"] = ' '.join(tagsExtracted)
+			tagStr = ' '.join(tagsExtracted)
 
+			for skipTag in settings.skipTags:
+				if skipTag in tagStr:
+					self.log.info("Skipped tag '%s' in tags '%s'. Do not want.", skipTag, tagStr)
+					continue
 
-			# No yaoi, please
-			if "yaoi" in item["tags"]:
-				self.log.info("Yaoi. Do not want.")
-				continue
+			item["tags"] = tagStr
+
 
 			item["itemType"] = "None"
 			if 'type' in gallery:

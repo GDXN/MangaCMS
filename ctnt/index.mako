@@ -145,18 +145,17 @@ import settings
 <ul>
 	<li>add half star rating options</li>
 	<li>h tag collation system</li>
+	<li>consolidation system for h tags</li>
 	<li>reset download button in mangatable for specific key view</li>
 	<li>smart zoom mode in overlay</li>
 	<li>make zoom mode pop up last longer</li>
 	<li>fancy fade out when toolbars hidden?</li>
 	<li>out of row colours</li>
-	<li>fix pururin page ordering already</li>
 	<li>linebreaks in long filenames in reader popup need work</li>
 	<li>zoom mode indicator for smart mode in reader</li>
 	<li>fit width only if oversize?</li>
 	<li>Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.</li>
 	<li>steal code from free manga downloader?</li>
-	<li>tags by number for h</li>
 	<li>filesize in browser</li>
 	<li>ability to specify MU id in directory name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
@@ -167,25 +166,20 @@ import settings
 	<li>color code mangaupdates status in reader</li>
 	<li>highlight chapters < 10</li>
 	<li>scan times to deduper for rescanning. Also filesizes</li>
-
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>ability to browse by mu tags</li>
 	<li>add ability to sort directory by rating.</li>
 	<li>Add failed item introspection table.</li>
 	<li>artist and author in filebrowser if i have it</li>
-	<li>bu page opens in new window</li>
-	<li>consolidation system for h tags</li>
+	<li>bu page opens in new window</li>a
 	<li>different tag for phash desuplication</li>
-	<li>filtered h isn't being properly skipped</li>
 	<li>IRC grabber needs a transfer stall timeout.</li>
 	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
-	<li>Migrate to new queries from tests.test-Queries</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
 	<li>Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file</li>
 	<li>Prevent full base dir refresh on directory rename.</li>
 	<li>prioritize downloads by rating</li>
 	<li>properly show if things are one shot</li>
-	<li>tag/flag for when items are mirrored to mk?</li>
 	<li>tagging in web interface</li>
 	<li>Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)</li>
 	<li>Trigger series download if on any BU list as well (partial)</li>
@@ -279,6 +273,10 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>filtered h isn't being properly skipped</strike></li>
+	<li><strike>fix pururin page ordering already</strike> It was a sorting issue in the session system? Fuuuuuuuuuuck.</li>
+	<li><strike>Migrate to new queries from tests.test-Queries</strike> Superceeded by procedural queries using server-side cursors.</li>
+	<li><strike>tag/flag for when items are mirrored to mk?</strike> DlState=3 means uploaded</li>
 	<li><strike>fakku is broken?</strike> Fixed</li>
 	<li><strike>Load tables asynchronously from base page</strike></li>
 	<li><strike>dlstate 3 not rendering right</strike></li>
@@ -299,8 +297,9 @@ import settings
 	<li><strike>look into pu sorting issues.</strike> Stupid logic error in download delay mechanism.</li>
 	<li><strike>check that new items in bu are updating properly</strike></li>
 	<li><strike>djm retagger no longer running?</strike></li>
-	<li><strike>Murcielago. again</strike> Hopefully fixed by forcing NFKD unicode normalization.</li>
+	<li><strike>Murcielago. again</strike> <strike>Hopefully fixed by forcing NFKD unicode normalization.</strike> Fuck unicode. Arrrgh.</li>
 	<li><strike>mu not in sidebar</strike> Fucked up the flags at some point. Fixed.</li>
+	<li><strike>tags by number for h</strike></li>
 	<li><strike>Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?</strike> Simple regex implemented. I'll have to see how it pans out</li>
 	<li><strike>sort bu lists contents alphabetically</strike></li>
 	<li><strike>aggregation query is fucked. somehow.</strike> Fixed with procedural filtering system.</li>

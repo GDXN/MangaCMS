@@ -81,7 +81,7 @@ import re
 	# for item in dirContents:
 	# 	print("File -> '%s'" % item)
 
-	print(dirContents, dirPath)
+	# print(dirContents, dirPath)
 	tmp = []
 	for item in dirContents:
 		chapKey = chpRe.findall(item)

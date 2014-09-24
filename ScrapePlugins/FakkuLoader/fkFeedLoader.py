@@ -197,6 +197,13 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		ret = []
 		for linkLi in doujinDiv:
+			item = self.parseDoujinDiv(linkLi)
+
+			for skipTag in settings.skipTags:
+				if skipTag in item['tags']:
+					self.log.info("Skipped tag '%s' in tags '%s'. Do not want.", skipTag, item['tags'])
+					continue
+
 			ret.append(self.parseDoujinDiv(linkLi))
 
 		return ret

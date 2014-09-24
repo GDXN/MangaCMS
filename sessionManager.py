@@ -5,6 +5,8 @@ from UniversalArchiveReader import ArchiveReader
 import nameTools as nt
 import logging
 
+from natsort import natsorted
+
 class ViewerSession(object):
 	def __init__(self):
 		self.archHandle = None
@@ -41,14 +43,16 @@ class ViewerSession(object):
 
 	def buildImageLookupDict(self):
 		names = self.getImageNames()
-		names.sort()
+		names = natsorted(names)
+		names.reverse()
 
 		self.items = dict(zip(range(len(names)), names))
 
 	def getKeys(self):
 		try:
 			keys = list(self.items.keys())
-			keys.sort()
+			keys = natsorted(keys)
+			keys.reverse()
 			return keys
 
 		except AttributeError:

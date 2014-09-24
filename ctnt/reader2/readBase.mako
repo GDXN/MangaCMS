@@ -16,6 +16,7 @@ import os.path
 import os
 
 
+from natsort import natsorted
 import magic
 from operator import itemgetter
 
@@ -278,7 +279,6 @@ def dequoteDict(inDict):
 
 
 	name = nt.sanitizeString(itemDict["item"], flatten=False)
-	print(name)
 	buId, haveBu, buLink, buTags, buGenre, buList, readProgress, availProgress = ut.getItemInfo(name)
 
 
@@ -431,9 +431,7 @@ def dequoteDict(inDict):
 			<div class="lightRect itemInfoBox">
 				Other names:
 				<%
-				print(buId)
 				names = nt.buSynonymsLookup[buId]
-				print(names)
 				%>
 				<ul>
 					% for name in names:
