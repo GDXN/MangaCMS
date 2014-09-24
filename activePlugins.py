@@ -53,7 +53,7 @@ scrapePlugins = {
 	500 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       60*60*24*4),  # every 4 days, because I have to iterate over the ENTIRE site.
 
 
-	510 : (TextScrape.BakaTsuki.Run,                       60*60*24*5),  # Every 5 days, because books is slow to update
+	# 510 : (TextScrape.BakaTsuki.Run,                       60*60*24*5),  # Every 5 days, because books is slow to update
 	511 : (TextScrape.JapTem.Run,                          60*60*24*5)
 
 

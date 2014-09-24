@@ -18,7 +18,7 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 3
+	threads = 1
 
 
 	baseUrl = "http://www.baka-tsuki.org/"
@@ -66,7 +66,6 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 
 	def cleanBtPage(self, inPage):
-
 		doc = readability.readability.Document(inPage, negative_keywords=['mw-normal-catlinks', "printfooter", "mw-panel", 'portal'])
 		doc.parse()
 		content = doc.content()

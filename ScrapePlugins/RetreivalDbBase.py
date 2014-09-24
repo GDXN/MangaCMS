@@ -422,6 +422,48 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		self.log.info("Download reset complete")
 
 
+
+	def processLinksIntoDB(self, linksDicts):
+
+		self.log.info( "Inserting...",)
+		newItems = 0
+		for link in linksDicts:
+			if link is None:
+				print("linksDicts", linksDicts)
+				print("WAT")
+
+			row = self.getRowsByValue(sourceUrl=link["sourceUrl"])
+			if not row:
+				newItems += 1
+
+				# Patch series name.
+				link["seriesName"] = nt.getCanonicalMangaUpdatesName(link["seriesName"])
+
+
+				# Using fancy dict hijinks now. Old call below for reference.
+
+				# self.insertIntoDb(retreivalTime = link["date"],
+				# 					sourceUrl   = link["dlLink"],
+				# 					originName  = link["dlName"],
+				# 					dlState     = 0,
+				# 					seriesName  = link["baseName"],
+				# 					flags       = flagStr)
+
+				self.insertIntoDb(**link)
+				self.log.info("New item: %s", (link["retreivalTime"], link["sourceUrl"], link["seriesName"], link["originName"]))
+
+
+
+
+		self.log.info( "Done")
+		self.log.info( "Committing...",)
+		self.conn.commit()
+		self.log.info( "Committed")
+
+		return newItems
+
+
+
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Management
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
