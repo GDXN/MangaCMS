@@ -79,6 +79,7 @@ class ApiInterface(object):
 
 		return Response(body=ret)
 
+
 	def changeRating(self, request):
 		print(request.params)
 
@@ -102,6 +103,40 @@ class ApiInterface(object):
 
 		return Response(body=json.dumps({"Status": "Success", "Message": "Directory Renamed"}))
 
+	def resetDownload(self, request):
+		print(request.params)
+
+		dbId = mangaName = request.params["reset-download"]
+
+		try:
+			dbId = int(dbId)
+		except ValueError:
+			return Response(body=json.dumps({"Status": "Failed", "Message": "Row ID was not a integer!"}))
+
+		cur = self.conn.cursor()
+
+		cur.execute("SELECT dlState, dbid FROM MangaItems WHERE dbId=%s", (dbId, ))
+		ret = cur.fetchall()
+
+		if len(ret) == 0:
+			return Response(body=json.dumps({"Status": "Failed", "Message": "Row ID was not present in DB!"}))
+		if len(ret) != 1:
+			return Response(body=json.dumps({"Status": "Failed", "Message": "Did not receive single row for query based on RowId"}))
+
+		dlState, qId = ret[0]
+
+		if qId != dbId:
+			return Response(body=json.dumps({"Status": "Failed", "Message": "Id Mismatch! Wat?"}))
+
+		if dlState >= 0:
+			return Response(body=json.dumps({"Status": "Failed", "Message": "Row does not need to be reset!"}))
+
+
+		cur.execute("UPDATE MangaItems SET dlState=0 WHERE dbId=%s", (dbId, ))
+		cur.execute("COMMIT;")
+
+		return Response(body=json.dumps({"Status": "Success", "Message": "Download state reset."}))
+
 
 
 	def handleApiCall(self, request):
@@ -119,6 +154,10 @@ class ApiInterface(object):
 		elif "update-series" in request.params:
 			print("Update series!")
 			return self.updateSeries(request)
+
+		elif "reset-download" in request.params:
+			print("Download Reset!")
+			return self.resetDownload(request)
 
 		else:
 			return Response(body="wat?")

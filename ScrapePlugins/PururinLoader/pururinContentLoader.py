@@ -285,7 +285,14 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Complete filepath: %s", wholePath)
 
 					#Write all downloaded files to the archive.
-			arch = zipfile.ZipFile(wholePath, "w")
+			try:
+				arch = zipfile.ZipFile(wholePath, "w")
+			except OSError:
+				title = title.encode('ascii','ignore').decode('ascii')
+				fileN = title+".zip"
+				fileN = nt.makeFilenameSafe(fileN)
+				arch = zipfile.ZipFile(wholePath, "w")
+
 			for imageName, imageContent in images:
 				arch.writestr(imageName, imageContent)
 			arch.close()

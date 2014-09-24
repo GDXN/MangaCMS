@@ -13,7 +13,7 @@ import os.path
 import urllib.parse
 import settings
 import nameTools as nt
-
+import uuid
 import time
 
 def compactDateStr(dateStr):
@@ -330,11 +330,56 @@ colours = {
 		else:
 			toolTip += "File is missing!"
 
-
+		cellId = None
+		if dlState < 0:
+			cellId = uuid.uuid1(0).hex
 		%>
 		<tr class="${sourceSite}_row">
 			<td>${ut.timeAgo(retreivalTime)}</td>
-			<td bgcolor=${statusColour} class="showTT" title="${toolTip}">${ '<center>↑</center>' if dlState==3 else ''}</td>
+			<td bgcolor=${statusColour} class="showTT" title="${toolTip}" ${'onclick="event_%s()"' % cellId if cellId else ''}>
+				%if dlState==3:
+					<center>↑</center>
+				%elif dlState < 0:
+					<script>
+
+						function ajaxCallback(reqData, statusStr, jqXHR)
+						{
+							console.log("Ajax request succeeded");
+							console.log(reqData);
+							console.log(statusStr);
+
+							var status = $.parseJSON(reqData);
+							console.log(status)
+							if (status.Status == "Success")
+							{
+
+								alert("Succeeded!\n"+status.Message)
+								// TODO Make this change the page locally, change the cell colours and stuff.
+							}
+							else
+							{
+								alert("ERROR!\n"+status.Message)
+							}
+
+						};
+
+
+						function ${"event_%s()" % cellId}
+						{
+							var reset = window.confirm("Reset download state for item ${dbId}");
+							if (reset == true)
+							{
+								var ret = ({});
+								ret["reset-download"] = "${dbId}";
+								$.ajax("/api", {"data": ret, success: ajaxCallback});
+							}
+
+
+
+						}
+					</script>
+				%endif
+			</td>
 			<td bgcolor=${locationColour} class="showTT" title="${toolTip}"></td>
 			<td>${ut.createReaderLink(seriesName.title(), itemInfo)}</td>
 			<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>

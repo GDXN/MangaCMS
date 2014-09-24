@@ -146,7 +146,6 @@ import settings
 	<li>add half star rating options</li>
 	<li>h tag collation system</li>
 	<li>consolidation system for h tags</li>
-	<li>reset download button in mangatable for specific key view</li>
 	<li>smart zoom mode in overlay</li>
 	<li>make zoom mode pop up last longer</li>
 	<li>fancy fade out when toolbars hidden?</li>
@@ -171,7 +170,7 @@ import settings
 	<li>add ability to sort directory by rating.</li>
 	<li>Add failed item introspection table.</li>
 	<li>artist and author in filebrowser if i have it</li>
-	<li>bu page opens in new window</li>a
+	<li>bu page opens in new window</li>
 	<li>different tag for phash desuplication</li>
 	<li>IRC grabber needs a transfer stall timeout.</li>
 	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
@@ -273,6 +272,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>reset download button in mangatable for specific key view</strike></li>
 	<li><strike>filtered h isn't being properly skipped</strike></li>
 	<li><strike>fix pururin page ordering already</strike> It was a sorting issue in the session system? Fuuuuuuuuuuck.</li>
 	<li><strike>Migrate to new queries from tests.test-Queries</strike> Superceeded by procedural queries using server-side cursors.</li>

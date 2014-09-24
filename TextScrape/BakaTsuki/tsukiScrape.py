@@ -54,6 +54,8 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 				"http://www.baka-tsuki.org/#",
 
 				# misc
+				"viewforum.php",
+				"viewtopic.php",
 				"printable=yes",
 				"title=Special",
 				"action=edit",
