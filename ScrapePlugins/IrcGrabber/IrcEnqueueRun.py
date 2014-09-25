@@ -3,6 +3,7 @@
 from ScrapePlugins.IrcGrabber.ViScans.ViScrape                     import ViTriggerLoader
 from ScrapePlugins.IrcGrabber.StupidCommotion.StupidCommotionQueue import StupidCommotionTriggerLoader
 from ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape                import IMSTriggerLoader
+from ScrapePlugins.IrcGrabber.EgScans.EgScrape                     import EgTriggerLoader
 
 import ScrapePlugins.RunBase
 
@@ -43,3 +44,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		if not runStatus.run:
 			return
+
+
+		cl = EgTriggerLoader()
+		cl.go()
+		cl.closeDB()
+

@@ -18,7 +18,7 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 1
+	threads = 4
 
 
 	baseUrl = "http://www.baka-tsuki.org/"
@@ -56,7 +56,9 @@ class TsukiScrape(TextScrape.SqlBase.TextScraper):
 				# misc
 				"viewforum.php",
 				"viewtopic.php",
+				"memberlist.php",
 				"printable=yes",
+				"/forums/",
 				"title=Special",
 				"action=edit",
 				"action=history",

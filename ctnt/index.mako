@@ -202,11 +202,12 @@ import settings
 <ul>
 	<li>Manga</li>
 	<ul>
-		<li>http://egscans.com/</li>
 		<li>http://lonemanga.com/</li>
-		<li>redhawkscans.com</li>
+		<li>webtoons.com</li>
 		<li>Tadanohito as a H source</li>
 		<li>http://www.hbrowse.com/ as a H source</li>
+		<li><strike>http://egscans.com/</strike> (Via IRC)</li>
+		<li><strike>redhawkscans.com</strike></li>
 		<li><strike>mangajoy</strike></li>
 		<li><strike>http://www.cxcscans.com/</strike></li>
 		<li><strike>http://desperatescanners.weebly.com/</strike> (They release on batoto)</li>
