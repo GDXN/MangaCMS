@@ -107,12 +107,19 @@ DNLDED = 2
 
 				% if item["dictKey"] != None:
 					% if item["dictKey"] in statusDict:
-						<ul>
-							<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
-							<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
-							<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
-							<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
-						</ul>
+						<%
+						keys = [DNLDED, DLING, QUEUED, FAILED]
+						pres = [key in statusDict[item["dictKey"]] for key in keys]
+
+						%>
+						% if all(pres):
+							<ul>
+								<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
+								<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
+								<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
+								<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
+							</ul>
+						% endif
 					% else:
 						<b>WARN: No lookup dict built yet!</b>
 					% endif

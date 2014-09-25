@@ -441,6 +441,9 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			if not row:
 				newItems += 1
 
+				if not "dlState" in link:
+					link['dlState'] = 0
+
 				# Patch series name.
 				link["seriesName"] = nt.getCanonicalMangaUpdatesName(link["seriesName"])
 

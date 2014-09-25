@@ -18,8 +18,10 @@ import ScrapePlugins.McLoader.Run
 import ScrapePlugins.CxLoader.Run
 import ScrapePlugins.MjLoader.Run
 import ScrapePlugins.RhLoader.Run
+import ScrapePlugins.LoneMangaLoader.Run
 import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 import ScrapePlugins.IrcGrabber.BotRunner
+
 
 import TextScrape.BakaTsuki.Run
 import TextScrape.JapTem.Run
@@ -46,6 +48,7 @@ scrapePlugins = {
 	12 : (ScrapePlugins.MjLoader.Run,             60*60   ),
 	13 : (ScrapePlugins.IrcGrabber.BotRunner,     60*60   ),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
 	14 : (ScrapePlugins.RhLoader.Run,             60*60*12),
+	15 : (ScrapePlugins.LoneMangaLoader.Run,      60*60*12),
 
 	# Madokami is two separate sections, because the feedLoader takes
 	# 5+ hours just to run.

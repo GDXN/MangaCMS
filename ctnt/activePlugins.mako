@@ -138,6 +138,17 @@ sidebarItemList = [
 			'genRow'        : True,
 			'type'          : 'Manga'
 		},
+		{
+			"num"           : 17,
+			'dbKey'         : "LmLoader",
+			'name'          : "LoneManga",
+			'dictKey'       : "lm",
+			'cssClass'      : "lmId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
 
 		{
 			"num"           : 14,
