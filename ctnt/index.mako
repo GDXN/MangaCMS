@@ -203,7 +203,7 @@ select 201 to determine next page
 <ul>
 	<li>Manga</li>
 	<ul>
-		<li>webtoons.com</li>
+		<li><strike>webtoons.com</strike></li>
 		<li>Tadanohito as a H source</li>
 		<li>http://www.hbrowse.com/ as a H source</li>
 		<li><strike>http://lonemanga.com/</strike></li>

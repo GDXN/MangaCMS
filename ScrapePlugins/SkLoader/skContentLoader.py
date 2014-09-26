@@ -168,12 +168,17 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		fName = nt.makeFilenameSafe(fName)
 
 		fqFName = os.path.join(link["targetDir"], fName)
+
+		fqFName, ext = os.path.splitext(fqFName)
+		fqFName = "%s [Starkana]%s" % (fqFName, ext)
+
+
 		self.log.info( "SaveName = %s", fqFName)
 
 		loop = 1
 		while os.path.exists(fqFName):
-			fName = "%s - (%d) - %s" % (originFileName, loop,  hName)
-			fqFName = os.path.join(link["targetDir"], fName)
+			fqFName, ext = os.path.splitext(fqFName)
+			fqFName = "%s (%d)%s" % (fqFName, loop,  ext)
 			loop += 1
 		self.log.info( "Writing file")
 

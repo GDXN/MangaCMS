@@ -117,12 +117,13 @@ class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			chapterName = nt.makeFilenameSafe(chapterVol)
 
-			fqFName = os.path.join(dlPath, chapterName+".zip")
+			fqFName = os.path.join(dlPath, chapterName+" [LoneManga].zip")
 
 			loop = 1
 			while os.path.exists(fqFName):
-				fName = "%s - (%d).zip" % (chapterName, loop)
-				fqFName = os.path.join(dlPath, fName)
+				fqFName, ext = os.path.splitext(fqFName)
+				fqFName = "%s (%d)%s" % (fqFName, loop,  ext)
+
 				loop += 1
 			self.log.info("Saving to archive = %s", fqFName)
 

@@ -119,8 +119,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			loop = 1
 			while os.path.exists(fqFName):
-				fName = "%s - (%d).zip" % (chapterName, loop)
-				fqFName = os.path.join(dlPath, fName)
+				fqFName, ext = os.path.splitext(fqFName)
+				fqFName = "%s (%d)%s" % (fqFName, loop,  ext)
 				loop += 1
 			self.log.info("Saving to archive = %s", fqFName)
 

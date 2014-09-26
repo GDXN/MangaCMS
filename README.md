@@ -7,18 +7,21 @@ Plugin scrapers for:
 
 
  - Manga Sites:
-	 - Starkana.com
 	 - Batoto.com
-	 - Doujin-Moe
 	 - download.japanzai.com
 	 - MangaCow
 	 - MangaJoy
+	 - Starkana.com
 	 - CXC Scans
 	 - RedHawk Scans
+	 - Webtoons.com
+	 - LoneManga.com
+	 - EasyGoing Scans
 	 - Manga.Madokami
 	 - Numerous IRC bots.
  - Hentai Sites:
 	 - Fakku
+	 - Doujin Moe
 	 - Pururin
 	 - Exhen.Madokami
  - Light Novels:

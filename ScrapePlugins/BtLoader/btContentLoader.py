@@ -213,7 +213,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			chapterNameRaw = " - ".join((seriesName, chapterVol))
 			chapterName = nt.makeFilenameSafe(chapterNameRaw)
 
-			fqFName = os.path.join(dlPath, chapterName+".zip")
+			fqFName = os.path.join(dlPath, chapterName+" [batoto].zip")
 
 			loop = 1
 			while os.path.exists(fqFName):

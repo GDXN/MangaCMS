@@ -106,6 +106,8 @@ class CxContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		fName = "%s - %s" % (originFileName, headerName)
 		fName = nt.makeFilenameSafe(fName)
 
+		fName, ext = os.path.splitext(fName)
+		fName = "%s [CXC Scans]%s" % (fName, ext)
 
 		fqFName = os.path.join(dlPath, fName)
 		self.log.info( "SaveName = %s", fqFName)
@@ -113,7 +115,8 @@ class CxContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		loop = 1
 		while os.path.exists(fqFName):
-			fName = "%s - (%d) - %s" % (originFileName, loop,  hName)
+			fName, ext = os.path.splitext(fName)
+			fName = "%s (%d)%s" % (fName, loop,  ext)
 			fqFName = os.path.join(link["targetDir"], fName)
 			loop += 1
 		self.log.info("Writing file")

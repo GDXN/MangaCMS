@@ -445,7 +445,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 					link['dlState'] = 0
 
 				# Patch series name.
-				link["seriesName"] = nt.getCanonicalMangaUpdatesName(link["seriesName"])
+				if 'seriesName' in link:
+					link["seriesName"] = nt.getCanonicalMangaUpdatesName(link["seriesName"])
 
 
 				# Using fancy dict hijinks now. Old call below for reference.
@@ -458,7 +459,9 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 				# 					flags       = flagStr)
 
 				self.insertIntoDb(**link)
-				self.log.info("New item: %s", (link["retreivalTime"], link["sourceUrl"], link["seriesName"], link["originName"]))
+
+
+				self.log.info("New item: %s", link)
 
 
 
