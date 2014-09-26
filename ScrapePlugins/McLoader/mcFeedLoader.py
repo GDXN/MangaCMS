@@ -93,12 +93,12 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			date = dateutil.parser.parse(chapDate.get_text(), fuzzy=True)
 
-			item["originName"] = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
-			item["sourceUrl"]  = url
-			item["seriesName"] = baseInfo["title"]
-			item["tags"]       = baseInfo["tags"]
-			item["note"]       = baseInfo["note"]
-			item["date"]       = time.mktime(date.timetuple())
+			item["originName"]     = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
+			item["sourceUrl"]      = url
+			item["seriesName"]     = baseInfo["title"]
+			item["tags"]           = baseInfo["tags"]
+			item["note"]           = baseInfo["note"]
+			item["retreivalTime"]  = time.mktime(date.timetuple())
 
 
 			ret.append(item)
@@ -143,53 +143,6 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Found %s total items", len(ret))
 		return ret
 
-
-
-
-	def processLinksIntoDB(self, linksDicts, isPicked=False):
-
-		self.log.info( "Inserting...",)
-		newItems = 0
-		for link in linksDicts:
-			if link is None:
-				print("linksDicts", linksDicts)
-				print("WAT")
-
-			row = self.getRowsByValue(sourceUrl=link["sourceUrl"])
-			if not row:
-				newItems += 1
-
-
-				# Flags has to be an empty string, because the DB is annoying.
-				#
-				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
-				#
-				self.insertIntoDb(originName      = link["originName"],
-									sourceUrl     = link["sourceUrl"],
-									seriesName    = link["seriesName"],
-									tags          = link["tags"],
-									note          = link["note"],
-									retreivalTime = link["date"],
-									dlState     = 0,
-									flags       = '')
-
-
-
-				self.log.info("New item: %s, %s", link["date"], link["sourceUrl"])
-
-
-			else:
-				row = row.pop()
-				if isPicked and not "picked" in row["flags"]:  # Set the picked flag if it's not already there, and we have the item already
-					self.updateDbEntry(link["dlLink"], flags=" ".join([row["flags"], "picked"]))
-
-
-		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
-
-		return newItems
 
 
 	def go(self):

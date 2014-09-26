@@ -64,8 +64,8 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		item = {}
 
-		item["date"] = time.mktime(addDate.timetuple())
-		item["dlLink"] = chapter.a["href"]
+		item["retreivalTime"] = time.mktime(addDate.timetuple())
+		item["sourceUrl"] = chapter.a["href"]
 
 		return item
 
@@ -157,47 +157,6 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-
-
-	def processLinksIntoDB(self, linksDicts, isPicked=False):
-
-		self.log.info( "Inserting...",)
-		newItems = 0
-		for link in linksDicts:
-			if link is None:
-				print("linksDicts", linksDicts)
-				print("WAT")
-
-			row = self.getRowsByValue(sourceUrl=link["dlLink"])
-			if not row:
-				newItems += 1
-
-
-				# Flags has to be an empty string, because the DB is annoying.
-				#
-				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
-				#
-				self.insertIntoDb(retreivalTime = link["date"],
-									sourceUrl   = link["dlLink"],
-									dlState     = 0,
-									flags       = '')
-
-
-				self.log.info("New item: %s, %s", link["date"], link["dlLink"])
-
-
-			else:
-				row = row.pop()
-				if isPicked and not "picked" in row["flags"]:  # Set the picked flag if it's not already there, and we have the item already
-					self.updateDbEntry(link["dlLink"], flags=" ".join([row["flags"], "picked"]))
-
-
-		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
-
-		return newItems
 
 
 	def go(self):

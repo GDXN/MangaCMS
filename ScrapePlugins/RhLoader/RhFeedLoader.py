@@ -88,7 +88,7 @@ class RhFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["originName"] = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
 			item["sourceUrl"]  = url
 			item["seriesName"] = baseInfo["title"]
-			item["date"]       = time.mktime(date.timetuple())
+			item["retreivalTime"]       = time.mktime(date.timetuple())
 
 			ret.append(item)
 
@@ -146,43 +146,6 @@ class RhFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-
-
-	def processLinksIntoDB(self, linksDicts, isPicked=False):
-
-		self.log.info( "Inserting...",)
-		newItems = 0
-		for link in linksDicts:
-			if link is None:
-				print("linksDicts", linksDicts)
-				print("WAT")
-
-			row = self.getRowsByValue(sourceUrl=link["sourceUrl"])
-			if not row:
-				newItems += 1
-
-
-				self.insertIntoDb(originName      = link["originName"],
-									sourceUrl     = link["sourceUrl"],
-									seriesName    = link["seriesName"],
-									retreivalTime = link["date"],
-									dlState     = 0)
-
-
-
-				self.log.info("New item: %s, %s", link["date"], link["originName"])
-
-
-			else:
-				row = row.pop()
-
-
-		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
-
-		return newItems
 
 
 	def go(self):

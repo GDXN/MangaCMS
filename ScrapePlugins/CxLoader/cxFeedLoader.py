@@ -83,7 +83,7 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				item["originName"] = "{series} - {file}".format(series=seriesName, file=dlTitle)
 				item["sourceUrl"]  = dlLink
 				item["seriesName"] = seriesName
-				item["date"]       = time.mktime(date.timetuple())
+				item["retreivalTime"]       = time.mktime(date.timetuple())
 
 				# print("Item", item)
 				ret.append(item)
@@ -130,50 +130,6 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-
-
-	def processLinksIntoDB(self, linksDicts, isPicked=False):
-
-		self.log.info( "Inserting...",)
-		newItems = 0
-		for link in linksDicts:
-			if link is None:
-				print("linksDicts", linksDicts)
-				print("WAT")
-
-			row = self.getRowsByValue(sourceUrl=link["sourceUrl"])
-			if not row:
-				newItems += 1
-
-
-				# Flags has to be an empty string, because the DB is annoying.
-				#
-				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
-				#
-				self.insertIntoDb(originName      = link["originName"],
-									sourceUrl     = link["sourceUrl"],
-									seriesName    = link["seriesName"],
-									retreivalTime = link["date"],
-									dlState     = 0,
-									flags       = '')
-
-
-
-				self.log.info("New item: %s, %s", link["date"], link["sourceUrl"])
-
-
-			else:
-				row = row.pop()
-				if isPicked and not "picked" in row["flags"]:  # Set the picked flag if it's not already there, and we have the item already
-					self.updateDbEntry(link["dlLink"], flags=" ".join([row["flags"], "picked"]))
-
-
-		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
-
-		return newItems
 
 
 	def go(self):

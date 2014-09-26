@@ -143,6 +143,7 @@ import settings
 
 <b>General</b>
 <ul>
+select 201 to determine next page
 	<li>add half star rating options</li>
 	<li>h tag collation system</li>
 	<li>consolidation system for h tags</li>
@@ -202,10 +203,10 @@ import settings
 <ul>
 	<li>Manga</li>
 	<ul>
-		<li>http://lonemanga.com/</li>
 		<li>webtoons.com</li>
 		<li>Tadanohito as a H source</li>
 		<li>http://www.hbrowse.com/ as a H source</li>
+		<li><strike>http://lonemanga.com/</strike></li>
 		<li><strike>http://egscans.com/</strike> (Via IRC)</li>
 		<li><strike>redhawkscans.com</strike></li>
 		<li><strike>mangajoy</strike></li>

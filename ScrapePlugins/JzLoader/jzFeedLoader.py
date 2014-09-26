@@ -65,10 +65,10 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			item = {}
 			dlUrl = urllib.parse.urljoin(seriesUrl, self.quoteUrl(linkLi.a["href"]))
-			item["date"]     = time.time()
-			item["dlName"]   = linkLi.a.get_text().rsplit("-")[0].strip()
-			item["dlLink"]   = dlUrl
-			item["baseName"] = seriesName
+			item["retreivalTime"]     = time.time()
+			item["originName"]   = linkLi.a.get_text().rsplit("-")[0].strip()
+			item["sourceUrl"]   = dlUrl
+			item["seriesName"] = seriesName
 
 			ret.append(item)
 
@@ -125,56 +125,6 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-
-
-	def processLinksIntoDB(self, linksDicts, isPicked=False):
-
-		self.log.info( "Inserting...",)
-		newItems = 0
-		for link in linksDicts:
-			if link is None:
-				print("linksDicts", linksDicts)
-				print("WAT")
-
-			row = self.getRowsByValue(sourceUrl=link["dlLink"])
-			if not row:
-				newItems += 1
-				# Flags has to be an empty string, because the DB is annoying.
-				#
-				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
-				#
-				flagStr = ""
-				if isPicked:
-					flagStr = "picked"
-
-
-
-				# Patch series name.
-				seriesName = nt.getCanonicalMangaUpdatesName(link["baseName"])
-
-				self.insertIntoDb(retreivalTime = link["date"],
-									sourceUrl   = link["dlLink"],
-									originName  = link["dlName"],
-									dlState     = 0,
-									seriesName  = seriesName,
-									flags       = flagStr)
-
-
-				self.log.info("New item: %s", (link["date"], link["dlLink"], link["baseName"], link["dlName"]))
-
-
-			else:
-				row = row.pop()
-				if isPicked and not "picked" in row["flags"]:  # Set the picked flag if it's not already there, and we have the item already
-					self.updateDbEntry(link["dlLink"], flags=" ".join([row["flags"], "picked"]))
-
-
-		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
-
-		return newItems
 
 
 	def go(self):
