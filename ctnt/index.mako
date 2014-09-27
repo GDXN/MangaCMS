@@ -143,6 +143,8 @@ import settings
 
 <b>General</b>
 <ul>
+bulge highlight
+change startup. start webserver first
 select 201 to determine next page
 	<li>add half star rating options</li>
 	<li>h tag collation system</li>

@@ -74,7 +74,7 @@ import re
 	dirContents = os.listdir(dirPath)
 
 	chpRe = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of) ?(?:chapter |ch|c| |_)(\d+)", re.IGNORECASE)
-	volRe = re.compile(r"\b(?:volume|vol|v)(?: |_)?(\d+)", re.IGNORECASE)
+	volRe = re.compile(r"(?: |_)(?:volume|vol|v)(?: |_)?(\d+)", re.IGNORECASE)
 	# print("Nav path = ", navPath, "dict", dictKey)
 
 	# print("Folder items")

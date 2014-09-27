@@ -164,6 +164,18 @@ sidebarItemList = [
 		},
 
 		{
+			"num"           : 18,
+			'dbKey'         : "DyLoader",
+			'name'          : "Dynasty",
+			'dictKey'       : "dy",
+			'cssClass'      : "dyId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
+		{
 			"num"           : 14,
 			'dbKey'         : "IrcEnueue",
 			'name'          : "IRC",

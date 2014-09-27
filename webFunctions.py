@@ -135,12 +135,26 @@ class WebGetRobust:
 
 
 
+	def getSoup(self, *args, **kwargs):
+		if 'returnMultiple' in kwargs and kwargs['returnMultiple']:
+			raise ValueError("getSoup cannot be called with 'returnMultiple' being true")
+
+		if 'soup' in kwargs and kwargs['soup']:
+			raise ValueError("getSoup contradicts the 'soup' directive!")
+
+		page = self.getpage(*args, **kwargs)
+		soup = bs4.BeautifulSoup(page)
+		return soup
+
 
 		# postData expects a dict
 		# addlHeaders also expects a dict
 	def getpage(self, pgreq, addlHeaders = None, returnMultiple = False, callBack=None, postData=None, soup=False):
 
 		# pgreq = fixurl(pgreq)
+
+		if soup:
+			self.log.warn("'soup' kwarg is depreciated. Please use the `getSoup()` call instead.")
 
 		originalString = pgreq
 
@@ -279,7 +293,11 @@ class WebGetRobust:
 							decompSize = len(pgctnt)/1000.0
 							# self.log.info("Page content type = %s", type(pgctnt))
 							cType = pghandle.headers.get("Content-Type")
-							self.log.info("Compression type = %s. Content Size compressed = %0.3fK. Decompressed = %0.3fK. File type: %s.", compType, preDecompSize, decompSize, cType)
+							if compType == 'none':
+								self.log.info("Compression type = %s. Content Size = %0.3fK. File type: %s.", compType, decompSize, cType)
+							else:
+								self.log.info("Compression type = %s. Content Size compressed = %0.3fK. Decompressed = %0.3fK. File type: %s.", compType, preDecompSize, decompSize, cType)
+
 
 							if "text/html" in cType:				# If this is a html/text page, we want to decode it using the local encoding
 
