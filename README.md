@@ -17,6 +17,7 @@ Plugin scrapers for:
 	 - Webtoons.com
 	 - LoneManga.com
 	 - EasyGoing Scans
+	 - Dynasty Scans
 	 - Manga.Madokami
 	 - Numerous IRC bots.
  - Hentai Sites:
@@ -54,7 +55,7 @@ Has lots of dependencies:
  - Mako
  - CherryPy
  - Pyramid
- - Psycopg (And a PostgreSQL install!)
+ - Psycopg2 (And a PostgreSQL install!)
  - Beautifulsoup4
  - FeedParser
  - colorama
