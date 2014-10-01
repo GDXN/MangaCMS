@@ -60,9 +60,10 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		for contentId in items:
 			# print("contentId = ", contentId)
-			conf = {"sourceUrl" : contentId}
-			ret = self.getDownloadUrl(conf, retag=True)
-			# print(ret)
+			if not "import" in contentId:
+				conf = {"sourceUrl" : contentId}
+				ret = self.getDownloadUrl(conf, retag=True)
+				# print(ret)
 
 
 

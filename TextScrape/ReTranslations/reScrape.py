@@ -22,12 +22,13 @@ class ReScrape(TextScrape.SqlBase.TextScraper):
 	threads = 1
 
 
-	startUrl = "https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview"
+	startUrl = "https://docs.google.com/document/d/1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM/preview"
 	baseUrl = "https://docs.google.com/document/"
 
 	badwords = []
 
-	def cleanBtPage(self, inPage):
+
+	def cleanPage(self, inPage):
 		parser = gdp.GDocParser(inPage)
 		contents = parser.parse()
 
@@ -40,8 +41,11 @@ class ReScrape(TextScrape.SqlBase.TextScraper):
 	def processPage(self, url, content, mimeType):
 
 
-		pgTitle, pgBody = self.cleanBtPage(content)
+		pgTitle, pgBody = self.cleanPage(content)
 		self.extractLinks(pgBody)
+
+		pgBody = self.relink(pgBody)
+
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
 

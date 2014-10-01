@@ -246,6 +246,35 @@ class TextScraper(object):
 			self.upsert(url, istext=False)
 
 
+	def relink(self, inStr):
+		soup = bs4.BeautifulSoup(inStr)
+
+		for aTag in soup.find_all("a"):
+			try:
+				aTag["href"] = self.convertToReaderUrl(aTag["href"])
+			except KeyError:
+				continue
+
+		for imtag in soup.find_all("img"):
+			try:
+				imtag["src"] = self.convertToReaderUrl(imtag["src"])
+			except KeyError:
+				continue
+
+
+		contents = ''
+
+		for item in soup.body.contents:
+			if type(item) is bs4.Tag:
+				contents += item.prettify()
+			elif type(item) is bs4.NavigableString:
+				contents += item
+			else:
+				print("Wat", item)
+
+		return contents
+
+
 
 	def getFilenameFromIdName(self, rowid, filename):
 		if not os.path.exists(settings.bookCachePath):
