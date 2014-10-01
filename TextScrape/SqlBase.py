@@ -84,6 +84,13 @@ class TextScraper(object):
 	@abc.abstractproperty
 	def baseUrl(self):
 		pass
+	@abc.abstractproperty
+	def startUrl(self):
+		pass
+
+	@abc.abstractproperty
+	def badwords(self):
+		pass
 
 
 
@@ -303,7 +310,7 @@ class TextScraper(object):
 		self.resetStuckItems()
 
 		haveUrls = set()
-		self.upsert(self.baseUrl, dlstate=0)
+		self.upsert(self.startUrl, dlstate=0)
 
 		with ThreadPoolExecutor(max_workers=self.threads) as executor:
 

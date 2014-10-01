@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.BakaTsuki.tsukiScrape import TsukiScrape
+from TextScrape.ReTranslations.reScrape import ReScrape
 
 import ScrapePlugins.RunBase
 
@@ -11,13 +11,13 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Ts.Run"
+	loggerPath = "Main.Re.Run"
 
-	pluginName = "TsukiScrape"
+	pluginName = "ReScrape"
 
 
 	def _go(self):
 
-		self.log.info("Checking Baka-Tsuki for updates")
-		scraper = TsukiScrape()
+		self.log.info("Checking Re:Translations for updates")
+		scraper = ReScrape()
 		scraper.crawl()

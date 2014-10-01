@@ -10,6 +10,7 @@ import readability.readability
 import bs4
 import webFunctions
 
+import TextScrape.ReTranslations.gDocParse as gdp
 
 class ReScrape(TextScrape.SqlBase.TextScraper):
 	tableKey = 'retrans'
@@ -21,48 +22,16 @@ class ReScrape(TextScrape.SqlBase.TextScraper):
 	threads = 1
 
 
-	baseUrl = "http://tinyurl.com/nanwmo4"
+	startUrl = "https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview"
+	baseUrl = "https://docs.google.com/document/"
 
-
-
+	badwords = []
 
 	def cleanBtPage(self, inPage):
-		doc = readability.readability.Document(inPage, negative_keywords=['mw-normal-catlinks', "printfooter", "mw-panel", 'portal'])
-		doc.parse()
-		content = doc.content()
-		soup = bs4.BeautifulSoup(content)
+		parser = gdp.GDocParser(inPage)
+		contents = parser.parse()
 
-		# Permute page tree, extract (and therefore remove) all nav tags.
-		for tag in soup.find_all(role="navigation"):
-			tag.decompose()
-		contents = ''
-
-
-		for aTag in soup.find_all("a"):
-			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
-			except KeyError:
-				continue
-
-		for imtag in soup.find_all("img"):
-			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
-			except KeyError:
-				continue
-
-
-
-
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
-
-		title = doc.title()
-		title = title.replace(" - Baka-Tsuki", "")
+		title = parser.getTitle()
 
 		return title, contents
 
@@ -72,7 +41,7 @@ class ReScrape(TextScrape.SqlBase.TextScraper):
 
 
 		pgTitle, pgBody = self.cleanBtPage(content)
-		self.extractLinks(content)
+		self.extractLinks(pgBody)
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
 
@@ -98,3 +67,12 @@ class ReScrape(TextScrape.SqlBase.TextScraper):
 
 
 		return links
+
+def test():
+	scrp = ReScrape()
+	scrp.crawl()
+
+
+if __name__ == "__main__":
+	test()
+

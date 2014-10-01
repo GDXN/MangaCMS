@@ -139,6 +139,10 @@ import urllib.parse
 				<div class="css-treeview">
 					${renderTreeRoot('japtem', 'JapTem')}
 				</div>
+				<hr>
+				<div class="css-treeview">
+					${renderTreeRoot('retrans', 'Re:Translations')}
+				</div>
 			</div>
 
 		</div>

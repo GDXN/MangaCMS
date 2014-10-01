@@ -1,5 +1,6 @@
 
 
+import bs4
 
 import re
 import json
@@ -27,16 +28,22 @@ MARKUP_END   = 'ei'
 MARKUP_DATA   = 'sm'
 
 # font stuff
-FONT_PREFIX = 'ts_'
-FONT_BOLD   = FONT_PREFIX+'bd'
-FONT_ITALIC = FONT_PREFIX+'it'
-FONT_FACE   = FONT_PREFIX+'ff'
-FONT_COLOUR = FONT_PREFIX+'fgc'
-FONT_SIZE   = FONT_PREFIX+'fs'
+FONT_PREFIX   = 'ts_'
+FONT_BOLD     = FONT_PREFIX+'bd'
+FONT_BOLD_2   = FONT_PREFIX+'bd_i'  # Yeah, I /think/ there are two flags for each modifier?
+FONT_ITALIC   = FONT_PREFIX+'it'
+FONT_ITALIC_2 = FONT_PREFIX+'it_i'
+FONT_FACE     = FONT_PREFIX+'ff'
+FONT_COLOUR   = FONT_PREFIX+'fgc'
+FONT_SIZE     = FONT_PREFIX+'fs'
 
 # links
 LINK_URL  = 'ulnk_url'
 LINK_TYPE = 'lnk_type'
+
+
+# Zero length markup (flags and shit)
+# MARKUP_PARA_BREAK =
 
 
 IGNORE_MARKUP = ['doco_anchor', 'comment', 'import_warnings']
@@ -68,12 +75,14 @@ class GDocParser(object):
 			print(chunk)
 
 		start, end = chunk[MARKUP_START]-1, chunk[MARKUP_END]
-
-		if fontContents[FONT_BOLD]:
+		if fontContents[FONT_BOLD] and not fontContents[FONT_BOLD_2]:
 			self.document.bold(start, end)
 
-		if fontContents[FONT_ITALIC]:
+
+
+		if fontContents[FONT_ITALIC] and not fontContents[FONT_ITALIC_2]:
 			self.document.italic(start, end)
+
 
 
 		face = fontContents[FONT_FACE]
@@ -82,6 +91,14 @@ class GDocParser(object):
 		if face and colour and size:
 			self.document.setFont(start, end, face, colour, size)
 
+
+	def parseZeroLengthMarkup(self, chunk):
+		cType = chunk[MARKUP_KEY]
+		if cType == MARKUP_TYPE_PARA:
+			self.document.addParagraphBreak(chunk[MARKUP_START])
+		# else:
+		# 	print("Unknown zero-length markup", cType)
+		# 	print(chunk)
 
 	def parseLink(self, chunk):
 		if not chunk['sm']['lnks_link']:  # Empty link
@@ -95,28 +112,28 @@ class GDocParser(object):
 		start, end = chunk[MARKUP_START]-1, chunk[MARKUP_END]
 
 		self.document.insertLink(start, end, url)
-		print("Link", chunk)
 
 	def parseChunk(self, chunk):
 
 		if chunk[TYPE_KEY] == CONTENTS:
 			self.document.addText(chunk[TEXT_KEY])
 		elif chunk[TYPE_KEY] == MARKUP:
-			if chunk[MARKUP_START] == chunk[MARKUP_END]:
-				return
-
 			if chunk[MARKUP_KEY] in IGNORE_MARKUP:
 				return
-			print("Markup", chunk[MARKUP_KEY], chunk[MARKUP_START], chunk[MARKUP_END])
 
-			if chunk[MARKUP_KEY] == MARKUP_TYPE_LINK:
+			elif chunk[MARKUP_START] == chunk[MARKUP_END]:
+				self.parseZeroLengthMarkup(chunk)
+
+			elif chunk[MARKUP_KEY] == MARKUP_TYPE_LINK:
 				self.parseLink(chunk)
 
-			if chunk[MARKUP_KEY] == MARKUP_TYPE_TEXT:
+			elif chunk[MARKUP_KEY] == MARKUP_TYPE_TEXT:
 				self.parseTextMarkup(chunk)
-
+			else:
+				print("Markup", chunk[MARKUP_KEY], chunk[MARKUP_START], chunk[MARKUP_END])
 
 		elif chunk[TYPE_KEY] == UNKNOWN_1:
+			print("Image?")
 			pass
 		elif chunk[TYPE_KEY] == UNKNOWN_2:
 			pass
@@ -133,7 +150,18 @@ class GDocParser(object):
 			for chunk in loaded:
 				self.parseChunk(chunk)
 
-		return self.document.dump()
+		body = self.document.dump()
+
+		doc = "<html><meta charset='UTF-8'><body>"+body+"</body></html>"
+		soup = bs4.BeautifulSoup(doc)
+		return soup.prettify()
+
+	def getTitle(self):
+		titleRe = re.compile("<title>(.*?)</title>")
+		titles = titleRe.findall(self.contents)
+		title = titles.pop()
+		title = title.replace(" - Google Docs", "")
+		return title
 
 class RichDocument(object):
 
@@ -151,7 +179,7 @@ class RichDocument(object):
 	def addText(self, newText):
 		self.text += newText
 
-	def addMarkup(self, start, startStr, end, endStr):
+	def addEnclosingMarkup(self, start, startStr, end, endStr):
 
 		# Do not generate tags for whitespace
 		if not self.text[start:end].strip():
@@ -167,33 +195,44 @@ class RichDocument(object):
 		else:
 			self.metadata[end] = endStr + self.metadata[end]
 
+	def addSingleTag(self, offset, tagStr):
+
+		if not offset in self.metadata:
+			self.metadata[offset] = tagStr
+		else:
+			self.metadata[offset] = tagStr + self.metadata[offset]
+
 	# Fuck you, I'm generating simple HTML like it's 1995
 	def bold(self, start, end):
-		self.addMarkup(start, "<b>", end, "</b>")
+		self.addEnclosingMarkup(start, "<b>", end, "</b>")
+
 	def italic(self, start, end):
-		self.addMarkup(start, "<i>", end, "</i>")
+		self.addEnclosingMarkup(start, "<i>", end, "</i>")
 
 	def setFont(self, start, end, face=None, colour=None, size=None):
 		params = []
 		if colour and '000000' not in colour:
-			param = "color='{colour}'".format(colour=colour)
+			param = "color:'{colour}'".format(colour=colour)
 			params.append(param)
 		if face:
-			param = "face='{face}'".format(face=face)
+			param = "font-family:'{face}'".format(face=face)
 			params.append(param)
 		if size:
-			param = "size='{size}'".format(size=size)
+			param = "font-size: {size}pt".format(size=size)
 			params.append(param)
 		if params:
-			startTag = "<font {attrs} >".format(attrs=" ".join(params))
-			self.addMarkup(start, startTag, end, "</font>")
+			startTag = '<span style="{attrs}">'.format(attrs="; ".join(params))
+			self.addEnclosingMarkup(start, startTag, end, "</span>")
 
-	def addParagraph(self, start, end):
-		self.addMarkup(start, "<p>", end, "</p>")
+	def addEnclosingParagraph(self, start, end):
+		self.addEnclosingMarkup(start, "<p>", end, "</p>")
+
+	def addParagraphBreak(self, offset):
+		self.addSingleTag(offset, "<p />")
 
 	def insertLink(self, start, end, url):
 		openTag = '<a href="{url}">'.format(url=url)
-		self.addMarkup(start, openTag, end, "</a>")
+		self.addEnclosingMarkup(start, openTag, end, "</a>")
 
 	def dump(self):
 		ret = ''
@@ -203,10 +242,14 @@ class RichDocument(object):
 			ret += html.escape(self.text[x])
 
 			# Insert line breaks where they were in the original file
-			if self.text[x] == "\n":
-				ret += "<br>"
-			if self.text[x] == "\r":
-				pass
+			# Detecting paragraphs in typeset text is /hard/, since all the original information
+			# paragraph metadata is stripped out.
+			# TL;DR take a look at converting PDFs to HTML. They discard
+			# paragraph info as well, and it's messy there as well.
+			# if self.text[x] == "\n":
+			# 	ret += "<br>"
+			# if self.text[x] == "\r":
+			# 	pass
 
 		return ret
 
@@ -218,19 +261,19 @@ def test():
 	import webFunctions
 	wg = webFunctions.WebGetRobust()
 
-	pg = wg.getpage('https://docs.google.com/document/d/1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM/preview')
+	# pg = wg.getpage('https://docs.google.com/document/d/1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM/preview')
 	# pg = wg.getpage('https://docs.google.com/document/d/17__cAhkFCT2rjOrJN1fK2lBdpQDSO0XtZBEvCzN5jH8/preview')
-	# pg = wg.getpage('https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview')
+	pg = wg.getpage('https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview')
 	print(len(pg))
 
 
 	parse = GDocParser(pg)
 	ret = parse.parse()
+	parse.getTitle()
+
 
 	with open("test.html", "wb") as fp:
-		fp.write(b"<html><meta charset='UTF-8'><body>")
 		fp.write(ret.encode("utf-8"))
-		fp.write(b"</body></html>")
 
 if __name__ == "__main__":
 	import logSetup

@@ -257,7 +257,7 @@ elif "tree" in request.params:
 		return
 
 	key = request.params['key']
-	if not key in ['tsuki', 'japtem']:
+	if not key in ['tsuki', 'japtem', 'retrans']:
 		needId()
 		return
 
