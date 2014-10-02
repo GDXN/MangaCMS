@@ -22,6 +22,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "HentaiItems"
+	shouldCanonize = False
 
 	def loadFeed(self, pageOverride=None):
 		self.log.info("Retreiving feed content...",)

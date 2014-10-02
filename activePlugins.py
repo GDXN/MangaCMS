@@ -27,6 +27,7 @@ import ScrapePlugins.IrcGrabber.BotRunner
 
 import TextScrape.BakaTsuki.Run
 import TextScrape.JapTem.Run
+import TextScrape.ReTranslations.Run
 
 import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
@@ -61,7 +62,8 @@ scrapePlugins = {
 
 
 	# 510 : (TextScrape.BakaTsuki.Run,                       60*60*24*5),  # Every 5 days, because books is slow to update
-	511 : (TextScrape.JapTem.Run,                          60*60*24*5)
+	511 : (TextScrape.JapTem.Run,                          60*60*24*5),
+	512 : (TextScrape.ReTranslations.Run,                  60*60*24*5)
 
 
 }

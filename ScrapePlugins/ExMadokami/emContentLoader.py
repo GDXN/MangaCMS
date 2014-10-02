@@ -34,6 +34,7 @@ class EmContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase = "http://exhen.madokami.com/"
 	tableName = "HentaiItems"
 
+	shouldCanonize = False
 	def retreiveTodoLinksFromDB(self):
 
 		self.log.info( "Fetching items from db...",)

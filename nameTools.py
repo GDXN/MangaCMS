@@ -357,7 +357,7 @@ class MtNamesMapWrapper(object):
 		self.openDB()
 
 		self.lastUpdate = 0
-		self.items = {}
+		self.lutItems = {}
 
 		self.queryStr = 'SELECT %s FROM %s WHERE %s=%%s;' % (self.mode["cols"][1], self.mode["table"], self.mode["cols"][0])
 		self.allQueryStr = 'SELECT %s, %s FROM %s;' % (self.mode["cols"][0], self.mode["cols"][1], self.mode["table"])

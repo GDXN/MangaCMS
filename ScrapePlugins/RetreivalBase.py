@@ -58,7 +58,7 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.error("One of the items in the link-list is none! Wat?")
 					continue
 
-				ret = self.getLink(link)
+				self.getLink(link)
 
 
 				if not runStatus.run:

@@ -36,6 +36,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 	tableName = "HentaiItems"
 
+	shouldCanonize = False
 	def retag(self):
 		retagUntaggedThresh = time.time()-settings.djSettings["retagMissing"]
 		retagThresh = time.time()-settings.djSettings["retag"]

@@ -1,6 +1,12 @@
 
 # -*- coding: utf-8 -*-
 
+
+
+import runStatus
+runStatus.preloadDicts = False
+
+
 import webFunctions
 import os
 import os.path
@@ -20,9 +26,9 @@ import bs4
 
 import archCleaner
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
-class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	archCleaner = archCleaner.ArchCleaner()
 
@@ -37,61 +43,9 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	tableName = "HentaiItems"
 
-	def go(self):
-		newLinks = self.retreiveTodoLinksFromDB()
-		if newLinks:
-			self.processTodoLinks(newLinks)
+	retreivalThreads = 3
 
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info("Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-		if not rows:
-			self.log.info("No items")
-			return
-		self.log.info("Done")
-		# print(rows)
-		items = []
-		for row in rows:
-			# self.log.info("Row = %s", row)
-
-			# Wait 36 hours after an item is uploaded to actually scrape it, since it looks like uploads
-			# are almost always in a fucked up order at the start
-			# Seriously, these kind of things are sequentially numbered. How can you fuck that up?
-			# They manage, somehow.
-			if row["retreivalTime"] < (time.time() + 60*60*36):
-				items.append(row)  # Actually the contentID
-		self.log.info("Have %s new items to retreive in HBrowseDownloader" % len(items))
-
-		return items
-
-
-	def processTodoLinks(self, inLinks):
-
-		for contentId in inLinks:
-			print("Loopin!")
-			try:
-				url = self.getDownloadInfo(contentId)
-				self.doDownload(url)
-
-
-				delay = random.randint(5, 30)
-			except:
-				print("ERROR WAT?")
-				traceback.print_exc()
-				delay = 1
-
-
-			for x in range(delay):
-				time.sleep(1)
-				remaining = delay-x
-				sys.stdout.write("\rhbrowse CL sleeping %d          " % remaining)
-				sys.stdout.flush()
-				if not runStatus.run:
-					self.log.info("Breaking due to exit flag being set")
-					return
-
+	shouldCanonize = False
 
 	def getFileName(self, soup):
 		title = soup.find("h1", class_="otitle")
@@ -100,57 +54,70 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return title.get_text()
 
 	def getCategoryTags(self, soup):
-		tagTable = soup.find("table", class_="table-info")
+		tables = soup.find_all("table", class_="listTable")
 
 		tags = []
 
+
 		formatters = {
-						"Artist"     : "Artist",
-						"Circle"     : "Circles",
-						"Parody"     : "Parody",
-						"Characters" : "Characters",
-						"Contents"   : "",
-						"Language"   : "",
-						"Scanlator"  : "scanlators",
-						"Convention" : "Convention"
+
+						'Genre'        : 'Genre',
+						'Type'         : '',
+						'Setting'      : '',
+						'Fetish'       : 'Fetish',
+						'Role'         : '',
+						'Relationship' : '',
+						'Male Body'    : 'Male',
+						'Female Body'  : 'Female',
+						'Grouping'     : 'Grouping',
+						'Scene'        : '',
+						'Position'     : 'Position'
+
 					}
 
 		ignoreTags = [
-					"Uploader",
-					"Pages",
-					"Ranking",
-					"Rating"]
+						'Title',
+						'Artist',
+						'Length'
+					]
 
+
+
+		# 'Origin'       : '',  (Category)
 		category = "Unknown?"
-		for tr in tagTable.find_all("tr"):
-			if len(tr.find_all("td")) != 2:
-				continue
+		for table in tables:
+			for tr in table.find_all("tr"):
+				if len(tr.find_all("td")) != 2:
+					continue
 
-			what, values = tr.find_all("td")
+				what, values = tr.find_all("td")
+				what = what.get_text().strip()
+				if what in ignoreTags:
+					continue
 
-			what = what.get_text()
-			if what in ignoreTags:
-				continue
-			elif what == "Category":
-				category = values.get_text().strip()
-				if category == "Manga One-shot":
-					category = "=0= One-Shot"
-			elif what in formatters:
-				for li in values.find_all("li"):
-					tag = " ".join([formatters[what], li.get_text()])
-					tag = tag.strip()
-					tag = tag.replace("  ", " ")
-					tag = tag.replace(" ", "-")
-					tags.append(tag)
 
+				elif what == "Origin":
+					category = values.get_text().strip()
+				elif what in formatters:
+					for rawTag in values.find_all("a"):
+						tag = " ".join([formatters[what], rawTag.get_text().strip()])
+						tag = tag.strip()
+						tag = tag.replace("  ", " ")
+						tag = tag.replace(" ", "-")
+						tags.append(tag)
+
+		print(category, tags)
 		return category, tags
 
-	def getNote(self, soup):
-		note = soup.find("div", class_="gallery-description")
-		if note == None:
-			note = " "
-		else:
-			note = note.get_text()
+	def getGalleryStartPages(self, soup):
+		linkTds = soup.find_all("td", class_="listMiddle")
+
+		ret = []
+
+		for td in linkTds:
+			ret.append(td.a['href'])
+
+		return ret
 
 	def getDownloadInfo(self, linkDict, retag=False):
 		sourcePage = linkDict["sourceUrl"]
@@ -161,18 +128,16 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
 
 
-		cont = self.wg.getpage(sourcePage, addlHeaders={'Referer': 'http://hbrowse.com/'})
-		soup = bs4.BeautifulSoup(cont)
-
-		if not soup:
+		try:
+			soup = self.wg.getSoup(sourcePage, addlHeaders={'Referer': 'http://hbrowse.com/'})
+		except:
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			raise IOError("Invalid webpage")
 
 		category, tags = self.getCategoryTags(soup)
-		note = self.getNote(soup)
 		tags = ' '.join(tags)
 
-		linkDict['dirPath'] = os.path.join(settings.puSettings["dlDir"], nt.makeFilenameSafe(category))
+		linkDict['dirPath'] = os.path.join(settings.hbSettings["dlDir"], nt.makeFilenameSafe(category))
 
 		if not os.path.exists(linkDict["dirPath"]):
 			os.makedirs(linkDict["dirPath"])
@@ -183,8 +148,13 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Folderpath: %s", linkDict["dirPath"])
 		#self.log.info(os.path.join())
 
-		dlPage = soup.find("a", class_="link-next")
-		linkDict["dlLink"] = urllib.parse.urljoin(self.urlBase, dlPage["href"])
+
+		startPages = self.getGalleryStartPages(soup)
+
+
+		linkDict["dlLink"] = startPages
+
+
 
 		self.log.debug("Linkdict = ")
 		for key, value in list(linkDict.items()):
@@ -195,9 +165,6 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Adding tag info %s", tags)
 
 			self.addTags(sourceUrl=linkDict["sourceUrl"], tags=tags)
-		if note:
-			self.log.info("Adding note %s", note)
-			self.updateDbEntry(linkDict["sourceUrl"], note=note)
 
 
 		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, lastUpdate=time.time())
@@ -207,49 +174,61 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return linkDict
 
 
-	def doDownload(self, linkDict):
-
-
-		images = []
+	def fetchImages(self, linkDict):
 		title = None
-		nextPage = linkDict["dlLink"]
-
-		while nextPage:
-			gatewayPage = self.wg.getpage(nextPage, addlHeaders={'Referer': linkDict["sourceUrl"]})
-
-			soup = bs4.BeautifulSoup(gatewayPage)
-			titleCont = soup.find("div", class_="image-menu")
-
-			title = titleCont.h1.get_text()
-			title = title.replace("Reading ", "")
-			title, dummy = title.rsplit(" Page ", 1)
-			title = title.strip()
+		toFetch = {key:0 for key in linkDict["dlLink"]}
 
 
-			imageUrl = soup.find("img", class_="b")
-			imageUrl = urllib.parse.urljoin(self.urlBase, imageUrl["src"])
+		images = {}
+		while not all(toFetch.values()):
+
+			# get a random dict element where downloadstate = 0
+			thisPage = list(toFetch.keys())[list(toFetch.values()).index(0)]
+
+			soup = self.wg.getSoup(thisPage, addlHeaders={'Referer': linkDict["sourceUrl"]})
+
+			imageTd = soup.find('td', class_='pageImage')
+
+
+
+			imageUrl = urllib.parse.urljoin(self.urlBase, imageTd.img["src"])
 
 			imagePath = urllib.parse.urlsplit(imageUrl)[2]
-			imageFileName = imagePath.split("/")[-1]
+			chapter = imageUrl.split("/")[-2]
+			imName = imagePath.split("/")[-1]
+			imageFileName = '{c} - {i}'.format(c=chapter, i=imName)
+
+			self.log.info("Using filename '%s'", imageFileName)
 
 
-			imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': nextPage})
+			imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': thisPage})
+			images[imageFileName] = imageData
 
-			images.append((imageFileName, imageData))
+			toFetch[thisPage] = 1
 			# Find next page
-			nextPageLink = soup.find("a", class_="link-next")
-			if not nextPageLink:
-				nextPage = None
-			elif nextPageLink["href"].startswith("/finish/"):    # Break on the last image.
-				nextPage = None
-			else:
-				nextPage = urllib.parse.urljoin(self.urlBase, nextPageLink["href"])
+
+			nextPageLink = imageTd.a['href']
+			if nextPageLink != linkDict["sourceUrl"]:
+				if not nextPageLink in toFetch:
+					toFetch[nextPageLink] = 0
+
+
+		# Use a dict, and then flatten to a list because we will fetch some items twice.
+		# Basically, `http://www.hbrowse.com/{sommat}/c00000` has the same image
+		# as  `http://www.hbrowse.com/{sommat}/c00000/00001`, but the strings are not matches.
+		images = [(key, value) for key, value in images.items()]
+		return images
+
+
+	def doDownload(self, linkDict):
+
+		images = self.fetchImages(linkDict)
 
 
 		# self.log.info(len(content))
 
-		if images and title:
-			fileN = title+".zip"
+		if images:
+			fileN = linkDict['originName']+".zip"
 			fileN = nt.makeFilenameSafe(fileN)
 
 
@@ -288,3 +267,19 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			self.conn.commit()
 			return False
+
+
+	def getLink(self, link):
+		url = self.getDownloadInfo(link)
+		self.doDownload(url)
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = HBrowseContentLoader()
+		run.resetStuckItems()
+		run.go()

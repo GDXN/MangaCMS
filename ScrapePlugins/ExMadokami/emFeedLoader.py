@@ -23,6 +23,8 @@ class EmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "em"
 	dbName = settings.dbName
 
+	shouldCanonize = False
+
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://exhen.madokami.com/"

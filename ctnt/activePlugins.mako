@@ -176,6 +176,18 @@ sidebarItemList = [
 		},
 
 		{
+			"num"           : 19,
+			'dbKey'         : "H-Browse",
+			'name'          : "H-Browse",
+			'dictKey'       : "hb",
+			'cssClass'      : "hbId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Porn'
+		},
+
+		{
 			"num"           : 14,
 			'dbKey'         : "IrcEnueue",
 			'name'          : "IRC",

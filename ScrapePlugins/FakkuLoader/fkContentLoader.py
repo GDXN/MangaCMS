@@ -30,6 +30,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	archCleaner = archCleaner.ArchCleaner()
 
 
+	shouldCanonize = False
 	dbName = settings.dbName
 	loggerPath = "Main.Fakku.Cl"
 	pluginName = "Fakku Content Retreiver"
@@ -42,6 +43,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	retreivalThreads = 6
 
+	shouldCanonize = False
 
 	def go(self):
 

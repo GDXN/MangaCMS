@@ -22,6 +22,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
 
+	shouldCanonize = True
 
 
 	@abc.abstractmethod
@@ -125,8 +126,11 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	# Returns {pathToDirectory string}, {HadToCreateDirectory bool}
 	def locateOrCreateDirectoryForSeries(self, seriesName):
 
+		if self.shouldCanonize:
+			canonSeriesName = nt.getCanonicalMangaUpdatesName(seriesName)
+		else:
+			canonSeriesName = seriesName
 
-		canonSeriesName = nt.getCanonicalMangaUpdatesName(seriesName)
 		safeBaseName = nt.makeFilenameSafe(canonSeriesName)
 
 
@@ -214,7 +218,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	def updateDbEntry(self, sourceUrl, commit=True, **kwargs):
 
 		# Patch series name.
-		if "seriesName" in kwargs and kwargs["seriesName"]:
+		if "seriesName" in kwargs and kwargs["seriesName"] and self.shouldCanonize:
 			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl), kwargs)
@@ -255,7 +259,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	def updateDbEntryById(self, rowId, commit=True, **kwargs):
 
 		# Patch series name.
-		if "seriesName" in kwargs and kwargs["seriesName"]:
+		if "seriesName" in kwargs and kwargs["seriesName"] and self.shouldCanonize:
 			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
 
 		queries = []
@@ -445,7 +449,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 					link['dlState'] = 0
 
 				# Patch series name.
-				if 'seriesName' in link:
+				if 'seriesName' in link and self.shouldCanonize:
 					link["seriesName"] = nt.getCanonicalMangaUpdatesName(link["seriesName"])
 
 

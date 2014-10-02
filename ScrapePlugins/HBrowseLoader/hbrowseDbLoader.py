@@ -1,3 +1,7 @@
+
+import runStatus
+runStatus.preloadDicts = False
+
 import webFunctions
 
 import calendar
@@ -32,7 +36,7 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# I really don't get the logic behind HBrowse's path scheme.
 			urlPath = '/list/{num}'.format(num=pageOverride)
 			pageUrl = urllib.parse.urljoin(self.urlBase, urlPath)
-			print("Fetching page at", pageUrl)
+
 			page = self.wg.getpage(pageUrl)
 		except urllib.error.URLError:
 			self.log.critical("Could not get page from HBrowse!")
@@ -43,11 +47,20 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def parseLinkLi(self, linkLi):
+	def parseItem(self, row, timestamp):
 		ret = {}
-		ret["dlName"] = " / ".join(linkLi.h2.strings) # Messy hack to replace <br> tags with a ' / "', rather then just removing them.
-		ret["pageUrl"] = urllib.parse.urljoin(self.urlBase, linkLi.a["href"])
+		ret['retreivalTime'] = timestamp
+		ret['sourceUrl'] = urllib.parse.urljoin(self.urlBase, row.a["href"])
+		titleTd = row.find("td", class_='recentTitle')
+		ret['originName'] = titleTd.get_text()
+
 		return ret
+
+	def extractDate(self, row):
+		text = row.get_text()
+		date = parser.parse(text)
+		timestamp = time.mktime(date.timetuple())
+		return timestamp
 
 	def getFeed(self, pageOverride=None):
 		# for item in items:
@@ -65,36 +78,21 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = []
 		for row in rows:
 
-			if not "onmouseover" in row.attrs:
-				print("Row", row)
-			# ret.append(self.parseLinkLi(linkLi))
+			if row.find("td", class_='recentDate'):
+				curTimestamp = self.extractDate(row)
+
+			elif row.find("td", class_='recentTitle'):
+				# curTimestamp is specifically not pre-defined, because I want to fail noisily if I try
+				# to parse a link row before seeing a valid date
+				item = self.parseItem(row, curTimestamp)
+				ret.append(item)
+
+
 
 		return ret
 
 
 
-	def processLinksIntoDB(self, linksDict):
-		self.log.info("Inserting...")
-
-		newItemCount = 0
-
-		for link in linksDict:
-
-			row = self.getRowsByValue(sourceUrl=link["pageUrl"])
-			if not row:
-				curTime = time.time()
-				self.insertIntoDb(retreivalTime=curTime, sourceUrl=link["pageUrl"], originName=link["dlName"], dlState=0)
-				# cur.execute('INSERT INTO fufufuu VALUES(?, ?, ?, "", ?, ?, "", ?);',(link["date"], 0, 0, link["dlLink"], link["itemTags"], link["dlName"]))
-				self.log.info("New item: %s", (curTime, link["pageUrl"], link["dlName"]))
-
-
-
-		self.log.info("Done")
-		self.log.info("Committing...",)
-		self.conn.commit()
-		self.log.info("Committed")
-
-		return newItemCount
 
 
 	def go(self):
@@ -105,3 +103,22 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# for x in range(10):
 		# 	dat = self.getFeed(pageOverride=x)
 		# 	self.processLinksIntoDB(dat)
+
+
+
+def getHistory():
+
+	run = HBrowseDbLoader()
+	for x in range(235):
+		dat = run.getFeed(pageOverride=x)
+		run.processLinksIntoDB(dat)
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		getHistory()
+		run = HBrowseDbLoader()
+		run.go()
+
