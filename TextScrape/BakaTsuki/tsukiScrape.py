@@ -4,14 +4,14 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.SqlBase
+import TextScrape.TextScrapeBase
 
 import readability.readability
 import bs4
 import webFunctions
 
 
-class TsukiScrape(TextScrape.SqlBase.TextScraper):
+class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'tsuki'
 	loggerPath = 'Main.Tsuki'
 	pluginName = 'TsukiScrape'

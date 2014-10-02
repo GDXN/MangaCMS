@@ -4,15 +4,17 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.SqlBase
+import TextScrape.TextScrapeBase
 
-import readability.readability
 import bs4
+import urllib.parse
+import os.path
+import hashlib
 import webFunctions
 
 import TextScrape.ReTranslations.gDocParse as gdp
 
-class ReScrape(TextScrape.SqlBase.TextScraper):
+class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'retrans'
 	loggerPath = 'Main.Re:Trans'
 	pluginName = 'ReTransScrape'
@@ -28,49 +30,128 @@ class ReScrape(TextScrape.SqlBase.TextScraper):
 	badwords = []
 
 
-	def cleanPage(self, inPage):
-		parser = gdp.GDocParser(inPage)
-		contents = parser.parse()
+	def cleanPage(self, contents):
+		soup = bs4.BeautifulSoup(contents)
+		title = soup.title.get_text().strip()
 
-		title = parser.getTitle()
+		for span in soup.find_all("span"):
+			span['style'] = ''
 
-		return title, contents
+		return title, soup.prettify()
+
+
+	def extractLinks(self, pageCtnt):
+		soup = bs4.BeautifulSoup(pageCtnt)
+
+		for link in soup.find_all("a"):
+
+			# Skip empty anchor tags
+			try:
+				turl = link["href"]
+			except KeyError:
+				continue
 
 
 
-	def processPage(self, url, content, mimeType):
+			url = urllib.parse.urljoin(self.baseUrl, turl)
 
+			if not gdp.isGdocUrl(url):
+				continue
+
+			# Filter by domain
+			if not self.baseUrl in url:
+				continue
+
+			# and by blocked words
+			hadbad = False
+			for badword in self.badwords:
+				if badword in url:
+					hadbad = True
+			if hadbad:
+				continue
+
+			# Remove any URL fragments causing multiple retreival of the same resource.
+			url = url.split("#")[0]
+
+			# upsert for `url`. Reset dlstate if needed
+
+			self.newLinkQueue.put(url)
+
+
+	def convertToReaderImage(self, url):
+		if url in self.fMap:
+			url = self.fMap[url]
+		else:
+			raise ValueError("Unknown image URL! = '%s'" % url)
+
+		url = '/books/render?url=%s' % urllib.parse.quote(url)
+		return url
+
+
+
+	def processPage(self, url, content):
+
+		dummy_fName, content = content
 
 		pgTitle, pgBody = self.cleanPage(content)
-		self.extractLinks(pgBody)
+
+		self.extractLinks(content)
 
 		pgBody = self.relink(pgBody)
 
-		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
+		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype='text/html', dlstate=2)
+
 
 
 	# Retreive remote content at `url`, call the appropriate handler for the
 	# transferred content (e.g. is it an image/html page/binary file)
 	def retreiveItemFromUrl(self, url):
 		self.log.info("Fetching page '%s'", url)
-		content, fName, mimeType = self.getItem(url)
+		extr = gdp.GDocExtractor(url)
 
-		links = []
-
-		if mimeType == 'text/html':
-			self.log.info("Processing '%s' as HTML.", url)
-			self.processPage(url, content, mimeType)
-		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
-			self.log.info("Processing '%s' as an image file.", url)
-			self.saveFile(url, mimeType, fName, content)
-		elif mimeType in ["application/octet-stream"]:
-			self.log.info("Processing '%s' as an binary file.", url)
-			self.saveFile(url, mimeType, fName, content)
-		else:
-			self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
+		mainPage, resources = extr.extract()
 
 
-		return links
+
+
+
+		self.fMap = {}
+
+
+		for fName, mimeType, content in resources:
+
+
+
+			m = hashlib.md5()
+			m.update(content)
+			fHash = m.hexdigest()
+
+			hashName = "Re:Trans-"+fHash
+
+			self.fMap[fName] = hashName
+
+			fName = os.path.split(fName)[-1]
+
+			print(fName, mimeType, hashName)
+			if mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
+				self.log.info("Processing '%s' as an image file.", url)
+				self.upsert(hashName, istext=False)
+				self.saveFile(hashName, mimeType, fName, content)
+			elif mimeType in ["application/octet-stream"]:
+				self.log.info("Processing '%s' as an binary file.", url)
+				self.upsert(hashName, istext=False)
+				self.saveFile(hashName, mimeType, fName, content)
+			else:
+				self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
+
+		if len(resources) == 0:
+			self.log.info("File had no resource content!")
+
+
+		self.processPage(url, mainPage)
+
+
+
 
 def test():
 	scrp = ReScrape()

@@ -157,7 +157,7 @@ class TextScraper(object):
 
 		content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
 		if not content or not handle:
-			raise ValueError("Failed to retreive image from page '%s'!" % itemUrl)
+			raise ValueError("Failed to retreive file from page '%s'!" % itemUrl)
 
 		fileN = urllib.parse.unquote(urllib.parse.urlparse(handle.geturl())[2].split("/")[-1])
 		fileN = bs4.UnicodeDammit(fileN).unicode_markup
@@ -246,18 +246,25 @@ class TextScraper(object):
 			self.upsert(url, istext=False)
 
 
+	def convertToReaderImage(self, inStr):
+		self.convertToReaderUrl(inStr)
+
 	def relink(self, inStr):
 		soup = bs4.BeautifulSoup(inStr)
 
 		for aTag in soup.find_all("a"):
 			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
+				if self.baseUrl in aTag["href"]:
+					aTag["href"] = self.convertToReaderUrl(aTag["href"])
 			except KeyError:
 				continue
 
 		for imtag in soup.find_all("img"):
 			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
+				imtag["src"] = self.convertToReaderImage(imtag["src"])
+
+				imtag["style"] = 'width: 100%;'
+
 			except KeyError:
 				continue
 

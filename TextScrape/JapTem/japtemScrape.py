@@ -4,14 +4,14 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.SqlBase
+import TextScrape.TextScrapeBase
 
 import readability.readability
 import bs4
 import webFunctions
 import urllib.error
 
-class JaptemScrape(TextScrape.SqlBase.TextScraper):
+class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'japtem'
 	loggerPath = 'Main.JapTem'
 	pluginName = 'JapTemScrape'
