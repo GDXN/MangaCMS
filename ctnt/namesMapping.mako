@@ -5,7 +5,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>WAT WAT IN THE BATT</title>
-	${ut.getCss()}
+	${ut.headerBase()}
 </head>
 
 <%startTime = time.time()%>

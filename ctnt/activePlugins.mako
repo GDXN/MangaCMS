@@ -340,5 +340,6 @@ for keyset in [mainKeys, pronKeys, othrKeys]:
 inHomepageMangaTable = [item["dictKey"] for item in sidebarItemList if item["showOnHome"] and "Manga" in item["type"] and item["dictKey"]]
 activeNonPorn        = [item["dictKey"] for item in sidebarItemList if                        "Manga" in item["type"] and item["dictKey"]]
 activePorn           = [item["dictKey"] for item in sidebarItemList if                        "Porn"  in item["type"]]
+active               = [item["dictKey"] for item in sidebarItemList if                                                    item["dictKey"]]
 
 %>

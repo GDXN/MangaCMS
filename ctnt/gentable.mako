@@ -127,7 +127,7 @@ colours = {
 
 
 
-<%def name="fetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None)">
+<%def name="fetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None, getErrored=False)">
 	<%
 		if distinct and seriesName:
 			raise ValueError("Cannot filter for distinct on a single series!")
@@ -135,9 +135,18 @@ colours = {
 		if flags:
 			raise ValueError("TODO: Implement flag filtering!")
 
-		whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
-		params = tuple(queryAdditionalArgs)
 
+		whereStr, queryAdditionalArgs = buildWhereQuery(tableKey, None, seriesName=seriesName)
+
+		if getErrored:
+			if whereStr:
+				whereStr += ' AND dlState < %s'
+			else:
+				whereStr = ' WHERE dlState < %s'
+			queryAdditionalArgs.append(0)
+
+
+		params = tuple(queryAdditionalArgs)
 
 		anonCur = sqlCon.cursor()
 		anonCur.execute("BEGIN;")
@@ -200,7 +209,13 @@ colours = {
 </%def>
 
 
-<%def name="genMangaTable(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None)">
+<%def name="genMangaTable(flags        = '',
+							limit      = 100,
+							offset     = 0,
+							distinct   = False,
+							tableKey   = None,
+							seriesName = None,
+							getErrored = False)">
 	<%
 	# print("tableGen!")
 	%>
@@ -224,7 +239,7 @@ colours = {
 		try:
 			# ret = cur.execute(query, params)
 
-			tblCtntArr = fetchMangaItems(flags, limit, offset, distinct, tableKey, seriesName)
+			tblCtntArr = fetchMangaItems(flags, limit, offset, distinct, tableKey, seriesName, getErrored)
 		except psycopg2.InternalError:
 			cur.execute("rollback;")
 			# cur.fetchall()
@@ -394,7 +409,7 @@ colours = {
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-<%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None)">
+<%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False)">
 	<table border="1px">
 		<tr>
 
@@ -413,6 +428,16 @@ colours = {
 	print("Table rendering begun")
 	offset = offset * limit
 	whereStr, queryAdditionalArgs = buildWhereQuery(siteSource, tagsFilter, seriesFilter)
+
+	if getErrored:
+		if whereStr:
+			whereStr += ' AND dlState < %s'
+		else:
+			whereStr = ' WHERE dlState < %s'
+		queryAdditionalArgs.append(0)
+
+
+	print("Query", whereStr, queryAdditionalArgs)
 	params = tuple(queryAdditionalArgs)+(limit, offset)
 
 	# print("Params = ", params)
@@ -488,8 +513,11 @@ colours = {
 			statusColour = colours["Done"]
 		elif dlState == 1:
 			statusColour = colours["working"]
-		else:
+		elif dlState == 0:
 			statusColour = colours["queued"]
+		else:
+			statusColour = colours["failed"]
+
 		if fSize == -2:
 			fSizeStr = "No File"
 		elif fSize < 0:

@@ -96,6 +96,8 @@ class ArchChecker(object):
 
 		self.log.info("Hashing file %s" % self.archPath)
 
+		self.db.deleteBasePath(self.archPath)
+
 		# Do overall hash of archive:
 		with open(self.archPath, "rb") as fp:
 			dummy_fName, hexHash, dummy_pHash, dummy_dHash = self.hashModule.hashFile(self.archPath, '', fp.read(), shouldPhash=False)

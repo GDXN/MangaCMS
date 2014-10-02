@@ -40,8 +40,7 @@ DNLDED = 2
 			statusDict[srcId][state] = num
 		else:
 			statusDict[srcId][state] += num
-		# print("row", srcId, state, num)
-	# print("statusDict", statusDict)
+
 	%>
 
 	<div class="statusdiv">
@@ -74,6 +73,11 @@ DNLDED = 2
 				% endfor
 				<hr>
 				<li><a href="/hTags">H Tags</a>
+				<hr>
+				<hr>
+				<li><a href="/mangaError">M Errors</a>
+				<li><a href="/hentaiError">H Errors</a>
+
 			</ul>
 		</div>
 		<br>
