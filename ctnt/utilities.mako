@@ -11,6 +11,54 @@ import urllib.parse
 import nameTools as nt
 
 
+
+
+import sql
+
+class ProceduralSelect(sql.Select):
+	def addAnd(self, col, param):
+		if not self.__where:
+			self.__where = (col == param)
+		else:
+			self.__where &= (col == param)
+
+
+	def addOr(self, col, param):
+		if not self.__where:
+			self.__where = (col == param)
+		else:
+			self.__where |= (col == param)
+
+	def addAndLike(self, col, param):
+		if not self.__where:
+			self.__where = sqlo.Like(col, param)
+		else:
+			self.__where &= sqlo.Like(col, param)
+
+	def addOrLike(self, col, param):
+		if not self.__where:
+			self.__where = sqlo.Like(col, param)
+		else:
+			self.__where |= sqlo.Like(col, param)
+
+
+# Modify the sql.From class to use our derived ProceduralSelect class,
+# that lets one add parameters proceedurally.
+class From(sql.From):
+
+	def select(self, *args, **kwargs):
+		return ProceduralSelect(args, from_=self, **kwargs)
+
+
+# Monkey-patch in the modified From
+# This is HORRIBLE, and I should FEEL BAD!
+# (It does work, though)
+sql.From=From
+
+
+
+
+
 %>
 
 

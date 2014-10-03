@@ -84,7 +84,7 @@ limit = 200
 
 pageNo = 0
 
-print("request", request)
+
 
 try:
 	pageNo = int(request.params["page"])-1
@@ -101,8 +101,6 @@ if pageNo < 0:
 
 offset = limit * pageNo
 
-print(request.GET)
-print(request.params.getall("byTag"))
 
 
 tagsFilter = None
@@ -118,8 +116,6 @@ if "sourceSite" in request.params:
 	sourceFilter = [item for item in tmpSource if item in ap.attr.activePorn]
 else:
 	sourceFilter = ap.attr.activePorn
-
-print("Re-encoded query = ", urllib.parse.urlencode(request.params))
 
 
 

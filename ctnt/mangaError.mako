@@ -62,36 +62,7 @@ sourceName = 'Manga Items'
 sourceFilter = None
 divId      = ""
 
-
-table = sql.Table("mangaitems")
-x = "wat"
-
-cols = (
-		table.dbId,
-		table.dlState,
-		table.sourceSite,
-		table.sourceUrl,
-		table.retreivalTime,
-		table.sourceId,
-		table.seriesName,
-		table.fileName,
-		table.originName,
-		table.downloadPath,
-		table.flags,
-		table.tags,
-		table.note
-	)
-select = table.select(*cols,
-	order_by=sql.Desc(table.retreivalTime))
-
-select.where = (table.sourceSite == x) | (table.sourceSite == x)
-
-
-print("Tablezzzzz", table)
-print("select", tuple(select))
-
 print("sourceFilter", sourceFilter)
-
 
 %>
 
