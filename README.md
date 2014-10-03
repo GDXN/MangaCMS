@@ -25,10 +25,11 @@ Plugin scrapers for:
 	 - Doujin Moe
 	 - Pururin
 	 - Exhen.Madokami
+	 - HBrowse
  - Light Novels:
 	 - Baka-Tsuki 
 	 - JapTem
-	 - Re:Translations (Planned)
+	 - Re:Translations
  - Metadata:
 	 - MangaUpdates (metadata only).
  - Defunct:
@@ -67,6 +68,7 @@ Has lots of dependencies:
  - babel
  - cython
  - irc
+ - python-sql
  - Probably more
 
 Installing:
@@ -168,5 +170,7 @@ A: Your *web-site*. That you posted **publically**. You don't really understand 
 This was written as much for programming excercise as for practical use, so there may be some NIH-y things going on. For example, I wrote my own database abstraction layer (see MonitorDbBase.py, RetreivalDbBase.py), primarily as an opportunity to teach myself SQL. Some of the interitence structures are for a similar purpose (I wanted to play with abstract classes).
 
 ~~The light-novel scraper uses SqlAlchemy, so it's not all NIH.~~ Dumped SqlAlchemy. The documentation is too poor for it to be useable.
+
+Currently looking at [python-sql](https://pypi.python.org/pypi/python-sql/) for dynamic SQL where I have more control over the generated SQL. 
 
 As with about everything I do, the first run through teaches me all the things I /wish/ I had done differently.

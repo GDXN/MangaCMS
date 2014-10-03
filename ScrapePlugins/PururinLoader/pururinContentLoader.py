@@ -1,6 +1,8 @@
 
 # -*- coding: utf-8 -*-
 
+import runStatus
+runStatus.preloadDicts = False
 import webFunctions
 import os
 import os.path
@@ -291,6 +293,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				title = title.encode('ascii','ignore').decode('ascii')
 				fileN = title+".zip"
 				fileN = nt.makeFilenameSafe(fileN)
+				wholePath = os.path.join(linkDict["dirPath"], fileN)
 				arch = zipfile.ZipFile(wholePath, "w")
 
 			for imageName, imageContent in images:
@@ -322,3 +325,12 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			self.conn.commit()
 			return False
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = PururinContentLoader()
+		run.go()
+

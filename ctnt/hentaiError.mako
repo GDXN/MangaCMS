@@ -18,6 +18,8 @@ import urllib.parse
 
 
 
+
+
 <%
 
 
@@ -44,7 +46,9 @@ nextPage = request.params.copy();
 nextPage["page"] = pageNo+2
 
 
+sourceFilter = None
 
+divId      = ""
 
 
 if "sourceSite" in request.params:
@@ -53,12 +57,11 @@ if "sourceSite" in request.params:
 else:
 	sourceFilter = []
 
-
+print(request.params.getall("sourceSite"))
+print(ap.attr.active)
 
 sourceName = 'Manga Items'
 
-sourceFilter = None
-divId      = ""
 
 
 

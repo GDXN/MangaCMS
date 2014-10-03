@@ -21,6 +21,7 @@ import ScrapePlugins.RhLoader.Run
 import ScrapePlugins.LoneMangaLoader.Run
 import ScrapePlugins.WebtoonLoader.Run
 import ScrapePlugins.DynastyLoader.Run
+import ScrapePlugins.HBrowseLoader.Run
 import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 import ScrapePlugins.IrcGrabber.BotRunner
 
@@ -54,6 +55,7 @@ scrapePlugins = {
 	15 : (ScrapePlugins.LoneMangaLoader.Run,      60*60*12),
 	16 : (ScrapePlugins.WebtoonLoader.Run,        60*60*8 ),
 	17 : (ScrapePlugins.DynastyLoader.Run,        60*60*8 ),
+	18 : (ScrapePlugins.HBrowseLoader.Run,        60*60   ),
 
 	# Madokami is two separate sections, because the feedLoader takes
 	# 5+ hours just to run.

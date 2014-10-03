@@ -1,3 +1,6 @@
+
+import runStatus
+runStatus.preloadDicts = False
 import webFunctions
 
 import calendar
@@ -100,3 +103,14 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# for x in range(10):
 		# 	dat = self.getFeed(pageOverride=x)
 		# 	self.processLinksIntoDB(dat)
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = PururinDbLoader()
+		run.go()
+

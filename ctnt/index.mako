@@ -205,9 +205,10 @@ import settings
 <ul>
 	<li>Manga</li>
 	<ul>
-		<li><strike>webtoons.com</strike></li>
 		<li>Tadanohito as a H source</li>
-		<li>http://www.hbrowse.com/ as a H source</li>
+		<li>http://nhentai.net/</li>
+		<li><strike>webtoons.com</strike></li>
+		<li><strike>http://www.hbrowse.com/ as a H source</strike></li>
 		<li><strike>http://lonemanga.com/</strike></li>
 		<li><strike>http://egscans.com/</strike> (Via IRC)</li>
 		<li><strike>redhawkscans.com</strike></li>
@@ -218,7 +219,7 @@ import settings
 	</ul>
 	<li>Light Novels
 	<ul>
-		<li>Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)</li>
+		<li><strike>Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)</strike> Just used the HTML export feature. Laaaaazy</li>
 		<li><strike>Baka-Tsuki</strike></li>
 		<li><strike>JapTem</strike></li>
 	</ul>

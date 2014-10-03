@@ -340,6 +340,7 @@ colours = {
 		toolTip += "sourceUrl: " + sourceUrl + "<br>"
 		toolTip += "dlState: " + str(dlState) + "<br>"
 		toolTip += "tags: " + str(tags) + "<br>"
+		toolTip += "Source: " + str(sourceSite) + "<br>"
 		if os.path.exists(filePath):
 			toolTip += "File found."
 		else:
@@ -431,10 +432,10 @@ colours = {
 
 	if getErrored:
 		if whereStr:
-			whereStr += ' AND dlState < %s'
+			whereStr += ' AND dlState <= %s'
 		else:
-			whereStr = ' WHERE dlState < %s'
-		queryAdditionalArgs.append(0)
+			whereStr = ' WHERE dlState <= %s'
+		queryAdditionalArgs.append(1)
 
 
 	print("Query", whereStr, queryAdditionalArgs)
