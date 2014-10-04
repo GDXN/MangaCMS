@@ -5,8 +5,6 @@
 import time
 styles = ["skId", "mtMonId", "czId", "mbId", "djMoeId", "navId"]
 
-
-
 from natsort import natsorted
 
 

@@ -43,7 +43,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 3
+	retreivalThreads = 6
 
 	shouldCanonize = False
 

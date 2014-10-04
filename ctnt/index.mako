@@ -107,15 +107,11 @@ import settings
 
 <b>General</b>
 <ul>
-	<li>Move to python-sql for dynamic sql generation</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
 	<li>add half star rating options</li>
 	<li>h tag collation system</li>
 	<li>consolidation system for h tags</li>
-	<li>smart zoom mode in overlay</li>
-	<li>make zoom mode pop up last longer</li>
-	<li>fancy fade out when toolbars hidden?</li>
 	<li>out of row colours</li>
 	<li>linebreaks in long filenames in reader popup need work</li>
 	<li>zoom mode indicator for smart mode in reader</li>
@@ -193,6 +189,9 @@ import settings
 <p>
 <b>Reader</b>
 <ul>
+	<li>smart zoom mode in overlay</li>
+	<li>make zoom mode pop up last longer</li>
+	<li>fancy fade out when toolbars hidden?</li>
 	<li>Add ability to rename directories to reader</li> (res, name)
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>
@@ -241,6 +240,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Move to python-sql for dynamic sql generation</strike></li>
 	<li><strike>reset download button in mangatable for specific key view</strike></li>
 	<li><strike>filtered h isn't being properly skipped</strike></li>
 	<li><strike>fix pururin page ordering already</strike> It was a sorting issue in the session system? Fuuuuuuuuuuck.</li>

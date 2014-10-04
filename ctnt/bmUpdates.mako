@@ -2,18 +2,9 @@
 <!DOCTYPE html>
 
 <%startTime = time.time()%>
-<%namespace name="tableGenerators" file="gentable.mako"/>
-<%namespace name="sideBar" file="gensidebar.mako"/>
 
+<%namespace name="sideBar"         file="gensidebar.mako"/>
 <%namespace name="ut"              file="utilities.mako"/>
-<html>
-<head>
-	<title>WAT WAT IN THE BATT</title>
-
-	${ut.headerBase()}
-
-
-</head>
 
 <%!
 # Module level!
@@ -22,8 +13,8 @@ import datetime
 from babel.dates import format_timedelta
 import os.path
 import urllib.parse
+import sql
 
-from operator import itemgetter
 
 import nameTools as nt
 
@@ -81,166 +72,39 @@ def getNotInDBItems(cur):
 #  ######  ######## ##     ## #### ########  ######
 #
 
-%>
+seriesTable = sql.Table("mangaseries")
+
+
+# Not used for anything, just a note, really
+seriesCols = (
+		seriesTable.dbId,
+		seriesTable.buName,
+		seriesTable.buId,
+		seriesTable.buTags,
+		seriesTable.buList,
+		seriesTable.readingProgress,
+		seriesTable.availProgress,
+		seriesTable.rating,
+		seriesTable.lastChanged
+	)
 
 
 
 
-<%
-
-# ------------------------------------------------------------------------
-# This is the top of the main
-# page generation section.
-# Execution begins here
-# ------------------------------------------------------------------------
-with sqlCon.cursor() as cur:
-
-	mtItems = getNotInDBItems(cur)
-	print("Querying")
-	cur.execute('SELECT buId,availProgress,readingProgress,buName,buList FROM MangaSeries WHERE buId IS NOT NULL and buList IS NOT NULL;')
-	buItems = cur.fetchall()
-	print("Query complete")
-
-
-inMTcount = 0
-badLinks = 0
-
-items = {}
-tableTopology = ("mangaID", "currentChapter", "readChapter", "seriesName", "listName")
-for item in buItems:
-
-	item = dict(zip(tableTopology, item))
-
-	seriesName = item["seriesName"]
-
-	if seriesName == None or item["listName"] == None:
-		badLinks += 1
-		continue
-
-	listName = item["listName"]
-	if listName in items:
-		items[item["listName"]].append(item)
-	else:
-		items[item["listName"]] = [item]
-
-
-
-
-reSortTop = ["Win", "Fascinating", "Interesting", "Tablet search"]
-reSortTop.reverse()
-reSortBottom = ["Interesting and Untranslated", "Vaguely Interesting", "Novels of interest", "Good H", "Interesting H", "Meh H", "Complete"]
-
-keys = list(sorted(items.keys()))   # Sort, and then move the "Complete" item to the list end so it displays there instead
-
-for val in reSortBottom:
-	for item in keys:
-		if val.lower() in item.lower().replace(chr(160), " "):  # lower-case, and replace the non-breaking space with a normal space
-			break
-	keys.remove(item)
-	keys.append(item)
-
-for val in reSortTop:
-	for item in keys:
-		if val.lower() in item.lower().replace(chr(160), " "):  # lower-case, and replace the non-breaking space with a normal space
-			break
-	keys.remove(item)
-	keys.insert(0, item)
-
-
-showOutOfDate = True
-showUpToDate = True
-
-showRatingFound  = True
-showRatingMissing = True
-
-if "readStatus" in request.params:
-	if request.params["readStatus"] == "upToDate":
-		showOutOfDate = False
-
-	elif request.params["readStatus"] == "outOfDate":
-		showUpToDate = False
-
-if "hasRating" in request.params:
-	if request.params["hasRating"] == "True":
-		showRatingMissing = False
-
-	elif request.params["hasRating"] == "False":
-		showRatingFound = False
-
-# if "updateMU" in request.params:
-# 	if request.params["updateMU"] == ["True"]:
-
-# 		if not flags.buMonRunning:
-# 			flags.buDeferredCaller()
-
-# nt.dirNameProxy = nt.()  # dirListFunc() is provided by the resource
-
-#running, lastRun, lastRunTime = sm.getStatus(cur, "MtMonitor")
-#delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(lastRun)
-mtMonRunLast = "%s" % 0#delta
-mtMonRunLast = mtMonRunLast.split(".")[0]
-
-# mtMonRunLast = format_timedelta(delta, locale='en_US')
-
-# for item in nt.dirNameProxy:
-
-print("Generating table")
 
 %>
 
-<body>
-
-<div>
-
-	${sideBar.getSideBar(sqlCon)}
-	<div class="maindiv">
-
-		<div class="subdiv buMonId" style="padding: 5px;">
-			<h3>Baka-Manga Updates</h3>
-			<div>
-
-				<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px;">
-					Filter read status:
-					<ul style="width: 100px;">
-
-						<li> <a href="bmUpdates?readStatus=alldate">All read status</a></li>
-						<li> <a href="bmUpdates?readStatus=upToDate">Up to date</a></li>
-						<li> <a href="bmUpdates?readStatus=outOfDate">Out of date</a></li>
-					</ul>
-				</div>
-				<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
-					Filter Rating state:
-					<ul style="width: 100px;">
-						<li> <a href="bmUpdates">All rating state</a></li>
-						<li> <a href="bmUpdates?hasRating=True">Has rating</a></li>
-						<li> <a href="bmUpdates?hasRating=False">No Rating</a></li>
-					</ul>
-				</div>
-
-				<hr>
-			% for key in keys:
-				<div>
-					<div style="margin-top: 10px;">
-						<div style="display:inline;"><h4 style="display:inline;">List: ${key}</h4></div>
-					</div>
-					${genBmUpdateTable(items[key])}
-				</div>
-			% endfor
-		</div>
-
-	</div>
-<div>
 
 
 <%def name="makeTooltipTable(name, cleanedName, folderName, itemPath)">
-<ul>
-	<li>Name: '${name | h}'</li>
-	<li>Cleaned Name: '${cleanedName | h}'</li>
-	<li>DirSort Name: '${folderName | h}'</li>
-	% if itemPath:
-		<li>Dir: '${itemPath | h}'</li>
-	% endif
-</ul>
+	<ul>
+		<li>Name: '${name | h}'</li>
+		<li>Cleaned Name: '${cleanedName | h}'</li>
+		<li>DirSort Name: '${folderName | h}'</li>
+		% if itemPath:
+			<li>Dir: '${itemPath | h}'</li>
+		% endif
+	</ul>
 
 </%def>
 
@@ -253,7 +117,7 @@ print("Generating table")
 		name = dataDict["seriesName"]
 		cleanedName = dataDict["seriesName"]
 
-		itemInfo = nt.dirNameProxy[cleanedName]
+		itemInfo = dataDict["itemInfo"]
 		folderName = itemInfo["dirKey"]
 
 
@@ -337,7 +201,14 @@ print("Generating table")
 
 		<%
 		# print("tableGen")
-		tblData.sort(key=lambda x: x["seriesName"])  # Sort list by seriesName
+
+		if "ratingSort" in request.params and request.params["ratingSort"] == "True":
+			# Sort list by rating decending, then seriesName ascending
+			tblData.sort(key=lambda x: (nt.ratingStrToInt(x['itemInfo']['rating'])*-1, x["seriesName"]))
+
+		else:
+			tblData.sort(key=lambda x: (x["seriesName"]))  # Sort list by seriesName asc
+
 		%>
 		% for dataDict in tblData:
 			${genRow(dataDict)}
@@ -348,12 +219,230 @@ print("Generating table")
 
 
 
+
 <%
-stopTime = time.time()
-timeDelta = stopTime - startTime
+
+
+# Get all items which have a non-null seriesId and BuId,
+# zip them all into dicts where {colName : value, ...
+# return dicts in list.
+def getItemsInLists():
+	cols = (
+			seriesTable.buid,
+			seriesTable.availprogress,
+			seriesTable.readingprogress,
+			seriesTable.buname,
+			seriesTable.bulist
+		)
+
+	query = seriesTable.select(*cols)
+	query.where = (seriesTable.buid != None) & (seriesTable.bulist != None)
+
+	with sqlCon.cursor() as cur:
+
+		mtItems = getNotInDBItems(cur)
+		print("Querying")
+		cur.execute(*tuple(query))
+		buItems = cur.fetchall()
+		print("Query complete")
+
+	ret = []
+
+	tableTopology = ("mangaID", "currentChapter", "readChapter", "seriesName", "listName")
+	for item in buItems:
+		tmp = dict(zip(tableTopology, item))
+
+		tmp["itemInfo"] = nt.dirNameProxy[tmp["seriesName"]]
+		if not tmp["itemInfo"]['rating']:
+			tmp["itemInfo"]['rating'] = ''
+
+		ret.append(tmp)
+
+	return ret
+
+
+def getListDicts(flatten=False):
+
+	items = {}
+
+
+	for item in getItemsInLists():
+		seriesName = item["seriesName"]
+
+		listName = item["listName"].replace(chr(160), " ")  # remove non-breaking spaces.
+
+		if flatten:
+			if 'All' in items:
+				items['All'].append(item)
+			else:
+				items['All'] = [item]
+
+		else:
+			if listName in items:
+				items[listName].append(item)
+			else:
+				items[listName] = [item]
+
+
+
+	reSortTop = ["Win", "Fascinating", "Interesting", "Tablet search"]
+	reSortTop.reverse()
+	reSortBottom = ["Interesting and Untranslated", "Vaguely Interesting", "Novels of interest", "Good H", "Interesting H", "Meh H", "Complete List"]
+
+	keyList = list(sorted(items.keys()))   # Sort, and then move the "Complete" item to the list end so it displays there instead
+
+
+	# sort items in the `reSortTop` list up to the top of the list, and items in `reSortBottom` down to the bottom
+	for item in keyList:
+		for val in reSortBottom:
+			if val.lower() == item.lower():  # lower-case, and replace the non-breaking space with a normal space
+				keyList.remove(item)
+				keyList.append(item)
+				break
+
+		for val in reSortTop:
+			if val.lower() == item.lower():  # lower-case, and replace the non-breaking space with a normal space
+				print("Wat", val, item)
+				keyList.remove(item)
+				keyList.insert(0, item)
+				break
+
+
+	return keyList, items
+
+
+showOutOfDate = True
+showUpToDate = True
+
+showRatingFound  = True
+showRatingMissing = True
+
+flatTable = False
+
+if "readStatus" in request.params:
+	if request.params["readStatus"] == "upToDate":
+		showOutOfDate = False
+
+	elif request.params["readStatus"] == "outOfDate":
+		showUpToDate = False
+
+if "hasRating" in request.params:
+	if request.params["hasRating"] == "True":
+		showRatingMissing = False
+
+	elif request.params["hasRating"] == "False":
+		showRatingFound = False
+
+if "flatTable" in request.params and request.params["flatTable"] == "True":
+	flatTable = True
+
+print("Generating table")
+
+
 %>
 
-<p>This page rendered in ${timeDelta} seconds.</p>
 
-</body>
+
+<html>
+	<head>
+		<title>WAT WAT IN THE BATT</title>
+
+		${ut.headerBase()}
+
+
+	</head>
+
+	<body>
+
+		<div>
+
+			${sideBar.getSideBar(sqlCon)}
+			<div class="maindiv">
+
+				<div class="subdiv buMonId" style="padding: 5px;">
+					<h3>Baka-Manga Updates</h3>
+					<div>
+
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px;">
+							Filter read status:
+							<ul style="width: 100px;">
+
+								<li> <a href="bmUpdates?readStatus=alldate">All read status</a></li>
+								<li> <a href="bmUpdates?readStatus=upToDate">Up to date</a></li>
+								<li> <a href="bmUpdates?readStatus=outOfDate">Out of date</a></li>
+							</ul>
+						</div>
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
+							Filter Rating state:
+							<ul style="width: 100px;">
+								<li> <a href="bmUpdates">All rating state</a></li>
+								<li> <a href="bmUpdates?hasRating=True">Has rating</a></li>
+								<li> <a href="bmUpdates?hasRating=False">No Rating</a></li>
+							</ul>
+						</div>
+
+						<%
+
+						singleTable = request.params.copy()
+						multiTable  = request.params.copy()
+
+						singleTable["flatTable"] = "True"
+						multiTable.pop("flatTable", None)
+
+
+						sortRating = request.params.copy()
+						sortNames  = request.params.copy()
+
+						sortRating["ratingSort"] = "True"
+						sortNames.pop("ratingSort", None)
+
+
+						%>
+
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
+							Grouping:
+							<ul style="width: 100px;">
+								<li> <a href="bmUpdates?${urllib.parse.urlencode(multiTable)}">By list</a></li>
+								<li> <a href="bmUpdates?${urllib.parse.urlencode(singleTable)}">Single Table</a></li>
+							</ul>
+						</div>
+
+
+
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
+							Sorting:
+							<ul style="width: 100px;">
+								<li> <a href="bmUpdates?${urllib.parse.urlencode(sortNames)}">Alphabetically</a></li>
+								<li> <a href="bmUpdates?${urllib.parse.urlencode(sortRating)}">By Rating</a></li>
+							</ul>
+						</div>
+
+						<hr>
+
+						<%
+						keys, items = getListDicts(flatten=flatTable)
+						%>
+
+						% for key in keys:
+							<div>
+								<div style="margin-top: 10px;">
+									<div style="display:inline;"><h4 style="display:inline;">List: ${key}</h4></div>
+								</div>
+								${genBmUpdateTable(items[key])}
+							</div>
+						% endfor
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+		<%
+		stopTime = time.time()
+		timeDelta = stopTime - startTime
+		%>
+
+		<p>This page rendered in ${timeDelta} seconds.</p>
+
+	</body>
 </html>
