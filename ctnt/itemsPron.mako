@@ -115,7 +115,7 @@ if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
 	sourceFilter = [item for item in tmpSource if item in ap.attr.activePorn]
 else:
-	sourceFilter = ap.attr.activePorn
+	sourceFilter = []
 
 
 
@@ -131,10 +131,10 @@ for item in ap.attr.sidebarItemList:
 		sourceItems[item["dictKey"]] = item
 
 
-if len(sourceFilter) > 1:
+if len(sourceFilter) > 1 or len(sourceFilter) == 0:
 	divId = "djMoeId"
 	sourceName = "Aggregate Pron Items"
-
+	sourceFilter = None
 else:
 	lut = sourceItems[sourceFilter[0]]
 
@@ -159,7 +159,7 @@ else:
 						${key} ${request.params.getall(key)}<br>
 					% endif
 				% endfor
-				${tableGenerators.genPronTable(sourceFilter, offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
+				${tableGenerators.genPronTable(siteSource=sourceFilter, offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
 			</div>
 
 			% if pageNo > 0:

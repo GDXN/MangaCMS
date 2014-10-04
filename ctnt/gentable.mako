@@ -137,11 +137,12 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 	if "tagsFilter" in kwargs and kwargs['tagsFilter']:
 		for tag in kwargs['tagsFilter']:
-			query.addOrLike(srcTbl.tags, key)
+			query.addAndLike(srcTbl.tags, '%{tag}%'.format(tag=tag))
+			print('multi arg fixme')
 
 	if "seriesFilter" in kwargs and kwargs['seriesFilter']:
 		for key in kwargs['seriesFilter']:
-			query.addAndLike(srcTbl.seriesname, key)
+			query.addAndLike(srcTbl.seriesname, key.lower())
 
 	if "seriesName" in kwargs and kwargs['seriesName']:
 		query.addAnd(srcTbl.seriesname, kwargs['seriesName'])
@@ -655,6 +656,8 @@ colours = {
 		seriesFilter=seriesFilter,
 		limit = limit,
 		offset = offset)
+
+	print("Query", query)
 
 	if getErrored:
 		if query.where:
