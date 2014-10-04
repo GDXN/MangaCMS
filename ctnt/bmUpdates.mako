@@ -5,7 +5,6 @@
 <%namespace name="tableGenerators" file="gentable.mako"/>
 <%namespace name="sideBar" file="gensidebar.mako"/>
 
-<%namespace name="ut" file="utilities.mako"/>
 <%namespace name="ut"              file="utilities.mako"/>
 <html>
 <head>
@@ -66,8 +65,23 @@ def getNotInDBItems(cur):
 	return monitorItems
 
 
-%>
 
+
+
+###############################################################################################################################################################################################################
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+###############################################################################################################################################################################################################
+#
+#  ######  ######## ########  #### ########  ######
+# ##    ## ##       ##     ##  ##  ##       ##    ##
+# ##       ##       ##     ##  ##  ##       ##
+#  ######  ######   ########   ##  ######    ######
+#       ## ##       ##   ##    ##  ##             ##
+# ##    ## ##       ##    ##   ##  ##       ##    ##
+#  ######  ######## ##     ## #### ########  ######
+#
+
+%>
 
 
 
@@ -230,6 +244,85 @@ print("Generating table")
 
 </%def>
 
+
+<%def name="genRow(dataDict)">
+
+
+	<%
+
+		name = dataDict["seriesName"]
+		cleanedName = dataDict["seriesName"]
+
+		itemInfo = nt.dirNameProxy[cleanedName]
+		folderName = itemInfo["dirKey"]
+
+
+		if itemInfo["item"]:
+			if not itemInfo["rating"]:
+				haveRating = "Unrated"
+				if not showRatingMissing:
+					return
+			if itemInfo["rating"]:
+				haveRating = "Rated"
+				if not showRatingFound:
+					return
+
+
+
+			rating = itemInfo["rating"]
+
+
+		else:
+			if not showRatingMissing:
+				return
+
+			rating = None
+			haveRating = "No Dir Found"
+
+		if (dataDict["currentChapter"] > 1) and not showOutOfDate:
+			return
+		if (dataDict["currentChapter"] == -1) and not showUpToDate:
+			return
+
+		%>
+		<tr>
+			<td class="padded">${dataDict["mangaID"]}</td>
+			<td class="padded">${name}</td>
+			<td class="padded">${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else "None"}</td>
+
+			% if haveRating == "Unrated":
+				<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NR</td>
+			% elif haveRating == "No Dir Found":
+				<td bgcolor="${colours["notInMT"]}"    class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NDF</td>
+			% else:
+				<td class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">${rating}</td>
+			%endif
+
+
+			<td class="padded"><a href="http://www.mangaupdates.com/series.html?id=${dataDict["mangaID"]}">BU</a></td>
+
+
+			% if dataDict["currentChapter"] == -1:
+				% if dataDict["readChapter"] == -1:
+					<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
+				% else:
+					<td bgcolor="${colours["upToDate"]}" class="padded">${dataDict["readChapter"]}</td>
+				% endif
+			% else:
+				<td bgcolor="${colours["hasUnread"]}" class="padded">${dataDict["currentChapter"]}</td>
+			% endif
+
+			% if dataDict["readChapter"] == -1:
+				<td class="padded">Finished</td>
+			% else:
+				<td class="padded">${dataDict["readChapter"]}</td>
+			% endif
+		</tr>
+
+</%def>
+
+
+
 <%def name="genBmUpdateTable(tblData)">
 	<table border="1px">
 		<tr>
@@ -247,82 +340,7 @@ print("Generating table")
 		tblData.sort(key=lambda x: x["seriesName"])  # Sort list by seriesName
 		%>
 		% for dataDict in tblData:
-			<%
-
-				name = dataDict["seriesName"]
-				cleanedName = dataDict["seriesName"]
-
-				 # = nt.dirNameProxy.filterNameThroughDB(cleanedName)
-
-
-				itemInfo = nt.dirNameProxy[cleanedName]
-				folderName = itemInfo["dirKey"]
-
-
-				if itemInfo["item"]:
-					if not itemInfo["rating"]:
-						haveRating = "Unrated"
-						if not showRatingMissing:
-							continue
-					if itemInfo["rating"]:
-						haveRating = "Rated"
-						if not showRatingFound:
-							continue
-					linkUrl = "<a href='/reader/{dictKey}/{seriesName}'>".format(dictKey=itemInfo["sourceDict"], seriesName=urllib.parse.quote(itemInfo["dirKey"]))
-					rating = itemInfo["rating"]
-
-
-				else:
-					if not showRatingMissing:
-						continue
-
-					rating = None
-					linkUrl = None
-
-					haveRating = "No Dir Found"
-
-				if (dataDict["currentChapter"] > 1) and not showOutOfDate:
-					continue
-				if (dataDict["currentChapter"] == -1) and not showUpToDate:
-					continue
-
-
-
-			%>
-			<tr>
-				<td class="padded">${dataDict["mangaID"]}</td>
-				<td class="padded">${name}</td>
-				<td class="padded">${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else "None"}</td>
-
-				% if haveRating == "Unrated":
-					<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NR</td>
-				% elif haveRating == "No Dir Found":
-					<td bgcolor="${colours["notInMT"]}"  class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NDF</td>
-				% else:
-					<td class="padded showTT" data-item="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">${rating}</td>
-				%endif
-
-
-
-				<td class="padded"><a href="http://www.mangaupdates.com/series.html?id=${dataDict["mangaID"]}">BU</a></td>
-
-
-				% if dataDict["currentChapter"] == -1:
-					% if dataDict["readChapter"] == -1:
-						<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
-					% else:
-						<td bgcolor="${colours["upToDate"]}" class="padded">${dataDict["readChapter"]}</td>
-					% endif
-				% else:
-					<td bgcolor="${colours["hasUnread"]}" class="padded">${dataDict["currentChapter"]}</td>
-				% endif
-
-				% if dataDict["readChapter"] == -1:
-					<td class="padded">Finished</td>
-				% else:
-					<td class="padded">${dataDict["readChapter"]}</td>
-				% endif
-			</tr>
+			${genRow(dataDict)}
 		% endfor
 
 	</table>

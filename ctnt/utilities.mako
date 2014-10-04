@@ -13,50 +13,6 @@ import nameTools as nt
 
 
 
-import sql
-
-class ProceduralSelect(sql.Select):
-	def addAnd(self, col, param):
-		if not self.__where:
-			self.__where = (col == param)
-		else:
-			self.__where &= (col == param)
-
-
-	def addOr(self, col, param):
-		if not self.__where:
-			self.__where = (col == param)
-		else:
-			self.__where |= (col == param)
-
-	def addAndLike(self, col, param):
-		if not self.__where:
-			self.__where = sqlo.Like(col, param)
-		else:
-			self.__where &= sqlo.Like(col, param)
-
-	def addOrLike(self, col, param):
-		if not self.__where:
-			self.__where = sqlo.Like(col, param)
-		else:
-			self.__where |= sqlo.Like(col, param)
-
-
-# Modify the sql.From class to use our derived ProceduralSelect class,
-# that lets one add parameters proceedurally.
-class From(sql.From):
-
-	def select(self, *args, **kwargs):
-		return ProceduralSelect(args, from_=self, **kwargs)
-
-
-# Monkey-patch in the modified From
-# This is HORRIBLE, and I should FEEL BAD!
-# (It does work, though)
-sql.From=From
-
-
-
 
 
 %>
@@ -130,6 +86,32 @@ sql.From=From
 	<link rel="stylesheet" href="/style.mako.css">
 </%def>
 
+<%def name="mouseOverJs()">
+	// Yeah, apparently you can have raw js in
+	// mako functions.
+
+	$(document).ready(function() {
+	// Tooltip only Text
+	$('.showTT').hover(function(){
+		// Hover over code
+		var mouseovertext = $(this).attr('mouseovertext');
+		$(this).data('tipText', mouseovertext).removeAttr('mouseovertext');
+		$('<p class="tooltip"></p>')
+		.html(mouseovertext)
+		.appendTo('body')
+		.fadeIn('slow');
+	}, function() {
+		// Hover out code
+		$(this).attr('mouseovertext', $(this).data('tipText'));
+		$('.tooltip').remove();
+	}).mousemove(function(e) {
+		var mousex = e.pageX + 20; //Get X coordinates
+		var mousey = e.pageY + 10; //Get Y coordinates
+		$('.tooltip')
+		.css({ top: mousey, left: mousex })
+	});
+	});
+</%def>
 
 
 <%def name="headerBase()">
@@ -144,27 +126,7 @@ sql.From=From
 			form.submit();
 		}
 
-		$(document).ready(function() {
-		// Tooltip only Text
-		$('.showTT').hover(function(){
-			// Hover over code
-			var title = $(this).attr('title');
-			$(this).data('tipText', title).removeAttr('title');
-			$('<p class="tooltip"></p>')
-			.html(title)
-			.appendTo('body')
-			.fadeIn('slow');
-		}, function() {
-			// Hover out code
-			$(this).attr('title', $(this).data('tipText'));
-			$('.tooltip').remove();
-		}).mousemove(function(e) {
-			var mousex = e.pageX + 20; //Get X coordinates
-			var mousey = e.pageY + 10; //Get Y coordinates
-			$('.tooltip')
-			.css({ top: mousey, left: mousex })
-		});
-		});
+		${mouseOverJs()}
 	</script>
 
 </%def>

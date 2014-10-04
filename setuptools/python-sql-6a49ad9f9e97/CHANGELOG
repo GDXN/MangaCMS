@@ -1,0 +1,21 @@
+Version 0.4 - 2014-08-03
+* Fix Mapping in Trim function
+* Add __truediv__ alias of __div__ for Python3
+* Fix For tables setter when tables is not a list
+* Allow to add Table to existing From list
+* Fix Select with for_ clause
+* Add Null alias for None
+* Add missing format of operand in Unary operator
+
+Version 0.3 - 2014-01-31
+* Add returning to Update
+* Add missing params for returning
+* Add columns definitions to Function
+* Fix AtTimeZone mapping
+
+Version 0.2 - 2013-09-18
+* Fix usage mixture between Div operator and function
+* Add array support in operators
+
+Version 0.1 - 2013-08-28
+* Initial release

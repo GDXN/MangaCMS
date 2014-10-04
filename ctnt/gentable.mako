@@ -102,11 +102,10 @@ seriesCols = (
 
 
 
-# You must import utilities.mako for this to work!
-# It relies on monkey-patching the sql.From class which is done in utilities.mako
-def buildQuery(srcTbl, cols, **kwargs):
 
-	# tableKey=None, tagsFilter=None, seriesFilter=None, seriesName=None):
+
+# !!!relies on monkey-patching the sql.From!!!
+def buildQuery(srcTbl, cols, **kwargs):
 
 	query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime))
 
@@ -125,10 +124,10 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 	if "seriesFilter" in kwargs and kwargs['seriesFilter']:
 		for key in kwargs['seriesFilter']:
-			query.addAndLike(srcTbl.seriesName, key)
+			query.addAndLike(srcTbl.seriesname, key)
 
 	if "seriesName" in kwargs and kwargs['seriesName']:
-		addAnd(query, srcTbl.seriesname, kwargs['seriesName'])
+		query.addAnd(srcTbl.seriesname, kwargs['seriesName'])
 
 	if "offset" in kwargs and kwargs['offset']:
 		query.offset = int(kwargs['offset'])
@@ -164,10 +163,22 @@ colours = {
 ###############################################################################################################################################################################################################
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ###############################################################################################################################################################################################################
+# is this silly? Yes. Is it readable on the sidebar view? Also yes.
+# (Plus, it amuses me)
+#
+# ##     ##    ###    ##    ##  ######      ###
+# ###   ###   ## ##   ###   ## ##    ##    ## ##
+# #### ####  ##   ##  ####  ## ##         ##   ##
+# ## ### ## ##     ## ## ## ## ##   #### ##     ##
+# ##     ## ######### ##  #### ##    ##  #########
+# ##     ## ##     ## ##   ### ##    ##  ##     ##
+# ##     ## ##     ## ##    ##  ######   ##     ##
+#
 
-
-<%def name="fetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None, getErrored=False)">
+<%def name="lazyFetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None, getErrored=False)">
 	<%
+
+
 		start = time.time()
 
 		if distinct and seriesName:
@@ -201,8 +212,6 @@ colours = {
 
 
 		query, params = tuple(query)
-		print(query)
-		print(params)
 		cur.execute(query, params)
 
 		if not limit:
@@ -245,7 +254,7 @@ colours = {
 </%def>
 
 
-<%def name="renderRow(row)">
+<%def name="renderMangaRow(row)">
 
 	<%
 
@@ -347,7 +356,7 @@ colours = {
 	%>
 	<tr class="${sourceSite}_row">
 		<td>${ut.timeAgo(retreivalTime)}</td>
-		<td bgcolor=${statusColour} class="showTT" title="${toolTip}" ${'onclick="event_%s()"' % cellId if cellId else ''}>
+		<td bgcolor=${statusColour} class="showTT" mouseovertext="${toolTip}" ${'onclick="event_%s()"' % cellId if cellId else ''}>
 			%if dlState==3:
 				<center>↑</center>
 			%elif dlState < 0:
@@ -391,7 +400,7 @@ colours = {
 				</script>
 			%endif
 		</td>
-		<td bgcolor=${locationColour} class="showTT" title="${toolTip}"></td>
+		<td bgcolor=${locationColour} class="showTT" mouseovertext="${toolTip}"></td>
 		<td>${ut.createReaderLink(seriesName.title(), itemInfo)}</td>
 		<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
 		<td>${rating}</td>
@@ -415,12 +424,20 @@ colours = {
 	<%
 
 
+
+
 	with sqlCon.cursor() as cur:
 
 		try:
 			# ret = cur.execute(query, params)
 
-			tblCtntArr = fetchMangaItems(flags, limit, offset, distinct, tableKey, seriesName, getErrored)
+			tblCtntArr = lazyFetchMangaItems(flags=flags,
+											limit=limit,
+											offset=offset,
+											distinct=distinct,
+											tableKey=tableKey,
+											seriesName=seriesName,
+											getErrored=getErrored)
 
 		# Catches are needed because if you don't issue a `rollback;`
 		# future queries will fail until the rollback is issued.
@@ -447,7 +464,7 @@ colours = {
 		</tr>
 
 		% for row in tblCtntArr:
-			${renderRow(row)}
+			${renderMangaRow(row)}
 		% endfor
 
 	</table>
@@ -457,72 +474,146 @@ colours = {
 ###############################################################################################################################################################################################################
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ###############################################################################################################################################################################################################
+#
+# ##     ## ######## ##    ## ########    ###    ####
+# ##     ## ##       ###   ##    ##      ## ##    ##
+# ##     ## ##       ####  ##    ##     ##   ##   ##
+# ######### ######   ## ## ##    ##    ##     ##  ##
+# ##     ## ##       ##  ####    ##    #########  ##
+# ##     ## ##       ##   ###    ##    ##     ##  ##
+# ##     ## ######## ##    ##    ##    ##     ## ####
 
-<%!
 
 
-def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesName=None):
+<%def name="renderHentaiRow(row)">
+	<%
 
-	# print("Building where query. tags=", tagsFilter, "series=", seriesFilter, "tableKey", tableKey)
-	if tableKey == None:
-		whereItems = []
-		queryAdditionalArgs = []
+	dbId,          \
+	dlState,       \
+	sourceSite,    \
+	sourceUrl,     \
+	retreivalTime, \
+	sourceId,      \
+	seriesName,    \
+	fileName,      \
+	originName,    \
+	downloadPath,  \
+	flags,         \
+	tags,          \
+	note = row
 
-	elif type(tableKey) is str:
-		whereItems = ["sourceSite=%s"]
-		queryAdditionalArgs = [tableKey]
+	dlState = int(dlState)
 
-	elif type(tableKey) is list or type(tableKey) is tuple:
-		items = []
-		queryAdditionalArgs = []
-		for key in tableKey:
-			items.append("sourceSite=%s")
-			queryAdditionalArgs.append(key)
+	# % for rowid, addDate, working, downloaded, dlName, dlLink, itemTags, dlPath, fName in tblCtntArr:
 
-		selectStr = " OR ".join(items)    # Convert down to a single string
-		selectStr = "(" + selectStr + ")" # and wrap it in parenthesis to make the OR work
-		whereItems = [selectStr]
+	addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(retreivalTime))
+
+	if not downloadPath and not fileName:
+		fSize = -2
+		filePath = "NA"
+
 	else:
-		raise ValueError("Invalid table-key type")
+		try:
+			filePath = os.path.join(downloadPath, fileName)
+			if os.path.exists(filePath):
+				fSize = os.path.getsize(filePath)
+			else:
+				fSize = -2
+		except OSError:
+			fSize = -1
 
-	tagsFilterArr = []
-	if tagsFilter != None:
-		for tag in tagsFilter:
-			tagsFilterArr.append(" tags LIKE %s ")
-			queryAdditionalArgs.append("%{s}%".format(s=tag.lower()))
-
-	if tagsFilterArr:
-		whereItems.append(" AND ".join(tagsFilterArr))
-
-	seriesFilterArr = []
-	if seriesFilter != None:
-		for series in seriesFilter:
-			seriesFilterArr.append(" seriesName LIKE %s ")
-			series = nt.getCanonicalMangaUpdatesName(series)
-			queryAdditionalArgs.append("%{s}%".format(s=series))
-
-	seriesNameArr = []
-	if seriesName != None:
-		seriesFilterArr.append(" seriesName=%s ")
-		series = nt.getCanonicalMangaUpdatesName(seriesName)
-		queryAdditionalArgs.append("{s}".format(s=series))
-
-	if seriesFilterArr:
-		whereItems.append(" AND ".join(seriesFilterArr))
-	if seriesNameArr:
-		whereItems.append(" AND ".join(seriesNameArr))
-
-	if whereItems:
-		whereStr = " WHERE %s " % (" AND ".join(whereItems))
+	if  dlState == 2 and fSize < 0:
+		statusColour = colours["failed"]
+	elif dlState == 2:
+		statusColour = colours["Done"]
+	elif dlState == 1:
+		statusColour = colours["working"]
+	elif dlState == 0:
+		statusColour = colours["queued"]
 	else:
-		whereStr = ""
+		statusColour = colours["failed"]
 
-	# print("tableKey, tagsFilter, seriesFilter", tableKey, tagsFilter, seriesFilter, whereItems)
-	# print("Query", whereStr, queryAdditionalArgs)
-	return whereStr, queryAdditionalArgs
+	if fSize == -2:
+		fSizeStr = "No File"
+	elif fSize < 0:
+		fSizeStr = "Unk Err %s" % fSize
+
+	else:
+		fSizeStr = fSizeToStr(fSize)
 
 
-%>
+	if not tags:
+		tags = ""
+
+	if seriesName and "»" in seriesName:
+		seriesNames = seriesName.split("»")
+	else:
+		seriesNames = [str(seriesName)]
+
+
+
+	%>
+	<tr class="${sourceSite}_row">
+
+		<td>${ut.timeAgo(retreivalTime)}</td>
+		<td bgcolor=${statusColour} class="showTT" mouseovertext="${dbId}, ${filePath}"></td>
+		<td>
+		## Messy hack that prevents the "»" from being drawn anywhere but *inbetween* tags in the path
+			% for i, seriesName in enumerate(seriesNames):
+				${'»'*bool(i)}
+				<a href="/itemsPron?bySeries=${seriesName.strip()|u}">${seriesName}</a>
+			% endfor
+		</td>
+
+
+
+		% if fSize <= 0:
+			<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
+		% else:
+			<td><a href="/pron/read/${dbId}">${originName}</a></td>
+		% endif
+
+
+		% if tags != None:
+			<td>
+
+			% for tag in tags.split():
+				<%
+				tagname = tag.lower().replace("artist-", "") \
+							.replace("scanlator-", "") \
+							.replace("scanlators-", "") \
+							.replace("parody-", "") \
+							.replace("group-", "") \
+							.replace("character-", "") \
+							.replace("convention-", "") \
+							.strip()
+				highlight = False
+				if not request.remote_addr in settings.noHighlightAddresses:
+					for toHighlighTag in settings.tagHighlight:
+						if toHighlighTag in tagname:
+							highlight = True
+				%>
+				${"<b>" if highlight else ""}
+				<a href="/itemsPron?byTag=${tagname|u}">${tag}</a>
+				${"</b>" if highlight else ""}
+			% endfor
+			</td>
+		% else:
+			<td>(No Tags)</td>
+		% endif
+
+		% if fSize <= 0:
+			<td bgcolor=${colours["no match"]}>${fSizeStr}</td>
+		% else:
+			<td>${fSizeStr}</td>
+		% endif
+
+		<td>${addDate}</td>
+
+	</tr>
+
+</%def>
+
 
 <%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False)">
 	<table border="1px">
@@ -541,7 +632,6 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesNam
 
 	<%
 
-	print("Table rendering begun")
 	offset = offset * limit
 
 	query = buildQuery(hentaiTable, hentaiCols,
@@ -553,341 +643,40 @@ def buildWhereQuery(tableKey=None, tagsFilter=None, seriesFilter=None, seriesNam
 
 	if getErrored:
 		if query.where:
-			query.where &= hentaiTable.dlState <= 0
+			query.where &= hentaiTable.dlstate <= 0
 		else:
-			query.where  = hentaiTable.dlState <= 0
-
-
-
-
-
-
-
+			query.where  = hentaiTable.dlstate <= 0
 
 	with sqlCon.cursor() as cur:
 
 		query, params = tuple(query)
-		print(query)
-		print(params)
 		cur.execute(query, params)
 		tblCtntArr = cur.fetchall()
 
-		# print("Query")
-		# ret = cur.execute('''SELECT 	dbId,
-		# 								sourceSite,
-		# 								dlState,
-		# 								sourceUrl,
-		# 								retreivalTime,
-		# 								sourceId,
-		# 								seriesName,
-		# 								fileName,
-		# 								originName,
-		# 								downloadPath,
-		# 								flags,
-		# 								tags,
-		# 								note
-		# 							FROM HentaiItems
-		# 							{query}
-		# 							ORDER BY retreivalTime
-		# 							DESC LIMIT %s
-		# 							OFFSET %s;'''.format(query = whereStr), params)
-
-		# tblCtntArr = cur.fetchall()
-		# print("Queried")
 
 	%>
 
 	% for row in tblCtntArr:
-		<%
-
-		dbId,          \
-		dlState,       \
-		sourceSite,    \
-		sourceUrl,     \
-		retreivalTime, \
-		sourceId,      \
-		seriesName,    \
-		fileName,      \
-		originName,    \
-		downloadPath,  \
-		flags,         \
-		tags,          \
-		note = row
-
-		dlState = int(dlState)
-
-		# % for rowid, addDate, working, downloaded, dlName, dlLink, itemTags, dlPath, fName in tblCtntArr:
-
-		addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(retreivalTime))
-
-		if not downloadPath and not fileName:
-			fSize = -2
-			filePath = "NA"
-
-		else:
-			try:
-				filePath = os.path.join(downloadPath, fileName)
-				if os.path.exists(filePath):
-					fSize = os.path.getsize(filePath)
-				else:
-					fSize = -2
-			except OSError:
-				fSize = -1
-
-		if  dlState == 2 and fSize < 0:
-			statusColour = colours["failed"]
-		elif dlState == 2:
-			statusColour = colours["Done"]
-		elif dlState == 1:
-			statusColour = colours["working"]
-		elif dlState == 0:
-			statusColour = colours["queued"]
-		else:
-			statusColour = colours["failed"]
-
-		if fSize == -2:
-			fSizeStr = "No File"
-		elif fSize < 0:
-			fSizeStr = "Unk Err %s" % fSize
-
-		else:
-			fSizeStr = fSizeToStr(fSize)
-
-
-		if not tags:
-			tags = ""
-
-		if seriesName and "»" in seriesName:
-			seriesNames = seriesName.split("»")
-		else:
-			seriesNames = [str(seriesName)]
-
-
-
-		%>
-		<tr class="${sourceSite}_row">
-
-			<td>${ut.timeAgo(retreivalTime)}</td>
-			<td bgcolor=${statusColour} class="showTT" title="${dbId}, ${filePath}"></td>
-			<td>
-			## Messy hack that prevents the "»" from being drawn anywhere but *inbetween* tags in the path
-				% for i, seriesName in enumerate(seriesNames):
-					${'»'*bool(i)}
-					<a href="/itemsPron?bySeries=${seriesName.strip()|u}">${seriesName}</a>
-				% endfor
-			</td>
-
-
-
-			% if fSize <= 0:
-				<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
-			% else:
-				<td><a href="/pron/read/${dbId}">${originName}</a></td>
-			% endif
-
-
-			% if tags != None:
-				<td>
-
-				% for tag in tags.split():
-					<%
-					tagname = tag.lower().replace("artist-", "") \
-								.replace("scanlator-", "") \
-								.replace("scanlators-", "") \
-								.replace("parody-", "") \
-								.replace("group-", "") \
-								.replace("character-", "") \
-								.replace("convention-", "") \
-								.strip()
-					highlight = False
-					if not request.remote_addr in settings.noHighlightAddresses:
-						for toHighlighTag in settings.tagHighlight:
-							if toHighlighTag in tagname:
-								highlight = True
-					%>
-					${"<b>" if highlight else ""}
-					<a href="/itemsPron?byTag=${tagname|u}">${tag}</a>
-					${"</b>" if highlight else ""}
-				% endfor
-				</td>
-			% else:
-				<td>(No Tags)</td>
-			% endif
-
-			% if fSize <= 0:
-				<td bgcolor=${colours["no match"]}>${fSizeStr}</td>
-			% else:
-				<td>${fSizeStr}</td>
-			% endif
-
-			<td>${addDate}</td>
-
-		</tr>
+		${renderHentaiRow(row)}
 	% endfor
 
 	</table>
 </%def>
 
 
-###############################################################################################################################################################################################################
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-###############################################################################################################################################################################################################
-
-
-
-<%def name="genMangaSeriesTable(ignoreList=None, tagsFilter=None, seriesFilter=None, sortKey=None)">
-	<table border="1px">
-		<tr>
-
-			<th class="uncoloured" width="5%">Last Update</th>
-			<th class="uncoloured" width="2.5%">MuID</th>
-			<th class="uncoloured" width="40%">Mu Name</th>
-			<th class="uncoloured" width="5%">Rating</th>
-			<th class="uncoloured" width="5%">Edit</th>
-
-
-		</tr>
-
-
-
-	<%
-
-	whereStr, queryAdditionalArgs = buildWhereQuery(tagsFilter, seriesFilter)
-	params = tuple(queryAdditionalArgs)
-
-
-	if sortKey == "update":
-		sortKey = "ORDER BY lastChanged DESC"
-	elif sortKey == "buName":
-		sortKey = "ORDER BY buName ASC"
-	elif sortKey == "aggregate":
-		sortKey = ""
-	else:
-		sortKey = "ORDER BY buName ASC"
-
-
-	with sqlCon.cursor() as cur:
-		query = '''SELECT 			dbId,
-									buName,
-									buId,
-									buTags,
-									buList,
-									readingProgress,
-									availProgress,
-									rating,
-									lastChanged
-									FROM MangaSeries
-									{query}
-									{orderBy};'''.format(query=whereStr, orderBy=sortKey)
-
-		# print ("Query = ", query)
-		ret = cur.execute(query, params)
-		tblCtntArr = cur.fetchall()
-
-	ratingShow = "all"
-
-	if "rated" in request.params:
-		if request.params["rated"] == "unrated":
-			ratingShow = "unrated"
-		elif request.params["rated"] == "rated":
-			ratingShow = "rated"
-
-	def getSortKey(inArr):
-		buName = inArr[1]
-		return buName.lower()
-
-
-	if not sortKey:
-		# print("Aggregate sort")
-		tblCtntArr.sort(key=getSortKey)
-
-
-	%>
-
-	% for row in tblCtntArr:
-
-
-		<%
-		dbId,            \
-		buName,          \
-		buId,            \
-		buTags,          \
-		buList,          \
-		readingProgress, \
-		availProgress,   \
-		rating,          \
-		lastChanged = row
-
-
-
-		cleanedBuName = None
-
-		if buName != None:
-			cleanedBuName = nt.sanitizeString(buName)
-
-
-		if buList in ignoreList:
-			continue
-
-		rating = ""
-
-
-		buInfo = nt.dirNameProxy[cleanedBuName]
-		if buInfo["item"] != None:
-			rating = buInfo["rating"]
-
-			# print("buInfo", buInfo)
-		else:
-			buInfo = None
-
-		if ratingShow == "unrated" and rating != "":
-			continue
-		elif ratingShow == "rated" and rating == "":
-			continue
-
-
-		%>
-		<tr id='rowid_${dbId}'>
-			<td>${ut.timeAgo(lastChanged)}</td>
-			<td>
-				<span id="view">
-					% if buId == None:
-						<form method="post" action="http://www.mangaupdates.com/series.html" id="muSearchForm_${dbId}" target="_blank">
-							<input type="hidden" name="act" value="series"/>
-							<input type="hidden" name="session" value=""/>
-							<input type="hidden" name="stype" value="Title">
-
-
-							<a href="javascript: searchMUForItem('muSearchForm_${dbId}')">Search</a>
-						</form>
-					% else:
-						${ut.idToLink(buId=buId)}
-					% endif
-				</span>
-				<span id="edit" style="display:none"> <input type="text" name="buId" originalValue='${"" if buId == None else buId}' value='${"" if buId == None else buId}' size=5/> </span>
-			</td>
-
-			<td>
-				<span id="view"> ${ut.createReaderLink(buName, buInfo)} </span>
-				<span id="edit" style="display:none"> <input type="text" name="buName" originalValue='${"" if buName == None else buName}' value='${"" if buName == None else buName}' size=35/> </span>
-			</td>
-			<td> ${rating} </td>
-			<td>
-			<a href="#" id='buttonid_${dbId}' onclick="ToggleEdit('${dbId}');return false;">Edit</a>
-			</td>
-
-		</tr>
-	% endfor
-
-	</table>
-</%def>
-
 
 ###############################################################################################################################################################################################################
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ###############################################################################################################################################################################################################
-
-
+#
+# ##       ########  ######   ######## ##    ## ########
+# ##       ##       ##    ##  ##       ###   ## ##     ##
+# ##       ##       ##        ##       ####  ## ##     ##
+# ##       ######   ##   #### ######   ## ## ## ##     ##
+# ##       ##       ##    ##  ##       ##  #### ##     ##
+# ##       ##       ##    ##  ##       ##   ### ##     ##
+# ######## ########  ######   ######## ##    ## ########
+#
 
 <%def name="genLegendTable(pron=False, hideSource=False)">
 	<div class="legend">
