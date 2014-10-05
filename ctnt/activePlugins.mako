@@ -177,6 +177,19 @@ sidebarItemList = [
 
 
 		{
+			"num"           : 20,
+			'dbKey'         : "KissLoader",
+			'name'          : "KissManga",
+			'dictKey'       : "ki",
+			'cssClass'      : "kiId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
+
+		{
 			"num"           : 14,
 			'dbKey'         : "IrcEnueue",
 			'name'          : "IRC",

@@ -115,7 +115,6 @@ import settings
 	<li>out of row colours</li>
 	<li>linebreaks in long filenames in reader popup need work</li>
 	<li>zoom mode indicator for smart mode in reader</li>
-	<li>fit width only if oversize?</li>
 	<li>Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.</li>
 	<li>steal code from free manga downloader?</li>
 	<li>filesize in browser</li>
@@ -165,8 +164,10 @@ import settings
 <ul>
 	<li>Manga</li>
 	<ul>
+		<li>KissManga.com</li>
 		<li>Tadanohito as a H source</li>
 		<li>http://nhentai.net/</li>
+		<li><strike>Dynasty Scans</strike></li>
 		<li><strike>webtoons.com</strike></li>
 		<li><strike>http://www.hbrowse.com/ as a H source</strike></li>
 		<li><strike>http://lonemanga.com/</strike></li>
@@ -189,6 +190,7 @@ import settings
 <p>
 <b>Reader</b>
 <ul>
+	<li>fit width only if oversize?</li>
 	<li>smart zoom mode in overlay</li>
 	<li>make zoom mode pop up last longer</li>
 	<li>fancy fade out when toolbars hidden?</li>

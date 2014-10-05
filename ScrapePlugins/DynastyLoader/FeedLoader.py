@@ -119,7 +119,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# 	self.log.info( item)
 		#
 
-		self.log.info( "Loading Red Hawk Items")
+		self.log.info( "Loading Dynasty Scans Items")
 
 		ret = []
 		cnt = 1
