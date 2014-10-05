@@ -37,7 +37,7 @@ import ScrapePlugins.MangaMadokami.mkFeedLoader
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
 # are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
-	0  : (ScrapePlugins.BtBaseManager.Run,        60*60   ),
+	0  : (ScrapePlugins.HBrowseLoader.Run,        60*60   ),
 	1  : (ScrapePlugins.ExMadokami.Run,           60*60   ),
 	2  : (ScrapePlugins.BuMonitor.Run,            60*60   ),
 	3  : (ScrapePlugins.JzLoader.Run,             60*60*8 ),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
@@ -55,7 +55,7 @@ scrapePlugins = {
 	15 : (ScrapePlugins.LoneMangaLoader.Run,      60*60*12),
 	16 : (ScrapePlugins.WebtoonLoader.Run,        60*60*8 ),
 	17 : (ScrapePlugins.DynastyLoader.Run,        60*60*8 ),
-	18 : (ScrapePlugins.HBrowseLoader.Run,        60*60   ),
+	18 : (ScrapePlugins.BtBaseManager.Run,        60*60   ),
 
 	# Madokami is two separate sections, because the feedLoader takes
 	# 5+ hours just to run.

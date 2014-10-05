@@ -9,6 +9,7 @@ import dateutil.parser
 import runStatus
 import settings
 import datetime
+import traceback
 
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
@@ -114,13 +115,18 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		while len(seriesPages):
 			seriesName, seriesUrl = seriesPages.pop()
 
-			newDirs, newItems = self.getItemsFromContainer(seriesName, seriesUrl)
+			try:
+				newDirs, newItems = self.getItemsFromContainer(seriesName, seriesUrl)
 
-			for newDir in newDirs:
-				seriesPages.append(newDir)
+				for newDir in newDirs:
+					seriesPages.append(newDir)
 
-			for newItem in newItems:
-				ret.append(newItem)
+				for newItem in newItems:
+					ret.append(newItem)
+			except urllib.error.URLError:
+				self.log.error("Failed to retreive page at url '%s'", seriesUrl)
+				self.log.error(traceback.format_exc())
+
 
 		return ret
 
