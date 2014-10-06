@@ -107,7 +107,6 @@ import settings
 
 <b>General</b>
 <ul>
-	<li>Batoto doesn't list every file in the recent updates page. Scan into series pages</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
 	<li>add half star rating options</li>
@@ -165,10 +164,10 @@ import settings
 <ul>
 	<li>Manga</li>
 	<ul>
-		<li>KissManga.com</li>
-		<li>http://tapastic.com/series/browse</li>
+		<li>http://tapastic.com/series/browse ?</li>
 		<li>Tadanohito as a H source</li>
 		<li>http://nhentai.net/</li>
+		<li><strike>KissManga.com</strike></li>
 		<li><strike>Dynasty Scans</strike></li>
 		<li><strike>webtoons.com</strike></li>
 		<li><strike>http://www.hbrowse.com/ as a H source</strike></li>
@@ -244,6 +243,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>Batoto doesn't list every file in the recent updates page. Scan into series pages</strike> Doing more thorough search</li>
 	<li><strike>Move to python-sql for dynamic sql generation</strike></li>
 	<li><strike>reset download button in mangatable for specific key view</strike></li>
 	<li><strike>filtered h isn't being properly skipped</strike></li>

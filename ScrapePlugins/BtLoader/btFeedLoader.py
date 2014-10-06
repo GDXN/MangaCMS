@@ -1,17 +1,20 @@
 
+
+import runStatus
+runStatus.preloadDicts = False
+
 import webFunctions
 import bs4
 import re
 
-import urllib.parse
 import time
 import dateutil.parser
-import runStatus
+
 import settings
 import datetime
 
 import ScrapePlugins.RetreivalDbBase
-import nameTools as nt
+
 
 # Only downlad items in language specified.
 # Set to None to disable filtering (e.g. fetch ALL THE FILES).
@@ -42,32 +45,6 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getItemFromContainer(self, row):
-
-		cells = row.find_all("td")
-
-		if len(cells) != 4 and len(cells) != 5:
-			return None
-
-		if len(cells) == 4:
-			chapter, lang, dummy_scanlator, uploadDate = cells
-		elif len(cells) == 5:
-			dummy_blank, chapter, lang, dummy_scanlator, uploadDate = cells
-
-		# Skip uploads in other languages
-		if DOWNLOAD_ONLY_LANGUAGE and not DOWNLOAD_ONLY_LANGUAGE in str(lang):
-			return None
-
-
-		dateStr = uploadDate.get_text().strip()
-		addDate = self.parseDateStr(dateStr)
-
-		item = {}
-
-		item["retreivalTime"] = time.mktime(addDate.timetuple())
-		item["sourceUrl"] = chapter.a["href"]
-
-		return item
 
 	def parseDateStr(self, inStr):
 
@@ -116,24 +93,115 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return updateDate
 
-	def getMainItems(self, rangeOverride=None, rangeOffset=None):
+
+
+
+	def getItemFromSeriesPageContainer(self, row):
+
+		cells = row.find_all("td")
+
+		if len(cells) != 5:
+			# self.log.error("Invalid number of TD items in row!")
+
+			return None
+
+		chapter, lang, dummy_scanlator, dummy_uploader, uploadDate = cells
+
+
+		# Skip uploads in other languages
+		if DOWNLOAD_ONLY_LANGUAGE and not DOWNLOAD_ONLY_LANGUAGE in str(lang):
+			return None
+
+
+		dateStr = uploadDate.get_text().strip()
+		addDate = self.parseDateStr(dateStr)
+
+
+		item = {}
+
+		item["retreivalTime"] = time.mktime(addDate.timetuple())
+		item["sourceUrl"] = chapter.a["href"]
+
+
+		return item
+
+
+	def fetchItemsForSeries(self, seriesUrl, historical):
+		# for item in items:
+		# 	self.log.info( item)
+		#
+
+		self.log.info("Loading items from '%s'", seriesUrl)
+
+
+
+		soup = self.wg.getSoup(seriesUrl)
+
+		# Find the divs containing either new files, or the day a file was uploaded
+		itemRows = soup.find_all("tr", class_=re.compile("chapter_row"))
+		items = 0
+		newItems = 0
+
+		ret = []
+
+		for itemRow in itemRows:
+
+			item = self.getItemFromSeriesPageContainer(itemRow)
+
+			if item:
+				items += 1
+
+				# Only fetch an item if it's less then 48 hours old, or we're running
+				# in historical mode (which means fetch all the things)
+				if item["retreivalTime"] > (time.time() - 60*60*48) or historical:
+					newItems += 1
+					ret.append(item)
+
+
+		self.log.info("Found %s of %s items recent enough to download for %s.", newItems, items, seriesUrl)
+		return ret
+
+
+	def getItemsFromSeriesUrls(self, seriesItems, historical):
+		ret = []
+		for seriesUrl in seriesItems:
+			items = self.fetchItemsForSeries(seriesUrl, historical)
+			for item in items:
+				ret.append(item)
+			if not runStatus.run:
+				self.log.info( "Breaking due to exit flag being set")
+				break
+
+		return ret
+
+	def getSeriesUrl(self, row):
+
+		cells = row.find_all("td")
+		if len(cells) == 2:
+			return cells.pop(0).a['href']
+
+		return None
+
+
+
+	def getMainItems(self, rangeOverride=None, rangeOffset=None, historical=False):
 		# for item in items:
 		# 	self.log.info( item)
 		#
 
 		self.log.info( "Loading BT Main Feed")
 
-		ret = []
 
 		seriesPages = []
 
 		if not rangeOverride:
-			dayDelta = 3
+			dayDelta = 2
 		else:
 			dayDelta = int(rangeOverride)
 		if not rangeOffset:
 			rangeOffset = 0
 
+		seriesPages = set()
 
 		for daysAgo in range(1, dayDelta+1):
 
@@ -146,14 +214,17 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			for row in itemRow:
 
-				item = self.getItemFromContainer(row)
+				item = self.getSeriesUrl(row)
 				if item:
-					ret.append(item)
+					seriesPages.add(item)
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
 					break
 
+
+
+		ret = self.getItemsFromSeriesUrls(seriesPages, historical)
 		return ret
 
 
@@ -171,3 +242,13 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Complete")
 
 
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = BtFeedLoader()
+		run.go()
+		# run.getMainItems()
