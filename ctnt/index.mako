@@ -107,6 +107,7 @@ import settings
 
 <b>General</b>
 <ul>
+	<li>Batoto doesn't list every file in the recent updates page. Scan into series pages</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
 	<li>add half star rating options</li>
@@ -165,6 +166,7 @@ import settings
 	<li>Manga</li>
 	<ul>
 		<li>KissManga.com</li>
+		<li>http://tapastic.com/series/browse</li>
 		<li>Tadanohito as a H source</li>
 		<li>http://nhentai.net/</li>
 		<li><strike>Dynasty Scans</strike></li>

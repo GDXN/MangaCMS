@@ -276,7 +276,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 			run += 1
 
-			soup = self.wgH.getpage(url, soup=True)
+			soup = self.wgH.getSoup(url)
 			series = self.getSeriesFromPage(soup)
 			if series:
 				self.log.info("Inserting %s items into name DB", len(series))

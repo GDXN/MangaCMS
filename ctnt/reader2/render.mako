@@ -233,7 +233,7 @@ import re
 			%>
 		</div>
 		<div>
-			${tableGen.genMangaTable(seriesName=itemKey, limit=None)}
+			${tableGen.genMangaTable(seriesName=itemKey, limit=None, includeUploads=True)}
 			${tableGen.genLegendTable()}
 			<script type="text/javascript">
 				$(document).ready(function() {

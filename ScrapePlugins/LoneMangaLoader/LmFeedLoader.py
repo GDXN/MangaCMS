@@ -52,7 +52,7 @@ class LmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def getItemPages(self, url):
 		self.log.info("Should get item for '%s'", url)
-		soup = self.wg.getpage(url, soup=True)
+		soup = self.wg.getSoup(url)
 
 		baseInfo = self.extractItemInfo(soup)
 
@@ -89,7 +89,7 @@ class LmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def getSeriesUrls(self):
 		ret = []
 
-		soup = self.wg.getpage(self.urlBase, soup=True)
+		soup = self.wg.getSoup(self.urlBase)
 		itemTds = soup.find_all("td", class_='series')
 
 

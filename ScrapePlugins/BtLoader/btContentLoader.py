@@ -66,7 +66,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def getImageFromPage(self, containerPageUrl):
 
-		soup = self.wg.getpage(containerPageUrl, soup=True)
+		soup = self.wg.getSoup(containerPageUrl)
 
 
 		img = soup.find("img", id="comic_page")

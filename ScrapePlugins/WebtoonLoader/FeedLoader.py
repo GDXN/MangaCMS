@@ -70,7 +70,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = []
 		while 1:
 
-			soup = self.wg.getpage(urlFormat.format(num=pageNo), soup=True)
+			soup = self.wg.getSoup(urlFormat.format(num=pageNo))
 			baseInfo = self.extractItemInfo(soup)
 
 			listDiv = soup.find_all("div", class_="detail_lst")
@@ -131,7 +131,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def getSeriesUrls(self):
 		ret = set()
 
-		soup = self.wg.getpage(self.seriesBase, soup=True)
+		soup = self.wg.getSoup(self.seriesBase)
 		lists = soup.find_all("ul", class_='card_lst')
 
 

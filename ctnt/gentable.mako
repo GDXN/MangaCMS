@@ -191,7 +191,7 @@ colours = {
 # ##     ## ##     ## ##    ##  ######   ##     ##
 #
 
-<%def name="lazyFetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None, getErrored=False)">
+<%def name="lazyFetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None, getErrored=False, includeUploads=False)">
 	<%
 
 
@@ -203,6 +203,9 @@ colours = {
 		if flags:
 			raise ValueError("TODO: Implement flag filtering!")
 
+		if seriesName:
+			# Canonize seriesName if it's not none
+			seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
 
 		query = buildQuery(mangaTable, mangaCols, tableKey=tableKey, seriesName=seriesName)
 
@@ -212,7 +215,7 @@ colours = {
 			else:
 				query.where  = mangaTable.dlstate < 1
 
-		else:
+		elif not includeUploads:
 			if query.where:
 				query.where &= mangaTable.dlstate < 3
 			else:
@@ -428,18 +431,19 @@ colours = {
 
 
 
-<%def name="genMangaTable(flags        = '',
-							limit      = 100,
-							offset     = 0,
-							distinct   = False,
-							tableKey   = None,
-							seriesName = None,
-							getErrored = False)">
+<%def name="genMangaTable(*args, **kwargs)">
 
 
 	<%
 
-
+	kwargs.setdefault("flags",          '')
+	kwargs.setdefault("limit",          100)
+	kwargs.setdefault("offset",         0)
+	kwargs.setdefault("distinct",       False)
+	kwargs.setdefault("tableKey",       None)
+	kwargs.setdefault("seriesName",     None)
+	kwargs.setdefault("getErrored",     False)
+	kwargs.setdefault("includeUploads", False)
 
 
 	with sqlCon.cursor() as cur:
@@ -447,13 +451,7 @@ colours = {
 		try:
 			# ret = cur.execute(query, params)
 
-			tblCtntArr = lazyFetchMangaItems(flags=flags,
-											limit=limit,
-											offset=offset,
-											distinct=distinct,
-											tableKey=tableKey,
-											seriesName=seriesName,
-											getErrored=getErrored)
+			tblCtntArr = lazyFetchMangaItems(**kwargs)
 
 		# Catches are needed because if you don't issue a `rollback;`
 		# future queries will fail until the rollback is issued.

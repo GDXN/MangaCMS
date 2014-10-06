@@ -102,7 +102,7 @@ class RhFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		pageNo = 1
 		while 1:
 			pageUrl = self.feedUrl.format(num=pageNo)
-			page = self.wg.getpage(pageUrl, soup=True)
+			page = self.wg.getSoup(pageUrl)
 			itemDivs = page.find_all("div", class_='group')
 
 			hadNew = False

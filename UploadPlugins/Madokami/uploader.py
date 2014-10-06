@@ -35,9 +35,13 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		super().__init__()
 
-		self.ftp = ftplib.FTP(host=settings.mkSettings["ftpAddr"])
-		self.ftp.login()
+		# Override undocumented class member to set the FTP encoding.
+		# This is a HORRIBLE hack.
+		# ftplib.FTP.encoding = "UTF-8"
 
+		self.ftp = ftplib.FTP(host=settings.mkSettings["ftpAddr"])
+
+		self.ftp.login()
 		self.mainDirs     = {}
 		self.unsortedDirs = {}
 
@@ -93,6 +97,9 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def loadRemoteDirectory(self, fullPath, aggregate=False):
 		ret = {}
+
+
+
 		for dirName, stats in self.ftp.mlsd(fullPath):
 
 			# Skip items that aren't directories
@@ -199,6 +206,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
 			safeFilename = nt.makeFilenameSafe(seriesName)
 			matchName = nt.prepFilenameForMatching(seriesName)
+			matchName = matchName.encode('latin-1', 'ignore').decode('latin-1')
 
 			self.checkInitDirs()
 			if matchName in self.unsortedDirs:
@@ -225,12 +233,14 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		command = "STOR %s" % filename
 
-		self.ftp.storbinary(command.encode("UTF-8"), open(filePath, "rb"))
+		self.ftp.storbinary(command, open(filePath, "rb"))
 		self.log.info("File Uploaded")
 
 
 		dummy_fPath, fName = os.path.split(filePath)
 		url = urllib.parse.urljoin("http://manga.madokami.com", urllib.parse.quote(filePath.strip("/")))
+
+		fName = fName.encode('latin-1', 'ignore').decode('latin-1')
 
 		self.insertIntoDb(retreivalTime = time.time(),
 							sourceUrl   = url,
@@ -253,10 +263,7 @@ def uploadFile(seriesName, filePath):
 def test():
 	uploader = MkUploader()
 	uploader.checkInitDirs()
-	print(uploader.getUploadDirectory("Alice of the Shadows"))
-	print(uploader.getUploadDirectory("Yowaito Nikki"))
-	print(uploader.getUploadDirectory("Yubisaki Milk Tea"))
-	print(uploader.getUploadDirectory("Aoishiro - Kaeishou [++][Complete]"))
+	uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
 
 
 if __name__ == "__main__":
