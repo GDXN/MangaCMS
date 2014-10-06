@@ -48,7 +48,6 @@ class EmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return []
 
 		try:
-			feed = feed.decode("utf-8")
 			data = json.loads(feed)
 			self.log.info("done")
 		except ValueError:

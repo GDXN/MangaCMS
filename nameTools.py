@@ -873,13 +873,10 @@ class DirNameProxy(object):
 ## to fetch the proper name from the MangaUpdates database
 def getCanonicalMangaUpdatesName(sourceSeriesName):
 
-	fsName = prepFilenameForMatching(sourceSeriesName)
-	if not fsName:
-		return sourceSeriesName
+	mId = getMangaUpdatesId(sourceSeriesName)
 
-	mId = buIdLookup[fsName]
-	if mId and len(mId) == 1:
-		correctSeriesName = idLookup[mId.pop()]
+	if mId:
+		correctSeriesName = idLookup[mId]
 		if correctSeriesName and len(correctSeriesName) == 1:
 			return correctSeriesName.pop()
 	return sourceSeriesName
@@ -891,6 +888,9 @@ def getCanonicalMangaUpdatesName(sourceSeriesName):
 def getMangaUpdatesId(sourceSeriesName):
 
 	fsName = prepFilenameForMatching(sourceSeriesName)
+	if not fsName:
+		return False
+
 	mId = buIdLookup[fsName]
 	if mId and len(mId) == 1:
 		return mId.pop()

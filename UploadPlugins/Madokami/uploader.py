@@ -1,4 +1,7 @@
 
+import runStatus
+if __name__ == "__main__":
+	runStatus.preloadDicts = False
 
 import ftplib
 import settings
@@ -6,7 +9,9 @@ import logging
 import os
 import nameTools as nt
 import Levenshtein as lv
+import json
 import time
+import webFunctions
 
 COMPLAIN_ABOUT_DUPS = False
 
@@ -22,6 +27,9 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 
 	tableName = "MangaItems"
+
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web", creds=[("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"])])
 
 	def __init__(self):
 
@@ -148,7 +156,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			self.log.info("Base container directory exists.")
 
-		self.mainDirs     = self.loadMainDirs()
+		# self.mainDirs     = self.loadMainDirs()
 		self.unsortedDirs = self.loadRemoteDirectory(fullPath, aggregate=True)
 
 
@@ -165,31 +173,59 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.log.info("Removing directory '%s'", src)
 				self.ftp.rmd(src)
 
+
+	def getExistingDir(self, seriesName):
+
+		mId = nt.getMangaUpdatesId(seriesName)
+		if not mId:
+			return False
+
+		self.log.info("Found mId for %s - %s", mId, seriesName)
+		dirInfo = self.wg.getpage("https://manga.madokami.com/?action=lookupmu&muid={mId}".format(mId=mId))
+
+		ret = json.loads(dirInfo)
+		if not 'ret' in ret or not ret['ret']:
+			return False
+
+		self.log.info("Have directory info from API query. Contains %s directories.", len(ret['data']))
+		dirInfo = ret['data'].pop()
+		return dirInfo['path']
+
+	def getUploadDirectory(self, seriesName):
+
+		ulDir = self.getExistingDir(seriesName)
+
+		if not ulDir:
+			seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
+			safeFilename = nt.makeFilenameSafe(seriesName)
+			matchName = nt.prepFilenameForMatching(seriesName)
+
+			self.checkInitDirs()
+			if matchName in self.unsortedDirs:
+				ulDir = self.unsortedDirs[matchName]
+			else:
+
+				self.log.info("Need to create container directory for %s", seriesName)
+				ulDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
+				self.ftp.mkd(ulDir)
+
+
+		return ulDir
+
 	def uploadFile(self, seriesName, filePath):
-		seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
-		safeFilename = nt.makeFilenameSafe(seriesName)
-		matchName = nt.prepFilenameForMatching(seriesName)
 
-		# if matchName in self.mainDirs and len(self.mainDirs[matchName]) == 1:
-		# 	newDir = self.mainDirs[matchName][0]
+		ulDir = self.getUploadDirectory(seriesName)
 
-		# elif matchName in self.unsortedDirs:
-		if matchName in self.unsortedDirs:
-			newDir = self.unsortedDirs[matchName]
-		else:
-
-			self.log.info("Need to create container directory for %s", seriesName)
-			newDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
-			self.ftp.mkd(newDir)
 
 		dummy_path, filename = os.path.split(filePath)
 		self.log.info("Uploading file %s", filePath)
 		self.log.info("From series %s", seriesName)
-		self.log.info("To container directory %s", newDir)
-		self.ftp.cwd(newDir)
+		self.log.info("To container directory %s", ulDir)
+		self.ftp.cwd(ulDir)
 
+		command = "STOR %s" % filename
 
-		self.ftp.storbinary("STOR %s" % filename, open(filePath, "rb"))
+		self.ftp.storbinary(command.encode("UTF-8"), open(filePath, "rb"))
 		self.log.info("File Uploaded")
 
 
@@ -211,13 +247,21 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 def uploadFile(seriesName, filePath):
 	uploader = MkUploader()
-	uploader.checkInitDirs()
 	uploader.uploadFile(seriesName, filePath)
 
 
 def test():
-	pass
+	uploader = MkUploader()
+	uploader.checkInitDirs()
+	print(uploader.getUploadDirectory("Alice of the Shadows"))
+	print(uploader.getUploadDirectory("Yowaito Nikki"))
+	print(uploader.getUploadDirectory("Yubisaki Milk Tea"))
+	print(uploader.getUploadDirectory("Aoishiro - Kaeishou [++][Complete]"))
+
 
 if __name__ == "__main__":
-	test()
+
+	import utilities.testBase as tb
+	with tb.testSetup(startObservers=False):
+		test()
 

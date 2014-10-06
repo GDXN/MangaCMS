@@ -369,6 +369,10 @@ class WebGetRobust:
 							elif "text/plain" in cType or "text/xml" in cType:
 								pgctnt = bs4.UnicodeDammit(pgctnt).unicode_markup
 
+							# Assume JSON is utf-8. Probably a bad idea?
+							elif "application/json" in cType:
+								pgctnt = pgctnt.decode('utf-8')
+
 							elif "text" in cType:
 								self.log.critical("Unknown content type!")
 								self.log.critical(cType)
@@ -381,8 +385,8 @@ class WebGetRobust:
 					except:
 						print(("pghandle = ", pghandle))
 
-						traceback.print_exc()
 						self.log.error(sys.exc_info())
+						traceback.print_exc()
 						self.log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", self.retryDelay)
 
 						try:
