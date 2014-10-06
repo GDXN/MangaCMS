@@ -21,3 +21,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking Re:Translations for updates")
 		scraper = ReScrape()
 		scraper.crawl()
+
+
+if __name__ == "__main__":
+	import utilities.testBase
+	with utilities.testBase.testSetup():
+		run = Runner()
+		run.go()

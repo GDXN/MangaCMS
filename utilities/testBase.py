@@ -2,7 +2,7 @@
 from contextlib import contextmanager
 
 @contextmanager
-def testSetup(startObservers=True):
+def testSetup(startObservers=False):
 
 	import runStatus
 	import logSetup

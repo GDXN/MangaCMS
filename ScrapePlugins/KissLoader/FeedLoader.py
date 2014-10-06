@@ -1,10 +1,6 @@
 
-
-import logSetup
 import runStatus
-if __name__ == "__main__":
-	logSetup.initLogging()
-	runStatus.preloadDicts = False
+runStatus.preloadDicts = False
 
 
 import webFunctions
@@ -12,12 +8,9 @@ import webFunctions
 import urllib.parse
 import time
 import dateutil.parser
-import runStatus
 import settings
-import datetime
 
 import ScrapePlugins.RetreivalDbBase
-import nameTools as nt
 
 # Only downlad items in language specified.
 # Set to None to disable filtering (e.g. fetch ALL THE FILES).
@@ -220,10 +213,13 @@ Not found
 
 
 if __name__ == '__main__':
-	fl = FeedLoader()
-	# fl.go(historical=True)
-	fl.go()
-	# fl.getSeriesUrls()
+	import utilities.testBase as tb
 
-	# fl.getAllItems()
+	with tb.testSetup(startObservers=False):
+		fl = FeedLoader()
+		# fl.go(historical=True)
+		fl.go()
+		# fl.getSeriesUrls()
+
+		# fl.getAllItems()
 

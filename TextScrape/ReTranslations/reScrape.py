@@ -54,21 +54,13 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 			url = urllib.parse.urljoin(self.baseUrl, turl)
-
-			if not gdp.isGdocUrl(url):
+			url = gdp.GDocExtractor.isGdocUrl(url)
+			# domain filtering is done in isGdocUrl
+			if not url:
 				continue
 
-			# Filter by domain
-			if not self.baseUrl in url:
-				continue
+			self.log.info("Resolved URL = '%s'", url)
 
-			# and by blocked words
-			hadbad = False
-			for badword in self.badwords:
-				if badword in url:
-					hadbad = True
-			if hadbad:
-				continue
 
 			# Remove any URL fragments causing multiple retreival of the same resource.
 			url = url.split("#")[0]
@@ -96,7 +88,7 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 		pgTitle, pgBody = self.cleanPage(content)
 
 		self.extractLinks(content)
-
+		self.log.info("Page title = '%s'", pgTitle)
 		pgBody = self.relink(pgBody)
 
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype='text/html', dlstate=2)
@@ -132,9 +124,9 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 
 			fName = os.path.split(fName)[-1]
 
-			print(fName, mimeType, hashName)
+			self.log.info("Resource = '%s', '%s', '%s'", fName, mimeType, hashName)
 			if mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
-				self.log.info("Processing '%s' as an image file.", url)
+				self.log.info("Processing resource '%s' as an image file. (mimetype: %s)", fName, mimeType)
 				self.upsert(hashName, istext=False)
 				self.saveFile(hashName, mimeType, fName, content)
 			elif mimeType in ["application/octet-stream"]:

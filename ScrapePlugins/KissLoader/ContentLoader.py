@@ -40,7 +40,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 3
+	retreivalThreads = 5
 
 	urlBase = "http://dynasty-scans.com/"
 
@@ -57,43 +57,23 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	def getImageUrls(self, inMarkup, baseUrl):
+	def getImageUrls(self, baseUrl):
 
+		pgctnt = self.wg.getpage(baseUrl)
 		pages = {}
 
 
-		jsonRe = re.compile(r'var pages = (\[.*?\]);')
+		linkRe = re.compile(r'lstImages\.push\("(.+?)"\);')
 
-		pg = jsonRe.findall(inMarkup)
-		if len(pg) != 1:
-			self.log.error("Erroring page '%s'", baseUrl)
-			raise ValueError("Page has more then one json section?")
+		links = linkRe.findall(pgctnt)
 
-		images = json.loads(pg.pop())
 
-		for item in images:
-			imgurl = urllib.parse.urljoin(baseUrl, item['image'])
-			pages[imgurl] = baseUrl
+		for item in links:
+			pages[item] = baseUrl
 
 		self.log.info("Found %s pages", len(pages))
 
 		return pages
-
-
-	def getSeries(self, markup):
-		soup = bs4.BeautifulSoup(markup)
-		title = soup.find("h3", id='chapter-title')
-
-		if title.b.find('a'):
-			title = title.b.a.get_text()
-
-		else:
-			title = title.b.get_text()
-
-		title = nt.getCanonicalMangaUpdatesName(title)
-		print("Title '%s'" % title)
-		return title
-
 
 
 
@@ -102,18 +82,18 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 		sourceUrl  = link["sourceUrl"]
-		chapterVol = link["originName"]
+		print("Link", link)
 
-		inMarkup = self.wg.getpage(sourceUrl)
 
-		seriesName = self.getSeries(inMarkup)
+
+		seriesName = link['seriesName']
 
 
 		try:
 			self.log.info( "Should retreive url - %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=1)
 
-			imageUrls = self.getImageUrls(inMarkup, sourceUrl)
+			imageUrls = self.getImageUrls(sourceUrl)
 			if not imageUrls:
 				self.log.critical("Failure on retreiving content at %s", sourceUrl)
 				self.log.critical("Page not found - 404")
@@ -122,7 +102,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-			self.log.info("Downloading = '%s', '%s' ('%s images)", seriesName, chapterVol, len(imageUrls))
+			self.log.info("Downloading = '%s', '%s' ('%s images)", seriesName, link["originName"], len(imageUrls))
 			dlPath, newDir = self.locateOrCreateDirectoryForSeries(seriesName)
 
 			if link["flags"] == None:
@@ -132,9 +112,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				self.updateDbEntry(sourceUrl, flags=" ".join([link["flags"], "haddir"]))
 				self.conn.commit()
 
-			chapterName = nt.makeFilenameSafe(chapterVol)
+			chapterName = nt.makeFilenameSafe(link["originName"])
 
-			fqFName = os.path.join(dlPath, chapterName+" [DynastyScans].zip")
+			fqFName = os.path.join(dlPath, chapterName+" [KissManga].zip")
 
 			loop = 1
 			prefix, ext = os.path.splitext(fqFName)
@@ -156,7 +136,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info("Creating archive with %s images", len(images))
 
 			if not images:
-				self.updateDbEntry(sourceUrl, dlState=-1, seriesName=seriesName, originName=chapterVol, tags="error-404")
+				self.updateDbEntry(sourceUrl, dlState=-1, tags="error-404")
 				return
 
 			#Write all downloaded files to the archive.
@@ -170,7 +150,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)
-			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, seriesName=seriesName, originName=chapterVol, tags=dedupState)
+			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 			return
 
 
@@ -179,6 +159,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
+			raise
 
 if __name__ == '__main__':
 	import utilities.testBase as tb

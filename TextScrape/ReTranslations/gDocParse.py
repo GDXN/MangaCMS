@@ -9,10 +9,8 @@ import io
 import zipfile
 import webFunctions
 import mimetypes
-
-def isGdocUrl(url):
-	gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+?)/preview')
-	return gdocBaseRe.search(url)
+import urllib.parse
+import urllib.error
 
 
 class GDocExtractor(object):
@@ -22,16 +20,45 @@ class GDocExtractor(object):
 
 	def __init__(self, targetUrl):
 
-		url = isGdocUrl(targetUrl)
+		url = self.isGdocUrl(targetUrl)
 		if not url:
 			raise ValueError("Passed URL '%s' is not a google document?" % targetUrl)
 
-		self.url = url.group(1)+'/export?format=zip'
+		self.url = url+'/export?format=zip'
 		self.refererUrl = targetUrl
 
 		self.document = ''
 
 		self.currentChunk = ''
+
+	@classmethod
+	def isGdocUrl(cls, url):
+		# This is messy, because it has to work through bit.ly redirects.
+		# I'm just resolving them here, rather then keeping them around because it makes things easier.
+		gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
+		simpleCheck = gdocBaseRe.search(url)
+		if simpleCheck:
+			return simpleCheck.group(1)
+
+
+		elif url.startswith("http://www.google.com/url?q=") and "bit.ly" in url:
+			qs = urllib.parse.urlparse(url).query
+			query = urllib.parse.parse_qs(qs)
+			if not "q" in query:
+				raise ValueError("No target?")
+
+			bitly = query["q"].pop()
+			try:
+				dummy_ctnt, handle = cls.wg.getpage(bitly, returnMultiple=True)
+
+				# Recurse into redirects
+				url = cls.isGdocUrl(handle.geturl())
+				return url
+
+			except urllib.error.URLError:
+				print("Error resolving redirect!")
+				return None
+		return None
 
 
 

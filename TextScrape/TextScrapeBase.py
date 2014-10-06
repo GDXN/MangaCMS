@@ -13,7 +13,7 @@ import threading
 import urllib.parse
 
 
-import logging
+import hashlib
 import psycopg2
 import os
 import traceback
@@ -62,7 +62,8 @@ class TextScraper(object):
 					"contents",
 					"istext",
 					"mimetype",
-					"fspath"]
+					"fspath",
+					"fhash"]
 
 
 	tableName = "book_items"
@@ -372,6 +373,8 @@ class TextScraper(object):
 				if not any([proc.running() for proc in processes]):
 					self.log.info("All threads stopped. Main thread exiting.")
 					break
+			if not runStatus.run:
+				self.log.warn("Execution stopped because of user-interrupt!")
 
 		self.log.info("Crawler scanned a total of '%s' pages", len(haveUrls))
 		self.log.info("Queue Feeder thread exiting!")
@@ -489,31 +492,49 @@ class TextScraper(object):
 	def saveFile(self, url, mimetype, fileName, content):
 
 
+		hadFile = False
+
+		# Yeah, I'm hashing twice in lots of cases. Bite me
+		m = hashlib.md5()
+		m.update(content)
+		fHash = m.hexdigest()
 
 		with self.conn.cursor() as cur:
+
+			# Look for existing files with the same MD5sum. If there are any, just point the new file at the
+			# fsPath of the existing one, rather then creating a new file on-disk.
+			with transaction(cur):
+				cur.execute("SELECT fspath  FROM {tableName} WHERE fhash=%s;".format(tableName=self.tableName), (fHash, ))
+				row = cur.fetchone()
+				if row:
+					self.log.info("Already downloaded file. Not creating duplicates.")
+					hadFile = True
+					fqPath = row[0]
+
 			with transaction(cur):
 
 				cur.execute("SELECT dbid, fspath, contents, mimetype  FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (url, ))
 				dbid, havePath, haveCtnt, haveMime = cur.fetchone()
 				# self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
 
-
-				fqPath = self.getFilenameFromIdName(dbid, fileName)
+				if not hadFile:
+					fqPath = self.getFilenameFromIdName(dbid, fileName)
 
 				newRowDict = {  "dlstate" : 2,
 								"series"  : None,
 								"contents": len(content),
 								"istext"  : False,
 								"mimetype": mimetype,
-								"fspath"  : fqPath}
+								"fspath"  : fqPath,
+								"fhash"   : fHash}
 
 
 				self.updateDbEntry(url=url, commit=False, **newRowDict)
 
 
-
-		with open(fqPath, "wb") as fp:
-			fp.write(content)
+		if not hadFile:
+			with open(fqPath, "wb") as fp:
+				fp.write(content)
 
 
 
@@ -562,6 +583,7 @@ class TextScraper(object):
 												series    text,
 												contents  text,
 												istext    boolean DEFAULT TRUE,
+												fhash     text,
 												mimetype  text,
 												fspath    text DEFAULT '');'''.format(tableName=self.tableName))
 
@@ -578,11 +600,13 @@ class TextScraper(object):
 				("%s_dlstate_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlstate );'''  ),
 				("%s_url_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (url     );'''  ),
 				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title   );'''  ),
+				("%s_fhash_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (fhash   );'''  ),
 				("%s_title_coll_index" % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING BTREE (title COLLATE "en_US" text_pattern_ops);'''  )
 			]
 
 
 # CREATE INDEX  book_items_title_coll_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
+# CREATE INDEX  book_items_fhash_index ON book_items (fhash);
 
 # CREATE INDEX title_collate_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
 # EXPLAIN ANALYZE SELECT COUNT(*) FROM book_items WHERE title LIKE 's%';
