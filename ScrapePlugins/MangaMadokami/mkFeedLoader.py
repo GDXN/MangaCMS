@@ -75,6 +75,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return [], []
 		if dirName == 'Requests':
 			return [], []
+		if dirName == '_Autouploads':
+			return [], []
 
 
 		self.log.info("Original name - %s", dirName)

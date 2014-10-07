@@ -1,12 +1,9 @@
 
 from . import absImport
 import settings
-import UniversalArchiveReader
-import os
 import logging
-
-
 import runStatus
+
 
 # Checks an archive (`archPath`) against the contents of the database
 # accessible via the `settings.dedupApiFile` python file, which
@@ -40,43 +37,54 @@ class BkHammingNode(object):
 
 		distance = hamming(self.nodeHash, nodeHash)
 		if not distance in self.children:
-			self.children[distance] = [BkHammingNode(nodeHash, nodeData)]
+			self.children[distance] = BkHammingNode(nodeHash, nodeData)
 		else:
-			self.children[distance].append(BkHammingNode(nodeHash, nodeData))
+			self.children[distance].insert(nodeHash, nodeData)
 
-	def getWithinDistance(self, baseHash, distance):
+	def getWithinDistance(self, baseHash, distance, isRoot=False):
 		selfDist = hamming(self.nodeHash, baseHash)
 
-		if selfDist > distance:
-			ret = set()
-		else:
-			ret = set(self.nodeData)
+		ret = set()
+
+		if selfDist <= distance:
+			ret |= set(self.nodeData)
+
+		touched = 1
+
+		relevantChildKey = [key for key in self.children.keys() if key <= selfDist+distance and key >= selfDist-distance]
 
 
-		relevantChildren = [key for key in self.children.keys() if key <= selfDist+distance and key >= selfDist-distance]
-		for key in relevantChildren:
+		for key in relevantChildKey:
 
-			for child in self.children[key]:
-				ret |= child.getWithinDistance(baseHash, distance)
+			new, tmpTouch = self.children[key].getWithinDistance(baseHash, distance)
+			touched += tmpTouch
+			ret |= new
 
-		return ret
+		return ret, touched
 
 class BkHammingTree(object):
 	root = None
 
 	def __init__(self):
-		pass
+		self.nodes = 0
 
 	def insert(self, nodeHash, nodeData):
 		if not self.root:
 			self.root = BkHammingNode(nodeHash, nodeData)
 		else:
 			self.root.insert(nodeHash, nodeData)
-	def getDistance(self, baseHash, distance):
+
+		self.nodes += 1
+
+	def getWithinDistance(self, baseHash, distance):
 		if not self.root:
 			return set()
 
-		return self.root.getWithinDistance(baseHash, distance)
+		ret, touched = self.root.getWithinDistance(baseHash, distance, isRoot=True)
+		# print("Touched %s tree nodes, or %1.3f%%" % (touched, touched/self.nodes * 100))
+		# print("Discovered %s match(es)" % len(ret))
+		return ret
+
 
 class HamDb(object):
 	def __init__(self):
@@ -91,7 +99,7 @@ class HamDb(object):
 
 	def loadPHashes(self):
 		self.log.info("Loading PHashes")
-		rowsIter = self.db.getPHashes()
+		rowsIter = self.db.getPHashes(limit=200000)
 		self.log.info("Queried. Reading results")
 
 		rowNum = 0
@@ -110,10 +118,16 @@ class HamDb(object):
 				if not runStatus.run:
 					self.log.info("Breaking due to exit flag being set")
 					return
+
 			self.hashTree.insert(pHash, dbId)
 
 		self.log.info("All rows loaded! Total rows = %s", rowNum)
 
+
+	def doTest(self, targetHash, distance):
+		items = self.hashTree.getWithinDistance(targetHash, distance)
+
+		# print(items)
 
 	def test(self):
 		from timeit import Timer
@@ -125,9 +139,22 @@ class HamDb(object):
 		runs = 20
 		print("Running tests")
 
+
+
 		for x in range(10):
 
-			t = Timer(lambda: self.hashTree.getDistance(random.choice(self.testHashes), 1))
+			t = Timer(lambda: (self.doTest(random.choice(self.testHashes), 2)))
 			print(t.timeit(number=runs)/runs)
 
+def test():
 
+	hint = HamDb()
+
+	hint.loadPHashes()
+	hint.test()
+
+
+if __name__ == "__main__":
+	import utilities.testBase
+	with utilities.testBase.testSetup():
+		test()

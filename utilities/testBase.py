@@ -5,13 +5,14 @@ from contextlib import contextmanager
 def testSetup(startObservers=False):
 
 	import runStatus
+	runStatus.preloadDicts = False
+
 	import logSetup
 	import signal
 	import nameTools as nt
 
 
 	logSetup.initLogging()
-	runStatus.preloadDicts = False
 
 	def signal_handler(dummy_signal, dummy_frame):
 		if runStatus.run:
