@@ -71,8 +71,8 @@ import re
 	dirPath = os.path.join(settings.mangaFolders[dictKey]["dir"], *navPath)
 	dirContents = os.listdir(dirPath)
 
-	chpRe = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of) ?(?:chapter |ch|c| |_)(\d+)", re.IGNORECASE)
-	volRe = re.compile(r"(?: |_)(?:volume|vol|v)(?: |_)?(\d+)", re.IGNORECASE)
+	chpRe = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of) ?(?:chapter |ch|c| |_)(?: |_|\.)?(\d+)", re.IGNORECASE)
+	volRe = re.compile(r"(?: |_)(?:volume|vol|v)(?: |_|\.)?(\d+)", re.IGNORECASE)
 	# print("Nav path = ", navPath, "dict", dictKey)
 
 	# print("Folder items")

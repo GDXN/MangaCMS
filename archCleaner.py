@@ -270,19 +270,22 @@ class ArchCleaner(object):
 		if deduper and deleteDups:
 
 			dc = deduper.ArchChecker(archPath)
-			if not includePHash:
-				isUnique = dc.check()
-			else:
-				isUnique = dc.checkPhash()
-			if not isUnique:
-				self.log.warning("Archive %s isn't unique!" % archPath)
+
+			# check hash first, then phash. That way, we get tagging that
+			# indicates what triggered the removal.
+			if not dc.isBinaryUnique():
+				self.log.warning("Archive %s isn't unique!", archPath)
 				dc.deleteArch()
 				return "deleted was-duplicate"
+
+			if includePHash and not dc.isPhashUnique():
+				self.log.warning("Archive %s isn't unique!", archPath)
+				dc.deleteArch()
+				return "deleted was-duplicate phash-duplicate"
 			else:
 				self.log.info("Archive Contains unique files. Leaving alone!")
 				dc.addNewArch()
 
-				return ""
 		return ""
 
 
