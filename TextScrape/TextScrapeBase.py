@@ -51,7 +51,10 @@ class RowExistsException(Exception):
 	pass
 
 
-class TextScraper(object):
+class TextScraper(metaclass=abc.ABCMeta):
+
+	# Abstract class (must be subclassed)
+	__metaclass__ = abc.ABCMeta
 
 	validKwargs = ["rowid",
 					"src",
@@ -383,7 +386,7 @@ class TextScraper(object):
 	#                      DB Interfacing
 	##############################################################################################################################################
 
-
+	# TODO: Use python-sql here.
 	def upsert(self, pgUrl, commit=True, **kwargs):
 
 		cur = self.conn.cursor()
@@ -393,11 +396,10 @@ class TextScraper(object):
 				self.insertIntoDb(commit=False, url=pgUrl, **kwargs)
 				return
 		except psycopg2.IntegrityError:
-
-
 			if kwargs:
 				with transaction(cur, commit=commit):
 					self.updateDbEntry(url=pgUrl, **kwargs)
+
 
 	def buildInsertArgs(self, **kwargs):
 
@@ -489,15 +491,51 @@ class TextScraper(object):
 
 
 
+	# Delete row by either dbId or url
+	def deleteDbEntry(self, dbid=None, url=None, commit=True):
+
+		if not dbid and not url:
+			raise ValueError("You need to pass a uniquely identifying value to update a row.")
+		if dbid and url:
+			raise ValueError("Updating with dbid and url is not currently supported.")
+
+		if dbid:
+			setkey = 'dbid'
+			rowkey = dbid
+		if url:
+			setkey = 'url'
+			rowkey = url
+
+		queries = []
+		qArgs = []
+
+		qArgs.append(rowkey)
+
+		self.log.warn("Deleting item from database where %s=%s", setkey, rowkey)
+		query = '''DELETE FROM {tableName} WHERE {setkey}=%s;'''.format(tableName=self.tableName, setkey=setkey)
+
+		if QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", qArgs)
+
+		with self.conn.cursor() as cur:
+			with transaction(cur, commit=commit):
+				cur.execute(query, qArgs)
+
+	def getHash(self, fCont):
+
+		m = hashlib.md5()
+		m.update(fCont)
+		return m.hexdigest()
+
+
 	def saveFile(self, url, mimetype, fileName, content):
 
 
 		hadFile = False
 
 		# Yeah, I'm hashing twice in lots of cases. Bite me
-		m = hashlib.md5()
-		m.update(content)
-		fHash = m.hexdigest()
+		fHash = self.getHash(content)
 
 		with self.conn.cursor() as cur:
 
@@ -577,15 +615,16 @@ class TextScraper(object):
 												dbid      SERIAL PRIMARY KEY,
 												src       TEXT NOT NULL,
 												dlstate   INTEGER DEFAULT 0,
-												url       text UNIQUE NOT NULL,
+												url       CITEXT UNIQUE NOT NULL,
 
 												title     text,
-												series    text,
+												series    CITEXT,
 												contents  text,
 												istext    boolean DEFAULT TRUE,
-												fhash     text,
-												mimetype  text,
-												fspath    text DEFAULT '');'''.format(tableName=self.tableName))
+												fhash     CITEXT,
+												mimetype  CITEXT,
+												fspath    text DEFAULT '',
+												UNIQUE(fhash));'''.format(tableName=self.tableName))
 
 
 			cur.execute("SELECT relname FROM pg_class;")
