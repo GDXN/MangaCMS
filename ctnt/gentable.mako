@@ -37,11 +37,6 @@ def compactDateStr(dateStr):
 	dateStr = dateStr.replace("year", "yr")
 	return dateStr
 
-def fSizeToStr(fSize):
-
-	fStr = fSize/1.0e6
-	fStr = "%0.2f M" % fStr
-	return fStr
 
 
 
@@ -421,7 +416,25 @@ colours = {
 		</td>
 		<td bgcolor=${locationColour} class="showTT" mouseovertext="${toolTip}"></td>
 		<td>${ut.createReaderLink(seriesName.title(), itemInfo)}</td>
-		<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
+		<td>
+
+			% if "phash-duplicate" in tags:
+				<span style="text-decoration: line-through; color: red;">
+					<span style="color: #000;">
+			% elif "deleted" in tags:
+				<strike>
+			% endif
+
+			${originName}
+
+			% if "phash-duplicate" in tags:
+					</span>
+				</span>
+			% elif "deleted" in tags:
+				</strike>
+			% endif
+
+		</td>
 		<td>${rating}</td>
 		<td>${addDate}</td>
 	</tr>
@@ -553,7 +566,7 @@ colours = {
 		fSizeStr = "Unk Err %s" % fSize
 
 	else:
-		fSizeStr = fSizeToStr(fSize)
+		fSizeStr = ut.fSizeToStr(fSize)
 
 
 	if not tags:

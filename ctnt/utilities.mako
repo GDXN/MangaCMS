@@ -20,6 +20,19 @@ import nameTools as nt
 
 
 
+<%def name="fSizeToStr(fSize)">
+	<%
+	fStr = fSize/1.0e6
+	if fStr < 100:
+		fStr = "%0.2f M" % fStr
+	else:
+		fStr = "%0.1f M" % fStr
+
+	return fStr
+	%>
+
+</%def>
+
 
 
 <%def name="timeAgo(inTimeStamp)">

@@ -85,10 +85,13 @@ import re
 		chapKey = chpRe.findall(item)
 		volKey = volRe.findall(item)
 
+		sz = os.path.getsize(os.path.join(dirPath, item))
+		szStr = ut.fSizeToStr(sz)
+
 		chapKey = float(chapKey.pop(0)) if chapKey  else 0
 		volKey  = float(volKey.pop(0))  if volKey    else 999
 
-		tmp.append((volKey, chapKey, item))
+		tmp.append((volKey, chapKey, item, szStr))
 
 	# print("Preprocessed items")
 	# for item in tmp:
@@ -118,9 +121,10 @@ import re
 			<th class="uncoloured" style='width:30'>Vol</th>
 			<th class="uncoloured" style='width:30'>Chp</th>
 			<th class="uncoloured">${dirPath}</th>
+			<th class="uncoloured" style='width:52'>Size</th>
 		</tr>
 
-		% for vol, chap, item in dirContents:
+		% for vol, chap, item, size in dirContents:
 			<tr>
 
 				<%
@@ -134,6 +138,7 @@ import re
 				<td>${str(vol).rstrip('0').rstrip('.') if vol < 990 else ''}</td>
 				<td>${str(chap).rstrip('0').rstrip('.')}</td>
 				<td><a href="/reader2/browse/${dictKey}/${urlPath}">${item}</a></td>
+				<td>${size}</td>
 			</tr>
 		% endfor
 		 <div style="clear:both"></div>
