@@ -225,6 +225,47 @@ sidebarItemList = [
 			'type'          : 'Info'
 		},
 
+		###################################################################################################################
+
+		{
+			"num"           : 8,
+			'dbKey'         : "ReScrape",
+			'name'          : "Re:Trans",
+			'dictKey'       : None,
+			'cssClass'      : "reId",
+			'showOnHome'    : False,
+			'renderSideBar' : True,
+			'genRow'        : False,
+			'type'          : 'Info'
+		},
+
+		{
+			"num"           : 8,
+			'dbKey'         : "TsukiScrape",
+			'name'          : "Tsuki Trans",
+			'dictKey'       : None,
+			'cssClass'      : "tkId",
+			'showOnHome'    : False,
+			'renderSideBar' : True,
+			'genRow'        : False,
+			'type'          : 'Info'
+		},
+
+		{
+			"num"           : 8,
+			'dbKey'         : "JapTemScrape",
+			'name'          : "JapTem",
+			'dictKey'       : None,
+			'cssClass'      : "jtId",
+			'showOnHome'    : False,
+			'renderSideBar' : True,
+			'genRow'        : False,
+			'type'          : 'Info'
+		},
+
+
+		###################################################################################################################
+
 		{
 			"num"           : 9,
 			'dbKey'         : False,

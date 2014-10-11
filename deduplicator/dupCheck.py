@@ -29,6 +29,7 @@ import deduplicator.hamDb
 
 
 PHASH_DISTANCE_THRESHOLD = 1
+
 class ArchChecker(object):
 	def __init__(self, archPath):
 		self.archPath    = archPath

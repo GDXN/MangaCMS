@@ -7,10 +7,13 @@ import deduplicator.hamDb as hamDb
 import sys
 import os
 import os.path
-
+import shutil
 import ScrapePlugins.DbBase
 
 from contextlib import contextmanager
+
+
+PHASH_DISTANCE_THRESHOLD = 2
 
 @contextmanager
 def transaction(cursor, commit=True):
@@ -87,19 +90,99 @@ class HamDb(ScrapePlugins.DbBase.DbBase):
 		dbId, dirPath, fName = item
 		fqPath = os.path.join(dirPath, fName)
 		if not os.path.exists(fqPath):
+			self.log.error("ORIGIN FILE IS MISSING!")
 			return
 
 		items = self.db.getItemsOnBasePath(fqPath)
+		items = [item for item in items if item[1] != '']
 		self.log.info("Have %s items for item %s", len(items), fName)
 
+		itemIds = set([item[-1] for item in items])
 
-		# items = self.hashTree.getWithinDistance(targetHash, distance)
+		for item in items:
+			extPath, intPath, fHash, pHash, dbId = item
+			pHash = int(pHash, 2)
+			matches = self.hashTree.getWithinDistance(pHash, PHASH_DISTANCE_THRESHOLD)
 
-	def scanHistory(self, key, scanPath):
-		# self.loadPHashes(pathPrefix=scanPath)
+
+			# Remove any items corresponding to the item itself's ids
+			matches -= itemIds
+
+			# And then filter for any files that no longer exist on disk
+			stillExist = []
+			for dbId in list(matches):
+				info = self.db.getById(dbId)
+				if len(info) != 1:
+					raise ValueError("Invalid ID? Wat?")
+
+				itemPath = info[0][0]
+				if os.path.exists(itemPath):
+					stillExist.append(dbId)
+				else:
+					self.log.error("FILE IS MISSING = '%s'", info)
+
+
+			if stillExist:
+				print(pHash, matches, stillExist)
+
+			else:
+				return False # Short circuit on unique
+		self.log.warning("NOT UNIQUE!")
+		return True
+
+
+
+	# Insert new tags specified as a string kwarg (tags="tag Str") into the tags listing for the specified item
+	def updateItemTags(self, dbId, tags):
+
+
+		with self.conn.cursor() as cur:
+			with transaction(cur):
+				cur.execute('SELECT tags FROM hentaiitems WHERE dbId=%s;', (dbId, ))
+				row = cur.fetchone()
+
+		if not row:
+			raise ValueError("Row specified does not exist!")
+
+		tags = row[0]
+		if tags:
+			existingTags = set(tags.split(" "))
+		else:
+			existingTags = set()
+
+		newTags = set(tags.split(" "))
+
+		tags = existingTags | newTags
+
+		tagStr = " ".join(tags)
+		while "  " in tagStr:
+			tagStr = tagStr.replace("  ", " ")
+
+		with self.conn.cursor() as cur:
+			with transaction(cur):
+				cur.execute('UPDATE hentaiitems SET  tags=%s WHERE dbId=%s;', (tagStr, dbId))
+
+
+	def moveItem(self, item, delPath):
+		print("Item", item)
+		dbId, dirPath, fName = item
+
+		srcPath = os.path.join(dirPath, fName)
+		dstPath = os.path.join(delPath, item[-1])
+		print("Should move from %s" % srcPath)
+		print("              to %s" % dstPath)
+
+		shutil.move(srcPath, dstPath)
+		self.updateItemTags(dbId, "deleted was-duplicate phash-duplicate")
+
+
+	def scanHistory(self, key, scanPath, delPath):
+		self.loadPHashes(pathPrefix=scanPath)
 		tocheck = self.getArchives(key)
 		for item in tocheck:
-			self.checkDuplicate(item)
+			isDup = self.checkDuplicate(item)
+			if isDup:
+				self.moveItem(item, delPath)
 
 
 def test():
@@ -109,6 +192,7 @@ def test():
 
 	if len(sys.argv) < 2:
 		print("This script requires command line parameters")
+		print("'history-check {srcKey} {dirToScan} {deleteDir}'")
 
 		return
 
@@ -116,19 +200,21 @@ def test():
 
 	print ("mode command = '%s'" % mainArg)
 
-	if len(sys.argv) == 4:
+	if len(sys.argv) == 5:
 
 		if mainArg.lower() == "history-check":
 			key = sys.argv[2]
 			scanPath = sys.argv[3]
-			if os.path.exists(scanPath) and os.path.isdir(scanPath):
-				hint.scanHistory(key, scanPath)
+			delPath = sys.argv[4]
+			if os.path.exists(scanPath) and os.path.isdir(scanPath) and os.path.exists(delPath) and os.path.isdir(delPath):
+				hint.scanHistory(key, scanPath, delPath)
 			else:
 				raise ValueError("Invalid arguments")
 		else:
 			print("Unknown arg!")
 	else:
 		print("Did not understand command line parameters")
+		print("Arguments = ", sys.argv)
 
 
 
@@ -137,3 +223,4 @@ if __name__ == "__main__":
 	import utilities.testBase
 	with utilities.testBase.testSetup():
 		test()
+
