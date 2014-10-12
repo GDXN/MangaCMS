@@ -3,7 +3,6 @@ from . import absImport
 import settings
 import logging
 import runStatus
-import deduplicator.hamDb as hamDb
 import sys
 import os
 import os.path
@@ -12,8 +11,30 @@ import ScrapePlugins.DbBase
 
 from contextlib import contextmanager
 
+import time
 
-PHASH_DISTANCE_THRESHOLD = 2
+try:
+	import pyximport
+	print("Have Cython")
+	pyximport.install()
+
+	import deduplicator.cyHamDb as hamDb
+	print("Using cythoned hamming database system")
+
+except ImportError:
+	print("Deduplicator performance can be increased by")
+	print("installing cython, which will result in the use of a ")
+	print("cythonized database system")
+	print("")
+
+	print("Falling back to the pure-python implementation due to the lack of cython.")
+
+	import deduplicator.hamDb as hamDb
+
+
+
+
+PHASH_DISTANCE_THRESHOLD = 3
 
 @contextmanager
 def transaction(cursor, commit=True):
@@ -60,6 +81,8 @@ class HamDb(ScrapePlugins.DbBase.DbBase):
 		totalItems = len(rowsIter)
 		rowNum = 0
 
+		start = time.time()
+
 		for row in rowsIter:
 			rowNum += 1
 			dbId, pHash = row
@@ -75,22 +98,32 @@ class HamDb(ScrapePlugins.DbBase.DbBase):
 
 			self.hashTree.insert(pHash, dbId)
 
+		end = time.time()
+
+
 		self.log.info("All rows loaded! Total rows = %s", rowNum)
 
+
+		delta = end-start
+		self.log.info("Took %s seconds to load tree", delta)
 
 	def getArchives(self, key):
 		with self.conn.cursor() as cur:
 			with transaction(cur):
-				cur.execute('SELECT dbId, downloadPath, fileName FROM hentaiitems WHERE sourceSite=%s;', (key, ))
+				cur.execute('SELECT dbId, downloadPath, fileName, tags FROM hentaiitems WHERE sourceSite=%s;', (key, ))
 				ret = cur.fetchall()
 		self.log.info("Found %s archives to scan", len(ret))
 		return ret
 
 	def checkDuplicate(self, item):
-		dbId, dirPath, fName = item
+		dbId, dirPath, fName, tags = item
+
+		if "deleted" in tags:
+			return
+
 		fqPath = os.path.join(dirPath, fName)
 		if not os.path.exists(fqPath):
-			self.log.error("ORIGIN FILE IS MISSING!")
+			self.log.error("ORIGIN FILE IS MISSING! = '%s'", fqPath)
 			return
 
 		items = self.db.getItemsOnBasePath(fqPath)
@@ -123,11 +156,13 @@ class HamDb(ScrapePlugins.DbBase.DbBase):
 
 
 			if stillExist:
-				print(pHash, matches, stillExist)
+				# print(pHash, matches, stillExist)
+				pass
 
 			else:
+				self.log.info("Item contains unique file. Skipping")
 				return False # Short circuit on unique
-		self.log.warning("NOT UNIQUE!")
+		self.log.warning("Item is not unique!")
 		return True
 
 
@@ -165,7 +200,7 @@ class HamDb(ScrapePlugins.DbBase.DbBase):
 
 	def moveItem(self, item, delPath):
 		print("Item", item)
-		dbId, dirPath, fName = item
+		dbId, dirPath, fName, dummy_tags = item
 
 		srcPath = os.path.join(dirPath, fName)
 		dstPath = os.path.join(delPath, item[-1])
@@ -184,6 +219,8 @@ class HamDb(ScrapePlugins.DbBase.DbBase):
 			if isDup:
 				self.moveItem(item, delPath)
 
+	def loadTest(self, scanPath):
+		self.loadPHashes(pathPrefix=scanPath)
 
 def test():
 
@@ -212,6 +249,19 @@ def test():
 				raise ValueError("Invalid arguments")
 		else:
 			print("Unknown arg!")
+
+
+	if len(sys.argv) == 3:
+
+		if mainArg.lower() == "load-test":
+			scanPath = sys.argv[2]
+			if os.path.exists(scanPath) and os.path.isdir(scanPath):
+				hint.loadTest(scanPath)
+			else:
+				raise ValueError("Invalid arguments")
+		else:
+			print("Unknown arg!")
+
 	else:
 		print("Did not understand command line parameters")
 		print("Arguments = ", sys.argv)

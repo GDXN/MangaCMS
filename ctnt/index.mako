@@ -107,6 +107,7 @@ import settings
 
 <b>General</b>
 <ul>
+fakku broken. 
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
 	<li>add half star rating options</li>
