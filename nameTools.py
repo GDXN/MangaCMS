@@ -551,7 +551,7 @@ class DirNameProxy(object):
 	# will call {object}.refresh() every REFRESH_INTERVAL seconds.
 	# TL;DR magical runtime-introspection bullshit.
 	NEEDS_REFRESHING = True
-	REFRESH_INTERVAL = 10
+	REFRESH_INTERVAL = 60
 
 
 	# define a few things to shut up pylinter
@@ -559,6 +559,7 @@ class DirNameProxy(object):
 	eventH   = None
 	notifier = None
 	def refresh(self):
+		self.log.info("Refresh call! for dirMonitor system.")
 		self.checkUpdate()
 
 	def observersActive(self):
@@ -653,7 +654,7 @@ class DirNameProxy(object):
 
 		updateTime = time.time()
 		if not updateTime > (self.lastCheck + self.maxRate) and (not force) and (not skipTime):
-			# print("DirDicts not stale!")
+			print("DirDicts not stale!")
 			return
 		self.updateLock.acquire()
 

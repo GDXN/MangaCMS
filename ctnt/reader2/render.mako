@@ -71,8 +71,10 @@ import re
 	dirPath = os.path.join(settings.mangaFolders[dictKey]["dir"], *navPath)
 	dirContents = os.listdir(dirPath)
 
-	chpRe = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of) ?(?:chapter |ch|c| |_)(?: |_|\.)?(\d+)", re.IGNORECASE)
-	volRe = re.compile(r"(?: |_)(?:volume|vol|v)(?: |_|\.)?(\d+)", re.IGNORECASE)
+	VOL_THRESHOLD = 3
+
+	chpRe = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |ch|c| |_)(?: |_|\.)?(\d+)", re.IGNORECASE)
+	volRe = re.compile(r"(?: |_)(?:volume|vol|v|season)(?: |_|\.)?(\d+)", re.IGNORECASE)
 	# print("Nav path = ", navPath, "dict", dictKey)
 
 	# print("Folder items")
@@ -83,22 +85,37 @@ import re
 	tmp = []
 	for item in dirContents:
 		chapKey = chpRe.findall(item)
-		volKey = volRe.findall(item)
 
 		sz = os.path.getsize(os.path.join(dirPath, item))
 		szStr = ut.fSizeToStr(sz)
 
 		chapKey = float(chapKey.pop(0)) if chapKey  else 0
-		volKey  = float(volKey.pop(0))  if volKey    else 999
 
-		tmp.append((volKey, chapKey, item, szStr))
+		tmp.append((0, chapKey, item, szStr))
+
+	chap1files = len([item for item in tmp if item[1] == 1])
+	print("Found %s chapter 1 files" % chap1files)
+
+
+	if not chap1files > VOL_THRESHOLD:
+		tmp = natsorted(tmp)
+
+	dirContents = []
+	for dummy, chapKey, item, szStr in tmp:
+		volKey = volRe.findall(item)
+		volKey  = float(volKey.pop(0))  if volKey    else 0
+		dirContents.append((volKey, chapKey, item, szStr))
+
+
+	if chap1files > VOL_THRESHOLD:
+		dirContents = natsorted(dirContents)
+
 
 	# print("Preprocessed items")
 	# for item in tmp:
 	# 	print("Item -> '%s'" % (item, ))
 
 
-	dirContents = natsorted(tmp)
 
 
 	# print("Sorted items")
@@ -115,7 +132,13 @@ import re
 	# 	print("Item -> '%s'" % (item, ))
 
 	%>
-
+<!-- 	${chap1files} first chapter files found:
+	%if chap1files > VOL_THRESHOLD:
+		Using Volume sorting mode
+	% else:
+		Using Chapter sorting mode
+	% endif
+ -->
 	<table border="1px" class="mangaFileTable">
 		<tr>
 			<th class="uncoloured" style='width:30'>Vol</th>
