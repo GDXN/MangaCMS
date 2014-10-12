@@ -7,7 +7,7 @@ import os.path
 import sys
 import time
 import traceback
-# Pyling can't figure out what's in the record library for some reason
+# Pylint can't figure out what's in the record library for some reason
 #pylint: disable-msg=E1101
 
 colours = [clr.Fore.BLUE, clr.Fore.RED, clr.Fore.GREEN, clr.Fore.YELLOW, clr.Fore.MAGENTA, clr.Fore.CYAN, clr.Back.YELLOW + clr.Fore.BLACK, clr.Back.YELLOW + clr.Fore.BLUE, clr.Fore.WHITE]
@@ -112,7 +112,7 @@ def exceptHook(exc_type, exc_value, exc_traceback):
 	mainLogger.critical('Uncaught exception!')
 	mainLogger.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
-
+# Global hackyness to detect and warn on double-initialization of the logging systems.
 LOGGING_INITIALIZED = False
 
 def initLogging(logLevel=logging.INFO):

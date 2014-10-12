@@ -163,12 +163,13 @@ ACCEPT_LANGUAGE =[
 ]
 
 ACCEPT = [
-	"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-	"application/xml,application/xhtml+xml,text/html;q=0.9, text/plain;q=0.8,image/png,*/*;q=0.5",
-	"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-	"image/jpeg, application/x-ms-application, image/gif, application/xaml+xml, image/pjpeg, application/x-ms-xbap, application/x-shockwave-flash, application/msword, */*",
-	"text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/webp, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1"
+		["text/html","application/xhtml+xml","application/xml;q=0.9"],
+		["application/xml","application/xhtml+xml","text/html;q=0.9"," text/plain;q=0.8","image/png"],
+		["text/html","application/xhtml+xml","application/xml;q=0.9"],
+		["image/jpeg","application/x-ms-application","image/gif","application/xaml+xml","image/pjpeg","application/x-ms-xbap","application/x-shockwave-flash","application/msword"],
+		["text/html","application/xml;q=0.9","application/xhtml+xml","image/png","image/webp","image/jpeg","image/gif","image/x-xbitmap"]
 ]
+ACCEPT_POSTFIX = ["*/*;q=0.8", "*/*;q=0.5", "*/*;q=0.8", "*/*", "*/*;q=0.1"]
 
 
 ENCODINGS = [['gzip'], ['gzip', 'deflate'], ['gzip', 'deflate', 'sdch']]
@@ -178,10 +179,16 @@ def getUserAgent():
 	coding = random.choice(ENCODINGS)
 	random.shuffle(coding)
 	coding = ",".join(coding)
+
+	accept = random.choice(ACCEPT)
+	random.shuffle(accept)
+	accept.append(random.choice(ACCEPT_POSTFIX))
+	accept = random.choice((", ", ",")).join(accept)
+
 	user_agent = [
 				('User-Agent'		,	random.choice(USER_AGENTS)),
 				('Accept-Language'	,	random.choice(ACCEPT_LANGUAGE)),
-				('Accept'			,	random.choice(ACCEPT)),
+				('Accept'			,	accept),
 				('Accept-Encoding'	,	coding)
 				]
 	return user_agent

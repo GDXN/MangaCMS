@@ -52,6 +52,8 @@ class PageResource(object):
 
 	log = logging.getLogger("Main.WebSrv")
 
+	conn = None  # Shaddup, pylint.
+
 	def __init__(self):
 		self.base_directory = settings.webCtntPath
 		# self.dirProxy = nameTools.DirNameProxy(settings.mangaFolders)
@@ -73,10 +75,12 @@ class PageResource(object):
 		self.log.info("DB Path = %s", self.dbPath)
 
 		# Local sockets are MUCH faster if the DB is on the same machine as the server
-		self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		# Try a local connection. fall back to IP socket only if local connection fails.
+		try:
+			self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		except psycopg2.OperationalError:
+			self.conn = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 
-		# self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-		# self.conn.autocommit = True
 		sm.checkStatusTableExists()
 
 	def closeDB(self):

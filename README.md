@@ -162,7 +162,7 @@ A: It requires at minimum a decent familiarity with the Linux command line. Pyth
    I generally idle in #madokami on irchighway, so you can ask me questions if you need there, though I'm not actually present behind my client a lot of the time. I'll help with whatever, though I can't exactly give a complete lesson on "how to linux" or so forth.
 
 Q: You're scraping my site! Don't do that!  
-A: Your *web-site*. That you posted **publically**. You don't really understand how this whole "internet" thing works, do you?
+A: Your *web-site*. That you posted **publically**. You don't really understand how this whole "internet" thing works, do you?  
   TL;DR No.  
 
 ---
@@ -171,6 +171,12 @@ This was written as much for programming excercise as for practical use, so ther
 
 ~~The light-novel scraper uses SqlAlchemy, so it's not all NIH.~~ Dumped SqlAlchemy. The documentation is too poor for it to be useable.
 
-Currently looking at [python-sql](https://pypi.python.org/pypi/python-sql/) for dynamic SQL where I have more control over the generated SQL. 
+~~Currently looking at [python-sql](https://pypi.python.org/pypi/python-sql/) for dynamic SQL where I have more control over the generated SQL.~~ Most of the database interfacing now uses [python-sql](https://pypi.python.org/pypi/python-sql/) for dynamic query generation, and all query variables are parameterized, so SQL injection *should* be fairly challenging.   
+There are a few unparameterized variables, primarily because there are some things that *cannot* be parameterized, such as table names. However, the only unparameterized variable (tablename) can only be altered by modifying local plugin python files, so I think it's at least an acceptable risk.  
+AFICT, the primary issue I had with SQLAlchemy is that my current page-generation mechanisms are very procedural in nature, which meshes extremely poorly with a database API that is basically only designed to support OOP-y ORM-style code structures. 
+
+Realistically, the ENTIRE web interface is something of an afterthought. This project was initially **only** a scraper, and the web interface was initially more of a "oh look, I can run a web server with twistd" thing. It kind of grew from there, but the database schema was always designed from the get-go to be scraper-centric. 
+
+This was basically the first web application I'd ever written as well.
 
 As with about everything I do, the first run through teaches me all the things I /wish/ I had done differently.

@@ -15,13 +15,15 @@ import zlib
 import bs4
 import userAgents
 import re
+import gzip
+import io
 
 #pylint: disable-msg=E1101, C0325, R0201, W0702, W0703
 
 # A urllib2 wrapper that provides error handling and logging, as well as cookie management. It's a bit crude, but it works.
-
-import gzip
-import io
+# Also supports transport compresion.
+# OOOOLLLLLLDDDDD, has lots of creaky internals. Needs some cleanup desperately, but lots of crap depends on almost everything.
+# Arrrgh.
 
 from threading import Lock
 cookieWriteLock = Lock()
@@ -34,8 +36,6 @@ class WebGetRobust:
 	cj = None
 	cookielib = None
 	opener = None
-
-
 
 	errorOutCount = 2
 	retryDelay = 1.5
@@ -164,6 +164,9 @@ class WebGetRobust:
 
 		return pgctnt, hName
 
+
+		# HUGE GOD-FUNCTION.
+		# OH GOD FIXME.
 
 		# postData expects a dict
 		# addlHeaders also expects a dict

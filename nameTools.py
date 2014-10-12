@@ -29,14 +29,24 @@ shitScanlators = ["rhs", "rh", "mri", "rhn", "se", "rhfk", "mw-rhs"]
 chapVolRe     = re.compile(r"(?:(?:ch?|v(?:ol(?:ume)?)?|(?:ep)|(?:stage)|(?:pa?r?t)|(?:chapter)|(?:story)|(?:extra)|(?:load)|(?:log)) ?\d+)", re.IGNORECASE)
 trailingNumRe = re.compile(r"(\d+$)", re.IGNORECASE)
 
+
+# In a lot of situations, we don't have a series name (particularly for IRC downloads, etc...)
+# This function tries to clean up filenames enough that we can then match the filename into
+# the name database.
+# It's crude as hell, but short of a neural net or something, it's as good as it's gonna get
+# for fuzzy matching strings into the database.
+# Something like levenshtein string distance might be interesting, but I'd be too concerned
+# about false-positive matches. Failing to no-match occationally is FAR preferable to
+# failing to wrong-match, so we fail no-match.
 def guessSeriesFromFilename(inStr):
 	inStr = inStr.lower()
-	# if there is a "." in the last 6 chars, it's probably an extension. remove it.
 	inStr = removeBrackets(inStr)
 
+	# if there is a "." in the last 6 chars, it's probably an extension. remove it.
 	if "." in inStr[-6:]:
 		inStr, dummy_ext = inStr.rsplit(".", 1)
 
+	# Strip out scanlator name strings for scanlators who are assholes and don't bracket their group name.
 	for shitScanlator in shitScanlators:
 		if inStr.lower().endswith(shitScanlator.lower()):
 			inStr = inStr[:len(shitScanlator)*-1]
@@ -94,12 +104,15 @@ def makeFilenameSafe(inStr):
 
 
 	# inStr = inStr.rstrip(".")  # Windows file names can't end in dot. For some reason.
-	# Fukkit, just run on linux.
+	# Fukkit, disabling. Just run on linux.
 
 	inStr = inStr.strip(" ")   # And can't have leading or trailing spaces
 
 	return inStr
 
+
+# I have a love-hate unicode relationship. I'd /like/ to normalize everything, but doing
+# so breaks more then it fixes. Arrrrgh.
 def cleanUnicode(inStr):
 	return unicodedata.normalize("NFKD", inStr).encode("ascii", errors="replace").decode()
 
@@ -223,6 +236,9 @@ class MapWrapper(object):
 
 	}
 
+	# define a few things to shut up pylinter
+	conn  = None
+	items = None
 	def __init__(self, tableName):
 		self.__dict__ = self._shared_state
 
@@ -247,7 +263,12 @@ class MapWrapper(object):
 
 	def openDB(self):
 		self.log.info( "NSLookup Opening DB...",)
-		self.conn = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
+		try:
+			self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		except psycopg2.OperationalError:
+			self.conn = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
 		# self.conn.autocommit = True
 		self.log.info("opened")
 
@@ -342,6 +363,8 @@ class MtNamesMapWrapper(object):
 	NEEDS_REFRESHING = True
 	REFRESH_INTERVAL = 60*2.5
 
+	# define conn to shut up pylinter
+	conn = None
 	def __init__(self, mode):
 
 
@@ -530,6 +553,11 @@ class DirNameProxy(object):
 	NEEDS_REFRESHING = True
 	REFRESH_INTERVAL = 10
 
+
+	# define a few things to shut up pylinter
+	wm       = None
+	eventH   = None
+	notifier = None
 	def refresh(self):
 		self.checkUpdate()
 
@@ -556,7 +584,7 @@ class DirNameProxy(object):
 			self.log.info("Setting up filesystem observers")
 			for key in self.paths.keys():
 				if not "observer" in self.paths[key]:
-					self.log.info("Instantiating observer for path %s" % self.paths[key]["dir"])
+					self.log.info("Instantiating observer for path %s", self.paths[key]["dir"])
 
 					self.paths[key]["observer"] = self.wm.add_watch(self.paths[key]["dir"], MONITORED_FS_EVENTS, rec=True)
 

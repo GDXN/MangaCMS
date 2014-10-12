@@ -12,7 +12,9 @@ import logging
 import traceback
 import py7zlib
 
-
+# Wraps zipfile, rarfile, and py7zlib. Makes them all present the exact same API.
+# Allows code to open any of the three archive formats without needing to know
+# which kind of archive it is.
 class ArchiveReader(object):
 
 	fp = None
@@ -92,14 +94,14 @@ class ArchiveReader(object):
 		except (rarfile.BadRarFile, zipfile.BadZipfile):
 			self.logger.error("CORRUPT ARCHIVE: ")
 			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+			for tbLine in traceback.format_exc().strip().split("\n"):
 				self.logger.error("%s", tbLine)
 			raise
 
 		except (rarfile.PasswordRequired, RuntimeError):
 			self.logger.error("Archive password protected: ")
 			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+			for tbLine in traceback.format_exc().strip().split("\n"):
 				self.logger.error("%s", tbLine)
 			raise
 
@@ -107,7 +109,7 @@ class ArchiveReader(object):
 		except zlib.error:
 			self.logger.error("Archive password protected: ")
 			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+			for tbLine in traceback.format_exc().strip().split("\n"):
 				self.logger.error("%s", tbLine)
 			raise
 
@@ -117,7 +119,7 @@ class ArchiveReader(object):
 		except:
 			self.logger.error("Unknown error in archive iterator: ")
 			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+			for tbLine in traceback.format_exc().strip().split("\n"):
 				self.logger.error("%s", tbLine)
 			raise
 

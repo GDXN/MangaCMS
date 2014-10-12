@@ -7,7 +7,19 @@ import logging
 
 from natsort import natsorted
 
+# This manages allocating file-handles for web-interface sessions. Each session gets one
+# ViewerSession() object, which it can use to view files when told to do so by
+# accessing various reader pages.
+# The ViewerSession() objects are then managed by the SessionPoolManager(), which
+# is owned by the web-server, and of which there (should) only be one.
+# there is some borg-class stuff going on to make SessionPoolManager() share
+# it's state across all threads (probably an issue if I was concerned much about
+# scaling up, but I'm not, so it's not)
+
 class ViewerSession(object):
+
+	archFiles = None
+	items     = None
 	def __init__(self):
 		self.archHandle = None
 		self.lastAccess = time.time()
@@ -111,10 +123,10 @@ class SessionPoolManager(object):
 
 
 	def prune(self):
-		self.log.info("Checking if any of %s session cookies need to be pruned due to age" % len(self.sessions))
+		self.log.info("Checking if any of %s session cookies need to be pruned due to age", len(self.sessions))
 		for key in list(self.sessions.keys()):
 			if self.sessions[key].shouldPrune():
-				self.log.info("Pruning stale session with ID %s" % key)
+				self.log.info("Pruning stale session with ID %s", key)
 				self.sessions.pop(key)
 		if len(self.sessions) > self.max_sessions:
 			self.log.info("Need to prune sessions due to session limits")
@@ -122,7 +134,7 @@ class SessionPoolManager(object):
 			sessionList.sort()
 			while len(sessionList) > self.max_sessions:
 				delSession = sessionList.pop(0)
-				self.log.info("Pruning oldest session with ID %s" % delSession)
+				self.log.info("Pruning oldest session with ID %s", delSession)
 				self.sessions.pop(delSession)
 
 
