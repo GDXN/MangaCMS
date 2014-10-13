@@ -186,9 +186,14 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-4, downloadPath="DMCA", fileName="ERROR: DMCAed", lastUpdate=time.time())
 			return False
 
+		if "Content does not exist." in imagePage:
+			self.log.warning("Page removed?.")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-7, downloadPath="REMOVED", fileName="ERROR: File removed", lastUpdate=time.time())
+			return False
+
 		# So...... Fakku's reader is completely javascript driven. No (easily) parseable shit here.
 		# Therefore: WE DECEND TO THE LEVEL OF REGEXBOMINATIONS!
-		pathFormatterRe = re.compile(r"return '(https://t\.fakku\.net/images/.+/.+/.+?/images/)' \+ x \+ '(\.jpg)';", re.IGNORECASE)
+		pathFormatterRe = re.compile(r"return '(//t\.fakku\.net/images/.+/.+/.+?/images/)' \+ x \+ '(\.jpg|\.gif|\.png)';", re.IGNORECASE)
 
 		# We need to know how many images there are, but there is no convenient way to access this information.
 		# The fakku code internally uses the length of the thumbnail array for the number of images, so
@@ -198,19 +203,20 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		thumbs        = thumbsListRe.search(imagePage)
 		pathFormatter = pathFormatterRe.search(imagePage)
-		# print("Thumbs = ", thumbs.group(1))
-		prefix, postfix = pathFormatter.group(1), pathFormatter.group(2)
 
-		print("pathFormatter = ", prefix, prefix)
 
-		if not thumbs and pathFormatter:
-			self.log.error("Could not find items on page!")
+		if not thumbs:
+			self.log.error("Could not find thumbnail array on page!")
+			self.log.error("URL: '%s'", containerUrl)
+
+		if not pathFormatter:
+			self.log.error("Could not find pathformatter on page!")
 			self.log.error("URL: '%s'", containerUrl)
 
 		items = json.loads(thumbs.group(1))
 
-		# for item in items:
-		# 	print("Item = ", item)
+		prefix, postfix = pathFormatter.group(1), pathFormatter.group(2)
+		print("pathFormatter = ", prefix, prefix)
 
 
 		imageUrls = []
@@ -229,6 +235,8 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				imagePath = urllib.parse.urlsplit(imageUrl)[2]
 				imageFileName = imagePath.split("/")[-1]
+				if imageUrl.startswith("//"):
+					imageUrl = "https:" + imageUrl
 				imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': containerUrl})
 
 				images.append((imageFileName, imageData))

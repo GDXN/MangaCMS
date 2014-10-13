@@ -71,13 +71,12 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 						'Female Body'  : 'Female',
 						'Grouping'     : 'Grouping',
 						'Scene'        : '',
-						'Position'     : 'Position'
+						'Position'     : 'Position',
+						'Artist'       : "Artist"
 
 					}
 
 		ignoreTags = [
-						'Title',
-						'Artist',
 						'Length'
 					]
 
@@ -85,6 +84,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		# 'Origin'       : '',  (Category)
 		category = "Unknown?"
+		title = "None?"
 		for table in tables:
 			for tr in table.find_all("tr"):
 				if len(tr.find_all("td")) != 2:
@@ -92,12 +92,18 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 				what, values = tr.find_all("td")
 				what = what.get_text().strip()
+
+				# print("Row what", what, "values", values.get_text().strip())
+
 				if what in ignoreTags:
 					continue
 
-
 				elif what == "Origin":
 					category = values.get_text().strip()
+
+				elif what == "Title":
+					title = values.get_text().strip()
+
 				elif what in formatters:
 					for rawTag in values.find_all("a"):
 						tag = " ".join([formatters[what], rawTag.get_text().strip()])
@@ -106,8 +112,10 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 						tag = tag.replace(" ", "-")
 						tags.append(tag)
 
-		print(category, tags)
-		return category, tags
+		# print("title", title)
+		# print("Category", category)
+		# print("Tags", tags)
+		return title, category, tags
 
 	def getGalleryStartPages(self, soup):
 		linkTds = soup.find_all("td", class_="listMiddle")
@@ -134,8 +142,16 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			raise IOError("Invalid webpage")
 
-		category, tags = self.getCategoryTags(soup)
+		title, category, tags = self.getCategoryTags(soup)
 		tags = ' '.join(tags)
+
+		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, originName=title, lastUpdate=time.time())
+		if tags:
+			self.log.info("Adding tag info %s", tags)
+			self.addTags(sourceUrl=linkDict["sourceUrl"], tags=tags)
+
+		if retag:
+			return
 
 		linkDict['dirPath'] = os.path.join(settings.hbSettings["dlDir"], nt.makeFilenameSafe(category))
 
@@ -161,23 +177,11 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.debug("		%s - %s", key, value)
 
 
-		if tags:
-			self.log.info("Adding tag info %s", tags)
-
-			self.addTags(sourceUrl=linkDict["sourceUrl"], tags=tags)
-
-
-		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, lastUpdate=time.time())
-
-
-
 		return linkDict
 
 
 	def fetchImages(self, linkDict):
-		title = None
 		toFetch = {key:0 for key in linkDict["dlLink"]}
-
 
 		images = {}
 		while not all(toFetch.values()):
@@ -220,7 +224,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		return images
 
 
-	def doDownload(self, linkDict):
+	def doDownload(self, linkDict, retag=False):
 
 		images = self.fetchImages(linkDict)
 
@@ -280,11 +284,53 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
+class HBrowseRetagger(HBrowseContentLoader):
+
+	loggerPath = "Main.HBrowse.Tag"
+	pluginName = "H-Browse Content Re-Tagger"
+
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
+
+	# retreivalThreads = 1
+
+	def retreiveTodoLinksFromDB(self):
+
+		self.log.info( "Fetching items from db...",)
+
+		rows = self.getRowsByValue(dlState=2)
+
+		self.log.info( "Done")
+		if not rows:
+			return
+
+		items = []
+		for item in rows:
+
+			if self.checkDelay(item["retreivalTime"]):
+				item["retreivalTime"] = time.gmtime(item["retreivalTime"])
+				items.append(item)
+
+		self.log.info( "Have %s new items to process in %sRetagger", len(items), self.tableKey.title())
+
+
+		return items
+
+
+	def getLink(self, link):
+		try:
+			url = self.getDownloadInfo(link)
+			self.updateDbEntry(link["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
+		except urllib.error.URLError:
+			self.log.error("Failure retreiving content for link %s", link)
+			self.log.error("Traceback: %s", traceback.format_exc())
+			self.updateDbEntry(link["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
+
+
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup(startObservers=False):
 
-		run = HBrowseContentLoader()
+		run = HBrowseRetagger()
 		run.resetStuckItems()
 		run.go()

@@ -4,8 +4,6 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 
 
-
-
 import runStatus
 runStatus.preloadDicts = False
 
@@ -28,11 +26,12 @@ def test():
 
 
 	loader = FakkuFeedLoader()
+	loader.resetStuckItems()
 	# loader.go()
 
-	for x in range(1, 5):
-		feedItems = loader.getItems(pageOverride=x)
-		loader.processLinksIntoDB(feedItems)
+	# for x in range(1, 5):
+	# 	feedItems = loader.getItems(pageOv	erride=x)
+	# 	loader.processLinksIntoDB(feedItems)
 	# # feedItems = loader.getItemsFromContainer("Ore no Kanojo + H", loader.quoteUrl("http://download.japanzai.com/Ore no Kanojo + H/index.php"))
 	# # loader.log.info("Processing feed Items")
 	# for item in feedItems:
@@ -44,8 +43,9 @@ def test():
 	# runner.go()
 
 
-	# cl = FakkuContentLoader()
-	# cl.go()
+	cl = FakkuContentLoader()
+	# cl.retreivalThreads = 1
+	cl.go()
 
 
 if __name__ == "__main__":
