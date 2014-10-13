@@ -1,6 +1,11 @@
 
 #pylint: disable-msg=F0401, W0142
 
+
+import runStatus
+runStatus.preloadDicts = False
+
+
 from pyramid.config import Configurator
 from pyramid.response import Response, FileIter, FileResponse
 from pyramid.exceptions import NotFound

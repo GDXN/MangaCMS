@@ -1,4 +1,7 @@
 
+if __name__ == "__main__":
+	import runStatus
+	runStatus.preloadDicts = False
 
 import logging
 import psycopg2
@@ -12,10 +15,33 @@ import traceback
 import nameTools as nt
 import ScrapePlugins.DbBase
 
+import sql
+import sql.operators as sqlo
+
+from contextlib import contextmanager
+
+@contextmanager
+def transaction(cursor, commit=True):
+	if commit:
+		cursor.execute("BEGIN;")
+
+	try:
+		yield
+
+	except Exception as e:
+		if commit:
+			cursor.execute("ROLLBACK;")
+		raise e
+
+	finally:
+		if commit:
+			cursor.execute("COMMIT;")
+
+
+
 # Turn on to print all db queries to STDOUT before running them.
 # Intended for debugging DB interactions.
 # Excessively verbose otherwise.
-QUERY_DEBUG = False
 
 class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
@@ -24,6 +50,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 	shouldCanonize = True
 
+	QUERY_DEBUG = False
 
 	@abc.abstractmethod
 	def pluginName(self):
@@ -94,6 +121,44 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	validKwargs = ["dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note"]
 
 	def __init__(self):
+
+		self.table = sql.Table(self.tableName.lower())
+
+		self.cols = (
+				self.table.dbid,
+				self.table.dlstate,
+				self.table.sourcesite,
+				self.table.sourceurl,
+				self.table.retreivaltime,
+				self.table.lastupdate,
+				self.table.sourceid,
+				self.table.seriesname,
+				self.table.filename,
+				self.table.originname,
+				self.table.downloadpath,
+				self.table.flags,
+				self.table.tags,
+				self.table.note
+			)
+
+
+		self.colMap = {
+				"dbid"          : self.table.dbid,
+				"dlstate"       : self.table.dlstate,
+				"sourcesite"    : self.table.sourcesite,
+				"sourceurl"     : self.table.sourceurl,
+				"retreivaltime" : self.table.retreivaltime,
+				"lastupdate"    : self.table.lastupdate,
+				"sourceid"      : self.table.sourceid,
+				"seriesname"    : self.table.seriesname,
+				"filename"      : self.table.filename,
+				"originname"    : self.table.originname,
+				"downloadpath"  : self.table.downloadpath,
+				"flags"         : self.table.flags,
+				"tags"          : self.table.tags,
+				"note"          : self.table.note
+			}
+
 
 		self.loggers = {}
 		self.dbConnections = {}
@@ -167,49 +232,69 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-	def buildInsertArgs(self, **kwargs):
 
-		# Pre-populate with the table keys.
-		keys = ["sourceSite"]
-		values = ["%s"]
-		queryArguments = [self.tableKey]
 
-		for key in kwargs.keys():
-			if key not in self.validKwargs:
-				raise ValueError("Invalid keyword argument: %s" % key)
-			keys.append("{key}".format(key=key))
-			values.append("%s")
-			queryArguments.append("{s}".format(s=kwargs[key]))
+	def sqlBuildInsertArgs(self, **kwargs):
 
-		keysStr = ",".join(keys)
-		valuesStr = ",".join(values)
+		cols = [self.table.sourcesite]
+		vals = [self.tableKey]
 
-		return keysStr, valuesStr, queryArguments
+		for key, val in kwargs.items():
+			key = key.lower()
+
+			if key not in self.colMap:
+				raise ValueError("Invalid column name for insert! '%s'" % key)
+			cols.append(self.colMap[key])
+			vals.append(val)
+
+		query = self.table.insert(columns=cols, values=[vals])
+
+		query, params = tuple(query)
+
+		return query, params
 
 
 	# Insert new item into DB.
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 	def insertIntoDb(self, commit=True, **kwargs):
+		query, queryArguments = self.sqlBuildInsertArgs(**kwargs)
 
-
-		keysStr, valuesStr, queryArguments = self.buildInsertArgs(**kwargs)
-
-		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values});'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
-
-		if QUERY_DEBUG:
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
 		with self.conn.cursor() as cur:
+			with transaction(cur, commit=commit):
+				cur.execute(query, queryArguments)
 
-			if commit:
-				cur.execute("BEGIN;")
 
-			cur.execute(query, queryArguments)
 
-			if commit:
-				cur.execute("COMMIT;")
+
+
+	def generateUpdateQuery(self, **kwargs):
+		if "dbId" in kwargs:
+			where = (self.table.dbid == kwargs.pop('dbId'))
+		elif "sourceUrl" in kwargs:
+			where = (self.table.sourceurl == kwargs.pop('sourceUrl'))
+		else:
+			raise ValueError("updateDbEntryKey must be passed a single unique column identifier (either dbId or sourceUrl)")
+
+		cols = []
+		vals = []
+
+		for key, val in kwargs.items():
+			key = key.lower()
+
+			if key not in self.colMap:
+				raise ValueError("Invalid column name for insert! '%s'" % key)
+			cols.append(self.colMap[key])
+			vals.append(val)
+
+		query = self.table.update(columns=cols, values=vals, where=where)
+		query, params = tuple(query)
+		return query, params
+
 
 
 
@@ -221,36 +306,16 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		if "seriesName" in kwargs and kwargs["seriesName"] and self.shouldCanonize:
 			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
 
-		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl), kwargs)
-		queries = []
-		qArgs = []
-		for key in kwargs.keys():
-			if key not in self.validKwargs:
-				raise ValueError("Invalid keyword argument: %s" % key)
-			else:
-				queries.append("{k}=%s".format(k=key))
-				qArgs.append(kwargs[key])
+		query, queryArguments = self.generateUpdateQuery(sourceUrl=sourceUrl, **kwargs)
 
-		qArgs.append(sourceUrl)
-		qArgs.append(self.tableKey)
-		column = ", ".join(queries)
-
-
-		query = '''UPDATE {tableName} SET {v} WHERE sourceUrl=%s AND sourceSite=%s;'''.format(tableName=self.tableName, v=column)
-
-		if QUERY_DEBUG:
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
-			print("Args = ", qArgs)
+			print("Args = ", queryArguments)
 
 		with self.conn.cursor() as cur:
+			with transaction(cur, commit=commit):
+				cur.execute(query, queryArguments)
 
-			if commit:
-				cur.execute("BEGIN;")
-
-			cur.execute(query, qArgs)
-
-			if commit:
-				cur.execute("COMMIT;")
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
 
@@ -262,65 +327,64 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		if "seriesName" in kwargs and kwargs["seriesName"] and self.shouldCanonize:
 			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
 
-		queries = []
-		qArgs = []
-		for key in kwargs.keys():
-			if key not in self.validKwargs:
-				raise ValueError("Invalid keyword argument: %s" % key)
-			else:
-				queries.append("{k}=%s".format(k=key))
-				qArgs.append(kwargs[key])
+		query, queryArguments = self.generateUpdateQuery(rowId=rowId, **kwargs)
 
-		qArgs.append(rowId)
-		qArgs.append(self.tableKey)
-		column = ", ".join(queries)
-
-
-		query = '''UPDATE {tableName} SET {v} WHERE dbId=%s AND sourceSite=%s;'''.format(tableName=self.tableName, v=column)
-
-		if QUERY_DEBUG:
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
-			print("Args = ", qArgs)
+			print("Args = ", queryArguments)
 
 		with self.conn.cursor() as cur:
-
-			if commit:
-				cur.execute("BEGIN;")
-
-			cur.execute(query, qArgs)
-
-			if commit:
-				cur.execute("COMMIT;")
+			with transaction(cur, commit=commit):
+				cur.execute(query, queryArguments)
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
+
 
 
 	def deleteRowsByValue(self, commit=True, **kwargs):
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
+
 		validCols = ["dbId", "sourceUrl", "dlState"]
+
 		key, val = kwargs.popitem()
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
 
+		where = (self.colMap[key.lower()] == val)
 
-		query = '''DELETE FROM {tableName} WHERE {key}=%s AND sourceSite=%s;'''.format(tableName=self.tableName, key=key)
-		# print("Query = ", query)
+		query = self.table.delete(where=where)
 
-		if QUERY_DEBUG:
+		query, args = tuple(query)
+
+
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
-			print("Args = ", (val, self.tableKey))
+			print("Args = ", args)
 
 		with self.conn.cursor() as cur:
+			with transaction(cur, commit=commit):
+				cur.execute(query, args)
 
-			if commit:
-				cur.execute("BEGIN;")
 
-			cur.execute(query, (val, self.tableKey))
 
-			if commit:
-				cur.execute("COMMIT;")
+	def test(self):
+		print("Testing")
 
+		# print(self.sqlBuildInsertArgs(sourcesite='Wat', retreivaltime="lol"))
+		# print(self.sqlBuildInsertArgs(sourcesite='Wat', retreivaltime="lol", lastupdate='herp', filename='herp', downloadpath='herp', tags='herp'))
+
+		# print(self.updateDbEntry(sourceUrl='lol', sourcesite='Wat', retreivaltime="lol", lastupdate='herp', filename='herp', downloadpath='herp', tags='herp'))
+		# print(self.updateDbEntryById(rowId='lol', sourcesite='Wat', retreivaltime="lol", lastupdate='herp', filename='herp', downloadpath='herp', tags='herp'))
+		# print(self.updateDbEntryKey(sourcesite='Wat', retreivaltime="lol", lastupdate='herp', filename='herp', downloadpath='herp', tags='herp'))
+
+		# self.deleteRowsByValue(dbId="lol")
+		# self.deleteRowsByValue(sourceUrl="lol")
+		# self.deleteRowsByValue(dlState="lol")
+
+		self.getRowsByValue(dbId=5)
+		self.getRowsByValue(sourceUrl="5")
+		self.getRowsByValue(sourceUrl="5", limitByKey=False)
 
 	def getRowsByValue(self, limitByKey=True, **kwargs):
 		if len(kwargs) != 1:
@@ -330,51 +394,41 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
 
+		wantCols = (
+				self.table.dbid,
+				self.table.dlstate,
+				self.table.sourceurl,
+				self.table.retreivaltime,
+				self.table.lastupdate,
+				self.table.sourceid,
+				self.table.seriesname,
+				self.table.filename,
+				self.table.originname,
+				self.table.downloadpath,
+				self.table.flags,
+				self.table.tags,
+				self.table.note
+				)
 
-		# HACKY alternate query for limitByKey. Fix?
+		query = self.table.select(*wantCols, order_by = sql.Desc(self.table.retreivaltime))
+
 		if limitByKey:
-			query = '''SELECT dbId,
-								dlState,
-								sourceUrl,
-								retreivalTime,
-								lastUpdate,
-								sourceId,
-								seriesName,
-								fileName,
-								originName,
-								downloadPath,
-								flags,
-								tags,
-								note
-								FROM {tableName} WHERE {key}=%s AND sourceSite=%s ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
-			quargs = (val, self.tableKey)
+			query.addAnd(self.table.sourcesite,self.tableKey)
 
-		else:
-			query = '''SELECT dbId,
-								dlState,
-								sourceUrl,
-								retreivalTime,
-								lastUpdate,
-								sourceId,
-								seriesName,
-								fileName,
-								originName,
-								downloadPath,
-								flags,
-								tags,
-								note
-								FROM {tableName} WHERE {key}=%s ORDER BY retreivalTime DESC;'''.format(tableName=self.tableName, key=key)
-			quargs = (val, )
+		query.addAnd(self.colMap[key.lower()], val)
 
+		query, quargs = tuple(query)
 
-		if QUERY_DEBUG:
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
 			print("args = ", quargs)
 
 		with self.conn.cursor() as cur:
-			cur.execute(query, quargs)
-			rets = cur.fetchall()
 
+			#wrap queryies in transactions so we don't have hanging db handles.
+			with transaction(cur):
+				cur.execute(query, quargs)
+				rets = cur.fetchall()
 
 
 		retL = []
@@ -537,4 +591,30 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	@abc.abstractmethod
 	def go(self):
 		pass
+
+if __name__ == "__main__":
+	import settings
+	class TestClass(ScraperDbBase):
+
+
+
+		pluginName = "Wat?"
+		loggerPath = "Wat?"
+		dbName = settings.dbName
+		tableKey = "test"
+		tableName = "MangaItems"
+
+		def go(self):
+			print("Go?")
+
+
+
+	import utilities.testBase as tb
+
+	with tb.testSetup():
+		obj = TestClass()
+		obj.QUERY_DEBUG = True
+		print(obj)
+		obj.test()
+
 
