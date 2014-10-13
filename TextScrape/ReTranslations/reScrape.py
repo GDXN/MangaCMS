@@ -40,6 +40,8 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 		return title, soup.prettify()
 
 
+
+
 	def extractLinks(self, pageCtnt):
 		soup = bs4.BeautifulSoup(pageCtnt)
 
@@ -54,9 +56,20 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 			url = urllib.parse.urljoin(self.baseUrl, turl)
-			url = gdp.GDocExtractor.isGdocUrl(url)
+			isGdoc, url = gdp.GDocExtractor.isGdocUrl(url)
 			# domain filtering is done in isGdocUrl
-			if not url:
+			if not isGdoc:
+				if "https://drive.google.com" in url:
+					self.log.info("Found Google Drive directory. Extracting content links.")
+					new = gdp.GDocExtractor.getDriveFileUrls(url)
+					if new:
+						self.log.info("Found %s items from google drive directory", len(new))
+					for item in new:
+						# Remove any URL fragments causing multiple retreival of the same resource.
+						item = item.split("#")[0]
+						# upsert for `item`. Reset dlstate if needed
+						self.newLinkQueue.put(item)
+
 				continue
 
 			self.log.info("Resolved URL = '%s'", url)
@@ -148,6 +161,7 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 def test():
 	scrp = ReScrape()
 	scrp.crawl()
+	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')
 
 
 if __name__ == "__main__":

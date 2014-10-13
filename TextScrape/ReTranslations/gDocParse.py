@@ -4,7 +4,7 @@ import bs4
 
 import re
 import io
-
+import json
 
 import zipfile
 import webFunctions
@@ -20,8 +20,8 @@ class GDocExtractor(object):
 
 	def __init__(self, targetUrl):
 
-		url = self.isGdocUrl(targetUrl)
-		if not url:
+		isGdoc, url = self.isGdocUrl(targetUrl)
+		if not isGdoc:
 			raise ValueError("Passed URL '%s' is not a google document?" % targetUrl)
 
 		self.url = url+'/export?format=zip'
@@ -32,13 +32,23 @@ class GDocExtractor(object):
 		self.currentChunk = ''
 
 	@classmethod
+	def getDriveFileUrls(cls, url):
+		ctnt = cls.wg.getpage(url)
+
+		# horrible keyhole optimization regex abomination
+		# this really, /REALLY/ should be a actual parser.
+		driveFolderRe = re.compile(r'(https://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
+		items = driveFolderRe.findall(ctnt)
+		return set(items)
+
+	@classmethod
 	def isGdocUrl(cls, url):
 		# This is messy, because it has to work through bit.ly redirects.
 		# I'm just resolving them here, rather then keeping them around because it makes things easier.
 		gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
 		simpleCheck = gdocBaseRe.search(url)
 		if simpleCheck:
-			return simpleCheck.group(1)
+			return True, simpleCheck.group(1)
 
 
 		elif url.startswith("http://www.google.com/url?q=") and "bit.ly" in url:
@@ -52,13 +62,12 @@ class GDocExtractor(object):
 				dummy_ctnt, handle = cls.wg.getpage(bitly, returnMultiple=True)
 
 				# Recurse into redirects
-				url = cls.isGdocUrl(handle.geturl())
-				return url
+				return cls.isGdocUrl(handle.geturl())
 
 			except urllib.error.URLError:
 				print("Error resolving redirect!")
-				return None
-		return None
+				return False, None
+		return False, url
 
 
 

@@ -405,7 +405,7 @@ class MtNamesMapWrapper(object):
 				tmp[key] = set([buId])
 			else:
 				tmp[key].add(buId)
-		self.log.info("Loaded")
+		self.log.info("Refresh call complete")
 		self.lutItems = tmp
 
 	def openDB(self):
@@ -561,6 +561,7 @@ class DirNameProxy(object):
 	def refresh(self):
 		self.log.info("Refresh call! for dirMonitor system.")
 		self.checkUpdate()
+		self.log.info("DirMonitor system refreshed.")
 
 	def observersActive(self):
 		return self.notifierRunning
