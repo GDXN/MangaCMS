@@ -107,8 +107,7 @@ import settings
 
 <b>General</b>
 <ul>
-fakku broken. 
-hbrowse mossing artists amd title truncated
+	<li>kissmanga phash dedup</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
 	<li>add half star rating options</li>
@@ -119,7 +118,6 @@ hbrowse mossing artists amd title truncated
 	<li>zoom mode indicator for smart mode in reader</li>
 	<li>Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.</li>
 	<li>steal code from free manga downloader?</li>
-	<li>filesize in browser</li>
 	<li>ability to specify MU id in directory name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
 	<li>import all existing files somehow</li>
@@ -131,11 +129,9 @@ hbrowse mossing artists amd title truncated
 	<li>scan times to deduper for rescanning. Also filesizes</li>
 	<li>Group the smaller scanlators into a single colour-code?</li>
 	<li>ability to browse by mu tags</li>
-	<li>add ability to sort directory by rating.</li>
 	<li>Add failed item introspection table.</li>
 	<li>artist and author in filebrowser if i have it</li>
 	<li>bu page opens in new window</li>
-	<li>different tag for phash desuplication</li>
 	<li>IRC grabber needs a transfer stall timeout.</li>
 	<li>mechanism for highlighting chosen tags in table (specifically deduped in J)</li>
 	<li>Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).</li>
@@ -245,6 +241,11 @@ hbrowse mossing artists amd title truncated
 
 <b>Complete:</b>
 <ul>
+	<li><strike>add ability to sort directory by rating.</strike> (Added in MangaUpdates stuff, not sure if I want it elsewhere)</li>
+	<li><strike>filesize in browser</strike></li>
+	<li><strike>different tag for phash desuplication</strike></li>
+	<li><strike>fakku broken.</strike></li>
+	<li><strike>hbrowse missing artists amd title truncated</strike></li>
 	<li><strike>Batoto doesn't list every file in the recent updates page. Scan into series pages</strike> Doing more thorough search</li>
 	<li><strike>Move to python-sql for dynamic sql generation</strike></li>
 	<li><strike>reset download button in mangatable for specific key view</strike></li>

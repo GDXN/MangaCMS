@@ -189,9 +189,9 @@ def deduplicateMangaFolders():
 				continue
 			for subKey in keys[offset+1:]:
 				if curKey in dirDictDict[subKey]:
-					print("Duplicate Directory", curKey)
-					print("	", curDict[curKey])
-					print("	", dirDictDict[subKey][curKey])
+					print("Duplicate Directory for key '%s'" % curKey)
+					print("	Preferred:", curDict[curKey])
+					print("	Duplicate:", dirDictDict[subKey][curKey])
 
 					fromDir = dirDictDict[subKey][curKey]
 					toDir   = curDict[curKey]
@@ -244,13 +244,13 @@ def consolicateSeriesToSingleDir():
 				print("baseName = ", row["buName"], ", id = ", mId, ", names = ", dups)
 				print(" Dir 1 ", luDict["fqPath"])
 				print(" Dir 2 ", dest["fqPath"])
-				# doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 2 -> dir 1. 'n' do not move)?")
-				# if doMove == "forward":
-				# 	moveFiles(luDict["fqPath"], dest["fqPath"])
-				# 	os.rmdir(luDict["fqPath"])
-				# elif doMove == "reverse":
-				# 	moveFiles(dest["fqPath"], luDict["fqPath"])
-				# 	os.rmdir(dest["fqPath"])
+				doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 2 -> dir 1. 'n' do not move)?")
+				if doMove == "forward":
+					moveFiles(luDict["fqPath"], dest["fqPath"])
+					os.rmdir(luDict["fqPath"])
+				elif doMove == "reverse":
+					moveFiles(dest["fqPath"], luDict["fqPath"])
+					os.rmdir(dest["fqPath"])
 
 
 def moveFiles(srcDir, dstDir):

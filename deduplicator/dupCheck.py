@@ -28,7 +28,7 @@ import deduplicator.hamDb
 # the archive has been deleted.
 
 
-PHASH_DISTANCE_THRESHOLD = 1
+PHASH_DISTANCE_THRESHOLD = 2
 
 class ArchChecker(object):
 	def __init__(self, archPath):

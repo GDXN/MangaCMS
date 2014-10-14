@@ -607,7 +607,8 @@ colours = {
 			% for tag in tags.split():
 				<%
 				tagname = tag.lower().replace("artist-", "") \
-							.replace("scanlator-", "") \
+							.replace("authors-", "") \
+							.replace("author-", "") \
 							.replace("scanlators-", "") \
 							.replace("parody-", "") \
 							.replace("group-", "") \
