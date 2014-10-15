@@ -1,7 +1,7 @@
 MangaCMS
 ========
 
-Comic/Manga Download tool and reader.
+Comic/Manga/Light-Novel Download tool and reader.
 
 Plugin scrapers for:
 
@@ -118,7 +118,7 @@ GRANT
 
 ```
 
-Note: using capitals in usernames/tablenames/columnames in postgre is rather difficult, just don't do it.
+Note: using capitals in usernames/tablenames/columnames in postgres is rather difficult, just don't do it.
 
 You must then specify the Database server's IP, the username, databasename, and password in the `settings.py` file.
 
@@ -126,19 +126,20 @@ You also have to add the line
 
 `local   mangacms        all                                     md5`
 
-to `/etc/postgresql/9.3/main/pg_hba.conf`, to allow local connections to the postgre database with password auth.
+to `/etc/postgresql/9.3/main/pg_hba.conf`, to allow local connections to the postgres database with password auth.
 
 
 
 ---
 
-Preliminary deduplication support is currently present, [IntraArchiveDeduplicator](using my https://github.com/fake-name/IntraArchiveDeduplicator) tool. This is intended to allow collation of files from many sources while having as few local duplicate files actually stored locally as possible.
+Preliminary deduplication support is currently present, (using my [IntraArchiveDeduplicator](https://github.com/fake-name/IntraArchiveDeduplicator)) tool. This is intended to allow collation of files from many sources while having as few local duplicate files actually stored locally as possible.
 
 Archives downloaded are automatically added to the deduplication database, and if a downloaded archive is found to contain no new files, it is automatically deleted, which prevents the fact that the scraper fetches files from multiple sources from resulting in duplicate downloads.
 
-There are long-term plans for doing fuzzy image matching, using some perceptual-hashing mechanisms that are alreay in-place in the file-hashing system, but it's currently delayed by the requirement to be able to search for items by hamming distance across very large datasets (currently I have ~3 million discrete phashes).
-There is some preliminary experiments on implementing a custom BK tree for better searching, but it has non-trivial speed-issues, and will likely require at least some components to be implemented in C or a langauge that can compile to C (pyrex?).
-Another alternative is to implement the indexing mechanisms directly in postgres, using the SP-GiST indexing interface, but that requires a deeper understanding of the internal mechanisms in Postgres then I currently have (and my C is /*rusty*/, particularly for desktop use).
+There is some support for fuzzy image matching using perceptual-hashing mechanisms that are already in-place in [perceptual-hashing system](https://github.com/fake-name/IntraArchiveDeduplicator/blob/master/hashFile.py#L101). Right now, it's limited to keyhole-optimized searches, generally searching for duplicates within a specific directory.
+I currently use a [python-cython BK tree implementation](https://github.com/fake-name/MangaCMS/blob/master/deduplicator/cyHamDb.pyx) that is fairly fast, but memory hungry and non-persistent, so right now for each search I have to load the local phash search set from the database (where the "local" set is the hashes of the files in the same directory). 
+
+I have long-term plans to enable the requirement to be able to search for items by hamming distance across very large datasets (currently I have ~3 million discrete phashes) by implementing a BK tree index directly in postgres, using the GiST indexing interface, but that is currently stalled out due to the complexity of implementing custom indexing in postgresql, and the rather non-existent documentation. The current local-search system is quite effective, and I have done some work on implementing a postgres index. See the [Hamming GiST](https://github.com/fake-name/pg-spgist_hamming) repo.
 
 ---
 

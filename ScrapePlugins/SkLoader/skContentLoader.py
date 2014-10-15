@@ -65,10 +65,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				item["targetDir"] = nt.dirNameProxy[baseNameLower]["fqPath"]
 			else:
 				self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", baseNameLower, item["seriesName"], item["originName"])
-				if "picked" in item["flags"]:
-					targetDir = os.path.join(settings.skSettings["dirs"]['mnDir'], safeBaseName)
-				else:
-					targetDir = os.path.join(settings.skSettings["dirs"]['mDlDir'], safeBaseName)
+				targetDir = os.path.join(settings.skSettings["dirs"]['mDlDir'], safeBaseName)
 				if not os.path.exists(targetDir):
 					try:
 						os.makedirs(targetDir)

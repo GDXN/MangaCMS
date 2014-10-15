@@ -63,10 +63,7 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				item["targetDir"] = nt.dirNameProxy[seriesName]["fqPath"]
 			else:
 				self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", seriesName, item["seriesName"], item["originName"])
-				if "picked" in item["flags"]:
-					targetDir = os.path.join(settings.jzSettings["dirs"]['mnDir'], safeBaseName)
-				else:
-					targetDir = os.path.join(settings.jzSettings["dirs"]['mDlDir'], safeBaseName)
+				targetDir = os.path.join(settings.jzSettings["dirs"]['mDlDir'], safeBaseName)
 				if not os.path.exists(targetDir):
 					try:
 						os.makedirs(targetDir)

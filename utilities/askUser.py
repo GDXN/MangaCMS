@@ -4,9 +4,10 @@ import sys
 def query_response(question):
 	valid = {"f":"forward",
 			 "r":"reverse",
+			 "l":"levenshtein",
 			 "n":False}
 
-	prompt = " [f/r/N] "
+	prompt = " [f/r/l/N] "
 
 	while True:
 		sys.stdout.write(question + prompt)

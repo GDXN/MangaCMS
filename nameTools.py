@@ -170,11 +170,26 @@ def ratingStrToInt(inStr):
 
 	return pos - neg
 
+def ratingStrToFloat(inStr):
+
+
+	pos = inStr.count("+")
+	neg = inStr.count("-")
+	half = inStr.count("~")
+
+	return (pos - neg) + (half * 0.5)
+
 def extractRatingToInt(inStr):
 	dummy, rating, dummy = extractRating(inStr)
 	if not rating:
 		return 0
 	return ratingStrToInt(rating)
+
+def extractRatingToFloat(inStr):
+	dummy, rating, dummy = extractRating(inStr)
+	if not rating:
+		return 0
+	return ratingStrToFloat(rating)
 
 
 def getCleanedName(inStr):
@@ -627,7 +642,7 @@ class DirNameProxy(object):
 
 				if baseName in targets:
 					print("ERROR - Have muliple entries for directory!")
-					print("Current dir = '%s'" % dirPath)
+					print("Current dir = '%s'" % fullPath)
 					print("Other   dir = '%s'" % targets[baseName])
 					# raise ValueError("Have muliple entries for directory!")
 
@@ -933,10 +948,8 @@ def getMangaUpdatesId(sourceSeriesName):
 def haveCanonicalMangaUpdatesName(sourceSeriesName):
 
 	fsName = prepFilenameForMatching(sourceSeriesName)
-	print("Item", sourceSeriesName, fsName)
 	mId = buIdLookup[fsName]
 
-	print("Lookup result", mId)
 	if mId and len(mId) == 1:
 		return True
 	# mId = buIdFromName[sourceSeriesName]

@@ -107,6 +107,7 @@ import settings
 
 <b>General</b>
 <ul>
+	<li>strip trailing hyphens</li>
 	<li>kissmanga phash dedup</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
@@ -241,6 +242,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>move non matching dirs to another folder</strike></li>
 	<li><strike>add ability to sort directory by rating.</strike> (Added in MangaUpdates stuff, not sure if I want it elsewhere)</li>
 	<li><strike>filesize in browser</strike></li>
 	<li><strike>different tag for phash desuplication</strike></li>

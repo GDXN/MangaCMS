@@ -2,27 +2,20 @@
 # Yes, this whole file is kind of a mish-mash of random
 # script segments.
 
-import runStatus
-runStatus.preloadDicts = False
-
-
-import logSetup
-logSetup.initLogging()
-
 import nameTools as nt
 import os.path
 import os
 import shutil
 import settings
 import ScrapePlugins.MonitorDbBase
-import sys
+
 
 import psycopg2
 import Levenshtein as lv
 
 from utilities.cleanDb import PathCleaner
-import utilities.dedupDir
-import utilities.approxFileSorter
+
+
 from utilities.askUser import query_response, query_response_bool
 
 from deduplicator.DbUtilities import DedupManager
@@ -46,7 +39,7 @@ class DbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 # Removes duplicate manga directories from the various paths specified in
 # settings.py. Basically, if you have a duplicate of a folder name, it moves the
 # files from the directory with a larger index key to the smaller index key
-def consolidateMangaFolders(dirPath):
+def consolidateMangaFolders(dirPath, smartMode=True):
 
 
 	idLut = nt.MtNamesMapWrapper("fsName->buId")
@@ -88,13 +81,31 @@ def consolidateMangaFolders(dirPath):
 					print("'%s' has been removed. Skipping" % lookup["fqPath"])
 					continue
 
+
+				n1 = lv.distance(dirName, canonName)
+				n2 = lv.distance(dir2Name, canonName)
+
+				r1 = nt.extractRatingToFloat(dirName)
+				r2 = nt.extractRatingToFloat(dir2Name)
+
+				if "[complete]" in dirName.lower():
+					r1 += 0.1
+				if "[complete]" in dir2Name.lower():
+					r2 += 0.1
+
+				if "[wtf]" in dirName.lower():
+					r1 += 0.2
+				if "[wtf]" in dir2Name.lower():
+					r2 += 0.2
+
+
 				print("	1: ", item)
 				print("		", nt.getCanonicalMangaUpdatesName(dirName))
-				print("		({num} items)".format(num=len(os.listdir(item))))
+				print("		({num} items)(distance {dist})(rating {rat})".format(num=len(os.listdir(item)), dist=n1, rat=r1))
 
 				print("	2: ", lookup["fqPath"])
 				print("		", nt.getCanonicalMangaUpdatesName(dir2Name))
-				print("		({num} items)".format(num=len(os.listdir(lookup["fqPath"]))))
+				print("		({num} items)(distance {dist})(rating {rat})".format(num=len(os.listdir(lookup["fqPath"])), dist=n2, rat=r2))
 
 
 
@@ -106,32 +117,41 @@ def consolidateMangaFolders(dirPath):
 
 					continue
 
-				# doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 1 <- dir 2. 'n' do not move)?")
-				# if doMove == "forward":
-				# 	fromDir = item
-				# 	toDir   = lookup["fqPath"]
-				# elif doMove == "reverse":
-				# 	fromDir = lookup["fqPath"]
-				# 	toDir   = item
-				# else:
-				# 	print("Skipping")
-				# 	continue
-
-				n1 = lv.distance(dirName, canonName)
-				n2 = lv.distance(dir2Name, canonName)
-
-				print("	%s - '%s'" % (n1, dirName))
-				print("	%s - '%s'" % (n2, dir2Name))
-
-
-				# I'm using less then or equal, so situations where
-				# both names are equadistant get aggregated anyways.
-				if n1 <= n2:
-					fromDir = lookup["fqPath"]
-					toDir   = item
+				if r1 > r2:
+					doMove = "reverse"
+				elif r2 > r1:
+					doMove = "forward"
 				else:
+					doMove = ''
+
+				if not doMove or not smartMode:
+					doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 1 <- dir 2. 'l' use levenshtein distance. 'n' do not move)?")
+
+				if doMove == "forward":
+					print("Forward move")
 					fromDir = item
 					toDir   = lookup["fqPath"]
+				elif doMove == "reverse":
+					print("Reverse move")
+					fromDir = lookup["fqPath"]
+					toDir   = item
+				elif doMove == "levenshtein":
+					print("Levenshtein distance chooser")
+
+
+					# I'm using less then or equal, so situations where
+					# both names are equadistant get aggregated anyways.
+					if n1 <= n2:
+						fromDir = lookup["fqPath"]
+						toDir   = item
+					else:
+						fromDir = item
+						toDir   = lookup["fqPath"]
+
+				else:
+					print("Skipping")
+					continue
+
 				print("moving from: '%s' " % fromDir)
 				print("         to: '%s' " % toDir)
 
@@ -242,6 +262,8 @@ def consolicateSeriesToSingleDir():
 			dest = nt.dirNameProxy[targetName]
 			if luDict["dirKey"] != targetName and dest["fqPath"]:
 				print("baseName = ", row["buName"], ", id = ", mId, ", names = ", dups)
+
+				print("	URL: https://www.mangaupdates.com/series.html?id=%s" % (mId, ))
 				print(" Dir 1 ", luDict["fqPath"])
 				print(" Dir 2 ", dest["fqPath"])
 				doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 2 -> dir 1. 'n' do not move)?")
@@ -306,19 +328,19 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 				if rating != 0:
 					print("	Need to add rating = ", rating)
 
-				# mv = query_response_bool("	rename?")
+				mv = query_response_bool("	rename?")
 
-				# if mv:
+				if mv:
 
-				# 	#
-				# 	if os.path.exists(newPath):
-				# 		print("Target dir exists! Moving files instead")
-				# 		moveFiles(oldPath, newPath)
-				# 		os.rmdir(oldPath)
-				# 		nt.dirNameProxy.changeRatingPath(newPath, rating)
-				# 	else:
-				# 		os.rename(oldPath, newPath)
-				# 		nt.dirNameProxy.changeRatingPath(newPath, rating)
+					#
+					if os.path.exists(newPath):
+						print("Target dir exists! Moving files instead")
+						moveFiles(oldPath, newPath)
+						os.rmdir(oldPath)
+						nt.dirNameProxy.changeRatingPath(newPath, rating)
+					else:
+						os.rename(oldPath, newPath)
+						nt.dirNameProxy.changeRatingPath(newPath, rating)
 			foundDirs += 1
 
 	print("Total directories that need renaming", foundDirs)
@@ -351,138 +373,3 @@ def organizeFolder(folderPath):
 		except:
 			print("Observer not running?")
 
-
-
-def printHelp():
-	print("Valid arguments:")
-	print("	python3 autoOrganize organize {dirPath}")
-	print("		Run auto-organizing tools against {dirPath}")
-	print()
-	print("	python3 autoOrganize rename {dirPath}")
-	print("		Rename directories in {dirPath} to match MangaUpdates naming")
-	print()
-	print("	python3 autoOrganize lookup {name}")
-	print("		Lookup {name} in the MangaUpdates name synonym lookup table, print the results.")
-	print()
-	print("	python3 autoOrganize dirs-clean {target-path} {del-dir}")
-	print("		Find duplicates in each subdir of {target-path}, and remove them.")
-	print("		Functions on a per-directory basis, so only duplicates in the same folder will be considered")
-	print("		Does not currently use phashing.")
-	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
-	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
-	print()
-	print("	python3 autoOrganize dir-clean {target-path} {del-dir}")
-	print("		Find duplicates in {target-path}, and remove them.")
-	print("		Functions on a per-directory basis, so only duplicates in the same folder will be considered")
-	print("		Does not currently use phashing.")
-	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
-	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
-	print("	")
-	print("	python3 autoOrganize dirs-restore {target-path}")
-	print("		Reverses the action of 'dirs-clean'. {target-path} is the directory specified as ")
-	print("		{del-dir} when running 'dirs-clean' ")
-	print("	")
-	print("	python3 autoOrganize purge-dir {target-path}")
-	print("		Processes the output of 'dirs-clean'. {target-path} is the directory specified as ")
-	print("		{del-dir} when running 'dirs-clean'. ")
-	print("		Each item in {del-dir} is re-confirmed to be a complete duplicate, and then truly deleted. ")
-	print("	")
-	print("	python3 autoOrganize sort-dir-contents {target-path}")
-	print("		Scan the contents of {target-path}, and try to infer the series for each file in said folders.")
-	print("		If file doesn't match the series for the folder, and does match a known, valid folder, prompt")
-	print("		to move to valid folder.")
-	print("	")
-
-def parseCommandLine():
-	if len(sys.argv) == 3:
-		cmd = sys.argv[1].lower()
-		val = sys.argv[2]
-
-		if cmd == "organize":
-			if not os.path.exists(val):
-				print("Passed path '%s' does not exist!" % val)
-				return
-			organizeFolder(val)
-			return
-
-		elif cmd == "rename":
-			if not os.path.exists(val):
-				print("Passed path '%s' does not exist!" % val)
-				return
-			renameSeriesToMatchMangaUpdates(val)
-			return
-
-		elif cmd == "lookup":
-			print("Passed name = '%s'" % val)
-			haveLookup = nt.haveCanonicalMangaUpdatesName(val)
-			if not haveLookup:
-				print("Item not found in MangaUpdates name synonym table")
-				print("Processed item as searched = '%s'" % nt.prepFilenameForMatching(val))
-			else:
-				print("Item found in lookup table!")
-				print("Canonical name = '%s'" % nt.getCanonicalMangaUpdatesName(val) )
-
-
-		elif cmd == "purge-dir":
-			if not os.path.exists(val):
-				print("Passed path '%s' does not exist!" % val)
-				return
-			utilities.dedupDir.purgeDedupTemps(val)
-			return
-
-		elif cmd == "dirs-restore":
-			if not os.path.exists(val):
-				print("Passed path '%s' does not exist!" % val)
-				return
-			utilities.dedupDir.runRestoreDeduper(val)
-			return
-
-		elif cmd == "sort-dir-contents":
-			if not os.path.exists(val):
-				print("Passed path '%s' does not exist!" % val)
-				return
-			utilities.approxFileSorter.scanDirectories(val)
-			return
-
-
-		else:
-			print("Did not understand command!")
-			print("Sys.argv = ", sys.argv)
-
-
-	elif len(sys.argv) == 4:
-
-		cmd = sys.argv[1].lower()
-		arg1 = sys.argv[2]
-		arg2 = sys.argv[3]
-
-		if cmd == "dirs-clean":
-			if not os.path.exists(arg1) or not os.path.exists(arg2):
-				print("Passed path '%s' does not exist!" % val)
-				return
-			if not os.path.exists(arg2):
-				print("Passed path '%s' does not exist!" % arg2)
-				return
-			utilities.dedupDir.runDeduper(arg1, arg2)
-			return
-		if cmd == "dir-clean":
-			if not os.path.exists(arg1):
-				print("Passed path '%s' does not exist!" % arg1)
-				return
-			if not os.path.exists(arg2):
-				print("Passed path '%s' does not exist!" % arg2)
-				return
-			utilities.dedupDir.runSingleDirDeduper(arg1, arg2)
-			return
-
-		else:
-			print("Did not understand command!")
-			print("Sys.argv = ", sys.argv)
-	elif len(sys.argv) == 2:
-		printHelp()
-	else:
-		printHelp()
-
-
-if __name__ == "__main__":
-	parseCommandLine()

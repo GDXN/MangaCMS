@@ -1,5 +1,5 @@
-import sys
-sys.path.insert(0,"..")
+# import sys
+# sys.path.insert(0,"..")
 import os.path
 
 import logSetup
@@ -15,11 +15,9 @@ import re
 import ScrapePlugins.DbBase
 import nameTools as nt
 import shutil
-import signal
 import settings
 import hashlib
 
-from concurrent.futures import ThreadPoolExecutor
 
 import utilities.EmptyRetreivalDb
 import processDownload
@@ -489,68 +487,3 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 				dbInt.addTags(sourceUrl=sourceUrl, tags=" ".join(itemtags))
 
 		print("need to fix", bad, "of", len(rows))
-
-def customHandler(dummy_signum, dummy_stackframe):
-	if runStatus.run:
-		runStatus.run = False
-		print("Telling threads to stop")
-	else:
-		print("Multiple keyboard interrupts. Raising")
-		raise KeyboardInterrupt
-
-def test():
-
-	signal.signal(signal.SIGINT, customHandler)
-
-	if len(sys.argv) < 2:
-		print("This script requires command line parameters")
-		print("Args:")
-		print("	'reset-missing' - Reset downloads where the file is missing, and the download is not tagged as deduplicated.")
-		print("	'clear-bad-dedup' - Remove deduplicated tag from any files where the file exists.")
-		print("	'fix-bt-links' - Fix links for Batoto that point to batoto.com, rather then bato.to.")
-		print("	'cross-sync' - Sync name lookup table with seen series.")
-		print("	'update-bu-lut' - Regernate lookup strings for MangaUpdates table (needed if the `prepFilenameForMatching` call in nameTools is modified).")
-		print("	'fix-bad-series' - Consolidate series names to MangaUpdates standard naming.")
-		return
-
-	mainArg = sys.argv[1]
-
-	print ("Passed arg", mainArg)
-
-
-	pc = PathCleaner()
-	pc.openDB()
-
-	if mainArg.lower() == "reset-missing":
-		pc.resetMissingDownloads()
-	elif mainArg.lower() == "clear-bad-dedup":
-		pc.clearInvalidDedupTags()
-	elif mainArg.lower() == "fix-bt-links":
-		pc.patchBatotoLinks()
-	elif mainArg.lower() == "cross-sync":
-		pc.crossSyncNames()
-	elif mainArg.lower() == "update-bu-lut":
-		pc.regenerateNameMappings()
-	elif mainArg.lower() == "fix-bad-series":
-		pc.consolidateSeriesNaming()
-	elif mainArg.lower() == "fix-djm":
-		pc.fixDjMItems()
-	elif mainArg.lower() == "import-djm":
-		if not len(sys.argv) == 3:
-			print("You must specify a path to import from!")
-			return
-		sourcePath = sys.argv[2]
-		pc.importDjMItems(sourcePath)
-	else:
-		print("Unknown arg!")
-
-	pc.closeDB()
-
-if __name__ == "__main__":
-	try:
-		test()
-	finally:
-		pass
-		# import nameTools as nt
-		# nt.dirNameProxy.stop()
-

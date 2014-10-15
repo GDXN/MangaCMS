@@ -103,10 +103,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			link["targetDir"] = nt.dirNameProxy[seriesName]["fqPath"]
 		else:
 			self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", seriesName, link["seriesName"], link["originName"])
-			if "picked" in link["flags"]:
-				targetDir = os.path.join(settings.jzSettings["dirs"]['mnDir'], safeBaseName)
-			else:
-				targetDir = os.path.join(settings.jzSettings["dirs"]['mDlDir'], safeBaseName)
+			targetDir = os.path.join(settings.jzSettings["dirs"]['mDlDir'], safeBaseName)
 			if not os.path.exists(targetDir):
 				try:
 					os.makedirs(targetDir)

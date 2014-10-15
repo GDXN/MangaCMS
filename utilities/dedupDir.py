@@ -1,13 +1,7 @@
-import sys
-sys.path.insert(0,"..")
 import os.path
 
-import logSetup
-if __name__ == "__main__":
-	logSetup.initLogging()
-
 import runStatus
-
+import nameTools as nt
 import shutil
 import settings
 import ScrapePlugins.DbBase
@@ -276,6 +270,41 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					split -= 1
 			print("item = ", newName)
 
+	def moveUnlinkableDirectories(self, dirPath, toPath):
+
+
+		print("Move Unlinkable", dirPath, toPath)
+		if not os.path.isdir(dirPath):
+			print(dirPath, "is not a directory")
+			raise ValueError
+		if not os.path.isdir(toPath):
+			print(toPath, "is not a directory")
+			raise ValueError
+
+		srcItems = os.listdir(dirPath)
+		for item in srcItems:
+			itemPath = os.path.join(dirPath, item)
+			if not os.path.isdir(itemPath):
+				continue
+			if not nt.haveCanonicalMangaUpdatesName(item):
+				targetDir = os.path.join(toPath, item)
+				print("Moving item", item, "to unlinked dir")
+				shutil.move(itemPath, targetDir)
+
+
+		srcItems = os.listdir(toPath)
+		for item in srcItems:
+			itemPath = os.path.join(toPath, item)
+			if not os.path.isdir(itemPath):
+				continue
+			if nt.haveCanonicalMangaUpdatesName(item):
+
+				print("Moving item", item, "to linked dir")
+				targetDir = os.path.join(dirPath, item)
+				shutil.move(itemPath, targetDir)
+
+
+
 
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
@@ -312,6 +341,14 @@ def purgeDedupTemps(basePath):
 	dd.openDB()
 	dd.setupDbApi()
 	dd.purgeDedupTemps(basePath)
+	dd.closeDB()
+
+def moveUnlinkable(dirPath, toPath):
+
+	dd = DirDeduper()
+	dd.openDB()
+	dd.setupDbApi()
+	dd.moveUnlinkableDirectories(dirPath, toPath)
 	dd.closeDB()
 
 def runSingleDirDeduper(dirPath, deletePath):
