@@ -9,6 +9,21 @@ import logging
 import deduplicator.hamDb
 
 
+try:
+	import pyximport
+	print("Have Cython")
+	pyximport.install()
+
+	import deduplicator.cyHamDb as hamDb
+	print("Using cythoned hamming database system")
+
+except ImportError:
+	print("Deduplicator performance can be increased by")
+	print("installing cython, which will result in the use of a ")
+	print("cythonized database system")
+	print("")
+	raise ValueError
+
 # Checks an archive (`archPath`) against the contents of the database
 # accessible via the `settings.dedupApiFile` python file, which
 # uses the absolute-import tool in the current directory.
@@ -103,7 +118,7 @@ class ArchChecker(object):
 		items = self.db.getLikeBasePath(dirPath)
 		self.log.info("Found %s items in dir. Building tree", len(items))
 
-		tree = deduplicator.hamDb.BkHammingTree()
+		tree = hamDb.BkHammingTree()
 		for row in [row for row in items if row[3]]:
 			pHash = int(row[3], 2)
 			tree.insert(pHash, row)

@@ -108,7 +108,6 @@ import settings
 <b>General</b>
 <ul>
 	<li>strip trailing hyphens</li>
-	<li>kissmanga phash dedup</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
 	<li>add half star rating options</li>
@@ -191,12 +190,12 @@ import settings
 <b>Reader</b>
 <ul>
 	<li>fit width only if oversize?</li>
-	<li>smart zoom mode in overlay</li>
 	<li>make zoom mode pop up last longer</li>
 	<li>fancy fade out when toolbars hidden?</li>
 	<li>Add ability to rename directories to reader</li> (res, name)
 	<li>Add current page position bar when popup menus are visible.</li>
 	<li>Trigger directory cache update if a non-existent directory access is attempted</li>
+	<li><strike>smart zoom mode in overlay</strike></li>
 	<li><strike>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</strike></li>
 	<li><strike>show current image info</strike></li>
 	<li><strike>Chapter read to from BU in item sidebar.</strike></li>
@@ -242,6 +241,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>kissmanga phash dedup</strike></li>
 	<li><strike>move non matching dirs to another folder</strike></li>
 	<li><strike>add ability to sort directory by rating.</strike> (Added in MangaUpdates stuff, not sure if I want it elsewhere)</li>
 	<li><strike>filesize in browser</strike></li>
