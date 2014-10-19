@@ -209,10 +209,10 @@ seriesCols = (
 		else:
 			tblData.sort(key=lambda x: (x["seriesName"]))  # Sort list by seriesName asc
 
+		for dataDict in tblData:
+			genRow(dataDict)
+
 		%>
-		% for dataDict in tblData:
-			${genRow(dataDict)}
-		% endfor
 
 	</table>
 </%def>

@@ -64,6 +64,13 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
 					break
+		except KeyboardInterrupt:
+			self.log.critical("Keyboard Interrupt!")
+			self.log.critical(traceback.format_exc())
+
+			# Reset the download, since failing because a keyboard interrupt is not a remote issue.
+			self.updateDbEntry(link["sourceUrl"], dlState=0)
+			raise
 
 		except:
 			self.log.critical("Exception!")

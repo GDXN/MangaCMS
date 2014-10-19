@@ -107,7 +107,6 @@ import settings
 
 <b>General</b>
 <ul>
-	<li>nones in btSeries markup</li>
 	<li>booktrie nodes decrease in size</li>
 	<li>strip trailing hyphens</li>
 	<li>change startup. start webserver first</li>
@@ -166,8 +165,8 @@ import settings
 	<ul>
 		<li>http://tapastic.com/series/browse ?</li>
 		<li>Tadanohito as a H source</li>
-		<li>http://nhentai.net/</li>
 		<li>/ak/ scans (Problematic, as there is no central release point)</li>
+		<li><strike>http://nhentai.net/</strike> They don't recompress (I think). Awesome!</li>
 		<li><strike>KissManga.com</strike></li>
 		<li><strike>Dynasty Scans</strike></li>
 		<li><strike>webtoons.com</strike></li>
@@ -244,6 +243,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>"None"s in btSeries markup</strike> Stupid context issue</li>
 	<li><strike>kissmanga phash dedup</strike></li>
 	<li><strike>move non matching dirs to another folder</strike></li>
 	<li><strike>add ability to sort directory by rating.</strike> (Added in MangaUpdates stuff, not sure if I want it elsewhere)</li>

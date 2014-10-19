@@ -39,10 +39,6 @@ def transaction(cursor, commit=True):
 
 
 
-# Turn on to print all db queries to STDOUT before running them.
-# Intended for debugging DB interactions.
-# Excessively verbose otherwise.
-
 class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 	# Abstract class (must be subclassed)
@@ -50,6 +46,10 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 	shouldCanonize = True
 
+
+	# Turn on to print all db queries to STDOUT before running them.
+	# Intended for debugging DB interactions.
+	# Excessively verbose otherwise.
 	QUERY_DEBUG = False
 
 	@abc.abstractmethod

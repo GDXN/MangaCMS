@@ -336,7 +336,20 @@ sidebarItemList = [
 			'renderSideBar' : True,
 			'genRow'        : True,
 			'type'          : 'Porn'
-		}
+		},
+
+		{
+			"num"           : 21,
+			'dbKey'         : "NHentai",
+			'name'          : "NHentai",
+			'dictKey'       : "nh",
+			'cssClass'      : "nhId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Porn'
+		},
+
 
 	]
 
