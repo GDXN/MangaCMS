@@ -5,7 +5,7 @@ import calendar
 import traceback
 
 import settings
-import magicdate
+import parsedatetime
 import urllib.parse
 import time
 
@@ -69,8 +69,11 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		for child in descriptionDiv.children:
 			if child.string and "Uploaded" in child.string:
 				dateStr = child.string.replace("Uploaded", "")
-				ulDate = magicdate.magicdate(dateStr)
-				return time.mktime(ulDate.timetuple())
+				ulDate, status = parsedatetime.Calendar().parse(dateStr)
+				print(dateStr, ulDate, status)
+				if status == 2 or status == 0:
+					raise ValueError("Invalid date! = '%s'" % dateStr)
+				return time.mktime(ulDate)
 
 		raise ValueError("No date found!")
 
@@ -145,7 +148,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 def getHistory():
 
 	run = DbLoader()
-	for x in range(1150):
+	for x in range(18, 1150):
 		dat = run.getFeed(pageOverride=x)
 		run.processLinksIntoDB(dat)
 
@@ -157,4 +160,5 @@ if __name__ == "__main__":
 		getHistory()
 		# run = DbLoader()
 		# run.go()
+
 
