@@ -42,7 +42,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	retreivalThreads = 5
 
-	urlBase = "http://dynasty-scans.com/"
+
 
 	def getImage(self, imageUrl, referrer):
 

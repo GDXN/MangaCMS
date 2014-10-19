@@ -4,6 +4,11 @@ if sys.version_info < ( 3, 4):
 	sys.exit("This script requires Python 3.4 or newer!")
 
 
+if __name__ == "__main__":
+	import runStatus
+	runStatus.preloadDicts = True
+
+
 import logSetup
 
 import schemaUpdater.schemaRevisioner

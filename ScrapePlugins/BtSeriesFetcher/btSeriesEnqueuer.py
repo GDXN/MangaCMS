@@ -33,9 +33,9 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 	tableName       = "MangaItems"
 
-	urlBase         = "http://www.batoto.net/"
+	urlBase         = "http://bato.to/"
 
-	seriesUrl       = "http://www.batoto.net/comic/_/comics/%s"
+	seriesUrl       = "http://bato.to/comic/_/comics/%s"
 
 	seriesTableName = "batotoSeries"
 
@@ -188,4 +188,17 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 		self.log.info("Complete")
 
+
+
+
+if __name__ == '__main__':
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		fl = BtSeriesEnqueuer()
+		# fl.go(historical=True)
+		fl.go()
+		# fl.getSeriesUrls()
+
+		# fl.getAllItems()
 

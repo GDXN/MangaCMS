@@ -1,12 +1,6 @@
 
 # -*- coding: utf-8 -*-
 
-
-
-import runStatus
-runStatus.preloadDicts = False
-
-
 import webFunctions
 import os
 import os.path
@@ -182,7 +176,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	def fetchImages(self, linkDict):
 		toFetch = {key:0 for key in linkDict["dlLink"]}
-
+		baseUrls = [item for item in linkDict["dlLink"]]
 		images = {}
 		while not all(toFetch.values()):
 
@@ -192,8 +186,6 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			soup = self.wg.getSoup(thisPage, addlHeaders={'Referer': linkDict["sourceUrl"]})
 
 			imageTd = soup.find('td', class_='pageImage')
-
-
 
 			imageUrl = urllib.parse.urljoin(self.urlBase, imageTd.img["src"])
 
@@ -212,10 +204,14 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			# Find next page
 
 			nextPageLink = imageTd.a['href']
-			if nextPageLink != linkDict["sourceUrl"]:
+
+			# Block any cases where the next page url is higher then
+			# the baseURLs, so that we don't fetch links back up the
+			# hierarchy.
+			if nextPageLink != linkDict["sourceUrl"] and not any([nextPageLink in item for item in baseUrls]):
+
 				if not nextPageLink in toFetch:
 					toFetch[nextPageLink] = 0
-
 
 		# Use a dict, and then flatten to a list because we will fetch some items twice.
 		# Basically, `http://www.hbrowse.com/{sommat}/c00000` has the same image
@@ -319,11 +315,9 @@ class HBrowseRetagger(HBrowseContentLoader):
 	def getLink(self, link):
 		try:
 			url = self.getDownloadInfo(link)
-			self.updateDbEntry(link["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 		except urllib.error.URLError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
-			self.updateDbEntry(link["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
 
 if __name__ == "__main__":
@@ -331,6 +325,8 @@ if __name__ == "__main__":
 
 	with tb.testSetup(startObservers=False):
 
-		run = HBrowseRetagger()
+		# run = HBrowseRetagger()
+		run = HBrowseContentLoader()
+
 		run.resetStuckItems()
 		run.go()

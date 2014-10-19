@@ -213,7 +213,7 @@ class ArchChecker(object):
 				self.log.error("Archive '%s', file '%s'", self.archPath, fName)
 				self.log.error("Error '%s'", e)
 
-		self.db.commit()
+
 		archIterator.close()
 
 		self.log.info("File hashing complete.")

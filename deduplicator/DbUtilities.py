@@ -23,18 +23,10 @@ class DedupManager(object):
 		self.log = logging.getLogger("Main.Deduper")
 
 	def moveFile(self, oldPath, newPath):
-		try:
-			self.db.moveItem(oldPath, newPath)
-		except Exception as e:
-			self.db.rollback()
-			raise e
+		self.db.moveItem(oldPath, newPath)
 
 	def deletePath(self, path):
-		try:
-			self.db.deleteBasePath(path)
-		except Exception as e:
-			self.db.rollback()
-			raise e
+		self.db.deleteBasePath(path)
 
 
 

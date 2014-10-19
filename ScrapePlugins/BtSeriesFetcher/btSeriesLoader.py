@@ -54,6 +54,8 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 			return
 
 		ratingStr = nt.dirNameProxy[canonSeriesName]["rating"]
+		if not ratingStr:
+			return
 		rating = nt.ratingStrToInt(ratingStr)
 		if rating < 2:
 			return
@@ -119,4 +121,13 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 		self.log.info("Complete")
 
+
+
+if __name__ == '__main__':
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=True):
+		fl = BtSeriesLoader()
+		fl.scanForSeries(rangeOverride=1510)
+		# fl.go()
 

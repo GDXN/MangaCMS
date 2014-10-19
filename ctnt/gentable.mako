@@ -583,7 +583,7 @@ colours = {
 	<tr class="${sourceSite}_row">
 
 		<td>${ut.timeAgo(retreivalTime)}</td>
-		<td bgcolor=${statusColour} class="showTT" mouseovertext="${dbId}, ${filePath}"></td>
+		<td bgcolor=${statusColour} class="showTT" mouseovertext="${sourceSite}, ${dbId}, ${filePath}"></td>
 		<td>
 		## Messy hack that prevents the "»" from being drawn anywhere but *inbetween* tags in the path
 			% for i, seriesName in enumerate(seriesNames):

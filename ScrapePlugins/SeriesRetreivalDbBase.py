@@ -23,14 +23,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def __init__(self):
 
-		self.loggers = {}
-		self.dbConnections = {}
-		self.lastLoggerIndex = 1
-
-		self.log = logging.getLogger(self.loggerPath)
-		self.log.info("Loading %s Runner BaseClass", self.pluginName)
-		self.openDB()
-		self.checkInitPrimaryDb()
+		super().__init__()
 		self.checkInitSeriesDb()
 
 

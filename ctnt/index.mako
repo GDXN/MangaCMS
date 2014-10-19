@@ -107,6 +107,8 @@ import settings
 
 <b>General</b>
 <ul>
+	<li>nones in btSeries markup</li>
+	<li>booktrie nodes decrease in size</li>
 	<li>strip trailing hyphens</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
@@ -165,6 +167,7 @@ import settings
 		<li>http://tapastic.com/series/browse ?</li>
 		<li>Tadanohito as a H source</li>
 		<li>http://nhentai.net/</li>
+		<li>/ak/ scans (Problematic, as there is no central release point)</li>
 		<li><strike>KissManga.com</strike></li>
 		<li><strike>Dynasty Scans</strike></li>
 		<li><strike>webtoons.com</strike></li>
