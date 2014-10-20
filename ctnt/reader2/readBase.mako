@@ -338,7 +338,12 @@ def dequoteDict(inDict):
 		</div>
 
 		<div class="lightRect itemInfoBox">
-			 Cleaned = '${nt.prepFilenameForMatching(baseName)}''
+			 Cleaned = '${nt.prepFilenameForMatching(baseName)}'
+		</div>
+
+
+		<div class="lightRect itemInfoBox">
+			 MangaUpdates ID = ${nt.getMangaUpdatesId(baseName)}
 		</div>
 
 

@@ -243,6 +243,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>rating changing is broken</strike></li>
 	<li><strike>"None"s in btSeries markup</strike> Stupid context issue</li>
 	<li><strike>kissmanga phash dedup</strike></li>
 	<li><strike>move non matching dirs to another folder</strike></li>

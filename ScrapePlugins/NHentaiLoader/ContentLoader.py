@@ -5,20 +5,16 @@ import webFunctions
 import os
 import os.path
 
-import random
-import sys
 import zipfile
 import nameTools as nt
 
-import runStatus
-import time
 import urllib.request, urllib.parse, urllib.error
 import traceback
 
 import settings
 import bs4
-
 import archCleaner
+
 
 import ScrapePlugins.RetreivalBase
 
@@ -37,7 +33,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 1
+	retreivalThreads = 6
 
 	shouldCanonize = False
 

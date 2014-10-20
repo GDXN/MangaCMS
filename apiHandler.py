@@ -23,7 +23,7 @@ class ApiInterface(object):
 		ret = ""
 		# Sooooo hacky. Using **{dict} crap in ALL THE PLACES
 
-		print("Parameter update call!")
+		self.log.info("Parameter update call!")
 
 		if "old_buName" in request.params and "new_buName" in request.params or \
 			"old_mtName" in request.params and "new_mtName" in request.params or \
@@ -42,7 +42,7 @@ class ApiInterface(object):
 			else:
 				raise ValueError("WAT")
 
-			print("Updating {colName} Column".format(colName=key))
+			self.log.info("Updating {colName} Column".format(colName=key))
 
 			newName = request.params["new_{colName}".format(colName=key)].rstrip().lstrip()
 			oldName = request.params["old_{colName}".format(colName=key)].rstrip().lstrip()
@@ -52,8 +52,8 @@ class ApiInterface(object):
 			existingRow = inserter.getRowByValue(**existingRow)
 			mergeRow    = inserter.getRowByValue(dbId=updRowId)
 
-			print("mergeRow=", mergeRow)
-			print("existingRow=", existingRow)
+			self.log.info("mergeRow= %s", mergeRow)
+			self.log.info("existingRow= %s", existingRow)
 
 			if key == "mtId" or key == "buId":
 
@@ -61,7 +61,7 @@ class ApiInterface(object):
 					int(newName)
 				except ValueError:
 					traceback.print_exc()
-					print("Values = '%s', '%s'" % (newName))
+					self.log.info("Values = '%s'", newName)
 					ret = json.dumps({"Status": "Failed", "Message": "IDs is not anm integer!"})
 					return Response(body=ret)
 
@@ -81,7 +81,7 @@ class ApiInterface(object):
 
 
 	def changeRating(self, request):
-		print(request.params)
+		self.log.info(request.params)
 
 		if not "new-rating" in request.params:
 			return Response(body=json.dumps({"Status": "Failed", "Message": "No new rating specified in rating-change call!"}))
@@ -97,14 +97,14 @@ class ApiInterface(object):
 		if not mangaName in nt.dirNameProxy:
 			return Response(body=json.dumps({"Status": "Failed", "Message": "Specified Manga Name not in dir-dict."}))
 
-		print("Calling ratingChange")
+		self.log.info("Calling ratingChange")
 		nt.dirNameProxy.changeRating(mangaName, newRating)
-		print("ratingChange Complete")
+		self.log.info("ratingChange Complete")
 
 		return Response(body=json.dumps({"Status": "Success", "Message": "Directory Renamed"}))
 
 	def resetDownload(self, request):
-		print(request.params)
+		self.log.info(request.params)
 
 		dbId = mangaName = request.params["reset-download"]
 
@@ -141,22 +141,22 @@ class ApiInterface(object):
 
 	def handleApiCall(self, request):
 
-		print("API Call!", request.params)
+		self.log.info("API Call! %s", request.params)
 
 		if request.remote_addr in settings.noHighlightAddresses:
 			return Response(body=json.dumps({"Status": "Failed", "Message": "API calls are blocked from the reverse-proxy IP."}))
 
 
 		if "change-rating" in request.params:
-			print("Rating change!")
+			self.log.info("Rating change!")
 			return self.changeRating(request)
 
 		elif "update-series" in request.params:
-			print("Update series!")
+			self.log.info("Update series!")
 			return self.updateSeries(request)
 
 		elif "reset-download" in request.params:
-			print("Download Reset!")
+			self.log.info("Download Reset!")
 			return self.resetDownload(request)
 
 		else:
