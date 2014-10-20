@@ -19,7 +19,7 @@ import settings
 import bs4
 import re
 
-import archCleaner
+import processDownload
 import json
 from concurrent.futures import ThreadPoolExecutor
 
@@ -27,7 +27,7 @@ import ScrapePlugins.RetreivalDbBase
 
 class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-	archCleaner = archCleaner.ArchCleaner()
+
 
 
 	shouldCanonize = False
@@ -279,7 +279,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				linkDict["tags"] = ""
 
 			try:
-				dedupState = self.archCleaner.processNewArchive(wholePath, deleteDups=True, includePHash=True)
+				dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True, includePHash=True)
 			except OSError:
 
 				self.addTags(sourceUrl=linkDict["sourceUrl"], tags="corrupt")

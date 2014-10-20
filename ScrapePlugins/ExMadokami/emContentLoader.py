@@ -17,12 +17,12 @@ import bs4
 import ScrapePlugins.RetreivalDbBase
 
 
-import archCleaner
+import processDownload
 
 class EmContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	archCleaner = archCleaner.ArchCleaner()
+
 
 	loggerPath = "Main.Em.Cl"
 	pluginName = "Exhen.Madokami Content Retreiver"
@@ -137,19 +137,7 @@ class EmContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(sourceUrl, dlState=-4, downloadPath=filePath, fileName=fileName)
 			return
 		#self.log.info( filePath)
-		try:
-			dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
-		except archCleaner.NotAnArchive:
-			self.log.warning("File is not an archive!")
-			self.log.warning("File '%s'", fqFName)
-			dedupState = "not-an-archive"
-		except archCleaner.DamagedArchive:
-			self.log.warning("Corrupt Archive!")
-			self.log.warning("Archive '%s'", fqFName)
-			dedupState = "corrupt-archive"
-			self.addTags(sourceUrl=sourceUrl, tags=dedupState)
-			self.updateDbEntry(sourceUrl, dlState=-3, downloadPath=filePath, fileName=fileName)
-			return
+		dedupState = processDownload.processDownload(link["seriesName"], fqFName, pron=True, deleteDups=True, includePHash=True)
 
 		self.log.info( "Done")
 		self.addTags(sourceUrl=sourceUrl, tags=dedupState)

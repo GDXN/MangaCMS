@@ -13,14 +13,13 @@ import traceback
 
 import settings
 import bs4
-import archCleaner
+import processDownload
 
 
 import ScrapePlugins.RetreivalBase
 
 class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
-	archCleaner = archCleaner.ArchCleaner()
 
 
 	dbName = settings.dbName
@@ -33,7 +32,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 6
+	retreivalThreads = 2
 
 	shouldCanonize = False
 
@@ -156,7 +155,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				linkDict["tags"] = ""
 
 
-			dedupState = self.archCleaner.processNewArchive(wholePath, deleteDups=True, includePHash=True)
+			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True, deleteDups=True)
 			self.log.info( "Done")
 
 

@@ -19,12 +19,10 @@ import ScrapePlugins.RetreivalDbBase
 
 from concurrent.futures import ThreadPoolExecutor
 
-import archCleaner
+import processDownload
 
 class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-
-	archCleaner = archCleaner.ArchCleaner()
 
 	wg = webFunctions.WebGetRobust(creds=[("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"])])
 	loggerPath = "Main.Mk.Cl"
@@ -177,18 +175,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ext = os.path.splitext(fileName)[-1]
 		imageExts = ["jpg", "png", "bmp"]
 		if not any([ext.endswith(ex) for ex in imageExts]):
-			try:
-				dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
-			except archCleaner.NotAnArchive:
-				self.log.warning("File is not an archive!")
-				self.log.warning("File '%s'", fqFName)
-				dedupState = "not-an-archive"
-			except archCleaner.DamagedArchive:
-				self.log.warning("Corrupt Archive!")
-				self.log.warning("Archive '%s'", fqFName)
-				dedupState = "corrupt-archive"
-				self.updateDbEntry(sourceUrl, dlState=-3, downloadPath=filePath, fileName=fileName, tags=dedupState)
-				return
+			dedupState = processDownload.processDownload(False, fqFName, deleteDups=True)
 		else:
 			dedupState = ""
 

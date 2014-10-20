@@ -17,12 +17,12 @@ import bs4
 import ScrapePlugins.RetreivalDbBase
 
 
-import archCleaner
+import processDownload
 
 class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	archCleaner = archCleaner.ArchCleaner()
+
 
 	loggerPath = "Main.Jz.Cl"
 	pluginName = "Japanzai Content Retreiver"
@@ -171,7 +171,7 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 		#self.log.info( filePath)
 
-		dedupState = self.archCleaner.processNewArchive(fqFName, deleteDups=True)
+		dedupState = processDownload.processDownload(link["seriesName"], fqFName, deleteDups=True, includePHash=True)
 		self.log.info( "Done")
 
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)

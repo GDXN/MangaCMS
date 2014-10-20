@@ -6,23 +6,15 @@ import os
 import os.path
 import logging
 
-import deduplicator.hamDb
 
 
-try:
-	import pyximport
-	print("Have Cython")
-	pyximport.install()
 
-	import deduplicator.cyHamDb as hamDb
-	print("Using cythoned hamming database system")
+import pyximport
+print("Have Cython")
+pyximport.install()
 
-except ImportError:
-	print("Deduplicator performance can be increased by")
-	print("installing cython, which will result in the use of a ")
-	print("cythonized database system")
-	print("")
-	raise ValueError
+import deduplicator.cyHamDb as hamDb
+print("Using cythoned hamming database system")
 
 # Checks an archive (`archPath`) against the contents of the database
 # accessible via the `settings.dedupApiFile` python file, which
@@ -188,7 +180,7 @@ class ArchChecker(object):
 		# Do overall hash of archive:
 		with open(self.archPath, "rb") as fp:
 			hexHash = self.hashModule.getMd5Hash(fp.read())
-		self.db.insertItem(self.archPath, "", itemHash=hexHash)
+		self.db.insertIntoDb(fspath=self.archPath, internalpath="", itemhash=hexHash)
 
 
 		# Next, hash the file contents.
@@ -205,9 +197,9 @@ class ArchChecker(object):
 					self.log.warn("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
 
 				if baseHash:
-					self.db.updateItem(self.archPath, fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
+					self.db.updateItem(fspath=self.archPath, internalpath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
 				else:
-					self.db.insertItem(self.archPath, fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
+					self.db.insertIntoDb(fspath=self.archPath, internalpath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
 			except IOError as e:
 				self.log.error("Invalid/damaged image file in archive!")
 				self.log.error("Archive '%s', file '%s'", self.archPath, fName)

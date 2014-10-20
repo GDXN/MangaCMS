@@ -34,13 +34,6 @@ except ImportError:
 
 
 
-try:
-	import deduplicator.dupCheck as deduper
-	print("Have file deduplication interface. Doing download duplicate checking!")
-except:
-	deduper = None
-	print("No deduplication tools installed.")
-
 class NotAnArchive(Exception):
 	pass
 class DamagedArchive(Exception):
@@ -240,7 +233,7 @@ class ArchCleaner(object):
 	# Process a newly downloaded archive. If deleteDups is true, and the archive is duplicated, it is deleted.
 	# If includePHash is true as well, the duplicate search is done using phashes of the images, in addition
 	# to just raw file-hashing.
-	def processNewArchive(self, archPath, passwd="", deleteDups=False, includePHash=False):
+	def processNewArchive(self, archPath, passwd=""):
 		if magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip':
 			self.unprotectZip(archPath, passwd)
 		elif magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
@@ -265,26 +258,6 @@ class ArchCleaner(object):
 			for line in traceback.format_exc().split("\n"):
 				self.log.error(line)
 			return "damaged"
-
-
-		if deduper and deleteDups:
-
-			dc = deduper.ArchChecker(archPath)
-
-			# check hash first, then phash. That way, we get tagging that
-			# indicates what triggered the removal.
-			if not dc.isBinaryUnique():
-				self.log.warning("Archive %s isn't unique!", archPath)
-				dc.deleteArch()
-				return "deleted was-duplicate"
-
-			if includePHash and not dc.isPhashUnique():
-				self.log.warning("Archive %s isn't unique!", archPath)
-				dc.deleteArch()
-				return "deleted was-duplicate phash-duplicate"
-			else:
-				self.log.info("Archive Contains unique files. Leaving alone!")
-				dc.addNewArch()
 
 		return ""
 

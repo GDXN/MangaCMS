@@ -2,7 +2,7 @@
 
 import traceback
 from pyramid.response import Response
-import os.path
+
 import DbManagement.MonitorTool
 import nameTools as nt
 import logging

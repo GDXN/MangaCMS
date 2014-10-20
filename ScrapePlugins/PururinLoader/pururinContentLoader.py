@@ -20,13 +20,13 @@ import traceback
 import settings
 import bs4
 
-import archCleaner
+import processDownload
 
 import ScrapePlugins.RetreivalDbBase
 
 class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-	archCleaner = archCleaner.ArchCleaner()
+
 
 
 	dbName = settings.dbName
@@ -306,8 +306,8 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if not linkDict["tags"]:
 				linkDict["tags"] = ""
 
+			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True, deleteDups=True, includePHash=True)
 
-			dedupState = self.archCleaner.processNewArchive(wholePath, deleteDups=True, includePHash=True)
 			self.log.info( "Done")
 
 
