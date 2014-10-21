@@ -85,8 +85,8 @@ def consolidateMangaFolders(dirPath, smartMode=True):
 				n1 = lv.distance(dirName, canonName)
 				n2 = lv.distance(dir2Name, canonName)
 
-				r1 = nt.extractRatingToFloat(dirName)
-				r2 = nt.extractRatingToFloat(dir2Name)
+				r1 = abs(nt.extractRatingToFloat(dirName))
+				r2 = abs(nt.extractRatingToFloat(dir2Name))
 
 				if "[complete]" in dirName.lower():
 					r1 += 0.1

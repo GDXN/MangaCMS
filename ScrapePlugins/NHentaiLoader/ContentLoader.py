@@ -32,7 +32,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 2
+	retreivalThreads = 6
 
 	shouldCanonize = False
 
@@ -155,7 +155,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				linkDict["tags"] = ""
 
 
-			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True, deleteDups=True)
+			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True)
 			self.log.info( "Done")
 
 

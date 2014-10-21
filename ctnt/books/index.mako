@@ -113,22 +113,6 @@ import urllib.parse
 				<h2>BookTrie!</h2>
 				<%
 				cursor = sqlCon.cursor()
-
-				# cursor.execute("SELECT url, dbid, title FROM book_items WHERE mimetype = %s ORDER BY title;", ('text/html', ))
-				# ret = cursor.fetchall()
-
-				# items = []
-				# for item in ret:
-				# 	filter = item[2].lower()
-				# 	if filter.startswith("template:") or filter.startswith("talk:") or filter.startswith("ирис"):
-				# 		continue
-
-
-				# 	items.append(item)
-
-
-				# trie = build_trie(items, lambda x: x[2])
-
 				%>
 
 

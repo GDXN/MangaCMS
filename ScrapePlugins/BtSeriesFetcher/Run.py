@@ -13,7 +13,7 @@ import runStatus
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 	loggerPath = "Main.BtS.Run"
 
-	pluginName = "BtLoader"
+	pluginName = "BtEnqueue"
 
 
 	def _go(self):
@@ -32,3 +32,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		cl = BtSeriesEnqueuer()
 		cl.go()
 		cl.closeDB()
+
+
+if __name__ == '__main__':
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=True):
+		run = Runner()
+
+		run.go()
+		# fl.go()

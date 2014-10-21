@@ -1,15 +1,20 @@
 
 <%namespace name="ap"              file="activePlugins.mako"/>
 
+body
+{
+	font-size:0.85em;
+}
 * {
 	font-family: Tahoma, Geneva, sans-serif;
-	font-size:0.985em;
+
 }
 table, td
 {
 
 	border-color: #006;
 	border-style: solid;
+
 
 }
 
@@ -31,6 +36,8 @@ td
 	border-width: 1px 1px 0 0;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
+	font-size:14px !important;
+
 }
 
 

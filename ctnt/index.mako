@@ -107,7 +107,6 @@ import settings
 
 <b>General</b>
 <ul>
-	<li>booktrie nodes decrease in size</li>
 	<li>strip trailing hyphens</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>
@@ -122,7 +121,6 @@ import settings
 	<li>ability to specify MU id in directory name? [Lnnn] or sommat?</li>
 	<li>way to search for non linked directories - maybe then do levenshtein search for match?</li>
 	<li>import all existing files somehow</li>
-	<li>rescan series on batoto</li>
 	<li>do some clever set shit to check for misplaced items in directories</li>
 	<li>change db table generation to use found item paths for tables in directory view.</li>
 	<li>color code mangaupdates status in reader</li>
@@ -243,6 +241,8 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>rescan series on batoto</strike></li>
+	<li><strike>booktrie nodes decrease in size</strike> (Whoops, CSS Stupid)</li>
 	<li><strike>rating changing is broken</strike></li>
 	<li><strike>"None"s in btSeries markup</strike> Stupid context issue</li>
 	<li><strike>kissmanga phash dedup</strike></li>

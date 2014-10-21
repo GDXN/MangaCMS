@@ -21,6 +21,8 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def seriesTableName(self):
 		return None
 
+
+
 	def __init__(self):
 
 		super().__init__()
@@ -28,10 +30,55 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
+	def checkIfWantToFetchSeries(self, seriesName):
+		muId = nt.getMangaUpdatesId(seriesName)
+		if muId in self.wantedIds:
+			return True
+
+		if muId:
+			canonSeriesName = nt.idLookup[muId]
+			if len(canonSeriesName) != 1:
+				self.log.warning("Multiple matches for one ID? What?")
+				return False
+			canonSeriesName = canonSeriesName.pop()
+		else:
+			canonSeriesName = seriesName
+
+		if canonSeriesName not in nt.dirNameProxy:
+			return False
+
+		ratingStr = nt.dirNameProxy[canonSeriesName]["rating"]
+		if not ratingStr:
+			return False
+		rating = nt.ratingStrToInt(ratingStr)
+		if rating < 2:
+			return False
+
+		return True
+
+
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Management
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	def getBuListItemIds(self):
+		try:
+			listTable = self.listTableName
+		except AttributeError:
+			self.log.error("No listTableName defined. No way to lookup Bu list IDs.")
+
+
+		query = '''SELECT buId FROM {tableName} WHERE buList IS NOT NULL;'''.format(tableName=listTable)
+
+		with self.conn.cursor() as cur:
+			cur.execute("BEGIN;")
+			cur.execute(query)
+			ret = cur.fetchall()
+			cur.execute("COMMIT;")
+
+		ret = [item[0] for item in ret]
+		return ret
 
 	validSeriesKwargs = ["seriesId", "seriesName", "dlState", "retreivalTime", "lastUpdate"]
 

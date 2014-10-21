@@ -29,7 +29,6 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not pageOverride:
 			pageOverride = 1
 		try:
-			# I really don't get the logic behind NHentai's path scheme.
 			pageUrl = self.urlFeed.format(num=pageOverride)
 			soup = self.wg.getSoup(pageUrl)
 		except urllib.error.URLError:

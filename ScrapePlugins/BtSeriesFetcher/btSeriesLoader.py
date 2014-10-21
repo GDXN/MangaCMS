@@ -13,6 +13,7 @@ import datetime
 import ScrapePlugins.SeriesRetreivalDbBase
 import nameTools as nt
 
+
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
 class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
@@ -33,6 +34,9 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 	feedUrl         = "http://www.batoto.net/?p=%d"
 	seriesTableName = "batotoSeries"
 
+	listTableName   = "MangaSeries"
+
+	wantedIds       = set()
 
 	def extractSeriesDef(self, inTr):
 		isSeries = inTr.find("td", colspan=5)
@@ -48,23 +52,26 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 	def checkInsertItem(self, item):
 		seriesName, seriesId = item
-		canonSeriesName = nt.getCanonicalMangaUpdatesName(seriesName)
-
-		if canonSeriesName not in nt.dirNameProxy:
-			return
-
-		ratingStr = nt.dirNameProxy[canonSeriesName]["rating"]
-		if not ratingStr:
-			return
-		rating = nt.ratingStrToInt(ratingStr)
-		if rating < 2:
-			return
 
 		haveRows = self.getSeriesRowsByValue(seriesId=seriesId)
+		if len(haveRows) == 1:
+			item = haveRows.pop()
+
+			# If item was last checked > 2 weeks ago, recheck it.
+			if time.time() - 60*60*24*14 < item["lastUpdate"]:
+				self.updateSeriesDbEntry(seriesId=item['seriesId'], dlState=0)
+
+			return
+
 		if len(haveRows) != 0:
 			return				# We already have the series in the DB
 
-		self.log.info("New series! '%s', '%s'. Rating in local files '%s'", seriesName, seriesId, ratingStr)
+
+		if not self.checkIfWantToFetchSeries(seriesName):
+			self.log.info("Do not want to fetch content for series '%s'", seriesName)
+			return
+		self.log.info("Want to fetch content for series '%s'", seriesName)
+
 		self.insertIntoSeriesDb(seriesId=seriesId,
 								seriesName=seriesName,
 								dlState=0,
@@ -77,7 +84,13 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		# 	self.log.info( item)
 		#
 
-		self.log.info( "Loading BT Main Feed")
+
+		self.log.info("Loading Monitored IDs from MangaUpdates table")
+		self.wantedIds = set(self.getBuListItemIds())
+		self.log.info("Have %s items from MangaUpdates lists to trigger on", len(self.wantedIds))
+
+
+		self.log.info("Loading BT Main Feed")
 
 		ret = []
 
@@ -128,6 +141,7 @@ if __name__ == '__main__':
 
 	with tb.testSetup(startObservers=True):
 		fl = BtSeriesLoader()
+
 		fl.scanForSeries(rangeOverride=1510)
 		# fl.go()
 

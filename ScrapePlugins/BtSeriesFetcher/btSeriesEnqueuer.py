@@ -171,6 +171,7 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		self.resetStuckSeriesItems()
 		self.log.info("Getting feed items")
 		rows = self.getSeriesRowsByValue(dlState=0)
+		self.log.info("Have %s new items to scan for items.", len(rows))
 		for row in rows:
 			self.updateSeriesDbEntryById(row["dbId"], dlState=1)
 			self.fetchItemFromRow(row)
