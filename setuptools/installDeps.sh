@@ -14,6 +14,7 @@ apt-get update
 
 # install said up-to-date python
 apt-get install -y python3.4 python3.4-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.3 unrar
+apt-get install -y postgresql-server-dev-9.3 postgresql-contrib libyaml-dev
 
 # PIL/Pillow support stuff
 sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
@@ -35,6 +36,7 @@ echo TODO: ADD PostgreSQL >= 9.3 install stuff here!
 pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama
 pip3 install pyinotify python-dateutil apscheduler rarfile python-magic
 pip3 install babel cython irc psycopg2 python-levenshtein
+pip3 install python-sql natsort yaml pillow
 
 # numpy and scipy are just needed for the image deduplication stuff. They can be left out if
 # those functions are not desired.
@@ -47,3 +49,7 @@ pip3 install numpy scipy
 
 # Readability (python 3 port)
 sudo pip3 install git+https://github.com/stalkerg/python-readability
+sudo pip3 install git+https://github.com/bear/parsedatetime
+
+# Pylzma for 7z support. py3k support is still not in Pypi for no good reason
+sudo pip3 install git+https://github.com/fancycode/pylzma

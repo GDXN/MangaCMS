@@ -21,7 +21,7 @@ import signal
 import nameTools as nt
 import activePlugins
 
-from apscheduler.scheduler import Scheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 
@@ -47,7 +47,7 @@ def scheduleJobs(sched, timeToStart):
 		instance.go()
 
 	for callee, interval, startWhen in jobs:
-		sched.add_interval_job(callGoOnClass, args=(callee, ), seconds=interval, start_date=startWhen)
+		sched.add_job(callGoOnClass, args=(callee, ), trigger='interval', seconds=interval, start_date=startWhen)
 
 
 	# hook in the items in nametools things that require periodic update checks:
@@ -64,7 +64,7 @@ def scheduleJobs(sched, timeToStart):
 		if  isinstance(classInstance, type) or not hasattr(classInstance, "NEEDS_REFRESHING"):
 			continue
 		print("Have item to schedule - ", name, classInstance, "every", classInstance.REFRESH_INTERVAL, "seconds.")
-		sched.add_interval_job(classInstance.refresh, seconds=classInstance.REFRESH_INTERVAL, start_date=datetime.datetime.now()+datetime.timedelta(seconds=20+x))
+		sched.add_job(classInstance.refresh, trigger='interval', seconds=classInstance.REFRESH_INTERVAL, start_date=datetime.datetime.now()+datetime.timedelta(seconds=20+x))
 		x += 60
 
 
@@ -83,7 +83,7 @@ def go():
 	preflight()
 
 
-	sched = Scheduler()
+	sched = BackgroundScheduler()
 
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*60)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*15)
