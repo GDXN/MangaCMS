@@ -22,11 +22,18 @@ import nameTools as nt
 import activePlugins
 
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from apscheduler.executors.pool import ThreadPoolExecutor
 
 
 import datetime
 
+executors = {
+	'default': ThreadPoolExecutor(20)
+}
+job_defaults = {
+	'coalesce': True,
+	'max_instances': 3
+}
 
 def scheduleJobs(sched, timeToStart):
 
@@ -82,8 +89,7 @@ def preflight():
 def go():
 	preflight()
 
-
-	sched = BackgroundScheduler()
+	sched = BackgroundScheduler(executors=executors, job_defaults=job_defaults)
 
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*60)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*15)

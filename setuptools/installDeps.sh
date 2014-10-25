@@ -8,6 +8,7 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
+
 # add PPAs for up-to-date python
 add-apt-repository -y ppa:fkrull/deadsnakes
 apt-get update
@@ -16,15 +17,14 @@ apt-get update
 apt-get install -y python3.4 python3.4-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.3 unrar
 apt-get install -y postgresql-server-dev-9.3 postgresql-contrib libyaml-dev
 
-# PIL/Pillow support stuff
-sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
-
-
-
 # link python3.4 as python3, because ubuntu thinks only python 3.2 is actually python 3
 # this will possibly (probably?) break things on ubuntu >= 14.04, since that's the version where
 # they switched to using python3 for system management stuff.
 ln -s /usr/bin/python3.4 /usr/bin/python3
+
+
+# PIL/Pillow support stuff
+sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
 
 # Install pip (You cannot use the ubuntu repos for this, because they will also install python3.2)
 wget https://bootstrap.pypa.io/get-pip.py
