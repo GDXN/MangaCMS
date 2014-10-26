@@ -1,6 +1,6 @@
 
 
-
+print("Utilities Startup")
 import runStatus
 runStatus.preloadDicts = False
 
@@ -14,6 +14,7 @@ import utilities.dedupDir
 import utilities.approxFileSorter
 import utilities.autoOrganize as autOrg
 import utilities.cleanDb
+import deduplicator.remoteInterface
 
 def printHelp():
 
@@ -91,6 +92,18 @@ def printHelp():
 	print("	fix-bad-series")
 	print("		Consolidate series names to MangaUpdates standard naming.")
 	print("	")
+
+
+
+	print("*********************************************************")
+	print("Remote deduper interface")
+	print("*********************************************************")
+	print("phash-clean {targetDir} {removeDir} {scanEnv}")
+	print("		Find duplcates on the path {targetDir}, and move them to {removeDir}")
+	print("		Duplicate search is done using the set of phashes contained within ")
+	print("		{scanEnv}. ")
+	print("		Requires deduper server interface to be running.")
+
 	return
 
 
@@ -217,6 +230,19 @@ def parseThreeArgCall(cmd, arg1, arg2):
 		print("Did not understand command!")
 		print("Sys.argv = ", sys.argv)
 
+def parseFourArgCall(cmd, arg1, arg2, arg3):
+	if cmd == "phash-clean":
+		if not os.path.exists(arg1):
+			print("Passed path '%s' does not exist!" % arg1)
+			return
+		if not os.path.exists(arg2):
+			print("Passed path '%s' does not exist!" % arg2)
+			return
+		if not os.path.exists(arg3):
+			print("Passed path '%s' does not exist!" % arg3)
+			return
+		deduplicator.remoteInterface.pClean(arg1, arg2, arg3)
+		return
 
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:
@@ -245,10 +271,18 @@ def parseCommandLine():
 		arg2 = sys.argv[3]
 		parseThreeArgCall(cmd, arg1, arg2)
 
-	elif len(sys.argv) == 2:
-		printHelp()
+	elif len(sys.argv) == 5:
+
+		cmd = sys.argv[1].lower()
+		arg1 = sys.argv[2]
+		arg2 = sys.argv[3]
+		arg3 = sys.argv[4]
+		parseFourArgCall(cmd, arg1, arg2, arg3)
+
 	else:
 		printHelp()
 
 if __name__ == "__main__":
+	print("Command line parse")
 	parseCommandLine()
+
