@@ -5,6 +5,8 @@ if __name__ == "__main__":
 
 import logging
 import psycopg2
+import functools
+import operator as opclass
 import abc
 
 import threading
@@ -46,6 +48,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 	shouldCanonize = True
 
+	loggers = {}
+	dbConnections = {}
 
 	# Turn on to print all db queries to STDOUT before running them.
 	# Intended for debugging DB interactions.
@@ -60,9 +64,6 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	def loggerPath(self):
 		return None
 
-	@abc.abstractmethod
-	def dbName(self):
-		return None
 
 	@abc.abstractmethod
 	def tableKey(self):
@@ -231,7 +232,26 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	# DB Tools
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	def keyToCol(self, key):
+		key = key.lower()
+		if not key in self.colMap:
+			raise ValueError("Invalid column name '%s'" % key)
+		return self.colMap[key]
 
+	def sqlBuildConditional(self, **kwargs):
+		operators = []
+
+		# Short circuit and return none (so the resulting where clause is all items) if no kwargs are passed.
+		if not kwargs:
+			return None
+
+		for key, val in kwargs.items():
+			operators.append((self.keyToCol(key) == val))
+
+		# This is ugly as hell, but it functionally returns x & y & z ... for an array of [x, y, z]
+		# And allows variable length arrays.
+		conditional = functools.reduce(opclass.and_, operators)
+		return conditional
 
 
 	def sqlBuildInsertArgs(self, **kwargs):
@@ -387,12 +407,11 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		self.getRowsByValue(sourceUrl="5", limitByKey=False)
 
 	def getRowsByValue(self, limitByKey=True, **kwargs):
-		if len(kwargs) != 1:
-			raise ValueError("getRowsByValue only supports calling with a single kwarg" % kwargs)
-		validCols = ["dbId", "sourceUrl", "dlState", "originName"]
-		key, val = kwargs.popitem()
-		if key not in validCols:
-			raise ValueError("Invalid column query: %s" % key)
+		if limitByKey:
+			kwargs["sourceSite"] = self.tableKey
+
+
+		where = self.sqlBuildConditional(**kwargs)
 
 		wantCols = (
 				self.table.dbid,
@@ -410,12 +429,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 				self.table.note
 				)
 
-		query = self.table.select(*wantCols, order_by = sql.Desc(self.table.retreivaltime))
-
-		if limitByKey:
-			query.addAnd(self.table.sourcesite,self.tableKey)
-
-		query.addAnd(self.colMap[key.lower()], val)
+		query = self.table.select(*wantCols, order_by=sql.Desc(self.table.retreivaltime), where=where)
 
 		query, quargs = tuple(query)
 
