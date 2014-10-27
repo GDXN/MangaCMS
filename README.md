@@ -39,6 +39,10 @@ Plugin scrapers for:
 	 - ~~Fufufuu.net~~ (Defunct)
 	 - Realitylapse.com (Planned, possibly)
 
+ - To Add:
+	 - http://illuminati-manga.com/
+	 - http://www.ipitydafoo.com/  
+
 I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives. My only absolute criteria for inclusion at this time is that the site not resize or watermark files, since that prevents the deduplication system from working properly (note: I'm more relaxed about this for the H sites, primarily out of necessity).
 
 Automatic ad-removal and banner-removal. Currently, Starkana inserts an irritating self-aggrandizing image at a random position in each archive downloaded from their site. This is currently automatically and silently removed from each zip-file on download.
