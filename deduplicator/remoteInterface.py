@@ -2,6 +2,7 @@ import rpyc
 import time
 import os.path
 import ScrapePlugins.DbBase
+import settings
 
 def go():
 	x = conn.root.isBinaryUnique()
@@ -15,6 +16,7 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	pluginName = "Cleaner"
 	tableKey = None
 
+	QUERY_DEBUG = False
 
 
 	def __init__(self, scanEnv, removeDir, distance):
@@ -24,17 +26,32 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		super().__init__()
 
 	def callBack(self, delItem, dupItem):
-		print("callback")
-		print("	", delItem)
-		print("	", dupItem)
+		self.log.info("callback")
 
 		delItemRoot, delItemFile = os.path.split(delItem)
 		dupItemRoot, dupItemFile = os.path.split(dupItem)
-		print("'%s', '%s'" % (delItemRoot, delItemFile))
-		print("'%s', '%s'" % (dupItemRoot, dupItemFile))
+		self.log.info("	'%s', '%s'" % (delItemRoot, delItemFile))
+		self.log.info("	'%s', '%s'" % (dupItemRoot, dupItemFile))
 
-		ret = self.getRowsByValue(limitByKey=False, downloadpath=delItemRoot, filename=delItemFile)
-		print("HaveItem", ret)
+		srcRow = self.getRowsByValue(limitByKey=False, downloadpath=delItemRoot, filename=delItemFile)
+		dstRow = self.getRowsByValue(limitByKey=False, downloadpath=dupItemRoot, filename=dupItemFile)
+
+		# print("HaveItem", srcRow)
+		if not settings.mangaCmsHContext in dupItemRoot:
+			self.log.error("Item not within the context of the relinker")
+		else:
+			if srcRow and len(srcRow) == 1:
+				srcId = srcRow[0]['dbId']
+				self.log.info("Relinking!")
+				self.updateDbEntryById(srcId, filename=dupItemFile, downloadpath=dupItemRoot)
+				self.addTags(dbId=srcId, tags='deleted was-duplicate phash-duplicate')
+
+				if dstRow and len(dstRow) == 1:
+
+					dstId = dstRow[0]['dbId']
+					self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId))
+					self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId))
+					self.log.info("Found destination row. Cross-linking!")
 
 	def pClean(self, targetDir):
 

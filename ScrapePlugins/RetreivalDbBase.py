@@ -298,7 +298,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		elif "sourceUrl" in kwargs:
 			where = (self.table.sourceurl == kwargs.pop('sourceUrl'))
 		else:
-			raise ValueError("updateDbEntryKey must be passed a single unique column identifier (either dbId or sourceUrl)")
+			raise ValueError("GenerateUpdateQuery must be passed a single unique column identifier (either dbId or sourceUrl)")
 
 		cols = []
 		vals = []
@@ -347,7 +347,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		if "seriesName" in kwargs and kwargs["seriesName"] and self.shouldCanonize:
 			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
 
-		query, queryArguments = self.generateUpdateQuery(rowId=rowId, **kwargs)
+		query, queryArguments = self.generateUpdateQuery(dbId=rowId, **kwargs)
 
 		if self.QUERY_DEBUG:
 			print("Query = ", query)
@@ -407,7 +407,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		self.getRowsByValue(sourceUrl="5", limitByKey=False)
 
 	def getRowsByValue(self, limitByKey=True, **kwargs):
-		if limitByKey:
+		if limitByKey and self.tableKey:
 			kwargs["sourceSite"] = self.tableKey
 
 
