@@ -206,7 +206,7 @@ def parseThreeArgCall(cmd, arg1, arg2):
 			return
 		utilities.dedupDir.runDeduper(arg1, arg2)
 		return
-	if cmd == "dir-clean":
+	elif cmd == "dir-clean":
 		if not os.path.exists(arg1):
 			print("Passed path '%s' does not exist!" % arg1)
 			return
@@ -216,7 +216,7 @@ def parseThreeArgCall(cmd, arg1, arg2):
 		utilities.dedupDir.runSingleDirDeduper(arg1, arg2)
 		return
 
-	if cmd == "move-unlinked":
+	elif cmd == "move-unlinked":
 		if not os.path.exists(arg1):
 			print("Passed path '%s' does not exist!" % arg1)
 			return
@@ -225,6 +225,17 @@ def parseThreeArgCall(cmd, arg1, arg2):
 			return
 		utilities.dedupDir.moveUnlinkable(arg1, arg2)
 		return
+
+
+	elif cmd == "h-fix":
+		if not os.path.exists(arg2):
+			print("Passed path '%s' does not exist!" % arg2)
+			return
+
+		cleaner = utilities.cleanDb.HCleaner(arg1)
+		cleaner.resetMissingDownloads(arg2)
+		return
+
 
 	else:
 		print("Did not understand command!")

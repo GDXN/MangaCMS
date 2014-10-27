@@ -12,8 +12,6 @@ class ScraperDbTool(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableName        = "HentaiItems"
 
 
-	dbName = settings.dbName
-
 	tableKey = "NA"
 
 

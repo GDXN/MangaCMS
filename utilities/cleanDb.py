@@ -13,6 +13,7 @@ runStatus.preloadDicts = False
 import traceback
 import re
 import ScrapePlugins.DbBase
+import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 import shutil
 import settings
@@ -487,3 +488,75 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 				dbInt.addTags(sourceUrl=sourceUrl, tags=" ".join(itemtags))
 
 		print("need to fix", bad, "of", len(rows))
+
+
+
+class HCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+	loggerPath = "Main.Pc"
+	tableName  = "HentaiItems"
+	pluginName = "None"
+	tableKey   = "None"
+
+	# QUERY_DEBUG = True
+
+	def __init__(self, tableKey):
+		self.tableKey = tableKey
+		super().__init__()
+
+	def resetMissingDownloads(self, pathBase):
+
+		cur = self.conn.cursor()
+
+
+		with self.transaction() as cur:
+			cur.execute("SELECT dbId, sourceSite, downloadPath, fileName, tags FROM {tableName} WHERE dlState=%s AND sourceSite=%s ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (2, self.tableKey))
+			ret = cur.fetchall()
+
+
+		with self.transaction() as cur:
+
+			print("Ret", len(ret))
+
+			match = []
+			loops = 0
+			for dbId, sourceSite, downloadPath, fileName, tags in ret:
+				if pathBase in downloadPath:
+					continue
+
+
+				self.updateDbEntryById(rowId=dbId, dlState=0)
+
+				removeTags = ["deleted", "was-duplicate", "phash-duplicate"]
+				tagList = tags.split(" ")
+
+				self.log.info("Processing '%s', '%s'", downloadPath, fileName)
+				for tag in tagList:
+					if "crosslink" in tag:
+						removeTags.append(tag)
+				if not "crosslink" in " ".join(removeTags):
+					print("Wat?", sourceSite, downloadPath, fileName)
+
+				rows = self.getRowsByValue(limitByKey=False, filename=fileName, downloadpath=downloadPath)
+
+				for row in rows:
+					self.removeTags(dbId=row['dbId'], limitByKey=False, tags=" ".join(removeTags))
+
+
+
+				self.updateDbEntryById(rowId=dbId, dlState=0, filename="", downloadpath='')
+
+				loops += 1
+				if loops % 1000 == 0:
+					cur.execute("COMMIT;")
+					print("Incremental Commit!")
+					cur.execute("BEGIN;")
+
+				match.append(downloadPath)
+
+	# STFU, abstract base class
+	def go(self):
+		pass
+
+if __name__ == "__main__":
+	import logSetup
+	logSetup.initLogging()

@@ -4,8 +4,10 @@ import psycopg2
 import abc
 import settings
 import logging
+from contextlib import contextmanager
 
 # Absolutely minimal class to handle opening a DB interface.
+
 
 class DbBase(metaclass=abc.ABCMeta):
 
@@ -38,4 +40,24 @@ class DbBase(metaclass=abc.ABCMeta):
 		self.log.info("Closing DB...",)
 		self.conn.close()
 		self.log.info("DB Closed")
+
+
+	@contextmanager
+	def transaction(self, commit=True):
+		cursor = self.conn.cursor()
+		if commit:
+			cursor.execute("BEGIN;")
+
+		try:
+			yield cursor
+
+		except Exception as e:
+			if commit:
+				cursor.execute("ROLLBACK;")
+			raise e
+
+		finally:
+			if commit:
+				cursor.execute("COMMIT;")
+
 

@@ -482,6 +482,38 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		self.updateDbEntry(row["sourceUrl"], tags=tagStr)
 
 
+	# Insert new tags specified as a string kwarg (tags="tag Str") into the tags listing for the specified item
+	def removeTags(self, **kwargs):
+		validCols = ["dbId", "sourceUrl", "dlState"]
+		if not any([name in kwargs for name in validCols]):
+			raise ValueError("addTags requires at least one fully-qualified argument (%s). Passed args = '%s'" % (validCols, kwargs))
+
+		if not "tags" in kwargs:
+			raise ValueError("You have to specify tags you want to add as a kwarg! '%s'" % (kwargs))
+
+		tags = kwargs.pop("tags")
+		row = self.getRowByValue(**kwargs)
+		if not row:
+			raise ValueError("Row specified does not exist!")
+
+		if not row["tags"]:
+			existingTags = set(row["tags"].split(" "))
+		else:
+			existingTags = set()
+
+		newTags = set(tags.split(" "))
+
+		tags = existingTags - newTags
+
+		tagStr = " ".join(tags)
+		while "  " in tagStr:
+			tagStr = tagStr.replace("  ", " ")
+
+		self.updateDbEntry(row["sourceUrl"], tags=tagStr)
+
+
+
+
 	# Convenience crap.
 	def getRowByValue(self, **kwargs):
 		rows = self.getRowsByValue(**kwargs)
