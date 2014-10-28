@@ -28,6 +28,7 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def callBack(self, delItem, dupItem):
 		self.log.info("callback")
 
+		self.proc.removeArchive(delItem)
 		delItemRoot, delItemFile = os.path.split(delItem)
 		dupItemRoot, dupItemFile = os.path.split(dupItem)
 		self.log.info("	'%s', '%s'" % (delItemRoot, delItemFile))

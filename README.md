@@ -48,12 +48,11 @@ Plugin scrapers for:
 	 - Realitylapse.com (Planned, possibly)
 
  - To Add:
-	 - http://illuminati-manga.com/
-	 - http://www.ipitydafoo.com/  
-	 - nomanga
-	 - MangaHere 
-	 - MangaTown
-	 - MangaSky
+	 - NoManga   - 500 Error
+	 - MangaTown - Converts to JPEG.
+	 - MangaHere - No resizing? converts to JPEG? 
+	 - MangaSky  - No resizing, converts to JPEG?
+	 - maturemangas.com
 
 I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives. My only absolute criteria for inclusion at this time is that the site not resize or watermark files, since that prevents the deduplication system from working properly (note: I'm more relaxed about this for the H sites, primarily out of necessity).
 

@@ -9,12 +9,12 @@ import logging
 
 
 
-# import pyximport
-# print("Have Cython")
-# pyximport.install()
+import pyximport
+print("Have Cython")
+pyximport.install()
 
-# import deduplicator.cyHamDb as hamDb
-# print("Using cythoned hamming database system")
+import deduplicator.cyHamDb as hamDb
+print("Using cythoned hamming database system")
 
 # Checks an archive (`archPath`) against the contents of the database
 # accessible via the `settings.dedupApiFile` python file, which
