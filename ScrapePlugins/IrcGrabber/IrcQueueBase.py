@@ -26,9 +26,7 @@ class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Inserting...",)
 		newItems = 0
 
-		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
-
+		with self.transaction() as cur:
 			for itemKey, itemData in itemDataSets:
 				if itemData is None:
 					print("itemDataSets", itemDataSets)
@@ -54,9 +52,6 @@ class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 			self.log.info( "Done")
-			self.log.info( "Committing...",)
-			cur.execute("COMMIT;")
-			self.log.info( "Committed")
 
 		return newItems
 

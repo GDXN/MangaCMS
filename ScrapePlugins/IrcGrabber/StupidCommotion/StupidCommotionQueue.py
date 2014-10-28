@@ -56,7 +56,7 @@ class StupidCommotionTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueu
 
 			header = soup.h1.get_text().strip()
 			botname = header.split()[0]
-			print("Header = ", header, "bot = ", botname)
+			# print("Header = ", header, "bot = ", botname)
 
 			mainTable = soup.find("table", summary="list")
 
@@ -90,8 +90,8 @@ class StupidCommotionTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueu
 					item = json.dumps(item)
 
 					ret.append((itemKey, item))
-				else:
-					print("Bad row? ", row)
+				# else:
+				# 	print("Bad row? ", row)
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")

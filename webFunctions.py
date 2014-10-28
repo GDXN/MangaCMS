@@ -187,7 +187,6 @@ class WebGetRobust:
 
 		retryCount = 0
 
-
 		# Encode Unicode URL's properly
 		pgreq = iri2uri.iri2uri(pgreq)
 

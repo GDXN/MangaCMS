@@ -18,8 +18,16 @@ Plugin scrapers for:
 	 - LoneManga.com
 	 - EasyGoing Scans
 	 - Dynasty Scans
+	 - KissManga
 	 - Manga.Madokami
 	 - Numerous IRC bots.
+		 - ViScans: Bort
+		 - StupidCommotion: Suzume, Torako
+		 - iMangaScans: Icebox
+		 - EgScans: Easybot
+		 - Illuminati-Manga: Illum, Illuminati|Mad
+		 - A-Team:  Azrael, Boink, Death, Hannibal
+
  - Hentai Sites:
 	 - Fakku
 	 - Doujin Moe
@@ -42,6 +50,10 @@ Plugin scrapers for:
  - To Add:
 	 - http://illuminati-manga.com/
 	 - http://www.ipitydafoo.com/  
+	 - nomanga
+	 - MangaHere 
+	 - MangaTown
+	 - MangaSky
 
 I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives. My only absolute criteria for inclusion at this time is that the site not resize or watermark files, since that prevents the deduplication system from working properly (note: I'm more relaxed about this for the H sites, primarily out of necessity).
 

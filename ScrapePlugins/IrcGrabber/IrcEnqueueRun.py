@@ -1,9 +1,11 @@
 
 
-from ScrapePlugins.IrcGrabber.ViScans.ViScrape                     import ViTriggerLoader
-from ScrapePlugins.IrcGrabber.StupidCommotion.StupidCommotionQueue import StupidCommotionTriggerLoader
-from ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape                import IMSTriggerLoader
-from ScrapePlugins.IrcGrabber.EgScans.EgScrape                     import EgTriggerLoader
+import ScrapePlugins.IrcGrabber.ViScans.ViScrape
+import ScrapePlugins.IrcGrabber.StupidCommotion.StupidCommotionQueue
+import ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape
+import ScrapePlugins.IrcGrabber.EgScans.EgScrape
+import ScrapePlugins.IrcGrabber.IlluminatiManga.IrcQueue
+import ScrapePlugins.IrcGrabber.ATeam.IrcQueue
 
 import ScrapePlugins.RunBase
 
@@ -17,36 +19,34 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "IrcEnueue"
 
+	runClasses = [
+		ScrapePlugins.IrcGrabber.ViScans.ViScrape.ViTriggerLoader,
+		ScrapePlugins.IrcGrabber.StupidCommotion.StupidCommotionQueue.StupidCommotionTriggerLoader,
+		ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape.IMSTriggerLoader,
+		ScrapePlugins.IrcGrabber.EgScans.EgScrape.EgTriggerLoader,
+		ScrapePlugins.IrcGrabber.ATeam.IrcQueue.TriggerLoader,
+		ScrapePlugins.IrcGrabber.IlluminatiManga.IrcQueue.TriggerLoader
+	]
 
 	def _go(self):
 
 		self.log.info("Checking IRC feeds for updates")
 
-		fl = ViTriggerLoader()
-		fl.go()
-		fl.closeDB()
+		for runClass in self.runClasses:
 
-		time.sleep(3)
-		#print "wat", cl
+			fl = runClass()
+			fl.go()
+			fl.closeDB()
 
-		if not runStatus.run:
-			return
+			time.sleep(3)
 
-		fl = StupidCommotionTriggerLoader()
-		fl.go()
-		fl.closeDB()
-		if not runStatus.run:
-			return
+			if not runStatus.run:
+				return
 
-		fl = IMSTriggerLoader()
-		fl.go()
-		fl.closeDB()
+if __name__ == "__main__":
+	import logSetup
+	logSetup.initLogging()
+	run = Runner()
+	run.go()
 
-		if not runStatus.run:
-			return
-
-
-		cl = EgTriggerLoader()
-		cl.go()
-		cl.closeDB()
 
