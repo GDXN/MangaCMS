@@ -55,11 +55,7 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.info("Found destination row. Cross-linking!")
 
 	def pClean(self, targetDir):
-
 		self.proc.trimFiles(targetDir)
-
-
-
 
 	def go(self):
 		pass

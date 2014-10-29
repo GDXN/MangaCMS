@@ -5,17 +5,22 @@ import UploadPlugins.Madokami.uploader as up
 import archCleaner as ac
 import logging
 import traceback
+import os.path
 
 
-
-try:
-	import deduplicator.dupCheck as deduper
-	print("Have file deduplication interface. Doing download duplicate checking!")
-except:
-	deduper = None
-	print("No deduplication tools installed.")
+PHASH_DISTANCE = 2
 
 def processDownload(seriesName, archivePath, pron=False, deleteDups=False, includePHash=False, **kwargs):
+
+
+	try:
+		import rpyc
+		remote = rpyc.connect("localhost", 12345)
+		deduper = True
+		print("Have file deduplication interface. Doing download duplicate checking!")
+	except:
+		deduper = None
+		print("No deduplication tools installed.")
 
 
 	log = logging.getLogger("Main.ArchProc")
@@ -34,7 +39,14 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 
 	if deduper and deleteDups:
 		log.info("Scanning archive for duplicates")
-		dc = deduper.ArchChecker(archivePath)
+
+		# load the context of the directory (if needed)
+		dirPath = os.path.split(archivePath)[0]
+		remote.root.loadTree(dirPath)
+
+		dc = remote.root.ArchChecker(archivePath)
+
+
 
 		# check hash first, then phash. That way, we get tagging that
 		# indicates what triggered the removal.
@@ -42,7 +54,7 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 			log.warning("Archive not binary unique: '%s'", archivePath)
 			dc.deleteArch()
 			retTags += " deleted was-duplicate"
-		elif includePHash and not dc.isPhashUnique():
+		elif includePHash and not dc.isPhashUnique(PHASH_DISTANCE):
 			log.warning("Archive not phash unique: '%s'", archivePath)
 			dc.deleteArch()
 			retTags += " deleted was-duplicate phash-duplicate"
@@ -68,3 +80,11 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 		log.info("Applying tags to archive: '%s'", retTags)
 	return retTags.strip()
 
+
+if __name__ == "__main__":
+
+	import logSetup
+	logSetup.initLogging()
+	checker = processDownload("TESTING", "/media/Storage/MP/Nanatsu no Taizai [++++]/Nanatsu no Taizai - Chapter 96 - Chapter 96[MangaJoy].zip", pron=True, includePHash=True, deleteDups=True)
+
+	checker = processDownload("TESTING", "/media/Storage/MP/Chaos;Head - Blue Complex [++];Chaos;Head - Blue Complex v01 c01.zip - Chaos;Head - Blue Complex v01 c01.zip", pron=True, includePHash=True, deleteDups=True)
