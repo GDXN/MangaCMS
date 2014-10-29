@@ -107,6 +107,8 @@ import settings
 
 <b>General</b>
 <ul>
+mu tag browser
+automover
 	<li>strip trailing hyphens</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>

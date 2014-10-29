@@ -106,7 +106,15 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 			item = {}
-			item["originName"] = chapter.get_text().strip()
+
+			# Name is formatted "{seriesName} {bunch of spaces}\n{chapterName}"
+			# Clean up that mess to "{seriesName} - {chapterName}"
+			name = chapter.get_text().strip()
+			name = name.replace("\n", " - ")
+			while "  " in name:
+				name = name.replace("  ", " ")
+
+			item["originName"] = name
 			item["sourceUrl"]  = urllib.parse.urljoin(self.urlBase, chapter.a['href'])
 			dateStr = date.get_text().strip()
 			itemDate, status = parsedatetime.Calendar().parse(dateStr)

@@ -35,7 +35,7 @@ print("Using cythoned hamming database system")
 # the archive has been deleted.
 
 
-PHASH_DISTANCE_THRESHOLD = 2
+PHASH_DISTANCE_THRESHOLD = 3
 
 class ArchChecker(object):
 	def __init__(self, archPath):

@@ -188,6 +188,18 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 
+		{
+			"num"           : 22,
+			'dbKey'         : "MhLoader",
+			'name'          : "MangaHere",
+			'dictKey'       : "mh",
+			'cssClass'      : "mhId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
 
 		{
 			"num"           : 14,
