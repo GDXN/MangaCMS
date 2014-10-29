@@ -127,7 +127,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			arch.close()
 
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True, pron=True)
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)
@@ -145,13 +145,14 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	# with tb.testSetup(startObservers=True):
+	with tb.testSetup():
 		cl = ContentLoader()
 		# cl.proceduralGetImages('http://www.mangahere.co/manga/totsugami/v05/c030/')
-		# cl.getLink({'seriesName': 'Totsugami', 'originName': 'Totsugami 32 - Vol 05', 'retreivalTime': 1414512000.0, 'dlState': 0, 'sourceUrl': 'http://www.mangahere.co/manga/totsugami/v05/c032/', 'flags':None})
+		cl.getLink({'seriesName': 'Totsugami', 'originName': 'Totsugami 32 - Vol 05', 'retreivalTime': 1414512000.0, 'dlState': 0, 'sourceUrl': 'http://www.mangahere.co/manga/totsugami/v05/c032/', 'flags':None})
 
 		# inMarkup = cl.wg.getpage(pg)
 		# cl.getImageUrls(inMarkup, pg)
-		cl.go()
+		# cl.go()
 
 

@@ -26,7 +26,6 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 	log = logging.getLogger("Main.ArchProc")
 
 	archCleaner = ac.ArchCleaner()
-	log = logging.getLogger("Main.DlProc")
 	try:
 		retTags = archCleaner.processNewArchive(archivePath, **kwargs)
 	except:
@@ -34,6 +33,8 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 		log.critical(traceback.format_exc())
 		retTags = "corrupt unprocessable"
 
+
+	log = logging.getLogger("Main.DlProc")
 	if not deduper:
 		log.warning("No deduplication interface!")
 
@@ -42,26 +43,29 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 
 		# load the context of the directory (if needed)
 		dirPath = os.path.split(archivePath)[0]
-		remote.root.loadTree(dirPath)
 
-		dc = remote.root.ArchChecker(archivePath)
+		try:
+			remote.root.loadTree(dirPath)
 
+			dc = remote.root.ArchChecker(archivePath)
 
-
-		# check hash first, then phash. That way, we get tagging that
-		# indicates what triggered the removal.
-		if not dc.isBinaryUnique():
-			log.warning("Archive not binary unique: '%s'", archivePath)
-			dc.deleteArch()
-			retTags += " deleted was-duplicate"
-		elif includePHash and not dc.isPhashUnique(PHASH_DISTANCE):
-			log.warning("Archive not phash unique: '%s'", archivePath)
-			dc.deleteArch()
-			retTags += " deleted was-duplicate phash-duplicate"
-		else:
-			log.info("Archive Contains unique files. Leaving alone!")
-			dc.addNewArch()
-
+			# check hash first, then phash. That way, we get tagging that
+			# indicates what triggered the removal.
+			if not dc.isBinaryUnique():
+				log.warning("Archive not binary unique: '%s'", archivePath)
+				dc.deleteArch()
+				retTags += " deleted was-duplicate"
+			elif includePHash and not dc.isPhashUnique(PHASH_DISTANCE):
+				log.warning("Archive not phash unique: '%s'", archivePath)
+				dc.deleteArch()
+				retTags += " deleted was-duplicate phash-duplicate"
+			else:
+				log.info("Archive Contains unique files. Leaving alone!")
+				dc.addNewArch()
+		except:
+			log.error("Error when doing archive hash-check!")
+			log.error(traceback.format_exc())
+			retTags += " damaged"
 
 	# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 	# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
