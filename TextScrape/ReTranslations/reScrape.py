@@ -41,6 +41,12 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 
+	# Hook so plugins can modify the internal URLs as part of the relinking process
+	def preprocessReaderUrl(self, inUrl):
+		if inUrl.lower().endswith("/preview"):
+			inUrl = inUrl[:len("/preview")]
+
+		return inUrl
 
 	def extractLinks(self, pageCtnt):
 		soup = bs4.BeautifulSoup(pageCtnt)
@@ -56,6 +62,8 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 			url = urllib.parse.urljoin(self.baseUrl, turl)
+			url = self.preprocessReaderUrl(url)
+
 			isGdoc, url = gdp.GDocExtractor.isGdocUrl(url)
 			# domain filtering is done in isGdocUrl
 			if not isGdoc:
@@ -104,6 +112,8 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 		self.log.info("Page title = '%s'", pgTitle)
 		pgBody = self.relink(pgBody)
 
+		url = self.preprocessReaderUrl(url)
+
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype='text/html', dlstate=2)
 
 
@@ -115,10 +125,6 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 		extr = gdp.GDocExtractor(url)
 
 		mainPage, resources = extr.extract()
-
-
-
-
 
 		self.fMap = {}
 

@@ -38,8 +38,8 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 	if not deduper:
 		log.warning("No deduplication interface!")
 
-	if deduper and deleteDups:
-		log.info("Scanning archive for duplicates")
+	if deduper:
+		log.info("Scanning archive")
 
 		# load the context of the directory (if needed)
 		dirPath = os.path.split(archivePath)[0]
@@ -49,19 +49,24 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 
 			dc = remote.root.ArchChecker(archivePath)
 
-			# check hash first, then phash. That way, we get tagging that
-			# indicates what triggered the removal.
-			if not dc.isBinaryUnique():
-				log.warning("Archive not binary unique: '%s'", archivePath)
-				dc.deleteArch()
-				retTags += " deleted was-duplicate"
-			elif includePHash and not dc.isPhashUnique(PHASH_DISTANCE):
-				log.warning("Archive not phash unique: '%s'", archivePath)
-				dc.deleteArch()
-				retTags += " deleted was-duplicate phash-duplicate"
-			else:
-				log.info("Archive Contains unique files. Leaving alone!")
+			if deleteDups:
+				# check hash first, then phash. That way, we get tagging that
+				# indicates what triggered the removal.
+				if not dc.isBinaryUnique():
+					log.warning("Archive not binary unique: '%s'", archivePath)
+					dc.deleteArch()
+					retTags += " deleted was-duplicate"
+				elif includePHash and not dc.isPhashUnique(PHASH_DISTANCE):
+					log.warning("Archive not phash unique: '%s'", archivePath)
+					dc.deleteArch()
+					retTags += " deleted was-duplicate phash-duplicate"
+				else:
+					log.info("Archive Contains unique files. Leaving alone!")
+
+			if not retTags:
+				log.info("Adding archive to database.")
 				dc.addNewArch()
+
 		except:
 			log.error("Error when doing archive hash-check!")
 			log.error(traceback.format_exc())

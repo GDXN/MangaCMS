@@ -176,8 +176,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.log.info("Retreived file of type '%s', name of '%s' with a size of %0.3f K", mType, fileN, len(content)/1000.0)
 		return content, fileN, mType
 
+	# Hook so plugins can modify the internal URLs as part of the relinking process
+	def preprocessReaderUrl(self, inUrl):
+		return inUrl
 
 	def convertToReaderUrl(self, inUrl):
+		inUrl = self.preprocessReaderUrl(inUrl)
 		url = urllib.parse.urljoin(self.baseUrl, inUrl)
 		url = '/books/render?url=%s' % urllib.parse.quote(url)
 		return url
