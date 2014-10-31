@@ -41,7 +41,6 @@ import ScrapePlugins.MangaMadokami.mkFeedLoader
 scrapePlugins = {
 	0  : (ScrapePlugins.BtBaseManager.Run,        60*60   ),
 	1  : (ScrapePlugins.ExMadokami.Run,           60*60   ),
-	2  : (ScrapePlugins.BuMonitor.Run,            60*60   ),
 	3  : (ScrapePlugins.JzLoader.Run,             60*60*8 ),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
 	4  : (ScrapePlugins.DjMoeLoader.Run,          60*45   ),
 	5  : (ScrapePlugins.DjMoeLoader.Retag,        60*60   ),
@@ -67,6 +66,8 @@ scrapePlugins = {
 	40  : (ScrapePlugins.MangaMadokami.mkContentLoader,    60*60),
 	500 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       60*60*24*4),  # every 4 days, because I have to iterate over the ENTIRE site.
 
+
+	2  : (ScrapePlugins.BuMonitor.Run,            60*60   ),
 
 	510 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
 	511 : (TextScrape.JapTem.Run,                          60*60*24*5),
