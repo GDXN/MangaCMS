@@ -66,17 +66,19 @@ DNLDED = 2
 				% endfor
 
 				<hr>
-				<hr>
-				<li><a href="/itemsPron"><b>All Pron</b></a>
-				% for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Porn"]:
-					<li><a href="/itemsPron?sourceSite=${item["dictKey"]}">${item["name"]}</a>
-				% endfor
-				<hr>
-				<li><a href="/hTags">H Tags</a>
-				<hr>
-				<hr>
+				% if ut.ip_in_whitelist():
+					<hr>
+					<li><a href="/itemsPron"><b>All Pron</b></a>
+					% for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Porn"]:
+						<li><a href="/itemsPron?sourceSite=${item["dictKey"]}">${item["name"]}</a>
+					% endfor
+					<hr>
+					<li><a href="/hTags">H Tags</a>
+					<hr>
+					<hr>
+					<li><a href="/hentaiError">H Errors</a>
+				% endif
 				<li><a href="/mangaError">M Errors</a>
-				<li><a href="/hentaiError">H Errors</a>
 
 			</ul>
 		</div>
@@ -88,6 +90,11 @@ DNLDED = 2
 
 		% for item in ap.attr.sidebarItemList:
 			<%
+
+			if not ut.ip_in_whitelist():
+				if item['type'] == "Porn":
+					continue
+
 			if not item["renderSideBar"]:
 				continue
 			if not item["dbKey"]:
@@ -103,6 +110,8 @@ DNLDED = 2
 				runState = "<b>Running</b>"
 			else:
 				runState = "Not Running"
+
+
 			%>
 			<div class="statediv ${item['cssClass']}">
 				<strong>${item["name"]}</strong><br />

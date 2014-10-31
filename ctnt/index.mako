@@ -72,7 +72,9 @@ from babel.dates import format_timedelta
 import os.path
 import settings
 
+
 %>
+
 <body>
 
 
@@ -89,14 +91,16 @@ import settings
 			</div>
 		</div>
 
-		<div class="subdiv fuFuId">
-			<div class="contentdiv">
-				<h3>Porn!</h3>
-				<div id='prontable'>
-					<center><img src='/js/loading.gif' /></center>
+		% if ut.ip_in_whitelist():
+			<div class="subdiv fuFuId">
+				<div class="contentdiv">
+					<h3>Porn!</h3>
+					<div id='prontable'>
+						<center><img src='/js/loading.gif' /></center>
+					</div>
 				</div>
 			</div>
-		</div>
+		% endif
 
 	</div>
 </div>

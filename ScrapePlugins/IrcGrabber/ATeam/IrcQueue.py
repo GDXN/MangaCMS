@@ -27,6 +27,13 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 	baseUrl = "http://www.ipitydafoo.com/at2/"
 
+	botMapping = {
+		"boink"    : 'aerandria',
+		"hannibal" : 'a-team',
+		"death"    : 'a-team',
+		"azrael"   : 'deadbeat'
+	}
+
 	def closeDB(self):
 		self.log.info( "Closing DB...",)
 		self.conn.close()
@@ -47,7 +54,6 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 		item = {}
 		item["server"] = "irchighway"
-		item["channel"] = "a-team"
 		botName, packno, dummy_fetches, size, filename = row.find_all("td")
 
 
@@ -55,6 +61,13 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		item["fName"] = filename.get_text().strip()
 		item["size"] = size.get_text().strip()
 		item["botName"] = botName.get_text().strip()
+
+
+		if item['botName'].lower() in self.botMapping:
+			item["channel"] = self.botMapping[item['botName'].lower()]
+		else:
+			self.log.warning("Do not know bot channel! Bot '%s'", item['botName'])
+			item["channel"] = "a-team"
 
 		return item
 

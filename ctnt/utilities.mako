@@ -10,15 +10,22 @@ import re
 import urllib.parse
 import nameTools as nt
 
-
-
-
+import settings
+from ipaddress import IPv4Address, IPv4Network
 
 
 %>
 
+<%def name="ip_in_whitelist()">
+	<%
+		user_ip = IPv4Address(request.remote_addr)
 
-
+		w_ip = IPv4Network(settings.pronWhiteList)
+		if user_ip in w_ip:
+			return True
+		return False
+	%>
+</%def>
 
 <%def name="fSizeToStr(fSize)">
 	<%

@@ -44,7 +44,7 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 	# Hook so plugins can modify the internal URLs as part of the relinking process
 	def preprocessReaderUrl(self, inUrl):
 		if inUrl.lower().endswith("/preview"):
-			inUrl = inUrl[:len("/preview")]
+			inUrl = inUrl[:-len("/preview")]
 
 		return inUrl
 
@@ -167,6 +167,7 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 def test():
 	scrp = ReScrape()
 	scrp.crawl()
+	# scrp.retreiveItemFromUrl(scrp.startUrl)
 	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')
 
 
