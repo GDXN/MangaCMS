@@ -76,15 +76,15 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 	# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
 	# Also, don't upload porn
 
-	# if (not retTags and not pron) and seriesName:
-	# 	try:
-	# 		up.uploadFile(seriesName, archivePath)
-	# 		retTags += " uploaded"
-	# 	except ConnectionRefusedError:
-	# 		log.warning("Uploading file failed! Connection Refused!")
-	# 	except:
-	# 		log.error("Uploading file failed! Unknown Error!")
-	# 		log.error(traceback.format_exc())
+	if (not retTags and not pron) and seriesName:
+		try:
+			up.uploadFile(seriesName, archivePath)
+			retTags += " uploaded"
+		except ConnectionRefusedError:
+			log.warning("Uploading file failed! Connection Refused!")
+		except:
+			log.error("Uploading file failed! Unknown Error!")
+			log.error(traceback.format_exc())
 
 	if retTags:
 		log.info("Applying tags to archive: '%s'", retTags)
