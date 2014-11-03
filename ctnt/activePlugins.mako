@@ -190,10 +190,10 @@ sidebarItemList = [
 
 		{
 			"num"           : 22,
-			'dbKey'         : "MhLoader",
-			'name'          : "MangaHere",
-			'dictKey'       : "mh",
-			'cssClass'      : "mhId",
+			'dbKey'         : "CrunchyRoll",
+			'name'          : "CrunchyRoll",
+			'dictKey'       : "cr",
+			'cssClass'      : "crId",
 			'showOnHome'    : True,
 			'renderSideBar' : True,
 			'genRow'        : True,

@@ -70,8 +70,8 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				dateStr = child.string.replace("Uploaded", "")
 				ulDate, status = parsedatetime.Calendar().parse(dateStr)
 				print(dateStr, ulDate, status)
-				if status == 2 or status == 0:
-					raise ValueError("Invalid date! = '%s'" % dateStr)
+				if status == 0:
+					raise ValueError("Invalid date! = '%s'. Return status = '%s'" % (dateStr, status))
 				return time.mktime(ulDate)
 
 		raise ValueError("No date found!")

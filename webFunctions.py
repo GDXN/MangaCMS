@@ -320,7 +320,7 @@ class WebGetRobust:
 								self.log.info("Compression type = %s. Content Size compressed = %0.3fK. Decompressed = %0.3fK. File type: %s.", compType, preDecompSize, decompSize, cType)
 
 
-							if "text/html" in cType:				# If this is a html/text page, we want to decode it using the local encoding
+							if "text/html" in cType or 'text/javascript' in cType:				# If this is a html/text page, we want to decode it using the local encoding
 
 								if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
 

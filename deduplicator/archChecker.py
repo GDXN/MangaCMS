@@ -11,16 +11,8 @@ PHASH_DISTANCE_THRESHOLD = 2
 
 class DbBase(object):
 	def __init__(self):
-		print("Connecting")
 		self.remote = rpyc.connect("localhost", 12345)
-		print("Connected.")
-		print(self.remote)
-		print(self.remote.root)
-		print(self.remote.root.hashFile)
-		print("Creating proxy objects")
-
 		self.db = self.remote.root.DbApi()
-		print("Done!")
 
 	def convertDbIdToPath(self, inId):
 		return self.db.getItems(wantCols=['fsPath', "internalPath"], dbId=inId).pop()
@@ -31,7 +23,7 @@ class ArchChecker(DbBase):
 	def __init__(self, archPath):
 		super().__init__()
 
-		print("Super initialized!")
+
 		self.archPath    = archPath
 		self.arch        = UniversalArchiveReader.ArchiveReader(archPath)
 
@@ -133,7 +125,7 @@ class ArchChecker(DbBase):
 
 		# Do overall hash of archive:
 		with open(self.archPath, "rb") as fp:
-			hexHash = self.remote.getMd5Hash(fp.read())
+			hexHash = self.remote.root.getMd5Hash(fp.read())
 		self.db.insertIntoDb(fspath=self.archPath, internalpath="", itemhash=hexHash)
 
 
