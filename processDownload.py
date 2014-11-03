@@ -14,8 +14,8 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 
 
 	try:
-		import rpyc
-		remote = rpyc.connect("localhost", 12345)
+		import deduplicator.archChecker
+
 		deduper = True
 		print("Have file deduplication interface. Doing download duplicate checking!")
 	except:
@@ -45,9 +45,9 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 		dirPath = os.path.split(archivePath)[0]
 
 		try:
-			remote.root.loadTree(dirPath)
 
-			dc = remote.root.ArchChecker(archivePath)
+
+			dc = deduplicator.archChecker.ArchChecker(archivePath)
 
 			if deleteDups:
 				# check hash first, then phash. That way, we get tagging that
@@ -95,6 +95,6 @@ if __name__ == "__main__":
 
 	import logSetup
 	logSetup.initLogging()
-	checker = processDownload("TESTING", "/media/Storage/MP/Nanatsu no Taizai [++++]/Nanatsu no Taizai - Chapter 96 - Chapter 96[MangaJoy].zip", pron=True, includePHash=True, deleteDups=True)
+	checker = processDownload("TESTING", "/media/Storage/Manga/Junketsu No Maria [+]/Junketsu no Maria v01 c02[fbn].zip", pron=True, deleteDups=True)
 
-	checker = processDownload("TESTING", "/media/Storage/MP/Chaos;Head - Blue Complex [++];Chaos;Head - Blue Complex v01 c01.zip - Chaos;Head - Blue Complex v01 c01.zip", pron=True, includePHash=True, deleteDups=True)
+	# checker = processDownload("TESTING", "/media/Storage/MP/Chaos;Head - Blue Complex [++];Chaos;Head - Blue Complex v01 c01.zip - Chaos;Head - Blue Complex v01 c01.zip", pron=True, includePHash=True, deleteDups=True)

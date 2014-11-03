@@ -6,17 +6,10 @@ import logSetup
 if __name__ == "__main__":
 	logSetup.initLogging()
 
-import runStatus
-
 import shutil
-import settings
 import ScrapePlugins.DbBase
-import deduplicator.absImport
-import shutil
-import traceback
+import rpyc
 import os
-import os.path
-import deduplicator.dupCheck
 import nameTools as nt
 
 from utilities.askUser import query_response, query_response_bool
@@ -27,10 +20,9 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 	def setupDbApi(self):
-		dbModule         = deduplicator.absImport.absImport(settings.dedupApiFile)
-		if not dbModule:
-			raise ImportError
-		self.db = dbModule.DbApi()
+
+		remote = rpyc.connect("localhost", 12345)
+		self.db = remote.root.DbApi()
 
 
 	def scanSingleDir(self, dirPath):

@@ -79,7 +79,7 @@ class ViewerSession(object):
 			raise KeyError("Invalid key. Not in archive!")
 
 		internalPath = self.items[itemKey]
-		itemContent = self.archHandle.getFileContentHandle(internalPath)
+		itemContent = self.archHandle.open(internalPath)
 		return itemContent, internalPath
 
 

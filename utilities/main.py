@@ -227,6 +227,15 @@ def parseThreeArgCall(cmd, arg1, arg2):
 		return
 
 
+	elif cmd == "auto-clean":
+		if not os.path.exists(arg1):
+			print("Passed path '%s' does not exist!" % arg1)
+			return
+		if not os.path.exists(arg2):
+			print("Passed path '%s' does not exist!" % arg2)
+			return
+		deduplicator.remoteInterface.iterateClean(arg1, arg2)
+
 	elif cmd == "h-fix":
 		if not os.path.exists(arg2):
 			print("Passed path '%s' does not exist!" % arg2)

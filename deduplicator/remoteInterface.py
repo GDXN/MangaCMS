@@ -1,7 +1,9 @@
+
 import rpyc
 import time
 import os.path
-import ScrapePlugins.DbBase
+import os
+import ScrapePlugins.RetreivalDbBase
 import settings
 
 def go():
@@ -11,7 +13,7 @@ def go():
 
 class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.DirDedup"
-	tableName  = "HentaiItems"
+	tableName  = "MangaItems"
 
 	pluginName = "Cleaner"
 	tableKey = None
@@ -22,7 +24,7 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def __init__(self, scanEnv, removeDir, distance):
 
 		self.remote = rpyc.connect("localhost", 12345)
-		self.proc = self.remote.root.TreeProcessor(scanEnv, removeDir, 3, callBack=self.callBack)
+		self.proc = self.remote.root.TreeProcessor(removeDir, 3, matchDir=scanEnv, callBack=self.callBack)
 		super().__init__()
 
 	def callBack(self, delItem, dupItem):
@@ -31,15 +33,15 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.proc.removeArchive(delItem)
 		delItemRoot, delItemFile = os.path.split(delItem)
 		dupItemRoot, dupItemFile = os.path.split(dupItem)
-		self.log.info("	'%s', '%s'" % (delItemRoot, delItemFile))
-		self.log.info("	'%s', '%s'" % (dupItemRoot, dupItemFile))
+		self.log.info("Remove:	'%s', '%s'" % (delItemRoot, delItemFile))
+		self.log.info("Match: 	'%s', '%s'" % (dupItemRoot, dupItemFile))
 
 		srcRow = self.getRowsByValue(limitByKey=False, downloadpath=delItemRoot, filename=delItemFile)
 		dstRow = self.getRowsByValue(limitByKey=False, downloadpath=dupItemRoot, filename=dupItemFile)
 
 		# print("HaveItem", srcRow)
 		if not settings.mangaCmsHContext in dupItemRoot:
-			self.log.error("Item not within the context of the relinker")
+			self.log.warn("Item not within the context of the relinker. Not fixing database")
 		else:
 			if srcRow and len(srcRow) == 1:
 				srcId = srcRow[0]['dbId']
@@ -60,6 +62,9 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def go(self):
 		pass
 
+	def close(self):
+		self.remote.close()
+
 def pClean(targetDir, removeDir, scanEnv):
 	print("Wat", targetDir, removeDir, scanEnv)
 
@@ -70,6 +75,14 @@ def pClean(targetDir, removeDir, scanEnv):
 	cleaner.pClean(targetDir)
 
 
-if __name__ == "__main__":
-	go()
+
+def iterateClean(targetDir, removeDir):
+	items = [os.path.join(targetDir,item) for item in os.listdir(targetDir) if os.path.isdir(os.path.join(targetDir,item))]
+	items.sort()
+	for item in items:
+		print(item)
+		cleaner = PCleaner(scanEnv=None, removeDir=removeDir, distance=2)
+		cleaner.pClean(item)
+		cleaner.close()
+
 

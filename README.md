@@ -50,6 +50,7 @@ Plugin scrapers for:
  - To Add:
 	 - Tadanohito as a H source
 	 - http://tapastic.com/ (Lots of western stuff. Add a separate western table system, and start grabbing webcomics?)
+	 - Crunchyroll?
 	 - NoManga   - 500 Error
 	 - ~~MangaTown~~ - Converts to JPEG.
 	 - ~~MangaHere~~ - converts to JPEG? Seems like they recompress 

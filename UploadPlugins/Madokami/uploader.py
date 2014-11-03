@@ -8,6 +8,7 @@ import settings
 import logging
 import os
 import nameTools as nt
+import base64
 import Levenshtein as lv
 import json
 import time
@@ -29,11 +30,12 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableName = "MangaItems"
 
 
-	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web", creds=[("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"])])
-
 	def __init__(self):
 
 		super().__init__()
+
+
+		self.wg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web")
 
 		# Override undocumented class member to set the FTP encoding.
 		# This is a HORRIBLE hack.
@@ -188,7 +190,14 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return False
 
 		self.log.info("Found mId for %s - %s", mId, seriesName)
-		dirInfo = self.wg.getpage("https://manga.madokami.com/?action=lookupmu&muid={mId}".format(mId=mId))
+
+		passStr = '%s:%s' % (settings.mkSettings["login"], settings.mkSettings["passWd"])
+		authHeader = base64.encodestring(passStr.encode("ascii"))
+		authHeader = authHeader.replace(b'\n', b'')
+		authHeader = {"Authorization": "Basic %s" % authHeader.decode("ascii")}
+
+
+		dirInfo = self.wg.getpage("https://manga.madokami.com/api/muid/{mId}".format(mId=mId), addlHeaders = authHeader)
 
 		ret = json.loads(dirInfo)
 		if not 'ret' in ret or not ret['ret']:
@@ -263,7 +272,8 @@ def uploadFile(seriesName, filePath):
 def test():
 	uploader = MkUploader()
 	uploader.checkInitDirs()
-	uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
+	uploader.getExistingDir('87 Clockers')
+	# uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
 
 
 if __name__ == "__main__":

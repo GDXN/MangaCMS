@@ -593,12 +593,28 @@ colours = {
 		</td>
 
 
+		<td>
+			% if "phash-duplicate" in tags:
+				<span style="text-decoration: line-through; color: red;">
+					<span style="color: #000;">
+			% elif "deleted" in tags:
+				<strike>
+			% endif
 
-		% if fSize <= 0:
-			<td>${"<strike>" if "deleted" in tags else ""}${originName}${"</strike>" if "deleted" in tags else ""}</td>
-		% else:
-			<td><a href="/pron/read/${dbId}">${originName}</a></td>
-		% endif
+			% if fSize <= 0:
+				${originName}
+			% else:
+				<a href="/pron/read/${dbId}">${originName}</a>
+			% endif
+
+			% if "phash-duplicate" in tags:
+					</span>
+				</span>
+			% elif "deleted" in tags:
+				</strike>
+			% endif
+		</td>
+
 
 
 		% if tags != None:
