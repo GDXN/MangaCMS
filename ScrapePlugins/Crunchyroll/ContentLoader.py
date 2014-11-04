@@ -113,6 +113,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	def fetchImageUrls(self, soup):
 
 		flashConf = soup.find('param', attrs={'name':'flashvars'})
+		if not flashConf:
+			return False
 		conf = dict(urllib.parse.parse_qsl(flashConf['value']))
 
 		apiServer = conf['server']
@@ -153,6 +155,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		linkDict['dirPath'] = dlPath
 
 		if newDir:
+			if not linkDict["flags"]:
+				linkDict["flags"] = ''
 			self.updateDbEntry(sourcePage, flags=" ".join([linkDict["flags"], "haddir"]))
 			self.conn.commit()
 
@@ -166,8 +170,11 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		self.log.info("Folderpath: %s", linkDict["dirPath"])
 		#self.log.info(os.path.join())
 
+		urls = self.fetchImageUrls(soup)
+		if not urls:
+			return False
 
-		imageUrls, linkDict["originName"], linkDict["chapterNo"] = self.fetchImageUrls(soup)
+		imageUrls, linkDict["originName"], linkDict["chapterNo"] = urls
 
 
 		linkDict["dlLinks"] = imageUrls
@@ -268,9 +275,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	def getLink(self, link):
 
 		try:
-			# self.updateDbEntry(link["sourceUrl"], dlState=1)
+			self.updateDbEntry(link["sourceUrl"], dlState=1)
 			linkInfo = self.getDownloadInfo(link)
-			self.doDownload(linkInfo)
+			if linkInfo:
+				self.doDownload(linkInfo)
+			else:
+				self.updateDbEntry(link["sourceUrl"], dlState=0)
 		except urllib.error.URLError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
@@ -282,25 +292,11 @@ if __name__ == "__main__":
 
 	with tb.testSetup(startObservers=False):
 
-		test = {'fileName': None,
-				'dbId': 363904,
-				'retreivalTime': 'wat',
-				'tags': None,
-				'sourceId': None,
-				'flags': None,
-				'dlState': 0,
-				'lastUpdate': 0.0,
-				'downloadPath': None,
-				'sourceUrl': 'http://www.crunchyroll.com/comics_read/manga?volume_id=213&chapter_num=238.00',
-				'originName': None,
-				'seriesName': 'Uchuu Kyoudai',
-				'note': None}
-
 		run = ContentLoader()
-		ret = run.getLink(test)
+		# ret = run.getLink(test)
 		# run.getChapterId('api-manga.crunchyroll.com', '181', '238.00')
 		# run.getChapterData('api-manga.crunchyroll.com', '6507', '4q5akot51gbglzior4wxdjdqbxzhkwgd')
 
 		# run.getImage('http://img1.ak.crunchyroll.com/i/croll_manga/e/8a6bb34ab61cdac5b3039ac640d7a26b_1414594502_main')
 		# run.resetStuckItems()
-		# run.go()
+		run.go()

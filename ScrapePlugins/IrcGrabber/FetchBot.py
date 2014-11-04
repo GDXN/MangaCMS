@@ -268,7 +268,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			self.die("Whoops, herped my derp.")
 
 		# self.log.info("QueueProcessor")
-		if not self.state == "idle" and self.received_bytes == 0:
+		if self.state != "idle" and self.received_bytes != 0:
 			self.log.info("Current state = %s, rec bytes = %s", self.state, self.received_bytes)
 		self.stepStateMachine()
 

@@ -24,6 +24,7 @@ import ScrapePlugins.KissLoader.Run
 import ScrapePlugins.NHentaiLoader.Run
 import ScrapePlugins.DynastyLoader.Run
 import ScrapePlugins.HBrowseLoader.Run
+import ScrapePlugins.Crunchyroll.Run
 import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 import ScrapePlugins.IrcGrabber.BotRunner
 
@@ -58,7 +59,8 @@ scrapePlugins = {
 	17 : (ScrapePlugins.DynastyLoader.Run,        60*60*8 ),
 	18 : (ScrapePlugins.HBrowseLoader.Run,        60*60   ),
 	19 : (ScrapePlugins.KissLoader.Run,           60*60   ),
-	19 : (ScrapePlugins.NHentaiLoader.Run,        60*60   ),
+	20 : (ScrapePlugins.NHentaiLoader.Run,        60*60   ),
+	21 : (ScrapePlugins.Crunchyroll.Run,          60*60*6 ),
 
 
 	# Madokami is two separate sections, because the feedLoader takes
