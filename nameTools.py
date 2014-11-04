@@ -603,7 +603,7 @@ class DirNameProxy(object):
 				if not "observer" in self.paths[key]:
 					self.log.info("Instantiating observer for path %s", self.paths[key]["dir"])
 
-					self.paths[key]["observer"] = self.wm.add_watch(self.paths[key]["dir"], MONITORED_FS_EVENTS, rec=True, auto_add=True)
+					self.paths[key]["observer"] = self.wm.add_watch(self.paths[key]["dir"], MONITORED_FS_EVENTS, rec=True)
 
 
 				else:

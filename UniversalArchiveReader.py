@@ -11,6 +11,52 @@ import io
 import logging
 import traceback
 import py7zlib
+import contextlib
+
+
+
+# Decorator that catches errors, does some logging, and then re-raises the error.
+def logErrors(func):
+	def caughtFunc(self, *args, **kwargs):
+		try:
+			return func(self, *args, **kwargs)
+
+		except TypeError:
+			self.logger.error("Empty Archive Directory? Path = %s", self.archPath)
+			raise
+
+		except (rarfile.BadRarFile, zipfile.BadZipfile):
+			self.logger.error("CORRUPT ARCHIVE: ")
+			self.logger.error("%s", self.archPath)
+			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+				self.logger.error("%s", tbLine)
+			raise
+
+		except (rarfile.PasswordRequired, RuntimeError):
+			self.logger.error("Archive password protected: ")
+			self.logger.error("%s", self.archPath)
+			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+				self.logger.error("%s", tbLine)
+			raise
+
+
+		except zlib.error:
+			self.logger.error("Archive password protected: ")
+			self.logger.error("%s", self.archPath)
+			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+				self.logger.error("%s", tbLine)
+			raise
+
+		except (KeyboardInterrupt, SystemExit, GeneratorExit):
+			raise
+
+		except:
+			self.logger.error("Unknown error in archive iterator: ")
+			self.logger.error("%s", self.archPath)
+			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
+				self.logger.error("%s", tbLine)
+			raise
+	return caughtFunc
 
 
 class ArchiveReader(object):
@@ -69,6 +115,22 @@ class ArchiveReader(object):
 			pass
 
 
+
+	@logErrors
+	def getFileList(self):
+		if self.archType == "rar":
+			for item in self._getRarFileList():
+				yield item
+		elif self.archType == "zip":
+			for item in self._getZipFileList():
+				yield item
+		elif self.archType == "7z":
+			for item in self._get7zFileList():
+				yield item
+		else:
+			raise ValueError("Not a known archive type. Wat")
+
+
 	# Close an open archive.
 	def close(self):
 		# 7z files don't maintain their own file pointers
@@ -79,6 +141,7 @@ class ArchiveReader(object):
 			self.fp.close()
 
 	# Open internal path `internalPath`, return a file-like object.
+	@logErrors
 	def open(self, internalPath):
 		if self.archType != '7z':
 			return self.archHandle.open(internalPath)
@@ -87,6 +150,7 @@ class ArchiveReader(object):
 
 	# Return the file contents of item at path `internalPath` as a
 	# Binary string.
+	@logErrors
 	def read(self, internalPath):
 		if self.archType != '7z':
 			return self.archHandle.read(internalPath)
@@ -96,56 +160,20 @@ class ArchiveReader(object):
 			return content
 
 
-
+	@logErrors
 	def __iter__(self):
-		try:
-			if self.archType == "rar":
-				for item in self._iterRarFiles():
-					yield item
-			elif self.archType == "zip":
-				for item in self._iterZipFiles():
-					yield item
-			elif self.archType == "7z":
-				for item in self._iter7zFiles():
-					yield item
-			else:
-				raise ValueError("Not a known archive type. Wat")
+		if self.archType == "rar":
+			for item in self._iterRarFiles():
+				yield item
+		elif self.archType == "zip":
+			for item in self._iterZipFiles():
+				yield item
+		elif self.archType == "7z":
+			for item in self._iter7zFiles():
+				yield item
+		else:
+			raise ValueError("Not a known archive type. Wat")
 
-		except TypeError:
-			self.logger.error("Empty Archive Directory? Path = %s", self.archPath)
-			raise
-
-		except (rarfile.BadRarFile, zipfile.BadZipfile):
-			self.logger.error("CORRUPT ARCHIVE: ")
-			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
-				self.logger.error("%s", tbLine)
-			raise
-
-		except (rarfile.PasswordRequired, RuntimeError):
-			self.logger.error("Archive password protected: ")
-			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
-				self.logger.error("%s", tbLine)
-			raise
-
-
-		except zlib.error:
-			self.logger.error("Archive password protected: ")
-			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
-				self.logger.error("%s", tbLine)
-			raise
-
-		except (KeyboardInterrupt, SystemExit, GeneratorExit):
-			raise
-
-		except:
-			self.logger.error("Unknown error in archive iterator: ")
-			self.logger.error("%s", self.archPath)
-			for tbLine in traceback.format_exc().rstrip().lstrip().split("\n"):
-				self.logger.error("%s", tbLine)
-			raise
 
 
 	def _iter7zFiles(self):
@@ -192,3 +220,4 @@ class ArchiveReader(object):
 	def _get7zFileList(self):
 		names = self.archHandle.getnames()
 		return names
+
