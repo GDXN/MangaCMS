@@ -6,6 +6,7 @@ import ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape
 import ScrapePlugins.IrcGrabber.EgScans.EgScrape
 import ScrapePlugins.IrcGrabber.IlluminatiManga.IrcQueue
 import ScrapePlugins.IrcGrabber.ATeam.IrcQueue
+import ScrapePlugins.IrcGrabber.BentoScans.IrcQueue
 
 import ScrapePlugins.RunBase
 
@@ -25,6 +26,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape.IMSTriggerLoader,
 		ScrapePlugins.IrcGrabber.EgScans.EgScrape.EgTriggerLoader,
 		ScrapePlugins.IrcGrabber.ATeam.IrcQueue.TriggerLoader,
+		ScrapePlugins.IrcGrabber.BentoScans.IrcQueue.TriggerLoader,
 		ScrapePlugins.IrcGrabber.IlluminatiManga.IrcQueue.TriggerLoader
 	]
 
