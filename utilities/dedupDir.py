@@ -108,7 +108,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 				ac = deduplicator.archChecker.ArchChecker(basePath)
 
-				ret = ac.getBestMatchingArchive()
+				ret = ac.getBestBinaryMatch()
 				if ret:
 					self.log.info("Not Unique!")
 					self.log.warning("Match for file '%s'", basePath)
@@ -142,6 +142,9 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 	def purgeDedupTemps(self, dirPath):
+
+		self.remote = rpyc.connect("localhost", 12345)
+		self.db = self.remote.root.DbApi()
 
 		self.log.info("Cleaning path '%s'", dirPath)
 		items = os.listdir(dirPath)

@@ -406,6 +406,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		self.getRowsByValue(sourceUrl="5")
 		self.getRowsByValue(sourceUrl="5", limitByKey=False)
 
+
 	def getRowsByValue(self, limitByKey=True, **kwargs):
 		if limitByKey and self.tableKey:
 			kwargs["sourceSite"] = self.tableKey
@@ -634,9 +635,6 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		self.conn.commit()
 		self.log.info("Retreived page database created")
 
-	@abc.abstractmethod
-	def go(self):
-		pass
 
 if __name__ == "__main__":
 	import settings

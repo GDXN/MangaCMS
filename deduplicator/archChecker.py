@@ -31,14 +31,30 @@ class ArchChecker(DbBase):
 		self.log = logging.getLogger("Main.Deduper")
 		self.log.info("ArchChecker Instantiated")
 
+	# If getMatchingArchives returns something, it means we're /not/ unique,
+	# because getMatchingArchives returns matching files
 	def isBinaryUnique(self):
 		ret = self.getMatchingArchives()
 
-		# If getMatchingArchives returns something, it means we're /not/ unique,
-		# because getMatchingArchives returns matching files
 		if len(ret):
 			return False
 		return True
+
+	def isPhashUnique(self, searchDistance=PHASH_DISTANCE_THRESHOLD):
+		ret = self.getPhashMatchingArchives(searchDistance)
+
+		if len(ret):
+			return False
+		return True
+
+
+	def getBestBinaryMatch(self):
+		ret = self.getMatchingArchives()
+		return self._getBestMatchingArchive(ret)
+
+	def getBestPhashMatch(self, distance=PHASH_DISTANCE_THRESHOLD):
+		ret = self.getPhashMatchingArchives(distance)
+		return self._getBestMatchingArchive(ret)
 
 	# "Best" match is kind of a fuzzy term here. I define it as the archive with the
 	# most files in common with the current archive.
@@ -46,9 +62,7 @@ class ArchChecker(DbBase):
 	# the "best" is then the largest of those files
 	# (I assume that the largest is probably either a 1. volume archive, or
 	# 2. higher quality)
-	def getBestMatchingArchive(self):
-		ret = self.getMatchingArchives()
-
+	def _getBestMatchingArchive(self, ret):
 		# Short circuit for no matches
 		if not len(ret):
 			return None
@@ -98,45 +112,44 @@ class ArchChecker(DbBase):
 		return matches
 
 
-	def isPhashUnique(self, searchDistance=PHASH_DISTANCE_THRESHOLD):
+	def getPhashMatchingArchives(self, searchDistance=PHASH_DISTANCE_THRESHOLD):
 
 		# self.db.deleteBasePath(self.archPath)
 
 		self.log.info("Scanning for phash duplicates.")
+		matches = {}
 
 		for fileN, fileCtnt in self.arch:
 			dummy_fName, dummy_hexHash, pHash, dummy_dHash, dummy_imX, dummy_imY = self.remote.root.hashFile(self.archPath, fileN, fileCtnt.read())
 
 
-			matches = self.db.getWithinDistance(pHash, searchDistance)
-			self.log.info("File: '%s', '%s'. Matches '%s'", self.archPath, fileN, len(matches))
+			proximateFiles = self.db.getWithinDistance(pHash, searchDistance)
+			self.log.info("File: '%s', '%s'. Number of matches %s", self.archPath, fileN, len(proximateFiles))
 
 			dups = []
 
-			for row in [match for match in matches if match]:
+			for row in [match for match in proximateFiles if match]:
 				fsPath, internalPath = row[1], row[2]
-				# print("	'%s'" % ((row[1], row[2]), ))
+				if os.path.exists(fsPath):
 
-				if os.path.exists(fsPath) and fsPath != self.archPath:
-					dups.append((fsPath, internalPath))
-				elif fsPath == self.archPath:
-					pass
+					matches.setdefault(fsPath, set()).add(internalPath)
+					dups.append((fsPath, internalPath, dummy_hexHash))
 				else:
-					self.log.info("Item '%s' no longer exists - Removing from database!", fsPath)
-					self.log.warn("Existance check: %s", os.path.exists(fsPath))
-					# self.db.deleteBasePath(fsPath)
+					self.log.warn("Item '%s' no longer exists!", fsPath)
+					self.db.deleteBasePath(fsPath)
 
 
 			# Short circuit on unique item, since we are only checking if ANY item is unique
+			if len(dups) == 0:
+				print("Wat?")
+			if len(matches) == 0:
+				print("WatWAT?")
 			if not dups:
 				self.log.info("Archive contains at least one unique phash(es).")
-				return True
-
+				return {}
 
 		self.log.info("Archive does not contain any unique phashes.")
-		return False
-
-
+		return matches
 
 
 
@@ -211,8 +224,11 @@ def go():
 	import logSetup
 	logSetup.initLogging()
 	print("Running")
-	checker = ArchChecker("/media/Storage/Manga/Junketsu No Maria [+]/Junketsu no Maria v01 c01[fbn].zip")
-	checker.isPhashUnique()
+	checker = ArchChecker("/media/Storage/Manga/Junketsu No Maria [+]/Junketsu no Maria v01 c02[fbn].zip")
+	ret = checker.getBestBinaryMatch()
+	print("Bin Match", ret)
+	ret = checker.getBestPhashMatch()
+	print("Phs Match", ret)
 	# checker.addNewArch()
 
 

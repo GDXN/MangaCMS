@@ -6,98 +6,157 @@ import archCleaner as ac
 import logging
 import traceback
 import os.path
+import ScrapePlugins.RetreivalDbBase
 
 
 PHASH_DISTANCE = 2
 
-def processDownload(seriesName, archivePath, pron=False, deleteDups=False, includePHash=False, **kwargs):
+
+class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+
+	pluginName = 'Download Processor'
+
+	loggerPath = 'Main.DlProc'
 
 
-	try:
-		import deduplicator.archChecker
+	tableKey = 'n/a'
 
-		deduper = True
-		print("Have file deduplication interface. Doing download duplicate checking!")
-	except:
-		deduper = None
-		print("No deduplication tools installed.")
+	tableName = 'MangaItems'
 
 
-	log = logging.getLogger("Main.ArchProc")
 
-	archCleaner = ac.ArchCleaner()
-	try:
-		retTags = archCleaner.processNewArchive(archivePath, **kwargs)
-	except:
-		log.critical("Error processing archive '%s'", archivePath)
-		log.critical(traceback.format_exc())
-		retTags = "corrupt unprocessable"
+	def crossLink(self, delItem, dupItem, isPhash=False):
+		self.log.info("Cross-referencing file")
+
+		delItemRoot, delItemFile = os.path.split(delItem)
+		dupItemRoot, dupItemFile = os.path.split(dupItem)
+		self.log.info("Remove:	'%s', '%s'", delItemRoot, delItemFile)
+		self.log.info("Match: 	'%s', '%s'", dupItemRoot, dupItemFile)
+
+		srcRow = self.getRowsByValue(limitByKey=False, downloadpath=delItemRoot, filename=delItemFile)
+		dstRow = self.getRowsByValue(limitByKey=False, downloadpath=dupItemRoot, filename=dupItemFile)
+
+		# print("HaveItem", srcRow)
+		if srcRow and len(srcRow) == 1:
+			srcId = srcRow[0]['dbId']
+			self.log.info("Relinking!")
+			self.updateDbEntryById(srcId, filename=dupItemFile, downloadpath=dupItemRoot)
+
+			if isPhash:
+				tags = 'deleted was-duplicate phash-duplicate'
+			else:
+				tags = 'deleted was-duplicate'
+
+			self.addTags(dbId=srcId, tags=tags)
+
+			if dstRow and len(dstRow) == 1:
+
+				dstId = dstRow[0]['dbId']
+				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId))
+				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId))
+				self.log.info("Found destination row. Cross-linking!")
 
 
-	log = logging.getLogger("Main.DlProc")
-	if not deduper:
-		log.warning("No deduplication interface!")
-
-	if deduper:
-		log.info("Scanning archive")
-
-		# load the context of the directory (if needed)
-		dirPath = os.path.split(archivePath)[0]
+	def processDownload(self, seriesName, archivePath, pron=False, deleteDups=False, includePHash=False, **kwargs):
 
 		try:
+			import deduplicator.archChecker
 
-
-			dc = deduplicator.archChecker.ArchChecker(archivePath)
-
-			if deleteDups:
-				# check hash first, then phash. That way, we get tagging that
-				# indicates what triggered the removal.
-				if not dc.isBinaryUnique():
-					log.warning("Archive not binary unique: '%s'", archivePath)
-					dc.deleteArch()
-					retTags += " deleted was-duplicate"
-				elif includePHash and not dc.isPhashUnique(PHASH_DISTANCE):
-					log.warning("Archive not phash unique: '%s'", archivePath)
-					dc.deleteArch()
-					retTags += " deleted was-duplicate phash-duplicate"
-				else:
-					log.info("Archive Contains unique files. Leaving alone!")
-
-			if not retTags:
-				log.info("Adding archive to database.")
-				dc.addNewArch()
-
+			deduper = True
+			print("Have file deduplication interface. Doing download duplicate checking!")
 		except:
-			log.error("Error when doing archive hash-check!")
-			log.error(traceback.format_exc())
-			retTags += " damaged"
+			deduper = None
+			print("No deduplication tools installed.")
 
-	# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
-	# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
-	# Also, don't upload porn
 
-	if (not retTags and not pron) and seriesName:
+		log = logging.getLogger("Main.ArchProc")
+
+		archCleaner = ac.ArchCleaner()
 		try:
-			log.info("Trying to upload file '%s'.", archivePath)
-			up.uploadFile(seriesName, archivePath)
-			retTags += " uploaded"
-		except ConnectionRefusedError:
-			log.warning("Uploading file failed! Connection Refused!")
+			retTags = archCleaner.processNewArchive(archivePath, **kwargs)
 		except:
-			log.error("Uploading file failed! Unknown Error!")
-			log.error(traceback.format_exc())
-	else:
-		log.info("File not slated for upload: '%s'", archivePath)
+			self.log.critical("Error processing archive '%s'", archivePath)
+			self.log.critical(traceback.format_exc())
+			retTags = "corrupt unprocessable"
 
-	if retTags:
-		log.info("Applying tags to archive: '%s'", retTags)
-	return retTags.strip()
 
+		log = logging.getLogger("Main.DlProc")
+		if not deduper:
+			self.log.warning("No deduplication interface!")
+
+		if deduper:
+			self.log.info("Scanning archive")
+
+			# load the context of the directory (if needed)
+			dirPath = os.path.split(archivePath)[0]
+
+			try:
+
+
+				dc = deduplicator.archChecker.ArchChecker(archivePath)
+
+				if deleteDups:
+					# check hash first, then phash. That way, we get tagging that
+					# indicates what triggered the removal.
+
+					bestMatch = dc.getBestBinaryMatch()
+					if includePHash and not bestMatch:
+						phashMatch = dc.getBestPhashMatch(PHASH_DISTANCE)
+					else:
+						phashMatch = False
+
+					print("Best  match", bestMatch)
+					print("PHash match", phashMatch)
+
+					if bestMatch:
+						self.log.warning("Archive not binary unique: '%s'", archivePath)
+						self.crossLink(archivePath, bestMatch, isPhash=False)
+						dc.deleteArch()
+						retTags += " deleted was-duplicate"
+
+					elif phashMatch:
+						self.log.warning("Archive not phash unique: '%s'", archivePath)
+						self.crossLink(archivePath, bestMatch, isPhash=True)
+						dc.deleteArch()
+						retTags += " deleted was-duplicate phash-duplicate"
+					else:
+						self.log.info("Archive Contains unique files. Leaving alone!")
+
+				if not retTags:
+					self.log.info("Adding archive to database.")
+					dc.addNewArch()
+
+			except:
+				self.log.error("Error when doing archive hash-check!")
+				self.log.error(traceback.format_exc())
+				retTags += " damaged"
+
+		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
+		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
+		# Also, don't upload porn
+
+		if (not retTags and not pron) and seriesName:
+			try:
+				self.log.info("Trying to upload file '%s'.", archivePath)
+				up.uploadFile(seriesName, archivePath)
+				retTags += " uploaded"
+			except ConnectionRefusedError:
+				self.log.warning("Uploading file failed! Connection Refused!")
+			except:
+				self.log.error("Uploading file failed! Unknown Error!")
+				self.log.error(traceback.format_exc())
+		else:
+			self.log.info("File not slated for upload: '%s'", archivePath)
+
+		if retTags:
+			self.log.info("Applying tags to archive: '%s'", retTags)
+		return retTags.strip()
+
+def processDownload(*args, **kwargs):
+	dlProc = DownloadProcessor()
+	return dlProc.processDownload(*args, **kwargs)
 
 if __name__ == "__main__":
 
 	import logSetup
 	logSetup.initLogging()
-	checker = processDownload("TESTING", "/media/Storage/Manga/Junketsu No Maria [+]/Junketsu no Maria v01 c02[fbn].zip", pron=True, deleteDups=True)
-
-	# checker = processDownload("TESTING", "/media/Storage/MP/Chaos;Head - Blue Complex [++];Chaos;Head - Blue Complex v01 c01.zip - Chaos;Head - Blue Complex v01 c01.zip", pron=True, includePHash=True, deleteDups=True)
