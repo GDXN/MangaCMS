@@ -32,8 +32,48 @@ class ArchChecker(DbBase):
 		self.log.info("ArchChecker Instantiated")
 
 	def isBinaryUnique(self):
+		ret = self.getMatchingArchives()
+
+		# If getMatchingArchives returns something, it means we're /not/ unique,
+		# because getMatchingArchives returns matching files
+		if len(ret):
+			return False
+		return True
+
+	# "Best" match is kind of a fuzzy term here. I define it as the archive with the
+	# most files in common with the current archive.
+	# If there are multiple archives with identical numbers of items in common,
+	# the "best" is then the largest of those files
+	# (I assume that the largest is probably either a 1. volume archive, or
+	# 2. higher quality)
+	def getBestMatchingArchive(self):
+		ret = self.getMatchingArchives()
+
+		# Short circuit for no matches
+		if not len(ret):
+			return None
+
+		tmp = {}
+		for key in ret.keys():
+			tmp.setdefault(len(ret[key]), []).append(key)
+
+		maxKey = max(tmp.keys())
+
+		# If there is only one file with the most items, return that.
+		if len(tmp[maxKey]) == 1:
+			return tmp[maxKey].pop()
+
+		items = [(os.path.getsize(item), item) for item in tmp[maxKey]]
+		items.sort()
+
+		# Finally, sort by size, return the biggest one of them
+		return items.pop()[-1]
+
+
+	def getMatchingArchives(self):
 		self.log.info("Checking if %s contains any unique files.", self.archPath)
 
+		matches = {}
 		for dummy_fileN, fileCtnt in self.arch:
 			hexHash = self.remote.root.getMd5Hash(fileCtnt.read())
 
@@ -41,18 +81,21 @@ class ArchChecker(DbBase):
 			dups = []
 			for fsPath, internalPath, dummy_itemhash in dupsIn:
 				if os.path.exists(fsPath):
+
+					matches.setdefault(fsPath, set()).add(internalPath)
 					dups.append((fsPath, internalPath, dummy_itemhash))
 				else:
 					self.log.warn("Item '%s' no longer exists!", fsPath)
-					# self.db.deleteBasePath(fsPath)
+					self.db.deleteBasePath(fsPath)
 
 			# Short circuit on unique item, since we are only checking if ANY item is unique
 			if not dups:
 				self.log.info("It contains at least one unique files.")
-				return True
+				return {}
 
 		self.log.info("It does not contain any unique files.")
-		return False
+
+		return matches
 
 
 	def isPhashUnique(self, searchDistance=PHASH_DISTANCE_THRESHOLD):
@@ -158,7 +201,10 @@ class ArchChecker(DbBase):
 
 		self.log.info("File hashing complete.")
 
-
+	# Proxy through to the archChecker from UniversalArchiveReader
+	@staticmethod
+	def isArchive(archPath):
+		return UniversalArchiveReader.ArchiveReader.isArchive(archPath)
 
 def go():
 

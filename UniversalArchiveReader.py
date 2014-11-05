@@ -114,6 +114,10 @@ class ArchiveReader(object):
 		except:
 			pass
 
+	@staticmethod
+	def isArchive(filepath):
+		fType = magic.from_file(filepath, mime=True).decode("ascii")
+		return fType in ['application/x-rar', 'application/zip', 'application/x-7z-compressed']
 
 
 	@logErrors

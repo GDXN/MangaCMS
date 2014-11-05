@@ -200,7 +200,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dirInfo = self.wg.getpage("https://manga.madokami.com/api/muid/{mId}".format(mId=mId), addlHeaders = authHeader)
 
 		ret = json.loads(dirInfo)
-		if not 'ret' in ret or not ret['ret']:
+		if not 'result' in ret or not ret['result']:
+			self.log.info("No directory information in returned query.")
 			return False
 
 		self.log.info("Have directory info from API query. Contains %s directories.", len(ret['data']))

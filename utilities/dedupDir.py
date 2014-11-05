@@ -5,32 +5,11 @@ import nameTools as nt
 import shutil
 import settings
 import ScrapePlugins.DbBase
-import deduplicator.absImport
+import rpyc
 import signal
 import traceback
 import os
-import deduplicator.dupCheck
-
-def createLuts(inList):
-	# Each item is 'fsPath,internalPath,itemhash'
-
-	hashLUT = {}
-	fileLUT = {}
-
-	for fsPath, internalPath, itemhash in inList:
-		if os.path.exists(fsPath):
-			if itemhash in hashLUT:
-				hashLUT[itemhash].append((fsPath, internalPath))
-			else:
-				hashLUT[itemhash] = [(fsPath, internalPath)]
-
-			if fsPath in fileLUT:
-				fileLUT[fsPath].append((internalPath, itemhash))
-			else:
-				fileLUT[fsPath] = [(internalPath, itemhash)]
-		else:
-			print("File deleted!", fsPath)
-	return hashLUT, fileLUT
+import deduplicator.archChecker
 
 
 class DirDeduper(ScrapePlugins.DbBase.DbBase):
@@ -85,12 +64,9 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 			cur.execute('''UPDATE MangaItems SET tags=%s WHERE dbId=%s;''', (" ".join(tags), rowId))
 			cur.execute("COMMIT;")
-	def setupDbApi(self):
-		dbModule         = deduplicator.absImport.absImport(settings.dedupApiFile)
-		if not dbModule:
-			raise ImportError
-		self.db = dbModule.DbApi()
 
+	def setupDbApi(self):
+		pass
 
 	def cleanDirectory(self, dirPath, delDir):
 
@@ -109,72 +85,60 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 		self.log.info("Processing subdirectory '%s'", dirPath)
 		if not dirPath.endswith("/"):
 			dirPath = dirPath + '/'
-		items = self.db.getLikeBasePath(dirPath)
 
-		hashLUT, fileLUT = createLuts(items)
+		items = os.listdir(dirPath)
 
-		parsedItems = [(len(fileLUT[i]), i) for i in fileLUT.keys()]
+
+
+		items = [os.path.join(dirPath, item) for item in items]
+
+
+		parsedItems = [(os.path.getsize(i), i) for i in items]
 
 		parsedItems.sort()
 
+
 		for dummy_num, basePath in parsedItems:
+			try:
+				if not deduplicator.archChecker.ArchChecker.isArchive(basePath):
+					print("Not archive!", basePath)
+					continue
 
-			# print("Scanning ", basePath)
-			containedFiles = fileLUT[basePath]
-			itemItems = len(containedFiles)
-			unique = []
+				self.log.info("Scanning '%s'", basePath)
 
-			otherPaths = {}
-			for internalPath, itemHash in containedFiles:
+				ac = deduplicator.archChecker.ArchChecker(basePath)
 
-				# print("len", len(hashLUT[itemHash]), (internalPath, itemHash))
-
-				if not itemHash in hashLUT:
-					raise ValueError ("WAT")
-
-				elif len(hashLUT[itemHash]) <= 1:
-					unique.append((internalPath, itemHash))
-				else:
-					# print("internalPath", hashLUT[itemHash][1], internalPath)
-					for fsPath, intPath in hashLUT[itemHash]:
-						# print("fsPath, intPath", fsPath, " --/-- ", intPath)
-						# print("internalPath", internalPath)
-						if not fsPath == basePath:
-							if fsPath in otherPaths:
-								otherPaths[fsPath] += 1
-							else:
-								otherPaths[fsPath]  = 1
+				ret = ac.getBestMatchingArchive()
+				if ret:
+					self.log.info("Not Unique!")
+					self.log.warning("Match for file '%s'", basePath)
+					self.log.warning("Matching file '%s'", ret)
 
 
-			if not unique:
-				# print("Not Unique!", basePath)
+					dst = basePath.replace("/", ";")
+					dst = os.path.join(delDir, dst)
+					self.log.info("Moving item from '%s'", basePath)
+					self.log.info("	to '%s'", dst)
+					try:
+						shutil.move(basePath, dst)
 
-				for internalPath, itemHash in containedFiles:
-					hashLUT[itemHash].remove((basePath, internalPath))
-					if len(hashLUT[itemHash]) == 0:
-						hashLUT.pop(itemHash)
+						self.addTag(basePath, "deleted was-duplicate")
 
+						self.log.info("Not unique %s", basePath)
+					except KeyboardInterrupt:
+						raise
+					except OSError:
+						self.log.error("ERROR - Could not move file!")
+						self.log.error(traceback.format_exc())
 
-
-				dst = basePath.replace("/", ";")
-				dst = os.path.join(delDir, dst)
-				self.log.info("Moving item from '%s'", basePath)
-				self.log.info("	to '%s'", dst)
-				try:
-					shutil.move(basePath, dst)
-
-					self.addTag(basePath, "deleted was-duplicate")
-
-					self.log.info("Not unique %s", basePath)
-					self.log.info("Duplicated in :	")
-					for oPath in [i for i in otherPaths.keys() if otherPaths[i] >= 1]:
-						self.log.info("		%s/%s: %s", otherPaths[oPath], itemItems, oPath)
-					self.db.deleteBasePath(basePath)
-				except KeyboardInterrupt:
-					raise
-				except OSError:
-					self.log.error("ERROR - Could not move file!")
-					self.log.error(traceback.format_exc())
+			except KeyboardInterrupt:
+				raise
+			except:
+				print("Error processing file '%s'" % basePath)
+				print("Traceback:")
+				traceback.print_exc()
+				print("")
+				print("")
 
 
 	def purgeDedupTemps(self, dirPath):
@@ -191,7 +155,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			else:
 				fqPath = os.path.join(dirPath, itemInDelDir)
 				try:
-					dc = deduplicator.dupCheck.ArchChecker(fqPath)
+					dc = deduplicator.archChecker.ArchChecker(fqPath)
 				except ValueError:
 					self.log.critical("Failed to create archive reader??")
 					self.log.critical(traceback.format_exc())
@@ -368,7 +332,7 @@ def test():
 
 	signal.signal(signal.SIGINT, customHandler)
 
-	runDeduper("wat")
+	runSingleDirDeduper("/media/Storage/Manga/National Quiz", '/media/Storage/rm')
 
 if __name__ == "__main__":
 	try:

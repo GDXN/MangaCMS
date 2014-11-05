@@ -78,6 +78,7 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 
 	if (not retTags and not pron) and seriesName:
 		try:
+			log.info("Trying to upload file '%s'.", archivePath)
 			up.uploadFile(seriesName, archivePath)
 			retTags += " uploaded"
 		except ConnectionRefusedError:
@@ -85,6 +86,8 @@ def processDownload(seriesName, archivePath, pron=False, deleteDups=False, inclu
 		except:
 			log.error("Uploading file failed! Unknown Error!")
 			log.error(traceback.format_exc())
+	else:
+		log.info("File not slated for upload: '%s'", archivePath)
 
 	if retTags:
 		log.info("Applying tags to archive: '%s'", retTags)
