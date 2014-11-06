@@ -150,73 +150,55 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 		items = os.listdir(dirPath)
 		for itemInDelDir in items:
 
-			origPath = itemInDelDir.replace(";", "/")
-			basePath, fName = os.path.split(origPath)
-			if not os.path.isdir(basePath):
-				print("Skipping ", itemInDelDir)
+			fqPath = os.path.join(dirPath, itemInDelDir)
+			try:
+				dc = deduplicator.archChecker.ArchChecker(fqPath)
+				fileHashes = dc.getHashes(shouldPhash=False)
+			except ValueError:
+				self.log.critical("Failed to create archive reader??")
+				self.log.critical(traceback.format_exc())
+				self.log.critical("File = '%s'", fqPath)
+				self.log.critical("Skipping file")
 				continue
-			else:
-				fqPath = os.path.join(dirPath, itemInDelDir)
-				try:
-					dc = deduplicator.archChecker.ArchChecker(fqPath)
-				except ValueError:
-					self.log.critical("Failed to create archive reader??")
-					self.log.critical(traceback.format_exc())
-					self.log.critical("File = '%s'", fqPath)
-					self.log.critical("Skipping file")
-					continue
 
 
-				try:
+			itemHashes = set([item[1] for item in fileHashes])
 
-					fileHashes = dc.getHashes(shouldPhash=False)
-				except:
-					self.log.critical("Failed to hash file? How did this even get marked for deletion?")
-					self.log.critical(traceback.format_exc())
-					self.log.critical("File = '%s'", fqPath)
-					self.log.critical("Skipping file")
-					continue
+			matches = [self.db.getByHash(fHash) for fHash in itemHashes]
 
-				itemHashes = set([item[1] for item in fileHashes])
+			badMatch = [match for match in matches if fqPath in match[0]]
 
+			files = set([subitem[0] for item in matches for subitem in item])
 
-				if not basePath.endswith("/"):
-					basePath += "/"
-
-				haveFiles = self.db.getLikeBasePath(basePath)
-				haveHashes = set([item[-1] for item in haveFiles])
-
-				dirItems  = [item[0] for item in haveFiles]
-
-				allOnPath = [basePath in item  for item in dirItems]
-				allExist  = [os.path.isfile(item) for item in set(dirItems)]
-				haveOther = [item in haveHashes for item in itemHashes]
-
-				# Check the SHIT OUTTA DAT
-				# Check if all items in the DB exist,
-				# print("allExist", all(allExist))
-
-				# that they're all where they should be
-				# print("AllOnPath", all(allOnPath))
-
-				# and that they contain a complete superset of the items in the archive we're looking at
-				# print("Completely duplicated", all(haveOther))
-
-				shouldDelete = all([all(allOnPath), all(allExist), all(haveOther)])
-
-				if not shouldDelete:
-					self.log.critical("Scan failed? '%s'", itemInDelDir)
-					self.log.critical("allOnPath '%s'", allOnPath)
-					self.log.critical("allExist '%s'", allExist)
-					self.log.critical("haveOther '%s'", haveOther)
+			exists = []
+			for item in files:
+				if os.path.exists(item):
+					exists.append(True)
 				else:
-					self.log.critical("DELETING '%s'", fqPath)
-					os.unlink(fqPath)
-		# items.sort()
-		# for item in items:
-		# 	item = os.path.join(dirPath, item)
-		# 	if os.path.isdir(item):
-		# 		self.cleanSingleDir(item, delDir)
+					exists.append(False)
+					self.log.warn("File no longer seems to exist: '%s'!", item)
+					self.log.warn("Deleting from database")
+					self.db.deleteDbRows(fspath=item)
+
+			# Check the SHIT OUTTA DAT
+			# Check if all items in the DB exist,
+			# print("allExist", all(allExist))
+
+			self.log.info("AllMatched = '%s'", all(matches))
+			self.log.info("allExist = '%s'", all(exists))
+			self.log.info("haveBad = '%s'", any(badMatch))
+
+			if all(matches) and all(exists) and not any(badMatch):
+				self.log.info("Should delete!")
+
+				self.log.critical("DELETING '%s'", fqPath)
+				os.unlink(fqPath)
+
+			else:
+				self.log.critical("Scan failed? '%s'", itemInDelDir)
+				self.log.critical("AllMatched = '%s'", all(matches))
+				self.log.critical("allExist = '%s'", all(exists))
+				self.log.critical("haveBad = '%s'", any(badMatch))
 
 
 	def restoreDirectory(self, dirPath):

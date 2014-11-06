@@ -21,9 +21,6 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	tableKey = 'n/a'
 
-	tableName = 'MangaItems'
-
-
 
 	def crossLink(self, delItem, dupItem, isPhash=False):
 		self.log.info("Cross-referencing file")
@@ -57,7 +54,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.log.info("Found destination row. Cross-linking!")
 
 
-	def processDownload(self, seriesName, archivePath, pron=False, deleteDups=False, includePHash=False, **kwargs):
+	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, **kwargs):
 
 		try:
 			import deduplicator.archChecker
@@ -116,7 +113,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 					elif phashMatch:
 						self.log.warning("Archive not phash unique: '%s'", archivePath)
-						self.crossLink(archivePath, bestMatch, isPhash=True)
+						self.crossLink(archivePath, phashMatch, isPhash=True)
 						dc.deleteArch()
 						retTags += " deleted was-duplicate phash-duplicate"
 					else:
@@ -135,7 +132,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
 		# Also, don't upload porn
 
-		if (not retTags and not pron) and seriesName:
+		if (not self.pron) and (not retTags) and seriesName:
 			try:
 				self.log.info("Trying to upload file '%s'.", archivePath)
 				up.uploadFile(seriesName, archivePath)
@@ -152,8 +149,28 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Applying tags to archive: '%s'", retTags)
 		return retTags.strip()
 
+
+# Subclasses to specify the right table names
+class MangaProcessor(DownloadProcessor):
+	tableName = 'MangaItems'
+	pron = False
+
+class HentaiProcessor(DownloadProcessor):
+	tableName = 'HentaiItems'
+	pron = True
+
+
 def processDownload(*args, **kwargs):
-	dlProc = DownloadProcessor()
+	if 'pron' in kwargs:
+		isPron = kwargs.pop('pron')
+	else:
+		isPron = False
+
+	if isPron:
+		dlProc = HentaiProcessor()
+	else:
+		dlProc = MangaProcessor()
+
 	return dlProc.processDownload(*args, **kwargs)
 
 if __name__ == "__main__":

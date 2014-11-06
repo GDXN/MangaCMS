@@ -184,7 +184,8 @@ if __name__ == '__main__':
 		fl = FeedLoader()
 		# print(fl.getUpdatedSeriesPages())
 		# print(fl.getAllItems())
-		fl.go()
+		fl.resetStuckItems()
+		# fl.go()
 		# fl.getSeriesUrls()
 
 		# fl.getAllItems()

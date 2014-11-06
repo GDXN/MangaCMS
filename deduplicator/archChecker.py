@@ -88,7 +88,7 @@ class ArchChecker(DbBase):
 		self.log.info("Checking if %s contains any unique files.", self.archPath)
 
 		matches = {}
-		for dummy_fileN, fileCtnt in self.arch:
+		for fileN, fileCtnt in self.arch:
 			hexHash = self.remote.root.getMd5Hash(fileCtnt.read())
 
 			dupsIn = self.db.getOtherHashes(hexHash, fsMaskPath=self.archPath)
@@ -96,7 +96,7 @@ class ArchChecker(DbBase):
 			for fsPath, internalPath, dummy_itemhash in dupsIn:
 				if os.path.exists(fsPath):
 
-					matches.setdefault(fsPath, set()).add(internalPath)
+					matches.setdefault(fsPath, set()).add(fileN)
 					dups.append((fsPath, internalPath, dummy_itemhash))
 				else:
 					self.log.warn("Item '%s' no longer exists!", fsPath)
@@ -124,15 +124,16 @@ class ArchChecker(DbBase):
 
 
 			proximateFiles = self.db.getWithinDistance(pHash, searchDistance)
-			self.log.info("File: '%s', '%s'. Number of matches %s", self.archPath, fileN, len(proximateFiles))
+			# self.log.info("File: '%s', '%s'. Number of matches %s", self.archPath, fileN, len(proximateFiles))
 
 			dups = []
 
 			for row in [match for match in proximateFiles if match]:
 				fsPath, internalPath = row[1], row[2]
+				# print("'%s' '%s'" % (fsPath, internalPath))
 				if os.path.exists(fsPath):
 
-					matches.setdefault(fsPath, set()).add(internalPath)
+					matches.setdefault(fsPath, set()).add(fileN)
 					dups.append((fsPath, internalPath, dummy_hexHash))
 				else:
 					self.log.warn("Item '%s' no longer exists!", fsPath)
@@ -140,10 +141,7 @@ class ArchChecker(DbBase):
 
 
 			# Short circuit on unique item, since we are only checking if ANY item is unique
-			if len(dups) == 0:
-				print("Wat?")
-			if len(matches) == 0:
-				print("WatWAT?")
+
 			if not dups:
 				self.log.info("Archive contains at least one unique phash(es).")
 				return {}

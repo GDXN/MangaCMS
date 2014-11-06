@@ -42,7 +42,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	retreivalThreads = 5
 
 
-
 	def getImage(self, imageUrl, referrer):
 
 		content, handle = self.wg.getpage(imageUrl, returnMultiple=True, addlHeaders={'Referer': referrer})
@@ -89,6 +88,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info( "Should retreive url - %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=1)
 
+			seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
 
 
 			self.log.info("Downloading = '%s', '%s'", seriesName, link["originName"])
@@ -103,7 +103,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			chapterName = nt.makeFilenameSafe(link["originName"])
 
-			fqFName = os.path.join(dlPath, chapterName+" [KissManga].zip")
+			fqFName = os.path.join(dlPath, chapterName+" [MangaHere].zip")
 
 			loop = 1
 			prefix, ext = os.path.splitext(fqFName)
@@ -127,7 +127,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			arch.close()
 
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True, pron=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True)
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)
@@ -145,14 +145,14 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	# with tb.testSetup(startObservers=True):
-	with tb.testSetup():
+	# with tb.testSetup():
+	with tb.testSetup(startObservers=True):
 		cl = ContentLoader()
 		# cl.proceduralGetImages('http://www.mangahere.co/manga/totsugami/v05/c030/')
-		cl.getLink({'seriesName': 'Totsugami', 'originName': 'Totsugami 32 - Vol 05', 'retreivalTime': 1414512000.0, 'dlState': 0, 'sourceUrl': 'http://www.mangahere.co/manga/totsugami/v05/c032/', 'flags':None})
+		# cl.getLink({'seriesName': 'Totsugami', 'originName': 'Totsugami 32 - Vol 05', 'retreivalTime': 1414512000.0, 'dlState': 0, 'sourceUrl': 'http://www.mangahere.co/manga/totsugami/v05/c032/', 'flags':None})
 
 		# inMarkup = cl.wg.getpage(pg)
 		# cl.getImageUrls(inMarkup, pg)
-		# cl.go()
+		cl.go()
 
 
