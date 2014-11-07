@@ -5,6 +5,7 @@ import os
 import os.path
 import logging
 import rpyc
+import magic
 
 PHASH_DISTANCE_THRESHOLD = 2
 
@@ -17,16 +18,20 @@ class DbBase(object):
 	def convertDbIdToPath(self, inId):
 		return self.db.getItems(wantCols=['fsPath', "internalPath"], dbId=inId).pop()
 
-
+# todo: Have a class for managing search results, which contains all the search-relevant info?
 class ArchChecker(DbBase):
 
-	def __init__(self, archPath):
+	def __init__(self, archPath, pathFilter=['']):
 		super().__init__()
 
+		# pathFilter filters
+		# Basically, if you pass a list of valid path prefixes, any matches not
+		# on any of those path prefixes are not matched.
+		# Default is [''], which matches every path, because "anything".startswith('') is true
+		self.maskedPaths = pathFilter
 
 		self.archPath    = archPath
 		self.arch        = UniversalArchiveReader.ArchiveReader(archPath)
-
 
 		self.log = logging.getLogger("Main.Deduper")
 		self.log.info("ArchChecker Instantiated")
@@ -89,18 +94,32 @@ class ArchChecker(DbBase):
 
 		matches = {}
 		for fileN, fileCtnt in self.arch:
-			hexHash = self.remote.root.getMd5Hash(fileCtnt.read())
+			fileCtnt = fileCtnt.read()
+			dups = []
+
+			fType = magic.from_buffer(fileCtnt)
+			if fileN.endswith("Thumbs.db") and fType == b'Composite Document File V2 Document, No summary info':
+				dups.append("Windows thumbnail file. Ignoring")
+				self.log.info("Windows thumbnail database. Ignoring")
+				continue
+
+			hexHash = self.remote.root.getMd5Hash(fileCtnt)
 
 			dupsIn = self.db.getOtherHashes(hexHash, fsMaskPath=self.archPath)
-			dups = []
 			for fsPath, internalPath, dummy_itemhash in dupsIn:
-				if os.path.exists(fsPath):
 
+				isNotMasked =  any([fsPath.startswith(maskedPath) for maskedPath in self.maskedPaths])
+				if os.path.exists(fsPath) and isNotMasked:
 					matches.setdefault(fsPath, set()).add(fileN)
 					dups.append((fsPath, internalPath, dummy_itemhash))
+				elif not isNotMasked:
+					pass
+					# self.log.info("Match masked by filter: '%s'", fsPath)
 				else:
 					self.log.warn("Item '%s' no longer exists!", fsPath)
 					self.db.deleteBasePath(fsPath)
+
+
 
 			# Short circuit on unique item, since we are only checking if ANY item is unique
 			if not dups:
@@ -112,6 +131,8 @@ class ArchChecker(DbBase):
 		return matches
 
 
+	# This really, /really/ feels like it should be several smaller functions, but I cannot see any nice ways to break it up.
+	# It's basically like 3 loops rolled together to reduce processing time and lookups, and there isn't much I can do about that.
 	def getPhashMatchingArchives(self, searchDistance=PHASH_DISTANCE_THRESHOLD):
 
 		# self.db.deleteBasePath(self.archPath)
@@ -120,25 +141,61 @@ class ArchChecker(DbBase):
 		matches = {}
 
 		for fileN, fileCtnt in self.arch:
-			dummy_fName, dummy_hexHash, pHash, dummy_dHash, dummy_imX, dummy_imY = self.remote.root.hashFile(self.archPath, fileN, fileCtnt.read())
+			fileCtnt = fileCtnt.read()
+			fName, hexHash, pHash, dummy_dHash, dummy_imX, dummy_imY = self.remote.root.hashFile(self.archPath, fileN, fileCtnt)
+
+			if pHash == None:
+				dups = []
+				fType = magic.from_buffer(fileCtnt)
+				if fName.endswith("Thumbs.db") and fType == b'Composite Document File V2 Document, No summary info':
+					dups.append("Windows thumbnail file. Ignoring")
+					self.log.info("Windows thumbnail database. Ignoring")
+					continue
+
+				self.log.warn("No phash for file '%s'! Wat?", (fName))
+				self.log.warn("Returned pHash: '%s'", (pHash))
+				self.log.warn("File size: %s", (len(fileCtnt)))
+				self.log.warn("Guessed file type: '%s'", (fType))
+				self.log.warn("Using binary dup checking for file!")
+
+				dupsIn = self.db.getOtherHashes(hexHash, fsMaskPath=self.archPath)
+				for fsPath, internalPath, dummy_itemhash in dupsIn:
+
+					isNotMasked =  any([fsPath.startswith(maskedPath) for maskedPath in self.maskedPaths])
+					if os.path.exists(fsPath) and isNotMasked:
+						matches.setdefault(fsPath, set()).add(fileN)
+						dups.append((fsPath, internalPath, dummy_itemhash))
+					elif not isNotMasked:
+						pass
+						# self.log.info("Match masked by filter: '%s'", fsPath)
+					else:
+						self.log.warn("Item '%s' no longer exists!", fsPath)
+						self.db.deleteBasePath(fsPath)
+
+				self.log.warn("Found binary duplicates = %s", len(dups))
+
+			else:
+
+				proximateFiles = self.db.getWithinDistance(pHash, searchDistance)
+				# self.log.info("File: '%s', '%s'. Number of matches %s", self.archPath, fileN, len(proximateFiles))
+
+				dups = []
+
+				for row in [match for match in proximateFiles if (match and match[1] != self.archPath)]:
+					fsPath, internalPath = row[1], row[2]
+					# print("'%s' '%s'" % (fsPath, internalPath))
+					isNotMasked =  any([fsPath.startswith(maskedPath) for maskedPath in self.maskedPaths])
 
 
-			proximateFiles = self.db.getWithinDistance(pHash, searchDistance)
-			# self.log.info("File: '%s', '%s'. Number of matches %s", self.archPath, fileN, len(proximateFiles))
-
-			dups = []
-
-			for row in [match for match in proximateFiles if match]:
-				fsPath, internalPath = row[1], row[2]
-				# print("'%s' '%s'" % (fsPath, internalPath))
-				if os.path.exists(fsPath):
-
-					matches.setdefault(fsPath, set()).add(fileN)
-					dups.append((fsPath, internalPath, dummy_hexHash))
-				else:
-					self.log.warn("Item '%s' no longer exists!", fsPath)
-					self.db.deleteBasePath(fsPath)
-
+					if isNotMasked and os.path.exists(fsPath) :
+						matches.setdefault(fsPath, set()).add(fileN)
+						dups.append((internalPath, hexHash))
+					elif not isNotMasked:
+						# self.log.info("Match masked by filter: '%s'", fsPath)
+						pass
+					else:
+						self.log.warn("Item '%s' no longer exists!", fsPath)
+						self.db.deleteBasePath(fsPath)
 
 			# Short circuit on unique item, since we are only checking if ANY item is unique
 
@@ -148,8 +205,6 @@ class ArchChecker(DbBase):
 
 		self.log.info("Archive does not contain any unique phashes.")
 		return matches
-
-
 
 
 	def getHashes(self, shouldPhash=True):
@@ -217,19 +272,4 @@ class ArchChecker(DbBase):
 	def isArchive(archPath):
 		return UniversalArchiveReader.ArchiveReader.isArchive(archPath)
 
-def go():
-
-	import logSetup
-	logSetup.initLogging()
-	print("Running")
-	checker = ArchChecker("/media/Storage/Manga/Junketsu No Maria [+]/Junketsu no Maria v01 c02[fbn].zip")
-	ret = checker.getBestBinaryMatch()
-	print("Bin Match", ret)
-	ret = checker.getBestPhashMatch()
-	print("Phs Match", ret)
-	# checker.addNewArch()
-
-
-if __name__ == "__main__":
-	go()
 

@@ -68,7 +68,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def setupDbApi(self):
 		pass
 
-	def cleanDirectory(self, dirPath, delDir):
+	def cleanDirectory(self, dirPath, delDir, includePhash=False, pathFilter=['']):
 
 		self.log.info("Cleaning path '%s'", dirPath)
 		items = os.listdir(dirPath)
@@ -76,11 +76,12 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 		for item in items:
 			item = os.path.join(dirPath, item)
 			if os.path.isdir(item):
-				self.cleanSingleDir(item, delDir)
+				print("Scanning", item)
+				self.cleanSingleDir(item, delDir, includePhash, pathFilter)
 
 
 
-	def cleanSingleDir(self, dirPath, delDir):
+	def cleanSingleDir(self, dirPath, delDir, includePhash=False, pathFilter=['']):
 
 		self.log.info("Processing subdirectory '%s'", dirPath)
 		if not dirPath.endswith("/"):
@@ -106,13 +107,45 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 				self.log.info("Scanning '%s'", basePath)
 
-				ac = deduplicator.archChecker.ArchChecker(basePath)
+				dc = deduplicator.archChecker.ArchChecker(basePath, pathFilter=pathFilter)
 
-				ret = ac.getBestBinaryMatch()
-				if ret:
+
+
+
+				bestMatch = dc.getBestBinaryMatch()
+				if includePhash and not bestMatch:
+					phashMatch = dc.getBestPhashMatch()
+				else:
+					phashMatch = False
+
+
+
+
+				if bestMatch:
+					self.log.warning("Archive not binary unique: '%s'", basePath)
+					duplicated = True
+					tags = " deleted was-duplicate"
+
+				elif phashMatch:
+					self.log.warning("Archive not phash unique: '%s'", basePath)
+					duplicated = True
+					tags = " deleted was-duplicate phash-duplicate"
+				else:
+					duplicated = False
+					self.log.info("Archive Contains unique files. Leaving alone!")
+
+
+
+
+
+
+
+
+				if duplicated:
 					self.log.info("Not Unique!")
 					self.log.warning("Match for file '%s'", basePath)
-					self.log.warning("Matching file '%s'", ret)
+					self.log.info("Best  match '%s'", bestMatch)
+					self.log.info("PHash match '%s'", phashMatch)
 
 
 					dst = basePath.replace("/", ";")
@@ -122,7 +155,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					try:
 						shutil.move(basePath, dst)
 
-						self.addTag(basePath, "deleted was-duplicate")
+						self.addTag(basePath, tags)
 
 						self.log.info("Not unique %s", basePath)
 					except KeyboardInterrupt:
@@ -165,6 +198,11 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			itemHashes = set([item[1] for item in fileHashes])
 
 			matches = [self.db.getByHash(fHash) for fHash in itemHashes]
+
+			if not all(matches):
+				self.log.error("Missing match for file '%s'", itemInDelDir)
+				self.log.error("Skipping")
+				continue
 
 			badMatch = [match for match in matches if fqPath in match[0]]
 
@@ -254,15 +292,6 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 
-
-def customHandler(dummy_signum, dummy_stackframe):
-	if runStatus.run:
-		runStatus.run = False
-		print("Telling threads to stop")
-	else:
-		print("Multiple keyboard interrupts. Raising")
-		raise KeyboardInterrupt
-
 def runRestoreDeduper(sourcePath):
 
 	dd = DirDeduper()
@@ -311,19 +340,4 @@ def runSingleDirDeduper(dirPath, deletePath):
 	dd.cleanSingleDir(dirPath, deletePath)
 
 	dd.closeDB()
-
-
-def test():
-
-	signal.signal(signal.SIGINT, customHandler)
-
-	runSingleDirDeduper("/media/Storage/Manga/National Quiz", '/media/Storage/rm')
-
-if __name__ == "__main__":
-	try:
-		test()
-	finally:
-		pass
-		# import nameTools as nt
-		# nt.dirNameProxy.stop()
 
