@@ -44,12 +44,12 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			else:
 				tags = 'deleted was-duplicate'
 
-			self.addTags(dbId=srcId, tags=tags)
+			self.addTags(dbId=srcId, tags=tags, limitByKey=False)
 
 			if dstRow and len(dstRow) == 1:
 
 				dstId = dstRow[0]['dbId']
-				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId), limitByKey=False)
+				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=dstId), limitByKey=False)
 				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId), limitByKey=False)
 				self.log.info("Found destination row. Cross-linking!")
 

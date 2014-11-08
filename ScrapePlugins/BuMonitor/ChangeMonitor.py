@@ -130,8 +130,8 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		pageCtnt  = self.wgH.getpage(self.itemURL.format(buId=mId))
 
 		if "You specified an invalid series id." in pageCtnt:
-			self.deleteRowByBuId(dbId)
 			self.log.warning("Invalid MU ID! ID: %s", mId)
+			self.deleteRowByBuId(mId)
 			return
 
 		soup      = bs4.BeautifulSoup(pageCtnt)

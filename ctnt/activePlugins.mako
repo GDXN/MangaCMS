@@ -199,6 +199,50 @@ sidebarItemList = [
 			'genRow'        : True,
 			'type'          : 'Manga'
 		},
+		{
+			"num"           : 23,
+			'dbKey'         : "RoseliaLoader",
+			'name'          : "Roselia",
+			'dictKey'       : "rs",
+			'cssClass'      : "rsId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+		{
+			"num"           : 24,
+			'dbKey'         : "SenseLoader",
+			'name'          : "Sense",
+			'dictKey'       : "se",
+			'cssClass'      : "seId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+		{
+			"num"           : 25,
+			'dbKey'         : "ShoujoSense",
+			'name'          : "ShoujoSense",
+			'dictKey'       : "sj",
+			'cssClass'      : "sjId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+		{
+			"num"           : 26,
+			'dbKey'         : "VortexLoader",
+			'name'          : "Vortex",
+			'dictKey'       : "vx",
+			'cssClass'      : "vxId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
 
 
 		{

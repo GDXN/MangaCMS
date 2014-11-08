@@ -32,6 +32,8 @@ import ScrapePlugins.FoolSlide.VortexLoader.Run
 import ScrapePlugins.FoolSlide.RoseliaLoader.Run
 import ScrapePlugins.FoolSlide.SenseLoader.Run
 import ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run
+import ScrapePlugins.FoolSlide.TwistedHel.Run
+import ScrapePlugins.FoolSlide.CasanovaScans.Run
 
 
 import TextScrape.BakaTsuki.Run
@@ -71,7 +73,11 @@ scrapePlugins = {
 	22 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          60*60*12),
 	23 : (ScrapePlugins.FoolSlide.RoseliaLoader.Run,         60*60*12),
 	24 : (ScrapePlugins.FoolSlide.SenseLoader.Run,           60*60*12),
-	24 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     60*60*12),
+	25 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     60*60*12),
+	26 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            60*60*12),
+	27 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         60*60*12),
+
+
 
 
 	# Madokami is two separate sections, because the feedLoader takes

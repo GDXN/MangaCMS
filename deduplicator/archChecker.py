@@ -239,7 +239,7 @@ class ArchChecker(DbBase):
 		# Do overall hash of archive:
 		with open(self.archPath, "rb") as fp:
 			hexHash = self.remote.root.getMd5Hash(fp.read())
-		self.db.insertIntoDb(fspath=self.archPath, internalpath="", itemhash=hexHash)
+		self.db.insertIntoDb(fsPath=self.archPath, internalpath="", itemhash=hexHash)
 
 
 		# Next, hash the file contents.
@@ -256,9 +256,9 @@ class ArchChecker(DbBase):
 					self.log.warn("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
 
 				if baseHash:
-					self.db.updateItem(fspath=self.archPath, internalpath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
+					self.db.updateDbEntry(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
 				else:
-					self.db.insertIntoDb(fspath=self.archPath, internalpath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
+					self.db.insertIntoDb(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
 
 
 			except IOError as e:

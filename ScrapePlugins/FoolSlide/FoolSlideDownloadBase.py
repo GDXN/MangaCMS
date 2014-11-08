@@ -15,9 +15,17 @@ import json
 import ScrapePlugins.RetreivalBase
 
 import processDownload
+import abc
 
 class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
+
+	@abc.abstractmethod
+	def groupName(self):
+		return None
+	@abc.abstractmethod
+	def contentSelector(self):
+		return None
 
 	retreivalThreads = 1
 

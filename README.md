@@ -26,6 +26,8 @@ Plugin scrapers for:
 	 	- Roselia Scans
 	 	- Sense Scans
 	 	- ShoujoSense Scans
+	 	- TwistedHel Scans
+	 	- Casanova Scans
 	 - Numerous IRC bots.
 		 - ViScans: Bort
 		 - StupidCommotion: Suzume, Torako
@@ -54,12 +56,6 @@ Plugin scrapers for:
 	 - ~~MangaTraders~~ (Defunct)
 	 - ~~Fufufuu.net~~ (Defunct)
 	 - Realitylapse.com (Planned, possibly)
-
- - To Add:
-	 - http://www.twistedhelscans.com/latest
-	 - http://casanovascans.com
-	 
-
 
 
 Under consideration:   
