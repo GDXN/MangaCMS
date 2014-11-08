@@ -8,7 +8,7 @@ Plugin scrapers for:
 
  - Manga Sites:
 	 - Batoto.com
-	 - download.japanzai.com
+	 - download.Japanzai
 	 - MangaCow
 	 - MangaJoy
 	 - Starkana.com
@@ -19,7 +19,7 @@ Plugin scrapers for:
 	 - Dynasty Scans
 	 - KissManga
 	 - Manga.Madokami
-	 - Crunchyroll?
+	 - Crunchyroll
 	 - Many FoolSlide based sites:
 		- Vortex Scans
 	 	- RedHawk Scans
@@ -60,9 +60,9 @@ Plugin scrapers for:
 	 - http://casanovascans.com
 	 
 
----
 
-MOAR:   
+
+Under consideration:   
 
  - Tadanohito as a H source
  - http://tapastic.com/ (Lots of western stuff. Add a separate western table system, and start grabbing webcomics?)

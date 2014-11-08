@@ -272,7 +272,11 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			outList.append(tag.replace(" ", "-"))
 		return outList
 
+
+
+
 	def getNames(self, soup):
+		namePostfixes = ['(Russian)', '(Arabic)', '(Thai)', '(Chinese)', '(Japanese)', '(Korean)', '(Polish)', '(Spanish)', '(Portugese)', '(English)', '(Italian)', '(French)']
 		baseNameContainer = soup.find("span", class_="releasestitle tabletitle")
 		baseName = baseNameContainer.get_text()
 
@@ -285,6 +289,16 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			name = name.rstrip().lstrip()
 			if name:
 				altNames.append(name)
+
+			# Some of the names are cluttered up by their language of origin. Strip that cruft out,
+			# and add the cleaned name if it's different.
+			# I'm making a big assumption here that there are no cases where
+			# the langauge is actually part of the title, but I think that's probably fairly safe?
+			for postfix in namePostfixes:
+				if name.endswith(postfix):
+					name = name[:-1*len(postfix)]
+					if name and not name in altNames:
+						altNames.append(name)
 
 
 		return baseName, altNames
