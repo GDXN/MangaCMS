@@ -244,6 +244,30 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 
+		{
+			"num"           : 27,
+			'dbKey'         : "TwistedHel",
+			'name'          : "TwistedHel",
+			'dictKey'       : "th",
+			'cssClass'      : "thId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
+		{
+			"num"           : 28,
+			'dbKey'         : "Casanova",
+			'name'          : "Casanova",
+			'dictKey'       : "cs",
+			'cssClass'      : "csId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
 
 		{
 			"num"           : 14,
