@@ -20,6 +20,7 @@ Plugin scrapers for:
 	 - Dynasty Scans
 	 - KissManga
 	 - Manga.Madokami
+	 - Crunchyroll?
 	 - Numerous IRC bots.
 		 - ViScans: Bort
 		 - StupidCommotion: Suzume, Torako
@@ -27,6 +28,8 @@ Plugin scrapers for:
 		 - EgScans: Easybot
 		 - Illuminati-Manga: Illum, Illuminati|Mad
 		 - A-Team:  Azrael, Boink, Death, Hannibal
+		 - BentoScans: [Bento]
+		 - ForTheHalibut: `FTH`
 
  - Hentai Sites:
 	 - Fakku
@@ -48,13 +51,24 @@ Plugin scrapers for:
 	 - Realitylapse.com (Planned, possibly)
 
  - To Add:
-	 - Tadanohito as a H source
-	 - http://tapastic.com/ (Lots of western stuff. Add a separate western table system, and start grabbing webcomics?)
-	 - Crunchyroll?
-	 - NoManga   - 500 Error
-	 - ~~MangaTown~~ - Converts to JPEG.
-	 - ~~MangaHere~~ - converts to JPEG? Seems like they recompress 
-	 - ~~MangaSky~~  - converts to JPEG?
+	 - http://www.twistedhelscans.com/latest
+	 - http://casanovascans.com
+	 - http://reader.shoujosense.com
+	 - http://fth-scans.com
+	 - http://reader.vortex-scans.com
+	 - http://reader.roseliascans.com
+	 - http://reader.sensescans.com
+
+---
+
+MOAR:   
+
+ - Tadanohito as a H source
+ - http://tapastic.com/ (Lots of western stuff. Add a separate western table system, and start grabbing webcomics?)
+ - NoManga   - 500 Error
+ - ~~MangaTown~~ - Converts to JPEG.
+ - ~~MangaHere~~ - converts to JPEG? Seems like they recompress 
+ - ~~MangaSky~~  - converts to JPEG?
 
 I prefer to focus on scraping sites that offer archive downloads, but those are fairly rare, so image-hosting sites are also scraped. Scraped images are automatically packed into per-chapter archives. My only absolute criteria for inclusion at this time is that the site not resize or watermark files, since that prevents the deduplication system from working properly (note: I'm more relaxed about this for the H sites, primarily out of necessity).
 

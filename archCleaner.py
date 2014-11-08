@@ -25,7 +25,7 @@ except ImportError:
 	print("pure-python zip decyption. ")
 	print("")
 	print("The speedup achieved via cython can reach ~100x faster then ")
-	print("the pure-python implementation~")
+	print("the pure-python implementation!")
 	traceback.print_exc()
 
 	print("Falling back to the pure-python implementation due to the lack of cython.")

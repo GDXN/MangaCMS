@@ -144,6 +144,10 @@ class ArchChecker(DbBase):
 			fileCtnt = fileCtnt.read()
 			fName, hexHash, pHash, dummy_dHash, dummy_imX, dummy_imY = self.remote.root.hashFile(self.archPath, fileN, fileCtnt)
 
+			if pHash == 0:
+				self.log.warning("Skipping any checks for hash value of '%s', as it's uselessly common.", pHash)
+				continue
+
 			if pHash == None:
 				dups = []
 				fType = magic.from_buffer(fileCtnt)

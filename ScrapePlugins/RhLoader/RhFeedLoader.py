@@ -13,9 +13,6 @@ import datetime
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 
-# Only downlad items in language specified.
-# Set to None to disable filtering (e.g. fetch ALL THE FILES).
-DOWNLOAD_ONLY_LANGUAGE = "English"
 
 class RhFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 

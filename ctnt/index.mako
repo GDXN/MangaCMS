@@ -111,6 +111,8 @@ import settings
 
 <b>General</b>
 <ul>
+synonyms without exclamation points
+string difference system for books
 mu tag browser
 automover
 	<li>strip trailing hyphens</li>
