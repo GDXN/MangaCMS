@@ -13,7 +13,6 @@ Plugin scrapers for:
 	 - MangaJoy
 	 - Starkana.com
 	 - CXC Scans
-	 - RedHawk Scans
 	 - Webtoons.com
 	 - LoneManga.com
 	 - EasyGoing Scans
@@ -21,6 +20,12 @@ Plugin scrapers for:
 	 - KissManga
 	 - Manga.Madokami
 	 - Crunchyroll?
+	 - Many FoolSlide based sites:
+		- Vortex Scans
+	 	- RedHawk Scans
+	 	- Roselia Scans
+	 	- Sense Scans
+	 	- ShoujoSense Scans
 	 - Numerous IRC bots.
 		 - ViScans: Bort
 		 - StupidCommotion: Suzume, Torako
@@ -29,7 +34,7 @@ Plugin scrapers for:
 		 - Illuminati-Manga: Illum, Illuminati|Mad
 		 - A-Team:  Azrael, Boink, Death, Hannibal
 		 - BentoScans: [Bento]
-		 - ForTheHalibut: `FTH`
+		 - ForTheHalibut: \`FTH\`
 
  - Hentai Sites:
 	 - Fakku
@@ -53,11 +58,7 @@ Plugin scrapers for:
  - To Add:
 	 - http://www.twistedhelscans.com/latest
 	 - http://casanovascans.com
-	 - http://reader.shoujosense.com
-	 - http://fth-scans.com
-	 - http://reader.vortex-scans.com
-	 - http://reader.roseliascans.com
-	 - http://reader.sensescans.com
+	 
 
 ---
 

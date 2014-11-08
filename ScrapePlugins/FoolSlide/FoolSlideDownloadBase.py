@@ -1,15 +1,11 @@
 
-import webFunctions
-import settings
 import os
 import os.path
 
 import nameTools as nt
 
-import time
 
 import urllib.parse
-import html.parser
 import zipfile
 import runStatus
 import traceback
@@ -18,23 +14,12 @@ import re
 import json
 import ScrapePlugins.RetreivalBase
 
-from concurrent.futures import ThreadPoolExecutor
-
 import processDownload
 
-class RhContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
-
-	loggerPath = "Main.Rh.Cl"
-	pluginName = "RedHawk Scans Content Retreiver"
-	tableKey = "rh"
-	dbName = settings.dbName
-	tableName = "MangaItems"
-
-	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
-
-	retreivalThreads = 2
+	retreivalThreads = 1
 
 	def getImage(self, imageUrl, referrer):
 
@@ -54,20 +39,29 @@ class RhContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 		pageCtnt = self.wg.getpage(baseUrl)
+		print("GetImageUrls")
+		print("This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt)
 
 		if "This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt:
 			self.log.info("Adult check page. Confirming...")
 			pageCtnt = self.wg.getpage(baseUrl, postData={"adult": "true"})
 
 
+		if "This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt:
+			raise ValueError("Wat?")
 		soup = bs4.BeautifulSoup(pageCtnt)
 
-		container = soup.find("div", id="page")
+		container = soup.find(self.contentSelector[0], id=self.contentSelector[1])
 
 		if not container:
 			raise ValueError("Unable to find javascript container div '%s'" % baseUrl)
 
+		# If there is a ad div in the content container, it'll mess up the javascript match, so
+		# find it, and remove it from the tree.
 		container.find('div', id='bottombar').decompose()
+		if container.find('div', class_='ads'):
+			container.find('div', class_='ads').decompose()
+
 
 		scriptText = container.script.get_text()
 		if not scriptText:
@@ -88,11 +82,10 @@ class RhContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			path = urllib.parse.quote(path)
 			itemUrl = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
-			imageUrls = [(item['filename'], itemUrl, baseUrl)]
+			imageUrls.append((item['filename'], itemUrl, baseUrl))
 
 		if not imageUrls:
 			raise ValueError("Unable to find contained images on page '%s'" % baseUrl)
-
 
 
 		return imageUrls
@@ -131,7 +124,7 @@ class RhContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			chapterName = nt.makeFilenameSafe(chapterVol)
 
-			fqFName = os.path.join(dlPath, chapterName+"[RedHawk].zip")
+			fqFName = os.path.join(dlPath, chapterName+"["+self.groupName+"].zip")
 
 			loop = 1
 			while os.path.exists(fqFName):

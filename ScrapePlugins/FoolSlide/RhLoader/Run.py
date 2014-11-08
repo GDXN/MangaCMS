@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.RhLoader.RhFeedLoader import RhFeedLoader
-from ScrapePlugins.RhLoader.RhContentLoader import RhContentLoader
+from ScrapePlugins.FoolSlide.RhLoader.FeedLoader    import FeedLoader
+from ScrapePlugins.FoolSlide.RhLoader.ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -19,7 +19,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 
 		self.log.info("Checking Rh feeds for updates")
-		fl = RhFeedLoader()
+		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
 
@@ -29,7 +29,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		if not runStatus.run:
 			return
 
-		cl = RhContentLoader()
+		cl = ContentLoader()
 
 		if not runStatus.run:
 			return
@@ -41,3 +41,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl.processTodoLinks(todo)
 		cl.closeDB()
+
+
+if __name__ == '__main__':
+	import utilities.testBase as tb
+
+	with tb.testSetup():
+		fl = Runner()
+
+		fl.go()
+

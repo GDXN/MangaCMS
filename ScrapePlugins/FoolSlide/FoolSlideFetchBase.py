@@ -1,36 +1,24 @@
 
-import webFunctions
 import bs4
-import re
 
-import urllib.parse
 import time
 import dateutil.parser
 import runStatus
-import settings
-import datetime
 
 import ScrapePlugins.RetreivalDbBase
-import nameTools as nt
 
 
-class RhFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+import abc
+
+class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-
-	loggerPath = "Main.Rh.Fl"
-	pluginName = "RedHawk Scans Link Retreiver"
-	tableKey = "rh"
-	dbName = settings.dbName
-
-	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
-
-	tableName = "MangaItems"
-
-	urlBase = "http://manga.redhawkscans.com/"
-
-	feedUrl = "http://manga.redhawkscans.com/reader/list/{num}/"
-
+	@abc.abstractmethod
+	def urlBase(self):
+		return None
+	@abc.abstractmethod
+	def feedUrl(self):
+		return None
 
 	def closeDB(self):
 		self.log.info( "Closing DB...",)
@@ -123,7 +111,7 @@ class RhFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# 	self.log.info( item)
 		#
 
-		self.log.info( "Loading Red Hawk Items")
+		self.log.info( "Loading Items")
 
 		ret = []
 

@@ -49,8 +49,8 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if dstRow and len(dstRow) == 1:
 
 				dstId = dstRow[0]['dbId']
-				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId))
-				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId))
+				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId), limitByKey=False)
+				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId), limitByKey=False)
 				self.log.info("Found destination row. Cross-linking!")
 
 

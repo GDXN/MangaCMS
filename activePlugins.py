@@ -17,7 +17,6 @@ import ScrapePlugins.FakkuLoader.Run
 import ScrapePlugins.McLoader.Run
 import ScrapePlugins.CxLoader.Run
 import ScrapePlugins.MjLoader.Run
-import ScrapePlugins.RhLoader.Run
 import ScrapePlugins.LoneMangaLoader.Run
 import ScrapePlugins.WebtoonLoader.Run
 import ScrapePlugins.KissLoader.Run
@@ -27,6 +26,12 @@ import ScrapePlugins.HBrowseLoader.Run
 import ScrapePlugins.Crunchyroll.Run
 import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 import ScrapePlugins.IrcGrabber.BotRunner
+
+import ScrapePlugins.FoolSlide.RhLoader.Run
+import ScrapePlugins.FoolSlide.VortexLoader.Run
+import ScrapePlugins.FoolSlide.RoseliaLoader.Run
+import ScrapePlugins.FoolSlide.SenseLoader.Run
+import ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run
 
 
 import TextScrape.BakaTsuki.Run
@@ -40,27 +45,33 @@ import ScrapePlugins.MangaMadokami.mkFeedLoader
 # plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
 # are run, initially, spaced by 1-minue intervals
 scrapePlugins = {
-	0  : (ScrapePlugins.BtBaseManager.Run,        60*60   ),
-	1  : (ScrapePlugins.ExMadokami.Run,           60*60   ),
-	3  : (ScrapePlugins.JzLoader.Run,             60*60*8 ),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
-	4  : (ScrapePlugins.DjMoeLoader.Run,          60*45   ),
-	5  : (ScrapePlugins.DjMoeLoader.Retag,        60*60   ),
-	6  : (ScrapePlugins.McLoader.Run,             60*60*12),  # every 12 hours, it's just a single scanlator site.
-	7  : (ScrapePlugins.SkBaseManager.Run,        60*60   ),
-	8  : (ScrapePlugins.IrcGrabber.IrcEnqueueRun, 60*60*12),  # Queue up new items from IRC bots.
-	9  : (ScrapePlugins.PururinLoader.Run,        60*60   ),
-	10 : (ScrapePlugins.FakkuLoader.Run,          60*60   ),
-	11 : (ScrapePlugins.CxLoader.Run,             60*60*12),  # every 12 hours, it's just a single scanlator site.
-	12 : (ScrapePlugins.MjLoader.Run,             60*60   ),
-	13 : (ScrapePlugins.IrcGrabber.BotRunner,     60*60   ),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
-	14 : (ScrapePlugins.RhLoader.Run,             60*60*12),
-	15 : (ScrapePlugins.LoneMangaLoader.Run,      60*60*12),
-	16 : (ScrapePlugins.WebtoonLoader.Run,        60*60*8 ),
-	17 : (ScrapePlugins.DynastyLoader.Run,        60*60*8 ),
-	18 : (ScrapePlugins.HBrowseLoader.Run,        60*60   ),
-	19 : (ScrapePlugins.KissLoader.Run,           60*60   ),
-	20 : (ScrapePlugins.NHentaiLoader.Run,        60*60   ),
-	21 : (ScrapePlugins.Crunchyroll.Run,          60*60*6 ),
+	0  : (ScrapePlugins.BtBaseManager.Run,                   60*60   ),
+	1  : (ScrapePlugins.ExMadokami.Run,                      60*60   ),
+	3  : (ScrapePlugins.JzLoader.Run,                        60*60*8 ),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
+	4  : (ScrapePlugins.DjMoeLoader.Run,                     60*45   ),
+	5  : (ScrapePlugins.DjMoeLoader.Retag,                   60*60   ),
+	6  : (ScrapePlugins.McLoader.Run,                        60*60*12),  # every 12 hours, it's just a single scanlator site.
+	7  : (ScrapePlugins.SkBaseManager.Run,                   60*60   ),
+	8  : (ScrapePlugins.IrcGrabber.IrcEnqueueRun,            60*60*12),  # Queue up new items from IRC bots.
+	9  : (ScrapePlugins.PururinLoader.Run,                   60*60   ),
+	10 : (ScrapePlugins.FakkuLoader.Run,                     60*60   ),
+	11 : (ScrapePlugins.CxLoader.Run,                        60*60*12),  # every 12 hours, it's just a single scanlator site.
+	12 : (ScrapePlugins.MjLoader.Run,                        60*60   ),
+	13 : (ScrapePlugins.IrcGrabber.BotRunner,                60*60   ),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
+	14 : (ScrapePlugins.FoolSlide.RhLoader.Run,              60*60*12),
+	15 : (ScrapePlugins.LoneMangaLoader.Run,                 60*60*12),
+	16 : (ScrapePlugins.WebtoonLoader.Run,                   60*60*8 ),
+	17 : (ScrapePlugins.DynastyLoader.Run,                   60*60*8 ),
+	18 : (ScrapePlugins.HBrowseLoader.Run,                   60*60   ),
+	19 : (ScrapePlugins.KissLoader.Run,                      60*60   ),
+	20 : (ScrapePlugins.NHentaiLoader.Run,                   60*60   ),
+	21 : (ScrapePlugins.Crunchyroll.Run,                     60*60*6 ),
+
+	# FoolSlide modules
+	22 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          60*60*12),
+	23 : (ScrapePlugins.FoolSlide.RoseliaLoader.Run,         60*60*12),
+	24 : (ScrapePlugins.FoolSlide.SenseLoader.Run,           60*60*12),
+	24 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     60*60*12),
 
 
 	# Madokami is two separate sections, because the feedLoader takes
