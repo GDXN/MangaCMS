@@ -44,8 +44,9 @@ import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
 
 # Plugins in this dictionary are the active plugins. Comment out a plugin to disable it.
-# plugin keys are not important, but cannot be duplicates. All they do is specify the order in which plugins
-# are run, initially, spaced by 1-minue intervals
+# plugin keys specify when plugins will start, and cannot be duplicates.
+# All they do is specify the order in which plugins
+# are run, initially, starting after 1-minue*{key} intervals
 scrapePlugins = {
 	0  : (ScrapePlugins.BtBaseManager.Run,                   60*60   ),
 	1  : (ScrapePlugins.ExMadokami.Run,                      60*60   ),
@@ -70,12 +71,12 @@ scrapePlugins = {
 	21 : (ScrapePlugins.Crunchyroll.Run,                     60*60*6 ),
 
 	# FoolSlide modules
-	22 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          60*60*12),
-	23 : (ScrapePlugins.FoolSlide.RoseliaLoader.Run,         60*60*12),
-	24 : (ScrapePlugins.FoolSlide.SenseLoader.Run,           60*60*12),
-	25 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     60*60*12),
-	26 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            60*60*12),
-	27 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         60*60*12),
+	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          60*60*12),
+	31 : (ScrapePlugins.FoolSlide.RoseliaLoader.Run,         60*60*12),
+	32 : (ScrapePlugins.FoolSlide.SenseLoader.Run,           60*60*12),
+	33 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     60*60*12),
+	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            60*60*12),
+	35 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         60*60*12),
 
 
 

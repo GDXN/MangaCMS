@@ -174,7 +174,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				print("")
 
 
-	def purgeDedupTemps(self, dirPath):
+	def purgeDedupTempsMd5Hash(self, dirPath):
 
 		self.remote = rpyc.connect("localhost", 12345)
 		self.db = self.remote.root.DbApi()
@@ -290,6 +290,52 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				targetDir = os.path.join(dirPath, item)
 				shutil.move(itemPath, targetDir)
 
+	# This is implemented as a separate codepath from the mormal dir dedup calls as a precautionary measure against
+	# stupid coding issues. It's not a perfect fix, but it's better then nothing.
+	def purgeDupDirPhash(self, dirPath):
+
+		self.remote = rpyc.connect("localhost", 12345)
+		self.db = self.remote.root.DbApi()
+
+		items = os.listdir(dirPath)
+		items = [os.path.join(dirPath, item) for item in items]
+		items = [item for item in items if os.path.isfile(item)]
+
+		for fileName in items:
+			isDup = self.checkItem(fileName)
+			if isDup:
+				self.log.critical("DELETING '%s'", fileName)
+				os.unlink(fileName)
+
+	def checkItem(self, fileName):
+
+		dc = deduplicator.archChecker.ArchChecker(fileName)
+		hashes = dc.getHashes(shouldPhash=True)
+		for hashVal in hashes:
+			if hashVal[2] == None:
+
+				if hashVal[0].endswith("Thumbs.db"):
+					self.log.info("Windows Thumbs.db file")
+					return True
+
+				self.log.info("Empty hash: '%s', for file '%s'", hashVal[2], hashVal)
+				return False
+
+			if hashVal[2] == 0:
+				self.log.info("Stupidly common hash (%s). Skipping", hashVal[2])
+				continue
+
+			matches = self.db.getWithinDistance(hashVal[2], wantCols=['dbId', 'fspath'])
+
+
+			exists = [os.path.exists(item[1]) for item in matches]
+
+			# if we have no returned rows, or none of the returned rows exist, return false
+			if not len(exists) or not any(matches):
+				return False
+
+		return True
+
 
 
 def runRestoreDeduper(sourcePath):
@@ -318,7 +364,7 @@ def purgeDedupTemps(basePath):
 	dd = DirDeduper()
 	dd.openDB()
 	dd.setupDbApi()
-	dd.purgeDedupTemps(basePath)
+	dd.purgeDedupTempsMd5Hash(basePath)
 	dd.closeDB()
 
 def moveUnlinkable(dirPath, toPath):

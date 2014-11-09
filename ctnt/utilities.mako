@@ -148,6 +148,7 @@ from ipaddress import IPv4Address, IPv4Network
 
 		${mouseOverJs()}
 	</script>
+	<meta name="viewport" content="width=1024" />
 
 </%def>
 

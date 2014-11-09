@@ -205,6 +205,9 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return False
 
 		self.log.info("Have directory info from API query. Contains %s directories.", len(ret['data']))
+		if len(ret['data']) == 0:
+			return False
+
 		dirInfo = ret['data'].pop()
 		return dirInfo['path']
 
