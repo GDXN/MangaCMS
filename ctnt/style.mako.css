@@ -1,11 +1,18 @@
 
 <%namespace name="ap"              file="activePlugins.mako"/>
 
+@-viewport
+{
+	width: 1024px;
+}
+
 body
 {
 	font-size:0.85em;
 }
-* {
+
+*
+{
 	font-family: Tahoma, Geneva, sans-serif;
 
 }
@@ -75,7 +82,7 @@ div
 div.statusdiv
 {
 	margin: 0 auto;
-	width: 120px;
+	width: 105px;
 	display: inline-block;
 	vertical-align:top;
 }
@@ -103,8 +110,8 @@ div.statediv
 {
 	border:2px solid;
 	/*border-radius:25px;*/
-	padding-left:10px;
-	padding-right:10px;
+	padding-left:5px;
+	padding-right:5px;
 	padding-top:3px;
 	padding-bottom:3px;
 	font-size: 14;
