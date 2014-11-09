@@ -249,16 +249,24 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				linkDict["tags"] = ""
 
 
+
+			self.updateDbEntry(linkDict["sourceUrl"], downloadPath=linkDict["dirPath"], fileName=fileN)
+
+
+			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
 			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True, includePHash=True)
 			self.log.info( "Done")
-
 
 			if dedupState:
 				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
 
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, seriesName=linkDict["seriesName"])
 
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
 			self.conn.commit()
+
+
+
+
 			return wholePath
 
 		else:

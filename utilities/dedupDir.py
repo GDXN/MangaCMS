@@ -89,12 +89,15 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 		items = os.listdir(dirPath)
 
-
-
 		items = [os.path.join(dirPath, item) for item in items]
 
+		dirs = [i for i in items if os.path.isdir(i)]
+		self.log.info("Recursing into %s subdirectories!", len(dirs))
+		for subDir in dirs:
+			self.cleanSingleDir(subDir, delDir, includePhash, pathFilter)
 
-		parsedItems = [(os.path.getsize(i), i) for i in items]
+
+		parsedItems = [(os.path.getsize(i), i) for i in items if os.path.isfile(i)]
 
 		parsedItems.sort()
 
@@ -109,19 +112,15 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 				dc = deduplicator.archChecker.ArchChecker(basePath, pathFilter=pathFilter)
 
-
-
-
 				bestMatch = dc.getBestBinaryMatch()
 				if includePhash and not bestMatch:
 					phashMatch = dc.getBestPhashMatch()
 				else:
 					phashMatch = False
 
-
-
-
 				if bestMatch:
+					if bestMatch == basePath:
+						raise ValueError("Returned self-pointing path? Wat!")
 					self.log.warning("Archive not binary unique: '%s'", basePath)
 					duplicated = True
 					tags = " deleted was-duplicate"
@@ -142,16 +141,16 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 				if duplicated:
-					self.log.info("Not Unique!")
-					self.log.warning("Match for file '%s'", basePath)
-					self.log.info("Best  match '%s'", bestMatch)
-					self.log.info("PHash match '%s'", phashMatch)
+
+					self.log.info("Source file '%s'", basePath)
+					self.log.info("    Best  match '%s'", bestMatch)
+					self.log.info("    PHash match '%s'", phashMatch)
 
 
 					dst = basePath.replace("/", ";")
 					dst = os.path.join(delDir, dst)
 					self.log.info("Moving item from '%s'", basePath)
-					self.log.info("	to '%s'", dst)
+					self.log.info("              to '%s'", dst)
 					try:
 						shutil.move(basePath, dst)
 
@@ -194,8 +193,8 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				self.log.critical("Skipping file")
 				continue
 
-
-			itemHashes = set([item[1] for item in fileHashes])
+			# Get all the hashes for every file /but/ any that are windows Thumbs.db files.
+			itemHashes = set([item[1] for item in fileHashes if not item[0].endswith("Thumbs.db")])
 
 			matches = [self.db.getByHash(fHash) for fHash in itemHashes]
 

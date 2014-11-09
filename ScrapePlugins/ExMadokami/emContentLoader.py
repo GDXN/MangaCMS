@@ -136,12 +136,30 @@ class EmContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.error("Failure trying to retreive content from source %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=-4, downloadPath=filePath, fileName=fileName)
 			return
-		#self.log.info( filePath)
-		dedupState = processDownload.processDownload(link["seriesName"], fqFName, pron=True, deleteDups=True, includePHash=True)
 
-		self.log.info( "Done")
-		self.addTags(sourceUrl=sourceUrl, tags=dedupState)
-		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName)
+
+
+
+			self.updateDbEntry(sourceUrl, downloadPath=filePath, fileName=fileName)
+
+
+			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
+			dedupState = processDownload.processDownload(link["seriesName"], fqFName, pron=True, deleteDups=True, includePHash=True)
+			self.log.info( "Done")
+
+			if dedupState:
+				self.addTags(sourceUrl=sourceUrl, tags=dedupState)
+
+
+			self.updateDbEntry(sourceUrl, dlState=2)
+			self.conn.commit()
+
+
+
+
+
+
+
 		return
 
 

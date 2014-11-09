@@ -53,6 +53,14 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId), limitByKey=False)
 				self.log.info("Found destination row. Cross-linking!")
 
+				return
+
+		self.log.error("Cross-referencing file failed!")
+		self.log.error("Remove:	'%s', '%s'", delItemRoot, delItemFile)
+		self.log.error("Match: 	'%s', '%s'", dupItemRoot, dupItemFile)
+		self.log.error("SrcRow:	'%s'", srcRow)
+		self.log.error("DstRow:	'%s'", dstRow)
+
 
 	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, **kwargs):
 

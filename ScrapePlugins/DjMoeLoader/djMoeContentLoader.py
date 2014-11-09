@@ -19,6 +19,7 @@ import settings
 import bs4
 import logging
 
+import processDownload
 from ScrapePlugins.DjMoeLoader import tagsLUT
 
 import ScrapePlugins.RetreivalDbBase
@@ -273,11 +274,22 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			fp.close()
 			self.log.info("Successfully Saved to path: %s", wholePath)
 
-			if not linkDict["tags"]:
-				linkDict["tags"] = ""
-			self.updateDbEntry(linkDict["contentId"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, seriesName=linkDict["seriesName"])
 
+			self.updateDbEntry(linkDict["sourceUrl"], downloadPath=linkDict["dirPath"], fileName=fileN)
+
+			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
+			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True)
+			self.log.info( "Done")
+
+			if dedupState:
+				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
+
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
 			self.conn.commit()
+
+
+
+
 
 		else:
 
