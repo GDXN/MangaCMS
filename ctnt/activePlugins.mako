@@ -430,6 +430,18 @@ sidebarItemList = [
 			'type'          : 'Porn'
 		},
 
+		{
+			"num"           : 29,
+			'dbKey'         : "SadPanda",
+			'name'          : "ExHentai",
+			'dictKey'       : "sp",
+			'cssClass'      : "spId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Porn'
+		},
+
 
 	]
 

@@ -215,7 +215,10 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					exists.append(False)
 					self.log.warn("File no longer seems to exist: '%s'!", item)
 					self.log.warn("Deleting from database")
-					self.db.deleteDbRows(fspath=item)
+					try:
+						self.db.deleteDbRows(fspath=item)
+					except KeyError:
+						self.log.error("Key error when deleting. Already deleted?")
 
 			# Check the SHIT OUTTA DAT
 			# Check if all items in the DB exist,

@@ -476,6 +476,10 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 		tags = existingTags | newTags
 
+		# make the tag ordering determistic by converting to a list, and sorting.
+		tags = list(tags)
+		tags.sort()
+
 		tagStr = " ".join(tags)
 		while "  " in tagStr:
 			tagStr = tagStr.replace("  ", " ")

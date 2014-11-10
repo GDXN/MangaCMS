@@ -3,7 +3,8 @@ End-User setup (README):
 
 replace all instances of "SOMETHING" with your own directory paths.
 Add your username + password for each site.
-
+Yes, this is all stored in plaintext. It's not high security.
+You are not using the same password everywhere anyways, .... right?
 
 # Note: Paths have to be absolute.
 pickedDir        = r"/SOMETHING/MP"
@@ -16,6 +17,9 @@ djMoeDir         = r"/SOMETHING/H/DjMoe"
 puRinDir         = r"/SOMETHING/H/Pururun"
 ExhenMadokamiDir = r"/SOMETHING/H/ExhenMadokami"
 fkDir            = r"/SOMETHING/H/Fakku"
+hbDir            = r"/SOMETHING/H/H-Browse"
+nhDir            = r"/SOMETHING/H/N-Hentai"
+spDir            = r"/SOMETHING/H/ExHentai"
 
 # Paths for database and web content
 dbName           = '/SOMETHING/MangaCMS/links.db'
@@ -44,17 +48,35 @@ mangaFolders = {
 			"interval" : 5,
 			"lastScan" : 0
 		},
-	2 : {
+	10 : {
 			"dir" : newDir,
 			"interval" : 5,
 			"lastScan" : 0
 		},
-	10 : {
+	# Keys above 100 are not included in normal directory search behaviour
+	100 : {
 			"dir" : baseDir,
 			"interval" : 45,
 			"lastScan" : 0
 		}
 }
+
+
+ratingsSort = {
+	"thresh"  : 5,
+	"tokey"   : 1,
+	"fromkey" : [10, 12],
+}
+
+# Check that the ratingsSort values are valid by verifying they
+# map to key present in the mangaVolders dict.
+for key in ratingsSort['fromkey']:
+	if key not in mangaFolders:
+		raise ValueError("All fromKey values in ratingsSort must be present in the mangaFolders dict.")
+if not ratingsSort['tokey'] in mangaFolders:
+	raise ValueError("ratingsSort tokey must be present in the mangaFolders dict.")
+
+
 
 tagHighlight = [
 	"tags",
@@ -66,11 +88,53 @@ tagHighlight = [
 	"table"
 	]
 
+
+skipTags = [
+	'tags to not download'
+]
+
+noHighlightAddresses = [
+	"IP Addresses which won't get the tag highlighting behaviour"
+]
+
+
+# IP range that is shown the hentai tables. In CIDR notation
+pronWhiteList = '192.168.1.0/24'
+
+# Directory of files/images that will be removed from any and all downloads.
+badImageDir  = r"/somepath/dir"
+
 # Manga Updates
 buSettings = {
 	"login"         : "username",
 	"passWd"        : "password",
 }
+
+
+
+# ExHentai
+sadPanda = {
+
+	"login"         : "username",
+	"passWd"        : "pass",
+
+	"dlDir"        :  spDir,
+
+	# Sadpanda searches to scrape, and tags which will not be downloaded
+	"sadPandaSearches" :
+	[
+		'stuff'
+	],
+
+	"sadPandaExcludeTags" :
+	[
+		'other stuff'
+
+	],
+
+}
+
+
 
 # Starkana.com
 skSettings = {
@@ -150,12 +214,20 @@ puSettings = {
 }
 
 
+
 emSettings = {
 	"dlDir"        : ExhenMadokamiDir
 }
 
 fkSettings = {
 	"dlDir"        :  fkDir
+}
+
+hbSettings = {
+	"dlDir"        :  hbDir
+}
+nhSettings = {
+	"dlDir"        :  nhDir
 }
 
 

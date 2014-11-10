@@ -145,6 +145,9 @@ class WebGetRobust:
 			raise ValueError("getSoup contradicts the 'soup' directive!")
 
 		page = self.getpage(*args, **kwargs)
+		if isinstance(page, bytes):
+			raise ValueError("Received content not decoded! Cannot parse!")
+
 		soup = bs4.BeautifulSoup(page)
 		return soup
 
@@ -229,8 +232,6 @@ class WebGetRobust:
 
 				#print "execution", retryCount
 				try:
-
-					# print("request type = ", type(pgreq))
 					pghandle = self.opener.open(pgreq)					# Get Webpage
 
 				except urllib.error.HTTPError as e:								# Lotta logging
