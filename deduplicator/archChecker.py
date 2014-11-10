@@ -7,6 +7,8 @@ import logging
 import rpyc
 import magic
 
+import hashlib
+
 PHASH_DISTANCE_THRESHOLD = 2
 
 
@@ -237,8 +239,17 @@ class ArchChecker(DbBase):
 		self.db.deleteBasePath(self.archPath)
 
 		# Do overall hash of archive:
+		self.log.info("Taking overall MD5 of entire archive")
 		with open(self.archPath, "rb") as fp:
-			hexHash = self.remote.root.getMd5Hash(fp.read())
+			fContents = fp.read()
+
+		self.log.info("Archive read.")
+
+		fMD5 = hashlib.md5()
+		fMD5.update(fContents)
+		hexHash = fMD5.hexdigest()
+
+		self.log.info("Archive hashed. Doing internal hash.")
 		self.db.insertIntoDb(fsPath=self.archPath, internalpath="", itemhash=hexHash)
 
 

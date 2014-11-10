@@ -20,6 +20,7 @@ import ScrapePlugins.MjLoader.Run
 import ScrapePlugins.LoneMangaLoader.Run
 import ScrapePlugins.WebtoonLoader.Run
 import ScrapePlugins.KissLoader.Run
+import ScrapePlugins.SadPandaLoader.Run
 import ScrapePlugins.NHentaiLoader.Run
 import ScrapePlugins.DynastyLoader.Run
 import ScrapePlugins.HBrowseLoader.Run
@@ -69,6 +70,7 @@ scrapePlugins = {
 	19 : (ScrapePlugins.KissLoader.Run,                      60*60   ),
 	20 : (ScrapePlugins.NHentaiLoader.Run,                   60*60   ),
 	21 : (ScrapePlugins.Crunchyroll.Run,                     60*60*6 ),
+	22 : (ScrapePlugins.SadPandaLoader.Run,                  60*60*2 ),
 
 	# FoolSlide modules
 	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          60*60*12),
