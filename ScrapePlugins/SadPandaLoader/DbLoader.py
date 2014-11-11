@@ -129,7 +129,11 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def parseItem(self, inRow):
 		ret = {}
-		itemType, pubDate, name, dummy_uploader = inRow.find_all("td")
+		itemType, pubDate, name, uploader = inRow.find_all("td")
+
+		# Do not download any galleries we uploaded.
+		if uploader.get_text().lower() == settings.sadPanda['login'].lower():
+			return None
 
 		ret['seriesName'] = itemType.img['alt'].title()
 
@@ -197,8 +201,10 @@ def login():
 	run = DbLoader()
 	# run.checkLogin()
 	# run.checkExAccess()
-	# run.getFeed(settings.sadPanda['sadPandaSearches'][0])
-	run.go()
+	for x in range(10):
+		ret = run.getFeed(settings.sadPanda['sadPandaSearches'][0], pageOverride=x)
+		run.processLinksIntoDB(ret)
+	# run.go()
 
 
 if __name__ == "__main__":

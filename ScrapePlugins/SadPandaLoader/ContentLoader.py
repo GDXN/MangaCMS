@@ -103,10 +103,14 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			raise IOError("Invalid webpage")
 
+		if "This gallery has been removed, and is unavailable." in soup.get_text():
+			self.log.info("Gallery deleted. Removing.")
+			self.deleteRowsByValue(sourceUrl=sourcePage)
+			return False
 
 		ret = self.getTags(sourcePage, soup)
 		if not ret:
-			return
+			return False
 
 		linkDict['dirPath'] = os.path.join(settings.sadPanda["dlDir"], linkDict['seriesName'])
 
@@ -216,7 +220,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			if linkInfo:
 				self.doDownload(linkInfo)
 
-			sleeptime = random.randint(10,60*5)
+				sleeptime = random.randint(10,60*5)
+			else:
+				sleeptime = 5
+
 			self.log.info("Sleeping %s seconds.", sleeptime)
 			for dummy_x in range(sleeptime):
 				time.sleep(1)
