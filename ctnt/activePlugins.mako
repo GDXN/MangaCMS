@@ -271,10 +271,21 @@ sidebarItemList = [
 
 		{
 			"num"           : 14,
-			'dbKey'         : "IrcEnueue",
-			'name'          : "IRC",
+			'dbKey'         : "IrcEnqueue",
+			'name'          : "IRC XDCC",
 			'dictKey'       : "irc-irh",
-			'cssClass'      : "irc-irhId",
+			'cssClass'      : "ircId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+		{
+			"num"           : 30,
+			'dbKey'         : "IrcEnqueue",
+			'name'          : "IRC Trigger",
+			'dictKey'       : "irc-trg",
+			'cssClass'      : "ircId",
 			'showOnHome'    : True,
 			'renderSideBar' : True,
 			'genRow'        : True,

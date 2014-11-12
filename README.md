@@ -37,6 +37,9 @@ Plugin scrapers for:
 		 - A-Team:  Azrael, Boink, Death, Hannibal
 		 - BentoScans: [Bento]
 		 - ForTheHalibut: \`FTH\`
+	 - IRC Channel Triggers:
+		 - Cat Scans: #CATscans
+		 - Renzokusei Scans: #renzokusei 
 
  - Hentai Sites:
 	 - Fakku

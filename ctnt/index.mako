@@ -111,6 +111,7 @@ import settings
 
 <b>General</b>
 <ul>
+renzokusei scans
 synonyms without exclamation points
 string difference system for books
 mu tag browser
