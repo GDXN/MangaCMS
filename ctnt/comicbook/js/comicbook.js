@@ -324,7 +324,8 @@ var ComicBook = (function ($) {
 		 *
 		 * @return Image
 		 */
-		ComicBook.prototype.getPage = function (i) {
+		ComicBook.prototype.getPage = function (i)
+		{
 
 			if (i < 0 || i > srcs.length-1) {
 				throw ComicBookException.INVALID_PAGE + ' ' + i;
@@ -365,7 +366,10 @@ var ComicBook = (function ($) {
 		ComicBook.prototype.zoom = function (new_scale) {
 			options.zoomMode = 'manual';
 			scale = new_scale;
-			if (typeof this.getPage(pointer) === 'object') { this.drawPage(); }
+			if (typeof this.getPage(pointer) === 'object')
+			{
+				this.drawPage();
+			}
 		};
 
 		ComicBook.prototype.zoomIn = function () {
@@ -719,6 +723,9 @@ var ComicBook = (function ($) {
 			// And the assorted <br> tags as well
 			canvas_container.children().each(function(){$(this).remove();});
 
+			var devicePixelRatio = window.devicePixelRatio || 1;
+
+			console.log('Pixel ratio', devicePixelRatio);
 
 			for (var x = 0; x * maxDrawHeight < page_height; x += 1)
 			{
@@ -727,36 +734,52 @@ var ComicBook = (function ($) {
 				canvas_container.append($('<br/>'));
 				canvases.push(newCanvas);
 
+				var currentCanvas = newCanvas[0];
+
 				// make sure the canvas is always at least full screen, even if the page is more narrow than the screen
 				if (page_width > windowWidth())
 				{
-					canvases[x].prop({width: page_width});
+					currentCanvas.style.width = page_width + 'px';
+					currentCanvas.width = page_width * devicePixelRatio;
+					// currentCanvas.prop({width: page_width+'px'});
 				}
 				else
 				{
-					canvases[x].prop({width: windowWidth()});
+					currentCanvas.style.width = windowWidth() + 'px';
+					currentCanvas.width = windowWidth() * devicePixelRatio;
+					// currentCanvas.prop({width: page_width+'px'});
 				}
+
 
 				// Draw canvas chunks
 				if (runningHeight > maxDrawHeight)
 				{
-
 					// TODO: Clean up this mess at some point
-					canvases[x].prop({height: maxDrawHeight});
+					currentCanvas.style.height = maxDrawHeight + 'px';
+					currentCanvas.height = maxDrawHeight * devicePixelRatio;
 					chunkHeight    = maxDrawHeight;                 // Height of the current canvas chunk
 					xOffset       += maxDrawHeight;                 // Current draw x-offset
 					runningHeight -= maxDrawHeight;                 // Remaining image height to draw
 				}
 				else
 				{
-					canvases[x].prop({height: runningHeight});
+					currentCanvas.style.height = runningHeight + 'px';
+					currentCanvas.height = runningHeight * devicePixelRatio;
 					chunkHeight    = runningHeight;
 					xOffset       += runningHeight;
 					runningHeight -= runningHeight;
-
 				}
-				var context = canvases[x].get(0).getContext('2d');
-				context.drawImage(image, offsetW, chunkHeight-xOffset, page_width, page_height);
+
+				var context = currentCanvas.getContext('2d');
+
+				var imXPos = offsetW;
+				var imYPos = (chunkHeight - xOffset) * devicePixelRatio;
+				var imXSz  = page_width  * devicePixelRatio;
+				var imYSz  = page_height * devicePixelRatio;
+
+
+
+				context.drawImage(image, imXPos, imYPos, imXSz, imYSz);
 			}
 
 		};
