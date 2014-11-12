@@ -132,7 +132,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		itemType, pubDate, name, uploader = inRow.find_all("td")
 
 		# Do not download any galleries we uploaded.
-		if uploader.get_text().lower() == settings.sadPanda['login'].lower():
+		if uploader.get_text().lower().strip() == settings.sadPanda['login'].lower():
 			return None
 
 		ret['seriesName'] = itemType.img['alt'].title()

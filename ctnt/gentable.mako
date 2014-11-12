@@ -760,10 +760,10 @@ colours = {
 			% for name, row in rows:
 				<table border="1px" style="display:inline-block;">
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 67px;'>From</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 62px; font-size: 11px;'>From</td>
 						</tr>
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 67px;'>${name}</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 62px; font-size: 11px;'>${name}</td>
 						</tr>
 				</table>
 			% endfor
