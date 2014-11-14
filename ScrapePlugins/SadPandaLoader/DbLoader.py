@@ -135,7 +135,12 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if uploader.get_text().lower().strip() == settings.sadPanda['login'].lower():
 			return None
 
-		ret['seriesName'] = itemType.img['alt'].title()
+		category = itemType.img['alt']
+		if category.lower() in settings.sadPanda['sadPandaExcludeCategories']:
+			self.log.info("Excluded category: '%s'. Skipping.", category)
+			return False
+
+		ret['seriesName'] = category.title()
 
 		# If there is a torrent link, decompose it so the torrent link doesn't
 		# show up in our parsing of the content link.
@@ -211,8 +216,8 @@ if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup(startObservers=False):
-		login()
-		# run = DbLoader()
-		# run.go()
+		# login()
+		run = DbLoader()
+		run.go()
 
 

@@ -302,6 +302,12 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 				self.timer = time.time()
 				return
 
+			# sleep 30 minutes if there was nothing to do.
+			for x in range(30*60):
+				time.sleep(1)
+				if not runStatus.run:
+					break
+
 		elif self.state == "xdcc requested":
 			if time.time() - self.timer > self.xdcc_wait_time:
 				self.changeState("xdcc failed")

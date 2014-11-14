@@ -108,14 +108,14 @@ class TestBot(irc.bot.SingleServerIRCBot):
 			else:
 				self.filename = os.path.basename(args[1])
 
-				self.log.info("Saving to '%s'" % self.filename)
+				self.log.info("Saving to '%s'", self.filename)
 
 				if os.path.exists(self.filename):
-					self.log.error("A file named", self.filename,)
+					self.log.error("A file named '%s'", self.filename,)
 					self.log.error("already exists. Refusing to save it.")
 					# self.connection.quit()
 				else:
-					self.log.info("Saving item to ", self.filename)
+					self.log.info("Saving item to '%s'", self.filename)
 				self.file = open(self.filename, "wb")
 
 			if hasattr(self, "xdcc_receive_start"):
@@ -160,7 +160,7 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		a = e.arguments[0].split(":", 1)
 		self.log.info("Pubmessage = %s", e.arguments)
 		if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
-			self.log.info("Executing command", a[1])
+			self.log.info("Executing command '%s'", a[1])
 			self.say_command(e, a[1].strip())
 		return
 
