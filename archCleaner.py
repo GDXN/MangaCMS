@@ -8,7 +8,7 @@ import hashlib
 import settings
 import logging
 import magic
-import UniversalArchiveReader
+import UniversalArchiveInterface
 
 import rarfile
 import traceback
@@ -95,8 +95,7 @@ class ArchCleaner(object):
 		self.log.info("Scanning arch '%s'", archPath)
 
 		try:
-			old_zfp = UniversalArchiveReader.ArchiveReader(archPath)
-
+			old_zfp = UniversalArchiveInterface.ArchiveReader(archPath)
 
 
 			files = []

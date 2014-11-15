@@ -8,6 +8,7 @@ import threading
 import nameTools as nt
 import settings
 import os
+import os.path
 import time
 import json
 
@@ -69,8 +70,17 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not item['seriesName']:
 			self.log.info("No series set for item. Guessing from filename:")
 			self.log.info("Filename = '%s'", fName)
-			item['seriesName'] = nt.guessSeriesFromFilename(fName)
-			self.log.info("Guessed  = '%s'", item['seriesName'])
+			bareName = nt.guessSeriesFromFilename(fName)
+
+			# if not matchName or not matchName in nt.dirNameProxy:
+			if not nt.haveCanonicalMangaUpdatesName(bareName):
+				item["seriesName"] = settings.ircBot["unknown-series"]
+			else:
+				item["seriesName"] = nt.getCanonicalMangaUpdatesName(bareName)
+
+			self.log.info("Guessed  = '%s'. Updating series information", item['seriesName'])
+			self.db.updateDbEntry(item["sourceUrl"], seriesName=item["seriesName"])
+
 
 		dlPath, newDir = self.locateOrCreateDirectoryForSeries(item["seriesName"])
 
@@ -137,6 +147,10 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			return False
 
 
+
+		fqFName, ext = os.path.splitext(fileName)
+		fileName = "%s [IRC]%s" % (fqFName, ext)
+
 		self.currentItem["downloadPath"] = self.db.getDownloadPath(self.currentItem, fileName)
 		return open(self.currentItem["downloadPath"], "wb")
 
@@ -181,20 +195,6 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		self.changeState("xdcc finished")
 
 
-		# reqItem["info"] = info
-		# print("info", info["fName"])
-		# matchName = nt.guessSeriesFromFilename(info["fName"])
-		# # if not matchName or not matchName in nt.dirNameProxy:
-		# if not nt.haveCanonicalMangaUpdatesName(matchName):
-		# 	reqItem["seriesName"] = settings.ircBot["unknown-series"]
-		# else:
-		# 	reqItem["seriesName"] = nt.getCanonicalMangaUpdatesName(matchName)
-
-		# self.db.updateDbEntry(reqItem["sourceUrl"], seriesName=reqItem["seriesName"])
-
-
-
-
 		dedupState = processDownload.processDownload(self.currentItem["seriesName"], self.currentItem["downloadPath"], deleteDups=True)
 		self.log.info( "Done")
 
@@ -221,15 +221,6 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		info = json.loads(reqItem["sourceId"])
 		reqItem["info"] = info
 		# print("info", info["fName"])
-		matchName = nt.guessSeriesFromFilename(info["fName"])
-		# if not matchName or not matchName in nt.dirNameProxy:
-		if not nt.haveCanonicalMangaUpdatesName(matchName):
-			reqItem["seriesName"] = settings.ircBot["unknown-series"]
-		else:
-			reqItem["seriesName"] = nt.getCanonicalMangaUpdatesName(matchName)
-
-		self.db.updateDbEntry(reqItem["sourceUrl"], seriesName=reqItem["seriesName"])
-
 
 
 		if not "#"+reqItem["info"]["channel"] in self.channels:
