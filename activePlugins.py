@@ -12,7 +12,7 @@ import ScrapePlugins.SkBaseManager.Run
 import ScrapePlugins.BtBaseManager.Run
 import ScrapePlugins.PururinLoader.Run
 import ScrapePlugins.JzLoader.Run
-import ScrapePlugins.ExMadokami.Run
+
 import ScrapePlugins.FakkuLoader.Run
 import ScrapePlugins.McLoader.Run
 import ScrapePlugins.CxLoader.Run
@@ -50,7 +50,7 @@ import ScrapePlugins.MangaMadokami.mkFeedLoader
 # are run, initially, starting after 1-minue*{key} intervals
 scrapePlugins = {
 	0  : (ScrapePlugins.BtBaseManager.Run,                   60*60   ),
-	1  : (ScrapePlugins.ExMadokami.Run,                      60*60   ),
+
 	3  : (ScrapePlugins.JzLoader.Run,                        60*60*8 ),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
 	4  : (ScrapePlugins.DjMoeLoader.Run,                     60*45   ),
 	5  : (ScrapePlugins.DjMoeLoader.Retag,                   60*60   ),
