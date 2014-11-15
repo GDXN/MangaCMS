@@ -145,9 +145,9 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 	def on_welcome(self, c, e):
 		self.log.info("On Welcome.")
+		self.welcomed = True
 		if hasattr(self, "welcome_func"):
 			self.welcome_func()
-		self.welcomed = True
 
 
 

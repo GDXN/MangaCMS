@@ -3,65 +3,27 @@
 
 import webFunctions
 import re
-import yaml
 import json
 
 import time
 
 import runStatus
 import settings
-import logging
+
 
 
 import ScrapePlugins.IrcGrabber.IrcQueueBase
-
-
-
-
-
-
-# class IrcRetreivalInterface(object):
-# 	def __init__(self):
-# 		server = "irc.irchighway.net"
-
-# 		xdccSource = DbXdccWrapper()
-# 		trgrSource = DbTriggerWrapper()
-
-# 		self.bot = FetcherBot(xdccSource, trgrSource, settings.ircBot["name"], settings.ircBot["rName"], server)
-
-import ssl
-import irc.logging
-import irc.buffer
-import irc.client
-import irc.bot
-import irc.strings
 import ScrapePlugins.IrcGrabber.IrcBot
 
-class TestBot(irc.bot.SingleServerIRCBot):
 
+
+class ListerBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 
 	channels = []
 	listComplete = False
 
-	def __init__(self, nickname, realname, server, port=9999):
-		ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
 
-		# Horrible monkey-patch the ServerConnection instance so we can fix some encoding issues.
-		print("Old buffer class", irc.client.ServerConnection.buffer_class)
-		irc.client.ServerConnection.buffer_class = ScrapePlugins.IrcGrabber.IrcBot.TolerantDecodingLineBuffer
-		print("New buffer class", irc.client.ServerConnection.buffer_class)
-
-		irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, realname, connect_factory=ssl_factory)
-
-		self.log = logging.getLogger("Main.List.IRC")
-		self.received_bytes = 0
-
-		self.welcomed = False
-
-
-	# List events:
-
-	def on_liststart(self, dummy_connection, event):
+	def on_liststart(self, dummy_connection, dummy_event):
 		self.channels = []
 
 	def on_list(self, dummy_connection, event):
@@ -71,10 +33,6 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 	def on_listend(self, dummy_connection, dummy_event):
 		self.listComplete = True
-
-
-
-	# Exposed list functions
 
 	def getList(self):
 		self.listComplete = False
@@ -96,12 +54,35 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		return ret
 
 
-	def startup(self):
-		self.log.info("Bot entering select loop")
-		self.start()
+	def welcome_func(self):
+		print("Welcomed!")
+		# print(self.server_list[0])
+		# print(self.connection)
+
+		# print("Listing connection")
+		# print(self.getList())
 
 
+	def connectAndGetList(self):
+		self._connect()
+		cumTime = 0
+		loopTimeout = 0.1
+		while not self.welcomed:
+			self.reactor.process_once(timeout=loopTimeout)
 
+			# Timeout if we've run more then 5 minutes to connect
+			cumTime += loopTimeout
+			if cumTime > 60*5:
+				raise ValueError("Connection timed out!!")
+
+
+		self.log.info("Getting list!")
+
+		list = self.getList()
+
+		self.reactor.disconnect_all()
+
+		return list
 
 
 
@@ -131,34 +112,49 @@ class ChannelTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	def getBot(self, botPageUrl):
+
+	def getChannels(self):
+
+		bot = ListerBot("Test-bot", "Test-bot-bot", 'irc.irchighway.net')
+		print("Bot created. Connecting")
+		list = bot.connectAndGetList()
+		return list
+
+	def processChannel(self, channelTuple):
 
 		ret = []
 
-		# print("fetching page", botPageUrl)
+		channel, motd = channelTuple
 
-		# Hurrah for XML feeds!
-		page = self.wg.getSoup(botPageUrl)
+
+		# Skip channels we don't want (principally used to ignore non-english scanlator groups)
+		if channel in settings.ircMotdScraperMaskChannels:
+			return []
 
 		triggerRe = re.compile(r'\W(\![a-z]+\d+)\W')
 
-		entries = page.find_all("entry")
-		for entry in entries:
-			post = entry.content.get_text()
-			triggers = triggerRe.findall(post)
+		triggers = triggerRe.findall(motd)
+		if triggers:
 
 			for trigger in triggers:
 
 				item = {}
 				item["server"] = "irchighway"
-				item["channel"] = "renzokusei"
+				item["channel"] = channel.replace("#", "").strip().lower()
 
 				item["trigger"] = trigger
 
 				itemKey = item["trigger"]+item["channel"]+item["server"]
 				item = json.dumps(item)
 
-				ret.append((itemKey, item))
+				# Double-check we're not grabbing a list command
+				# This is because I think oneshot-triggers may not
+				# Have postpended digits, so I may allow the regex to
+				# not require them at some point.
+				if trigger != "!list":
+
+					# print(itemKey, item)
+					ret.append((itemKey, item))
 
 		return ret
 
@@ -166,9 +162,13 @@ class ChannelTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	def getMainItems(self):
 
 
-		self.log.info( "Loading Cat Scans Main Feed")
+		self.log.info( "Loading IRC MOTD Triggers")
 
-		ret = self.getBot(self.baseUrl)
+		ret = []
+		for channel in self.getChannels():
+			chanItems = self.processChannel(channel)
+			for item in chanItems:
+				ret.append(item)
 
 		self.log.info("All data loaded")
 		return ret
@@ -231,11 +231,11 @@ class ChannelTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 if __name__ == "__main__":
 	import logSetup
 	logSetup.initLogging()
-	fl = TriggerLoader()
+	fl = ChannelTriggerLoader()
 	# print(fl)
 	# fl.getMainItems()
 
-	ret = fl.getMainItems()
+	# ret = fl.getMainItems()
 	# for item in ret:
 	# 	print(item)
 

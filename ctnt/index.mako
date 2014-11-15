@@ -111,11 +111,23 @@ import settings
 
 <b>General</b>
 <ul>
-renzokusei scans
-synonyms without exclamation points
-string difference system for books
-mu tag browser
-automover
+	http://mangatopia.net/slide/
+	<li>ex filter by category too</li>
+
+
+	<li>random h already updated tag</li>
+	<li>reset hbrowse history</li>
+	<li>fix fakku</li>
+	<li>bu tag browser already</li>
+	<li>vortex scans</li>
+	<li>renzokusei scans</li>
+	<li>synonyms without exclamation points</li>
+	<li>string difference system for books</li>
+	<li>mu tag browser</li>
+	<li>automover</li>
+
+	<hr>
+
 	<li>strip trailing hyphens</li>
 	<li>change startup. start webserver first</li>
 	<li>select 201 to determine next page</li>

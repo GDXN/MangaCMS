@@ -13,6 +13,9 @@ import ScrapePlugins.IrcGrabber.FTHScans.IrcQueue
 import ScrapePlugins.IrcGrabber.CatScans.IrcQueue
 import ScrapePlugins.IrcGrabber.RenzokuseiScans.IrcQueue
 
+# Channel grabber
+import ScrapePlugins.IrcGrabber.ChannelLister.ChanLister
+
 import ScrapePlugins.RunBase
 
 import time
@@ -36,7 +39,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		ScrapePlugins.IrcGrabber.FTHScans.IrcQueue.TriggerLoader,
 
 		ScrapePlugins.IrcGrabber.CatScans.IrcQueue.TriggerLoader,
-		ScrapePlugins.IrcGrabber.RenzokuseiScans.IrcQueue.TriggerLoader
+		ScrapePlugins.IrcGrabber.RenzokuseiScans.IrcQueue.TriggerLoader,
+
+		ScrapePlugins.IrcGrabber.ChannelLister.ChanLister.ChannelTriggerLoader
 	]
 
 	def _go(self):
