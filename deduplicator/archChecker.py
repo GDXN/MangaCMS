@@ -1,6 +1,6 @@
 
 
-import UniversalArchiveReader
+import UniversalArchiveInterface
 import os
 import os.path
 import logging
@@ -33,7 +33,7 @@ class ArchChecker(DbBase):
 		self.maskedPaths = pathFilter
 
 		self.archPath    = archPath
-		self.arch        = UniversalArchiveReader.ArchiveReader(archPath)
+		self.arch        = UniversalArchiveInterface.ArchiveReader(archPath)
 
 		self.log = logging.getLogger("Main.Deduper")
 		self.log.info("ArchChecker Instantiated")
@@ -254,7 +254,7 @@ class ArchChecker(DbBase):
 
 
 		# Next, hash the file contents.
-		archIterator = UniversalArchiveReader.ArchiveReader(self.archPath)
+		archIterator = UniversalArchiveInterface.ArchiveReader(self.archPath)
 		for fName, fp in archIterator:
 
 			fCont = fp.read()
@@ -282,9 +282,9 @@ class ArchChecker(DbBase):
 
 		self.log.info("File hashing complete.")
 
-	# Proxy through to the archChecker from UniversalArchiveReader
+	# Proxy through to the archChecker from UniversalArchiveInterface
 	@staticmethod
 	def isArchive(archPath):
-		return UniversalArchiveReader.ArchiveReader.isArchive(archPath)
+		return UniversalArchiveInterface.ArchiveReader.isArchive(archPath)
 
 

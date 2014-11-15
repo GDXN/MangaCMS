@@ -1,7 +1,7 @@
 
 
 import time
-from UniversalArchiveReader import ArchiveReader
+from UniversalArchiveInterface import ArchiveReader
 import nameTools as nt
 import logging
 
