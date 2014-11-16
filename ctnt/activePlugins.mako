@@ -400,7 +400,7 @@ sidebarItemList = [
 			'dictKey'       : "em",
 			'cssClass'      : "emId",
 			'showOnHome'    : True,
-			'renderSideBar' : True,
+			'renderSideBar' : False,
 			'genRow'        : True,
 			'type'          : 'Porn'
 		},

@@ -79,7 +79,7 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				item["seriesName"] = nt.getCanonicalMangaUpdatesName(bareName)
 
 			self.log.info("Guessed  = '%s'. Updating series information", item['seriesName'])
-			self.db.updateDbEntry(item["sourceUrl"], seriesName=item["seriesName"])
+			self.updateDbEntry(item["sourceUrl"], seriesName=item["seriesName"])
 
 
 		dlPath, newDir = self.locateOrCreateDirectoryForSeries(item["seriesName"])

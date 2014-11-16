@@ -22,6 +22,21 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = 'n/a'
 
 
+	def updatePath(self, oldPath, newPath):
+		oldItemRoot, oldItemFile = os.path.split(oldPath)
+		newItemRoot, newItemFile = os.path.split(newPath)
+
+		srcRow = self.getRowsByValue(limitByKey=False, downloadpath=oldItemRoot, filename=oldItemFile)
+		if srcRow and len(srcRow) == 1:
+			self.log.info("OldPath:	'%s', '%s'", oldItemRoot, oldItemFile)
+			self.log.info("NewPath:	'%s', '%s'", newItemRoot, newItemFile)
+
+			srcId = srcRow[0]['dbId']
+			self.log.info("Fixing DB Path!")
+			self.updateDbEntryById(srcId, filename=newItemRoot, downloadpath=newItemFile)
+
+
+
 	def crossLink(self, delItem, dupItem, isPhash=False):
 		self.log.info("Cross-referencing file")
 
@@ -78,7 +93,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		archCleaner = ac.ArchCleaner()
 		try:
-			retTags = archCleaner.processNewArchive(archivePath, **kwargs)
+			retTags, archivePath = archCleaner.processNewArchive(archivePath, **kwargs)
 		except:
 			self.log.critical("Error processing archive '%s'", archivePath)
 			self.log.critical(traceback.format_exc())

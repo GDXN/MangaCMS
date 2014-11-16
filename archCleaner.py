@@ -55,11 +55,14 @@ class DamagedArchive(Exception):
 # It should eventually add it to the database if it's new, or delete it if it's redundant.
 # (WIP)
 
+import processDownload
+
 class ArchCleaner(object):
 
 	loggerPath = "Main.ZipClean"
 	def __init__(self):
 
+		self.proc = [processDownload.MangaProcessor(), processDownload.HentaiProcessor()]
 
 		self.log = logging.getLogger(self.loggerPath)
 
@@ -85,9 +88,11 @@ class ArchCleaner(object):
 		if not os.path.exists(archPath):
 			raise ValueError("Trying to clean non-existant file?")
 
-		if not magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip' and \
-		   not magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
-			raise NotAnArchive("Trying to clean a file that is not a zip/rar archive! File=%s" % archPath)
+		fType = magic.from_file(archPath, mime=True).decode('ascii')
+		if not fType == 'application/zip' and \
+		   not fType == 'application/x-rar' and \
+		   not fType == 'application/x-7z-compressed':
+			raise NotAnArchive("Trying to clean a file that is not a zip/rar/7z archive! File=%s" % archPath)
 
 
 
@@ -100,6 +105,16 @@ class ArchCleaner(object):
 
 			files = []
 			hadBadFile = False
+
+			if fType == 'application/x-7z-compressed':
+				# Cause fuck 7z files. They're slowwwww
+				hadBadFile = True
+
+			if fType == 'application/x-rar':
+				# Fukkit, convert ALL THE FILES
+				hadBadFile = True
+
+
 			for fileN, fileCtnt in old_zfp:
 
 				if fileN.endswith("Thumbs.db"):
@@ -139,11 +154,12 @@ class ArchCleaner(object):
 			# only replace the file if we need to
 			if hadBadFile:
 				# Now, recreate the zip file without the ad
-				self.log.info("Had advert. Rebuilding zip.")
-				if archPath.endswith(".rar") or archPath.endswith(".cbr"):
-					archPath = archPath.rsplit(".", 1)[0]
+				if not archPath.endswith(".zip"):
+
+					archPath = os.path.splitext(archPath)[0]
 					archPath += ".zip"
 
+				self.log.info("Had advert. Rebuilding zip as '%s'.", archPath)
 				new_zfp = zipfile.ZipFile(archPath, "w")
 				for fileInfo, contents in files:
 					new_zfp.writestr(fileInfo, contents)
@@ -151,6 +167,8 @@ class ArchCleaner(object):
 
 				if origPath != archPath:
 					os.remove(origPath)
+					for proc in self.proc:
+						proc.updatePath(origPath, archPath)
 
 			else:
 				self.log.info("No offending contents. No changes made to file.")
@@ -250,15 +268,15 @@ class ArchCleaner(object):
 			archPath = self.cleanZip(archPath)
 		except (zipfile.BadZipFile, rarfile.BadRarFile, DamagedArchive, NotAnArchive):
 			self.log.error("Ignoring archive because it appears damaged.")
-			return "damaged"
+			return "damaged", archPath
 
 		except:
 			self.log.error("Unknown error??")
 			for line in traceback.format_exc().split("\n"):
 				self.log.error(line)
-			return "damaged"
+			return "damaged", archPath
 
-		return ""
+		return "", archPath
 
 
 if __name__ == "__main__":
@@ -275,6 +293,7 @@ if __name__ == "__main__":
 			fileP = os.path.join(root, name)
 			if not os.path.exists(fileP):
 				raise ValueError
+
 			fType = magic.from_file(fileP, mime=True).decode("ascii")
 
 			if fType == 'application/zip' or fType == 'application/x-rar':

@@ -14,6 +14,7 @@ import utilities.dedupDir
 import utilities.approxFileSorter
 import utilities.autoOrganize as autOrg
 import utilities.cleanDb
+import utilities.cleanFiles
 import deduplicator.remoteInterface
 
 def printHelp():
@@ -189,6 +190,14 @@ def parseTwoArgCall(cmd, val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.approxFileSorter.scanDirectories(val)
+		return
+
+
+	elif cmd == "clean-archives":
+		if not os.path.exists(val):
+			print("Passed path '%s' does not exist!" % val)
+			return
+		utilities.cleanFiles.cleanArchives(val)
 		return
 
 

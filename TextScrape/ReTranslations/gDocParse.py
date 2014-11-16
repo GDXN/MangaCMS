@@ -72,7 +72,11 @@ class GDocExtractor(object):
 
 
 	def extract(self):
-		arch, fName = self.wg.getFileAndName(self.url, addlHeaders={'Referer': self.refererUrl})
+		try:
+			arch, fName = self.wg.getFileAndName(self.url, addlHeaders={'Referer': self.refererUrl})
+		except IndexError:
+			print("ERROR: Failure retreiving page!")
+			return None, []
 
 		baseName = fName.split(".")[0]
 
