@@ -8,10 +8,15 @@ nt.dirNameProxy.startDirObservers()
 
 
 import DbManagement.countCleaner
+import DbManagement.logTrimmer
 
 def trimDatabase():
 	cc = DbManagement.countCleaner.CountCleaner()
 	cc.clean()
+
+	# Trim the log files.
+	lc = DbManagement.logTrimmer.LogTrimmer()
+	lc.clean()
 
 def fixup_cherrypy_logs():
 	loggers = logging.Logger.manager.loggerDict.keys()

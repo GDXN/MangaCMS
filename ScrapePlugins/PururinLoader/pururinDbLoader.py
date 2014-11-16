@@ -32,8 +32,13 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			pageOverride = 1
 		try:
 			# I really don't get the logic behind Pururin's path scheme.
-			urlPath = '/browse/0/1{num1}/{num2}.html'.format(num1=pageOverride-1, num2=pageOverride)
-			pageUrl = urllib.parse.urljoin(self.urlBase, urlPath)
+			if pageOverride > 1:
+				urlPath = '/browse/0/1{num1}/{num2}.html'.format(num1=pageOverride-1, num2=pageOverride)
+				pageUrl = urllib.parse.urljoin(self.urlBase, urlPath)
+			else:
+				# First page is just the bare URL. It /looks/ like they're blocking the root page by direct path.
+				pageUrl = self.urlBase
+
 			print("Fetching page at", pageUrl)
 			page = self.wg.getpage(pageUrl)
 		except urllib.error.URLError:

@@ -79,7 +79,7 @@ def scheduleJobs(sched, timeToStart):
 # proper system operation, reset database state,
 # check/update database schema, etc...
 def preflight():
-	logSetup.initLogging()
+	logSetup.initLogging(logToDb=True)
 	schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 	statusManager.resetAllRunningFlags()
 

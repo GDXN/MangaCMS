@@ -79,6 +79,9 @@ DNLDED = 2
 					<li><a href="/hentaiError">H Errors</a>
 				% endif
 				<li><a href="/mangaError">M Errors</a>
+				<hr>
+				<li><a href="/errorLog">Scraper Errors</a>
+
 
 			</ul>
 		</div>

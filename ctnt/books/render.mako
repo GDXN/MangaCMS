@@ -271,3 +271,14 @@ else:
 
 
 
+
+
+
+
+<%def name="genTrie(inInterable)">
+	<%
+	return build_trie(inInterable)
+	%>
+
+</%def>
+

@@ -15,6 +15,72 @@ colours = [clr.Fore.BLUE, clr.Fore.RED, clr.Fore.GREEN, clr.Fore.YELLOW, clr.For
 def getColor(idx):
 	return colours[idx%len(colours)]
 
+
+class DatabaseHandler(logging.Handler):
+
+
+	def __init__(self, level=logging.DEBUG):
+		logging.Handler.__init__(self, level)
+
+		import settings
+		import psycopg2
+
+		try:
+			self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		except psycopg2.OperationalError:
+			self.conn = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
+		self.checkInitDb()
+
+	def checkInitDb(self):
+		with self.conn.cursor() as cur:
+
+			cur.execute('''CREATE TABLE IF NOT EXISTS logTable (
+												dbid      SERIAL PRIMARY KEY,
+												time      DOUBLE PRECISION NOT NULL,
+												source    TEXT NOT NULL,
+												level     INTEGER,
+												content   TEXT);''')
+
+
+			cur.execute("SELECT relname FROM pg_class;")
+			haveIndexes = cur.fetchall()
+			haveIndexes = [index[0] for index in haveIndexes]
+
+
+
+			indexes = [
+				# ("logTable_dbid_index",       '''CREATE INDEX logTable ON logTable (dbid   );'''  ),  # Primary key gets an index automatically
+				("logTable_time_index",       '''CREATE INDEX logTable_time_index       ON logTable (time   );'''  ),
+				("logTable_source_index",     '''CREATE INDEX logTable_source_index     ON logTable (source );'''  ),
+				("logTable_istext_index",     '''CREATE INDEX logTable_istext_index     ON logTable (level  );'''  ),
+				("logTable_title_coll_index", '''CREATE INDEX logTable_title_coll_index ON logTable USING BTREE (source COLLATE "en_US" text_pattern_ops);'''  )
+			]
+
+			for name, createCall in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(createCall)
+
+
+
+
+	def emit(self, record):
+
+		name    = record.name
+		logTime = record.created
+		level   = record.levelno
+		msg     = record.getMessage()
+		values  = (name, logTime, level, msg)
+
+		with self.conn.cursor() as cur:
+			cur.execute("BEGIN;")
+			cur.execute("INSERT INTO logTable (source, time, level, content) VALUES (%s, %s, %s, %s);", values)
+			cur.execute("COMMIT;")
+
+
+
+
+
 class ColourHandler(logging.Handler):
 
 	def __init__(self, level=logging.DEBUG):
@@ -115,7 +181,7 @@ def exceptHook(exc_type, exc_value, exc_traceback):
 # Global hackyness to detect and warn on double-initialization of the logging systems.
 LOGGING_INITIALIZED = False
 
-def initLogging(logLevel=logging.INFO):
+def initLogging(logLevel=logging.INFO, logToDb=False):
 
 	global LOGGING_INITIALIZED
 	if LOGGING_INITIALIZED:
@@ -133,6 +199,20 @@ def initLogging(logLevel=logging.INFO):
 
 	mainLogger = logging.getLogger("Main")			# Main logger
 	mainLogger.setLevel(logLevel)
+
+	# You have to add the dbLogger first, because the colorHandler logger
+	# modifies the internal values of the record.name attribute,
+	# and if the dbLogger is added after it, the modified values
+	# are also sent to the db logger.
+	if logToDb:
+		try:
+			dbLog = DatabaseHandler()
+			mainLogger.addHandler(dbLog)
+		except:
+			print("Warning! Failed to instantiate database logging interface!")
+			traceback.print_exc()
+
+
 	ch = ColourHandler()
 	mainLogger.addHandler(ch)
 
@@ -149,3 +229,13 @@ def initLogging(logLevel=logging.INFO):
 	sys.excepthook = exceptHook
 
 	print("done")
+
+
+if __name__ == "__main__":
+	initLogging(logToDb=True)
+	log = logging.getLogger("Main.Test")
+	log.debug("Testing logging - level: debug")
+	log.info("Testing logging - level: info")
+	log.warn("Testing logging - level: warn")
+	log.error("Testing logging - level: error")
+	log.critical("Testing logging - level: critical")

@@ -27,6 +27,9 @@ def cleanArchives(baseDir):
 				if UniversalArchiveInterface.ArchiveReader.isArchive(fileP):
 					cleaner.cleanZip(fileP)
 
+			except KeyboardInterrupt:
+				raise
+
 			except:
 				print("ERROR")
 				traceback.print_exc()
