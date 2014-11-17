@@ -583,7 +583,7 @@ colours = {
 	<tr class="${sourceSite}_row">
 
 		<td>${ut.timeAgo(retreivalTime)}</td>
-		<td bgcolor=${statusColour} class="showTT" mouseovertext="${sourceSite}, ${dbId}, ${filePath}"></td>
+		<td bgcolor=${statusColour} class="showHT" mouseovertext="${sourceSite}, ${dbId}, ${filePath}"></td>
 		<td>
 		## Messy hack that prevents the "»" from being drawn anywhere but *inbetween* tags in the path
 			% for i, seriesName in enumerate(seriesNames):
@@ -760,10 +760,10 @@ colours = {
 			% for name, row in rows:
 				<table border="1px" style="display:inline-block;">
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 62px; font-size: 11px;'>From</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 70px; font-size: 12px;'>From</td>
 						</tr>
 						<tr class="${row}">
-							<td style='padding-left: 5px; padding-right: 5px; width: 62px; font-size: 11px;'>${name}</td>
+							<td style='padding-left: 5px; padding-right: 5px; width: 70px; font-size: 12px;'>${name}</td>
 						</tr>
 				</table>
 			% endfor

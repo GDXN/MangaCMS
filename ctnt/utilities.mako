@@ -106,13 +106,13 @@ from ipaddress import IPv4Address, IPv4Network
 	<link rel="stylesheet" href="/style.mako.css">
 </%def>
 
-<%def name="mouseOverJs()">
+<%def name="mouseOverJs(key='showTT')">
 	// Yeah, apparently you can have raw js in
 	// mako functions.
 
 	$(document).ready(function() {
 	// Tooltip only Text
-	$('.showTT').hover(function(){
+	$('.${key}').hover(function(){
 		// Hover over code
 		var mouseovertext = $(this).attr('mouseovertext');
 		$(this).data('tipText', mouseovertext).removeAttr('mouseovertext');
@@ -134,7 +134,7 @@ from ipaddress import IPv4Address, IPv4Network
 </%def>
 
 
-<%def name="headerBase()">
+<%def name="headerBase(key=None)">
 	${getCss()}
 	<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 	<script>
@@ -146,7 +146,7 @@ from ipaddress import IPv4Address, IPv4Network
 			form.submit();
 		}
 
-		${mouseOverJs()}
+		${mouseOverJs(key)}
 	</script>
 	<meta name="viewport" content="width=1024" />
 

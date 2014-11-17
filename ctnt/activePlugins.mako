@@ -268,6 +268,18 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 
+		{
+			"num"           : 31,
+			'dbKey'         : "MangatopiaLoader",
+			'name'          : "Mangatopia",
+			'dictKey'       : "mp",
+			'cssClass'      : "mpId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
 
 		{
 			"num"           : 14,

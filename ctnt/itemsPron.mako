@@ -9,7 +9,7 @@
 <html>
 <head>
 	<title>WAT WAT IN THE BATT</title>
-	${ut.headerBase()}
+	${ut.headerBase(key='showHT')}
 </head>
 
 <%startTime = time.time()%>

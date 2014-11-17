@@ -29,7 +29,7 @@
 					{
 						$('#mangatable').html(response);
 
-						${ut.mouseOverJs()}
+						${ut.mouseOverJs(key="showTT")}
 					}
 				}
 			);
@@ -47,7 +47,7 @@
 					{
 						$('#prontable').html(response);
 
-						${ut.mouseOverJs()}
+						${ut.mouseOverJs(key="showHT")}
 					}
 				}
 			);
@@ -115,13 +115,11 @@ import settings
 	<li>ex filter by category too</li>
 
 	<li>TONIGOBE</li>
-	<li>random h already updated tag</li>
 	<li>reset hbrowse history</li>
-	<li>fix djmoe</li>
 	<li>bu tag browser already</li>
 	<li>synonyms without exclamation points</li>
 	<li>string difference system for books</li>
-	<li>mu tag browser</li>
+	<li>mu tag browser - GiN/GiST index?</li>
 	<li>automover</li>
 
 	<hr>
@@ -261,6 +259,8 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>random h already updated tag</strike> It's actually from the source. Not much I can do.</li>
+	<li><strike>fix djmoe</strike></li>
 	<li><strike>rescan series on batoto</strike></li>
 	<li><strike>booktrie nodes decrease in size</strike> (Whoops, CSS Stupid)</li>
 	<li><strike>rating changing is broken</strike></li>
