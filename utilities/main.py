@@ -55,6 +55,9 @@ def printHelp():
 	print("		{del-dir} when running 'dirs-clean'. ")
 	print("		Each item in {del-dir} is re-confirmed to be a complete duplicate, and then truly deleted. ")
 	print("	")
+	print("	purge-dir-phash {target-path}")
+	print("		Same as `purge-dir`, but uses phashes for duplicate detection as well.")
+	print("	")
 	print("	sort-dir-contents {target-path}")
 	print("		Scan the contents of {target-path}, and try to infer the series for each file in said folders.")
 	print("		If file doesn't match the series for the folder, and does match a known, valid folder, prompt")
@@ -92,6 +95,9 @@ def printHelp():
 	print("	")
 	print("	fix-bad-series")
 	print("		Consolidate series names to MangaUpdates standard naming.")
+	print("	")
+	print("	reload-tree")
+	print("		Reload the BK tree from the database.")
 	print("	")
 
 
@@ -133,6 +139,8 @@ def parseOneArgCall(cmd):
 		pc.consolidateSeriesNaming()
 	elif mainArg.lower() == "fix-djm":
 		pc.fixDjMItems()
+	elif mainArg.lower() == "reload-tree":
+		deduplicator.remoteInterface.treeReload()
 	elif mainArg.lower() == "import-djm":
 		if not len(sys.argv) == 3:
 			print("You must specify a path to import from!")
@@ -176,6 +184,12 @@ def parseTwoArgCall(cmd, val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.dedupDir.purgeDedupTemps(val)
+		return
+	elif cmd == "purge-dir-phash":
+		if not os.path.exists(val):
+			print("Passed path '%s' does not exist!" % val)
+			return
+		utilities.dedupDir.purgeDedupTempsPhash(val)
 		return
 
 	elif cmd == "dirs-restore":

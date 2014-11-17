@@ -21,43 +21,43 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	QUERY_DEBUG = False
 
 
-	def __init__(self, scanEnv, removeDir, distance):
+	def __init__(self):
 
 		self.remote = rpyc.connect("localhost", 12345)
-		self.proc = self.remote.root.TreeProcessor(removeDir, 3, matchDir=scanEnv, callBack=self.callBack)
+		self.db = self.remote.root.DbApi()
 		super().__init__()
 
-	def callBack(self, delItem, dupItem):
-		self.log.info("callback")
+	# def callBack(self, delItem, dupItem):
+	# 	self.log.info("callback")
 
-		self.proc.removeArchive(delItem)
-		delItemRoot, delItemFile = os.path.split(delItem)
-		dupItemRoot, dupItemFile = os.path.split(dupItem)
-		self.log.info("Remove:	'%s', '%s'" % (delItemRoot, delItemFile))
-		self.log.info("Match: 	'%s', '%s'" % (dupItemRoot, dupItemFile))
+	# 	self.proc.removeArchive(delItem)
+	# 	delItemRoot, delItemFile = os.path.split(delItem)
+	# 	dupItemRoot, dupItemFile = os.path.split(dupItem)
+	# 	self.log.info("Remove:	'%s', '%s'" % (delItemRoot, delItemFile))
+	# 	self.log.info("Match: 	'%s', '%s'" % (dupItemRoot, dupItemFile))
 
-		srcRow = self.getRowsByValue(limitByKey=False, downloadpath=delItemRoot, filename=delItemFile)
-		dstRow = self.getRowsByValue(limitByKey=False, downloadpath=dupItemRoot, filename=dupItemFile)
+	# 	srcRow = self.getRowsByValue(limitByKey=False, downloadpath=delItemRoot, filename=delItemFile)
+	# 	dstRow = self.getRowsByValue(limitByKey=False, downloadpath=dupItemRoot, filename=dupItemFile)
 
-		# print("HaveItem", srcRow)
-		if not settings.mangaCmsHContext in dupItemRoot:
-			self.log.warn("Item not within the context of the relinker. Not fixing database")
-		else:
-			if srcRow and len(srcRow) == 1:
-				srcId = srcRow[0]['dbId']
-				self.log.info("Relinking!")
-				self.updateDbEntryById(srcId, filename=dupItemFile, downloadpath=dupItemRoot)
-				self.addTags(dbId=srcId, tags='deleted was-duplicate phash-duplicate')
+	# 	# print("HaveItem", srcRow)
+	# 	if not settings.mangaCmsHContext in dupItemRoot:
+	# 		self.log.warn("Item not within the context of the relinker. Not fixing database")
+	# 	else:
+	# 		if srcRow and len(srcRow) == 1:
+	# 			srcId = srcRow[0]['dbId']
+	# 			self.log.info("Relinking!")
+	# 			self.updateDbEntryById(srcId, filename=dupItemFile, downloadpath=dupItemRoot)
+	# 			self.addTags(dbId=srcId, tags='deleted was-duplicate phash-duplicate')
 
-				if dstRow and len(dstRow) == 1:
+	# 			if dstRow and len(dstRow) == 1:
 
-					dstId = dstRow[0]['dbId']
-					self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId))
-					self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId))
-					self.log.info("Found destination row. Cross-linking!")
+	# 				dstId = dstRow[0]['dbId']
+	# 				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId))
+	# 				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId))
+	# 				self.log.info("Found destination row. Cross-linking!")
 
-	def pClean(self, targetDir):
-		self.proc.trimFiles(targetDir)
+	# def pClean(self, targetDir):
+	# 	self.proc.trimFiles(targetDir)
 
 	def go(self):
 		pass
@@ -66,13 +66,15 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.remote.close()
 
 def pClean(targetDir, removeDir, scanEnv):
-	print("Wat", targetDir, removeDir, scanEnv)
+	print("NO LONGER USEABLE")
 
-	print("Connected.")
-	cleaner = PCleaner(scanEnv, removeDir, 3)
+def treeReload():
 
-	print("Loaded. Starting scan")
-	cleaner.pClean(targetDir)
+	cleaner = PCleaner()
+	print("Connected. Forcing reload")
+	cleaner.db.forceReload()
+	print("Complete")
+
 
 
 

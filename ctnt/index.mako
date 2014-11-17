@@ -114,10 +114,10 @@ import settings
 	http://mangatopia.net/slide/
 	<li>ex filter by category too</li>
 
-
+	<li>TONIGOBE</li>
 	<li>random h already updated tag</li>
 	<li>reset hbrowse history</li>
-	<li>fix fakku</li>
+	<li>fix djmoe</li>
 	<li>bu tag browser already</li>
 	<li>vortex scans</li>
 	<li>renzokusei scans</li>
@@ -182,7 +182,8 @@ import settings
 <ul>
 	<li>Manga</li>
 	<ul>
-		<li>http://tapastic.com/series/browse ?</li>
+	
+elflite	<li>http://tapastic.com/series/browse ?</li>
 		<li>Tadanohito as a H source</li>
 		<li>/ak/ scans (Problematic, as there is no central release point)</li>
 		<li><strike>http://nhentai.net/</strike> They don't recompress (I think). Awesome!</li>

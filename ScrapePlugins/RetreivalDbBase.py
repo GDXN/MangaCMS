@@ -463,6 +463,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			raise ValueError("You have to specify tags you want to add as a kwarg! '%s'" % (kwargs))
 
 		tags = kwargs.pop("tags")
+		print("Getting row", kwargs)
 		row = self.getRowByValue(**kwargs)
 		if not row:
 			raise ValueError("Row specified does not exist!")

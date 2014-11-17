@@ -81,7 +81,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 
-	def cleanSingleDir(self, dirPath, delDir, includePhash=False, pathFilter=['']):
+	def cleanSingleDir(self, dirPath, delDir, includePhash=True, pathFilter=['']):
 
 		self.log.info("Processing subdirectory '%s'", dirPath)
 		if not dirPath.endswith("/"):
@@ -320,6 +320,10 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					self.log.info("Windows Thumbs.db file")
 					return True
 
+				if hashVal[0].endswith("deleted.txt"):
+					self.log.info("Advert Deletion note.")
+					return True
+
 				self.log.info("Empty hash: '%s', for file '%s'", hashVal[2], hashVal)
 				return False
 
@@ -367,6 +371,14 @@ def purgeDedupTemps(basePath):
 	dd.openDB()
 	dd.setupDbApi()
 	dd.purgeDedupTempsMd5Hash(basePath)
+	dd.closeDB()
+
+def purgeDedupTempsPhash(basePath):
+
+	dd = DirDeduper()
+	dd.openDB()
+	dd.setupDbApi()
+	dd.purgeDupDirPhash(basePath)
 	dd.closeDB()
 
 def moveUnlinkable(dirPath, toPath):

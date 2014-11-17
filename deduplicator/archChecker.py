@@ -115,8 +115,8 @@ class ArchChecker(DbBase):
 					matches.setdefault(fsPath, set()).add(fileN)
 					dups.append((fsPath, internalPath, dummy_itemhash))
 				elif not isNotMasked:
-					pass
 					# self.log.info("Match masked by filter: '%s'", fsPath)
+					pass
 				else:
 					self.log.warn("Item '%s' no longer exists!", fsPath)
 					self.db.deleteBasePath(fsPath)
@@ -126,6 +126,7 @@ class ArchChecker(DbBase):
 			# Short circuit on unique item, since we are only checking if ANY item is unique
 			if not dups:
 				self.log.info("It contains at least one unique files.")
+				# self.log.info("Unique file: '%s'", fileN)
 				return {}
 
 		self.log.info("It does not contain any unique files.")
@@ -156,6 +157,11 @@ class ArchChecker(DbBase):
 				if fName.endswith("Thumbs.db") and fType == b'Composite Document File V2 Document, No summary info':
 					dups.append("Windows thumbnail file. Ignoring")
 					self.log.info("Windows thumbnail database. Ignoring")
+					continue
+
+				if fName.endswith("deleted.txt") and fType == b'ASCII text':
+					dups.append("Removed advert note. Ignoring")
+					self.log.info("Found removed advert note. Ignoring")
 					continue
 
 				self.log.warn("No phash for file '%s'! Wat?", (fName))
@@ -207,6 +213,7 @@ class ArchChecker(DbBase):
 
 			if not dups:
 				self.log.info("Archive contains at least one unique phash(es).")
+				self.log.info("First unique file: '%s'", fileN)
 				return {}
 
 		self.log.info("Archive does not contain any unique phashes.")

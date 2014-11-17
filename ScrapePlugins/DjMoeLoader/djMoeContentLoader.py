@@ -275,16 +275,16 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Successfully Saved to path: %s", wholePath)
 
 
-			self.updateDbEntry(linkDict["sourceUrl"], downloadPath=linkDict["dirPath"], fileName=fileN)
+			self.updateDbEntry(linkDict["contentId"], downloadPath=linkDict["dirPath"], fileName=fileN)
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
 			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True)
 			self.log.info( "Done")
 
 			if dedupState:
-				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
+				self.addTags(sourceUrl=linkDict["contentId"], tags=dedupState)
 
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
+			self.updateDbEntry(linkDict["contentId"], dlState=2)
 			self.conn.commit()
 
 
@@ -299,3 +299,16 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# cur.execute('UPDATE djmoe SET dlPath=?, dlName=?, itemTags=?  WHERE contentID=?;', ("ERROR", 'ERROR: FAILED', "N/A", linkDict["contentId"]))
 			# self.log.info("fetchall = ", cur.fetchall())
 			self.conn.commit()
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		# run = HBrowseRetagger()
+		run = DjMoeContentLoader()
+
+		run.resetStuckItems()
+		run.go()
