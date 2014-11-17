@@ -96,7 +96,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		threadName = threading.current_thread().name
 		if name == "log" and "Thread-" in threadName:
 			if threadName not in self.loggers:
-				self.loggers[threadName] = logging.getLogger("Main.%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
+				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
 				self.lastLoggerIndex += 1
 			return self.loggers[threadName]
 

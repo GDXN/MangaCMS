@@ -47,8 +47,8 @@ class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 		pageCtnt = self.wg.getpage(baseUrl)
-		print("GetImageUrls")
-		print("This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt)
+		# print("GetImageUrls")
+		# print("This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt)
 
 		if "This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt:
 			self.log.info("Adult check page. Confirming...")
@@ -70,15 +70,15 @@ class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		if container.find('div', class_='ads'):
 			container.find('div', class_='ads').decompose()
 
-
 		scriptText = container.script.get_text()
 		if not scriptText:
 			raise ValueError("No contents in script tag? '%s'" % baseUrl)
 
-		jsonRe = re.compile(r'var pages = (\[.+?\]);', re.DOTALL)
+		jsonRe = re.compile(r'var pages ?= ?(\[.+?\]);', re.DOTALL)
 		jsons = jsonRe.findall(scriptText)
 
 		if not jsons:
+			# print("Script = ", container.script)
 			raise ValueError("No JSON variable in script! '%s'" % baseUrl)
 
 		arr = json.loads(jsons.pop())

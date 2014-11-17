@@ -26,6 +26,10 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "done")
 
 
+	# Can be overridden by child-classes, to allow filtering of
+	# downloads
+	def filterItem(self, item):
+		return item
 
 
 	def extractItemInfo(self, soup):
@@ -75,7 +79,9 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["seriesName"] = baseInfo["title"]
 			item["retreivalTime"]       = time.mktime(date.timetuple())
 
-			ret.append(item)
+			item = self.filterItem(item)
+			if item:
+				ret.append(item)
 
 		return ret
 

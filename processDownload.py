@@ -61,7 +61,8 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			self.addTags(dbId=srcId, tags=tags, limitByKey=False)
 
-			if dstRow and len(dstRow) == 1:
+			# Allow for situations where we're linking to something that already has other links
+			if dstRow:
 
 				dstId = dstRow[0]['dbId']
 				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=dstId), limitByKey=False)

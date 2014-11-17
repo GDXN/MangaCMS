@@ -35,6 +35,7 @@ import ScrapePlugins.FoolSlide.SenseLoader.Run
 import ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run
 import ScrapePlugins.FoolSlide.TwistedHel.Run
 import ScrapePlugins.FoolSlide.CasanovaScans.Run
+import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 
 
 import TextScrape.BakaTsuki.Run
@@ -50,6 +51,7 @@ import ScrapePlugins.MangaMadokami.mkFeedLoader
 # are run, initially, starting after 1-minue*{key} intervals
 scrapePlugins = {
 	0  : (ScrapePlugins.BtBaseManager.Run,                   60*60   ),
+	2  : (ScrapePlugins.BuMonitor.Run,                       60*60   ),
 
 	3  : (ScrapePlugins.JzLoader.Run,                        60*60*8 ),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
 	4  : (ScrapePlugins.DjMoeLoader.Run,                     60*45   ),
@@ -79,6 +81,7 @@ scrapePlugins = {
 	33 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     60*60*12),
 	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            60*60*12),
 	35 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         60*60*12),
+	35 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      60*60*12),
 
 
 
@@ -89,7 +92,6 @@ scrapePlugins = {
 	500 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       60*60*24*4),  # every 4 days, because I have to iterate over the ENTIRE site.
 
 
-	2  : (ScrapePlugins.BuMonitor.Run,            60*60   ),
 
 	510 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
 	511 : (TextScrape.JapTem.Run,                          60*60*24*5),

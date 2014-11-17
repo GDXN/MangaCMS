@@ -28,6 +28,7 @@ Plugin scrapers for:
 	 	- ShoujoSense Scans
 	 	- TwistedHel Scans
 	 	- Casanova Scans
+	 	- MangaTopia
 	 - Numerous IRC bots.
 		 - ViScans: Bort
 		 - StupidCommotion: Suzume, Torako

@@ -111,7 +111,7 @@ import settings
 
 <b>General</b>
 <ul>
-	http://mangatopia.net/slide/
+
 	<li>ex filter by category too</li>
 
 	<li>TONIGOBE</li>
@@ -119,8 +119,6 @@ import settings
 	<li>reset hbrowse history</li>
 	<li>fix djmoe</li>
 	<li>bu tag browser already</li>
-	<li>vortex scans</li>
-	<li>renzokusei scans</li>
 	<li>synonyms without exclamation points</li>
 	<li>string difference system for books</li>
 	<li>mu tag browser</li>
@@ -182,8 +180,8 @@ import settings
 <ul>
 	<li>Manga</li>
 	<ul>
-	
-elflite	<li>http://tapastic.com/series/browse ?</li>
+
+		<li>http://tapastic.com/series/browse ?</li>
 		<li>Tadanohito as a H source</li>
 		<li>/ak/ scans (Problematic, as there is no central release point)</li>
 		<li><strike>http://nhentai.net/</strike> They don't recompress (I think). Awesome!</li>
