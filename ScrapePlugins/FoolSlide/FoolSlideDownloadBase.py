@@ -164,10 +164,12 @@ class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			arch.close()
 
 
+			filePath, fileName = os.path.split(fqFName)
+			self.updateDbEntry(sourceUrl, downloadPath=filePath, fileName=fileName)
+
 			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True)
 			self.log.info( "Done")
 
-			filePath, fileName = os.path.split(fqFName)
 			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, seriesName=seriesName, originName=chapterVol, tags=dedupState)
 			return
 
