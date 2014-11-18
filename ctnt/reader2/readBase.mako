@@ -5,6 +5,7 @@
 <%namespace name="tableGenerators" file="/gentable.mako"/>
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
+<%namespace name="tagFuncs"        file="/tags/tagFuncs.mako"/>
 
 
 <%!
@@ -418,7 +419,7 @@ def dequoteDict(inDict):
 					tags.sort()
 					%>
 					% for item in tags:
-						<li>${item}</li>
+						<li>${tagFuncs.makeTagLink(item)}</li>
 					% endfor
 				</ul>
 			</div>
@@ -426,7 +427,11 @@ def dequoteDict(inDict):
 
 		% if buGenre:
 			<div class="lightRect itemInfoBox">
-				Bu Genre: ${buGenre}
+				Bu Genre:
+
+				% for item in buGenre.split():
+					${tagFuncs.makeGenreLink(item)}
+				% endfor
 			</div>
 		% endif
 

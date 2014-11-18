@@ -499,8 +499,8 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 						("%s_buGenre_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buGenre)'''),
 
 						# And the GiN indexes to allow full-text searching so we can search by genre/tags.
-						("%s_buTags_gin_index"   % self.tableName, self.tableName, '''CREATE INDEX %s ON %s gin(to_tsvector('simple', buTags))'''),
-						("%s_buGenre_gin_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s gin(to_tsvector('simple', buGenre))'''),
+						("%s_buTags_gin_index"   % self.tableName, self.tableName, '''CREATE INDEX %s ON %s gin((lower(buTags)::tsvector))'''),
+						("%s_buGenre_gin_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s gin((lower(buGenre)::tsvector))'''),
 
 			]
 			for name, table, nameFormat in indexes:
@@ -515,6 +515,13 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			# CREATE INDEX mangaseries_buGenre_gin_index ON mangaseries USING gin(to_tsvector('simple', buGenre));
 
 			# SELECT * FROM ts_stat('SELECT to_tsvector(''english'',buTags) from mangaseries') ORDER BY nentry DESC;
+
+			# DROP INDEX mangaseries_buGenre_gin_index;
+			# DROP INDEX mangaseries_buTags_gin_index;
+
+			# CREATE INDEX mangaseries_buGenre_gin_index ON mangaseries USING gin((lower(buGenre)::tsvector));
+			# CREATE INDEX mangaseries_buTags_gin_index ON mangaseries USING gin((lower(buTags)::tsvector));
+
 
 			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
 												dbId            SERIAL PRIMARY KEY,

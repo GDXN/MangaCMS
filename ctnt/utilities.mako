@@ -68,15 +68,10 @@ from ipaddress import IPv4Address, IPv4Network
 
 
 
-<%def name="idToLink(buId=None, mtId=None)">
+<%def name="idToLink(buId)">
 	<%
 
-	if mtId:
-		return "<a href='http://www.mangatraders.com/manga/series/{id}'>{id}</a>".format(id=mtId)
-	elif buId:
-		return "<a href='http://www.mangaupdates.com/series.html?id={id}'>{id}</a>".format(id=buId)
-	else:
-		return ""
+	return "<a href='http://www.mangaupdates.com/series.html?id={id}'>{id}</a>".format(id=buId)
 
 	%>
 </%def>

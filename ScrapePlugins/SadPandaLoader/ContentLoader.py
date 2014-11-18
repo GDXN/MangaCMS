@@ -172,11 +172,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			fileN = nt.makeFilenameSafe(fileN)
 
 
+			if len(fileN) > 230:
+				fileN = fileN[:220]+fileN[-6:]
 			# self.log.info("geturl with processing", fileN)
 			wholePath = os.path.join(linkDict["dirPath"], fileN)
 			self.log.info("Complete filepath: %s", wholePath)
 
-					#Write all downloaded files to the archive.
+			#Write all downloaded files to the archive.
 			with open(wholePath, "wb") as fp:
 				fp.write(fCont)
 
@@ -185,10 +187,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			if not linkDict["tags"]:
 				linkDict["tags"] = ""
 
-
-
 			self.updateDbEntry(linkDict["sourceUrl"], downloadPath=linkDict["dirPath"], fileName=fileN)
-
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
 			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True)
