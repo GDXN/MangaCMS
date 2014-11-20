@@ -320,67 +320,71 @@ class WebGetRobust:
 							else:
 								self.log.info("Compression type = %s. Content Size compressed = %0.3fK. Decompressed = %0.3fK. File type: %s.", compType, preDecompSize, decompSize, cType)
 
+							if cType:
+								if "text/html" in cType or \
+									'text/javascript' in cType or    \
+									'application/atom+xml' in cType:				# If this is a html/text page, we want to decode it using the local encoding
 
-							if "text/html" in cType or        \
-								'text/javascript' in cType or \
-								'application/atom+xml' in cType:				# If this is a html/text page, we want to decode it using the local encoding
+									if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
 
-								if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
-
-									dummy_docType, charset = cType.split(";")
-									charset = charset.split("=")[-1]
+										dummy_docType, charset = cType.split(";")
+										charset = charset.split("=")[-1]
 
 
-								else:		# The server is not reporting an encoding in the headers.
+									else:		# The server is not reporting an encoding in the headers.
 
-									# this *should* probably be done using a parser.
-									# However, it seems to be grossly overkill to shove the whole page (which can be quite large) through a parser just to pull out a tag that
-									# should be right near the page beginning anyways.
-									# As such, it's a regular expression for the moment
+										# this *should* probably be done using a parser.
+										# However, it seems to be grossly overkill to shove the whole page (which can be quite large) through a parser just to pull out a tag that
+										# should be right near the page beginning anyways.
+										# As such, it's a regular expression for the moment
 
-									# Regex is of bytes type, since we can't convert a string to unicode until we know the encoding the
-									# bytes string is using, and we need the regex to get that encoding
-									coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pgctnt, flags=re.IGNORECASE)
+										# Regex is of bytes type, since we can't convert a string to unicode until we know the encoding the
+										# bytes string is using, and we need the regex to get that encoding
+										coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pgctnt, flags=re.IGNORECASE)
 
-									cType = b""
-									charset = None
+										cType = b""
+										charset = None
+										try:
+											if coding:
+												cType = coding.group(1)
+												codecs.lookup(cType.decode("ascii"))
+												charset = cType.decode("ascii")
+
+										except LookupError:
+
+											# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
+											if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
+
+												dummy_docType, charset = cType.split(b";")
+												charset = charset.split(b"=")[-1]
+
+										if not charset:
+											self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
+											charset = "iso-8859-1"
+
 									try:
-										if coding:
-											cType = coding.group(1)
-											codecs.lookup(cType.decode("ascii"))
-											charset = cType.decode("ascii")
+										pgctnt = str(pgctnt, charset)
 
-									except LookupError:
+									except UnicodeDecodeError:
+										self.log.error("Encoding Error! Stripping invalid chars.")
+										pgctnt = pgctnt.decode('utf-8', errors='ignore')
 
-										# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
-										if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
+									if soup:
+										pgctnt = bs4.BeautifulSoup(pgctnt)
+								elif "text/plain" in cType or "text/xml" in cType:
+									pgctnt = bs4.UnicodeDammit(pgctnt).unicode_markup
 
-											dummy_docType, charset = cType.split(b";")
-											charset = charset.split(b"=")[-1]
+								# Assume JSON is utf-8. Probably a bad idea?
+								elif "application/json" in cType:
+									pgctnt = pgctnt.decode('utf-8')
 
-									if not charset:
-										self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
-										charset = "iso-8859-1"
+								elif "text" in cType:
+									self.log.critical("Unknown content type!")
+									self.log.critical(cType)
 
-								try:
-									pgctnt = str(pgctnt, charset)
-
-								except UnicodeDecodeError:
-									self.log.error("Encoding Error! Stripping invalid chars.")
-									pgctnt = pgctnt.decode('utf-8', errors='ignore')
-
-								if soup:
-									pgctnt = bs4.BeautifulSoup(pgctnt)
-							elif "text/plain" in cType or "text/xml" in cType:
-								pgctnt = bs4.UnicodeDammit(pgctnt).unicode_markup
-
-							# Assume JSON is utf-8. Probably a bad idea?
-							elif "application/json" in cType:
-								pgctnt = pgctnt.decode('utf-8')
-
-							elif "text" in cType:
-								self.log.critical("Unknown content type!")
-								self.log.critical(cType)
+							else:
+								self.log.critical("No content disposition header!")
+								self.log.critical("Cannot guess content type!")
 
 
 

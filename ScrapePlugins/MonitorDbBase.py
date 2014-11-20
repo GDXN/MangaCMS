@@ -2,6 +2,7 @@
 
 import logging
 import psycopg2
+import threading
 import abc
 import traceback
 import time
@@ -14,7 +15,9 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
 
-
+	loggers = {}
+	dbConnections = {}
+	lastLoggerIndex = 1
 
 	@abc.abstractmethod
 	def pluginName(self):
@@ -41,6 +44,11 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 
 	def __init__(self):
+		self.loggers = {}
+		self.dbConnections = {}
+		self.lastLoggerIndex = 1
+
+
 		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Loading %s Monitor BaseClass", self.pluginName)
 		self.openDB()
@@ -86,6 +94,52 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 							"itemAdded"]
 
 
+
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
+	# Messy hack to do log indirection so I can inject thread info into log statements, and give each thread it's own DB handle.
+	# Basically, intercept all class member accesses, and if the access is to either the logging interface, or the DB,
+	# look up/create a per-thread instance of each, and return that
+	#
+	# The end result is each thread just uses `self.conn` and `self.log` as normal, but actually get a instance of each that is
+	# specifically allocated for just that thread
+	#
+	# ~~Sqlite 3 doesn't like having it's DB handles shared across threads. You can turn the checking off, but I had
+	# db issues when it was disabled. This is a much more robust fix~~
+	#
+	# Migrated to PostgreSQL. We'll see how that works out.
+	#
+	# The log indirection is just so log statements include their originating thread. I like lots of logging.
+	#
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	def __getattribute__(self, name):
+
+		threadName = threading.current_thread().name
+		if name == "log" and "Thread-" in threadName:
+			if threadName not in self.loggers:
+				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
+				self.lastLoggerIndex += 1
+			return self.loggers[threadName]
+
+
+		elif name == "conn":
+			if threadName not in self.dbConnections:
+
+				# First try local socket connection, fall back to a IP-based connection.
+				# That way, if the server is local, we get the better performance of a local socket.
+				try:
+					self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+				except psycopg2.OperationalError:
+					self.dbConnections[threadName] = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+
+				# self.dbConnections[threadName].autocommit = True
+			return self.dbConnections[threadName]
+
+
+		else:
+			return object.__getattribute__(self, name)
+
+
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Tools
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -121,15 +175,9 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 		# print("Query = ", query, queryAdditionalArgs)
 
-		with self.conn.cursor() as cur:
 
-			if commit:
-				cur.execute("BEGIN;")
-
+		with self.transaction(commit=commit) as cur:
 			cur.execute(query, queryAdditionalArgs)
-
-			if commit:
-				cur.execute("COMMIT;")
 
 		if commit:
 			self.conn.commit()
@@ -162,14 +210,10 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 		query = '''UPDATE {t} SET {v} WHERE dbId=%s;'''.format(t=self.tableName, v=column)
 
-		with self.conn.cursor() as cur:
-			if commit:
-				cur.execute("BEGIN;")
+		with self.transaction(commit=commit) as cur:
 
 			cur.execute(query, qArgs)
 
-			if commit:
-				cur.execute("COMMIT;")
 
 
 
@@ -177,14 +221,9 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 		query = ''' DELETE FROM {tableN} WHERE dbId=%s;'''.format(tableN=self.tableName)
 		qArgs = (rowId, )
 
-		with self.conn.cursor() as cur:
-			if commit:
-				cur.execute("BEGIN;")
+		with self.transaction(commit=commit) as cur:
 
 			cur.execute(query, qArgs)
-
-			if commit:
-				cur.execute("COMMIT;")
 
 
 	def deleteRowByBuId(self, buId, commit=True):
@@ -194,15 +233,11 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 		query2 = ''' DELETE FROM {tableN} WHERE buId=%s;'''.format(tableN=self.tableName)
 		qArgs = (buId, )
 
-		with self.conn.cursor() as cur:
-			if commit:
-				cur.execute("BEGIN;")
+
+		with self.transaction(commit=commit) as cur:
 
 			cur.execute(query1, qArgs)
 			cur.execute(query2, qArgs)
-
-			if commit:
-				cur.execute("COMMIT;")
 
 		if commit:
 			self.conn.commit()
@@ -310,11 +345,11 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			dbId = toRow["dbId"]
 			toRow.pop("dbId")
 
-			with self.conn.cursor() as cur:
-				cur.execute("BEGIN;")
+
+			with self.transaction() as cur:
+
 				self.deleteRowById(fromRow["dbId"], commit=False)
 				self.updateDbEntry(dbId, commit=False, **toRow)
-				cur.execute("COMMIT;")
 
 		except (psycopg2.OperationalError, psycopg2.IntegrityError) as e:
 			self.log.critical("Encountered error!")
@@ -341,11 +376,10 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 	def insertBareNameItems(self, items):
 
-
 		print("Items", items)
 
-		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
+		with self.transaction() as cur:
+
 
 			for name, mId in items:
 				row = self.getRowByValue(buId=mId)
@@ -372,22 +406,28 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 										commit=False)
 					# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
 
-			cur.execute("COMMIT;")
-
 	def insertNames(self, buId, names):
+		self.log.info("Updating name synonym table for %s with %s name(s).", buId, len(names))
+		with self.transaction() as cur:
 
-		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
+
+			# delete the old names from the table, so if they're removed from the source, we'll match that.
+			cur.execute("DELETE FROM {tableName} WHERE buId=%s;".format(tableName=self.nameMapTableName), (buId, ))
+
+			names = []
 			for name in names:
 				fsSafeName = nt.prepFilenameForMatching(name)
 				if not fsSafeName:
 					fsSafeName = nt.makeFilenameSafe(name)
 
-				cur.execute("""SELECT COUNT(*) FROM %s WHERE buId=%%s AND name=%%s;""" % self.nameMapTableName, (buId, name))
-				ret = cur.fetchall()
-				if not ret:
-					cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (buId, name, fsSafeName))
-			cur.execute("COMMIT;")
+				# we have to block duplicate names. Generally, it's pretty common
+				# for multiple names to screen down to the same name after
+				# passing through `prepFilenameForMatching()`.
+				if fsSafeName in names:
+					continue
+				names.append(fsSafeName)
+				cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (buId, name, fsSafeName))
+
 
 	def getIdFromName(self, name):
 

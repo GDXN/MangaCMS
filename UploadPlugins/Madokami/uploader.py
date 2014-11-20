@@ -68,8 +68,12 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		canonName = nt.getCanonicalMangaUpdatesName(dir1)
 		canonNameAlt = nt.getCanonicalMangaUpdatesName(dir2)
 		if canonName != canonNameAlt:
-			print(dir1, dir2)
-			print(canonName, canonNameAlt)
+			self.log.critical("Error in uploading file. Name lookup via MangaUpdates table not commutative!")
+			self.log.critical("First returned value    '%s'", canonName)
+			self.log.critical("For directory with path '%s'", dir1)
+			self.log.critical("Second returned value   '%s'", canonNameAlt)
+			self.log.critical("For directory with path '%s'", dir2)
+
 			raise ValueError("Identical and yet not?")
 		self.log.info("Aggregating directories for canon name '%s':", canonName)
 

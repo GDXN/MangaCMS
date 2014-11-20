@@ -17,8 +17,24 @@ import urllib.parse
 
 
 <%
+import pprint
 
+def insert(inDict, item):
+	if not inDict:
+		return
+	path = item.pop(0)
+	if not path in inDict:
+		inDict[path] = {}
+	insert(inDict[path], item)
 
+def buildTrie(inList):
+	trieDict = {}
+	for path in inList:
+		floating_dict = trieDict
+		for segment in path:
+			floating_dict = floating_dict.setdefault(segment, {})
+
+	return trieDict
 
 def getDistinct():
 
@@ -39,7 +55,9 @@ def getDistinct():
 		if item.endswith(".Run"):
 			item = item[:-4]
 
-		vals.append(item.split("."))
+		item = item.split(".")
+		if not item in vals:
+			vals.append(item)
 	vals.sort()
 	return vals
 
@@ -80,18 +98,39 @@ else:
 
 
 
+
+
+<%def name="renderTrie(path, trie, base=False)">
+	<%
+	if not trie:
+		return
+	%>
+	<ul ${'' if not base else "class='colums'"}>
+	% for key, value in trie.items():
+		<%
+		curPath = path+[key]
+		%>
+		<li>
+			<div id='rowLink'><a href='/errorLog?logPrefix=${urllib.parse.quote(".".join(curPath))}'>${".".join(curPath)}</a></div>
+		</li>
+		% if value:
+			${renderTrie(curPath, value)}
+		% endif
+	% endfor
+	</ul>
+</%def>
+
+
+
+
 <%def name="genLoggerPathList()">
 	<%
 	distinct = getDistinct()
+	trie = buildTrie(distinct)
 	%>
-
-	<ul class='colums'>
-		% for logPath in distinct:
-			<li>
-				<div id='rowLink'><a href='/errorLog?logPrefix=${urllib.parse.quote(".".join(logPath))}'>${".".join(logPath)}</a></div>
-			</li>
-		% endfor
-	</ul>
+	<div>
+		${renderTrie([], trie, base=True)}
+	</div>
 
 
 </%def>

@@ -2,10 +2,11 @@
 import webFunctions
 import runStatus
 import sys
-
+import re
 import bs4
+import traceback
 import urllib.parse
-
+from concurrent.futures import ThreadPoolExecutor
 import time
 import settings
 
@@ -47,6 +48,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	# https://www.mangaupdates.com/series.html?page=2&letter=A&perpage=100
 
 
+	goBigThreads = 16
 
 
 	# -----------------------------------------------------------------------------------
@@ -81,19 +83,62 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def go(self):
 		self.checkLogin()
 		items = self.getItemsToCheck()
+		self.checkItems(items)
+
+	def gobig(self):
+		self.checkLogin()
+		items = self.getItemsToCheck(noLimit=True)
+		totItems = len(items)
+		scanned = 0
+
+		if items:
+			def iter_baskets_from(items, maxbaskets=3):
+				'''generates evenly balanced baskets from indexable iterable'''
+				item_count = len(items)
+				baskets = min(item_count, maxbaskets)
+				for x_i in range(baskets):
+					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
+
+			linkLists = iter_baskets_from(items, maxbaskets=self.goBigThreads)
+
+			with ThreadPoolExecutor(max_workers=self.goBigThreads) as executor:
+
+				for linkList in linkLists:
+					executor.submit(self.checkItems, linkList)
+
+				executor.shutdown(wait=True)
+
+
+
+
+	def checkItems(self, items):
+
 		totItems = len(items)
 		scanned = 0
 		while items:
 			dbId, mId = items.pop(0)
+			try:
+				self.updateItem(dbId, mId)
+			except KeyboardInterrupt:
+				raise
+			except:
+				self.log.critical("ERROR?")
+				self.log.critical(traceback.format_exc())
 
-			self.updateItem(dbId, mId)
 			scanned += 1
 			self.log.info("Scanned %s of %s manga pages. %s%% done.", scanned, totItems, (1.0*scanned)/totItems*100)
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
 				break
 
-	def getItemsToCheck(self):
+
+	def getItemsToCheck(self, noLimit=False):
+
+		if noLimit:
+			limitStr = ""
+		else:
+			limitStr = "LIMIT 500"
+
 
 		with self.conn.cursor() as cur:
 			cur.execute("BEGIN;")
@@ -103,7 +148,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 										(lastChecked < %s or lastChecked IS NULL)
 										AND buId IS NOT NULL
 										AND buList IS NOT NULL
-									LIMIT 100 ;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL,))
+									{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL,))
 			rets = cur.fetchall()
 
 			# Only process non-list items if there are no list-items to process.
@@ -115,7 +160,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 											(lastChecked < %s or lastChecked IS NULL)
 											AND buId IS NOT NULL
 											AND buList IS NULL
-										LIMIT 500;'''.format(tableName=self.tableName), (time.time()-CHECK_INTERVAL_OTHER,))
+										{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL_OTHER,))
 				rets2 = cur.fetchall()
 				for row in rets2:
 					rets.append(row)
@@ -124,19 +169,20 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		self.log.info("Items to check = %s", len(rets))
 		return rets
 
-		# Retreive page for mId, extract relevant information, and update the DB with the scraped info
-	def updateItem(self, dbId, mId):
+
+	def getItemInfo(self, mId):
 
 		pageCtnt  = self.wgH.getpage(self.itemURL.format(buId=mId))
 
 		if "You specified an invalid series id." in pageCtnt:
 			self.log.warning("Invalid MU ID! ID: %s", mId)
 			self.deleteRowByBuId(mId)
-			return
+			return False, False
 
 		soup      = bs4.BeautifulSoup(pageCtnt)
 
 		release   = self.getLatestRelease(soup)
+		availProg = self.getAvailProgress(soup)
 		tags      = self.extractTags(soup)
 		genres    = self.extractGenres(soup)
 
@@ -162,12 +208,24 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		if release:
 			kwds["lastChanged"] = release
 
+		if availProg:
+			kwds["availProgress"] = availProg
+
 		if tags:
 			kwds["buTags"] = " ".join(tags)
 		if genres:
 			kwds["buGenre"] = " ".join(genres)
 
-		haveRows = self.getRowByValue(buName=baseName)
+		return kwds, altNames
+
+		# Retreive page for mId, extract relevant information, and update the DB with the scraped info
+	def updateItem(self, dbId, mId):
+
+		kwds, altNames = self.getItemInfo(mId)
+		if not kwds:
+			return
+
+		haveRows = self.getRowByValue(buName=kwds['buName'])
 
 		if haveRows and haveRows["dbId"] != dbId:
 
@@ -183,6 +241,49 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	# -----------------------------------------------------------------------------------
 	# Series Page Scraping
 	# -----------------------------------------------------------------------------------
+
+	def getAvailProgress(self, soup):
+		item = soup.find("a", text=re.compile("Search for all releases of this series", re.IGNORECASE))
+		if not item:
+			return None
+		searchPage = item['href']
+
+		relPage = self.wgH.getSoup(searchPage)
+
+		mainTd = relPage.find('td', id='main_content')
+
+		# This is HORRIBLE, but MangaUpdates uses NO decent anchor information.
+		mainTd = mainTd.find('table', border="0", cellpadding="0", cellspacing="0", width="100%")
+		mainTd = mainTd.table.table
+
+		# Top two rows are the header, and a spacer. Dump them.
+		mainTd.tr.decompose()
+		mainTd.tr.decompose()
+
+		avail = 0
+		chap  = 0
+		for row in mainTd.find_all("tr"):
+			ctnt = row.find_all("td")
+			if len(ctnt) != 5:
+				continue
+			ulDate, sLink, vol, chap, group = ctnt
+			chap = chap.get_text()
+
+			chap = ''.join([c if c in '1234567890' else ' ' for c in chap])
+			chap = chap.strip()
+			# Handle things like 'extra' for the volume, etc...
+			if chap:
+
+				chap = chap.split()[0]
+			else:
+				chap = 0
+			chap = int(chap)
+			if chap > avail:
+				avail = chap
+		self.log.info("Available progress: %s chapters", avail)
+		if chap == 0:
+			return None
+		return chap
 
 
 	def getLatestRelease(self, soup):
@@ -351,3 +452,15 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		return " ".join(container.strings).strip().strip(" ,")
 
 
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = BuDateUpdater()
+		# ret1, ret2 = run.getItemInfo("45918")
+		# print(ret1)
+		# print(ret2)
+		# run.updateItem(101, "45918")
+		run.gobig()

@@ -106,7 +106,8 @@ def makeFilenameSafe(inStr):
 	# inStr = inStr.rstrip(".")  # Windows file names can't end in dot. For some reason.
 	# Fukkit, disabling. Just run on linux.
 
-	inStr = inStr.strip(" ")   # And can't have leading or trailing spaces
+	inStr = inStr.strip(" ")    # And can't have leading or trailing spaces
+	inStr = inStr.rstrip("!")   # Clean up trailing exclamation points
 
 	return inStr
 

@@ -143,13 +143,33 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info("Complete filepath: %s", wholePath)
 
 					#Write all downloaded files to the archive.
-			arch = zipfile.ZipFile(wholePath, "w")
-			for imageName, imageContent in images:
-				arch.writestr(imageName, imageContent)
-			arch.close()
 
 
-			self.log.info("Successfully Saved to path: %s", wholePath)
+			chop = len(fileN)-4
+			wholePath = "ERROR"
+			while 1:
+
+				try:
+					fileN = fileN[:chop]+fileN[-4:]
+					# self.log.info("geturl with processing", fileN)
+					wholePath = os.path.join(linkDict["dirPath"], fileN)
+					self.log.info("Complete filepath: %s", wholePath)
+
+					#Write all downloaded files to the archive.
+
+					arch = zipfile.ZipFile(wholePath, "w")
+					for imageName, imageContent in images:
+						arch.writestr(imageName, imageContent)
+					arch.close()
+
+					self.log.info("Successfully Saved to path: %s", wholePath)
+					break
+				except IOError:
+					chop = chop - 1
+					self.log.warn("Truncating file length to %s characters.", chop)
+
+
+
 
 			if not linkDict["tags"]:
 				linkDict["tags"] = ""

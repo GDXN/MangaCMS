@@ -160,16 +160,18 @@ import nameTools as nt
 					% else:
 						<td bgcolor="${colours["upToDate"]}" class="padded">${availProgress}</td>
 					% endif
-				% elif readingProgress:
+				% elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
 					<td bgcolor="${colours["hasUnread"]}" class="padded">${readingProgress}</td>
 				% else:
 					<td  class="padded">${readingProgress}</td>
 				% endif
 
-				% if availProgress == -1:
+				% if availProgress == -1 and readingProgress == -1:
 					<td class="padded">Finished</td>
+				% elif availProgress and int(availProgress) > 0:
+					<td class="padded">${int(availProgress)}</td>
 				% else:
-					<td class="padded">${availProgress}</td>
+					<td class="padded"></td>
 				% endif
 			</tr>
 		% endfor

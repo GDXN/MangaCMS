@@ -69,11 +69,29 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				tagList.append(tag)
 
 
-		if any([blockedTag in tagList for blockedTag in settings.sadPanda['sadPandaExcludeTags']]):
-			self.log.warn("Blocked item! Deleting row from database.")
-			self.log.warn("Item tags = '%s'", tagList)
-			self.deleteRowsByValue(sourceUrl=sourceUrl)
-			return False
+		for tag in settings.sadPanda['sadPandaExcludeTags']:
+			if tag in tagList:
+				self.log.warn("Blocked item! Deleting row from database.")
+				self.log.warn("Item tags = '%s'", tagList)
+				self.log.warn("Blocked tag = '%s'", tag)
+				self.deleteRowsByValue(sourceUrl=sourceUrl)
+				return False
+
+		# We sometimes want to do compound blocks.
+		# For example, if something is tagged 'translated', but not 'english', it's
+		# probably not english, but not the original item either (assuming you want
+		# either original items, or the english tranlsation).
+		# Therefore, if settings.sadPanda['excludeCompoundTags'][n][0] is in the taglist,
+		# and not settings.sadPanda['excludeCompoundTags'][n][1], we skip the item.
+		for exclude, when in settings.sadPanda['excludeCompoundTags']:
+			if exclude in tagList:
+				if not when in tagList:
+					self.log.warn("Blocked item! Deleting row from database.")
+					self.log.warn("Item tags = '%s'", tagList)
+					self.log.warn("Triggering tags: = '%s', '%s'", exclude, when)
+					self.deleteRowsByValue(sourceUrl=sourceUrl)
+					return False
+
 
 		tags = " ".join(tagList)
 		self.log.info("Adding tags: '%s'", tags)
@@ -171,18 +189,28 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			fileN = nt.makeFilenameSafe(fileN)
 
+			chop = len(fileN)-4
 
-			if len(fileN) > 230:
-				fileN = fileN[:220]+fileN[-6:]
-			# self.log.info("geturl with processing", fileN)
-			wholePath = os.path.join(linkDict["dirPath"], fileN)
-			self.log.info("Complete filepath: %s", wholePath)
+			wholePath = "ERROR"
+			while 1:
 
-			#Write all downloaded files to the archive.
-			with open(wholePath, "wb") as fp:
-				fp.write(fCont)
+				try:
+					fileN = fileN[:chop]+fileN[-4:]
+					# self.log.info("geturl with processing", fileN)
+					wholePath = os.path.join(linkDict["dirPath"], fileN)
+					self.log.info("Complete filepath: %s", wholePath)
 
-			self.log.info("Successfully Saved to path: %s", wholePath)
+					#Write all downloaded files to the archive.
+					with open(wholePath, "wb") as fp:
+						fp.write(fCont)
+					self.log.info("Successfully Saved to path: %s", wholePath)
+					break
+				except IOError:
+					chop = chop - 1
+					self.log.warn("Truncating file length to %s characters.", chop)
+
+
+
 
 			if not linkDict["tags"]:
 				linkDict["tags"] = ""

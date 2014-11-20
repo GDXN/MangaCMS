@@ -1,5 +1,5 @@
 
-
+import traceback
 import psycopg2
 import abc
 import settings
@@ -52,6 +52,8 @@ class DbBase(metaclass=abc.ABCMeta):
 			yield cursor
 
 		except Exception as e:
+			self.log.error("Error in transaction!")
+			self.log.error(traceback.format_exc())
 			if commit:
 				cursor.execute("ROLLBACK;")
 			raise e
