@@ -87,7 +87,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	def gobig(self):
 		self.checkLogin()
-		items = self.getItemsToCheck(noLimit=True)
+		items = self.getItemsToCheck(allTheItems=True)
 		totItems = len(items)
 		scanned = 0
 
@@ -132,7 +132,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 				break
 
 
-	def getItemsToCheck(self, noLimit=False):
+	def getItemsToCheck(self, noLimit=False, allTheItems=False):
 
 		if noLimit:
 			limitStr = ""
@@ -141,29 +141,33 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 
 		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
-			ret = cur.execute('''SELECT dbId,buId
-									FROM {tableName}
-									WHERE
-										(lastChecked < %s or lastChecked IS NULL)
-										AND buId IS NOT NULL
-										AND buList IS NOT NULL
-									{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL,))
-			rets = cur.fetchall()
+			with self.transaction() as cur:
+				if not allTheItems:
+					ret = cur.execute('''SELECT dbId,buId
+											FROM {tableName}
+											WHERE
+												(lastChecked < %s or lastChecked IS NULL)
+												AND buId IS NOT NULL
+												AND buList IS NOT NULL
+											{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL,))
+					rets = cur.fetchall()
 
-			# Only process non-list items if there are no list-items to process.
-			if len(rets) < 50:
+					# Only process non-list items if there are no list-items to process.
+					if len(rets) < 50:
 
-				ret = cur.execute('''SELECT dbId,buId
-										FROM {tableName}
-										WHERE
-											(lastChecked < %s or lastChecked IS NULL)
-											AND buId IS NOT NULL
-											AND buList IS NULL
-										{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL_OTHER,))
-				rets2 = cur.fetchall()
-				for row in rets2:
-					rets.append(row)
+						ret = cur.execute('''SELECT dbId,buId
+												FROM {tableName}
+												WHERE
+													(lastChecked < %s or lastChecked IS NULL)
+													AND buId IS NOT NULL
+													AND buList IS NULL
+												{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL_OTHER,))
+						rets2 = cur.fetchall()
+						for row in rets2:
+							rets.append(row)
+				else:  # AllTheItems:
+					ret = cur.execute('''SELECT dbId,buId FROM {tableName} WHERE buId IS NOT NULL;'''.format(tableName=self.tableName))
+					rets = cur.fetchall()
 
 			cur.execute("COMMIT;")
 		self.log.info("Items to check = %s", len(rets))
@@ -224,6 +228,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		kwds, altNames = self.getItemInfo(mId)
 		if not kwds:
 			return
+
 
 		haveRows = self.getRowByValue(buName=kwds['buName'])
 
@@ -463,4 +468,6 @@ if __name__ == "__main__":
 		# print(ret1)
 		# print(ret2)
 		# run.updateItem(101, "45918")
-		run.gobig()
+		# run.gobig()
+		run.go()
+

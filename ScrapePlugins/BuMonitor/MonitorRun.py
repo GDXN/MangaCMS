@@ -186,7 +186,8 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 		itemCount = 0
 		if not itemTable:
-			self.log.critical("Could not find table?")
+			self.log.warn("Could not find table?")
+			self.log.warn("On page '%s'", listURL)
 			return
 		for row in itemTable.find_all("tr"):
 			itemCount += self.extractRow(row, listName)
