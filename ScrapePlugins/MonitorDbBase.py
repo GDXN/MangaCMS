@@ -414,7 +414,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			# delete the old names from the table, so if they're removed from the source, we'll match that.
 			cur.execute("DELETE FROM {tableName} WHERE buId=%s;".format(tableName=self.nameMapTableName), (buId, ))
 
-			names = []
+			alreadyAddedNames = []
 			for name in names:
 				fsSafeName = nt.prepFilenameForMatching(name)
 				if not fsSafeName:
@@ -423,12 +423,14 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 				# we have to block duplicate names. Generally, it's pretty common
 				# for multiple names to screen down to the same name after
 				# passing through `prepFilenameForMatching()`.
-				if fsSafeName in names:
+				if fsSafeName in alreadyAddedNames:
 					continue
-				names.append(fsSafeName)
+
+				alreadyAddedNames.append(fsSafeName)
+
 				cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (buId, name, fsSafeName))
 
-
+		self.log.info("Updated!")
 	def getIdFromName(self, name):
 
 		with self.conn.cursor() as cur:

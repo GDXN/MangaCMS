@@ -71,9 +71,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		for tag in settings.sadPanda['sadPandaExcludeTags']:
 			if tag in tagList:
-				self.log.warn("Blocked item! Deleting row from database.")
-				self.log.warn("Item tags = '%s'", tagList)
-				self.log.warn("Blocked tag = '%s'", tag)
+				self.log.info("Blocked item! Deleting row from database.")
+				self.log.info("Item tags = '%s'", tagList)
+				self.log.info("Blocked tag = '%s'", tag)
 				self.deleteRowsByValue(sourceUrl=sourceUrl)
 				return False
 
@@ -86,9 +86,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		for exclude, when in settings.sadPanda['excludeCompoundTags']:
 			if exclude in tagList:
 				if not when in tagList:
-					self.log.warn("Blocked item! Deleting row from database.")
-					self.log.warn("Item tags = '%s'", tagList)
-					self.log.warn("Triggering tags: = '%s', '%s'", exclude, when)
+					self.log.info("Blocked item! Deleting row from database.")
+					self.log.info("Item tags = '%s'", tagList)
+					self.log.info("Triggering tags: = '%s', '%s'", exclude, when)
 					self.deleteRowsByValue(sourceUrl=sourceUrl)
 					return False
 

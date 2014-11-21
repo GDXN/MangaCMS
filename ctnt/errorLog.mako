@@ -104,17 +104,20 @@ else:
 	<%
 	if not trie:
 		return
+	keys = list(trie.keys())
+	keys.sort()
+
 	%>
 	<ul ${'' if not base else "class='colums'"}>
-	% for key, value in trie.items():
+	% for key in keys:
 		<%
 		curPath = path+[key]
 		%>
 		<li>
 			<div id='rowLink'><a href='/errorLog?logPrefix=${urllib.parse.quote(".".join(curPath))}'>${".".join(curPath)}</a></div>
 		</li>
-		% if value:
-			${renderTrie(curPath, value)}
+		% if trie[key]:
+			${renderTrie(curPath, trie[key])}
 		% endif
 	% endfor
 	</ul>
