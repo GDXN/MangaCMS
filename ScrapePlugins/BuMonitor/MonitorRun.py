@@ -267,7 +267,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 		return rows
 
-
+	# TODO: Schedule this occationally
 	def getAllManga(self):
 		urlFormat = 'https://www.mangaupdates.com/series.html?page={page}&perpage=100'
 		self.log.info("MU Updater scanning MangaUpdates to get all available manga.")
@@ -281,7 +281,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			series = self.getSeriesFromPage(soup)
 			if series:
 				self.log.info("Inserting %s items into name DB", len(series))
-				self.insertBareNameItems([(name, mId)])
+				self.insertBareNameItems(series)
 
 			if len(series) == 0:
 				self.log.info("No items found. At the end of the series list?")
@@ -291,3 +291,17 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 				break
 
 		self.log.info("Completed scanning all manga items.")
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+
+		mon = BuWatchMonitor()
+		# mon.scanRecentlyUpdated()
+		mon.getAllManga()
+		mon.closeDB()
+

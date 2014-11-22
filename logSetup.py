@@ -181,7 +181,7 @@ def exceptHook(exc_type, exc_value, exc_traceback):
 # Global hackyness to detect and warn on double-initialization of the logging systems.
 LOGGING_INITIALIZED = False
 
-def initLogging(logLevel=logging.INFO, logToDb=False):
+def initLogging(logLevel=logging.INFO, logToDb=True):
 
 	global LOGGING_INITIALIZED
 	if LOGGING_INITIALIZED:

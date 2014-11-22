@@ -16,7 +16,7 @@ import TextScrape.ReTranslations.gDocParse as gdp
 
 class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'retrans'
-	loggerPath = 'Main.Re:Trans'
+	loggerPath = 'Main.ReTrans'
 	pluginName = 'ReTransScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

@@ -112,7 +112,7 @@ import settings
 <b>General</b>
 <ul>
 
-	<li>ex filter by category too</li>
+	<li>Madokami is fucked again. Fuck you HTTPS simple auth.</li>
 
 	<li>TONIGOBE</li>
 	<li>reset hbrowse history</li>
@@ -259,6 +259,7 @@ import settings
 
 <b>Complete:</b>
 <ul>
+	<li><strike>ex filter by category too</strike></li>
 	<li><strike>random h already updated tag</strike> It's actually from the source. Not much I can do.</li>
 	<li><strike>fix djmoe</strike></li>
 	<li><strike>rescan series on batoto</strike></li>

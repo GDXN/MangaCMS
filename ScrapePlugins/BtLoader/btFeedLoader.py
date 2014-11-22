@@ -153,7 +153,10 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				# Only fetch an item if it's less then 48 hours old, or we're running
 				# in historical mode (which means fetch all the things)
-				if item["retreivalTime"] > (time.time() - 60*60*48) or historical:
+				# if item["retreivalTime"] > (time.time() - 60*60*48) or historical:
+
+				# Fukkit, just grab everything.
+				if True:
 					newItems += 1
 					ret.append(item)
 

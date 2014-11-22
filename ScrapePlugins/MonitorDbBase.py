@@ -376,8 +376,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 	def insertBareNameItems(self, items):
 
-		print("Items", items)
-
+		new = 0
 		with self.transaction() as cur:
 
 
@@ -388,7 +387,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 						self.log.warning("Name disconnect!")
 						self.log.warning("New name='%s', old name='%s'.", name, row["buName"])
 						self.log.warning("Whole row=%s", row)
-						self.updateDbEntry(row["dbId"], buName=name, commit=False)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0)
 
 				else:
 					row = self.getRowByValue(buName=name)
@@ -396,7 +395,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 						self.log.error("Conflicting with existing series?")
 						self.log.error("Existing row = %s, %s", row["buName"], row["buId"])
 						self.log.error("Current item = %s, %s", name, mId)
-						self.updateDbEntry(row["dbId"], buName=name, commit=False)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0)
 					else:
 						self.insertIntoDb(buName=name,
 										buId=mId,
@@ -404,7 +403,11 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 										lastChecked=0,
 										itemAdded=time.time(),
 										commit=False)
+						new += 1
 					# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+
+		if new:
+			self.log.info("%s new items in inserted set.", new)
 
 	def insertNames(self, buId, names):
 		self.log.info("Updating name synonym table for %s with %s name(s).", buId, len(names))

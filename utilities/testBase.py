@@ -12,7 +12,7 @@ def testSetup(startObservers=False):
 	import nameTools as nt
 
 
-	logSetup.initLogging()
+	logSetup.initLogging(logToDb=True)
 
 	def signal_handler(dummy_signal, dummy_frame):
 		if runStatus.run:
