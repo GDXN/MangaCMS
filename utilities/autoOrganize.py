@@ -46,7 +46,7 @@ def consolidateMangaFolders(dirPath, smartMode=True):
 
 	pc = PathCleaner()
 	pc.openDB()
-	dm = DedupManager()
+
 
 
 	count = 0
@@ -60,7 +60,8 @@ def consolidateMangaFolders(dirPath, smartMode=True):
 
 			lookup = nt.dirNameProxy[dirName]
 			if lookup["fqPath"] != item:
-
+				print()
+				print()
 				print("------------------------------------------------------")
 				canonName = nt.getCanonicalMangaUpdatesName(dirName)
 				print("Duplicate Directory '%s' - Canon = '%s'" % (dirName, canonName))
@@ -100,12 +101,11 @@ def consolidateMangaFolders(dirPath, smartMode=True):
 
 
 				print("	1: ", item)
-				print("		", nt.getCanonicalMangaUpdatesName(dirName))
-				print("		({num} items)(distance {dist})(rating {rat})".format(num=len(os.listdir(item)), dist=n1, rat=r1))
-
 				print("	2: ", lookup["fqPath"])
-				print("		", nt.getCanonicalMangaUpdatesName(dir2Name))
-				print("		({num} items)(distance {dist})(rating {rat})".format(num=len(os.listdir(lookup["fqPath"])), dist=n2, rat=r2))
+				print("	1:	", dirName, ' ->', nt.getCanonicalMangaUpdatesName(dirName))
+				print("	2:	", dir2Name, ' ->', nt.getCanonicalMangaUpdatesName(dir2Name))
+				print("	1:	({num} items)(distance {dist})(rating {rat})".format(num=len(os.listdir(item)), dist=n1, rat=r1))
+				print("	2:	({num} items)(distance {dist})(rating {rat})".format(num=len(os.listdir(lookup["fqPath"])), dist=n2, rat=r2))
 
 
 
@@ -173,11 +173,11 @@ def consolidateMangaFolders(dirPath, smartMode=True):
 					pc.moveFile(fromPath, toPath)
 
 					try:
-						dm.moveFile(fromPath, toPath)
+						pc.moveFile(fromPath, toPath)
 					except psycopg2.IntegrityError:
-						print("Error moving item in dedup database. Removing files")
+						print("Error moving item in dedup database")
 
-						dm.deletePath(toPath)
+						# pc.deletePath(toPath)
 
 					shutil.move(fromPath, toPath)
 
@@ -197,7 +197,7 @@ def deduplicateMangaFolders():
 
 	pc = PathCleaner()
 	pc.openDB()
-	dm = DedupManager()
+	# dm = DedupManager()
 
 
 	for offset in range(len(keys)):
@@ -212,6 +212,8 @@ def deduplicateMangaFolders():
 					print("Duplicate Directory for key '%s'" % curKey)
 					print("	Preferred:", curDict[curKey])
 					print("	Duplicate:", dirDictDict[subKey][curKey])
+
+
 
 					fromDir = dirDictDict[subKey][curKey]
 					toDir   = curDict[curKey]
@@ -230,7 +232,7 @@ def deduplicateMangaFolders():
 						print("	From: ", fromPath)
 						print("	To:   ", toPath)
 						pc.moveFile(fromPath, toPath)
-						dm.moveFile(fromPath, toPath)
+
 						shutil.move(fromPath, toPath)
 
 def consolicateSeriesToSingleDir():
@@ -266,6 +268,16 @@ def consolicateSeriesToSingleDir():
 				print("	URL: https://www.mangaupdates.com/series.html?id=%s" % (mId, ))
 				print(" Dir 1 ", luDict["fqPath"])
 				print(" Dir 2 ", dest["fqPath"])
+
+				dirName = os.path.split(luDict["fqPath"])[-1]
+				dir2Name = os.path.split(dest["fqPath"])[-1]
+
+				print("	1:	", dirName, ' ->', nt.getCanonicalMangaUpdatesName(dirName))
+				print("	2:	", dir2Name, ' ->', nt.getCanonicalMangaUpdatesName(dir2Name))
+				print("	1:	({num} items)".format(num=len(os.listdir(luDict["fqPath"]))))
+				print("	2:	({num} items)".format(num=len(os.listdir(dest["fqPath"]))))
+
+
 				doMove = query_response("move files ('f' dir 1 -> dir 2. 'r' dir 2 -> dir 1. 'n' do not move)?")
 				if doMove == "forward":
 					moveFiles(luDict["fqPath"], dest["fqPath"])

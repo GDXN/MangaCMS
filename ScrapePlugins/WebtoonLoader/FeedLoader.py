@@ -53,7 +53,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = {}
 
 		titleH = soup.find("h3", class_='subj')
-
+		titleH.div.decompose()
 		# titleDiv = soup.find("h1", class_="ttl")
 		ret["title"] = titleH.get_text().strip()
 
@@ -189,10 +189,10 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 if __name__ == '__main__':
 	fl = FeedLoader()
 	print("fl", fl)
-	# fl.go(historical=True)
+	fl.go(historical=True)
 	# fl.getSeriesUrls()
-	items = fl.getItemPages('http://www.webtoons.com/episodeList?titleNo=78')
-	print("Items")
-	for item in items:
-		print("	", item)
+	# items = fl.getItemPages('http://www.webtoons.com/episodeList?titleNo=78')
+	# print("Items")
+	# for item in items:
+	# 	print("	", item)
 

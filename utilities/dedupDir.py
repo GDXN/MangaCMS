@@ -262,7 +262,8 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def moveUnlinkableDirectories(self, dirPath, toPath):
 
 
-		print("Move Unlinkable", dirPath, toPath)
+		print("Moving Unlinkable from", dirPath)
+		print("To:", toPath)
 		if not os.path.isdir(dirPath):
 			print(dirPath, "is not a directory")
 			raise ValueError
@@ -271,10 +272,13 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			raise ValueError
 
 		srcItems = os.listdir(dirPath)
+		srcItems.sort()
+		print("Len ", len(srcItems))
 		for item in srcItems:
 			itemPath = os.path.join(dirPath, item)
 			if not os.path.isdir(itemPath):
 				continue
+
 			if not nt.haveCanonicalMangaUpdatesName(item):
 				targetDir = os.path.join(toPath, item)
 				print("Moving item", item, "to unlinked dir")
@@ -282,15 +286,23 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 		srcItems = os.listdir(toPath)
+		srcItems.sort()
+		print("Len ", len(srcItems))
 		for item in srcItems:
 			itemPath = os.path.join(toPath, item)
 			if not os.path.isdir(itemPath):
 				continue
-			if nt.haveCanonicalMangaUpdatesName(item):
 
+			if nt.haveCanonicalMangaUpdatesName(item):
 				print("Moving item", item, "to linked dir")
 				targetDir = os.path.join(dirPath, item)
 				shutil.move(itemPath, targetDir)
+			else:
+				mId = nt.getAllMangaUpdatesIds(item)
+				if mId:
+					print("Item has multiple matches:", itemPath)
+					for no in mId:
+						print("	URL: https://www.mangaupdates.com/series.html?id=%s" % (no, ))
 
 	# This is implemented as a separate codepath from the mormal dir dedup calls as a precautionary measure against
 	# stupid coding issues. It's not a perfect fix, but it's better then nothing.

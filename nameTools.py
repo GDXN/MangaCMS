@@ -421,7 +421,8 @@ class MtNamesMapWrapper(object):
 				tmp[key] = set([buId])
 			else:
 				tmp[key].add(buId)
-		self.log.info("Refresh call complete")
+
+		self.log.info("Refresh call complete. Have %s keys", len(tmp))
 		self.lutItems = tmp
 
 	def openDB(self):
@@ -927,11 +928,16 @@ def getCanonicalMangaUpdatesName(sourceSeriesName):
 			return correctSeriesName.pop()
 	return sourceSeriesName
 
-
+muIdRegex = re.compile(r'\[MuId (\d+)\]')
 
 ## If we have the series name in the synonym database, look it up there, and use the ID
 ## to fetch the proper name from the MangaUpdates database
 def getMangaUpdatesId(sourceSeriesName):
+
+	# Allow the Id Override tag in the dirname to hard-code the Id.
+	idS = muIdRegex.search(sourceSeriesName)
+	if idS:
+		return idS.group(1)
 
 	fsName = prepFilenameForMatching(sourceSeriesName)
 	if not fsName:
@@ -944,14 +950,25 @@ def getMangaUpdatesId(sourceSeriesName):
 
 
 
+def getAllMangaUpdatesIds(sourceSeriesName):
+
+	fsName = prepFilenameForMatching(sourceSeriesName)
+	if not fsName:
+		return False
+
+	mId = buIdLookup[fsName]
+	return mId
+
+
+
+
 ## If we have the series name in the synonym database, look it up there, and use the ID
 ## to fetch the proper name from the MangaUpdates database
 def haveCanonicalMangaUpdatesName(sourceSeriesName):
 
-	fsName = prepFilenameForMatching(sourceSeriesName)
-	mId = buIdLookup[fsName]
+	mId = getMangaUpdatesId(sourceSeriesName)
 
-	if mId and len(mId) == 1:
+	if mId:
 		return True
 	# mId = buIdFromName[sourceSeriesName]
 	# if mId and len(mId) == 1:
