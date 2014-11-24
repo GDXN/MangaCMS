@@ -97,18 +97,13 @@ import urllib.parse
 				cursor = sqlCon.cursor()
 				%>
 
+				% for srcKey, srcName in settings.bookSources:
+					<div class="css-treeview">
+						${renderTreeRoot(srcKey, srcName)}
+					</div>
+					<hr>
+				% endfor
 
-				<div class="css-treeview">
-					${renderTreeRoot('tsuki', 'Baka-Tsuki')}
-				</div>
-				<hr>
-				<div class="css-treeview">
-					${renderTreeRoot('japtem', 'JapTem')}
-				</div>
-				<hr>
-				<div class="css-treeview">
-					${renderTreeRoot('retrans', 'Re:Translations')}
-				</div>
 			</div>
 
 		</div>

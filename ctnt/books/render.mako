@@ -8,6 +8,7 @@
 import urllib.parse
 import time
 import uuid
+import settings
 
 def compact_trie(inKey, inDict):
 
@@ -257,7 +258,9 @@ elif "tree" in request.params:
 		return
 
 	key = request.params['key']
-	if not key in ['tsuki', 'japtem', 'retrans']:
+
+	# Require a valid tree key to work.
+	if not key in [item[0] for item in settings.bookSources]:
 		needId()
 		return
 

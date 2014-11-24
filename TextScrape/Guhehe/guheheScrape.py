@@ -11,30 +11,25 @@ import bs4
 import webFunctions
 import urllib.error
 
-class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
-	tableKey = 'japtem'
-	loggerPath = 'Main.JapTem'
-	pluginName = 'JapTemScrape'
+class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
+	tableKey = 'guhehe'
+	loggerPath = 'Main.Guhehe'
+	pluginName = 'GuheheScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	threads = 2
 
 
-	baseUrl = "http://japtem.com/"
-	startUrl = baseUrl
+	baseUrl = "http://guhehe.net/"
+	startUrl = 'http://guhehe.net/series/'
 
-	badwords = ["fanfic.php",
-				"/forums/",
-				"/fanfic",         # Fucking slash fics.
-				"/cdn-cgi/",
-				"/help/",
-				"?share=",
-				"?popup=",
-				"viewforum.php",
-				"/wp-login.php",
-				"/#comments",      # Ignore in-page anchor tags
-				"/staff/"]
+	badwords = [
+				"/about/",
+				"/join-us/",
+				"/chat/",
+				'&format=pdf',
+				]
 
 	positive_keywords = ['main_content']
 
@@ -43,20 +38,22 @@ class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
 						"mw-panel",
 						'portal']
 
-	strip = ['slider-container', 'secondarymenu-container', 'mainmenu-container', 'mobile-menu', 'footer', 'sidebar', 'disqus_thread', 'sharedaddy', 'scrollUp']
 
+	decompose = [
+				('header',  {'id':'main-header'}),
+				('footer',  {'id':'main-footer'}),
+				('section', {'id':'comment-wrap'}),
+				('div',     {'id':'sidebar'}),
+				]
 
 	def cleanPage(self, inPage):
 
 		soup = bs4.BeautifulSoup(inPage)
-		for rm in self.strip:
+		for name, tagAttrs in self.decompose:
 
-			for tag in soup.find_all("div", class_=rm):
+			for tag in soup.find_all(name, attrs=tagAttrs):
 				tag.decompose()
-			for tag in soup.find_all("select", class_=rm):
-				tag.decompose()
-			for tag in soup.find_all("div", id=rm):
-				tag.decompose()
+
 
 		inPage = soup.prettify()
 		doc = readability.readability.Document(inPage, positive_keywords=self.positive_keywords, negative_keywords=self.negative_keywords)
@@ -129,8 +126,12 @@ class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
 			self.updateDbEntry(url=url, dlstate=-1)
 
 
+
+
+
+
 def test():
-	scrp = JaptemScrape()
+	scrp = GuheheScrape()
 	scrp.crawl()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')
@@ -138,10 +139,4 @@ def test():
 
 if __name__ == "__main__":
 	test()
-
-
-
-
-
-
 

@@ -124,7 +124,15 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 		self.log.info("Fetching page '%s'", url)
 		extr = gdp.GDocExtractor(url)
 
-		mainPage, resources = extr.extract()
+		attempts = 0
+		while 1:
+			mainPage, resources = extr.extract()
+			if mainPage:
+				break
+			attempts += 1
+			if attempts > 3:
+				return
+
 
 		self.fMap = {}
 

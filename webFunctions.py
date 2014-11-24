@@ -160,7 +160,7 @@ class WebGetRobust:
 		kwargs["returnMultiple"] = True
 
 		pgctnt, pghandle = self.getpage(*args, **kwargs)
-		print(pghandle.info())
+
 		hName = pghandle.info()['Content-Disposition'].split('filename=')[1]
 
 

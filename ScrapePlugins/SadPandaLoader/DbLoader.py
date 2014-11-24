@@ -102,6 +102,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not pageOverride:
 			pageOverride = 0  # Pages start at zero. Yeah....
 		try:
+			tag = urllib.parse.quote_plus(tag)
 			pageUrl = self.urlFeed.format(search=tag, num=pageOverride)
 			soup = self.wg.getSoup(pageUrl)
 		except urllib.error.URLError:

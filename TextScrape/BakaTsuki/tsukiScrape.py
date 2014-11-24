@@ -22,6 +22,7 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 	baseUrl = "http://www.baka-tsuki.org/"
+	startUrl = baseUrl
 
 	badwords = ["/blog/",
 				"/forums/",
@@ -141,3 +142,17 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 		return links
+
+def test():
+	scrp = TsukiScrape()
+	scrp.crawl()
+	# scrp.retreiveItemFromUrl(scrp.startUrl)
+	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')
+
+
+if __name__ == "__main__":
+	test()
+
+
+
+

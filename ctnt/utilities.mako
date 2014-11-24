@@ -129,7 +129,7 @@ from ipaddress import IPv4Address, IPv4Network
 </%def>
 
 
-<%def name="headerBase(key=None)">
+<%def name="headerBase(key='showTT')">
 	${getCss()}
 	<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 	<script>
