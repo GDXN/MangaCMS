@@ -82,7 +82,7 @@ scrapePlugins = {
 	33 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     60*60*12),
 	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            60*60*12),
 	35 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         60*60*12),
-	35 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      60*60*12),
+	36 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      60*60*12),
 
 
 

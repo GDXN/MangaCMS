@@ -366,6 +366,18 @@ sidebarItemList = [
 			'type'          : 'Info'
 		},
 
+		{
+			"num"           : 50,
+			'dbKey'         : "GuheheScrape",
+			'name'          : "Guhehe",
+			'dictKey'       : None,
+			'cssClass'      : "ghId",
+			'showOnHome'    : False,
+			'renderSideBar' : True,
+			'genRow'        : False,
+			'type'          : 'Info'
+		},
+
 
 		###################################################################################################################
 
