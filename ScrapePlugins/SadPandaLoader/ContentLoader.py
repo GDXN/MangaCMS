@@ -148,7 +148,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		soup = self.wg.getSoup(dlPageUrl, addlHeaders={'Referer': referrer})
 
-		if soup.find_all(text='Insufficient Credits'):
+		if 'Insufficient funds'.lower() in str(soup).lower():
 			self.outOfCredits = True
 			raise ValueError("Out of credits. Cannot download!")
 
@@ -161,10 +161,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.warn("Already accepted download?")
 
 
+
 		contLink = soup.find('p', id='continue')
 		if not contLink:
 			self.log.error("No link found!")
 			self.log.error("Page Contents: '%s'", soup)
+
 
 		downloadUrl = contLink.a['href']+"?start=1"
 

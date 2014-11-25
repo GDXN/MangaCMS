@@ -29,6 +29,8 @@ class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
 				"/join-us/",
 				"/chat/",
 				'&format=pdf',
+				'?format=pdf',
+				'?replytocom=',
 				]
 
 	positive_keywords = ['main_content']
@@ -86,7 +88,8 @@ class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
 				print("Wat", item)
 
 		title = doc.title()
-
+		title = title.replace('| guhehe.TRANSLATIONS', "")
+		title = title.strip()
 
 		return title, contents
 

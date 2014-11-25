@@ -4,6 +4,7 @@
 import runStatus
 runStatus.preloadDicts = False
 
+import Levenshtein as lv
 
 
 import logging
@@ -11,7 +12,11 @@ import settings
 import abc
 import threading
 import urllib.parse
+import functools
+import operator as opclass
 
+import sql
+import sql.operators as sqlo
 
 import hashlib
 import psycopg2
@@ -26,7 +31,7 @@ import nameTools
 
 from contextlib import contextmanager
 
-QUERY_DEBUG = False
+
 
 @contextmanager
 def transaction(cursor, commit=True):
@@ -56,22 +61,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
 
-	validKwargs = ["rowid",
-					"src",
-					"dlstate",
-					"url",
-					"title",
-					"series",
-					"contents",
-					"istext",
-					"mimetype",
-					"fspath",
-					"fhash"]
+	validKwargs = []
 
-
-	tableName = "book_items"
+	tableName       = "book_items"
+	changeTableName = "book_changes"
 
 	threads = 1
+
+	QUERY_DEBUG = False
 
 	@abc.abstractproperty
 	def pluginName(self):
@@ -386,151 +383,309 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.log.info("Crawler scanned a total of '%s' pages", len(haveUrls))
 		self.log.info("Queue Feeder thread exiting!")
 
+
+	##############################################################################################################################################
+	#                      Schema definition
+	##############################################################################################################################################
+
+	def checkInitPrimaryDb(self):
+		with self.conn.cursor() as cur:
+
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
+												dbid      SERIAL PRIMARY KEY,
+												src       TEXT NOT NULL,
+												dlstate   INTEGER DEFAULT 0,
+												url       CITEXT UNIQUE NOT NULL,
+
+												title     text,
+												series    CITEXT,
+												contents  text,
+												istext    boolean DEFAULT TRUE,
+												fhash     CITEXT,
+												mimetype  CITEXT,
+												fspath    text DEFAULT '',
+												UNIQUE(fhash));'''.format(tableName=self.tableName))
+
+
+
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
+												dbid       SERIAL PRIMARY KEY,
+												src        TEXT NOT NULL,
+												url        CITEXT NOT NULL,
+												change     real NOT NULL,
+												title      text,
+												changeDate double precision NOT NULL
+												);'''.format(tableName=self.changeTableName))
+
+
+			cur.execute("SELECT relname FROM pg_class;")
+			haveIndexes = cur.fetchall()
+			haveIndexes = [index[0] for index in haveIndexes]
+
+			indexes = [
+				("%s_source_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (src     );'''  ),
+				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext  );'''  ),
+				("%s_dlstate_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlstate );'''  ),
+				("%s_url_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (url     );'''  ),
+				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title   );'''  ),
+				("%s_fhash_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (fhash   );'''  ),
+				("%s_title_coll_index" % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING BTREE (title COLLATE "en_US" text_pattern_ops);'''  ),
+
+
+				("%s_date_index"       % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (changeDate);''' ),
+				("%s_src_index"        % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (src   );'''     ),
+				("%s_url_index"        % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (url   );'''     ),
+				("%s_change_index"     % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (change   );'''  ),
+			]
+
+
+		# CREATE INDEX  book_items_title_coll_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
+		# CREATE INDEX  book_items_fhash_index ON book_items (fhash);
+
+		# CREATE INDEX title_collate_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
+		# EXPLAIN ANALYZE SELECT COUNT(*) FROM book_items WHERE title LIKE 's%';
+
+
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(nameFormat % (name, table))
+
+		self.conn.commit()
+		self.log.info("Retreived page database created")
+
+		self.validKwargs = ['dbid', 'src', 'dlstate', 'url', 'title', 'series', 'contents', 'istext', 'fhash', 'mimetype', 'fspath']
+
+
+		self.table = sql.Table(self.tableName.lower())
+
+		self.cols = (
+				self.table.dbid,
+				self.table.src,
+				self.table.dlstate,
+				self.table.url,
+				self.table.title,
+				self.table.series,
+				self.table.contents,
+				self.table.istext,
+				self.table.fhash,
+				self.table.mimetype,
+				self.table.fspath
+			)
+
+
+		self.colMap = {
+				"dbid"       : self.table.dbid,
+				"src"        : self.table.src,
+				"dlstate"    : self.table.dlstate,
+				"url"        : self.table.url,
+				"title"      : self.table.title,
+				"series"     : self.table.series,
+				"contents"   : self.table.contents,
+				"istext"     : self.table.istext,
+				"fhash"      : self.table.fhash,
+				"mimetype"   : self.table.mimetype,
+				"fspath"     : self.table.fspath
+			}
+
+
 	##############################################################################################################################################
 	#                      DB Interfacing
 	##############################################################################################################################################
 
-	# TODO: Use python-sql here.
-	def upsert(self, pgUrl, commit=True, **kwargs):
 
-		cur = self.conn.cursor()
-
-		try:
-			with transaction(cur, commit=commit):
-				self.insertIntoDb(commit=False, url=pgUrl, **kwargs)
-				return
-		except psycopg2.IntegrityError:
-			if kwargs:
-				with transaction(cur, commit=commit):
-					self.updateDbEntry(url=pgUrl, **kwargs)
+	def keyToCol(self, key):
+		key = key.lower()
+		if not key in self.colMap:
+			raise ValueError("Invalid column name '%s'" % key)
+		return self.colMap[key]
 
 
-	def buildInsertArgs(self, **kwargs):
+	def sqlBuildConditional(self, **kwargs):
+		operators = []
 
-		# Pre-populate with the table keys.
-		keys = ["src"]
-		values = ["%s"]
-		queryArguments = [self.tableKey]
+		# Short circuit and return none (so the resulting where clause is all items) if no kwargs are passed.
+		if not kwargs:
+			return None
 
-		for key in kwargs.keys():
-			if key not in self.validKwargs:
-				raise ValueError("Invalid keyword argument: %s" % key)
-			keys.append("{key}".format(key=key))
-			values.append("%s")
-			queryArguments.append("{s}".format(s=kwargs[key]))
+		for key, val in kwargs.items():
+			operators.append((self.keyToCol(key) == val))
 
-		keysStr = ",".join(keys)
-		valuesStr = ",".join(values)
+		# This is ugly as hell, but it functionally returns x & y & z ... for an array of [x, y, z]
+		# And allows variable length arrays.
+		conditional = functools.reduce(opclass.and_, operators)
+		return conditional
 
-		return keysStr, valuesStr, queryArguments
+
+	def sqlBuildInsertArgs(self, returning=None, **kwargs):
+
+		cols = [self.table.src]
+		vals = [self.tableKey]
+
+		for key, val in kwargs.items():
+			key = key.lower()
+
+			if key not in self.colMap:
+				raise ValueError("Invalid column name for insert! '%s'" % key)
+			cols.append(self.colMap[key])
+			vals.append(val)
+
+		query = self.table.insert(columns=cols, values=[vals], returning=returning)
+
+		query, params = tuple(query)
+
+		return query, params
 
 
 	# Insert new item into DB.
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
-	# Return value is the primary key of the new row.
 	def insertIntoDb(self, commit=True, **kwargs):
+		query, queryArguments = self.sqlBuildInsertArgs(returning=[self.table.dbid], **kwargs)
 
-
-		keysStr, valuesStr, queryArguments = self.buildInsertArgs(**kwargs)
-
-		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values})  RETURNING dbid;'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
-
-		if QUERY_DEBUG:
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
 		with self.conn.cursor() as cur:
-
 			with transaction(cur, commit=commit):
 				cur.execute(query, queryArguments)
 				ret = cur.fetchone()
 
-		if QUERY_DEBUG:
+		if self.QUERY_DEBUG:
 			print("Query ret = ", ret)
 
 		return ret[0]
 
 
+	def generateUpdateQuery(self, **kwargs):
+		if "dbid" in kwargs:
+			where = (self.table.dbid == kwargs.pop('dbid'))
+		elif "url" in kwargs:
+			where = (self.table.url == kwargs.pop('url'))
+		else:
+			raise ValueError("GenerateUpdateQuery must be passed a single unique column identifier (either dbId or url)")
+
+		cols = []
+		vals = []
+
+		for key, val in kwargs.items():
+			key = key.lower()
+
+			if key not in self.colMap:
+				raise ValueError("Invalid column name for insert! '%s'" % key)
+			cols.append(self.colMap[key])
+			vals.append(val)
+
+		query = self.table.update(columns=cols, values=vals, where=where)
+		query, params = tuple(query)
+
+		return query, params
+
+
 
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
-	def updateDbEntry(self, dbid=None, url=None, commit=True, **kwargs):
+	def updateDbEntry(self, commit=True, **kwargs):
 
-		if not dbid and not url:
-			raise ValueError("You need to pass a uniquely identifying value to update a row.")
-		if dbid and url:
-			raise ValueError("Updating with dbid and url is not currently supported.")
+		self.insertDelta(**kwargs)
 
-		if dbid:
-			setkey = 'dbid'
-			rowkey = dbid
-		if url:
-			setkey = 'url'
-			rowkey = url
+		query, queryArguments = self.generateUpdateQuery(**kwargs)
 
-		queries = []
-		qArgs = []
-		for key in kwargs.keys():
-			if key not in self.validKwargs:
-				raise ValueError("Invalid keyword argument: %s" % key)
-			else:
-				queries.append("{k}=%s".format(k=key))
-				qArgs.append(kwargs[key])
-
-		qArgs.append(rowkey)
-		qArgs.append(self.tableKey)
-		column = ", ".join(queries)
-
-
-		query = '''UPDATE {tableName} SET {v} WHERE {setkey}=%s AND src=%s;'''.format(tableName=self.tableName, setkey=setkey, v=column)
-
-		if QUERY_DEBUG:
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
-			print("Args = ", qArgs)
+			print("Args = ", queryArguments)
 
 		with self.conn.cursor() as cur:
 			with transaction(cur, commit=commit):
-				cur.execute(query, qArgs)
+				cur.execute(query, queryArguments)
 
 
 
-	# Delete row by either dbId or url
-	def deleteDbEntry(self, dbid=None, url=None, commit=True):
+	def deleteDbEntry(self, commit=True, **kwargs):
+		if len(kwargs) != 1:
+			raise ValueError("deleteDbEntry only supports calling with a single kwarg", kwargs)
 
-		if not dbid and not url:
-			raise ValueError("You need to pass a uniquely identifying value to update a row.")
-		if dbid and url:
-			raise ValueError("Updating with dbid and url is not currently supported.")
+		validCols = ["dbid", "url"]
 
-		if dbid:
-			setkey = 'dbid'
-			rowkey = dbid
-		if url:
-			setkey = 'url'
-			rowkey = url
 
-		queries = []
-		qArgs = []
+		key, val = kwargs.popitem()
+		if key not in validCols:
+			raise ValueError("Invalid column key for delete query: %s. Must be either 'dbid' or 'url'" % key)
 
-		qArgs.append(rowkey)
+		where = (self.colMap[key.lower()] == val)
 
-		self.log.warn("Deleting item from database where %s=%s", setkey, rowkey)
-		query = '''DELETE FROM {tableName} WHERE {setkey}=%s;'''.format(tableName=self.tableName, setkey=setkey)
+		query = self.table.delete(where=where)
 
-		if QUERY_DEBUG:
+		query, args = tuple(query)
+
+
+		if self.QUERY_DEBUG:
 			print("Query = ", query)
-			print("Args = ", qArgs)
+			print("Args = ", args)
 
 		with self.conn.cursor() as cur:
 			with transaction(cur, commit=commit):
-				cur.execute(query, qArgs)
+				cur.execute(query, args)
 
-	def getHash(self, fCont):
 
-		m = hashlib.md5()
-		m.update(fCont)
-		return m.hexdigest()
+
+
+
+	def getRowsByValue(self, limitByKey=True, **kwargs):
+		if limitByKey and self.tableKey:
+			kwargs["src"] = self.tableKey
+
+
+		where = self.sqlBuildConditional(**kwargs)
+
+		wantCols = (
+				self.table.dbid,
+				self.table.src,
+				self.table.dlstate,
+				self.table.url,
+				self.table.title,
+				self.table.series,
+				self.table.contents,
+				self.table.istext,
+				self.table.fhash,
+				self.table.mimetype,
+				self.table.fspath
+			)
+
+		query = self.table.select(*wantCols, order_by=sql.Desc(self.table.dbid), where=where)
+
+		query, quargs = tuple(query)
+
+		if self.QUERY_DEBUG:
+			print("Query = ", query)
+			print("args = ", quargs)
+
+		with self.conn.cursor() as cur:
+
+			#wrap queryies in transactions so we don't have hanging db handles.
+			with transaction(cur):
+				cur.execute(query, quargs)
+				rets = cur.fetchall()
+
+
+
+		retL = []
+		for row in rets:
+
+			keys = ['dbid', 'src', 'dlstate', 'url', 'title', 'series', 'contents', 'istext', 'fhash', 'mimetype', 'fspath']
+			retL.append(dict(zip(keys, row)))
+		return retL
+
+	def getRowByValue(self, **kwargs):
+		rows = self.getRowsByValue(**kwargs)
+		if len(rows) == 1:
+			return rows.pop()
+		if len(rows) == 0:
+			return None
+		else:
+			raise ValueError("Got multiple rows for selection. Wat?")
+
+
 
 
 	def saveFile(self, url, mimetype, fileName, content):
@@ -579,8 +734,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 				fp.write(content)
 
 
-
-
 	def getToDo(self):
 		cur = self.conn.cursor()
 
@@ -612,59 +765,73 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 
-	def checkInitPrimaryDb(self):
+	def insertChangeStats(self, url, changePercentage, title):
 		with self.conn.cursor() as cur:
-
-			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
-												dbid      SERIAL PRIMARY KEY,
-												src       TEXT NOT NULL,
-												dlstate   INTEGER DEFAULT 0,
-												url       CITEXT UNIQUE NOT NULL,
-
-												title     text,
-												series    CITEXT,
-												contents  text,
-												istext    boolean DEFAULT TRUE,
-												fhash     CITEXT,
-												mimetype  CITEXT,
-												fspath    text DEFAULT '',
-												UNIQUE(fhash));'''.format(tableName=self.tableName))
+			query = '''INSERT INTO {changeTable} (src, url, change, title, changeDate) VALUES (%s, %s, %s, %s, %s)'''.format(changeTable=self.changeTableName)
+			values = (self.tableKey, url, changePercentage, title, time.time())
+			cur.execute(query, values)
 
 
-			cur.execute("SELECT relname FROM pg_class;")
-			haveIndexes = cur.fetchall()
-			haveIndexes = [index[0] for index in haveIndexes]
+	##############################################################################################################################################
+	# Higher level DB Interfacing
+	##############################################################################################################################################
 
 
+	def upsert(self, pgUrl, commit=True, **kwargs):
 
-			indexes = [
-				("%s_source_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (src     );'''  ),
-				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext  );'''  ),
-				("%s_dlstate_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (dlstate );'''  ),
-				("%s_url_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (url     );'''  ),
-				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title   );'''  ),
-				("%s_fhash_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (fhash   );'''  ),
-				("%s_title_coll_index" % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING BTREE (title COLLATE "en_US" text_pattern_ops);'''  )
-			]
+		cur = self.conn.cursor()
 
 
-# CREATE INDEX  book_items_title_coll_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
-# CREATE INDEX  book_items_fhash_index ON book_items (fhash);
-
-# CREATE INDEX title_collate_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
-# EXPLAIN ANALYZE SELECT COUNT(*) FROM book_items WHERE title LIKE 's%';
-
-
-			for name, table, nameFormat in indexes:
-				if not name.lower() in haveIndexes:
-					cur.execute(nameFormat % (name, table))
+		try:
+			with transaction(cur, commit=commit):
+				self.insertIntoDb(commit=False, url=pgUrl, **kwargs)
+				return
+		except psycopg2.IntegrityError:
+			if kwargs:
+				with transaction(cur, commit=commit):
+					self.updateDbEntry(url=pgUrl, **kwargs)
 
 
+	def insertDelta(self, **kwargs):
 
-		self.conn.commit()
+		if 'istext' in kwargs and not kwargs['istext']:
+			return
 
-		self.log.info("Retreived page database created")
+		if not 'contents' in kwargs:
+			return
+
+		if 'url' in kwargs:
+			old = self.getRowByValue(url=kwargs['url'])
+		elif 'dbid' in kwargs:
+			old = self.getRowByValue(dbid=kwargs['dbid'])
+		else:
+			raise ValueError("No identifying info in insertDelta call!")
+
+		if 'title' in kwargs:
+			title = kwargs['title']
+		else:
+			title = old['title']
+		if old['contents'] == None:
+			old['contents'] = ''
+
+		oldStr = str(old['contents'])
+		newStr = str(kwargs['contents'])
+
+		distance = lv.distance(oldStr, newStr)
+		space = min((len(oldStr), len(newStr)))
+
+		if space == 0:
+			space = 1
+
+		change = (distance / space) * 100
+		change = min((change, 100))
+		self.log.info("Percent change in page contents: %s", change)
+
+		self.insertChangeStats(old['url'], change, title)
 
 
+	def getHash(self, fCont):
 
-
+		m = hashlib.md5()
+		m.update(fCont)
+		return m.hexdigest()
