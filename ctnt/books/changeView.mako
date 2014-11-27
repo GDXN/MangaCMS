@@ -55,7 +55,7 @@ import urllib.parse
 			${src.title()}
 		</td>
 		<td>
-			${change}%
+			${'%0.2f' % change}%
 		</td>
 		<td>
 			<div id='rowLink'><a href='/books/render?url=${urllib.parse.quote(url)}'>${title}</a></div>
@@ -71,7 +71,7 @@ import urllib.parse
 	if all:
 		cur.execute("SELECT src, url, change, title, changeDate FROM book_changes ORDER BY changeDate DESC limit 200;")
 	else:
-		cur.execute("SELECT src, url, change, title, changeDate FROM book_changes WHERE change > %s ORDER BY changeDate DESC limit 200;", (5, ))
+		cur.execute("SELECT src, url, change, title, changeDate FROM book_changes WHERE change > %s ORDER BY changeDate DESC limit 200;", (2, ))
 	ret = cur.fetchall()
 	cur.execute("COMMIT")
 	%>

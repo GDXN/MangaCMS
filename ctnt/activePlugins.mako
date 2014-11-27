@@ -269,6 +269,17 @@ sidebarItemList = [
 		},
 
 		{
+			"num"           : 32,
+			'dbKey'         : "MsLoader",
+			'name'          : "MangaStream",
+			'dictKey'       : "ms",
+			'cssClass'      : "msId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+		{
 			"num"           : 31,
 			'dbKey'         : "MangatopiaLoader",
 			'name'          : "Mangatopia",

@@ -1,7 +1,7 @@
 
 import runStatus
-from ScrapePlugins.WebtoonLoader.FeedLoader import FeedLoader
-from ScrapePlugins.WebtoonLoader.ContentLoader import ContentLoader
+from ScrapePlugins.MangaStreamLoader.FeedLoader import FeedLoader
+from ScrapePlugins.MangaStreamLoader.ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -9,14 +9,14 @@ import time
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Wt.Run"
+	loggerPath = "Main.Ms.Run"
 
-	pluginName = "WtLoader"
+	pluginName = "MsLoader"
 
 
 	def _go(self):
 
-		self.log.info("Checking Wt feeds for updates")
+		self.log.info("Checking Ms feeds for updates")
 		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
