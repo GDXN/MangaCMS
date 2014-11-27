@@ -59,7 +59,7 @@ DNLDED = 2
 				<li><a href="/dirListing">Dir Listing</a>
 				<hr>
 				<li><a href="/books/">Books!</a>
-				<li><a href="/books/changeView">Book Updates</a>
+				<li><a href="/books/changeView">New Books</a>
 				<hr>
 				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>
 				<li><a href="/tags/tags">M Tags</a>
@@ -84,7 +84,7 @@ DNLDED = 2
 				% endif
 				<li><a href="/mangaError">M Errors</a>
 				<hr>
-				<li><a href="/errorLog">Scraper Errors</a>
+				<li><a href="/errorLog">Scraper Logs</a>
 
 
 			</ul>

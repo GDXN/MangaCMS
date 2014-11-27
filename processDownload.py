@@ -71,11 +71,11 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				return
 
-		self.log.error("Cross-referencing file failed!")
-		self.log.error("Remove:	'%s', '%s'", delItemRoot, delItemFile)
-		self.log.error("Match: 	'%s', '%s'", dupItemRoot, dupItemFile)
-		self.log.error("SrcRow:	'%s'", srcRow)
-		self.log.error("DstRow:	'%s'", dstRow)
+		self.log.warn("Cross-referencing file failed!")
+		self.log.warn("Remove:	'%s', '%s'", delItemRoot, delItemFile)
+		self.log.warn("Match: 	'%s', '%s'", dupItemRoot, dupItemFile)
+		self.log.warn("SrcRow:	'%s'", srcRow)
+		self.log.warn("DstRow:	'%s'", dstRow)
 
 
 	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, **kwargs):
