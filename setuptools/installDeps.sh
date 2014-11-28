@@ -8,20 +8,9 @@ if [ $EUID -ne 0 ]; then
     exit 1
 fi
 
-
-# add PPAs for up-to-date python
-add-apt-repository -y ppa:fkrull/deadsnakes
-apt-get update
-
 # install said up-to-date python
 apt-get install -y python3.4 python3.4-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.3 unrar
-apt-get install -y postgresql-server-dev-9.3 postgresql-contrib libyaml-dev
-
-# link python3.4 as python3, because ubuntu thinks only python 3.2 is actually python 3
-# this will possibly (probably?) break things on ubuntu >= 14.04, since that's the version where
-# they switched to using python3 for system management stuff.
-ln -s /usr/bin/python3.4 /usr/bin/python3
-
+apt-get install -y postgresql-server-dev-9.3 postgresql-contrib libyaml-dev git
 
 # PIL/Pillow support stuff
 sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
@@ -36,7 +25,7 @@ echo TODO: ADD PostgreSQL >= 9.3 install stuff here!
 pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama
 pip3 install pyinotify python-dateutil apscheduler rarfile python-magic
 pip3 install babel cython irc psycopg2 python-levenshtein
-pip3 install python-sql natsort yaml pillow
+pip3 install python-sql natsort pyyaml pillow rpyc server_reloader
 
 # numpy and scipy are just needed for the image deduplication stuff. They can be left out if
 # those functions are not desired.
@@ -52,4 +41,16 @@ sudo pip3 install git+https://github.com/stalkerg/python-readability
 sudo pip3 install git+https://github.com/bear/parsedatetime
 
 # Pylzma for 7z support. py3k support is still not in Pypi for no good reason
-sudo pip3 install git+https://github.com/fancycode/pylzma
+sudo pip3 install pylzma
+
+sudo pip3 install git+https://github.com/fake-name/UniversalArchiveInterface.git
+
+# Install the citext extension
+sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS citext;'
+
+# I'm not currently using plpython3. Legacy?
+# sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS plpython3u;'
+
+echo Increasing the number of inotify watches.
+sysctl -w fs.inotify.max_user_watches=524288
+sysctl -p

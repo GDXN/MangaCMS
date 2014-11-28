@@ -11,7 +11,7 @@ import os
 import os.path
 import time
 import json
-
+import runStatus
 import traceback
 
 import processDownload
@@ -360,7 +360,7 @@ if __name__ == "__main__":
 	import logSetup
 	import signal
 
-	import runStatus
+
 	runner = IrcRetreivalInterface()
 
 	def signal_handler(dummy_signal, dummy_frame):

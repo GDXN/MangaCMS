@@ -32,11 +32,16 @@ def getSchemaRev(conn):
 			return rets.pop()[0]
 
 def verifySchemaUpToDate():
+	try:
+		conn = psycopg2.connect(dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
+	except:
+		conn = psycopg2.connect(host    = settings.PSQL_IP,
+								dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
 
-	conn = psycopg2.connect(host=settings.PSQL_IP,
-							dbname  =settings.DATABASE_DB_NAME,
-							user    =settings.DATABASE_USER,
-							password=settings.DATABASE_PASS)
 	rev = getSchemaRev(conn)
 	if rev < CURRENT_SCHEMA:
 		print("Database Schema is out of date! Please run the scraper to allow it to update the database structure first!")

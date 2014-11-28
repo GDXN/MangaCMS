@@ -22,6 +22,9 @@ import time
 import sql
 import sql.operators as sqlo
 
+import functools
+import operator as opclass
+
 def compactDateStr(dateStr):
 	dateStr = dateStr.replace("months", "mo")
 	dateStr = dateStr.replace("month", "mo")
@@ -119,34 +122,56 @@ seriesCols = (
 
 def buildQuery(srcTbl, cols, **kwargs):
 
-	query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime))
 
+	orOperators = []
+	andOperators = []
 	if "tableKey" in kwargs and kwargs['tableKey']:
 		if type(kwargs['tableKey']) is str:
-			query.addOr(srcTbl.sourcesite, kwargs['tableKey'])
+			orOperators.append((srcTbl.sourcesite == kwargs['tableKey']))
 		elif type(kwargs['tableKey']) is list or type(kwargs['tableKey']) is tuple:
 			for key in kwargs['tableKey']:
-				query.addOr(srcTbl.sourcesite, key)
+				orOperators.append((srcTbl.sourcesite == key))
 		else:
 			raise ValueError("Invalid table-key type! Type: '%s'" % type(kwargs['tableKey']))
 
+
 	if "tagsFilter" in kwargs and kwargs['tagsFilter']:
 		for tag in kwargs['tagsFilter']:
-			query.addAndLike(srcTbl.tags, '%{tag}%'.format(tag=tag))
-			print('multi arg fixme')
+
+			match = '%{key}%'.format(key=tag.lower())
+			andOperators.append(sqlo.Like(srcTbl.tags, match))
 
 	if "seriesFilter" in kwargs and kwargs['seriesFilter']:
 		for key in kwargs['seriesFilter']:
-			query.addAndLike(srcTbl.seriesname, key.lower())
+			match = '%{key}%'.format(key=key.lower())
+			andOperators.append(sqlo.Like(srcTbl.seriesname, match))
 
 	if "seriesName" in kwargs and kwargs['seriesName']:
-		query.addAnd(srcTbl.seriesname, kwargs['seriesName'])
+
+		andOperators.append((srcTbl.seriesname == kwargs['seriesName']))
+
+
+
+	if orOperators:
+		orCond = functools.reduce(opclass.or_, orOperators)
+		andOperators.append(orCond)
+	if andOperators:
+		where = functools.reduce(opclass.and_, andOperators)
+	else:
+		where=None
+
+	query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime), where=where)
+
 
 	if "offset" in kwargs and kwargs['offset']:
 		query.offset = int(kwargs['offset'])
 
 	if "limit" in kwargs and kwargs['limit']:
 		query.limit = int(kwargs['limit'])
+
+	q, p = tuple(query)
+	print("Query = '%s'" % (q, ))
+	print("Params = '%s'" % (p, ))
 
 	return query
 
@@ -685,7 +710,7 @@ colours = {
 		limit = limit,
 		offset = offset)
 
-	print("Query", query)
+
 
 	if getErrored:
 		if query.where:
