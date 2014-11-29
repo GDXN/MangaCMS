@@ -279,7 +279,7 @@ class ArchChecker(DbBase):
 					self.db.insertIntoDb(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
 
 
-			except IOError as e:
+			except UniversalArchiveInterface.ArchiveError as e:
 				self.log.error("Invalid/damaged image file in archive!")
 				self.log.error("Archive '%s', file '%s'", self.archPath, fName)
 				self.log.error("Error '%s'", e)

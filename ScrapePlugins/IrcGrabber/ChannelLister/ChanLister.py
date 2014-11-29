@@ -42,7 +42,7 @@ class ListerBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		loopTimeout = 0.1
 		while not self.listComplete:
 			# Kick over the event-loop so it'll parse incoming data while we're waiting for the list to complete
-			self.ircobj.process_once(timeout=loopTimeout)
+			self.reactor.process_once(timeout=loopTimeout)
 			cumTime += loopTimeout
 
 			# Timeout if we've run more then 3 minutes in the list command

@@ -173,13 +173,8 @@ class ArchCleaner(object):
 			else:
 				self.log.info("No offending contents. No changes made to file.")
 
-		except rarfile.BadRarFile:
-			self.log.error("Bad rar file!")
-			for line in traceback.format_exc().split("\n"):
-				self.log.error(line)
-			raise DamagedArchive()
-		except zipfile.BadZipFile:
-			self.log.error("Bad zip file!")
+		except UniversalArchiveInterface.ArchiveError:
+			self.log.error("Bad archive file!")
 			for line in traceback.format_exc().split("\n"):
 				self.log.error(line)
 			raise DamagedArchive()

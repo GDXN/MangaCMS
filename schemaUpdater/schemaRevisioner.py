@@ -55,11 +55,15 @@ def verifySchemaUpToDate():
 		return
 
 def updateSchemaRevNo(newNum):
-
-	conn = psycopg2.connect(host=settings.PSQL_IP,
-							dbname  =settings.DATABASE_DB_NAME,
-							user    =settings.DATABASE_USER,
-							password=settings.DATABASE_PASS)
+	try:
+		conn = psycopg2.connect(dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
+	except:
+		conn = psycopg2.connect(host    = settings.PSQL_IP,
+								dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
 	cur = conn.cursor()
 	cur.execute('''UPDATE schemaRev SET schemaVersion=%s;''', (newNum, ))
 	conn.commit()
@@ -73,11 +77,15 @@ def createSchemaRevTable(conn):
 	conn.commit()
 
 def updateDatabaseSchema(fastExit=False):
-
-	conn = psycopg2.connect(host=settings.PSQL_IP,
-							dbname  =settings.DATABASE_DB_NAME,
-							user    =settings.DATABASE_USER,
-							password=settings.DATABASE_PASS)
+	try:
+		conn = psycopg2.connect(dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
+	except:
+		conn = psycopg2.connect(host    = settings.PSQL_IP,
+								dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
 
 	rev = getSchemaRev(conn)
 	print("Current Database Schema Rev = ", rev)
