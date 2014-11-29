@@ -2,6 +2,7 @@
 import matplotlib
 matplotlib.use('Agg')
 
+import traceback
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
@@ -16,26 +17,42 @@ def go():
 	inIms = os.listdir(testIn)
 	testOut = './out/'
 
-	orb = cv2.ORB_create()
+	sorb = cv2.ORB_create()
+	borb = cv2.ORB_create(nfeatures=25000)
 
 
 	template = cv2.imread('bw_watermark.png', 0)
-	template = cv2.imread('Lenna.png', 0)
+	kp1, des1 = sorb.detectAndCompute(template, None)
+	bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
 
-	kp = orb.detect(template)
-	kp, des = orb.compute(template, kp)
 
-	print(kp)
-	print(des)
-	for k in kp:
-		print(k)
-	print('des', des)
-	print('end')
+	for inIm in inIms:
+		fqIm = os.path.join(testIn, inIm)
+		print(fqIm)
+		try:
+			target = cv2.imread(fqIm, 0)
+			kp2, des2 = borb.detectAndCompute(target, None)
 
-	img2 = template.copy()
-	img2 = cv2.drawKeypoints(template, kp, img2)
-	plt.imshow(img2, cmap='gray')
-	plt.savefig('test.png')
+
+			matches = bf.match(des1,des2)
+			matches = sorted(matches, key = lambda x:x.distance)
+
+
+			retIm = np.array([])
+			img3 = cv2.drawMatches(template,kp1,target,kp2,matches[:50], retIm, flags=2)
+
+			# img2 = template.copy()
+			# img2 = cv2.drawKeypoints(template, kp, img2)
+			# plt.imshow(img2, cmap='gray')
+			# plt.savefig('test.png', dpi=300)
+
+			plt.imshow(img3)
+			outName = 'myfig_{inIm}.png'.format(inIm=inIm)
+			outName = os.path.join(testOut, outName)
+			plt.savefig(outName, dpi=300)
+		except:
+			print("Wat?")
+			# traceback.print_exc()
 
 	# print("Array shape", template.shape[::-1])
 	# d, w, h = template.shape[::-1]
