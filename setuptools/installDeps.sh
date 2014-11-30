@@ -54,3 +54,5 @@ sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS citext;'
 echo Increasing the number of inotify watches.
 sysctl -w fs.inotify.max_user_watches=524288
 sysctl -p
+
+echo fs.inotify.max_user_watches=524288 >> /etc/sysctl.conf

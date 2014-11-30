@@ -116,7 +116,7 @@ def go():
 						lineType=cv2.LINE_AA)
 				# img, pts, isClosed, color[, thickness[, lineType[, shift]]])
 
-				draw_params = dict(	 = None,
+				draw_params = dict(
 								   matchesMask = matchesMask, # draw only inliers
 								   flags = 2)
 
