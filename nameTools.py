@@ -80,6 +80,9 @@ def prepFilenameForMatching(inStr):
 
 def makeFilenameSafe(inStr):
 
+	# FUCK YOU SMART-QUOTES.
+	inStr = inStr.replace("“",  " ") \
+				 .replace("”",  " ")
 
 	inStr = inStr.replace("%20", " ") \
 				 .replace("<",  " ") \
@@ -92,11 +95,6 @@ def makeFilenameSafe(inStr):
 				 .replace("?",  " ") \
 				 .replace("*",  " ") \
 				 .replace('"', " ")
-
-	# FUCK YOU SMART-QUOTES.
-	inStr = inStr.replace("“",  "\"") \
-				 .replace("”",  "\"")
-
 
 	# Collapse all the repeated spaces down.
 	while inStr.find("  ")+1:

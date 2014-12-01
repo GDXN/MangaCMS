@@ -27,12 +27,44 @@ def filter_matches(kp1, kp2, matches, ratio = 0.5):
 def insertBorder(img, border=32):
 	return cv2.copyMakeBorder(img, border, border, border, border, borderType=cv2.BORDER_CONSTANT, value=255)
 
+def filterArrRows(inarr, rows):
+	for row in rows:
+		inarr = np.delete(inarr, row, 0)
+	return inarr
+
+def drawX(img, cx, cy, color):
+	p1, p2, p3, p4 = tuple([int(cx+10), int(cy+10)]), tuple([int(cx-10), int(cy-10)]), tuple([int(cx+10), int(cy-10)]), tuple([int(cx-10), int(cy+10)])
+
+	img = cv2.line(img=img,
+			pt1=p1,
+			pt2=p2,
+			color=color,
+			thickness=1)
+
+	img = cv2.line(img=img,
+			pt1=p3,
+			pt2=p4,
+			color=color,
+			thickness=1,
+			lineType=cv2.LINE_AA)
+
+	return img
+
+
 def go():
 
 
 	testIn = "./tests/"
 	inIms = os.listdir(testIn)
 	testOut = './out/'
+
+
+	tmpOut = os.listdir(testOut)
+	for fn in tmpOut:
+		fqIm = os.path.join(testOut, fn)
+		print(fqIm, os.path.isfile(fqIm))
+		if os.path.isfile(fqIm):
+			os.unlink(fqIm)
 
 	# sorb = cv2.ORB_create()
 	# borb = cv2.ORB_create(nfeatures=25000)
@@ -66,7 +98,10 @@ def go():
 
 
 			good = []
-			for m,n in raw_matches:
+			for item in raw_matches:
+				if len(item) != 2:
+					continue
+				m,n = item
 				if m.distance < 0.7*n.distance:
 					good.append(m)
 
@@ -76,53 +111,62 @@ def go():
 
 				M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,3.0)
 				if mask == None:
-					print("No Mask?")
+					print("Wat?")
 					continue
 				matchesMask = mask.ravel().tolist()
 
+				ind = [i for i, x in enumerate(matchesMask) if x == 0]
+				ind.sort(reverse=True)
+
+				src_filt = filterArrRows(src_pts, ind)
+				dst_filt = filterArrRows(dst_pts, ind)
+
+
+
+				ret = cv2.estimateRigidTransform(src_filt, dst_filt, fullAffine=False)
+
 				h,w = template.shape
-				pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
-				dst = cv2.perspectiveTransform(pts,M)
+				# pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
+				# dst = cv2.perspectiveTransform(pts,M)
 
-				cx = np.mean(dst[...,0])
-				cy = np.mean(dst[...,1])
+				# cx = np.mean(dst[...,0])
+				# cy = np.mean(dst[...,1])
 
-				p1, p2, p3, p4 = tuple([int(cx+10), int(cy+10)]), tuple([int(cx-10), int(cy-10)]), tuple([int(cx+10), int(cy-10)]), tuple([int(cx-10), int(cy+10)])
+				ret = ret.ravel()
+				wS, hS = ret[0], ret[4]
+				rotA, rotB = ret[1], ret[3]
+				tX, tY = ret[2], ret[5]
 
-				# p1 = np.int32(p1)
-				# p2 = np.int32(p2)
-				# p3 = np.int32(p3)
-				# p4 = np.int32(p4)
-				print(p1)
+				errs = [abs(1-wS), abs(1-hS), abs(rotA), abs(rotB)]
 
-				target = cv2.line(img=target,
-						pt1=p1,
-						pt2=p2,
-						color=(128, 128, 128),
-						thickness=3)
+				print(errs)
 
-				target = cv2.line(img=target,
-						pt1=p3,
-						pt2=p4,
-						color=128,
-						thickness=3,
-						lineType=cv2.LINE_AA)
+				aX, aY = tX+(w/2), tY+(h/2)
+				print(aX, aY)
 
-				target = cv2.polylines(img=target,
-						pts=[np.int32(dst)],
-						isClosed=True,
-						color=128,
-						thickness=3,
-						lineType=cv2.LINE_AA)
+				# eX, eY = aX - cx, aY - cy
+				print("Filtered: ", ind)
+				# print("Rigid Transform error:", eX, eY)
+
+				target = cv2.cvtColor(target, cv2.COLOR_GRAY2RGB)
+
+				# target = drawX(target, cx, cy, (0, 0, 255))
+				target = drawX(target, aX, aY, (255, 0, 0))
+
+				# target = cv2.polylines(img=target,
+				# 		pts=[np.int32(dst)],
+				# 		isClosed=True,
+				# 		color=(0, 0, 255),
+				# 		thickness=3,
+				# 		lineType=cv2.LINE_AA)
 				# img, pts, isClosed, color[, thickness[, lineType[, shift]]])
 
-				draw_params = dict(
-								   matchesMask = matchesMask, # draw only inliers
+				draw_params = dict(matchesMask = matchesMask, # draw only inliers
 								   flags = 2)
 
-				img3 = cv2.drawMatches(template,kp1,target,kp2,good,None,**draw_params)
+				# img3 = cv2.drawMatches(template,kp1,target,kp2,good,None,**draw_params)
 
-				plt.imshow(img3)
+				plt.imshow(target)
 
 
 				outName = 'myfig_{inIm}.png'.format(inIm=inIm)
@@ -130,6 +174,7 @@ def go():
 				plt.savefig(outName, dpi=300)
 
 				print("OK Match?")
+
 			else:
 				print("No Match?")
 
