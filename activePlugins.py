@@ -18,7 +18,8 @@ import ScrapePlugins.McLoader.Run
 import ScrapePlugins.CxLoader.Run
 import ScrapePlugins.MjLoader.Run
 import ScrapePlugins.LoneMangaLoader.Run
-import ScrapePlugins.WebtoonLoader.Run
+import ScrapePlugins.WebtoonLoader.Run            # Yeah. There is webtoon.com. and WebtoonsReader.com. Confusing, et?
+import ScrapePlugins.WebtoonsReader.Run
 import ScrapePlugins.KissLoader.Run
 import ScrapePlugins.SadPandaLoader.Run
 import ScrapePlugins.NHentaiLoader.Run
@@ -74,6 +75,7 @@ scrapePlugins = {
 	20 : (ScrapePlugins.NHentaiLoader.Run,                   60*60   ),
 	21 : (ScrapePlugins.Crunchyroll.Run,                     60*60*6 ),
 	22 : (ScrapePlugins.SadPandaLoader.Run,                  60*60*2 ),
+	23 : (ScrapePlugins.WebtoonsReader.Run,                  60*60*6 ),
 
 	# FoolSlide modules
 	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          60*60*12),

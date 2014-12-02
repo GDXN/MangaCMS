@@ -14,6 +14,7 @@ Plugin scrapers for:
 	 - Starkana.com
 	 - CXC Scans
 	 - Webtoons.com
+	 - WebtoonsReader.com
 	 - LoneManga.com
 	 - EasyGoing Scans
 	 - Dynasty Scans

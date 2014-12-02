@@ -290,6 +290,17 @@ sidebarItemList = [
 			'genRow'        : True,
 			'type'          : 'Manga'
 		},
+		{
+			"num"           : 33,
+			'dbKey'         : "WrLoader",
+			'name'          : "WebTnsRdr",
+			'dictKey'       : "wr",
+			'cssClass'      : "wrId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
 
 
 		{
