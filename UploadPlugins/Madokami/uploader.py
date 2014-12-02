@@ -117,9 +117,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			fqPath = os.path.join(fullPath, dirName)
 
+			matchName = os.path.split(ret[matchingName])[-1]
+
 			if matchingName in ret:
 				if aggregate:
-					fqPath = self.aggregateDirs(fullPath, dirName, ret[matchingName])
+					fqPath = self.aggregateDirs(fullPath, dirName, matchName)
 				else:
 					if COMPLAIN_ABOUT_DUPS:
 						self.log.warning("Duplicate directories for series '%s'!", canonName)

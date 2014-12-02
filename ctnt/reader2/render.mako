@@ -73,72 +73,24 @@ import re
 
 	VOL_THRESHOLD = 3
 
-	chpRe = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |ch|c| |_)(?: |_|\.)?(\d+)", re.IGNORECASE)
-	volRe = re.compile(r"(?: |_)(?:volume|vol|v|season)(?: |_|\.)?(\d+)", re.IGNORECASE)
-	# print("Nav path = ", navPath, "dict", dictKey)
-
-	# print("Folder items")
-	# for item in dirContents:
-	# 	print("File -> '%s'" % item)
-
 	# print(dirContents, dirPath)
 	tmp = []
 	for item in dirContents:
-		chapKey = chpRe.findall(item)
+		chap, vol = nt.extractChapterVol(item)
 
 		sz = os.path.getsize(os.path.join(dirPath, item))
 		szStr = ut.fSizeToStr(sz)
 
-		chapKey = float(chapKey.pop(0)) if chapKey  else 0
-
-		tmp.append((0, chapKey, item, szStr))
+		tmp.append((vol, chap, item, szStr))
 
 	chap1files = len([item for item in tmp if item[1] == 1])
-	print("Found %s chapter 1 files" % chap1files)
-
 
 	if not chap1files > VOL_THRESHOLD:
-		tmp = natsorted(tmp)
-
-	dirContents = []
-	for dummy, chapKey, item, szStr in tmp:
-		volKey = volRe.findall(item)
-		volKey  = float(volKey.pop(0))  if volKey    else 0
-		dirContents.append((volKey, chapKey, item, szStr))
-
-
-	if chap1files > VOL_THRESHOLD:
-		dirContents = natsorted(dirContents)
-
-
-	# print("Preprocessed items")
-	# for item in tmp:
-	# 	print("Item -> '%s'" % (item, ))
-
-
-
-
-	# print("Sorted items")
-	# for item in dirContents:
-	# 	print("Item -> '%s'" % (item, ))
-
-
-	# dirContents = [item[2] for item in dirContents]
-
-
-
-	# print("Sorted fileNames")
-	# for item in dirContents:
-	# 	print("Item -> '%s'" % (item, ))
-
+		dirContents = natsorted(tmp, key=lambda dat: (dat[1], dat))
+	else:
+		dirContents = natsorted(tmp)
 	%>
-<!-- 	${chap1files} first chapter files found:
-	%if chap1files > VOL_THRESHOLD:
-		Using Volume sorting mode
-	% else:
-		Using Chapter sorting mode
-	% endif
- -->
+
 	<table border="1px" class="mangaFileTable">
 		<tr>
 			<th class="uncoloured" style='width:30'>Vol</th>

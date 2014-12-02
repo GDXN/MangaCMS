@@ -16,15 +16,24 @@ import traceback
 import bs4
 
 import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RunBase
 
 from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
 
+
+HTTPS_CREDS = [
+	("manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("https://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	]
+
+
 class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	wg = webFunctions.WebGetRobust(creds=[("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"])])
+	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
 	loggerPath = "Main.Mk.Cl"
 	pluginName = "Manga.Madokami Content Retreiver"
 	tableKey = "mk"
@@ -257,10 +266,19 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "MkCLoader"
 
-
 	def _go(self):
-
 		self.log.info("Checking Mk feeds for updates")
 		fl = MkContentLoader()
 		fl.go()
 		fl.closeDB()
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=True):
+
+		run = Runner()
+		run.go()
+
+

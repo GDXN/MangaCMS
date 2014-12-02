@@ -47,6 +47,8 @@ class WebGetRobust:
 	def __init__(self, test=False, creds=None, logPath="Main.Web"):
 		self.log = logging.getLogger(logPath)
 		print("Webget init! Logpath = ", logPath)
+		if creds:
+			print("Have creds for a domain")
 		if test:
 			self.log.warning("-----------------------------------------------------------------------------------------------")
 			self.log.warning("WARNING: WebGet in testing mode!")
@@ -63,7 +65,7 @@ class WebGetRobust:
 
 
 		if creds:
-			self.log.info("Have credentials, installing password manager into urllib handler.")
+			print("Have credentials, installing password manager into urllib handler.")
 			passManager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
 			for url, username, password in creds:
 				passManager.add_password(None, url, username, password)
@@ -90,8 +92,10 @@ class WebGetRobust:
 				self.log.debug(self.cj)
 				cookieHandler = urllib.request.HTTPCookieProcessor(self.cj)
 				if self.credHandler:
+					print("Have cred handler. Building opener using it")
 					self.opener = urllib.request.build_opener(cookieHandler, self.credHandler)
 				else:
+					print("No cred handler")
 					self.opener = urllib.request.build_opener(cookieHandler)
 				#self.opener.addheaders = [('User-Agent', 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)')]
 				self.opener.addheaders = self.browserHeaders

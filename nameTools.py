@@ -67,6 +67,7 @@ def guessSeriesFromFilename(inStr):
 def stripChapVol(inStr):
 	inStr = chapVolRe.sub(" ", inStr)
 	return inStr
+
 def stripTrailingNumbers(inStr):
 	inStr = trailingNumRe.sub(" ", inStr)
 	return inStr
@@ -219,6 +220,31 @@ def isProbablyImage(fileName):
 
 
 
+
+def extractChapterVol(inStr):
+
+	# Becuase some series have numbers in their title, we need to preferrentially
+	# chose numbers preceeded by known "chapter" strings when we're looking for chapter numbers
+	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
+	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |ch|c)(?: |_|\.)?(\d+)", re.IGNORECASE)
+	chpRe2 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?: |_)(?: |_|\.)?(\d+)", re.IGNORECASE)
+	volRe = re.compile(r"(?: |_|\-)(?:volume|vol|v|season)(?: |_|\.)?(\d+)", re.IGNORECASE)
+
+	chap = None
+	for chRe in [chpRe1, chpRe2]:
+		chapF = chRe.findall(inStr)
+		if chapF:
+			chap  = float(chapF.pop(0)) if chapF else None
+		if chap != None:
+			break
+
+	volKey = volRe.findall(inStr)
+	vol    = float(volKey.pop(0))  if volKey    else None
+
+	chap   = chap if chap != None else 0
+	vol    = vol  if vol  != None else 0
+
+	return chap, vol
 
 
 

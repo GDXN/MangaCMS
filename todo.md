@@ -1,21 +1,21 @@
 
 Todo:
 
+
+ - Delete items via web interface!
  - ability to browse dirs by rating and mu list cross-link
  - base nt off muid system
  - most common image browse amd filtering system
- - tsuki has issues?
- - chap regex prefer ch or c prefix
+ 
+ 
  - fork daiz numbering
-
-
  - Madokami is fucked again. Fuck you HTTPS simple auth.
  - TONIGOBE
  - reset hbrowse history
  - bu tag browser already
  - synonyms without exclamation points
- - string difference system for books
- - mu tag browser - GiN/GiST index?
+
+
  - strip trailing hyphens
  - change startup. start webserver first
  - select 201 to determine next page
@@ -25,7 +25,6 @@ Todo:
  - out of row colours
  - linebreaks in long filenames in reader popup need work
  - zoom mode indicator for smart mode in reader
- - Deduper - Move database interface into scanner, one interface per thread. Make each archive scan a transaction.
  - steal code from free manga downloader?
  - ability to specify MU id in directory name? [Lnnn] or sommat?
  - way to search for non linked directories - maybe then do levenshtein search for match?
@@ -61,204 +60,200 @@ Long Term:
 <p>
 <b>Add Scrapers for</b>
 
-<ul>
-	<li>Manga</li>
-	<ul>
+	 - Manga
+		 - webtoons reader
+		 - http://www.netcomics.com/ - Maybe?
+		 - https://www.emanga.com/ - Maybe?
+		 - http://tapastic.com/series/browse ?
+		 - Tadanohito as a H source
+		 - /ak/ scans (Problematic, as there is no central release point)
+		 - ~~http://nhentai.net/~~ They don't recompress (I think). Awesome!
+		 - ~~KissManga.com~~
+		 - ~~Dynasty Scans~~
+		 - ~~webtoons.com~~
+		 - ~~http://www.hbrowse.com/ as a H source~~
+		 - ~~http://lonemanga.com/~~
+		 - ~~http://egscans.com/~~ (Via IRC)
+		 - ~~redhawkscans.com~~
+		 - ~~mangajoy~~
+		 - ~~http://www.cxcscans.com/~~
+		 - ~~http://desperatescanners.weebly.com/~~ (They release on batoto)
+		 - ~~imangascans~~ (Done, as part of IRC scraper)
 
-		<li>http://tapastic.com/series/browse ?</li>
-		<li>Tadanohito as a H source</li>
-		<li>/ak/ scans (Problematic, as there is no central release point)</li>
-		<li><strike>http://nhentai.net/</strike> They don't recompress (I think). Awesome!</li>
-		<li><strike>KissManga.com</strike></li>
-		<li><strike>Dynasty Scans</strike></li>
-		<li><strike>webtoons.com</strike></li>
-		<li><strike>http://www.hbrowse.com/ as a H source</strike></li>
-		<li><strike>http://lonemanga.com/</strike></li>
-		<li><strike>http://egscans.com/</strike> (Via IRC)</li>
-		<li><strike>redhawkscans.com</strike></li>
-		<li><strike>mangajoy</strike></li>
-		<li><strike>http://www.cxcscans.com/</strike></li>
-		<li><strike>http://desperatescanners.weebly.com/</strike> (They release on batoto)</li>
-		<li><strike>imangascans</strike> (Done, as part of IRC scraper)</li>
-	</ul>
-	<li>Light Novels
-	<ul>
-		<li><strike>Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)</strike> Just used the HTML export feature. Laaaaazy</li>
-		<li><strike>Baka-Tsuki</strike></li>
-		<li><strike>JapTem</strike></li>
-	</ul>
-</ul>
+	 - Light Novels
+
+		 - ~~Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)~~ Just used the HTML export feature. Laaaaazy
+		 - ~~Baka-Tsuki~~
+		 - ~~JapTem~~
+
 </p>
 
 <p>
 <b>Reader</b>
-<ul>
-	<li>fit width only if oversize?</li>
-	<li>make zoom mode pop up last longer</li>
-	<li>fancy fade out when toolbars hidden?</li>
-	<li>Add ability to rename directories to reader</li> (res, name)
-	<li>Add current page position bar when popup menus are visible.</li>
-	<li>Trigger directory cache update if a non-existent directory access is attempted</li>
-	<li><strike>smart zoom mode in overlay</strike></li>
-	<li><strike>Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).</strike></li>
-	<li><strike>show current image info</strike></li>
-	<li><strike>Chapter read to from BU in item sidebar.</strike></li>
-</ul>
+	 - fit width only if oversize?
+	 - make zoom mode pop up last longer
+	 - fancy fade out when toolbars hidden?
+	 - Add ability to rename directories to reader (res, name)
+	 - Add current page position bar when popup menus are visible.
+	 - Trigger directory cache update if a non-existent directory access is attempted
+	 - ~~smart zoom mode in overlay~~
+	 - ~~Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).~~
+	 - ~~show current image info~~
+	 - ~~Chapter read to from BU in item sidebar.~~
 </p>
 
 <p>
 <b>File System Organization</b>
-<ul>
-	<li>Coerce directory structure to match MangaUpdates naming.</li>
-	<li>Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes. (WIP)</li>
-	<li>Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
-	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b></li>
+	 - Coerce directory structure to match MangaUpdates naming.
+	 - Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes. (WIP)
+	 - Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
+	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b>
 
-</ul>
 </p>
 
 <p>
 <p>
 <b>Nametools Issues</b>
-<ul>
-	<li>Getsurin ni Kiri Saku</li>
-	<li>Imasugu Onii-chan ni Imouto da tte Iitai!</li>
-	<li>
+	 - Getsurin ni Kiri Saku
+	 - Imasugu Onii-chan ni Imouto da tte Iitai!
+	 - 
 	Bad MangaUpdates Links:
-	<ul>
-		<li>Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka</li>
-		<li>neko ane</li>
-		<li>rescue me</li>
-		<li>maken-ki!</li>
-		<li>murcielago</li>
-		<li>Keyman - The Hand of Judgement</li>
-	</ul>
-	</li>
-</ul>
-<ul>
-	<li>'Hero Co., Ltd.' link only working one way</li>
-	<li><strike>Add testing to nametool system</strike> (Done, wasn't the problem source)</li>
-	<li><strike>Everything is getting sorted into '[zion]'</strike> Fixed, it was a scraper bug. Derp</li>
-</ul>
+
+		 - Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka
+		 - neko ane
+		 - rescue me
+		 - maken-ki!
+		 - murcielago
+		 - Keyman - The Hand of Judgement
+
+	
+	 - 'Hero Co., Ltd.' link only working one way
+	 - ~~Add testing to nametool system~~ (Done, wasn't the problem source)
+	 - ~~Everything is getting sorted into '[zion]'~~ Fixed, it was a scraper bug. Derp
 </p>
 <p>
 
 <b>Complete:</b>
-<ul>
-	<li><strike>ex filter by category too</strike></li>
-	<li><strike>random h already updated tag</strike> It's actually from the source. Not much I can do.</li>
-	<li><strike>fix djmoe</strike></li>
-	<li><strike>rescan series on batoto</strike></li>
-	<li><strike>booktrie nodes decrease in size</strike> (Whoops, CSS Stupid)</li>
-	<li><strike>rating changing is broken</strike></li>
-	<li><strike>"None"s in btSeries markup</strike> Stupid context issue</li>
-	<li><strike>kissmanga phash dedup</strike></li>
-	<li><strike>move non matching dirs to another folder</strike></li>
-	<li><strike>add ability to sort directory by rating.</strike> (Added in MangaUpdates stuff, not sure if I want it elsewhere)</li>
-	<li><strike>filesize in browser</strike></li>
-	<li><strike>different tag for phash desuplication</strike></li>
-	<li><strike>fakku broken.</strike></li>
-	<li><strike>hbrowse missing artists amd title truncated</strike></li>
-	<li><strike>Batoto doesn't list every file in the recent updates page. Scan into series pages</strike> Doing more thorough search</li>
-	<li><strike>Move to python-sql for dynamic sql generation</strike></li>
-	<li><strike>reset download button in mangatable for specific key view</strike></li>
-	<li><strike>filtered h isn't being properly skipped</strike></li>
-	<li><strike>fix pururin page ordering already</strike> It was a sorting issue in the session system? Fuuuuuuuuuuck.</li>
-	<li><strike>Migrate to new queries from tests.test-Queries</strike> Superceeded by procedural queries using server-side cursors.</li>
-	<li><strike>tag/flag for when items are mirrored to mk?</strike> DlState=3 means uploaded</li>
-	<li><strike>fakku is broken?</strike> Fixed</li>
-	<li><strike>Load tables asynchronously from base page</strike></li>
-	<li><strike>dlstate 3 not rendering right</strike></li>
-	<li><strike>have vol and chap in separate columns</strike></li>
-	<li><strike>key not found error resulting in HTTP 500 for bad path after rating change</strike></li>
-	<li><strike>colons in seriesnames</strike> Should already be removed. Not sure what's going on</li>
-	<li><strike>sorter not properly handling items with only volume number in filename (generally prepended by "volume {xxx}").</strike></li>
-	<li><strike>mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred</strike> Should be done, I think?</li>
-	<li><strike>7z support in archtool</strike> Added as a result of wanting to add it to the deduper. Shared code FTW.</li>
-	<li><strike>figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}</strike> Someone had put "None" in the alternative names for the "It takes a Wizard" manga. Whoops?</li>
-	<li><strike>Make user-agent randomize</strike> Should have something like ~32K possible configurations now.</li>
-	<li><strike>import archived djm stuff?</strike></li>
-	<li><strike>tie mk uploader in properly</strike></li>
-	<li><strike>proxy for name lookups.</strike></li>
-	<li><strike>fix lo colums?</strike></li>
-	<li><strike>automover patch path in db for moved items</strike> Added `fix-dl-paths` to `cleanDb`.</li>
-	<li><strike>mangajoy sometimes only fetches one image</strike> Added some delay, hopefully it'll fix things.</li>
-	<li><strike>look into pu sorting issues.</strike> Stupid logic error in download delay mechanism.</li>
-	<li><strike>check that new items in bu are updating properly</strike></li>
-	<li><strike>djm retagger no longer running?</strike></li>
-	<li><strike>Murcielago. again</strike> <strike>Hopefully fixed by forcing NFKD unicode normalization.</strike> Fuck unicode. Arrrgh.</li>
-	<li><strike>mu not in sidebar</strike> Fucked up the flags at some point. Fixed.</li>
-	<li><strike>tags by number for h</strike></li>
-	<li><strike>Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?</strike> Simple regex implemented. I'll have to see how it pans out</li>
-	<li><strike>sort bu lists contents alphabetically</strike></li>
-	<li><strike>aggregation query is fucked. somehow.</strike> Fixed with procedural filtering system.</li>
-	<li><strike>scan downloads, retry missing not deduped</strike> Functin added to utilities.cleanDb</li>
-	<li><strike>irc defer dir search to actual download (mk too)</strike></li>
-	<li><strike>push dir updating into separate thread</strike> The issue wasn't dir-updating, it was the DB loading it's cache from disk. Fixed by postgre</li>
-	<li><strike>Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice</strike></li>
-	<li><strike>Add file existence check to tooltip in manga table</li> I'll have to see if 200 file existence checks is a problem for page-rendering time.</strike></li>
-	<li><strike>Logger output coloring system</strike></li>
-	<li><strike>mangacow missing last page</strike> Fucking off-by-one error</li>
-	<li><strike>UNIQUE constraint on buId for mangaseries table</strike></li>
-	<li><strike>Add parent-thread info to logger path for webUtilities.</strike></li>
-	<li><strike>Recreate triggers to update counts on insert/delete</strike></li>
-	<li><strike>make tags case-insensitive</strike> (Switch to CITEXT should do this, added .lower() to query generator anyways)</li>
-	<li><strike>mu cross references all broken</strike></li>
-	<li><strike>switch relevant columns to CITEXT</strike></li>
-	<li><strike><b>Distinct filter not working!</b></strike></li>
-	<li><strike>strip metainfo from links in h (artist-, scanlators-, etc)</strike> (Also added a configurable tag highlighter)</li>
-	<li><strike>Defer dir updating to after page-load to prevent occational 20 second page-loads.</strike> <strike>I think this is actually the DB loading the indexes from disk. Not sure.</strike> (Hopefully fixed by move to Postgre</li>
-	<li><strike>IRC scraper is broken for filenames with spaces.... Yeah....</strike></li>
-	<li><strike>proper transaction system for DB (or just go to postgres)</strike> (went to postgre)</li>
-	<li><strike>Fix Madokami scraper</strike></li>
-	<li><strike>batoto cross verify number of images</strike> Never mind, it's not a blind exploration, it's actually using the image navigator dropdown to generate image urls.</li>
-	<li><strike>Implement dir moving system already!</strike></li>
-	<li><strike>total chapters not always known. Handle sanely.</strike></li>
-	<li><strike>find or create only choosing dirs in picked.</strike> (Fixed a while ago)</li>
-	<li><strike>irc scrapinator</strike></li>
-	<li><strike>auto upload to madokami</strike></li>
-	<li><strike>automate color choices for reader; fukkit just do a naive implementstion of rotation in a hsv colour space</strike></li>
-	<li><strike>split item color generation into hemtai and manga to provide better control</strike></li>
-	<li><strike>remove k scale from filesize readout. </strike></li>
-	<li><strike>reader directory page also includes database items for series</strike></li>
-	<li><strike>show reader some general luv</strike></li>
-	<li><strike>fakku scraper barfs on unicode</strike> (I think it's fixed?)</li>
-	<li><strike>itemsManga page isn't using activePlugins.mako</strike></li>
-	<li><strike>Also the itemsPron page.</strike></li>
-	<li><strike>scrape mangacow</strike></li>
-	<li><strike>Non-distinct manga view is borked</strike></li>
-	<li><strike>Queue whole of any new series on batoto when a rating is found that's >= "++"</strike></li>
-	<li><strike>Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.</strike></li>
-	<li><strike>Scrape Fakku</strike></li>
-	<li><strike>optimise name cleaning.</strike> Spent some time profiling. Not worth the effort (not much room for improvement).</li>
-	<li><strike>optimize optimize optimize! 1 second for home rendering.</strike> (~0.5 seconds! Woot!)</li>
-	<li><strike>mangafox if they dont resize.</strike> Never mind. they took down all their Manga because licensing reasons, apparently?</li>
-	<li><strike>clean ! from matching system.</strike> (Was already done)</li>
-	<li><strike>split porn/nonporn again?</strike></li>
-	<li><strike>Fix BU Watcher login issues.</strike> Cookies are the fucking bane of my existence.</li>
-	<li><strike>Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (Mostly complete)</strike>(I'm calling this complete, since I only have two table-generator calls ATM)</li>
-	<li><strike>Scrape download.japanzai.com</strike></li>
-	<li><strike>Fix rating change facility being broken by the new reader</strike></li>
-	<li><strike>Finish reader redesign</strike></li>
-	<li><strike>Fix presetting of item rating field.</strike> (Accidentally fixed, I think? Not sure how, but it's now working.)</li>
-	<li><strike>reader shits itself on unicode urls.</strike></li>
-	<li><strike>Allow arbitrarily nested folders in reader. (added in new reader)</strike></li>
-	<li><strike>Prefferentially rescan MangaUpdates series that got releases today (e.g. scan https://www.mangaupdates.com/releases.html).</strike></li>
-	<li><strike>also pururin.com</strike></li>
-	<li><strike>pagechange buttons for porn broken in some instances.</strike></li>
-	<li><strike>MangaUpdates name lookup passthrouth in nametools.</strike></li>
-	<li><strike>fukkit, scrape batoto.</strike></li>
-	<li><strike>Add legend key for what row colours mean (easy).</strike></li>
-	<li><strike>Add better time-stamp granularity to Starkana Scraper.</strike> (I think?)</li>
-	<li><strike>MangaBaby.com scraper</strike></li>
-	<li><strike>Flatten any found duplicate directories, when they span more then one of the manga-folders.</strike></li>
-	<li><strike>FIX NATURAL SORTING</strike> (Fixed upstream in the natsort package)</li>
-	<li><strike>Make series monitoring tool for MT update periodically</strike></li>
-	<li><strike>Automated tag update mechanism!</strike></li>
-	<li><strike>Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).</strike></li>
-	<li><strike>Generalize the image-cleaner to remove all annoying batoto/starkana/whatever images from downloaded archives. Possibly make it possible to run in batch mode? It should have a local directory of "bad" images that are scanned on start, and compare using hashes (or full on bitwise?).</strike></li>
-	<li><strike>Scrape perveden.com</strike> Fuck them, they watermark their shit. Never mind.</li>
-	<li><strike>automover</strike></li>
-</ul>
+ - ~~chap regex prefer ch or c prefix~~
+ - ~~string difference system for books~~
+ - ~~tsuki has issues?~~
+ - ~~unlinked autouploads broken~~
+ - ~~Deduper - Move database interface into scanner, one interface per thread. 
+	Make each archive scan a transaction.~~
+ - ~~mu tag browser - GiN/GiST index?~~
+ - ~~ex filter by category too~~
+ - ~~random h already updated tag~~ It's actually from the source. Not much 
+ 	I can do.
+ - ~~fix djmoe~~
+ - ~~rescan series on batoto~~
+ - ~~booktrie nodes decrease in size~~ (Whoops, CSS Stupid)
+ - ~~rating changing is broken~~
+ - ~~"None"s in btSeries markup~~ Stupid context issue
+ - ~~kissmanga phash dedup~~
+ - ~~move non matching dirs to another folder~~
+ - ~~add ability to sort directory by rating.~~ (Added in MangaUpdates stuff, not sure if I want it elsewhere)
+ - ~~filesize in browser~~
+ - ~~different tag for phash desuplication~~
+ - ~~fakku broken.~~
+ - ~~hbrowse missing artists amd title truncated~~
+ - ~~Batoto doesn't list every file in the recent updates page. Scan into series pages~~ Doing more thorough search
+ - ~~Move to python-sql for dynamic sql generation~~
+ - ~~reset download button in mangatable for specific key view~~
+ - ~~filtered h isn't being properly skipped~~
+ - ~~fix pururin page ordering already~~ It was a sorting issue in the session system? Fuuuuuuuuuuck.
+ - ~~Migrate to new queries from tests.test-Queries~~ Superceeded by procedural queries using server-side cursors.
+ - ~~tag/flag for when items are mirrored to mk?~~ DlState=3 means uploaded
+ - ~~fakku is broken?~~ Fixed
+ - ~~Load tables asynchronously from base page~~
+ - ~~dlstate 3 not rendering right~~
+ - ~~have vol and chap in separate columns~~
+ - ~~key not found error resulting in HTTP 500 for bad path after rating change~~
+ - ~~colons in seriesnames~~ Should already be removed. Not sure what's going on
+ - ~~sorter not properly handling items with only volume number in filename (generally prepended by "volume {xxx}").~~
+ - ~~mk uploader needs to add uploaded files to the mk downloader list so they dont get re transferred~~ Should be done, I think?
+ - ~~7z support in archtool~~ Added as a result of wanting to add it to the deduper. Shared code FTW.
+ - ~~figure out why bad dir-lookup matches are all defaulting to {'dirKey': 'it takes a wizard'}~~ Someone had put "None" in the alternative names for the "It takes a Wizard" manga. Whoops?
+ - ~~Make user-agent randomize~~ Should have something like ~32K possible configurations now.
+ - ~~import archived djm stuff?~~
+ - ~~tie mk uploader in properly~~
+ - ~~proxy for name lookups.~~
+ - ~~fix lo colums?~~
+ - ~~automover patch path in db for moved items~~ Added `fix-dl-paths` to `cleanDb`.
+ - ~~mangajoy sometimes only fetches one image~~ Added some delay, hopefully it'll fix things.
+ - ~~look into pu sorting issues.~~ Stupid logic error in download delay mechanism.
+ - ~~check that new items in bu are updating properly~~
+ - ~~djm retagger no longer running?~~
+ - ~~Murcielago. again~~ ~~Hopefully fixed by forcing NFKD unicode normalization.~~ Fuck unicode. Arrrgh.
+ - ~~mu not in sidebar~~ Fucked up the flags at some point. Fixed.
+ - ~~tags by number for h~~
+ - ~~Try to do something clever with sorting items in the directory viewer. Preprocess to extract vol/chapter inteligently?~~ Simple regex implemented. I'll have to see how it pans out
+ - ~~sort bu lists contents alphabetically~~
+ - ~~aggregation query is fucked. somehow.~~ Fixed with procedural filtering system.
+ - ~~scan downloads, retry missing not deduped~~ Functin added to utilities.cleanDb
+ - ~~irc defer dir search to actual download (mk too)~~
+ - ~~push dir updating into separate thread~~ The issue wasn't dir-updating, it was the DB loading it's cache from disk. Fixed by postgre
+ - ~~Better mechanism for chosing colours for rows. Use a calculating system, rather then requiring manual choice~~
+ - ~~Add file existence check to tooltip in manga table I'll have to see if 200 file existence checks is a problem for page-rendering time.~~
+ - ~~Logger output coloring system~~
+ - ~~mangacow missing last page~~ Fucking off-by-one error
+ - ~~UNIQUE constraint on buId for mangaseries table~~
+ - ~~Add parent-thread info to logger path for webUtilities.~~
+ - ~~Recreate triggers to update counts on insert/delete~~
+ - ~~make tags case-insensitive~~ (Switch to CITEXT should do this, added .lower() to query generator anyways)
+ - ~~mu cross references all broken~~
+ - ~~switch relevant columns to CITEXT~~
+ - ~~<b>Distinct filter not working!</b>~~
+ - ~~strip metainfo from links in h (artist-, scanlators-, etc)~~ (Also added a configurable tag highlighter)
+ - ~~Defer dir updating to after page-load to prevent occational 20 second page-loads.~~ ~~I think this is actually the DB loading the indexes from disk. Not sure.~~ (Hopefully fixed by move to Postgre
+ - ~~IRC scraper is broken for filenames with spaces.... Yeah....~~
+ - ~~proper transaction system for DB (or just go to postgres)~~ (went to postgre)
+ - ~~Fix Madokami scraper~~
+ - ~~batoto cross verify number of images~~ Never mind, it's not a blind exploration, it's actually using the image navigator dropdown to generate image urls.
+ - ~~Implement dir moving system already!~~
+ - ~~total chapters not always known. Handle sanely.~~
+ - ~~find or create only choosing dirs in picked.~~ (Fixed a while ago)
+ - ~~irc scrapinator~~
+ - ~~auto upload to madokami~~
+ - ~~automate color choices for reader; fukkit just do a naive implementstion of rotation in a hsv colour space~~
+ - ~~split item color generation into hemtai and manga to provide better control~~
+ - ~~remove k scale from filesize readout. ~~
+ - ~~reader directory page also includes database items for series~~
+ - ~~show reader some general luv~~
+ - ~~fakku scraper barfs on unicode~~ (I think it's fixed?)
+ - ~~itemsManga page isn't using activePlugins.mako~~
+ - ~~Also the itemsPron page.~~
+ - ~~scrape mangacow~~
+ - ~~Non-distinct manga view is borked~~
+ - ~~Queue whole of any new series on batoto when a rating is found that's >= "++"~~
+ - ~~Deduper - Check that local duplicate of file found via DB still exists before deleting new downloads.~~
+ - ~~Scrape Fakku~~
+ - ~~optimise name cleaning.~~ Spent some time profiling. Not worth the effort (not much room for improvement).
+ - ~~optimize optimize optimize! 1 second for home rendering.~~ (~0.5 seconds! Woot!)
+ - ~~mangafox if they dont resize.~~ Never mind. they took down all their Manga because licensing reasons, apparently?
+ - ~~clean ! from matching system.~~ (Was already done)
+ - ~~split porn/nonporn again?~~
+ - ~~Fix BU Watcher login issues.~~ Cookies are the fucking bane of my existence.
+ - ~~Add planned routes to look into the various tables (can I share code across the various query mechanisms?) (Mostly complete)~~(I'm calling this complete, since I only have two table-generator calls ATM)
+ - ~~Scrape download.japanzai.com~~
+ - ~~Fix rating change facility being broken by the new reader~~
+ - ~~Finish reader redesign~~
+ - ~~Fix presetting of item rating field.~~ (Accidentally fixed, I think? Not sure how, but it's now working.)
+ - ~~reader shits itself on unicode urls.~~
+ - ~~Allow arbitrarily nested folders in reader. (added in new reader)~~
+ - ~~Prefferentially rescan MangaUpdates series that got releases today (e.g. scan https://www.mangaupdates.com/releases.html).~~
+ - ~~also pururin.com~~
+ - ~~pagechange buttons for porn broken in some instances.~~
+ - ~~MangaUpdates name lookup passthrouth in nametools.~~
+ - ~~fukkit, scrape batoto.~~
+ - ~~Add legend key for what row colours mean (easy).~~
+ - ~~Add better time-stamp granularity to Starkana Scraper.~~ (I think?)
+ - ~~MangaBaby.com scraper~~
+ - ~~Flatten any found duplicate directories, when they span more then one of the manga-folders.~~
+ - ~~FIX NATURAL SORTING~~ (Fixed upstream in the natsort package)
+ - ~~Make series monitoring tool for MT update periodically~~
+ - ~~Automated tag update mechanism!~~
+ - ~~Commit hooks to track the number of items in the mangaTable, without the massive overhead `SELECT COUNT(*)` has on SQLite (this should be fun and educational in terms of SQL).~~
+ - ~~Generalize the image-cleaner to remove all annoying batoto/starkana/whatever images from downloaded archives. Possibly make it possible to run in batch mode? It should have a local directory of "bad" images that are scanned on start, and compare using hashes (or full on bitwise?).~~
+ - ~~Scrape perveden.com~~ Fuck them, they watermark their shit. Never mind.
+ - ~~automover~~
 
- 

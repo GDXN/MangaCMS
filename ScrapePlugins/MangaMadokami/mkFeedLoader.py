@@ -10,12 +10,29 @@ import runStatus
 import settings
 import json
 import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RunBase
 import nameTools as nt
+
+MASK_PATHS = [
+	'/Raws',
+	'/Raws',
+	'/Requests',
+	'/READ.txt',
+	'/Needs%20sorting',
+	'/Admin%20cleanup',
+	'/_Autouploads',
+	'/Non-English',
+]
+
+HTTPS_CREDS = [
+	("manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("https://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	]
 
 class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-
-	wg = webFunctions.WebGetRobust(creds=[("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"])])
+	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
 	loggerPath = "Main.Mk.Fl"
 	pluginName = "Manga.Madokami Link Retreiver"
 	tableKey = "mk"
@@ -25,7 +42,6 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBaseManga = "http://manga.madokami.com/Manga/"
 	# urlBaseManga = "http://manga.madokami.com/Manga/Admin%20Cleanup"
 	urlBaseMT    = "http://manga.madokami.com/MangaTraders/"
-
 
 	def checkLogin(self):
 		pass
@@ -46,14 +62,16 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			lut[x] = chr(table[x])
 		return lut
 
-	def parseOutLink(self, linkTag, lut):
-		if not hasattr(linkTag, "data-enc"):
-			raise ValueError("Invalid link! Link: '%s'", linkTag)
+	def parseOutLink(self, linkTag):
 
-		data = json.loads(linkTag["data-enc"])
+		# if not hasattr(linkTag, "data-enc"):
+			# raise ValueError("Invalid link! Link: '%s'", linkTag)
+
+		# data = json.loads(linkTag["data-enc"])
 		# print("Link json data = ", data)
 
-		url  = "".join([lut[letter^0x33] for letter in data["url"]])
+		# url  = "".join([lut[letter^0x33] for letter in data["url"]])
+		url = linkTag['href']
 		name = url.split("/")[-1]
 		name = urllib.parse.unquote(name)
 
@@ -63,6 +81,51 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# print("Link name = ", name)
 
 		return url, name
+
+	def parseRow(self, row, curUrlPath, dirName):
+
+
+		if not len(row.find_all("td")) == 4:
+			return None, None
+
+
+		name, modified, size, tags = row.find_all("td")
+
+
+		relUrl, linkName = self.parseOutLink(row.a)
+
+		itemUrl = urllib.parse.urljoin(curUrlPath, relUrl)
+
+		# Decompose all trailing tags (e.g. author and incomplete status info)
+		# This is required to make identifying download type by trailing '/' functional
+		for span in name.find_all('span'):
+			span.decompose()
+		if not name.get_text().strip().endswith("/"):
+			item = {}
+
+			item["date"]     = time.time()
+			item["dlName"]   = linkName
+			item["dlLink"]   = itemUrl
+			item["baseName"] = dirName
+
+			return None, item
+		else:
+			# Mask out the incoming item directories.
+			if any([x in itemUrl for x in MASK_PATHS]):
+				return None, None
+
+			# Pull the name out of the URL path. I don't like doing this, but it's actually what Okawus is doing
+			# to generate the pages anways, so what the hell.
+			newDirName = urllib.parse.unquote(itemUrl.split("/")[-1])
+			newDir = (newDirName, itemUrl)
+
+			return newDir, None
+
+
+		# else:
+		# 	self.log.critical('"class" in row', "class" in row.attrs)
+		# 	self.log.critical('row.attrs', row.attrs)
+		# 	raise ValueError("wat?")
 
 	def getItemsFromContainer(self, dirName, dirUrl):
 
@@ -105,57 +168,22 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		soup = bs4.BeautifulSoup(itemPage)
 
-		charMap = self.getCharacterLut(soup)
+
 
 
 		itemRet = []
 		dirRet  = []
 
 		for row in soup.find_all("tr"):
-			if not len(row.find_all("td")) == 3:
-				continue
 
+			dirDat, itemDat = self.parseRow(row, dirUrl, dirName)
 
-			name, modified, tags = row.find_all("td")
-			# print(icon.img["alt"])
-			# print(name)
-			# print(modified)
-			# print(size)
-			# print(desc)
-			# print("Joining url", dirUrl, row.a["href"])
-			relUrl, linkName = self.parseOutLink(row.a, charMap)
-			itemUrl = urllib.parse.urljoin(dirUrl, relUrl)
+			if dirDat:
+				dirRet.append(dirDat)
 
-			# Files are all in the /dl/ subdirectory
-			# I don't like relying on link structure like this, but it's the most reliable thing I can think of at the moment.
-			if name.span == None or not name.span.get_text().strip() == "/":
-				item = {}
+			if itemDat:
+				itemRet.append(itemDat)
 
-				item["date"]     = time.time()
-				item["dlName"]   = linkName
-				item["dlLink"]   = itemUrl
-				item["baseName"] = dirName
-				itemRet.append(item)
-				# print("item", item["dlName"], itemUrl)
-			else:
-				# Mask out the incoming item directories.
-				if "https://manga.madokami.com/dl/Raws" in itemUrl or \
-					"https://manga.madokami.com/dl/Raws" in itemUrl or \
-					"https://manga.madokami.com/dl/Requests" in itemUrl:
-					continue
-
-				# Pull the name out of the URL path. I don't like doing this, but it's actually what Okawus is doing
-				# to generate the pages anways, so what the hell.
-				newDirName = urllib.parse.unquote(itemUrl.split("/")[-1])
-				newDir = (newDirName, itemUrl)
-				dirRet.append(newDir)
-				# print("dir", newDir, itemUrl)
-
-
-			# else:
-			# 	self.log.critical('"class" in row', "class" in row.attrs)
-			# 	self.log.critical('row.attrs', row.attrs)
-			# 	raise ValueError("wat?")
 
 		return dirRet, itemRet
 
@@ -248,7 +276,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 									dlState     = 0,
 									seriesName  = seriesName,
 									flags       = '',
-									commit = False)  # Defer commiting changes to speed things up
+									commit      = False)  # Defer commiting changes to speed things up
 
 
 
@@ -313,3 +341,12 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		fl = MkFeedLoader()
 		fl.go()
 		fl.closeDB()
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = Runner()
+		run.go()
+
