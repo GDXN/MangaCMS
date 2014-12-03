@@ -19,6 +19,20 @@ import nameTools as nt
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
 
+
+<%def name="getStatsForId(muId)">
+	<%
+	cur = sqlCon.cursor()
+	cur.execute("SELECT readingProgress, availProgress FROM mangaseries WHERE buId=%s;", (muId, ))
+	rows = cur.fetchall()
+	if not rows or len(rows) != 1:
+		print("Wat?")
+		return None
+	return rows.pop(0)
+	%>
+</%def>
+
+
 <%def name="getRatings(thresh=2, sort='alphabetical')">
 	<%
 	ret = []
@@ -84,11 +98,11 @@ import nameTools as nt
 			buId            = nt.getMangaUpdatesId(itemInfo['inKey'].title())
 			if buId:
 				buName          = nt.getCanonNameByMuId(buId)
+				readingProgress, availProgress = getStatsForId(buId)
 			else:
 				buName          = itemInfo['inKey'].title()
+				readingProgress, availProgress = '', ''
 
-			readingProgress = 0
-			availProgress   = 0
 
 			# buName, buId, readingProgress, availProgress  = row
 			if not availProgress:
@@ -113,22 +127,22 @@ import nameTools as nt
 
 				% if readingProgress == -1:
 					% if availProgress == -1:
-						<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
+						<td bgcolor="${colours["upToDate"]}">✓</td>
 					% else:
-						<td bgcolor="${colours["upToDate"]}" class="padded">${availProgress}</td>
+						<td bgcolor="${colours["upToDate"]}">${availProgress}</td>
 					% endif
 				% elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
-					<td bgcolor="${colours["hasUnread"]}" class="padded">${readingProgress}</td>
+					<td bgcolor="${colours["hasUnread"]}">${readingProgress}</td>
 				% else:
-					<td  class="padded">${readingProgress}</td>
+					<td >${readingProgress}</td>
 				% endif
 
 				% if availProgress == -1 and readingProgress == -1:
-					<td class="padded">Finished</td>
+					<td>Finished</td>
 				% elif availProgress and int(availProgress) > 0:
-					<td class="padded">${int(availProgress)}</td>
+					<td>${int(availProgress)}</td>
 				% else:
-					<td class="padded"></td>
+					<td></td>
 				% endif
 			</tr>
 		% endfor
