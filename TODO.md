@@ -1,14 +1,13 @@
 
 Todo:
 
-
+ - include h in mu tag view
  - Delete items via web interface!
- - ability to browse dirs by rating and mu list cross-link
+ - ability to browse dirs by mu list cross-link
  - base nt off muid system
- - most common image browse amd filtering system 
+ - most common image browse and filtering system 
  - fork daiz numbering
- - TONIGOBE
- - reset hbrowse history
+
  - bu tag browser already
  - strip trailing hyphens
  - change startup. start webserver first
@@ -39,8 +38,8 @@ Todo:
  - Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file
  - Prevent full base dir refresh on directory rename.
  - prioritize downloads by rating
- - properly show if things are one shot
  - tagging in web interface
+ - properly show if things are one shot
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
 
@@ -51,83 +50,83 @@ Long Term:
  - Ability to disable bulk-downloading.
 
 
-<p>
+
 <b>Add Scrapers for</b>
 
-	 - Manga
-		 - webtoons reader
-		 - http://www.netcomics.com/ - Maybe?
-		 - https://www.emanga.com/ - Maybe?
-		 - http://tapastic.com/series/browse ?
-		 - Tadanohito as a H source
-		 - /ak/ scans (Problematic, as there is no central release point)
-		 - ~~http://nhentai.net/~~ They don't recompress (I think). Awesome!
-		 - ~~KissManga.com~~
-		 - ~~Dynasty Scans~~
-		 - ~~webtoons.com~~
-		 - ~~http://www.hbrowse.com/ as a H source~~
-		 - ~~http://lonemanga.com/~~
-		 - ~~http://egscans.com/~~ (Via IRC)
-		 - ~~redhawkscans.com~~
-		 - ~~mangajoy~~
-		 - ~~http://www.cxcscans.com/~~
-		 - ~~http://desperatescanners.weebly.com/~~ (They release on batoto)
-		 - ~~imangascans~~ (Done, as part of IRC scraper)
+ - Manga
+ 	 - TONIGOBE
+	 - http://www.netcomics.com/ - Maybe?
+	 - https://www.emanga.com/ - Maybe?
+	 - http://tapastic.com/series/browse ?
+	 - Tadanohito as a H source
+	 - /ak/ scans (Problematic, as there is no central release point)
+	 - ~~webtoons reader~~
+	 - ~~http://nhentai.net/~~ They don't recompress (I think). Awesome!
+	 - ~~KissManga.com~~
+	 - ~~Dynasty Scans~~
+	 - ~~webtoons.com~~
+	 - ~~http://www.hbrowse.com/ as a H source~~
+	 - ~~http://lonemanga.com/~~
+	 - ~~http://egscans.com/~~ (Via IRC)
+	 - ~~redhawkscans.com~~
+	 - ~~mangajoy~~
+	 - ~~http://www.cxcscans.com/~~
+	 - ~~http://desperatescanners.weebly.com/~~ (They release on batoto)
+	 - ~~imangascans~~ (Done, as part of IRC scraper)
 
-	 - Light Novels
+ - Light Novels
 
-		 - ~~Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)~~ Just used the HTML export feature. Laaaaazy
-		 - ~~Baka-Tsuki~~
-		 - ~~JapTem~~
+	 - ~~Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)~~ Just used the HTML export feature. Laaaaazy
+	 - ~~Baka-Tsuki~~
+	 - ~~JapTem~~
 
-</p>
-
-<p>
 <b>Reader</b>
-	 - fit width only if oversize?
-	 - make zoom mode pop up last longer
-	 - fancy fade out when toolbars hidden?
-	 - Add ability to rename directories to reader (res, name)
-	 - Add current page position bar when popup menus are visible.
-	 - Trigger directory cache update if a non-existent directory access is attempted
-	 - ~~smart zoom mode in overlay~~
-	 - ~~Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).~~
-	 - ~~show current image info~~
-	 - ~~Chapter read to from BU in item sidebar.~~
-</p>
 
-<p>
+ - fit width only if oversize?
+ - make zoom mode pop up last longer
+ - fancy fade out when toolbars hidden?
+ - Add ability to rename directories to reader (res, name)
+ - Add current page position bar when popup menus are visible.
+ - Trigger directory cache update if a non-existent directory access is attempted
+ - ~~smart zoom mode in overlay~~
+ - ~~Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).~~
+ - ~~show current image info~~
+ - ~~Chapter read to from BU in item sidebar.~~
+ - 
+
 <b>File System Organization</b>
-	 - Coerce directory structure to match MangaUpdates naming.
-	 - Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes. (WIP)
-	 - Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
-	naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b>
+
+ - Coerce directory structure to match MangaUpdates naming.
+ - Scrape ALL MangaUpdates metadata, and use that to group series when different sources use different naming schemes. (WIP)
+ - Automatically organize and sort directories so each series only has one directory. Aggregate multiple directories so they're named in accord with MangaUpdates
+naming approach. Note <b> this makes MangaUpdates the final authority on what to refer to series as. Deal with it</b>
 
 </p>
 
-<p>
-<p>
 <b>Nametools Issues</b>
-	 - Getsurin ni Kiri Saku
-	 - Imasugu Onii-chan ni Imouto da tte Iitai!
-	 - 
-	Bad MangaUpdates Links:
 
-		 - Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka
-		 - neko ane
-		 - rescue me
-		 - maken-ki!
-		 - murcielago
-		 - Keyman - The Hand of Judgement
+ - Getsurin ni Kiri Saku
+ - Imasugu Onii-chan ni Imouto da tte Iitai!
+ - 
+Bad MangaUpdates Links:
 
-	
-	 - 'Hero Co., Ltd.' link only working one way
-	 - ~~Add testing to nametool system~~ (Done, wasn't the problem source)
-	 - ~~Everything is getting sorted into '[zion]'~~ Fixed, it was a scraper bug. Derp
-</p>
-<p>
+	 - Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka
+	 - neko ane
+	 - rescue me
+	 - maken-ki!
+	 - murcielago
+	 - Keyman - The Hand of Judgement
+
+
+ - 'Hero Co., Ltd.' link only working one way
+ - ~~Add testing to nametool system~~ (Done, wasn't the problem source)
+ - ~~Everything is getting sorted into '[zion]'~~ Fixed, it was a scraper bug. Derp
+
+
 
 <b>Complete:</b>
+
+ - ~~ability to browse dirs by rating~~
  - ~~ability to browse by mu tags~~
  - ~~synonyms without exclamation points~~
  - ~~Madokami is fucked again. Fuck you HTTPS simple auth.~~

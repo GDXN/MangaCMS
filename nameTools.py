@@ -945,11 +945,9 @@ class DirNameProxy(object):
 def getCanonicalMangaUpdatesName(sourceSeriesName):
 
 	mId = getMangaUpdatesId(sourceSeriesName)
-
-	if mId:
-		correctSeriesName = idLookup[mId]
-		if correctSeriesName and len(correctSeriesName) == 1:
-			return correctSeriesName.pop()
+	canon = getCanonNameByMuId(mId)
+	if canon:
+		return canon
 	return sourceSeriesName
 
 muIdRegex = re.compile(r'\[MuId (\d+)\]')
@@ -973,6 +971,13 @@ def getMangaUpdatesId(sourceSeriesName):
 	return False
 
 
+def getCanonNameByMuId(muId):
+
+	if muId:
+		correctSeriesName = idLookup[muId]
+		if correctSeriesName and len(correctSeriesName) == 1:
+			return correctSeriesName.pop()
+	return None
 
 def getAllMangaUpdatesIds(sourceSeriesName):
 

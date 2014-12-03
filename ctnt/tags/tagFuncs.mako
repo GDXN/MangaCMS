@@ -243,7 +243,7 @@ import nameTools as nt
 
 	%>
 	<div>
-		<div>
+		<div style='float:left'>
 			<a href='/tags/${pathPrefix}'>None</a>
 			% for letter in letters:
 				<%
@@ -254,14 +254,14 @@ import nameTools as nt
 				<a href='${url}'>${letter.upper()}</a>
 			% endfor
 		</div>
-		<div>
+		<div style='float:right'>
 
 			<%
 			params = request.params.copy();
 			params["sort"] = 'number'
 			url = "/tags/" + pathPrefix + "?" + urllib.parse.urlencode(params)
 			%>
-			<a href='${url}'>Sort by tag occurances</a>
+			<a href='${url}'>Sort by ${pathPrefix.strip("s")} occurances</a>,
 			<%
 			params = request.params.copy();
 			params["sort"] = 'alphabetical'

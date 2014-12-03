@@ -64,6 +64,8 @@ DNLDED = 2
 				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>
 				<li><a href="/tags/tags">M Tags</a>
 				<li><a href="/tags/genres">M Genres</a>
+				<li><a href="/rating/">Ratings</a>
+
 				<hr>
 				% for item in [item for item in ap.attr.sidebarItemList if item['type'] == "Manga"]:
 					<li><a href="/itemsManga?sourceSite=${item["dictKey"]}&distinct=True">${item["name"]}</a>

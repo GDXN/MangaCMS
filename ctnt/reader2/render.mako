@@ -69,6 +69,10 @@ import re
 
 	<%
 	dirPath = os.path.join(settings.mangaFolders[dictKey]["dir"], *navPath)
+	if not os.path.exists(dirPath):
+		reader.invalidKeyContent(message="Directory seems to no longer exist!", title='Error!')
+		return
+
 	dirContents = os.listdir(dirPath)
 
 	VOL_THRESHOLD = 3
