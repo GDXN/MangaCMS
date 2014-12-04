@@ -80,6 +80,11 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, **kwargs):
 
+		if 'phashThresh' in kwargs:
+			phashThresh = kwargs.pop('phashThresh')
+		else:
+			phashThresh = PHASH_DISTANCE
+
 		try:
 			import deduplicator.archChecker
 
@@ -122,7 +127,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 					bestMatch = dc.getBestBinaryMatch()
 					if includePHash and not bestMatch:
-						phashMatch = dc.getBestPhashMatch(PHASH_DISTANCE)
+						phashMatch = dc.getBestPhashMatch(phashThresh)
 					else:
 						phashMatch = False
 

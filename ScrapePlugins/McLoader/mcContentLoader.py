@@ -156,7 +156,7 @@ class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			arch.close()
 
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True, phashThresh=8)
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)

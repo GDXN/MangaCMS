@@ -269,7 +269,9 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		chap  = 0
 		for row in mainTd.find_all("tr"):
 			ctnt = row.find_all("td")
+
 			if len(ctnt) != 5:
+				print("Skipping row?")
 				continue
 			ulDate, sLink, vol, chap, group = ctnt
 			chap = chap.get_text()
@@ -278,7 +280,6 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			chap = chap.strip()
 			# Handle things like 'extra' for the volume, etc...
 			if chap:
-
 				chap = chap.split()[0]
 			else:
 				chap = 0
@@ -286,9 +287,10 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			if chap > avail:
 				avail = chap
 		self.log.info("Available progress: %s chapters", avail)
-		if chap == 0:
+
+		if avail == 0:
 			return None
-		return chap
+		return avail
 
 
 	def getLatestRelease(self, soup):
@@ -464,10 +466,10 @@ if __name__ == "__main__":
 	with tb.testSetup(startObservers=False):
 
 		run = BuDateUpdater()
-		# ret1, ret2 = run.getItemInfo("45918")
-		# print(ret1)
-		# print(ret2)
+		ret1, ret2 = run.getItemInfo("81129")
+		print(ret1)
+		print(ret2)
 		# run.updateItem(101, "45918")
-		run.go()
+		# run.go()
 		# run.gobig()
 
