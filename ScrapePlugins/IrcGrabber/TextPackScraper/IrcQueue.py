@@ -18,8 +18,8 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.FTH.Fl"
-	pluginName = "FTH-Scans Link Retreiver"
+	loggerPath = "Main.Txt.Fl"
+	pluginName = "Text-Packlist Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.dbName
 
@@ -27,7 +27,12 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 	tableName = "MangaItems"
 
-	baseUrl = "http://fth-scans.com/xdcc.txt"
+
+	# format is ({packlist}, {channel}, {botname})
+	baseUrls = [
+		("http://fth-scans.com/xdcc.txt",      'halibut', '`FTH`')
+		]
+
 
 	def closeDB(self):
 		self.log.info( "Closing DB...",)
@@ -35,14 +40,14 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		self.log.info( "done")
 
 
-	def extractRow(self, row):
+	def extractRow(self, row, channel, botName):
 
 
 		skipFtypes = ['.mkv', '.mp4', '.avi', '.wmv']
 
 		item = {}
 		item["server"] = "irchighway"
-		item["channel"] = "halibut"
+		item["channel"] = channel
 		packno, size, filename = row
 
 
@@ -54,7 +59,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-		item["botName"] = '`FTH`'
+		item["botName"] = botName
 
 		# Some of these bots have videos and shit. Skip that
 		for skipType in skipFtypes:
@@ -64,18 +69,20 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 		return item
 
-	def getBot(self, botPageUrl):
+	def getBot(self, chanSet):
 
 		ret = []
 
 		# print("fetching page", botPageUrl)
+
+		botPageUrl, channel, botName = chanSet
 
 		page = self.wg.getpage(botPageUrl)
 		rowRe = re.compile('^#(\d+)\W+\d*x\W+\[\W*([\d\.]+)M\]\W+?(.*)$', flags=re.MULTILINE)
 
 		matches = rowRe.findall(page)
 		for match in matches:
-			item = self.extractRow(match)
+			item = self.extractRow(match, channel, botName)
 
 			itemKey = item["fName"]+item["botName"]
 			item = json.dumps(item)
@@ -91,9 +98,12 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	def getMainItems(self):
 
 
-		self.log.info( "Loading FTH Main Feed")
+		self.log.info( "Loading Text-Pack Feeds")
 
-		ret = self.getBot(self.baseUrl)
+		ret = []
+		for chanSet in self.baseUrls:
+
+			ret += self.getBot(chanSet)
 
 		self.log.info("All data loaded")
 		return ret

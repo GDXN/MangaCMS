@@ -21,8 +21,8 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.Ben.Fl"
-	pluginName = "Bento-Scans Link Retreiver"
+	loggerPath = "Main.XdP.Fl"
+	pluginName = "Xdcc-Parser based site Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.dbName
 
@@ -30,9 +30,15 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 	tableName = "MangaItems"
 
-	feedUrls = ["http://bento-scans.mokkori.fr/XDCC/"]
-
-
+	# Feeds are ({xdcc list}, {IRC Channel})
+	feedUrls = [
+		('http://bento-scans.mokkori.fr/XDCC/',                'bentoscans'),
+		('http://mangaichiscans.mokkori.fr/XDCC/',             'msd'),
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=01', 'deadbeat'),            # Azrael
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=02', 'aerandria'),           # Boink
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=03', 'a-team'),              # Death
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=04', 'a-team'),              # Hannibal
+		]
 
 
 	def getMainItems(self):
@@ -40,13 +46,13 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		# 	self.log.info( item)
 		#
 
-		self.log.info( "Loading Bento-Scans Main Feed")
+		self.log.info( "Loading XdccParser Feeds")
 
-		channel = "bentoscans"
+
 		server = "irchighway"
 		ret = []
 
-		for url in self.feedUrls:
+		for url, channel in self.feedUrls:
 			page = self.wg.getpage(url)
 
 			self.log.info("Processing itemList markup....")
@@ -56,7 +62,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 			contentDiv = soup.find("div", id="content")
 
 			mainTable = contentDiv.find("table", class_="listtable")
-
+			new = 0
 			for row in mainTable.find_all("tr"):
 				item = {}
 				rowItems = row.find_all("td")
@@ -87,6 +93,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 					item = json.dumps(item)
 
 					ret.append((itemKey, item))
+					new += 1
 				# else:
 				# 	print("Bad row? ", row)
 
@@ -94,12 +101,13 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 					self.log.info( "Breaking due to exit flag being set")
 					break
 
+			self.log.info("Found %s items on page!", new)
 
 		self.log.info("All data loaded")
 		return ret
 
 def test():
-	loader = BentoTriggerLoader()
+	loader = TriggerLoader()
 	ret = loader.go()
 	# print(ret)
 

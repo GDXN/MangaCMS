@@ -3,21 +3,25 @@
 
 import webFunctions
 import re
+import yaml
+import json
 
 import time
-import json
+
 import runStatus
 import settings
-import nameTools as nt
-import urllib.parse
+import pickle
+
 
 import ScrapePlugins.IrcGrabber.IrcQueueBase
 
 
 class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
-	loggerPath = "Main.AT.Fl"
-	pluginName = "A-Team Link Retreiver"
+
+
+	loggerPath = "Main.Vi.Fl"
+	pluginName = "Recent XdccParser Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.dbName
 
@@ -25,96 +29,73 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 	tableName = "MangaItems"
 
-	baseUrl = "http://www.ipitydafoo.com/at2/"
+	feedUrls = [
+		("http://vi-scans.com/bort/search.php",                  "viscans")
+	]
 
-	botMapping = {
-		"boink"    : 'aerandria',
-		"hannibal" : 'a-team',
-		"death"    : 'a-team',
-		"azrael"   : 'deadbeat'
-	}
+	extractRe = re.compile(r"p\.k\[\d+\] = ({.*?});")
 
 	def closeDB(self):
 		self.log.info( "Closing DB...",)
 		self.conn.close()
 		self.log.info( "done")
 
-	def getBotUrls(self):
-		botPage = self.wg.getSoup(self.baseUrl)
-		bots = botPage.find('div', class_='botlist')
 
-		botUrls = []
-		for bot in bots.find_all("a"):
-			botUrl = urllib.parse.urljoin(self.baseUrl, bot['href'])
-			botUrls.append(botUrl)
-		return botUrls
+	def getPacklist(self, url, channel):
+		page = self.wg.getpage(url)
+		page = page.strip()
+		matches = self.extractRe.findall(page)
+		yamlData = "[%s]" % (", ".join(matches))
 
+		# we need to massage the markup a bit to make it parseable by PyYAML.
+		# Basically, the raw data looks like:
+		# {b:"Suzume", n:2180, s:7, f:"Chinatsu_no_Uta_ch23_[VISCANS].rar"};
+		# but {nnn}:{nnn} is not valid, YAML requires a space after the ":"
+		# Therefore, we just replace ":" with ": "
+		yamlData = yamlData.replace(":", ": ")
 
-	def extractRow(self, row):
-
-		item = {}
-		item["server"] = "irchighway"
-		botName, packno, dummy_fetches, size, filename = row.find_all("td")
-
-
-		item["pkgNum"] = packno.get_text().strip()
-		item["fName"] = filename.get_text().strip()
-		item["size"] = size.get_text().strip()
-		item["botName"] = botName.get_text().strip()
-
-
-		if item['botName'].lower() in self.botMapping:
-			item["channel"] = self.botMapping[item['botName'].lower()]
-		else:
-			self.log.warning("Do not know bot channel! Bot '%s'", item['botName'])
-			item["channel"] = "a-team"
-
-		return item
-
-	def getBot(self, botPageUrl):
+		self.log.info("Doing YAML data load")
+		data = yaml.load(yamlData, Loader=yaml.CLoader)
 
 		ret = []
+		for item in data:
+			item["server"] = "irchighway"
+			item["channel"] = channel
 
-		# print("fetching page", botPageUrl)
+			# rename a few keys that are rather confusing
+			item["size"] = item.pop("s")
+			item["pkgNum"] = item.pop("n")
+			item["botName"] = item.pop("b")
+			item["fName"] = item.pop("f")
 
-		soup = self.wg.getSoup(botPageUrl)
-		contentDiv = soup.find("div", id='content')
-
-		itemTable = contentDiv.find("table", class_='listtable')
-
-		for row in itemTable.tbody.find_all("tr"):
-			item = self.extractRow(row)
-
-			if not item:
-				continue
-
-
+			# I'm using the filename+botname for the unique key to the database.
 			itemKey = item["fName"]+item["botName"]
+
 			item = json.dumps(item)
+
 			ret.append((itemKey, item))
 
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
 				break
 
-		self.log.info("Found %s items for bot", len(ret))
+
+		self.log.info("Found %s items", len(ret))
 		return ret
 
-	def getMainItems(self):
 
+	def getMainItems(self, rangeOverride=None, rangeOffset=None):
+		# for item in items:
+		# 	self.log.info( item)
+		#
 
 		self.log.info( "Loading ViScans Main Feed")
 
-		bots = self.getBotUrls()
-
 		ret = []
-		for bot in bots:
-			botItems = self.getBot(bot)
-			for item in botItems:
-				ret.append(item)
+		for packUrl, chan in self.feedUrls:
+			ret += self.getPacklist(packUrl, chan)
 
-
-		self.log.info("All data loaded")
+		self.log.info("Complete. Total items: %s", len(ret))
 		return ret
 
 
@@ -172,14 +153,17 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		self.log.info("Complete")
 
 
+
 if __name__ == "__main__":
 	import logSetup
 	logSetup.initLogging()
 	fl = TriggerLoader()
-	# fl.getBot('http://www.ipitydafoo.com/at2/xdccparser.py?bot=01')
 	# print(fl)
-	# print(fl.getBotUrls())
 	# fl.getMainItems()
-	# fl.go()
+
+	fl.go()
+
+
+
 
 

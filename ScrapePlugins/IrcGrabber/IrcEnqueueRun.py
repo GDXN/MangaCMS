@@ -1,13 +1,13 @@
 
 # XDCC Plugins
-import ScrapePlugins.IrcGrabber.ViScans.ViScrape
-import ScrapePlugins.IrcGrabber.StupidCommotion.StupidCommotionQueue
+
+import ScrapePlugins.IrcGrabber.IrcOfferLoader.IrcQueue
 import ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape
 import ScrapePlugins.IrcGrabber.EgScans.EgScrape
 import ScrapePlugins.IrcGrabber.IlluminatiManga.IrcQueue
-import ScrapePlugins.IrcGrabber.ATeam.IrcQueue
-import ScrapePlugins.IrcGrabber.BentoScans.IrcQueue
-import ScrapePlugins.IrcGrabber.FTHScans.IrcQueue
+import ScrapePlugins.IrcGrabber.SimpleXdccParser.IrcQueue
+import ScrapePlugins.IrcGrabber.ModernXdccParser.IrcQueue
+import ScrapePlugins.IrcGrabber.TextPackScraper.IrcQueue
 
 # Trigger loader plugins
 import ScrapePlugins.IrcGrabber.CatScans.IrcQueue
@@ -29,14 +29,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "IrcEnqueue"
 
 	runClasses = [
-		ScrapePlugins.IrcGrabber.ViScans.ViScrape.ViTriggerLoader,
-		ScrapePlugins.IrcGrabber.StupidCommotion.StupidCommotionQueue.StupidCommotionTriggerLoader,
+		ScrapePlugins.IrcGrabber.SimpleXdccParser.IrcQueue.TriggerLoader,
+		ScrapePlugins.IrcGrabber.IrcOfferLoader.IrcQueue.TriggerLoader,
 		ScrapePlugins.IrcGrabber.IMangaScans.ImsScrape.IMSTriggerLoader,
 		ScrapePlugins.IrcGrabber.EgScans.EgScrape.EgTriggerLoader,
-		ScrapePlugins.IrcGrabber.ATeam.IrcQueue.TriggerLoader,
-		ScrapePlugins.IrcGrabber.BentoScans.IrcQueue.TriggerLoader,
+		ScrapePlugins.IrcGrabber.ModernXdccParser.IrcQueue.TriggerLoader,
+		ScrapePlugins.IrcGrabber.TextPackScraper.IrcQueue.TriggerLoader,
 		ScrapePlugins.IrcGrabber.IlluminatiManga.IrcQueue.TriggerLoader,
-		ScrapePlugins.IrcGrabber.FTHScans.IrcQueue.TriggerLoader,
 
 		ScrapePlugins.IrcGrabber.CatScans.IrcQueue.TriggerLoader,
 		ScrapePlugins.IrcGrabber.RenzokuseiScans.IrcQueue.TriggerLoader,

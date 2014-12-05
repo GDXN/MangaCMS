@@ -266,6 +266,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		mainTd.tr.decompose()
 
 		avail = 0
+		maxAvail = 2**30
 		chap  = 0
 		for row in mainTd.find_all("tr"):
 			ctnt = row.find_all("td")
@@ -286,7 +287,12 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			chap = int(chap)
 			if chap > avail:
 				avail = chap
-		self.log.info("Available progress: %s chapters", avail)
+			if chap and chap < maxAvail:
+				maxAvail = chap
+
+		if maxAvail > 2**24:
+			maxAvail = "NaN"
+		self.log.info("Available progress: %s chapters (min %s)", avail, maxAvail)
 
 		if avail == 0:
 			return None
@@ -467,9 +473,9 @@ if __name__ == "__main__":
 
 		run = BuDateUpdater()
 		ret1, ret2 = run.getItemInfo("81129")
-		print(ret1)
-		print(ret2)
+		# print(ret1)
+		# print(ret2)
 		# run.updateItem(101, "45918")
 		# run.go()
-		# run.gobig()
+		run.gobig()
 

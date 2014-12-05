@@ -1,6 +1,7 @@
 
 Todo:
 
+ - Proper todownload system
  - include h in mu tag view
  - Delete items via web interface!
  - ability to browse dirs by mu list cross-link

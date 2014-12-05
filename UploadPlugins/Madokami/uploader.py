@@ -14,7 +14,7 @@ import json
 import time
 import webFunctions
 
-COMPLAIN_ABOUT_DUPS = False
+COMPLAIN_ABOUT_DUPS = True
 
 import urllib.parse
 import ScrapePlugins.RetreivalDbBase
@@ -127,11 +127,10 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.warning("Duplicate directories for series '%s'!", canonName)
 					self.log.warning("	'%s'", dirName)
 					self.log.warning("	'%s'", matchingName)
-				ret[matchingName].append(fqPath)
-			if aggregate:
 				ret[matchingName] = fqPath
+
 			else:
-				ret[matchingName] = [fqPath]
+				ret[matchingName] = fqPath
 
 		return ret
 

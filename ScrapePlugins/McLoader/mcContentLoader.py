@@ -31,7 +31,7 @@ class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 2
+	retreivalThreads = 4
 
 
 	def getImage(self, imageUrl, referrer):
@@ -156,7 +156,7 @@ class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			arch.close()
 
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True, phashThresh=8)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True, phashThresh=6)
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)
