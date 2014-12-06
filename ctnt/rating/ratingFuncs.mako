@@ -131,8 +131,11 @@ import nameTools as nt
 					% else:
 						<td bgcolor="${colours["upToDate"]}">${availProgress}</td>
 					% endif
+
 				% elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
 					<td bgcolor="${colours["hasUnread"]}">${readingProgress}</td>
+				% elif readingProgress:
+					<td bgcolor="${colours["upToDate"]}">${readingProgress}</td>
 				% else:
 					<td >${readingProgress}</td>
 				% endif
@@ -141,6 +144,8 @@ import nameTools as nt
 					<td>Finished</td>
 				% elif availProgress and int(availProgress) > 0:
 					<td>${int(availProgress)}</td>
+				% elif readingProgress:
+					<td>${int(readingProgress)}</td>
 				% else:
 					<td></td>
 				% endif

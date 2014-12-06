@@ -1,15 +1,20 @@
 
 Todo:
 
- - Proper todownload system
+ - phash filter by resolution for deletion decision
+ 
+ - Proper to-download series system
+ - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
+ - Trigger series download if on any BU list as well (partial)
+
  - include h in mu tag view
  - Delete items via web interface!
- - ability to browse dirs by mu list cross-link
  - base nt off muid system
  - most common image browse and filtering system 
  - fork daiz numbering
 
- - bu tag browser already
+ - ability to browse dirs by mu list cross-link
+
  - strip trailing hyphens
  - change startup. start webserver first
  - select 201 to determine next page
@@ -24,25 +29,23 @@ Todo:
  - way to search for non linked directories - maybe then do levenshtein search for match?
  - import all existing files somehow
  - do some clever set shit to check for misplaced items in directories
- - change db table generation to use found item paths for tables in directory view.
  - color code mangaupdates status in reader
  - highlight chapters < 10
  - scan times to deduper for rescanning. Also filesizes
  - Group the smaller scanlators into a single colour-code?
+ 
+ - change db table generation to use found item paths for tables in directory view.
 
- - Add failed item introspection table.
+ 
  - artist and author in filebrowser if i have it
  - bu page opens in new window
  - IRC grabber needs a transfer stall timeout.
- - mechanism for highlighting chosen tags in table (specifically deduped in J)
  - Modularize the side-bar in the manga browser, so the plugins can each provide their own lookup interface if they present the correct API (should be automatically discovered, ideally).
  - Potential race-condition in deduper when two things are scanned by separate threads simultaneously. Add a global "deletion" lock to prevent accidental removal of all copies of file
  - Prevent full base dir refresh on directory rename.
  - prioritize downloads by rating
  - tagging in web interface
  - properly show if things are one shot
- - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
- - Trigger series download if on any BU list as well (partial)
 
 Long Term:
 
@@ -126,7 +129,9 @@ Bad MangaUpdates Links:
 
 
 <b>Complete:</b>
-
+ - ~~bu tag browser already~~
+ - ~~mechanism for highlighting chosen tags in table (specifically deduped in J)~~
+ - ~~Add failed item introspection table.~~
  - ~~ability to browse dirs by rating~~
  - ~~ability to browse by mu tags~~
  - ~~synonyms without exclamation points~~
