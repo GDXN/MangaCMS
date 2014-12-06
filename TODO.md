@@ -1,6 +1,8 @@
 
 Todo:
 
+ - homepage table do not include deduped
+ - negative h keywords red
  - phash filter by resolution for deletion decision
  
  - Proper to-download series system
@@ -129,6 +131,7 @@ Bad MangaUpdates Links:
 
 
 <b>Complete:</b>
+ - ~~bu page and rating page columns are backwards~~
  - ~~bu tag browser already~~
  - ~~mechanism for highlighting chosen tags in table (specifically deduped in J)~~
  - ~~Add failed item introspection table.~~

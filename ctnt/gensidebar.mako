@@ -56,7 +56,6 @@ DNLDED = 2
 				<hr>
 				<hr>
 				<li><a href="/bmUpdates">Baka Manga</a>
-				<li><a href="/dirListing">Dir Listing</a>
 				<hr>
 				<li><a href="/books/">Books!</a>
 				<li><a href="/books/changeView">New Books</a>

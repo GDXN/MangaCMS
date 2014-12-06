@@ -88,8 +88,8 @@ import nameTools as nt
 				<th class="uncoloured" >Tag</th>
 				<th class="uncoloured" style="width: 70px; min-width: 70px;">BuId</th>
 				<th class="uncoloured" style="width: 70px; min-width: 70px;">Rating</th>
-				<th class="uncoloured" style="width: 70px; min-width: 70px;">Read</th>
 				<th class="uncoloured" style="width: 70px; min-width: 70px;">Available</th>
+				<th class="uncoloured" style="width: 70px; min-width: 70px;">Read</th>
 		</tr>
 
 		% for  itemInfo in rows:
@@ -111,6 +111,29 @@ import nameTools as nt
 				readingProgress = ''
 
 			# itemInfo = nt.dirNameProxy[buName]
+
+			statusColor = ''
+			if readingProgress == -1 and availProgress == -1:
+				availProgress = '✓'
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+			elif readingProgress == -1:
+				pass
+			elif availProgress == -1:
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+			elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
+				statusColor = 'bgcolor="%s"' % colours["hasUnread"]
+			elif readingProgress:
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+
+			if readingProgress == -1:
+				readingProgress = ''
+
+			if availProgress == -1:
+				availProgress = readingProgress
+
+
+
+
 			%>
 
 			<tr>
@@ -125,30 +148,10 @@ import nameTools as nt
 				</td>
 
 
-				% if readingProgress == -1:
-					% if availProgress == -1:
-						<td bgcolor="${colours["upToDate"]}">✓</td>
-					% else:
-						<td bgcolor="${colours["upToDate"]}">${availProgress}</td>
-					% endif
+				<td ${statusColor}>${availProgress}</td>
 
-				% elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
-					<td bgcolor="${colours["hasUnread"]}">${readingProgress}</td>
-				% elif readingProgress:
-					<td bgcolor="${colours["upToDate"]}">${readingProgress}</td>
-				% else:
-					<td >${readingProgress}</td>
-				% endif
+				<td>${readingProgress}</td>
 
-				% if availProgress == -1 and readingProgress == -1:
-					<td>Finished</td>
-				% elif availProgress and int(availProgress) > 0:
-					<td>${int(availProgress)}</td>
-				% elif readingProgress:
-					<td>${int(readingProgress)}</td>
-				% else:
-					<td></td>
-				% endif
 			</tr>
 		% endfor
 
