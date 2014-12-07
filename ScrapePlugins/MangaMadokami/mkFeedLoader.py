@@ -39,9 +39,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.dbName
 
 	tableName = "MangaItems"
-	urlBaseManga = "http://manga.madokami.com/Manga/"
+	urlBaseManga = "https://manga.madokami.com/Manga/"
 	# urlBaseManga = "http://manga.madokami.com/Manga/Admin%20Cleanup"
-	urlBaseMT    = "http://manga.madokami.com/MangaTraders/"
+	urlBaseMT    = "https://manga.madokami.com/MangaTraders/"
 
 	def checkLogin(self):
 		pass

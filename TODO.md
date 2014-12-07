@@ -1,15 +1,12 @@
 
 Todo:
 
- - homepage table do not include deduped
- - negative h keywords red
  - phash filter by resolution for deletion decision
 
  - Proper to-download series system
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
 
- - include h in mu tag view
  - Delete items via web interface!
  - base nt off muid system
  - most common image browse and filtering system
@@ -131,6 +128,9 @@ Bad MangaUpdates Links:
 
 
 <b>Complete:</b>
+ - ~~include h in mu tag view~~
+ - ~~homepage table do not include deduped~~
+ - ~~negative h keywords red~~
  - ~~Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)~~
  - ~~bu page and rating page columns are backwards~~
  - ~~bu tag browser already~~

@@ -42,7 +42,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	retreivalThreads = 1
 
 	tableName = "MangaItems"
-	urlBase = "http://manga.madokami.com/"
+	urlBase = "https://manga.madokami.com/"
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -86,7 +86,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def getLinkFile(self, fileUrl):
-		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "http://manga.madokami.com"})
+		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "https://manga.madokami.com"})
 		pageUrl = pghandle.geturl()
 		hName = urllib.parse.urlparse(pageUrl)[2].split("/")[-1]
 		self.log.info( "HName: %s", hName, )
