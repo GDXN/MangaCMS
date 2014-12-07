@@ -620,7 +620,7 @@ class DirNameProxy(object):
 
 		if useObservers:
 			if not "wm" in self.__dict__:
-				self.wm = pyinotify.WatchManager()
+				self.wm = pyinotify.WatchManager(exclude_filter=lambda p: os.path.isfile(p))
 				self.eventH = EventHandler([item["dir"] for item in self.paths.values()])
 				self.notifier = pyinotify.ThreadedNotifier(self.wm, self.eventH)
 

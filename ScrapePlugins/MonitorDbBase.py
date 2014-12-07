@@ -544,8 +544,8 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 						("%s_buGenre_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buGenre)'''),
 
 						# And the GiN indexes to allow full-text searching so we can search by genre/tags.
-						("%s_buTags_gin_index"   % self.tableName, self.tableName, '''CREATE INDEX %s ON %s gin((lower(buTags)::tsvector))'''),
-						("%s_buGenre_gin_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s gin((lower(buGenre)::tsvector))'''),
+						("%s_buTags_gin_index"   % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin((lower(buTags)::tsvector))'''),
+						("%s_buGenre_gin_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin((lower(buGenre)::tsvector))'''),
 
 			]
 			for name, table, nameFormat in indexes:

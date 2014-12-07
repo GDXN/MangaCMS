@@ -8,6 +8,7 @@ import nameTools as nt
 import logging
 import json
 import settings
+import urllib.parse
 
 class ApiInterface(object):
 
@@ -106,7 +107,7 @@ class ApiInterface(object):
 	def resetDownload(self, request):
 		self.log.info(request.params)
 
-		dbId = mangaName = request.params["reset-download"]
+		dbId = request.params["reset-download"]
 
 		try:
 			dbId = int(dbId)
@@ -138,6 +139,22 @@ class ApiInterface(object):
 		return Response(body=json.dumps({"Status": "Success", "Message": "Download state reset."}))
 
 
+	def getTrigramSearch(self, request):
+
+		itemNameStr = request.params['trigram-query-query-str']
+		linkText = request.params['trigram-query-linktext']
+
+		cur = self.conn.cursor()
+		cur.execute("""SELECT COUNT(*) FROM hentaiitems WHERE originname %% %s;""", (itemNameStr, ))
+		ret = cur.fetchone()[0]
+
+		if ret:
+			ret = "<a href='/search/h?q=%s'>%s</a>" % (urllib.parse.quote_plus(itemNameStr.encode("utf-8")), linkText)
+		else:
+			ret = 'No H Items'
+
+		return Response(body=json.dumps({"Status": "Success", "contents": ret}))
+
 
 	def handleApiCall(self, request):
 
@@ -158,6 +175,9 @@ class ApiInterface(object):
 		elif "reset-download" in request.params:
 			self.log.info("Download Reset!")
 			return self.resetDownload(request)
+		elif "trigram-query-query-str" in request.params and "trigram-query-linktext" in request.params:
+			self.log.info("Trigram query existence check")
+			return self.getTrigramSearch(request)
 
 		else:
 			return Response(body="wat?")

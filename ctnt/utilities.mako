@@ -95,6 +95,61 @@ from ipaddress import IPv4Address, IPv4Network
 </%def>
 
 
+<%def name="createHentaiSearch(linkText, itemNameStr)">
+	<%
+
+	# cur = sqlCon.cursor()
+	# cur.execute("""SELECT COUNT(*) FROM hentaiitems WHERE originname %% %s;""", (itemNameStr, ))
+	# ret = cur.fetchone()[0]
+	# if ret:
+
+	# 	return "<a href='/search/h?q=%s'>%s</a>" % (urllib.parse.quote_plus(itemNameStr.encode("utf-8")), linkText)
+	# else:
+	# 	return ''
+
+	col_id = abs(hash((linkText, itemNameStr)))
+
+
+
+
+	%>
+	<span id='sp${col_id}'>
+		<script>
+
+			function ajaxCallback_${col_id}(reqData, statusStr, jqXHR)
+			{
+				console.log("Ajax request succeeded");
+				console.log(reqData);
+				console.log(statusStr);
+
+				var status = $.parseJSON(reqData);
+				console.log(status)
+				if (status.Status == "Success")
+				{
+
+						$('#sp${col_id}').html(status.contents);
+
+
+				}
+				else
+				{
+					$('#sp${col_id}').html("AJAX Error!");
+				}
+
+			};
+
+
+			var ret = ({});
+			ret["trigram-query-query-str"] = "${itemNameStr}";
+			ret["trigram-query-linktext"] = "${linkText}";
+			$.ajax("/api", {"data": ret, success: ajaxCallback_${col_id}});
+
+		</script>
+		<img src='/rsc/ajax-loader.gif'>
+	</span>
+</%def>
+
+
 
 
 <%def name="getCss()">

@@ -627,9 +627,15 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 				("%s_originName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (originName                                            );'''  ),
 				("%s_aggregate_index"        % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesName, retreivalTime, dbId                       );'''  ),
 				('%s_special_full_idx'       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (retreivaltime DESC, seriesName DESC, dbid             );'''  ),
-				('%s_special_granulated_idx' % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite, retreivaltime DESC, seriesName DESC, dbid );'''  )
+				('%s_special_granulated_idx' % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (sourceSite, retreivaltime DESC, seriesName DESC, dbid );'''  ),
+
+				# Create a ::tsvector GiN index on the tags column, so we can search by tags quickly.
+				("%s_tags_gin_index"         % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin((lower(tags)::tsvector)                      );'''  ),
+				# "%s_tags_gin_index"         % self.tableName, self.tableName, '''CREATE INDEX mangaitems_tags_gin_index ON mangaitems gin((lower(tags)::tsvector));'''
 			]
 
+
+			# CREATE INDEX hentaiitems_oname_trigram ON hentaiitems USING USING gin (originname gin_trgm_ops);
 
 			for name, table, nameFormat in indexes:
 				if not name.lower() in haveIndexes:

@@ -4,7 +4,7 @@ Todo:
  - homepage table do not include deduped
  - negative h keywords red
  - phash filter by resolution for deletion decision
- 
+
  - Proper to-download series system
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
@@ -12,7 +12,7 @@ Todo:
  - include h in mu tag view
  - Delete items via web interface!
  - base nt off muid system
- - most common image browse and filtering system 
+ - most common image browse and filtering system
  - fork daiz numbering
 
  - ability to browse dirs by mu list cross-link
@@ -35,10 +35,10 @@ Todo:
  - highlight chapters < 10
  - scan times to deduper for rescanning. Also filesizes
  - Group the smaller scanlators into a single colour-code?
- 
+
  - change db table generation to use found item paths for tables in directory view.
 
- 
+
  - artist and author in filebrowser if i have it
  - bu page opens in new window
  - IRC grabber needs a transfer stall timeout.
@@ -98,7 +98,7 @@ Long Term:
  - ~~Make zoom mode a bit more intelligent (e.g. look at aspect ratio to guess zoom mode).~~
  - ~~show current image info~~
  - ~~Chapter read to from BU in item sidebar.~~
- - 
+ -
 
 <b>File System Organization</b>
 
@@ -113,7 +113,7 @@ naming approach. Note <b> this makes MangaUpdates the final authority on what to
 
  - Getsurin ni Kiri Saku
  - Imasugu Onii-chan ni Imouto da tte Iitai!
- - 
+ -
 Bad MangaUpdates Links:
 
 	 - Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka
@@ -143,11 +143,11 @@ Bad MangaUpdates Links:
  - ~~string difference system for books~~
  - ~~tsuki has issues?~~
  - ~~unlinked autouploads broken~~
- - ~~Deduper - Move database interface into scanner, one interface per thread. 
+ - ~~Deduper - Move database interface into scanner, one interface per thread.
 	Make each archive scan a transaction.~~
  - ~~mu tag browser - GiN/GiST index?~~
  - ~~ex filter by category too~~
- - ~~random h already updated tag~~ It's actually from the source. Not much 
+ - ~~random h already updated tag~~ It's actually from the source. Not much
  	I can do.
  - ~~fix djmoe~~
  - ~~rescan series on batoto~~

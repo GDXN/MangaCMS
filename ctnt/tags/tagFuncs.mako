@@ -65,7 +65,7 @@ import nameTools as nt
 <%def name="getSeriesForTag(tag)">
 	<%
 	cur = sqlCon.cursor()
-	cur.execute("SELECT buName, buId, readingProgress, availProgress FROM mangaseries WHERE %s::tsquery @@ lower(butags)::tsvector ORDER BY buName ASC;", (tag.lower(), ))
+	cur.execute("SELECT buName, buId, readingProgress, availProgress, butags, bugenre FROM mangaseries WHERE %s::tsquery @@ lower(butags)::tsvector ORDER BY buName ASC;", (tag.lower(), ))
 	rows = cur.fetchall()
 	return rows
 	%>
@@ -73,7 +73,7 @@ import nameTools as nt
 <%def name="getSeriesForGenre(genre)">
 	<%
 	cur = sqlCon.cursor()
-	cur.execute("SELECT buName, buId, readingProgress, availProgress FROM mangaseries WHERE %s::tsquery @@ lower(buGenre)::tsvector ORDER BY buName ASC;", (genre.lower(), ))
+	cur.execute("SELECT buName, buId, readingProgress, availProgress, butags, bugenre FROM mangaseries WHERE %s::tsquery @@ lower(buGenre)::tsvector ORDER BY buName ASC;", (genre.lower(), ))
 	rows = cur.fetchall()
 	return rows
 	%>
@@ -120,19 +120,17 @@ import nameTools as nt
 		"valid category"  : "FFFFFF",
 		"bad category"    : "999999"}
 
-
-
 	%>
 	<table border="1px" style="width: 100%;">
 		<tr>
 				<th class="uncoloured" >Tag</th>
 				<th class="uncoloured" style="width: 70px; min-width: 70px;">BuId</th>
 				<th class="uncoloured" style="width: 70px; min-width: 70px;">Rating</th>
-				<th class="uncoloured" style="width: 70px; min-width: 70px;">Read</th>
 				<th class="uncoloured" style="width: 70px; min-width: 70px;">Available</th>
+				<th class="uncoloured" style="width: 70px; min-width: 70px;">Read</th>
 		</tr>
 
-		% for  buName, buId, readingProgress, availProgress  in rows:
+		% for  buName, buId, readingProgress, availProgress, tags, genre  in rows:
 			<%
 			if not availProgress:
 				availProgress = ''
@@ -140,39 +138,59 @@ import nameTools as nt
 				readingProgress = ''
 
 			itemInfo = nt.dirNameProxy[buName]
+
+
+			statusColor = ''
+			if readingProgress == -1 and availProgress == -1:
+				availProgress = '✓'
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+			elif readingProgress == -1:
+				pass
+			elif availProgress == -1:
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+			elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
+				statusColor = 'bgcolor="%s"' % colours["hasUnread"]
+			elif readingProgress:
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+
+			if readingProgress == -1:
+				readingProgress = ''
+
+			if availProgress == -1:
+				availProgress = readingProgress
+
+			if not tags:
+				tags = ''
+			if not genre:
+				genre = ''
+
 			%>
 
 			<tr>
-				<td>
+				<td class="padded">
 					${ut.createReaderLink(buName, itemInfo)}
+
+					% if 'hentai' in (tags+genre).lower():
+
+						<span style='float:right'>
+							${ut.createHentaiSearch("Hentai Search", buName)}
+						</span>
+					% endif
 				</td>
-				<td>
+				<td class="padded">
 					${ut.idToLink(buId)}
 				</td>
-				<td>
+				<td class="padded">
 					${"" if itemInfo['rating'] == None else itemInfo['rating']}
 				</td>
 
 
-				% if readingProgress == -1:
-					% if availProgress == -1:
-						<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
-					% else:
-						<td bgcolor="${colours["upToDate"]}" class="padded">${availProgress}</td>
-					% endif
-				% elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
-					<td bgcolor="${colours["hasUnread"]}" class="padded">${readingProgress}</td>
-				% else:
-					<td  class="padded">${readingProgress}</td>
-				% endif
 
-				% if availProgress == -1 and readingProgress == -1:
-					<td class="padded">Finished</td>
-				% elif availProgress and int(availProgress) > 0:
-					<td class="padded">${int(availProgress)}</td>
-				% else:
-					<td class="padded"></td>
-				% endif
+
+				<td  class="padded" ${statusColor}>${availProgress}</td>
+
+				<td class="padded">${readingProgress}</td>
+
 			</tr>
 		% endfor
 

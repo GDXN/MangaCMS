@@ -122,7 +122,7 @@ seriesCols = (
 
 def buildQuery(srcTbl, cols, **kwargs):
 
-
+	print("Kwargs:", kwargs)
 	orOperators = []
 	andOperators = []
 	if "tableKey" in kwargs and kwargs['tableKey']:
@@ -150,6 +150,10 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 		andOperators.append((srcTbl.seriesname == kwargs['seriesName']))
 
+	# Trigram similarity search uses the '%' symbol. It's only exposed by the python-sql library as the
+	# "mod" operator, but the syntax is compatible.
+	if 'originTrigram' in kwargs and kwargs['originTrigram']:
+		andOperators.append(sqlo.Mod(srcTbl.originname, kwargs['originTrigram']))
 
 
 	if orOperators:
@@ -433,9 +437,8 @@ colours = {
 							$.ajax("/api", {"data": ret, success: ajaxCallback});
 						}
 
-
-
 					}
+
 				</script>
 			%endif
 		</td>
@@ -684,7 +687,7 @@ colours = {
 </%def>
 
 
-<%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False)">
+<%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False, originTrigram=None)">
 	<table border="1px">
 		<tr>
 
@@ -703,12 +706,14 @@ colours = {
 
 	offset = offset * limit
 
-	query = buildQuery(hentaiTable, hentaiCols,
-		tableKey=siteSource,
-		tagsFilter=tagsFilter,
-		seriesFilter=seriesFilter,
-		limit = limit,
-		offset = offset)
+	query = buildQuery(hentaiTable,
+		hentaiCols,
+		tableKey      = siteSource,
+		tagsFilter    = tagsFilter,
+		seriesFilter  = seriesFilter,
+		limit         = limit,
+		offset        = offset,
+		originTrigram = originTrigram)
 
 
 
@@ -718,9 +723,12 @@ colours = {
 		else:
 			query.where  = hentaiTable.dlstate <= 0
 
+
 	with sqlCon.cursor() as cur:
 
 		query, params = tuple(query)
+		if " % " in query:
+			query = query.replace(" % ", " %% ")
 		cur.execute(query, params)
 		tblCtntArr = cur.fetchall()
 
