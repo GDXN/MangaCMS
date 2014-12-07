@@ -473,7 +473,15 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		else:
 			existingTags = set()
 
-		newTags = set(tags.split(" "))
+		newTags = []
+		for tagTemp in set(tags.split(" ")):
+
+			# colon literals (":") break the `tsvector` index. Remove them (they're kinda pointless anyways)
+			tagTemp = tagTemp.replace("&", "_")   \
+							.replace(":", "_")    \
+							.strip(".")
+			newTags.append(tagTemp)
+
 
 		tags = existingTags | newTags
 
@@ -484,8 +492,10 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		tagStr = " ".join(tags)
 		while "  " in tagStr:
 			tagStr = tagStr.replace("  ", " ")
-
+		tagStr = tagStr.lower()
 		self.updateDbEntry(row["sourceUrl"], tags=tagStr)
+
+
 
 
 	# Insert new tags specified as a string kwarg (tags="tag Str") into the tags listing for the specified item
@@ -634,8 +644,10 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 				# "%s_tags_gin_index"         % self.tableName, self.tableName, '''CREATE INDEX mangaitems_tags_gin_index ON mangaitems gin((lower(tags)::tsvector));'''
 			]
 
-
-			# CREATE INDEX hentaiitems_oname_trigram ON hentaiitems USING USING gin (originname gin_trgm_ops);
+			# CREATE INDEX hentaiitems_tags_gin_index ON hentaiitems USING gin((lower(tags)::tsvector));
+			# CREATE INDEX mangaitems_tags_gin_index ON mangaitems USING gin((lower(tags)::tsvector));
+			# CREATE INDEX mangaitems_oname_trigram ON mangaitems USING USING gin (originname gin_trgm_ops);
+			# UPDATE hentaiitems SET tags = replace(tags, ':', '_')
 
 			for name, table, nameFormat in indexes:
 				if not name.lower() in haveIndexes:

@@ -27,4 +27,12 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
 
+if __name__ == "__main__":
+
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=True):
+		obj = Runner()
+		obj.go()
+
 

@@ -283,8 +283,9 @@ colours = {
 				if not rowsBuf:
 					break
 				row = rowsBuf.pop(0)
+
 				rowsRead += 1
-				if row[6] not in seenItems or not distinct:
+				if (row[6] not in seenItems and "deleted" not in str(row[11])) or not distinct:
 					retRows.append(row)
 					seenItems.append(row[6])
 
@@ -660,13 +661,21 @@ colours = {
 							.replace("convention-", "") \
 							.strip()
 				highlight = False
+				doNotWant = False
 				if not request.remote_addr in settings.noHighlightAddresses:
 					for toHighlighTag in settings.tagHighlight:
 						if toHighlighTag in tagname:
 							highlight = True
+					for noWant in settings.tagNegativeHighlight:
+						if noWant in tagname:
+							highlight = True
+							doNotWant = True
+
 				%>
 				${"<b>" if highlight else ""}
-				<a href="/itemsPron?byTag=${tagname|u}">${tag}</a>
+				${"<strike>" if doNotWant else ""}
+				<a ${'style="color:#f00;"' if doNotWant else ''} href="/itemsPron?byTag=${tagname|u}">${tag}</a>
+				${"</strike>" if doNotWant else ""}
 				${"</b>" if highlight else ""}
 			% endfor
 			</td>

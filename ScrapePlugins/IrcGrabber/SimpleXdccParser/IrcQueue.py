@@ -32,12 +32,13 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 	# Feeds are ({xdcc list}, {IRC Channel})
 	feedUrls = [
-		('http://bento-scans.mokkori.fr/XDCC/',                'bentoscans'),
-		('http://mangaichiscans.mokkori.fr/XDCC/',             'msd'),
-		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=01', 'deadbeat'),            # Azrael
-		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=02', 'aerandria'),           # Boink
-		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=03', 'a-team'),              # Death
-		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=04', 'a-team'),              # Hannibal
+		('http://bento-scans.mokkori.fr/XDCC/',                         'bentoscans'),
+		('http://mangaichiscans.mokkori.fr/XDCC/',                      'msd'),
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=01',          'deadbeat'),            # Azrael
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=02',          'aerandria'),           # Boink
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=03',          'a-team'),              # Death
+		('http://www.ipitydafoo.com/at2/xdccparser.py?bot=04',          'a-team'),              # Hannibal
+		('http://www.mudascantrad.tk/packlist_mh/xdccparser.py?bot=01', 'mto-group'),           # emma-chan
 		]
 
 

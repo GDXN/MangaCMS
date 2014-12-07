@@ -51,7 +51,7 @@ Todo:
 
 Long Term:
 
- - Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)
+
  - cover images in file browser?
  - Ability to disable bulk-downloading.
 
@@ -131,6 +131,7 @@ Bad MangaUpdates Links:
 
 
 <b>Complete:</b>
+ - ~~Deduper - enable the ability to check for duplicates using phash as well. (Partial - Needs ability to search by hamming distance to work properly)~~
  - ~~bu page and rating page columns are backwards~~
  - ~~bu tag browser already~~
  - ~~mechanism for highlighting chosen tags in table (specifically deduped in J)~~
