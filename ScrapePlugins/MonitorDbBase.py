@@ -187,6 +187,11 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, dbId, commit=True, **kwargs):
 
+		# lowercase the tags/genre
+		if "buGenre" in kwargs:
+			kwargs['buGenre'] = kwargs['buGenre'].lower()
+		if "buTags" in kwargs:
+			kwargs['buTags'] = kwargs['buTags'].lower()
 
 		queries = []
 		qArgs = []

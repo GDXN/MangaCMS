@@ -67,9 +67,17 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		descriptionDiv = soup.find("div", id='info')
 		for child in descriptionDiv.children:
 			if child.string and "Uploaded" in child.string:
-				dateStr = child.string.replace("Uploaded", "")
-				ulDate, status = parsedatetime.Calendar().parse(dateStr)
-				print(dateStr, ulDate, status)
+				dateStr = child.string.replace("Uploaded", "").strip()
+
+				# Short circuit for "an hour ago" dates, because
+				# parsedatetime fails to parse them.
+				if "an hour ago" in dateStr:
+					return time.time() - 60*60
+
+				# print(dateStr)
+				cal = parsedatetime.Calendar()
+				ulDate, status = cal.parse(dateStr)
+				# print(dateStr, ulDate, status)
 				if status == 0:
 					raise ValueError("Invalid date! = '%s'. Return status = '%s'" % (dateStr, status))
 				return time.mktime(ulDate)
@@ -147,7 +155,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 def getHistory():
 
 	run = DbLoader()
-	for x in range(18, 1150):
+	for x in range(1, 1150):
 		dat = run.getFeed(pageOverride=x)
 		run.processLinksIntoDB(dat)
 

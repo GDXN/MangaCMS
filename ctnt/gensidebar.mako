@@ -40,7 +40,10 @@ DNLDED = 2
 			statusDict[srcId][state] = num
 		else:
 			statusDict[srcId][state] += num
-
+	try:
+		randomLink = ut.createReaderLink("Random", nt.dirNameProxy.random())
+	except ValueError:
+		randomLink = "Not Available"
 	%>
 
 	<div class="statusdiv">
@@ -52,7 +55,7 @@ DNLDED = 2
 				<hr>
 				<li><a href="/reader2/browse/">Reader</a>
 				<hr>
-				<li>${ut.createReaderLink("Random", nt.dirNameProxy.random())}
+				<li>${randomLink}
 				<hr>
 				<hr>
 				<li><a href="/bmUpdates">Baka Manga</a>

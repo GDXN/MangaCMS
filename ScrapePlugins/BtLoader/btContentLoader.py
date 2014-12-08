@@ -249,7 +249,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			arch.close()
 
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True)
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)

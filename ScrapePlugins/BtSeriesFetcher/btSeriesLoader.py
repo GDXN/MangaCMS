@@ -139,7 +139,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup(startObservers=False):
 		fl = BtSeriesLoader()
 
 		fl.scanForSeries(rangeOverride=1510)

@@ -763,9 +763,16 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.conn.commit()
 		self.log.info("Download reset complete")
 
-
+	# Override to filter items that get
+	def changeFilter(self, url, title, changePercentage):
+		return False
 
 	def insertChangeStats(self, url, changePercentage, title):
+
+		# Skip title cruft on baka-tsuki
+		if self.changeFilter(url, title, changePercentage):
+			return
+
 		with self.conn.cursor() as cur:
 			query = '''INSERT INTO {changeTable} (src, url, change, title, changeDate) VALUES (%s, %s, %s, %s, %s)'''.format(changeTable=self.changeTableName)
 			values = (self.tableKey, url, changePercentage, title, time.time())

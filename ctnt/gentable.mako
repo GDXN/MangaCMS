@@ -122,7 +122,6 @@ seriesCols = (
 
 def buildQuery(srcTbl, cols, **kwargs):
 
-	print("Kwargs:", kwargs)
 	orOperators = []
 	andOperators = []
 	if "tableKey" in kwargs and kwargs['tableKey']:
@@ -174,8 +173,8 @@ def buildQuery(srcTbl, cols, **kwargs):
 		query.limit = int(kwargs['limit'])
 
 	q, p = tuple(query)
-	print("Query = '%s'" % (q, ))
-	print("Params = '%s'" % (p, ))
+	# print("Query = '%s'" % (q, ))
+	# print("Params = '%s'" % (p, ))
 
 	return query
 
@@ -671,10 +670,17 @@ colours = {
 							highlight = True
 							doNotWant = True
 
+				lStyle = ''
+				if doNotWant:
+					lStyle = 'style="color:#f00;"'
+				elif highlight:
+					lStyle = 'style="color:#0B0;"'
+
+
 				%>
 				${"<b>" if highlight else ""}
 				${"<strike>" if doNotWant else ""}
-				<a ${'style="color:#f00;"' if doNotWant else ''} href="/itemsPron?byTag=${tagname|u}">${tag}</a>
+				<a ${ lStyle} href="/itemsPron?byTag=${tagname|u}">${tag}</a>
 				${"</strike>" if doNotWant else ""}
 				${"</b>" if highlight else ""}
 			% endfor

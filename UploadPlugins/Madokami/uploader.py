@@ -13,6 +13,7 @@ import Levenshtein as lv
 import json
 import time
 import webFunctions
+import traceback
 
 COMPLAIN_ABOUT_DUPS = True
 
@@ -233,7 +234,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				self.log.info("Need to create container directory for %s", seriesName)
 				ulDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
-				self.ftp.mkd(ulDir)
+				try:
+					self.ftp.mkd(ulDir)
+				except ftplib.error_perm:
+					self.log.warn("Directory exists?")
+					self.log.warn(traceback.format_exc())
 
 
 		return ulDir

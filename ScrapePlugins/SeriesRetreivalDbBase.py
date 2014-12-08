@@ -31,30 +31,34 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def checkIfWantToFetchSeries(self, seriesName):
-		muId = nt.getMangaUpdatesId(seriesName)
-		if muId in self.wantedIds:
-			return True
 
-		if muId:
-			canonSeriesName = nt.idLookup[muId]
-			if len(canonSeriesName) != 1:
-				self.log.warning("Multiple matches for one ID? What?")
-				return False
-			canonSeriesName = canonSeriesName.pop()
-		else:
-			canonSeriesName = seriesName
-
-		if canonSeriesName not in nt.dirNameProxy:
-			return False
-
-		ratingStr = nt.dirNameProxy[canonSeriesName]["rating"]
-		if not ratingStr:
-			return False
-		rating = nt.ratingStrToInt(ratingStr)
-		if rating < 2:
-			return False
-
+		# Scrape ALL THE THINGS
 		return True
+
+		# muId = nt.getMangaUpdatesId(seriesName)
+		# if muId in self.wantedIds:
+		# 	return True
+
+		# if muId:
+		# 	canonSeriesName = nt.idLookup[muId]
+		# 	if len(canonSeriesName) != 1:
+		# 		self.log.warning("Multiple matches for one ID? What?")
+		# 		return False
+		# 	canonSeriesName = canonSeriesName.pop()
+		# else:
+		# 	canonSeriesName = seriesName
+
+		# if canonSeriesName not in nt.dirNameProxy:
+		# 	return False
+
+		# ratingStr = nt.dirNameProxy[canonSeriesName]["rating"]
+		# if not ratingStr:
+		# 	return False
+		# rating = nt.ratingStrToInt(ratingStr)
+		# if rating < 2:
+		# 	return False
+
+		# return True
 
 
 

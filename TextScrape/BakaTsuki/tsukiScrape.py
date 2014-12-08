@@ -63,12 +63,24 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 				"title=Special",
 				"action=edit",
 				"action=history",
+				"action=info",
 				"title=Help:",
 				"?title=User_talk:",
 				"&oldid=",
 				"title=Baka-Tsuki:",
 				"title=Special:Book"]
 
+
+
+	def changeFilter(self, url, title, changePercentage):
+		# Skip title cruft on baka-tsuki
+		if title.strip().startswith("File:"):
+			return True
+
+		if title.strip().startswith("Information for"):
+			return True
+
+		return False
 
 	def cleanBtPage(self, inPage):
 		doc = readability.readability.Document(inPage, negative_keywords=['mw-normal-catlinks', "printfooter", "mw-panel", 'portal'])

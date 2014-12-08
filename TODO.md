@@ -1,30 +1,19 @@
 
 Todo:
 
- - positive tags in green
- - books are broken again
- - autotrim empty dirs
-
-nt hyphen spaces 
-
- - crawl all batoto
- - mixed case tag issues
-
- - phash filter by resolution for deletion decision
 
  - Proper to-download series system
+ - Get Watermark-Stripping system running.
+
+ - autotrim empty dirs
+
+ - phash filter by resolution for deletion decision
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
-
  - Delete items via web interface!
  - base nt off muid system
- - most common image browse and filtering system
- - fork daiz numbering
-
  - ability to browse dirs by mu list cross-link
 
- - strip trailing hyphens
- - change startup. start webserver first
  - select 201 to determine next page
  - add half star rating options
  - h tag collation system
@@ -32,7 +21,6 @@ nt hyphen spaces
  - out of row colours
  - linebreaks in long filenames in reader popup need work
  - zoom mode indicator for smart mode in reader
- - steal code from free manga downloader?
  - ability to specify MU id in directory name? [Lnnn] or sommat?
  - way to search for non linked directories - maybe then do levenshtein search for match?
  - import all existing files somehow
@@ -41,10 +29,6 @@ nt hyphen spaces
  - highlight chapters < 10
  - scan times to deduper for rescanning. Also filesizes
  - Group the smaller scanlators into a single colour-code?
-
- - change db table generation to use found item paths for tables in directory view.
-
-
  - artist and author in filebrowser if i have it
  - bu page opens in new window
  - IRC grabber needs a transfer stall timeout.
@@ -54,6 +38,12 @@ nt hyphen spaces
  - prioritize downloads by rating
  - tagging in web interface
  - properly show if things are one shot
+ - fork daiz numbering
+ 
+ - steal code from free manga downloader?
+
+ - most common image browse and filtering system
+ 	'SELECT COUNT(itemhash), itemhash FROM dedupitems GROUP BY itemhash;'
 
 Long Term:
 
@@ -72,6 +62,7 @@ Long Term:
 	 - http://tapastic.com/series/browse ?
 	 - Tadanohito as a H source
 	 - /ak/ scans (Problematic, as there is no central release point)
+	 - `http://crimson-flower.blogspot.com/p/release-archive.html` (hosted on `http://translations.omarissister.com/`)
 	 - ~~webtoons reader~~
 	 - ~~http://nhentai.net/~~ They don't recompress (I think). Awesome!
 	 - ~~KissManga.com~~
@@ -138,6 +129,13 @@ Bad MangaUpdates Links:
 
 
 <b>Complete:</b>
+ - ~~crawl all batoto~~
+ - ~~change startup. start webserver first~~
+ - ~~change db table generation to use found item paths for tables in directory view.~~
+ - ~~strip trailing hyphens~~
+ - ~~mixed case tag issues~~ 
+ - ~~books are broken again~~ Dicked about in the scheduler. Hopefully, it's fixed?
+ - ~~positive tags in green~~
  - ~~include h in mu tag view~~
  - ~~homepage table do not include deduped~~
  - ~~negative h keywords red~~

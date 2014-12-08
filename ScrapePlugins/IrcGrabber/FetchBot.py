@@ -327,7 +327,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 	def welcome_func(self):
 		# Tie periodic calls to on_welcome, so they don't back up while we're connecting.
 
-		self.manifold.execute_every(2.5,     self.processQueue)
+		self.reactor.execute_every(2.5,     self.processQueue)
 		self.log.info("IRC Interface connected to server %s", self.server_list)
 
 

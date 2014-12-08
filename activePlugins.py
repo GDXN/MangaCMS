@@ -105,7 +105,19 @@ scrapePlugins = {
 }
 
 
+
 if __name__ == "__main__":
+
+	scrapePlugins = {
+	0 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
+	1 : (TextScrape.JapTem.Run,                          60*60*24*5),
+	3 : (TextScrape.Guhehe.Run,                          60*60*24*5),
+	2 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+
+
+}
+
+
 
 	import nameTools as nt
 
@@ -137,6 +149,10 @@ if __name__ == "__main__":
 			plugin, interval = scrapePlugins[int(sys.argv[1])]
 			print(plugin, interval)
 			callGoOnClass(plugin)
+		else:
+			for plugin, interval in scrapePlugins.values():
+				print(plugin, interval)
+				callGoOnClass(plugin)
 	except:
 		traceback.print_exc()
 
