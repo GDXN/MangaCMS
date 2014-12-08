@@ -105,8 +105,8 @@ def makeFilenameSafe(inStr):
 	# inStr = inStr.rstrip(".")  # Windows file names can't end in dot. For some reason.
 	# Fukkit, disabling. Just run on linux.
 
+	inStr = inStr.rstrip("! ")   # Clean up trailing exclamation points
 	inStr = inStr.strip(" ")    # And can't have leading or trailing spaces
-	inStr = inStr.rstrip("!")   # Clean up trailing exclamation points
 
 	return inStr
 
@@ -127,11 +127,11 @@ def removeBrackets(inStr):
 
 # Basically used for dir-path cleaning to prep for matching, and not much else
 def sanitizeString(inStr, flatten=True):
-	baseName = removeBrackets(inStr)				#clean brackets
-
+	baseName = inStr
 	if flatten:
 		# Adding "-" processing.
 		baseName = baseName.replace("-", " ")
+		baseName = baseName.replace("!", " ")
 
 		baseName = baseName.replace("~", "")		 # Spot fixes. We'll see if they break anything
 		baseName = baseName.replace(".", "")
@@ -142,7 +142,9 @@ def sanitizeString(inStr, flatten=True):
 		baseName = baseName.replace('"', "")
 		baseName = baseName.replace("'", "")
 
-
+	# Bracket stripping has to be done /after/ special chars are cleaned,
+	# otherwise, they can break the regex.
+	baseName = removeBrackets(baseName)				#clean brackets
 
 	# baseName = baseName.replace("'", "")
 	while baseName.find("  ")+1:
@@ -581,7 +583,7 @@ class DirNameProxy(object):
 
 		self.lastCheck = 0
 		self.maxRate = 5
-		self.dirDicts = {}
+		self._dirDicts = {}
 
 
 		# for watch in self.
@@ -642,7 +644,7 @@ class DirNameProxy(object):
 			self.eventH = EventHandler([item["dir"] for item in self.paths.values()])
 
 		self.checkUpdate(force=True)
-		baseDictKeys = list(self.dirDicts.keys())
+		baseDictKeys = list(self._dirDicts.keys())
 		baseDictKeys.sort()
 
 	def stop(self):
@@ -689,7 +691,7 @@ class DirNameProxy(object):
 			baseName = prepFilenameForMatching(baseName)
 			tmp[baseName] = name
 
-		self.dirDicts[0] = tmp
+		self._dirDicts[0] = tmp
 
 
 	def checkUpdate(self, force=False, skipTime=False):
@@ -715,7 +717,7 @@ class DirNameProxy(object):
 				if changed or force:
 					self.log.info("DirLookupTool updating %s, path=%s!", key, self.paths[key]["dir"])
 					self.log.info("DirLookupTool updating from Directory")
-					self.dirDicts[key] = self.getDirDict(self.paths[key]["dir"])
+					self._dirDicts[key] = self.getDirDict(self.paths[key]["dir"])
 					self.paths[key]["lastScan"] = updateTime
 
 		self.updateLock.release()
@@ -728,15 +730,18 @@ class DirNameProxy(object):
 	# It works great for file changes.
 	def forceUpdateContainingPath(self, dirPath):
 
+		self.updateLock.acquire()
+
 		keys = list(self.paths.keys())
 		keys.sort()
 		for key in keys:
 			if self.paths[key]["dir"] in dirPath:
 				self.log.info("DirLookupTool updating %s, path=%s!", key, self.paths[key]["dir"])
 				self.log.info("DirLookupTool updating from Directory")
-				self.dirDicts[key] = self.getDirDict(self.paths[key]["dir"])
+				self._dirDicts[key] = self.getDirDict(self.paths[key]["dir"])
 				self.paths[key]["lastScan"] = time.time()
 
+		self.updateLock.release()
 
 	def changeRating(self, mangaName, newRating):
 		item = self[mangaName]
@@ -806,22 +811,17 @@ class DirNameProxy(object):
 		if not self.notifierRunning and self.testMode == False:
 			self.log.warning("Directory observers not started! No directory contents will have been loaded!")
 		name = getCanonicalMangaUpdatesName(name)
-		if not name:
-			return ""
 		name = prepFilenameForMatching(name)
 		return name
-
-	def getUnsanitizedName(self, name):
-		return self[name]
 
 	def getPathByKey(self, key):
 		return self.paths[key]
 
 	def getDirDicts(self):
-		return self.dirDicts
+		return self._dirDicts
 
 	def getRawDirDict(self, key):
-		return self.dirDicts[key]
+		return self._dirDicts[key]
 
 	def getFromSpecificDict(self, dictKey, itemKey):
 		filteredKey = self.filterPreppedNameThroughDB(itemKey)
@@ -829,34 +829,38 @@ class DirNameProxy(object):
 			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": filteredKey, "rating": None, "sourceDict": None}
 
 		# print("ItemKey", itemKey, filteredKey)
-		# print("Key = ", dictKey, filteredKey,  filteredKey in self.dirDicts[dictKey])
-		if filteredKey in self.dirDicts[dictKey]:
-			tmp = self.dirDicts[dictKey][filteredKey]
+		# print("Key = ", dictKey, filteredKey,  filteredKey in self._dirDicts[dictKey])
+		if filteredKey in self._dirDicts[dictKey]:
+			tmp = self._dirDicts[dictKey][filteredKey]
 			return self._processItemIntoRet(tmp, itemKey, filteredKey, dictKey)
 
 		return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": filteredKey, "rating": None, "sourceDict": None}
 
 
-
 	def whichDictContainsKey(self, itemKey):
-		baseDictKeys = list(self.dirDicts.keys())
+		baseDictKeys = list(self._dirDicts.keys())
 		baseDictKeys.sort()
 		for dirDictKey in baseDictKeys:
-			if itemKey in self.dirDicts[dirDictKey]:
+			if itemKey in self._dirDicts[dirDictKey]:
 				return dirDictKey
 		return False
 
 	def iteritems(self):
 		# self.checkUpdate()
 
-		baseDictKeys = list(self.dirDicts.keys())
+		baseDictKeys = list(self._dirDicts.keys())
 		baseDictKeys.sort()
 		for dirDictKey in baseDictKeys:
-			keys = list(self.dirDicts[dirDictKey].keys())  # I want the items sorted by name, so we have to sort the list of keys, and then iterate over that.
+			keys = list(self._dirDicts[dirDictKey].keys())  # I want the items sorted by name, so we have to sort the list of keys, and then iterate over that.
 			keys.sort()
 
 			for key in keys:
-				yield key, self[key]
+				item = self[key]
+
+				# Inject the key we're iterating from, so we can see if we're fetching an item from a different/the wrong dict
+				# when doing the actual lookup
+				item['iterKey'] = dirDictKey
+				yield key, item
 
 	def _processItemIntoRet(self, item, origKey, filteredKey, dirDictKey):
 		dummy_basePath, dirName = os.path.split(item)
@@ -866,7 +870,7 @@ class DirNameProxy(object):
 
 	def getTotalItems(self):
 		items = 0
-		for item in self.dirDicts.values():
+		for item in self._dirDicts.values():
 			items += len(item)
 		return items
 
@@ -879,7 +883,7 @@ class DirNameProxy(object):
 	def getByIndex(self, index):
 		if index < 0 or index >= self.getTotalItems():
 			raise ValueError("Index value exceeds allowable range - %s" % index)
-		for dummy_key, itemSet in self.dirDicts.items():
+		for dummy_key, itemSet in self._dirDicts.items():
 			if index > len(itemSet):
 				index -= len(itemSet)
 				continue
@@ -900,13 +904,13 @@ class DirNameProxy(object):
 		if not filteredKey:
 			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": filteredKey, "rating": None, "sourceDict": None}
 
-		baseDictKeys = list(self.dirDicts.keys())
+		baseDictKeys = list(self._dirDicts.keys())
 		baseDictKeys.sort()
 
 
 		for dirDictKey in baseDictKeys:
-			if filteredKey in self.dirDicts[dirDictKey]:
-				tmp = self.dirDicts[dirDictKey][filteredKey]
+			if filteredKey in self._dirDicts[dirDictKey]:
+				tmp = self._dirDicts[dirDictKey][filteredKey]
 				return self._processItemIntoRet(tmp, key, filteredKey, dirDictKey)
 
 		return {"fqPath" : None, "item": None, "inKey" : key, "dirKey": filteredKey, "rating": None}
@@ -919,7 +923,7 @@ class DirNameProxy(object):
 		if not key:
 			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": key, "rating": None, "sourceDict": None}
 
-		baseDictKeys = list(self.dirDicts.keys())
+		baseDictKeys = list(self._dirDicts.keys())
 		baseDictKeys.sort()
 		for dirDictKey in baseDictKeys:
 
@@ -927,15 +931,15 @@ class DirNameProxy(object):
 			if dirDictKey > 99:
 				continue
 
-			if key in self.dirDicts[dirDictKey]:
-				return key in self.dirDicts[dirDictKey]
+			if key in self._dirDicts[dirDictKey]:
+				return key in self._dirDicts[dirDictKey]
 
 		return False
 
 	def __len__(self):
 		ret = 0
-		for dirDictKey in self.dirDicts.keys():
-			ret += len(self.dirDicts[dirDictKey])
+		for dirDictKey in self._dirDicts.keys():
+			ret += len(self._dirDicts[dirDictKey])
 		return ret
 
 

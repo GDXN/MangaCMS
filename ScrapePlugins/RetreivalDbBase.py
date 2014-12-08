@@ -473,14 +473,14 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		else:
 			existingTags = set()
 
-		newTags = []
+		newTags = set()
 		for tagTemp in set(tags.split(" ")):
 
 			# colon literals (":") break the `tsvector` index. Remove them (they're kinda pointless anyways)
 			tagTemp = tagTemp.replace("&", "_")   \
 							.replace(":", "_")    \
 							.strip(".")
-			newTags.append(tagTemp)
+			newTags.add(tagTemp)
 
 
 		tags = existingTags | newTags

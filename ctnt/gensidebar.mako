@@ -85,6 +85,7 @@ DNLDED = 2
 				% endif
 				<li><a href="/mangaError">M Errors</a>
 				<hr>
+				<li><a href="/dbg/">Debug Tools</a>
 				<li><a href="/errorLog">Scraper Logs</a>
 
 

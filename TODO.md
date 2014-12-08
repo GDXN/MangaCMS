@@ -1,6 +1,15 @@
 
 Todo:
 
+ - positive tags in green
+ - books are broken again
+ - autotrim empty dirs
+
+nt hyphen spaces 
+
+ - crawl all batoto
+ - mixed case tag issues
+
  - phash filter by resolution for deletion decision
 
  - Proper to-download series system
@@ -108,20 +117,21 @@ naming approach. Note <b> this makes MangaUpdates the final authority on what to
 
 <b>Nametools Issues</b>
 
- - Getsurin ni Kiri Saku
- - Imasugu Onii-chan ni Imouto da tte Iitai!
+ - ~~Getsurin ni Kiri Saku~~
+ - ~~Imasugu Onii-chan ni Imouto da tte Iitai!~~
  -
 Bad MangaUpdates Links:
-
-	 - Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka
-	 - neko ane
-	 - rescue me
-	 - maken-ki!
-	 - murcielago
-	 - Keyman - The Hand of Judgement
-
-
- - 'Hero Co., Ltd.' link only working one way
+	
+ - I think these are fixed by the latest NameTools patches.
+	 - ~~Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka~~
+	 - ~~neko ane~~
+	 - ~~rescue me~~
+	 - ~~maken-ki!~~
+	 - ~~murcielago~~
+	 - ~~Keyman - The Hand of Judgement~~
+	 - ~~Okusama ga Seito Kaichou! [+++][EE] npt linking~~
+	 - ~~Log Horizon - Nishikaze no Ryodan not linking properly~~
+	 - ~~'Hero Co., Ltd.' link only working one way~~
  - ~~Add testing to nametool system~~ (Done, wasn't the problem source)
  - ~~Everything is getting sorted into '[zion]'~~ Fixed, it was a scraper bug. Derp
 
