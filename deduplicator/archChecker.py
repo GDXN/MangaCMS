@@ -16,6 +16,8 @@ class DbBase(object):
 	def __init__(self):
 		self.remote = rpyc.connect("localhost", 12345)
 		self.db = self.remote.root.DbApi()
+		self.hash = self.remote.root.RemoteHasher()
+
 
 	def convertDbIdToPath(self, inId):
 		return self.db.getItems(wantCols=['fsPath', "internalPath"], dbId=inId).pop()
@@ -241,61 +243,25 @@ class ArchChecker(DbBase):
 
 	def addNewArch(self, shouldPhash=True):
 
+
 		self.log.info("Hashing file %s", self.archPath)
 
+		# Delete any existing hashes that collide
 		self.db.deleteBasePath(self.archPath)
 
-		#TODO: Move this into the Deduper Subsystems
+		# And tell the remote hasher to process the new archive.
+		self.hash.processArchive(self.archPath)
 
-		# Do overall hash of archive:
-		self.log.info("Taking overall MD5 of entire archive")
-		with open(self.archPath, "rb") as fp:
-			fContents = fp.read()
-
-		self.log.info("Archive read.")
-
-		fMD5 = hashlib.md5()
-		fMD5.update(fContents)
-		hexHash = fMD5.hexdigest()
-
-		self.log.info("Archive hashed. Doing internal hash.")
-		self.db.insertIntoDb(fsPath=self.archPath, internalpath="", itemhash=hexHash)
-
-
-		# Next, hash the file contents.
-		archIterator = UniversalArchiveInterface.ArchiveReader(self.archPath)
-		for fName, fp in archIterator:
-
-			fCont = fp.read()
-			try:
-				fName, hexHash, pHash, dHash, imX, imY = self.remote.root.hashFile(self.archPath, fName, fCont, shouldPhash=shouldPhash)
-
-				baseHash, oldPHash, oldDHash = self.db.getHashes(self.archPath, fName)
-				if all((baseHash, oldPHash, oldDHash)):
-					self.log.warn("Item is not duplicate?")
-					self.log.warn("%s, %s, %s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash, imX, imY)
-
-
-
-				if baseHash:
-					self.db.updateDbEntry(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash, imgx=imX, imgy=imY)
-				else:
-					self.db.insertIntoDb(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash, imgx=imX, imgy=imY)
-
-
-			except UniversalArchiveInterface.ArchiveError as e:
-				self.log.error("Invalid/damaged image file in archive!")
-				self.log.error("Archive '%s', file '%s'", self.archPath, fName)
-				self.log.error("Error '%s'", e)
-
-
-		archIterator.close()
-
-		self.log.info("File hashing complete.")
 
 	# Proxy through to the archChecker from UniversalArchiveInterface
 	@staticmethod
 	def isArchive(archPath):
 		return UniversalArchiveInterface.ArchiveReader.isArchive(archPath)
 
+
+if __name__ == "__main__":
+	import logSetup
+	logSetup.initLogging()
+	ac = ArchChecker('/media/Storage/Manga/13-nin no Short Suspense & Horror/13-nin no Short Suspense & Horror - c7.zip')
+	ac.addNewArch()
 
