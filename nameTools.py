@@ -243,8 +243,8 @@ def extractChapterVol(inStr):
 	volKey = volRe.findall(inStr)
 	vol    = float(volKey.pop(0))  if volKey    else None
 
-	chap   = chap if chap != None else 0
-	vol    = vol  if vol  != None else 0
+	chap   = chap if chap != None else 0.0
+	vol    = vol  if vol  != None else 0.0
 
 	return chap, vol
 

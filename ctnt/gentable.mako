@@ -396,6 +396,15 @@ colours = {
 	cellId = None
 	if dlState < 0:
 		cellId = uuid.uuid1(0).hex
+
+	shouldBold = False
+	if originName:
+		chap = nt.extractChapterVol(originName)[0]
+		if isinstance(chap, float):
+			if chap < 10:
+				shouldBold = True
+
+
 	%>
 	<tr class="${sourceSite}_row">
 		<td>${ut.timeAgo(retreivalTime)}</td>
@@ -453,7 +462,15 @@ colours = {
 				<strike>
 			% endif
 
+			% if shouldBold:
+				<b>
+			% endif
+
 			${originName}
+
+			% if shouldBold:
+				</b>
+			% endif
 
 			% if "phash-duplicate" in tags:
 					</span>

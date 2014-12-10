@@ -245,6 +245,8 @@ class ArchChecker(DbBase):
 
 		self.db.deleteBasePath(self.archPath)
 
+		#TODO: Move this into the Deduper Subsystems
+
 		# Do overall hash of archive:
 		self.log.info("Taking overall MD5 of entire archive")
 		with open(self.archPath, "rb") as fp:
@@ -266,17 +268,19 @@ class ArchChecker(DbBase):
 
 			fCont = fp.read()
 			try:
-				fName, hexHash, pHash, dHash, dummy_imX, dummy_imY = self.remote.root.hashFile(self.archPath, fName, fCont, shouldPhash=shouldPhash)
+				fName, hexHash, pHash, dHash, imX, imY = self.remote.root.hashFile(self.archPath, fName, fCont, shouldPhash=shouldPhash)
 
 				baseHash, oldPHash, oldDHash = self.db.getHashes(self.archPath, fName)
 				if all((baseHash, oldPHash, oldDHash)):
 					self.log.warn("Item is not duplicate?")
-					self.log.warn("%s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash)
+					self.log.warn("%s, %s, %s, %s, %s, %s, %s", self.archPath, fName, hexHash, pHash, dHash, imX, imY)
+
+
 
 				if baseHash:
-					self.db.updateDbEntry(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
+					self.db.updateDbEntry(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash, imgx=imX, imgy=imY)
 				else:
-					self.db.insertIntoDb(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash)
+					self.db.insertIntoDb(fsPath=self.archPath, internalPath=fName, itemHash=hexHash, pHash=pHash, dHash=dHash, imgx=imX, imgy=imY)
 
 
 			except UniversalArchiveInterface.ArchiveError as e:

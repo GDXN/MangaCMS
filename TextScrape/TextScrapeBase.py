@@ -824,7 +824,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 		oldStr = str(old['contents'])
 		newStr = str(kwargs['contents'])
 
+		self.log.info("Calculating edit-distance")
+		print("String lengths", len(oldStr), len(newStr))
 		distance = lv.distance(oldStr, newStr)
+		self.log.info("Done")
 		space = min((len(oldStr), len(newStr)))
 
 		if space == 0:

@@ -5,7 +5,7 @@ import wsgi_server
 import cherrypy
 import threading
 import nameTools as nt
-
+import runStatus
 
 import DbManagement.countCleaner
 import DbManagement.logTrimmer
@@ -109,12 +109,13 @@ class MonitorPlugin(cherrypy.process.plugins.SimplePlugin):
 
 def serverProcess():
 
-	webThread = threading.Thread(target=runServer)
-	webThread.start()
-	print("Starting observers in background.")
 	nt.dirNameProxy.startDirObservers()
-	while runStatus.run:
-		time.sleep(0.1)
+	runServer()
+	# webThread = threading.Thread(target=runServer)
+	# webThread.start()
+	# print("Starting observers in background.")
+	# while runStatus.run:
+	# 	time.sleep(0.1)
 
 	print("Stopping server.")
 	cherrypy.engine.exit()

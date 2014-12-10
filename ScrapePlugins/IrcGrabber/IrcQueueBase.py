@@ -28,6 +28,11 @@ class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		with self.transaction() as cur:
 			for itemKey, itemData in itemDataSets:
+
+				if '[jp]' in itemData.lower():
+					self.log.warning("Japanese langauge item. Skipping")
+					continue
+
 				if itemData is None:
 					print("itemDataSets", itemDataSets)
 					print("WAT")

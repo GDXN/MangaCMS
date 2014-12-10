@@ -1,13 +1,19 @@
 
 Todo:
 
+spexial case bolding so it only applies in aggregate views
+deduper spiral out to significant intersections on new scan
+
+ - ~~readability performance~~ The problem is entirely levenshtein distance calculation. Huh.
+ - info table position when multiple sources
+ - volumeifacator
 
  - Proper to-download series system
  - Get Watermark-Stripping system running.
 
  - autotrim empty dirs
 
- - phash filter by resolution for deletion decision
+ - phash filter by resolution/entropy(?) for deletion decision
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
  - Delete items via web interface!
@@ -57,10 +63,10 @@ Long Term:
 
  - Manga
  	 - TONIGOBE
+	 - Tadanohito as a H source
 	 - http://www.netcomics.com/ - Maybe?
 	 - https://www.emanga.com/ - Maybe?
 	 - http://tapastic.com/series/browse ?
-	 - Tadanohito as a H source
 	 - /ak/ scans (Problematic, as there is no central release point)
 	 - `http://crimson-flower.blogspot.com/p/release-archive.html` (hosted on `http://translations.omarissister.com/`)
 	 - ~~webtoons reader~~
