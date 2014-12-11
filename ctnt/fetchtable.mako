@@ -8,7 +8,7 @@
 <%def name="getMangaTable()">
 
 	${tableGenerators.genLegendTable()}
-	${tableGenerators.genMangaTable(tableKey=ap.attr.inHomepageMangaTable, distinct=True, limit=200)}
+	${tableGenerators.genMangaTable(tableKey=ap.attr.inHomepageMangaTable, distinct=True, limit=200, boldNew=True)}
 
 </%def>
 

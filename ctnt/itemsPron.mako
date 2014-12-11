@@ -152,7 +152,7 @@ else:
 		<div class="subdiv ${divId}">
 			<div class="contentdiv">
 				<h3>${sourceName}</h3>
-
+				${tableGenerators.genLegendTable(pron=True)}
 				Query =<br>
 				% for key in request.params.keys():
 					% if key != "page":

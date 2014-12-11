@@ -1,8 +1,8 @@
 
 Todo:
 
-spexial case bolding so it only applies in aggregate views
-deduper spiral out to significant intersections on new scan
+ - special case bolding so it only applies in aggregate views
+ - deduper spiral out to significant intersections on new scan
 
  - ~~readability performance~~ The problem is entirely levenshtein distance calculation. Huh.
  - info table position when multiple sources

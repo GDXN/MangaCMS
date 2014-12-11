@@ -214,31 +214,39 @@ colours = {
 # ##     ## ##     ## ##    ##  ######   ##     ##
 #
 
-<%def name="lazyFetchMangaItems(flags='', limit=100, offset=0, distinct=False, tableKey=None, seriesName=None, getErrored=False, includeUploads=False)">
+<%def name="lazyFetchMangaItems(**kwargs)">
 	<%
 
+		# flags          = '',
+		# limit          = 100,
+		# offset         = 0,
+		# distinct       = False,
+		# tableKey       = None,
+		# seriesName     = None,
+		# getErrored     = False,
+		# includeUploads = False
 
 		start = time.time()
 
-		if distinct and seriesName:
+		if kwargs['distinct'] and kwargs['seriesName']:
 			raise ValueError("Cannot filter for distinct on a single series!")
 
-		if flags:
+		if kwargs['flags']:
 			raise ValueError("TODO: Implement flag filtering!")
 
-		if seriesName:
+		if kwargs['seriesName']:
 			# Canonize seriesName if it's not none
-			seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
+			kwargs['seriesName'] = nt.getCanonicalMangaUpdatesName(kwargs['seriesName'])
 
-		query = buildQuery(mangaTable, mangaCols, tableKey=tableKey, seriesName=seriesName)
+		query = buildQuery(mangaTable, mangaCols, tableKey=kwargs['tableKey'], seriesName=kwargs['seriesName'])
 
-		if getErrored:
+		if kwargs['getErrored']:
 			if query.where:
 				query.where &= mangaTable.dlstate < 1
 			else:
 				query.where  = mangaTable.dlstate < 1
 
-		elif not includeUploads:
+		elif not kwargs['includeUploads']:
 			if query.where:
 				query.where &= mangaTable.dlstate < 3
 			else:
@@ -256,7 +264,7 @@ colours = {
 		query, params = tuple(query)
 		cur.execute(query, params)
 
-		if not limit:
+		if not kwargs['limit']:
 			retRows = cur.fetchall()
 		else:
 			seenItems = []
@@ -264,19 +272,19 @@ colours = {
 
 			rowsRead = 0
 
-			while len(seenItems) < offset:
+			while len(seenItems) < kwargs['offset']:
 				if not rowsBuf:
 					rowsBuf = cur.fetchmany()
 				if not rowsBuf:
 					break
 				row = rowsBuf.pop(0)
 				rowsRead += 1
-				if row[6] not in seenItems or not distinct:
+				if row[6] not in seenItems or not kwargs['distinct']:
 					seenItems.append(row[6])
 
 			retRows = []
 
-			while len(seenItems) < offset+limit:
+			while len(seenItems) < kwargs['offset']+kwargs['limit']:
 				if not rowsBuf:
 					rowsBuf = cur.fetchmany()
 				if not rowsBuf:
@@ -284,7 +292,7 @@ colours = {
 				row = rowsBuf.pop(0)
 
 				rowsRead += 1
-				if (row[6] not in seenItems and "deleted" not in str(row[11])) or not distinct:
+				if (row[6] not in seenItems and "deleted" not in str(row[11])) or not kwargs['distinct']:
 					retRows.append(row)
 					seenItems.append(row[6])
 
@@ -297,7 +305,7 @@ colours = {
 </%def>
 
 
-<%def name="renderMangaRow(row)">
+<%def name="renderMangaRow(row, kwargs)">
 
 	<%
 
@@ -398,7 +406,7 @@ colours = {
 		cellId = uuid.uuid1(0).hex
 
 	shouldBold = False
-	if originName:
+	if originName and kwargs['boldNew']:
 		chap = nt.extractChapterVol(originName)[0]
 		if isinstance(chap, float):
 			if chap < 10:
@@ -494,14 +502,16 @@ colours = {
 
 	<%
 
-	kwargs.setdefault("flags",          '')
-	kwargs.setdefault("limit",          100)
-	kwargs.setdefault("offset",         0)
-	kwargs.setdefault("distinct",       False)
-	kwargs.setdefault("tableKey",       None)
-	kwargs.setdefault("seriesName",     None)
-	kwargs.setdefault("getErrored",     False)
-	kwargs.setdefault("includeUploads", False)
+	kwargs.setdefault("flags",          '')        # Filter by flag
+	kwargs.setdefault("limit",          100)       # Number of rows in generated table
+	kwargs.setdefault("offset",         0)         # Shitty pagination system (TODO: Proper persistent cursors!)
+	kwargs.setdefault("distinct",       False)     # Limit results to one item per distinct series.
+	kwargs.setdefault("tableKey",       None)      # Limit results to source of key `tableKey`
+	kwargs.setdefault("seriesName",     None)      # Limit items to series of name `seriesName`. Filtered through MU canonizer.
+	kwargs.setdefault("getErrored",     False)     # Only return rows that failed to download
+	kwargs.setdefault("includeUploads", False)     # Include uploaded files in table as well.
+	kwargs.setdefault("boldNew",        False)     # Bold any items where the found chapter number is < 10
+
 
 
 	with sqlCon.cursor() as cur:
@@ -536,7 +546,7 @@ colours = {
 		</tr>
 
 		% for row in tblCtntArr:
-			${renderMangaRow(row)}
+			${renderMangaRow(row, kwargs)}
 		% endfor
 
 	</table>

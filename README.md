@@ -289,7 +289,13 @@ more of a "oh look, I can run a web server with twistd (back when it was a
 Py2K+Twistd project!)" thing. It kind of grew from there, but the database 
 schema was always designed from the get-go to be scraper-centric. 
 
-This was basically the first web application I'd ever written as well.
+This is basically:
+ - The first web application I'd ever written.
+ - The first >5KLOC project I've ever done.
+ 
+So take that into consideration when considering the codebase. I've learnt 
+a /LOT/ about designing a system for maintainability and modularity, but
+I'm stuck with some original design-choices that are less then ideal.
 
 As with about everything I do, the first run through teaches me all the 
 things I /wish/ I had done differently.
