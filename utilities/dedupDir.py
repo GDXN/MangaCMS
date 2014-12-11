@@ -134,12 +134,6 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					self.log.info("Archive Contains unique files. Leaving alone!")
 
 
-
-
-
-
-
-
 				if duplicated:
 
 					self.log.info("Source file '%s'", basePath)

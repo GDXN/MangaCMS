@@ -67,10 +67,10 @@ def printHelp():
 	print("		Scan the contents of {src-path}, and try to infer the series for each subdirectory.")
 	print("		If a subdir has no matching series, move it to {to-path}")
 	print("	")
+
 	print("*********************************************************")
 	print("Miscellaneous Tools")
 	print("*********************************************************")
-
 	print("	lookup {name}")
 	print("		Lookup {name} in the MangaUpdates name synonym lookup table, print the results.")
 	print()
@@ -100,12 +100,10 @@ def printHelp():
 	print("		Reload the BK tree from the database.")
 	print("	")
 
-
-
 	print("*********************************************************")
 	print("Remote deduper interface")
 	print("*********************************************************")
-	print("phash-clean {targetDir} {removeDir} {scanEnv}")
+	print("phash-clean {targetDir} {removeDir}")
 	print("		Find duplcates on the path {targetDir}, and move them to {removeDir}")
 	print("		Duplicate search is done using the set of phashes contained within ")
 	print("		{scanEnv}. ")
@@ -269,23 +267,23 @@ def parseThreeArgCall(cmd, arg1, arg2):
 		return
 
 
-	else:
-		print("Did not understand command!")
-		print("Sys.argv = ", sys.argv)
-
-def parseFourArgCall(cmd, arg1, arg2, arg3):
-	if cmd == "phash-clean":
+	elif cmd == "phash-clean":
 		if not os.path.exists(arg1):
 			print("Passed path '%s' does not exist!" % arg1)
 			return
 		if not os.path.exists(arg2):
 			print("Passed path '%s' does not exist!" % arg2)
 			return
-		if not os.path.exists(arg3):
-			print("Passed path '%s' does not exist!" % arg3)
-			return
-		deduplicator.remoteInterface.pClean(arg1, arg2, arg3)
-		return
+		deduplicator.remoteInterface.pClean(arg1, arg2)
+
+
+	else:
+		print("Did not understand command!")
+		print("Sys.argv = ", sys.argv)
+
+def parseFourArgCall(cmd, arg1, arg2, arg3):
+	raise ValueError("Wat?")
+
 
 def customHandler(dummy_signum, dummy_stackframe):
 	if runStatus.run:

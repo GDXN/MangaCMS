@@ -6,6 +6,7 @@ import os.path
 import logging
 import rpyc
 import magic
+import shutil
 
 import hashlib
 
@@ -224,7 +225,6 @@ class ArchChecker(DbBase):
 
 	def getHashes(self, shouldPhash=True):
 
-
 		self.log.info("Getting item hashes for %s.", self.archPath)
 		ret = []
 		for fileN, fileCtnt in self.arch:
@@ -234,15 +234,27 @@ class ArchChecker(DbBase):
 		self.log.info("%s Fully hashed.", self.archPath)
 		return ret
 
-	def deleteArch(self):
+	def deleteArch(self, moveToPath=False):
 
-		self.log.warning("Deleting archive '%s'", self.archPath)
 		self.db.deleteBasePath(self.archPath)
-		os.remove(self.archPath)
+		if not moveToPath:
+			self.log.warning("Deleting archive '%s'", self.archPath)
+			os.remove(self.archPath)
+		else:
+			dst = self.archPath.replace("/", ";")
+			dst = os.path.join(moveToPath, dst)
+			self.log.info("Moving item from '%s'", self.archPath)
+			self.log.info("              to '%s'", dst)
+			try:
+				shutil.move(self.archPath, dst)
+			except KeyboardInterrupt:
+				raise
+			except OSError:
+				self.log.error("ERROR - Could not move file!")
+				self.log.error(traceback.format_exc())
 
 
 	def addNewArch(self, shouldPhash=True):
-
 
 		self.log.info("Hashing file %s", self.archPath)
 

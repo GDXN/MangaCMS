@@ -27,45 +27,65 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.db = self.remote.root.DbApi()
 		super().__init__()
 
-	# def callBack(self, delItem, dupItem):
-	# 	self.log.info("callback")
-
-	# 	self.proc.removeArchive(delItem)
-	# 	delItemRoot, delItemFile = os.path.split(delItem)
-	# 	dupItemRoot, dupItemFile = os.path.split(dupItem)
-	# 	self.log.info("Remove:	'%s', '%s'" % (delItemRoot, delItemFile))
-	# 	self.log.info("Match: 	'%s', '%s'" % (dupItemRoot, dupItemFile))
-
-	# 	srcRow = self.getRowsByValue(limitByKey=False, downloadpath=delItemRoot, filename=delItemFile)
-	# 	dstRow = self.getRowsByValue(limitByKey=False, downloadpath=dupItemRoot, filename=dupItemFile)
-
-	# 	# print("HaveItem", srcRow)
-	# 	if not settings.mangaCmsHContext in dupItemRoot:
-	# 		self.log.warn("Item not within the context of the relinker. Not fixing database")
-	# 	else:
-	# 		if srcRow and len(srcRow) == 1:
-	# 			srcId = srcRow[0]['dbId']
-	# 			self.log.info("Relinking!")
-	# 			self.updateDbEntryById(srcId, filename=dupItemFile, downloadpath=dupItemRoot)
-	# 			self.addTags(dbId=srcId, tags='deleted was-duplicate phash-duplicate')
-
-	# 			if dstRow and len(dstRow) == 1:
-
-	# 				dstId = dstRow[0]['dbId']
-	# 				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=srcId))
-	# 				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=srcId))
-	# 				self.log.info("Found destination row. Cross-linking!")
-
-	# def pClean(self, targetDir):
-	# 	self.proc.trimFiles(targetDir)
-
 	def go(self):
 		pass
 
 	def close(self):
 		self.remote.close()
 
-def pClean(targetDir, removeDir, scanEnv):
+
+
+
+def cleanDirectory(dirPath, delDir):
+
+	import magic
+	import processDownload
+
+
+	print("Processing subdirectory '%s'" % dirPath)
+	if not dirPath.endswith("/"):
+		dirPath = dirPath + '/'
+
+	items = os.listdir(dirPath)
+
+	items = [os.path.join(dirPath, item) for item in items]
+
+	dirs = [i for i in items if os.path.isdir(i)]
+	print("Recursing into %s subdirectories!", len(dirs))
+	for subDir in dirs:
+		cleanDirectory(subDir, delDir)
+
+
+	parsedItems = [(os.path.getsize(i), i) for i in items if os.path.isfile(i)]
+
+	parsedItems.sort()
+
+
+	for dummy_num, basePath in parsedItems:
+		print("Item", dummy_num, basePath)
+
+
+		fType = magic.from_file(basePath, mime=True).decode("ascii")
+
+		if fType == 'application/zip' or fType == 'application/x-rar':
+			print(basePath)
+			processDownload.dedupItem(basePath, delDir)
+			# run.processNewArchive(fileP)
+
+
+
+def pClean(targetDir, removeDir):
+	cleanDirectory(targetDir, removeDir)
+
+	# raise ValueError("Requires size-first sorting!")
+
+	# for root, dirs, files in os.walk(targetDir):
+	# 	for name in files:
+	# 		fileP = os.path.join(root, name)
+	# 		if not os.path.exists(fileP):
+	# 			raise ValueError
+
+
 	print("NO LONGER USEABLE")
 
 def treeReload():

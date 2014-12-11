@@ -85,6 +85,11 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			phashThresh = PHASH_DISTANCE
 
+		if 'dedupMove' in kwargs:
+			moveToPath = kwargs.pop('dedupMove')
+		else:
+			moveToPath = False
+
 		try:
 			import deduplicator.archChecker
 
@@ -97,13 +102,17 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		log = logging.getLogger("Main.ArchProc")
 
-		archCleaner = ac.ArchCleaner()
-		try:
-			retTags, archivePath = archCleaner.processNewArchive(archivePath, **kwargs)
-		except:
-			self.log.critical("Error processing archive '%s'", archivePath)
-			self.log.critical(traceback.format_exc())
-			retTags = "corrupt unprocessable"
+		if moveToPath:
+			retTags = ""
+		else:
+			print("Hashing?")
+			archCleaner = ac.ArchCleaner()
+			try:
+				retTags, archivePath = archCleaner.processNewArchive(archivePath, **kwargs)
+			except Exception:
+				self.log.critical("Error processing archive '%s'", archivePath)
+				self.log.critical(traceback.format_exc())
+				retTags = "corrupt unprocessable"
 
 
 		log = logging.getLogger("Main.DlProc")
@@ -117,7 +126,6 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			dirPath = os.path.split(archivePath)[0]
 
 			try:
-
 
 				dc = deduplicator.archChecker.ArchChecker(archivePath)
 
@@ -137,13 +145,13 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					if bestMatch:
 						self.log.warning("Archive not binary unique: '%s'", archivePath)
 						self.crossLink(archivePath, bestMatch, isPhash=False)
-						dc.deleteArch()
+						dc.deleteArch(moveToPath=moveToPath)
 						retTags += " deleted was-duplicate"
 
 					elif phashMatch:
 						self.log.warning("Archive not phash unique: '%s'", archivePath)
 						self.crossLink(archivePath, phashMatch, isPhash=True)
-						dc.deleteArch()
+						dc.deleteArch(moveToPath=moveToPath)
 						retTags += " deleted was-duplicate phash-duplicate"
 					else:
 						self.log.info("Archive Contains unique files. Leaving alone!")
@@ -152,7 +160,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.info("Adding archive to database.")
 					dc.addNewArch()
 
-			except:
+			except Exception:
 				self.log.error("Error when doing archive hash-check!")
 				self.log.error(traceback.format_exc())
 				retTags += " damaged"
@@ -201,6 +209,11 @@ def processDownload(*args, **kwargs):
 		dlProc = MangaProcessor()
 
 	return dlProc.processDownload(*args, **kwargs)
+
+def dedupItem(itemPath, rmPath):
+	dlProc = MangaProcessor()
+	dlProc.processDownload(seriesName=None, archivePath=itemPath, dedupMove=rmPath, deleteDups=True, includePHash=True)
+
 
 if __name__ == "__main__":
 
