@@ -8,6 +8,7 @@ import time
 import re
 import nameTools as nt
 import runStatus
+import dateutil.parser
 import urllib.request, urllib.parse, urllib.error
 import traceback
 
@@ -23,10 +24,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	dbName = settings.dbName
-	loggerPath = "Main.SadPanda.Cl"
-	pluginName = "SadPanda Content Retreiver"
-	tableKey   = "sp"
-	urlBase = "http://exhentai.org/"
+	loggerPath = "Main.Tadanohito.Cl"
+	pluginName = "Tadanohito Content Retreiver"
+	tableKey   = "ta"
+	urlBase = "http://www.tadanohito.net/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -38,99 +39,60 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	outOfCredits = False
 
-	def getTags(self, sourceUrl, inSoup):
 
-		tagDiv = inSoup.find('div', id='taglist')
+	def getUploadTime(self, dateStr):
+		# ParseDatetime COMPLETELY falls over on "YYYY-MM-DD HH:MM" formatted strings. Not sure why.
+		# Anyways, dateutil.parser.parse seems to work ok, so use that.
+		updateDate = dateutil.parser.parse(dateStr)
+		ret = time.mktime(updateDate.timetuple())
 
-		formatters = {
-						'character:'   : 'character',
-						'parody:'      : "parody",
-						'artist:'      : "artist",
-						'group:'       : "group",
-
-					}
-
-		tagList = []
-		for row in tagDiv.find_all("tr"):
-			tagType, tags = row.find_all("td")
-
-			tagType = tagType.get_text().strip()
-			if tagType in formatters:
-				prefix = formatters[tagType]
-			else:
-				prefix = ''
-
-			for tag in tags.find_all('div'):
-				tag = '%s %s' % (prefix, tag.get_text())
-				while tag.find("  ") + 1:
-					tag = tag.replace("  ", " ")
-				tag = tag.strip()
-				tag = tag.replace(" ", "-")
-				tagList.append(tag)
+		return ret
 
 
-		for tag in settings.sadPanda['sadPandaExcludeTags']:
-			if tag in tagList:
-				self.log.info("Blocked item! Deleting row from database.")
-				self.log.info("Item tags = '%s'", tagList)
-				self.log.info("Blocked tag = '%s'", tag)
-				self.deleteRowsByValue(sourceUrl=sourceUrl)
-				return False
 
-		# We sometimes want to do compound blocks.
-		# For example, if something is tagged 'translated', but not 'english', it's
-		# probably not english, but not the original item either (assuming you want
-		# either original items, or the english tranlsation).
-		# Therefore, if settings.sadPanda['excludeCompoundTags'][n][0] is in the taglist,
-		# and not settings.sadPanda['excludeCompoundTags'][n][1], we skip the item.
-		for exclude, when in settings.sadPanda['excludeCompoundTags']:
-			if exclude in tagList:
-				if not when in tagList:
-					self.log.info("Blocked item! Deleting row from database.")
-					self.log.info("Item tags = '%s'", tagList)
-					self.log.info("Triggering tags: = '%s', '%s'", exclude, when)
-					self.deleteRowsByValue(sourceUrl=sourceUrl)
-					return False
+	def extractInfo(self, soup):
+		ret = {}
+
+		mainDiv = soup.find("div", class_='main-body')
+		titles = mainDiv.find_all('font')
+
+		series, title = [item.get_text() for item in titles[-2:]]
 
 
-		tags = " ".join(tagList)
-		self.log.info("Adding tags: '%s'", tags)
-		self.addTags(sourceUrl=sourceUrl, tags=tags)
-		return True
+		ret['originName'] = title.strip().strip('» 	')
+		ret['seriesName'] = series.strip().strip('» 	')
+
+		tds = soup.find_all("td", class_='tbl2')
+		for td in tds:
+			if "Date Posted:" in td.get_text():
+				ret['retreivalTime'] = self.getUploadTime(list(td.strings)[-1])
 
 
-	def getDownloadPageUrl(self, inSoup):
-		dlA = inSoup.find('a', onclick=re.compile('archiver.php'))
+		return ret
 
-		clickAction = dlA['onclick']
-		clickUrl = re.search("(http://exhentai.org/archiver.php.*)'", clickAction)
-		return clickUrl.group(1)
+
 
 
 	def getDownloadInfo(self, linkDict, retag=False):
 		sourcePage = linkDict["sourceUrl"]
 		self.log.info("Retreiving item: %s", sourcePage)
 
-		# self.log.info("Linkdict = ")
-		# for key, value in list(linkDict.items()):
-		# 	self.log.info("		%s - %s", key, value)
-
 		try:
 			soup = self.wg.getSoup(sourcePage, addlHeaders={'Referer': self.urlBase})
-		except:
+		except Exception:
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			raise IOError("Invalid webpage")
 
-		if "This gallery has been removed, and is unavailable." in soup.get_text():
-			self.log.info("Gallery deleted. Removing.")
-			self.deleteRowsByValue(sourceUrl=sourcePage)
-			return False
 
-		ret = self.getTags(sourcePage, soup)
+		ret = self.extractInfo(soup)
+
+		print(ret['retreivalTime'])
+		print(linkDict['retreivalTime'])
+		return False
 		if not ret:
 			return False
 
-		linkDict['dirPath'] = os.path.join(settings.sadPanda["dlDir"], linkDict['seriesName'])
+		linkDict['dirPath'] = os.path.join(settings.tadanohito["dlDir"], linkDict['seriesName'])
 
 		if not os.path.exists(linkDict["dirPath"]):
 			os.makedirs(linkDict["dirPath"])
@@ -227,31 +189,35 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
 
 
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
+			# self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
 			self.conn.commit()
 
 
 		else:
 
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
+			# self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
 			self.conn.commit()
 			return False
 
 
 	def getLink(self, link):
-		if self.outOfCredits:
-			self.log.warn("Out of credits. Skipping!")
-			return
+
 		try:
-			self.updateDbEntry(link["sourceUrl"], dlState=1)
+			# self.updateDbEntry(link["sourceUrl"], dlState=1)
 			linkInfo = self.getDownloadInfo(link)
+
+
+
+
 			if linkInfo:
 				self.doDownload(linkInfo)
 
-				sleeptime = random.randint(10,60*5)
+				sleeptime = random.randint(10,60*15)
 			else:
 				sleeptime = 5
+
+
 
 			self.log.info("Sleeping %s seconds.", sleeptime)
 			for dummy_x in range(sleeptime):

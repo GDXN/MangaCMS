@@ -1,9 +1,8 @@
 
 Todo:
 
- - Deduper not blocking queries while tree is rebuilt
 
- - special case bolding so it only applies in aggregate views
+
  - deduper spiral out to significant intersections on new scan
 
  - ~~readability performance~~ The problem is entirely levenshtein distance calculation. Huh.
@@ -137,6 +136,8 @@ Bad MangaUpdates Links:
 
 
 <b>Complete:</b>
+ - ~~Deduper not blocking queries while tree is rebuilt~~
+ - ~~special case bolding so it only applies in aggregate views~~
  - ~~crawl all batoto~~
  - ~~change startup. start webserver first~~
  - ~~change db table generation to use found item paths for tables in directory view.~~

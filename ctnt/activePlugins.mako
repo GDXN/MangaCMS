@@ -500,6 +500,19 @@ sidebarItemList = [
 		},
 
 
+		{
+			"num"           : 34,
+			'dbKey'         : "Tadanohito",
+			'name'          : "Tadano",
+			'dictKey'       : "ta",
+			'cssClass'      : "taId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Porn'
+		},
+
+
 	]
 
 
