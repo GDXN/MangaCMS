@@ -139,8 +139,8 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					else:
 						phashMatch = False
 
-					print("Best  match", bestMatch)
-					print("PHash match", phashMatch)
+					# print("Best  match", bestMatch)
+					# print("PHash match", phashMatch)
 
 					if bestMatch:
 						self.log.warning("Archive not binary unique: '%s'", archivePath)
@@ -156,7 +156,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					else:
 						self.log.info("Archive Contains unique files. Leaving alone!")
 
-				if not retTags:
+				if not retTags and not moveToPath:
 					self.log.info("Adding archive to database.")
 					dc.addNewArch()
 
@@ -176,7 +176,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				retTags += " uploaded"
 			except ConnectionRefusedError:
 				self.log.warning("Uploading file failed! Connection Refused!")
-			except:
+			except Exception:
 				self.log.error("Uploading file failed! Unknown Error!")
 				self.log.error(traceback.format_exc())
 		else:

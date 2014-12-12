@@ -1,6 +1,8 @@
 
 Todo:
 
+ - Deduper not blocking queries while tree is rebuilt
+
  - special case bolding so it only applies in aggregate views
  - deduper spiral out to significant intersections on new scan
 
@@ -45,7 +47,7 @@ Todo:
  - tagging in web interface
  - properly show if things are one shot
  - fork daiz numbering
- 
+
  - steal code from free manga downloader?
 
  - most common image browse and filtering system
@@ -118,7 +120,7 @@ naming approach. Note <b> this makes MangaUpdates the final authority on what to
  - ~~Imasugu Onii-chan ni Imouto da tte Iitai!~~
  -
 Bad MangaUpdates Links:
-	
+
  - I think these are fixed by the latest NameTools patches.
 	 - ~~Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka~~
 	 - ~~neko ane~~
@@ -139,7 +141,7 @@ Bad MangaUpdates Links:
  - ~~change startup. start webserver first~~
  - ~~change db table generation to use found item paths for tables in directory view.~~
  - ~~strip trailing hyphens~~
- - ~~mixed case tag issues~~ 
+ - ~~mixed case tag issues~~
  - ~~books are broken again~~ Dicked about in the scheduler. Hopefully, it's fixed?
  - ~~positive tags in green~~
  - ~~include h in mu tag view~~
