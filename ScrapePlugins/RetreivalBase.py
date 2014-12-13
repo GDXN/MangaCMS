@@ -4,7 +4,7 @@ import ScrapePlugins.DbBase
 import abc
 import runStatus
 import traceback
-
+import os.path
 from concurrent.futures import ThreadPoolExecutor
 import ScrapePlugins.RetreivalDbBase
 
@@ -97,6 +97,16 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				executor.shutdown(wait=True)
 
+
+	def insertCountIfFilenameExists(self, fqFName):
+
+		base, ext = os.path.splitext(fqFName)
+		loop = 1
+		while os.path.exists(fqFName):
+			fqFName = "%s - (%d).%s" % (base, loop, ext)
+			loop += 1
+
+		return fqFName
 
 
 

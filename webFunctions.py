@@ -165,7 +165,13 @@ class WebGetRobust:
 
 		pgctnt, pghandle = self.getpage(*args, **kwargs)
 
-		hName = pghandle.info()['Content-Disposition'].split('filename=')[1]
+		info = pghandle.info()
+		if not 'Content-Disposition' in info:
+			hName = ''
+		elif not 'filename=' in info['Content-Disposition']:
+			hName = ''
+		else:
+			hName = ['Content-Disposition'].split('filename=')[1]
 
 
 		return pgctnt, hName

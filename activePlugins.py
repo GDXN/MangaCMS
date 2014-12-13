@@ -11,6 +11,7 @@ import ScrapePlugins.DjMoeLoader.Retag
 import ScrapePlugins.SkBaseManager.Run
 import ScrapePlugins.BtBaseManager.Run
 import ScrapePlugins.PururinLoader.Run
+import ScrapePlugins.Tadanohito.Run
 import ScrapePlugins.JzLoader.Run
 
 import ScrapePlugins.FakkuLoader.Run
@@ -76,6 +77,7 @@ scrapePlugins = {
 	21 : (ScrapePlugins.Crunchyroll.Run,                     60*60*6 ),
 	22 : (ScrapePlugins.SadPandaLoader.Run,                  60*60*2 ),
 	23 : (ScrapePlugins.WebtoonsReader.Run,                  60*60*6 ),
+	24 : (ScrapePlugins.Tadanohito.Run,                      60*60*6 ),
 
 	# FoolSlide modules
 	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          60*60*12),

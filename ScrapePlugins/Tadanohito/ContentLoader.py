@@ -5,7 +5,6 @@ import webFunctions
 import os
 import os.path
 import time
-import re
 import nameTools as nt
 import runStatus
 import dateutil.parser
@@ -70,11 +69,31 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		return ret
 
+	def getDownloadPageUrl(self, soup, sourceUrl):
+		dlForms = soup.find_all('form', action='file.php')
+		for form in dlForms:
+			if 'D I R E C T  D O W N L O A D' in [tag['value'] for tag in form.find_all('input')]:
 
+
+				ret = {}
+				for inTag in form.find_all('input'):
+					if 'name' in inTag.attrs and 'value' in inTag.attrs:
+
+						ret[inTag['name']] = inTag['value']
+
+				query = urllib.parse.urlencode(ret)
+				url = urllib.parse.urljoin(sourceUrl, form['action'])
+
+				urlParts = list(urllib.parse.urlsplit(url))
+				urlParts[3] = query
+				url = urllib.parse.urlunsplit(urlParts)
+
+				return url
 
 
 	def getDownloadInfo(self, linkDict, retag=False):
 		sourcePage = linkDict["sourceUrl"]
+
 		self.log.info("Retreiving item: %s", sourcePage)
 
 		try:
@@ -86,72 +105,52 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		ret = self.extractInfo(soup)
 
-		print(ret['retreivalTime'])
-		print(linkDict['retreivalTime'])
-		return False
 		if not ret:
 			return False
 
-		linkDict['dirPath'] = os.path.join(settings.tadanohito["dlDir"], linkDict['seriesName'])
-
-		if not os.path.exists(linkDict["dirPath"]):
-			os.makedirs(linkDict["dirPath"])
-
-		self.log.info("Folderpath: %s", linkDict["dirPath"])
-
-
-		linkDict['dlPage'] = self.getDownloadPageUrl(soup)
+		self.updateDbEntry(linkDict["sourceUrl"],
+					seriesName=ret['seriesName'],
+					originName=ret['originName'],
+					retreivaltime=ret['retreivalTime'])
 
 
 
-		return linkDict
+		ret["sourceUrl"] = linkDict["sourceUrl"]
 
-	def getDownloadUrl(self, dlPageUrl, referrer):
 
-		soup = self.wg.getSoup(dlPageUrl, addlHeaders={'Referer': referrer})
+		ret['dirPath'] = os.path.join(settings.tadanohito["dlDir"], ret['seriesName'])
 
-		if 'Insufficient funds'.lower() in str(soup).lower():
-			self.outOfCredits = True
-			raise ValueError("Out of credits. Cannot download!")
+		if not os.path.exists(ret["dirPath"]):
+			os.makedirs(ret["dirPath"])
 
-		if 'Pressing this button will immediately deduct funds' in soup.get_text():
-			self.log.info("Accepting download.")
-			acceptForm = soup.find('form')
-			formPostUrl = acceptForm['action']
-			soup = self.wg.getSoup(formPostUrl, addlHeaders={'Referer': referrer}, postData={'dlcheck': 'Download Archive'})
-		else:
-			self.log.warn("Already accepted download?")
+		self.log.info("Folderpath: %s", ret["dirPath"])
+
+
+		ret['dlPage'] = self.getDownloadPageUrl(soup, sourcePage)
 
 
 
-		contLink = soup.find('p', id='continue')
-		if not contLink:
-			self.log.error("No link found!")
-			self.log.error("Page Contents: '%s'", soup)
+		return ret
+
+	def doDownload(self, linkDict):
+
+		if linkDict:
 
 
-		downloadUrl = contLink.a['href']+"?start=1"
-
-		return downloadUrl
-
-	def doDownload(self, linkDict, retag=False):
-
-		downloadUrl = self.getDownloadUrl(linkDict['dlPage'], linkDict["sourceUrl"])
-
-
-		if downloadUrl:
-
-
-			fCont, fName = self.wg.getFileAndName(downloadUrl)
+			fCont, fName = self.wg.getFileAndName(linkDict['dlPage'] , addlHeaders={'Referer': linkDict["sourceUrl"]})
 
 			# self.log.info(len(content))
 			if linkDict['originName'] in fName:
 				fileN = fName
+			elif not fName:
+				fileN = '%s.zip' % (linkDict['originName'], )
+				fileN = fileN.replace('.zip .zip', '.zip')
 			else:
 				fileN = '%s - %s.zip' % (linkDict['originName'], fName)
 				fileN = fileN.replace('.zip .zip', '.zip')
 
 			fileN = nt.makeFilenameSafe(fileN)
+			fileN = self.insertCountIfFilenameExists(fileN)
 
 			chop = len(fileN)-4
 
@@ -175,10 +174,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-
-			if not linkDict["tags"]:
-				linkDict["tags"] = ""
-
 			self.updateDbEntry(linkDict["sourceUrl"], downloadPath=linkDict["dirPath"], fileName=fileN)
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
@@ -189,13 +184,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
 
 
-			# self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
 			self.conn.commit()
 
 
 		else:
 
-			# self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
 			self.conn.commit()
 			return False
@@ -204,11 +199,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	def getLink(self, link):
 
 		try:
-			# self.updateDbEntry(link["sourceUrl"], dlState=1)
+			self.updateDbEntry(link["sourceUrl"], dlState=1)
 			linkInfo = self.getDownloadInfo(link)
-
-
-
 
 			if linkInfo:
 				self.doDownload(linkInfo)
