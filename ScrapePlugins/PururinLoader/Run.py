@@ -16,17 +16,18 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "Pururin"
 
 
-
-	def _go(self):
-		fl = PururinDbLoader()
-		fl.go()
-		fl.closeDB()
+	sourceName = "Pururin"
+	feedLoader = PururinDbLoader
+	contentLoader = PururinContentLoader
 
 
-		if not runStatus.run:
-			return
 
-		cl = PururinContentLoader()
-		cl.go()
-		cl.closeDB()
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		mon = Runner()
+		mon.go()
 

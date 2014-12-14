@@ -50,6 +50,7 @@ Plugin scrapers for:
 	 - Exhen.Madokami
 	 - HBrowse
 	 - Exhentai/SadPanda
+	 - Tadanohito
  - Light Novels:
 	 - Baka-Tsuki 
 	 - JapTem
@@ -67,7 +68,6 @@ Plugin scrapers for:
 
 Under consideration:   
 
- - Tadanohito as a H source
  - http://tapastic.com/ (Lots of western stuff. Add a separate western table 
    system, and start grabbing webcomics?)
  - NoManga   - 500 Error

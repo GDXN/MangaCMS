@@ -1,7 +1,7 @@
 
 Todo:
 
-
+ - MangaPark.com
 
  - deduper spiral out to significant intersections on new scan
 
@@ -64,12 +64,12 @@ Long Term:
 
  - Manga
  	 - TONIGOBE
-	 - Tadanohito as a H source
 	 - http://www.netcomics.com/ - Maybe?
 	 - https://www.emanga.com/ - Maybe?
 	 - http://tapastic.com/series/browse ?
 	 - /ak/ scans (Problematic, as there is no central release point)
 	 - `http://crimson-flower.blogspot.com/p/release-archive.html` (hosted on `http://translations.omarissister.com/`)
+	 - ~~Tadanohito as a H source~~
 	 - ~~webtoons reader~~
 	 - ~~http://nhentai.net/~~ They don't recompress (I think). Awesome!
 	 - ~~KissManga.com~~

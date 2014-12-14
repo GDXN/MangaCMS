@@ -14,19 +14,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "NHentai"
 
 
-
-	def _go(self):
-		fl = DbLoader()
-		fl.go()
-		fl.closeDB()
-
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-		cl.go()
-		cl.closeDB()
+	sourceName = "NHentai"
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
 
 if __name__ == "__main__":

@@ -185,3 +185,13 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
 
+
+
+
+	def go(self):
+
+		todo = self.retreiveTodoLinksFromDB()
+		if not runStatus.run:
+			return
+		self.processTodoLinks(todo)
+

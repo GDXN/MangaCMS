@@ -228,6 +228,10 @@ class ArchChecker(DbBase):
 		self.log.info("Getting item hashes for %s.", self.archPath)
 		ret = []
 		for fileN, fileCtnt in self.arch:
+			if '__MACOSX/' in fileN:
+				continue
+
+			# self.log.info("Internal File '%s'", fileN)
 			ret.append(self.remote.root.hashFile(self.archPath, fileN, fileCtnt.read(), shouldPhash=shouldPhash))
 
 

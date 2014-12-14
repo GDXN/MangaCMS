@@ -3,6 +3,7 @@
 import logging
 import settings
 import psycopg2
+import runStatus
 import time
 import abc
 
@@ -90,6 +91,19 @@ class ScraperBase(metaclass=abc.ABCMeta):
 
 
 
-	@abc.abstractmethod
 	def _go(self):
-		pass
+
+		self.log.info("Checking %s feeds for updates", self.sourceName)
+		fl = self.feedLoader()
+		fl.go()
+		fl.closeDB()
+
+		time.sleep(3)
+		#print "wat", cl
+
+		if not runStatus.run:
+			return
+
+		cl = self.contentLoader()
+		todo = cl.go()
+		cl.closeDB()

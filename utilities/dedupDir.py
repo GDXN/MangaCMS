@@ -310,25 +310,37 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 		items = [item for item in items if os.path.isfile(item)]
 
 		for fileName in items:
-			isDup = self.checkItem(fileName)
+			isDup = self.checkIfNotUnique(fileName)
 			if isDup:
 				self.log.critical("DELETING '%s'", fileName)
 				os.unlink(fileName)
 
-	def checkItem(self, fileName):
+	def checkIfNotUnique(self, fileName):
+		'''
+		Check if item `filename` in the currently open archive is unique
+
+		Returns True if item not unique, False if it is unique
+		'''
 
 		dc = deduplicator.archChecker.ArchChecker(fileName)
-		hashes = dc.getHashes(shouldPhash=True)
+		try:
+			hashes = dc.getHashes(shouldPhash=True)
+		except Exception:
+			self.log.error("Error when scanning item!")
+			self.log.error("File: '%s'", fileName)
+			self.log.error(traceback.format_exc())
+			return False
+
 		for hashVal in hashes:
 			if hashVal[2] == None:
 
 				if hashVal[0].endswith("Thumbs.db"):
 					self.log.info("Windows Thumbs.db file")
-					return True
+					continue
 
 				if hashVal[0].endswith("deleted.txt"):
 					self.log.info("Advert Deletion note.")
-					return True
+					continue
 
 				self.log.info("Empty hash: '%s', for file '%s'", hashVal[2], hashVal)
 				return False

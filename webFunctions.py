@@ -334,7 +334,10 @@ class WebGetRobust:
 
 									if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
 
-										dummy_docType, charset = cType.split(";")
+										# Some wierdos put two charsets in their headers:
+										# `text/html;Charset=UTF-8;charset=UTF-8`
+										# Split, and take the first two entries.
+										dummy_docType, charset = cType.split(";")[:2]
 										charset = charset.split("=")[-1]
 
 

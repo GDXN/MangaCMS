@@ -16,28 +16,14 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "MjLoader"
 
 
-	def _go(self):
+	sourceName = "MangaJoy"
+	feedLoader = MjFeedLoader
+	contentLoader = MjContentLoader
 
-		self.log.info("Checking Mj feeds for updates")
-		fl = MjFeedLoader()
-		fl.go()
-		fl.closeDB()
 
-		time.sleep(3)
-		#print "wat", cl
+if __name__ == "__main__":
+	import utilities.testBase as tb
 
-		if not runStatus.run:
-			return
-
-		cl = MjContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
-		cl.closeDB()
+	with tb.testSetup(startObservers=False):
+		mon = Runner()
+		mon.go()
