@@ -171,7 +171,7 @@ class WebGetRobust:
 		elif not 'filename=' in info['Content-Disposition']:
 			hName = ''
 		else:
-			hName = ['Content-Disposition'].split('filename=')[1]
+			hName = info['Content-Disposition'].split('filename=')[1]
 
 
 		return pgctnt, hName

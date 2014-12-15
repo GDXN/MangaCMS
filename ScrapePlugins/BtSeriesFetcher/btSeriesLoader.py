@@ -29,9 +29,9 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 	tableName       = "MangaItems"
 
-	urlBase         = "http://www.batoto.net/"
+	urlBase         = "http://www.bato.to/"
 
-	feedUrl         = "http://www.batoto.net/?p=%d"
+	feedUrl         = "http://www.bato.to/?p=%d"
 	seriesTableName = "batotoSeries"
 
 	listTableName   = "MangaSeries"

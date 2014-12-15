@@ -108,6 +108,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		if not ret:
 			return False
 
+		if not 'retreivalTime' in ret:
+			return False
+
+
 		self.updateDbEntry(linkDict["sourceUrl"],
 					seriesName=ret['seriesName'],
 					originName=ret['originName'],

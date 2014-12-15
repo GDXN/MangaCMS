@@ -335,7 +335,7 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 					print("Unicode oddness. Skipping")
 					continue
 
-				rating = nt.extractRatingToInt(oldPath)
+				rating = nt.extractRatingToFloat(oldPath)
 
 				if rating != 0:
 					print("	Need to add rating = ", rating)

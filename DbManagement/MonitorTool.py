@@ -2,6 +2,7 @@
 
 import settings
 import ScrapePlugins.MonitorDbBase
+import ScrapePlugins.RetreivalBase
 import time
 
 # This is a class used for situations where a script needs access to the database, but I don't
@@ -11,6 +12,19 @@ import time
 # need to hack a one-time-use thing together.
 
 class Inserter(ScrapePlugins.MonitorDbBase.MonitorDbBase):
+
+
+	loggerPath = "Main.Inserter"
+	pluginName = "DB Item Inserter"
+	tableName = "MangaSeries"
+	dbName = settings.dbName
+
+
+	def go(self):
+		pass
+
+
+class Scraper(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	loggerPath = "Main.Inserter"

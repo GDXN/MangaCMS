@@ -1,23 +1,18 @@
 
 Todo:
 
- - MangaPark.com
-
- - deduper spiral out to significant intersections on new scan
 
  - ~~readability performance~~ The problem is entirely levenshtein distance calculation. Huh.
  - info table position when multiple sources
  - volumeifacator
 
  - Proper to-download series system
- - Get Watermark-Stripping system running.
 
  - autotrim empty dirs
 
- - phash filter by resolution/entropy(?) for deletion decision
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
- - Delete items via web interface!
+
  - base nt off muid system
  - ability to browse dirs by mu list cross-link
 
@@ -33,7 +28,7 @@ Todo:
  - import all existing files somehow
  - do some clever set shit to check for misplaced items in directories
  - color code mangaupdates status in reader
- - highlight chapters < 10
+
  - scan times to deduper for rescanning. Also filesizes
  - Group the smaller scanlators into a single colour-code?
  - artist and author in filebrowser if i have it
@@ -52,17 +47,24 @@ Todo:
  - most common image browse and filtering system
  	'SELECT COUNT(itemhash), itemhash FROM dedupitems GROUP BY itemhash;'
 
-Long Term:
+Deduper R2:
 
+ - deduper spiral out to significant intersections on new scan (Depends on new cleaned-up deduper system)
+ - phash filter by resolution for deletion decision
+ - Image entropy is not useful for quantifying image ancestry
+
+Long Term:
 
  - cover images in file browser?
  - Ability to disable bulk-downloading.
+ - Get Watermark-Stripping system running.
 
 
 
 <b>Add Scrapers for</b>
 
  - Manga
+ 	- MangaPark.com 
  	 - TONIGOBE
 	 - http://www.netcomics.com/ - Maybe?
 	 - https://www.emanga.com/ - Maybe?
@@ -135,7 +137,62 @@ Bad MangaUpdates Links:
 
 
 
+Partial series:
+	 - 15:14 -!- Irssi: Starting query in Rizon with Sola
+	 - 15:14 <Sola> hi hello ok
+	 - 15:14 <Sola> Kamisama no Iutoori Ni is missing 50-74 and 76
+	 - 15:15 <Sola> soul cartel 127, 134, 135
+	 - 15:15 <Sola> tiara 31-34, 37-41
+	 - 15:15 <Sola> Hayate no Gotoku!  c454-460 and c473
+	 - 15:16 <Sola> Grappler Baki c94
+	 - 15:29 <Sola> Himouto! Umaru-chan 41, 42, 44-65, 70,
+	 - 15:32 <Sola> Maken-Ki! 66-68
+	 - 15:38 <Sola> is all for today
+	 - 15:42 <Sola> is pasting the list for duplicates so far, yes?
+	 - 15:43 <Sola> I realize Crunchyroll is a special case but... whatever. I listed it too
+	 - 15:43 <Sola> 13-nin no Short Suspense and Horror - KissManga, Batoto, MangaCow, IIII
+	 - 15:43 <Sola> Akame ga Kill - PSY, BatotoIIII
+	 - 15:43 <Sola> Ansatsu Kyoushitsu - Batoto, MangaJoyIIII
+	 - 15:43 <Sola> Ao Haru Ride - MangaJoy, BatotoIIII
+	 - 15:43 <Sola> Ao no Exorcist - S2S, KissManga, MangaJoyIIII
+	 - 15:43 <Sola> Bartender - Batoto, MangaJoy, KissMangaIIII
+	 - 15:43 <Sola> Black Haze - MangaJoy, Batoto, KissManga, MangaCowIIII
+	 - 15:43 <Sola> Blind Faith Descent - MangaCow, KissMangaIIII
+	 - 15:43 <Sola> Cavalier of the Abyss - VISCANS, MangaCowIIII
+	 - 15:43 <Sola> Fairy Tail - MangaStream, Crunchyroll, KissMangaIIII
+	 - 15:43 <Sola> Grappler Baki - KissManga, MangaJoy, BatotoIIII
+	 - 15:43 <Sola> Himouto! Umaru-chan - Batoto, KissMangaIII
+	 - 15:43 <Sola> Hirunaka no Ryuusei - MangaJoy, BatotoIIII
+	 - 15:43 <Sola> Karate Shoukoushi Kohinata Minoru - Batoto, KissMangaIIII
+	 - 15:43 <Sola> Kero Kero Chime - Batoto, KissMangaIIII
+	 - 15:43 <Sola> Magical Exam Student - Webtoons.com, KissManga, MangaJoyIIII
+	 - 15:43 <Sola> Maken-Ki! - Batoto, KissMangaIIII
+	 - 15:43 <Sola> Metronome - Batoto, KissMangaIIII
+	 - 15:43 <Sola> Nanatsu no Taizai - Crunchyroll, Batoto, KissMangaIIII
+	 - 15:43 <Sola> Noah - Batoto, MangaJoyII
+	 - 15:43 <Sola> Noragami - MangaJoy, KissMangaIIII
+	 - 15:43 <Sola> Okitenemuru - Crunchyroll, KissMangaIIII
+	 - 15:43 <Sola> Ore ga Ojou-sama - MangaJoy, BatotoIIII
+	 - 15:43 <Sola> Pure-Mari - Batoto, KissManga, MangaJoyIIII
+	 - 15:43 <Sola> Sailor Fuku, Tokidoki Apron - MangaBox, MangaJoyIIII
+	 - 15:43 <Sola> Senyuu. - Batoto, KissManga, MangaJoyIIII
+	 - 15:43 <Sola> Soul Cartel - KissManga, MangaCowIII
+	 - 15:43 <Sola> Tonari no Kashiwagi-san Batoto, MangaJoyIIII
+	 - 15:43 <Sola> Tonari no Seki-kun - Batoto, MangaJoyIIII
+	 - 15:43 <Sola> Yamada-kun to 7-nin no Majo - Crunchyroll, MangaJoy, KissMangaIIII
+
+
+
+
+
+
+
+
+
 <b>Complete:</b>
+ - ~~Delete items via web interface!~~
+ - ~~sort all by rating~~ Had already done it. Huh.
+ - ~~highlight chapters < 10~~
  - ~~Deduper not blocking queries while tree is rebuilt~~
  - ~~special case bolding so it only applies in aggregate views~~
  - ~~crawl all batoto~~

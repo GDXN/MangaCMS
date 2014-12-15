@@ -174,18 +174,11 @@ def ratingStrToInt(inStr):
 
 def ratingStrToFloat(inStr):
 
-
 	pos = inStr.count("+")
 	neg = inStr.count("-")
 	half = inStr.count("~")
 
 	return (pos - neg) + (half * 0.5)
-
-def extractRatingToInt(inStr):
-	dummy, rating, dummy = extractRating(inStr)
-	if not rating:
-		return 0
-	return ratingStrToInt(rating)
 
 def extractRatingToFloat(inStr):
 	dummy, rating, dummy = extractRating(inStr)
@@ -778,6 +771,7 @@ class DirNameProxy(object):
 
 
 		# print("Rating change call!")
+		newRating, remainder = int(newRating), int((newRating%1)*2)
 		if newRating > 0 and newRating <= 5:
 			ratingStr = "+"*newRating
 		elif newRating == 0:
@@ -786,6 +780,8 @@ class DirNameProxy(object):
 			ratingStr = "-"*abs(newRating)
 		else:
 			raise ValueError("Invalid rating value!")
+		if remainder:
+			ratingStr += "~"
 
 		if len(ratingStr):
 			ratingStr = " [{rat}] ".format(rat=ratingStr)

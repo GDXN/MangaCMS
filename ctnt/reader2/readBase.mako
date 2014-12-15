@@ -365,13 +365,18 @@ def dequoteDict(inDict):
 			# print("Item rating = ", rtng)
 			%>
 			<select name="rating" id="rating" onchange="ratingChange(this.value)">
-				<option value="-1" ${"selected='selected''" if rtng == "-"     else ""}>-     </option>
-				<option value="0"  ${"selected='selected''" if rtng == ""      else ""}>NR    </option>
-				<option value="1"  ${"selected='selected''" if rtng == "+"     else ""}>+     </option>
-				<option value="2"  ${"selected='selected''" if rtng == "++"    else ""}>++    </option>
-				<option value="3"  ${"selected='selected''" if rtng == "+++"   else ""}>+++   </option>
-				<option value="4"  ${"selected='selected''" if rtng == "++++"  else ""}>++++  </option>
-				<option value="5"  ${"selected='selected''" if rtng == "+++++" else ""}>+++++ </option>
+				<option value="-1"   ${"selected='selected''" if rtng == "-"     else ""}>-     </option>
+				<option value="0"    ${"selected='selected''" if rtng == ""      else ""}>NR    </option>
+				<option value="0.5"  ${"selected='selected''" if rtng == "~"     else ""}>~     </option>
+				<option value="1"    ${"selected='selected''" if rtng == "+"     else ""}>+     </option>
+				<option value="1.5"  ${"selected='selected''" if rtng == "+~"    else ""}>+~    </option>
+				<option value="2"    ${"selected='selected''" if rtng == "++"    else ""}>++    </option>
+				<option value="2.5"  ${"selected='selected''" if rtng == "++~"   else ""}>++~   </option>
+				<option value="3"    ${"selected='selected''" if rtng == "+++"   else ""}>+++   </option>
+				<option value="3.5"  ${"selected='selected''" if rtng == "+++~"  else ""}>+++~  </option>
+				<option value="4"    ${"selected='selected''" if rtng == "++++"  else ""}>++++  </option>
+				<option value="4.5"  ${"selected='selected''" if rtng == "++++~" else ""}>++++~ </option>
+				<option value="5"    ${"selected='selected''" if rtng == "+++++" else ""}>+++++ </option>
 			</select>
 			<span id="rating-status">✓</span>
 		</div>

@@ -10,7 +10,6 @@ import archCleaner
 
 import runStatus
 
-import deduplicator.dupCheck as deduper
 from ScrapePlugins.HBrowseLoader.Run import Runner
 from ScrapePlugins.HBrowseLoader.hbrowseDbLoader import HBrowseDbLoader
 from ScrapePlugins.HBrowseLoader.hbrowseContentLoader import HBrowseContentLoader

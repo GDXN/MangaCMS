@@ -9,6 +9,9 @@ import logging
 import json
 import settings
 import urllib.parse
+import os.path
+import os
+import shutil
 
 class ApiInterface(object):
 
@@ -21,6 +24,7 @@ class ApiInterface(object):
 	def updateSeries(self, request):
 
 		inserter = DbManagement.MonitorTool.Inserter()
+
 		ret = ""
 		# Sooooo hacky. Using **{dict} crap in ALL THE PLACES
 
@@ -91,9 +95,9 @@ class ApiInterface(object):
 		newRating = request.params["new-rating"]
 
 		try:
-			newRating = int(newRating)
+			newRating = float(newRating)
 		except ValueError:
-			return Response(body=json.dumps({"Status": "Failed", "Message": "New rating was not a integer!"}))
+			return Response(body=json.dumps({"Status": "Failed", "Message": "New rating was not a number!"}))
 
 		if not mangaName in nt.dirNameProxy:
 			return Response(body=json.dumps({"Status": "Failed", "Message": "Specified Manga Name not in dir-dict."}))
@@ -156,6 +160,41 @@ class ApiInterface(object):
 		return Response(body=json.dumps({"Status": "Success", "contents": ret}))
 
 
+	def deleteItem(self, request):
+
+		srcDict = request.params['src-dict']
+		srcText = request.params['src-path']
+
+		srcPathBase = settings.mangaFolders[int(srcDict)]['dir']
+		srcPathFrag = urllib.parse.unquote(srcText)
+		print(srcPathBase)
+		print(srcPathFrag)
+		fqPath = os.path.join(srcPathBase, srcPathFrag)
+
+		if not os.path.exists(fqPath):
+			return Response(body=json.dumps({"Status": "Failed", "contents": "Item does not exist?"}))
+
+		if not os.path.exists(settings.recycleBin):
+			os.mkdir(settings.recycleBin)
+
+
+		dst = fqPath.replace("/", ";")
+		dst = os.path.join(settings.recycleBin, dst)
+		self.log.info("Moving item from '%s'", fqPath)
+		self.log.info("              to '%s'", dst)
+		try:
+			shutil.move(fqPath, dst)
+			# self.addTag(fqPath, "manually-deleted")
+
+		except OSError:
+			self.log.error("ERROR - Could not move file!")
+			self.log.error(traceback.format_exc())
+			return Response(body=json.dumps({"Status": "Failed", "contents": 'Could not move file?'}))
+
+
+		return Response(body=json.dumps({"Status": "Success", "contents": 'Item moved to recycle bin!'}))
+
+
 	def handleApiCall(self, request):
 
 		self.log.info("API Call! %s", request.params)
@@ -167,17 +206,19 @@ class ApiInterface(object):
 		if "change-rating" in request.params:
 			self.log.info("Rating change!")
 			return self.changeRating(request)
-
 		elif "update-series" in request.params:
 			self.log.info("Update series!")
 			return self.updateSeries(request)
-
 		elif "reset-download" in request.params:
 			self.log.info("Download Reset!")
 			return self.resetDownload(request)
 		elif "trigram-query-query-str" in request.params and "trigram-query-linktext" in request.params:
 			self.log.info("Trigram query existence check")
 			return self.getTrigramSearch(request)
+		elif 'delete-item' in request.params:
+			return self.deleteItem(request)
 
 		else:
+			self.log.warning("Unknown API call")
+			self.log.warning("Call params: '%s'", request.params)
 			return Response(body="wat?")

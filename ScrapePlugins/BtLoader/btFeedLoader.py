@@ -33,9 +33,9 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	tableName = "MangaItems"
 
-	urlBase = "http://www.batoto.net/"
+	urlBase = "http://www.bato.to/"
 
-	feedUrl = "http://www.batoto.net/?p=%d"
+	feedUrl = "http://www.bato.to/?p=%d"
 
 
 	def closeDB(self):

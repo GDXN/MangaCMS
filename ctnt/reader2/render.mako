@@ -94,13 +94,52 @@ import re
 	else:
 		dirContents = natsorted(tmp)
 	%>
+	<script>
 
+		function ajaxCallback(reqData, statusStr, jqXHR)
+		{
+			console.log("Ajax request succeeded");
+			console.log(reqData);
+			console.log(statusStr);
+
+			var status = $.parseJSON(reqData);
+			console.log(status)
+			if (status.Status == "Success")
+			{
+				alert("Item deleted!")
+				location.reload();
+			}
+			else
+			{
+				alert("ERROR!\n"+status.Message)
+			}
+
+		};
+
+		function deleteItem(dict, urlPath)
+		{
+
+			var go = confirm("Delete item '"+decodeURIComponent(urlPath)+"'")
+			if (go)
+			{
+				var ret = ({});
+				ret["delete-item"] = true;
+				ret["src-dict"] = dict;
+				ret["src-path"] = urlPath;
+
+				$.ajax("/api", {"data": ret, success: ajaxCallback});
+				alert("New value - "+newRating);
+
+			}
+		}
+	</script>
 	<table border="1px" class="mangaFileTable">
 		<tr>
 			<th class="uncoloured" style='width:30'>Vol</th>
 			<th class="uncoloured" style='width:30'>Chp</th>
 			<th class="uncoloured">${dirPath}</th>
 			<th class="uncoloured" style='width:52'>Size</th>
+			<th class="uncoloured" style='width:32'>Del</th>
 		</tr>
 
 		% for vol, chap, item, size in dirContents:
@@ -114,10 +153,11 @@ import re
 				urlPath = [urllib.parse.quote(bytes(item, 'utf-8')) for item in urlPath]
 				urlPath = "/".join(urlPath)
 				%>
-				<td>${str(vol).rstrip('0').rstrip('.') if vol < 990 else ''}</td>
-				<td>${str(chap).rstrip('0').rstrip('.')}</td>
+				<td>${str(vol).rstrip('0').rstrip('.') if vol < 990 and vol > 0 else ''}</td>
+				<td>${str(chap).rstrip('0').rstrip('.') if chap > 0 else ''}</td>
 				<td><a href="/reader2/browse/${dictKey}/${urlPath}">${item}</a></td>
 				<td>${size}</td>
+				<td><a id="LinkTest" title="Any Title"  href="#" onclick="deleteItem('${dictKey}', '${urlPath}'); return false; ">Del</a></td>
 			</tr>
 		% endfor
 		 <div style="clear:both"></div>
