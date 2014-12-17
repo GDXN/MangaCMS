@@ -24,7 +24,10 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 	threads = 1
 
 
-	startUrl = "https://docs.google.com/document/d/1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM/preview"
+	startUrl = [
+		"https://docs.google.com/document/d/1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM/preview",
+		"https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview"
+		]
 	baseUrl = "https://docs.google.com/document/"
 
 	badwords = []
@@ -125,8 +128,14 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 		extr = gdp.GDocExtractor(url)
 
 		attempts = 0
+
+		mainPage = None
 		while 1:
-			mainPage, resources = extr.extract()
+			try:
+				mainPage, resources = extr.extract()
+			except TypeError:
+				self.log.critical('Extracting item failed!')
+				continue
 			if mainPage:
 				break
 			attempts += 1

@@ -351,7 +351,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.resetStuckItems()
 
 		haveUrls = set()
-		self.upsert(self.startUrl, dlstate=0)
+		if isinstance(self.startUrl, list): 
+			for url in self.startUrl:
+				self.upsert(url, dlstate=0)
+		else:
+			self.upsert(self.startUrl, dlstate=0)
 
 		with ThreadPoolExecutor(max_workers=self.threads) as executor:
 
