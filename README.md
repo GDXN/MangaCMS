@@ -42,6 +42,7 @@ Plugin scrapers for:
 	 - IRC Channel Triggers:
 		 - Cat Scans: #CATscans
 		 - Renzokusei Scans: #renzokusei 
+		 - Anything in any channel MOTD on Irchighway.
 
  - Hentai Sites:
 	 - Fakku

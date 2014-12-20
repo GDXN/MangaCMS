@@ -1,6 +1,7 @@
 
 Todo:
 
+ - Damaged Archive remover
 
  - ~~readability performance~~ The problem is entirely levenshtein distance calculation. Huh.
  - info table position when multiple sources
@@ -136,6 +137,7 @@ Bad MangaUpdates Links:
  - ~~Everything is getting sorted into '[zion]'~~ Fixed, it was a scraper bug. Derp
 
 
+Things to search for:
 
 Partial series:
 	 - 15:14 -!- Irssi: Starting query in Rizon with Sola

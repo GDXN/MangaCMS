@@ -7,7 +7,7 @@ import logging
 import traceback
 import os.path
 import ScrapePlugins.RetreivalDbBase
-
+import settings
 
 PHASH_DISTANCE = 2
 
@@ -17,8 +17,6 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	pluginName = 'Download Processor'
 
 	loggerPath = 'Main.DlProc'
-
-
 	tableKey = 'n/a'
 
 
@@ -68,7 +66,6 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.addTags(dbId=srcId, tags='crosslink-{dbId}'.format(dbId=dstId), limitByKey=False)
 				self.addTags(dbId=dstId, tags='crosslink-{dbId}'.format(dbId=dstId), limitByKey=False)
 				self.log.info("Found destination row. Cross-linking!")
-
 				return
 
 		self.log.warn("Cross-referencing file failed!")
@@ -99,76 +96,29 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			deduper = None
 			print("No deduplication tools installed.")
 
-
-		log = logging.getLogger("Main.ArchProc")
-
-		if moveToPath:
-			retTags = ""
-		else:
-			print("Hashing?")
-			archCleaner = ac.ArchCleaner()
-			try:
-				retTags, archivePath = archCleaner.processNewArchive(archivePath, **kwargs)
-			except Exception:
-				self.log.critical("Error processing archive '%s'", archivePath)
-				self.log.critical(traceback.format_exc())
-				retTags = "corrupt unprocessable"
-
-
-		log = logging.getLogger("Main.DlProc")
+		# Can't do anything if the deduper isn't alive
 		if not deduper:
-			self.log.warning("No deduplication interface!")
+			return ''
 
-		if deduper:
-			self.log.info("Scanning archive")
+		# Limit dedup matches to the served directories.
+		pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
 
-			# load the context of the directory (if needed)
-			dirPath = os.path.split(archivePath)[0]
+		# Let the remote deduper do it's thing.
+		# It will delete duplicates automatically.
+		dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
+		retTags, bestMatch = dc.process(moveToPath=moveToPath)
 
-			try:
 
-				dc = deduplicator.archChecker.ArchChecker(archivePath)
+		if bestMatch:
+			isPhash = False
+			if "phash-duplicate" in retTags:
+				isPhash = True
+			self.crossLink(archivePath, bestMatch, isPhash=isPhash)
 
-				if deleteDups:
-					# check hash first, then phash. That way, we get tagging that
-					# indicates what triggered the removal.
-
-					bestMatch = dc.getBestBinaryMatch()
-					if includePHash and not bestMatch:
-						phashMatch = dc.getBestPhashMatch(phashThresh)
-					else:
-						phashMatch = False
-
-					# print("Best  match", bestMatch)
-					# print("PHash match", phashMatch)
-
-					if bestMatch:
-						self.log.warning("Archive not binary unique: '%s'", archivePath)
-						self.crossLink(archivePath, bestMatch, isPhash=False)
-						dc.deleteArch(moveToPath=moveToPath)
-						retTags += " deleted was-duplicate"
-
-					elif phashMatch:
-						self.log.warning("Archive not phash unique: '%s'", archivePath)
-						self.crossLink(archivePath, phashMatch, isPhash=True)
-						dc.deleteArch(moveToPath=moveToPath)
-						retTags += " deleted was-duplicate phash-duplicate"
-					else:
-						self.log.info("Archive Contains unique files. Leaving alone!")
-
-				if not retTags and not moveToPath:
-					self.log.info("Adding archive to database.")
-					dc.addNewArch()
-
-			except Exception:
-				self.log.error("Error when doing archive hash-check!")
-				self.log.error(traceback.format_exc())
-				retTags += " damaged"
 
 		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
 		# Also, don't upload porn
-
 		if (not self.pron) and (not retTags) and seriesName:
 			try:
 				self.log.info("Trying to upload file '%s'.", archivePath)
@@ -219,3 +169,9 @@ if __name__ == "__main__":
 
 	import logSetup
 	logSetup.initLogging()
+
+	import sys
+
+	if len(sys.argv) > 1:
+		processDownload(seriesName=None, archivePath=[sys.argv[1]])
+
