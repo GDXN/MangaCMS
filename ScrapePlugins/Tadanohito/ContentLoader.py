@@ -39,6 +39,48 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	outOfCredits = False
 
 
+
+
+	# -----------------------------------------------------------------------------------
+	# Login Management tools
+	# -----------------------------------------------------------------------------------
+
+
+	def checkLogin(self):
+
+		getPage = self.wg.getpage(r"http://www.tadanohito.net/news.php")
+		if "Welcome, {username}".format(username=settings.tadanohito["login"]) in getPage:
+			self.log.info("Still logged in")
+			return
+		else:
+			self.log.info("Whoops, need to get Login cookie")
+
+		logondict = {
+			"user_name"   : settings.tadanohito["login"],
+			"user_pass"   : settings.tadanohito["passWd"],
+			"remember_me" : "y",
+			"login"       : "Login"
+			}
+
+
+		getPage = self.wg.getpage(r"http://www.tadanohito.net/news.php", postData=logondict)
+		if "Welcome, {username}".format(username=settings.tadanohito["login"]) in getPage:
+			self.log.info("Logged in successfully!")
+		elif "You are now logged in as:" in getPage:
+			self.log.error("Login failed!")
+
+		self.wg.saveCookies()
+
+	def setup(self):
+		self.checkLogin()
+
+
+	# -----------------------------------------------------------------------------------
+	# The scraping parts
+	# -----------------------------------------------------------------------------------
+
+
+
 	def getUploadTime(self, dateStr):
 		# ParseDatetime COMPLETELY falls over on "YYYY-MM-DD HH:MM" formatted strings. Not sure why.
 		# Anyways, dateutil.parser.parse seems to work ok, so use that.
@@ -211,6 +253,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 				sleeptime = random.randint(10,60*15)
 			else:
+				self.log.warning("Could not find direct download link!")
 				sleeptime = 5
 
 

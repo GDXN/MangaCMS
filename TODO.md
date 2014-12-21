@@ -1,5 +1,18 @@
+New LN Trans groups:
+ - http://www.princerevolution.org/
+ - http://solitarytranslation.wordpress.com/
+ - http://krytykal.org/
+ - Series system: http://lndb.info/
+
+ - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 Todo:
+ - h rating system
+ - gin on h tags
+ - deduper expose get matching archives for spiral
+ - del json response undefined
+ - volume regex for highlighting misbehaving
+
 
  - Damaged Archive remover
 
@@ -192,6 +205,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~Tadanohito cl sync cookies before run~~
  - ~~Delete items via web interface!~~
  - ~~sort all by rating~~ Had already done it. Huh.
  - ~~highlight chapters < 10~~

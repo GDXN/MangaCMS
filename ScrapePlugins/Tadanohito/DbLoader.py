@@ -126,16 +126,8 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.processLinksIntoDB(dat)
 
 
-def login():
-
-	run = DbLoader()
-	# run.checkLogin()
-	# run.checkExAccess()
-	for x in range(10):
-		ret = run.getFeed(settings.sadPanda['sadPandaSearches'][0], pageOverride=x)
-		run.processLinksIntoDB(ret)
-	# run.go()
-
+# Base url for items?
+# http://www.tadanohito.net/infusions/pro_download_panel/download.php
 
 if __name__ == "__main__":
 	import utilities.testBase as tb

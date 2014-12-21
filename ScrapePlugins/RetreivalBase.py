@@ -111,6 +111,8 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def go(self):
+		if hasattr(self, 'setup'):
+			self.setup()
 
 		todo = self.retreiveTodoLinksFromDB()
 		if not runStatus.run:
