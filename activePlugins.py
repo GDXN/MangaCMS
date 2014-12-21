@@ -45,6 +45,10 @@ import TextScrape.JapTem.Run
 import TextScrape.Guhehe.Run
 import TextScrape.ReTranslations.Run
 
+import TextScrape.SolitaryTranslation.Run
+import TextScrape.PrinceRevolution.Run
+import TextScrape.Krytyk.Run
+
 import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
 
@@ -100,8 +104,13 @@ scrapePlugins = {
 
 	510 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
 	511 : (TextScrape.JapTem.Run,                          60*60*24*5),
-	513 : (TextScrape.Guhehe.Run,                          60*60*24*5),
-	512 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+	512 : (TextScrape.Guhehe.Run,                          60*60*24*5),
+	513 : (TextScrape.SolitaryTranslation.Run,             60*60*24*5),
+	514 : (TextScrape.PrinceRevolution.Run,                60*60*24*5),
+	515 : (TextScrape.Krytyk.Run,                          60*60*24*5),
+
+	520 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+
 
 
 }

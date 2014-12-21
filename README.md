@@ -52,11 +52,14 @@ Plugin scrapers for:
 	 - HBrowse
 	 - Exhentai/SadPanda
 	 - Tadanohito
- - Light Novels:
+ - Light Novels Sites:
 	 - Baka-Tsuki 
 	 - JapTem
 	 - Re:Translations
 	 - Guhehe
+	 - Solitary Translations
+	 - Prince Revolution
+	 - Krytykal.org
  - Metadata:
 	 - MangaUpdates (metadata only).
  - Defunct:

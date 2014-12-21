@@ -1,7 +1,6 @@
 New LN Trans groups:
- - http://www.princerevolution.org/
- - http://solitarytranslation.wordpress.com/
- - http://krytykal.org/
+
+
  - Series system: http://lndb.info/
 
  - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
@@ -105,6 +104,9 @@ Long Term:
 	 - ~~Re:Translations (Note: Will mean I'll have to interface with Google Docs - Interesting challenge?)~~ Just used the HTML export feature. Laaaaazy
 	 - ~~Baka-Tsuki~~
 	 - ~~JapTem~~
+	 - ~~http://www.princerevolution.org~~
+	 - ~~http://solitarytranslation.wordpress.com/~~
+	 - ~~http://krytykal.org/~~
 
 <b>Reader</b>
 
