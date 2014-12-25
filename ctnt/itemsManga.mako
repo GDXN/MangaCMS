@@ -19,6 +19,7 @@ import urllib.parse
 <%namespace name="tableGenerators" file="gentable.mako"/>
 <%namespace name="sideBar"         file="gensidebar.mako"/>
 <%namespace name="ap"              file="activePlugins.mako"/>
+<%namespace name="fetchTable"      file="fetchtable.mako"/>
 
 
 <%
@@ -108,8 +109,9 @@ else:
 				<div class="contentdiv">
 					<h3>${sourceName}${ " - (Only distinct)" if onlyDistinct else ""}</h3>
 					<a href="itemsManga?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsManga?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
-					${tableGenerators.genLegendTable()}
-					${tableGenerators.genMangaTable(tableKey=sourceFilter, limit=limit, offset=offset, distinct=onlyDistinct)}
+					## ${tableGenerators.genLegendTable()}
+					## ${tableGenerators.genMangaTable(tableKey=sourceFilter, limit=limit, offset=offset, distinct=onlyDistinct)}
+					${fetchTable.getMangaTable()}
 				</div>
 
 				% if pageNo > 0:

@@ -92,9 +92,22 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			deduper = True
 			print("Have file deduplication interface. Doing download duplicate checking!")
-		except:
+		except Exception:
 			deduper = None
 			print("No deduplication tools installed.")
+
+		if moveToPath:
+			retTags = ""
+		else:
+			print("Hashing?")
+			archCleaner = ac.ArchCleaner()
+			try:
+				retTags, archivePath = archCleaner.processNewArchive(archivePath, **kwargs)
+			except Exception:
+				self.log.critical("Error processing archive '%s'", archivePath)
+				self.log.critical(traceback.format_exc())
+				retTags = "corrupt unprocessable"
+
 
 		# Can't do anything if the deduper isn't alive
 		if not deduper:
@@ -106,8 +119,9 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# Let the remote deduper do it's thing.
 		# It will delete duplicates automatically.
 		dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
-		retTags, bestMatch = dc.process(moveToPath=moveToPath)
-
+		retTagsTmp, bestMatch = dc.process(moveToPath=moveToPath)
+		retTags += " " + retTagsTmp
+		retTags = retTags.strip()
 
 		if bestMatch:
 			isPhash = False
@@ -130,7 +144,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.log.error("Uploading file failed! Unknown Error!")
 				self.log.error(traceback.format_exc())
 		else:
-			self.log.info("File not slated for upload: '%s'", archivePath)
+			self.log.info("File not slated for upload: '%s' (tags: '%s')", archivePath, retTags)
 
 		if retTags:
 			self.log.info("Applying tags to archive: '%s'", retTags)

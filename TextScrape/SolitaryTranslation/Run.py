@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.SolTransScrape.Scrape import Scrape
+from TextScrape.SolitaryTranslation.Scrape import Scrape
 
 import ScrapePlugins.RunBase
 

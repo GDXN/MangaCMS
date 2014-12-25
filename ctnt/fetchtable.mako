@@ -5,10 +5,15 @@
 
 <%namespace name="ap"              file="activePlugins.mako"/>
 
-<%def name="getMangaTable()">
 
+<%def name="getMangaTable(tableKey=None, distinct=True, limit=200, boldNew=True, offset=0)">
+	<%
+	# You can't have 'ap.attr.inHomepageMangaTable' as the default value in a mako function, apparently
+	if tableKey == None:
+		tableKey = ap.attr.inHomepageMangaTable
+	%>
 	${tableGenerators.genLegendTable()}
-	${tableGenerators.genMangaTable(tableKey=ap.attr.inHomepageMangaTable, distinct=True, limit=200, boldNew=True)}
+	${tableGenerators.genMangaTable(tableKey=tableKey, distinct=distinct, limit=limit, offset=offset, boldNew=boldNew)}
 
 </%def>
 

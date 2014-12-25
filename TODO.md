@@ -1,11 +1,13 @@
 New LN Trans groups:
 
-
  - Series system: http://lndb.info/
 
  - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 Todo:
+ - h search in bu list page
+ - Low-Num highlight in mangaonly view
+ - filter rating view by crosslink status
  - h rating system
  - gin on h tags
  - deduper expose get matching archives for spiral
