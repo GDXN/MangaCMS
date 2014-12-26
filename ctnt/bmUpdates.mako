@@ -152,7 +152,16 @@ seriesCols = (
 		<tr>
 			<td class="padded">${dataDict["mangaID"]}</td>
 			<td class="padded">${name}</td>
-			<td class="padded">${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else "None"}</td>
+			<td class="padded">
+				${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else "None"}
+
+				% if 'hentai' in (str(dataDict['tags'])+str(dataDict['genre'])).lower():
+					<span style='float:right'>
+						${ut.createHentaiSearch("Hentai Search", name)}
+					</span>
+				% endif
+
+			</td>
 
 			% if haveRating == "Unrated":
 				<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NR</td>
@@ -232,7 +241,9 @@ def getItemsInLists():
 			seriesTable.availprogress,
 			seriesTable.readingprogress,
 			seriesTable.buname,
-			seriesTable.bulist
+			seriesTable.bulist,
+			seriesTable.butags,
+			seriesTable.bugenre,
 		)
 
 	query = seriesTable.select(*cols)
@@ -248,7 +259,7 @@ def getItemsInLists():
 
 	ret = []
 
-	tableTopology = ("mangaID", "currentChapter", "readChapter", "seriesName", "listName")
+	tableTopology = ("mangaID", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre')
 	for item in buItems:
 		tmp = dict(zip(tableTopology, item))
 

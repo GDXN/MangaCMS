@@ -75,6 +75,8 @@ import re
 
 	dirContents = os.listdir(dirPath)
 
+	# If there are more then three "chapter 1" files, sort by volume, and then chapter, otherwise,
+	# just sort by chapter.
 	VOL_THRESHOLD = 3
 
 	# print(dirContents, dirPath)
@@ -294,7 +296,6 @@ import re
 
 
 	# Ok, we're not in key mode 0, and we have a valid key. Look it up, and render it.
-
 	if not dictIndice in settings.mangaFolders.keys():
 		reader.invalidKey(message="Specified container path is not valid!")
 		return

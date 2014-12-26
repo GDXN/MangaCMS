@@ -5,32 +5,19 @@ New LN Trans groups:
  - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 Todo:
- - h search in bu list page
- - Low-Num highlight in mangaonly view
+
  - filter rating view by crosslink status
  - h rating system
- - gin on h tags
  - deduper expose get matching archives for spiral
- - del json response undefined
- - volume regex for highlighting misbehaving
-
-
- - Damaged Archive remover
-
  - ~~readability performance~~ The problem is entirely levenshtein distance calculation. Huh.
  - info table position when multiple sources
  - volumeifacator
-
  - Proper to-download series system
-
  - autotrim empty dirs
-
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
-
  - base nt off muid system
  - ability to browse dirs by mu list cross-link
-
  - select 201 to determine next page
  - add half star rating options
  - h tag collation system
@@ -209,6 +196,11 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~h search in bu list page~~ Hopefully the trigram search load won't cause issues.
+ - ~~Damaged Archive remover~~ Implemented.
+ - ~~del json response undefined~~, AFICT, this is just IE11's `alert()` behaviour being bizarre on ARM.
+ - ~~Low-Num highlight in mangaonly view~~
+ - ~~gin on h tags~~  (Already done)
  - ~~Tadanohito cl sync cookies before run~~
  - ~~Delete items via web interface!~~
  - ~~sort all by rating~~ Had already done it. Huh.
