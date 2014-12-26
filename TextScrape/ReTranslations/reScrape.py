@@ -140,7 +140,7 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 				break
 			attempts += 1
 			if attempts > 3:
-				return
+				raise TextScrape.TextScrapeBase.DownloadException
 
 
 		self.fMap = {}

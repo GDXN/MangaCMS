@@ -31,7 +31,8 @@ import nameTools
 
 from contextlib import contextmanager
 
-
+class DownloadException(Exception):
+	pass
 
 @contextmanager
 def transaction(cursor, commit=True):
@@ -333,6 +334,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 						content += "<br>"
 						content += traceback.format_exc()
 						self.upsert(url, dlstate=-1, contents=content)
+					except DownloadException:
+						content = "DOWNLOAD FAILED"
+						content += "<br>"
+						content += traceback.format_exc()
+						self.upsert(url, dlstate=-1, contents=content)
 
 
 				else:
@@ -351,7 +357,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.resetStuckItems()
 
 		haveUrls = set()
-		if isinstance(self.startUrl, list): 
+		if isinstance(self.startUrl, list):
 			for url in self.startUrl:
 				self.upsert(url, dlstate=0)
 		else:
