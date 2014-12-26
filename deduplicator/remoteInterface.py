@@ -11,7 +11,7 @@ def go():
 	print("exiting")
 
 
-class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class RemoteInt(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.DirDedup"
 	tableName  = "MangaItems"
 
@@ -24,8 +24,13 @@ class PCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def __init__(self):
 
 		self.remote = rpyc.connect("localhost", 12345)
-		self.db = self.remote.root.DbApi()
+
 		super().__init__()
+
+	def reloadTree(self):
+		self.log.warning("Forcing reload of phash tree. Search functionality will block untill load is complete.")
+		self.remote.root.reloadTree()
+		self.log.warning("Tree reloaded!")
 
 	def go(self):
 		pass
@@ -90,9 +95,9 @@ def pClean(targetDir, removeDir):
 
 def treeReload():
 
-	cleaner = PCleaner()
+	remote = RemoteInt()
 	print("Connected. Forcing reload")
-	cleaner.db.forceReload()
+	remote.reloadTree()
 	print("Complete")
 
 
