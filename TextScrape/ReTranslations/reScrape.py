@@ -131,14 +131,13 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 
 		mainPage = None
 		while 1:
+			attempts += 1
 			try:
 				mainPage, resources = extr.extract()
 			except TypeError:
 				self.log.critical('Extracting item failed!')
-				continue
 			if mainPage:
 				break
-			attempts += 1
 			if attempts > 3:
 				raise TextScrape.TextScrapeBase.DownloadException
 
