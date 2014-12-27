@@ -62,7 +62,7 @@ class PageResource(object):
 	def __init__(self):
 		self.base_directory = settings.webCtntPath
 		# self.dirProxy = nameTools.DirNameProxy(settings.mangaFolders)
-		self.dbPath = settings.dbName
+		self.dbPath = settings.DATABASE_DB_NAME
 		self.lookupEngine = TemplateLookup(directories=[self.base_directory], module_directory='./ctntCache', strict_undefined=True)
 
 		self.openDB()

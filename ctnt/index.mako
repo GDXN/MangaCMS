@@ -1,11 +1,10 @@
 ## -*- coding: utf-8 -*-
 <!DOCTYPE html>
 
-
-<%namespace name="tableGenerators" file="gentable.mako"/>
 <%namespace name="sideBar"         file="gensidebar.mako"/>
 <%namespace name="ut"              file="utilities.mako"/>
 <%namespace name="ap"              file="activePlugins.mako"/>
+<%namespace name="tableGenerators" file="gentable.mako"/>
 
 <html>
 <head>

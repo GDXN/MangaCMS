@@ -193,6 +193,7 @@ postgres=# CREATE DATABASE mangacms;
 CREATE DATABASE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE mangacms to mangacmsuser;
 GRANT
+CREATE EXTENSION citext;
 
 ```
 
@@ -208,6 +209,11 @@ You also have to add the line
 
 to `/etc/postgresql/9.3/main/pg_hba.conf`, to allow local connections to the 
 postgres database with password auth.
+
+Once you have the above complete, you will want to run the bootstrap script `firstRun.py` to do the database setup. After that, you should be able to run `mainScrape` without issues.
+
+If you don't want all the plugins to run, you can disable them by commenting them out in `activePlugins.py`. The plugins that will run are in the dictionary `scrapePlugins` in that file. 
+Just comment out any plugin you don't want running.
 
 
 
