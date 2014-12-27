@@ -383,11 +383,11 @@ class MtNamesMapWrapper(object):
 	dbPath = settings.dbName
 
 	modes = {
-		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'munamelist'},
-		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'munamelist'},
-		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'munamelist'},
-		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'mangaseries'},
-		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'mangaseries'}
+		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'munamelist',  'failOnMissing' : True},
+		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'munamelist',  'failOnMissing' : True},
+		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'munamelist',  'failOnMissing' : True},
+		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'mangaseries', 'failOnMissing' : True},
+		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'mangaseries', 'failOnMissing' : True}
 	}
 
 	loaded = False

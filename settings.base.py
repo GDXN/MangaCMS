@@ -6,23 +6,36 @@ Add your username + password for each site.
 Yes, this is all stored in plaintext. It's not high security.
 You are not using the same password everywhere anyways, .... right?
 
+# Your postgres SQL database credentials for the primary database.
+# the DATABASE_USER must have write access to the database DATABASE_DB_NAME
+DATABASE_USER    = "MangaCMSUser"
+DATABASE_PASS    = "password"
+DATABASE_DB_NAME = "MangaCMS"
+DATABASE_IP      = "127.0.0.1"
+# Note that a local socket will be tried before the DATABASE_IP value, so if DATABASE_IP is
+# invalid, it may work anyways.
+
+
 # Note: Paths have to be absolute.
 pickedDir        = r"/SOMETHING/MP"
-newDir           = r"/SOMETHING/MN"
 baseDir          = r"/SOMETHING/Manga/"
 
-#
+# The directory "Context" of all the hentai items.
+# This determines the path mask that will be used when deduplicating 
+# hentai items.
+# If you aren't running the deduper, just specify something basic, like "/"
+mangaCmsHContext = r"/SOMETHING/H/"
 fufuDir          = r"/SOMETHING/H/Fufufuu"
 djMoeDir         = r"/SOMETHING/H/DjMoe"
-puRinDir         = r"/SOMETHING/H/Pururun"
+puRinDir         = r"/SOMETHING/H/Pururin"
 ExhenMadokamiDir = r"/SOMETHING/H/ExhenMadokami"
 fkDir            = r"/SOMETHING/H/Fakku"
 hbDir            = r"/SOMETHING/H/H-Browse"
 nhDir            = r"/SOMETHING/H/N-Hentai"
 spDir            = r"/SOMETHING/H/ExHentai"
+tadanohitoDir    = r"/SOMETHING/H/Tadanohito"
 
 # Paths for database and web content
-dbName           = '/SOMETHING/MangaCMS/links.db'
 webCtntPath      = '/SOMETHING/MangaCMS/ctnt'
 bookCachePath    = '/SOMETHING/MangaCMS/BookCache'
 
@@ -37,11 +50,11 @@ badImageDir  = r"/SOMETHING/MangaCMS/removeImages"
 # You must have https://github.com/fake-name/IntraArchiveDeduplicator somewhere,
 # and have allowed it to build a database of the extant local files for it to
 # be of any use.
-dedupApiFile = '/SOMETHING/Deduper/dbApi.py'
-fileHasher   = '/SOMETHING/Deduper/hashFile.py'
+# TODO: Allow remote deduper addresses (right now, localhost is assumed).
 
 # Folders to scan for folders to use as download paths.
 # Directories are scanned by sorted keys
+# the key 0 is special, and should not be used.
 mangaFolders = {
 	1 : {
 			"dir" : pickedDir,
@@ -49,24 +62,30 @@ mangaFolders = {
 			"lastScan" : 0
 		},
 	10 : {
-			"dir" : newDir,
+			"dir" : baseDir,
 			"interval" : 5,
 			"lastScan" : 0
 		},
-	# Keys above 100 are not included in normal directory search behaviour
-	100 : {
-			"dir" : baseDir,
-			"interval" : 45,
-			"lastScan" : 0
-		}
+	# Keys above 100 are not included in normal directory search behaviour when 
+	# deciding where to place downloaded files (e.g. downloads will never be placed
+	# in a directory with a key >= 100)
+	#100 : {
+	#		"dir" : baseDir,
+	#		"interval" : 45,
+	#		"lastScan" : 0
+	#	}
 }
 
 
 ratingsSort = {
-	"thresh"  : 5,
+	"thresh"  : 2,    # At or greater then what rating is the automover is triggered.
 	"tokey"   : 1,
 	"fromkey" : [10, 12],
 }
+
+# How long should entries in the logging table be kept for?
+# Units are in seconds
+maxLogAge = 60*60*24*3  # Keep logs for 3 days
 
 # Check that the ratingsSort values are valid by verifying they
 # map to key present in the mangaVolders dict.
@@ -89,27 +108,18 @@ tagHighlight = [
 	]
 
 
+# Items with one of the tags in this list will be NOT downloaded.
 skipTags = [
 	'tags to not download'
 ]
 
 noHighlightAddresses = [
-	"IP Addresses which won't get the tag highlighting behaviour"
+	# "IP Addresses which won't get the tag highlighting behaviour"
 ]
 
 
 # IP range that is shown the hentai tables. In CIDR notation
 pronWhiteList = '192.168.1.0/24'
-
-# Directory of files/images that will be removed from any and all downloads.
-badImageDir  = r"/somepath/dir"
-
-# Manga Updates
-buSettings = {
-	"login"         : "username",
-	"passWd"        : "password",
-}
-
 
 
 # ExHentai
@@ -129,12 +139,45 @@ sadPanda = {
 	"sadPandaExcludeTags" :
 	[
 		'other stuff'
-
 	],
+	
+	# Exclude compound tags are slightly complex. Basically, if the first item is present, 
+	# and the second is *NOT*, the item will be filtered. In the below case, if something is tagged
+	# "translated", and is not also tagged "english", it will be filtered (and not downloaded)
+	"excludeCompoundTags" :
+	[
+		['translated', 'english']
+	],
+
+	# Categories to exclude
+	"sadPandaExcludeCategories" :
+	[
+		"gamecg",
+		'misc'
+	]
 
 }
 
+# Extract contents of searches, and add them to the tag-highlight list.
+for tag in sadPanda['sadPandaSearches']:
+	tag = tag.split(":")[-1]
+	tag = tag.replace(" ", "-")
+	if tag not in tagHighlight:
+		tagHighlight.append(tag)
 
+# General Conf
+noHighlightAddresses = [
+	"10.1.1.47"
+]
+
+pronWhiteList = '10.1.1.0/24'
+
+
+# Directory of files/images that will be removed from any and all downloads.
+badImageDir  = r"/somepath/dir"
+
+# When files are "deleted" through the web UI, they're moved here.
+recycleBin = r'/media/Storage/MangaRecycleBin'
 
 # Starkana.com
 skSettings = {
@@ -144,16 +187,44 @@ skSettings = {
 
 	"dirs" : {
 		"dlDir"         : pickedDir,
-		"mnDir"         : newDir,
 		"mDlDir"        : baseDir
 		}
 
 }
+
+
 # Manga.Madokami
-skSettings = {
+mkSettings = {
 
 	"login"         : "username",
 	"passWd"        : "password",
+
+
+	"dirs" : {
+		"dlDir"         : pickedDir,
+		"mDlDir"        : baseDir
+		},
+
+	# And settings for the automated upload system
+	# "ftpAddr"             : "ftp.madokami.com",
+	# "mainContainerDir"    : "/Manga",
+	# "uploadContainerDir"  : "/Manga/_Autouploads",
+	# "uploadDir"           : "Name this directory"
+
+}
+
+tadanohito = {
+
+	"login"         : "username",
+	"passWd"        : "password",
+
+	'dlDir'         : tadanohitoDir,
+
+}
+
+
+mbSettings = {
+
 
 	"dirs" : {
 		"dlDir"         : pickedDir,
@@ -161,22 +232,13 @@ skSettings = {
 		}
 
 }
+
 
 jzSettings = {
 
 
 	"dirs" : {
 		"dlDir"         : pickedDir,
-		"mnDir"         : newDir,
-		"mDlDir"        : baseDir
-		}
-
-}
-mbSettings = {
-
-	"dirs" : {
-		"dlDir"         : pickedDir,
-		"mnDir"         : newDir,
 		"mDlDir"        : baseDir
 		}
 
@@ -195,19 +257,20 @@ czSettings = {
 
 }
 
-
-fuSettings = {
-	"dlDir" :  fufuDir,
-	"retag" : 60*60*24*31			# 1 month
+# Manga Updates
+buSettings = {
+	"login"         : "username",
+	"passWd"        : "password",
 }
 
 djSettings = {
-	"dlDir" :  djMoeDir,
-	"retag" : 60*60*24*31			# 1 month
+	"dlDir"        : djMoeDir,
+	"retag"        : 60*60*24*31,			# 1 month
+	"retagMissing" : 60*60*24*1				# 7 Days (This is for items that have *no* tags)
 }
 
 puSettings = {
-	"dlDir"        :  puRinDir,
+	"dlDir"        : puRinDir,
 	"retag"        : 60*60*24*31,			# 1 month
 	"retagMissing" : 60*60*24*7,				# 7 Days (This is for items that have *no* tags)
 	"accountKey"   : "YOUR ACOCUNT KEY GOES HERE!"
@@ -231,6 +294,7 @@ nhSettings = {
 }
 
 
+# Hat-tip to Penny arcade re:bot naming
 ircBot = {
 	"name"           : "YOUR-BOT-NAME",
 	"rName"          : "YOUR BOT REAL NAME",
@@ -241,20 +305,25 @@ ircBot = {
 }
 
 
-# Your postgres SQL database credentials for the primary database.
-# the DATABASE_USER must have write access to the database DATABASE_DB_NAME
-DATABASE_USER    = "MangaCMSUser"
-DATABASE_PASS    = "{yourpassword}"
-DATABASE_DB_NAME = "MangaCMS"
-DATABASE_IP      = "127.0.0.1"
+# Channels to ignore when looking for triggers in channel MOTDs.
+ircMotdScraperMaskChannels = [
+	'#bodzio'
+]
 
 
-# Your postgres SQL database credentials for the deduper.
-# the PSQL_USER must have write access to the database PSQL_DB_NAME
 
-PSQL_IP      = "server IP"
-PSQL_PASS    = "password"
+# Book Sources (maps database key to proper name)
+bookSources = [
+	('tsuki',   'Baka-Tsuki'),
+	('japtem',  'JapTem'),
+	('retrans', 'Re:Translations'),
+	('guhehe',  'Guhehe'),
+	('prev',    'Prince Revolution'),
+	('solt',    'Solitary Translations'),
+	('kryt',    'Krytyk\'s Translations'),
+]
 
-PSQL_USER    = "deduper"
-PSQL_DB_NAME = "deduper_db"
+
+
+
 
