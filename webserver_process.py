@@ -102,8 +102,6 @@ class MonitorPlugin(cherrypy.process.plugins.SimplePlugin):
 		if self.running:
 			print("Stopping directory observer")
 			nt.dirNameProxy.stop()
-			nt.dirsLookup.stop()
-			nt.nameLookup.stop()
 			print("Directory observer Stopped")
 
 
