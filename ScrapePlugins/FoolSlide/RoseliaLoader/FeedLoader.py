@@ -12,7 +12,7 @@ class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	loggerPath = "Main.Rs.Fl"
 	pluginName = "Roselia Scans Link Retreiver"
 	tableKey = "rs"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

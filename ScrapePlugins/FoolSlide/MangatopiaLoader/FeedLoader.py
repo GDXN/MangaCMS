@@ -13,7 +13,7 @@ class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	loggerPath = "Main.MngTop.Cl"
 	pluginName = "Mangatopia Content Retreiver"
 	tableKey = "mp"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 	groupName = "Mangatopia"
 

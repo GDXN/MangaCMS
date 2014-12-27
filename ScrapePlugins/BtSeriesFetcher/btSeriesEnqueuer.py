@@ -27,7 +27,7 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 	loggerPath      = "Main.BtS.Sl"
 	pluginName      = "Batoto Series Link Retreiver"
 	tableKey        = "bt"
-	dbName          = settings.dbName
+	dbName          = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

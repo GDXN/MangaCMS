@@ -13,7 +13,7 @@ class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	loggerPath = "Main.Vs.Fl"
 	pluginName = "Vortex Scans Link Retreiver"
 	tableKey = "vx"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

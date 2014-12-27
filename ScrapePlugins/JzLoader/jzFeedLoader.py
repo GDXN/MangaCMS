@@ -21,7 +21,7 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Jz.Fl"
 	pluginName = "Japanzai Link Retreiver"
 	tableKey = "jz"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

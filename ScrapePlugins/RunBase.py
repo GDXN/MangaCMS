@@ -30,7 +30,7 @@ class ScraperBase(metaclass=abc.ABCMeta):
 		self.checkInitStatusTable()
 
 	def checkInitStatusTable(self):
-		con = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		with con.cursor() as cur:
 			cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text,
 																	running boolean,
@@ -49,7 +49,7 @@ class ScraperBase(metaclass=abc.ABCMeta):
 
 	def amRunning(self):
 
-		con = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		with con.cursor() as cur:
 			cur.execute("""SELECT running FROM pluginStatus WHERE name=%s""", (self.pluginName, ))
 			rets = cur.fetchone()[0]
@@ -60,7 +60,7 @@ class ScraperBase(metaclass=abc.ABCMeta):
 		if pluginName == None:
 			pluginName=self.pluginName
 
-		con = psycopg2.connect(host=settings.PSQL_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		with con.cursor() as cur:
 			if running != None:  # Note: Can be set to "False". This is valid!
 				cur.execute('''UPDATE pluginStatus SET running=%s WHERE name=%s;''', (running, pluginName))

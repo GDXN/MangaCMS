@@ -14,7 +14,7 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 	loggerPath = "Main.MngTop.Cl"
 	pluginName = "Mangatopia Content Retreiver"
 	tableKey = "mp"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 	groupName = "Mangatopia"
 

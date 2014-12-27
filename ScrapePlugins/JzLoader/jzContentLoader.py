@@ -27,7 +27,7 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Jz.Cl"
 	pluginName = "Japanzai Content Retreiver"
 	tableKey = "jz"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

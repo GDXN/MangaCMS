@@ -39,7 +39,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wgH = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

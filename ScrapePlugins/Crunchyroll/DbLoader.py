@@ -33,7 +33,7 @@ import ScrapePlugins.RetreivalDbBase
 class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.CrunchyRoll.Fl"
 	pluginName = "CrunchyRoll Link Retreiver"
 	tableKey    = "cr"

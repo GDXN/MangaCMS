@@ -31,7 +31,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	shouldCanonize = False
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.Fakku.Cl"
 	pluginName = "Fakku Content Retreiver"
 	tableKey   = "fk"

@@ -23,7 +23,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Ki.Fl"
 	pluginName = "Kiss Manga Link Retreiver"
 	tableKey = "ki"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

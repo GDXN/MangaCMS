@@ -18,7 +18,7 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 	loggerPath = "Main.Rh.Cl"
 	pluginName = "RedHawk Scans Content Retreiver"
 	tableKey = "rh"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 	groupName = "RedHawk"
 

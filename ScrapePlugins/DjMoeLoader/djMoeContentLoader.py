@@ -28,7 +28,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	log = logging.getLogger("Main.DjM.Cl")
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.DjM.Cl"
 	pluginName = "DjMoe Content Retreiver"
 	tableKey   = "djm"

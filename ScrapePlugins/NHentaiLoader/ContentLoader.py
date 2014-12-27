@@ -22,7 +22,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.NHentai.Cl"
 	pluginName = "NHentai Content Retreiver"
 	tableKey   = "nh"

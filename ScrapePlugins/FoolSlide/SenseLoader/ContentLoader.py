@@ -12,7 +12,7 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 	loggerPath = "Main.Se.Cl"
 	pluginName = "Sense Scans Content Retreiver"
 	tableKey = "se"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 	groupName = "SenseScans"
 

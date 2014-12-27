@@ -25,7 +25,7 @@ class IMSTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	loggerPath = "Main.IMS.Fl"
 	pluginName = "IMangaScans Link Retreiver"
 	tableKey = "irc-irh"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

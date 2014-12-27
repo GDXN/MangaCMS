@@ -12,7 +12,7 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 	loggerPath = "Main.Rs.Cl"
 	pluginName = "Roselia Scans Content Retreiver"
 	tableKey = "rs"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 	groupName = "RoseliaScans"
 

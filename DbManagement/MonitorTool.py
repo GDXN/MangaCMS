@@ -17,7 +17,7 @@ class Inserter(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	loggerPath = "Main.Inserter"
 	pluginName = "DB Item Inserter"
 	tableName = "MangaSeries"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 
 	def go(self):
@@ -30,7 +30,7 @@ class Scraper(ScrapePlugins.RetreivalBase.ScraperBase):
 	loggerPath = "Main.Inserter"
 	pluginName = "DB Item Inserter"
 	tableName = "MangaSeries"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 
 	def go(self):

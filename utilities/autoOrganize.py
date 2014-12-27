@@ -28,7 +28,7 @@ class DbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	def go(self):
 		pass

@@ -21,7 +21,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	loggerPath = "Main.Cat.Fl"
 	pluginName = "Cat-Chans Trigger Retreiver"
 	tableKey = "irc-trg"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

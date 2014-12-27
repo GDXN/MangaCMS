@@ -29,7 +29,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.Pururin.Cl"
 	pluginName = "Pururin Content Retreiver"
 	tableKey   = "pu"

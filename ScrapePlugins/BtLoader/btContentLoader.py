@@ -29,7 +29,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Bt.Cl"
 	pluginName = "Batoto Content Retreiver"
 	tableKey = "bt"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

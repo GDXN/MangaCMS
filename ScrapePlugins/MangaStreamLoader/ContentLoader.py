@@ -26,7 +26,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	loggerPath = "Main.Ms.Cl"
 	pluginName = "MangaStream.com Content Retreiver"
 	tableKey = "ms"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

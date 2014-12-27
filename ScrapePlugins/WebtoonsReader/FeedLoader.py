@@ -24,7 +24,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Wr.Fl"
 	pluginName = "Webtoons Reader Scans Link Retreiver"
 	tableKey = "wr"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

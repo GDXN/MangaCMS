@@ -11,7 +11,7 @@ import ScrapePlugins.RetreivalDbBase
 class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.Casanova.Fl"
 	pluginName = "CasanovaScans Link Retreiver"
 	tableKey    = "cs"

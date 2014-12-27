@@ -27,7 +27,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.HBrowse.Cl"
 	pluginName = "H-Browse Content Retreiver"
 	tableKey   = "hb"

@@ -14,7 +14,7 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 	loggerPath = "Main.Vs.Cl"
 	pluginName = "Vortex Scans Content Retreiver"
 	tableKey = "vx"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 	groupName = "VortexScans"
 

@@ -36,7 +36,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Mk.Fl"
 	pluginName = "Manga.Madokami Link Retreiver"
 	tableKey = "mk"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	tableName = "MangaItems"
 	urlBaseManga = "https://manga.madokami.com/Manga/"

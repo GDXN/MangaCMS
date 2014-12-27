@@ -37,7 +37,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Mk.Cl"
 	pluginName = "Manga.Madokami Content Retreiver"
 	tableKey = "mk"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	retreivalThreads = 1
 

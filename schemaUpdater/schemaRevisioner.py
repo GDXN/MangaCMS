@@ -37,7 +37,7 @@ def verifySchemaUpToDate():
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
 	except:
-		conn = psycopg2.connect(host    = settings.PSQL_IP,
+		conn = psycopg2.connect(host    = settings.DATABASE_IP,
 								dbname  = settings.DATABASE_DB_NAME,
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
@@ -60,7 +60,7 @@ def updateSchemaRevNo(newNum):
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
 	except:
-		conn = psycopg2.connect(host    = settings.PSQL_IP,
+		conn = psycopg2.connect(host    = settings.DATABASE_IP,
 								dbname  = settings.DATABASE_DB_NAME,
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
@@ -82,7 +82,7 @@ def updateDatabaseSchema(fastExit=False):
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
 	except:
-		conn = psycopg2.connect(host    = settings.PSQL_IP,
+		conn = psycopg2.connect(host    = settings.DATABASE_IP,
 								dbname  = settings.DATABASE_DB_NAME,
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
@@ -92,22 +92,22 @@ def updateDatabaseSchema(fastExit=False):
 
 	if rev == -1:
 		createSchemaRevTable(conn)
-
 		updateSchemaRevNo(9)
+	else:
+		# We have to defer all this to the next run, so
+		rev = getSchemaRev(conn)
+		if rev == 9:
+			setupTableCountersPostgre(conn)
+			updateSchemaRevNo(10)
 
-	rev = getSchemaRev(conn)
-	if rev == 9:
-		setupTableCountersPostgre(conn)
-		updateSchemaRevNo(10)
+		rev = getSchemaRev(conn)
 
-	rev = getSchemaRev(conn)
+		if fastExit:
+			return
 
-	if fastExit:
-		return
+		doTableCountsPostgre(conn)
 
-	doTableCountsPostgre(conn)
-
-	rev = getSchemaRev(conn)
-	print("Current Rev = ", rev)
-	print("Database structure us up to date.")
+		rev = getSchemaRev(conn)
+		print("Current Rev = ", rev)
+		print("Database structure us up to date.")
 

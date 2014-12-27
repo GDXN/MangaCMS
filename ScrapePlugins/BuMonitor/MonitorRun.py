@@ -30,7 +30,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	baseListURL      = r"http://www.mangaupdates.com/mylist.html"
 	baseReleasesURL  = r"https://www.mangaupdates.com/releases.html"
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wgH = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -53,8 +53,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		getPage = self.wgH.getpage(r"http://www.mangaupdates.com/login.html", postData=logondict)
 		if "No user found, or error. Try again." in getPage:
 			self.log.error("Login failed!")
-			with open("pageTemp.html", "wb") as fp:
-				fp.write(getPage)
+			raise ValueError("Cannot login to MangaUpdates. Is your login/password valid?")
 		elif "You are currently logged in as" in getPage:
 			self.log.info("Logged in successfully!")
 

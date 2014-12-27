@@ -16,7 +16,7 @@ import ScrapePlugins.RetreivalDbBase
 class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.SadPanda.Fl"
 	pluginName = "SadPanda Link Retreiver"
 	tableKey    = "sp"

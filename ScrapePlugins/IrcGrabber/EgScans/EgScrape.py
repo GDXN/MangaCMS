@@ -23,7 +23,7 @@ class EgTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	loggerPath = "Main.Eg.Fl"
 	pluginName = "Eg-Scans Link Retreiver"
 	tableKey = "irc-irh"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

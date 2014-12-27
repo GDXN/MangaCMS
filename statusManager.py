@@ -13,7 +13,7 @@ def checkStatusTableExists():
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
 	except:
-		con = psycopg2.connect(host    = settings.PSQL_IP,
+		con = psycopg2.connect(host    = settings.DATABASE_IP,
 								dbname  = settings.DATABASE_DB_NAME,
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
@@ -30,6 +30,7 @@ def getStatus(cur, pluginName):
 
 
 def resetAllRunningFlags():
+	checkStatusTableExists()
 	print("Resetting run state for all plugins!")
 
 	try:
@@ -37,7 +38,7 @@ def resetAllRunningFlags():
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)
 	except:
-		con = psycopg2.connect(host    = settings.PSQL_IP,
+		con = psycopg2.connect(host    = settings.DATABASE_IP,
 								dbname  = settings.DATABASE_DB_NAME,
 								user    = settings.DATABASE_USER,
 								password= settings.DATABASE_PASS)

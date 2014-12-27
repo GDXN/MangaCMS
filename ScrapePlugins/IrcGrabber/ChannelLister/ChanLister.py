@@ -94,7 +94,7 @@ class ChannelTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	loggerPath = "Main.Chan.Fl"
 	pluginName = "Channel trigger Retreiver"
 	tableKey = "irc-trg"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

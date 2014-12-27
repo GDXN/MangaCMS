@@ -265,7 +265,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 												dbId          SERIAL PRIMARY KEY,
 												seriesId      TEXT NOT NULL,
 												seriesName    TEXT NOT NULL,
-												dlState       text NOT NULL,
+												dlState       integer NOT NULL,
 												retreivalTime double precision NOT NULL,
 												lastUpdate    double precision DEFAULT 0
 												);'''.format(tableName=self.seriesTableName))
@@ -279,15 +279,15 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-		indexes = [	("%s_serId_index"      % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (seriesId)'''      ),
-					("%s_time_index"       % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (retreivalTime)''' ),
-					("%s_lastUpdate_index" % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (lastUpdate)'''    ),
-					("%s_seriesName_index" % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (seriesName)'''    )
-		]
+			indexes = [	("%s_serId_index"      % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (seriesId)'''      ),
+						("%s_time_index"       % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (retreivalTime)''' ),
+						("%s_lastUpdate_index" % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (lastUpdate)'''    ),
+						("%s_seriesName_index" % self.seriesTableName, self.seriesTableName,'''CREATE INDEX %s ON %s (seriesName)'''    )
+			]
 
-		for name, table, nameFormat in indexes:
-			if not name.lower() in haveIndexes:
-				cur.execute(nameFormat % (name, table))
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(nameFormat % (name, table))
 
 		self.conn.commit()
 		self.log.info("Retreived page database created")

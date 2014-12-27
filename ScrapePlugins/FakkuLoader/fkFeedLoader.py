@@ -14,7 +14,7 @@ import ScrapePlugins.RetreivalDbBase
 class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.Fakku.Fl"
 	pluginName = "Fakku Link Retreiver"
 	tableKey    = "fk"

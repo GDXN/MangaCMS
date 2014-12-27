@@ -24,7 +24,7 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	loggerPath = "Main.IRC.db"
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	@abc.abstractmethod

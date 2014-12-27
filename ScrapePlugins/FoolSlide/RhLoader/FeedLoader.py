@@ -13,7 +13,7 @@ class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	loggerPath = "Main.Rh.Fl"
 	pluginName = "RedHawk Scans Link Retreiver"
 	tableKey = "rh"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

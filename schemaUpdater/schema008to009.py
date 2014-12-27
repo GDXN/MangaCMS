@@ -8,7 +8,7 @@ def migrateDb(conn):
 	print("wat?")
 
 
-	pgconn = psycopg2.connect(host=settings.PSQL_IP,
+	pgconn = psycopg2.connect(host=settings.DATABASE_IP,
 							dbname  =settings.DATABASE_DB_NAME,
 							user    =settings.DATABASE_USER,
 							password=settings.DATABASE_PASS)

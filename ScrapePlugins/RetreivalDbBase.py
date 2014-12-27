@@ -668,7 +668,7 @@ if __name__ == "__main__":
 
 		pluginName = "Wat?"
 		loggerPath = "Wat?"
-		dbName = settings.dbName
+		dbName = settings.DATABASE_DB_NAME
 		tableKey = "test"
 		tableName = "MangaItems"
 

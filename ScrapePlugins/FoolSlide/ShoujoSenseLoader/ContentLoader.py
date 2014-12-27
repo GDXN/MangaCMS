@@ -12,7 +12,7 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 	loggerPath = "Main.Sj.Cl"
 	pluginName = "Shoujo Sense Scans Content Retreiver"
 	tableKey = "sj"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 	groupName = "ShoujoSense"
 

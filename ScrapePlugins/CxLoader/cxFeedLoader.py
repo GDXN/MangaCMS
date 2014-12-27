@@ -21,7 +21,7 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Cx.Fl"
 	pluginName = "CXC Scans Link Retreiver"
 	tableKey = "cx"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

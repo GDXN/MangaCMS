@@ -24,7 +24,7 @@ class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Sk.Cl"
 	pluginName = "Starkana Content Retreiver"
 	tableKey = "sk"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	urlBase = "http://starkana.com/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

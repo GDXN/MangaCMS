@@ -30,7 +30,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Dy.Fl"
 	pluginName = "Dynasty Scans Link Retreiver"
 	tableKey = "dy"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

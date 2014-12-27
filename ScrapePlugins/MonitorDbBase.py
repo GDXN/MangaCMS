@@ -512,7 +512,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 												dbId            SERIAL PRIMARY KEY,
 
 												buName          CITEXT,
-												buId            CITEXT UNIQUE,
+												buId            text UNIQUE,
 												buTags          CITEXT,
 												buGenre         CITEXT,
 												buList          CITEXT,
@@ -584,14 +584,15 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 
 
-			indexes = [	("%s_nameTable_buId_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (buId      )'''       ),
-						("%s_nameTable_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (name      )'''       ),
-						("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
-						("%s_fSafeName_name_index"      % self.nameMapTableName, self.tableName,'''CREATE INDEX %s ON %s (fsSafeName)'''       )
+			indexes = [	("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (buId      )'''       ),
+						("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (name      )'''       ),
+						("%s_fSafeName_fs_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
+						("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (fsSafeName)'''       )
 			]
 
 			for name, table, nameFormat in indexes:
 				if not name.lower() in haveIndexes:
+					print(name, table, nameFormat)
 					cur.execute(nameFormat % (name, table))
 
 

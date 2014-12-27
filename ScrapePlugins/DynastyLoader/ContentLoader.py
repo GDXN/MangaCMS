@@ -35,7 +35,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	loggerPath = "Main.Dy.Cl"
 	pluginName = "Dynasty Scans Content Retreiver"
 	tableKey = "dy"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

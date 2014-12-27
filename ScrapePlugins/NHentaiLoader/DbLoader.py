@@ -13,7 +13,7 @@ import ScrapePlugins.RetreivalDbBase
 class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.NHentai.Fl"
 	pluginName = "NHentai Link Retreiver"
 	tableKey    = "nh"

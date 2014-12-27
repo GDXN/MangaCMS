@@ -22,7 +22,7 @@ class LmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Lm.Fl"
 	pluginName = "LoneManga Scans Link Retreiver"
 	tableKey = "lm"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

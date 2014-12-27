@@ -27,7 +27,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Bt.Fl"
 	pluginName = "Batoto Link Retreiver"
 	tableKey = "bt"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

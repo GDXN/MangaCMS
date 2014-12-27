@@ -29,7 +29,7 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	loggerPath = "Main.Mj.Cl"
 	pluginName = "MangaJoy Content Retreiver"
 	tableKey = "mj"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

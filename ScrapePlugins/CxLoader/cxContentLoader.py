@@ -28,7 +28,7 @@ class CxContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Cx.Cl"
 	pluginName = "CXC Scans Content Retreiver"
 	tableKey = "cx"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

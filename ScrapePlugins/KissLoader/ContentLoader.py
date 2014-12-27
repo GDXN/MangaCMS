@@ -35,7 +35,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	loggerPath = "Main.Ki.Cl"
 	pluginName = "Kiss Manga Content Retreiver"
 	tableKey = "ki"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

@@ -21,7 +21,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	loggerPath = "Main.Txt.Fl"
 	pluginName = "Text-Packlist Link Retreiver"
 	tableKey = "irc-irh"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 

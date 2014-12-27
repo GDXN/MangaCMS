@@ -13,7 +13,7 @@ import ScrapePlugins.RetreivalDbBase
 class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.DjM.Fl"
 	pluginName = "DjMoe Link Retreiver"
 	tableKey    = "djm"

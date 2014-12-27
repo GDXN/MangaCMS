@@ -26,7 +26,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Mk.Up"
 	pluginName = "Manga.Madokami Content Retreiver"
 	tableKey = "mk"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	tableName = "MangaItems"
 

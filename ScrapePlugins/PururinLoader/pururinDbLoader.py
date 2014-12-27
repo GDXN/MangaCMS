@@ -16,7 +16,7 @@ import ScrapePlugins.RetreivalDbBase
 class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.Pururin.Fl"
 	pluginName = "Pururin Link Retreiver"
 	tableKey    = "pu"

@@ -21,7 +21,7 @@ import ScrapePlugins.FoolSlide.FoolSlideDownloadBase
 
 class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.TwistedHel.Cl"
 	pluginName = "TwistedHel Content Retreiver"
 	tableKey    = "th"

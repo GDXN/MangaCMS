@@ -255,7 +255,6 @@ class MapWrapper(object):
 
 	log = logging.getLogger("Main.NSLookup")
 
-	dbPath = settings.dbName
 
 	validTables = {
 		"mangaNameMappings"  : ["manganamemappings",
@@ -275,6 +274,9 @@ class MapWrapper(object):
 	conn  = None
 	items = None
 	def __init__(self, tableName):
+		# Shim so we can block the dict preloading if the DB hasn't been created.
+		self.firstRun = False
+
 		self.__dict__ = self._shared_state
 
 		self.updateLock = threading.Lock()
@@ -290,7 +292,9 @@ class MapWrapper(object):
 
 		self.lastUpdate = 0
 		self.lutItems = {}
-		self.updateFromDB()
+
+		if not self.firstRun:
+			self.updateFromDB()
 
 	def stop(self):
 		self.log.info("Unoading NSLookup")
@@ -320,7 +324,8 @@ class MapWrapper(object):
 			# cur = self.conn.cursor()
 			# cur.execute('''CREATE TABLE %s %s''' % (self.tableName, self.tableSchema))
 			# cur.commit()
-			raise ValueError("%s Database does not exist. Name mapper cannot work." % self.tableName)
+			# raise ValueError("%s Database does not exist. Name mapper cannot work." % self.tableName)
+			self.firstRun = True
 
 		self.log.info("PRAGMA return value = %s", rets)
 
@@ -372,22 +377,18 @@ class MapWrapper(object):
 		return key in self.items
 
 
-
 # proxy that makes a DB look like a dict
 # Opens a dynamically specifiable database, though the database must be one of a predefined set.
 class MtNamesMapWrapper(object):
 
-
 	log = logging.getLogger("Main.NSLookup")
 
-	dbPath = settings.dbName
-
 	modes = {
-		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'munamelist',  'failOnMissing' : True},
-		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'munamelist',  'failOnMissing' : True},
-		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'munamelist',  'failOnMissing' : True},
-		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'mangaseries', 'failOnMissing' : True},
-		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'mangaseries', 'failOnMissing' : True}
+		"buId->fsName" : {"cols" : ["buId", "fsSafeName"], "table" : 'munamelist',  'failOnMissing' : False},
+		"buId->name"   : {"cols" : ["buId", "name"],       "table" : 'munamelist',  'failOnMissing' : False},
+		"fsName->buId" : {"cols" : ["fsSafeName", "buId"], "table" : 'munamelist',  'failOnMissing' : False},
+		"buId->buName" : {"cols" : ["buId", "buName"],     "table" : 'mangaseries', 'failOnMissing' : False},
+		"buName->buId" : {"cols" : ["buName", "buId"],     "table" : 'mangaseries', 'failOnMissing' : False}
 	}
 
 	loaded = False
@@ -445,8 +446,7 @@ class MtNamesMapWrapper(object):
 		self.lutItems = tmp
 
 	def openDB(self):
-		self.log.info( "NSLookup Opening DB...",)
-
+		self.log.info( "NSLookup Opening DB...")
 		try:
 			self.conn = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		except psycopg2.OperationalError:
@@ -463,8 +463,12 @@ class MtNamesMapWrapper(object):
 		if rets:
 			rets = rets[0]
 		if not self.mode["table"] in rets:   # If the DB doesn't exist, set it up.
-			self.log.info("DB Not setup for %s.", self.mode["table"])
-			raise ValueError
+			self.log.warning("DB Not setup for %s.", self.mode["table"])
+			if self.mode['failOnMissing']:
+				raise ValueError
+			else:
+				# We can't preload the dict, since it doesn't exist, so disable preloading.
+				runStatus.preloadDicts = False
 
 	def closeDB(self):
 		self.log.info( "Closing DB...")
@@ -650,7 +654,8 @@ class DirNameProxy(object):
 	def getDirDict(self, dlPath):
 
 		self.log.info( "Loading Output Dirs for path '%s'...", dlPath)
-
+		if not os.path.exists(dlPath):
+			raise ValueError("Download path %s does not exist?" % dlPath)
 		targetContents = os.listdir(dlPath)
 		targetContents.sort()
 		#self.log.info( "targetContents", targetContents)

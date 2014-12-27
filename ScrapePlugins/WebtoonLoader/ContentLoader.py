@@ -36,7 +36,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	loggerPath = "Main.Wt.Cl"
 	pluginName = "Webtoons.com Scans Content Retreiver"
 	tableKey = "wt"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
