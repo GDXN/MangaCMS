@@ -38,15 +38,32 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.wg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web")
 
-		# Override undocumented class member to set the FTP encoding.
-		# This is a HORRIBLE hack.
-		# ftplib.FTP.encoding = "UTF-8"
 
 		self.ftp = ftplib.FTP(host=settings.mkSettings["ftpAddr"])
 
 		self.ftp.login()
+		self.enableUtf8()
 		self.mainDirs     = {}
 		self.unsortedDirs = {}
+
+	def enableUtf8(self):
+		features_string_ftp = self.ftp.sendcmd('FEAT')
+		self.log.info("FTP Feature string: '%s'", features_string_ftp)
+		if 'UTF8' in features_string_ftp.upper():
+			self.log.info("Server supports UTF-8 charset. Trying to enable it.")
+			# Command:	OPTS UTF8 ON
+			# Response:	200 UTF8 set to on
+			ret = self.ftp.sendcmd('OPTS UTF8 ON')
+			ret = ret.upper()
+			if "UTF8" in ret and "ON" in ret:
+				# Override undocumented class member to set the FTP encoding.
+				# This is a HORRIBLE hack.
+				self.log.info("FTP Connection set to UTF-8 mode!")
+				self.ftp.encoding = "UTF-8"
+			else:
+				self.log.warn("Could not enable UTF-8 mode?")
+		else:
+			self.log.warn("Server does not support UTF-8. Some transfers may be broken.")
 
 	def go(self):
 		pass
@@ -104,8 +121,6 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def loadRemoteDirectory(self, fullPath, aggregate=False):
 		ret = {}
-
-
 
 		for dirName, stats in self.ftp.mlsd(fullPath):
 
