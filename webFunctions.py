@@ -519,8 +519,7 @@ class WebGetRobust:
 			else:
 				self.log.info("No cookies to save?")
 		except Exception as e:
-			print("Encountered an error on exit?")
-			print("Exception = %s" % e)
+			print("Possible error on exit (or just the destructor): '%s'." % e)
 		finally:
 			cookieWriteLock.release()
 
