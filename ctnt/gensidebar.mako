@@ -3,7 +3,7 @@
 <%!
 # Module level!
 
-
+import time
 import datetime
 from babel.dates import format_timedelta
 
@@ -113,20 +113,29 @@ DNLDED = 2
 				continue
 			vals = sm.getStatus(cur, item["dbKey"])
 			if vals:
-				running, runStart, lastRunDuration = vals[0]
+				running, runStart, lastRunDuration, lastErr = vals[0]
 				runStart = ut.timeAgo(runStart)
 			else:
-				running, runStart, lastRunDuration = False, "Never!", None
+				running, runStart, lastRunDuration, lastErr = False, "Never!", None, time.time()
 
 			if running:
 				runState = "<b>Running</b>"
 			else:
 				runState = "Not Running"
 
+			errored = False
+			if lastErr > (time.time() - 60*60*24): # If the last error was within the last 24 hours
+				errored = True
+
 
 			%>
 			<div class="statediv ${item['cssClass']}">
-				<strong>${item["name"]}</strong><br />
+				<strong>
+					${item["name"]}
+				</strong><br />
+				% if errored:
+					<a href="/errorLog">Had Error!</a><br />
+				% endif
 				${runStart}<br />
 				${runState}
 

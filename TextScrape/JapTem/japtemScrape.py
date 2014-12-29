@@ -13,7 +13,7 @@ import urllib.error
 
 class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'japtem'
-	loggerPath = 'Main.JapTem'
+	loggerPath = 'Main.JapTem.Scrape'
 	pluginName = 'JapTemScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

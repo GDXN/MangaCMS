@@ -10,7 +10,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.Cs.Run"
+	loggerPath = "Main.Casanova.Run"
 	pluginName = "Casanova"
 
 

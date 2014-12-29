@@ -13,7 +13,7 @@ import webFunctions
 
 class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'solt'
-	loggerPath = 'Main.SolTr'
+	loggerPath = 'Main.SolTr.Scrape'
 	pluginName = 'SolTransScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

@@ -28,17 +28,18 @@ class ScraperBase(metaclass=abc.ABCMeta):
 	def __init__(self):
 		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Loading %s Runner", self.pluginName)
-		self.checkInitStatusTable()
+		self.checkStatusTableExists()
 
-	def checkInitStatusTable(self):
+	def checkStatusTableExists(self):
 		con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		with con.cursor() as cur:
-			cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name        text,
-																	running     boolean,
-																	lastRun     double precision,
-																	lastRunTime double precision,
-																	lastError   double precision DEFAULT 0,
-																	PRIMARY KEY(name))''')
+
+			cur.execute("SELECT relname FROM pg_class;")
+			haveItems = cur.fetchall()
+			haveItems = [index[0] for index in haveItems]
+			if not "pluginstatus" in haveItems:
+				raise ValueError("PluginStatus table does not exist. Has MainScrape never been run?")
+
 			print(self.pluginName)
 
 			cur.execute('''SELECT name FROM pluginStatus WHERE name=%s''', (self.pluginName,))

@@ -24,7 +24,7 @@ DOWNLOAD_ONLY_LANGUAGE = "English"
 
 class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
-	loggerPath      = "Main.BtS.Sl"
+	loggerPath      = "Main.BtS.Se"
 	pluginName      = "Batoto Series Link Retreiver"
 	tableKey        = "bt"
 	dbName          = settings.DATABASE_DB_NAME

@@ -10,7 +10,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.Nh.Run"
+	loggerPath = "Main.NHentai.Run"
 	pluginName = "NHentai"
 
 

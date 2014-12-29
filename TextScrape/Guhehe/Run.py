@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Gh.Run"
+	loggerPath = "Main.Guhehe.Run"
 
 	pluginName = "GuheheScrape"
 

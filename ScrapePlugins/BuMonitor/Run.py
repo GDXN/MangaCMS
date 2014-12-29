@@ -5,7 +5,7 @@ import ScrapePlugins.RunBase
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
-	loggerPath = "Main.Bu.Mon"
+	loggerPath = "Main.Bu.Run"
 	pluginName = "BuMon"
 
 	def _go(self):

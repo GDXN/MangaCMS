@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Ts.Run"
+	loggerPath = "Main.Tsuki.Run"
 
 	pluginName = "TsukiScrape"
 

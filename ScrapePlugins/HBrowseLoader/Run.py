@@ -12,7 +12,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.Hb.Run"
+	loggerPath = "Main.HBrowse.Run"
 	pluginName = "H-Browse"
 
 

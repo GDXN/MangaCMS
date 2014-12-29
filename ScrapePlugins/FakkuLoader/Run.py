@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Fk.Run"
+	loggerPath = "Main.Fakku.Run"
 
 	pluginName = "FkLoader"
 

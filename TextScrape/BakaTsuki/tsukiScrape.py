@@ -13,7 +13,7 @@ import webFunctions
 
 class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'tsuki'
-	loggerPath = 'Main.Tsuki'
+	loggerPath = 'Main.Tsuki.Scrape'
 	pluginName = 'TsukiScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

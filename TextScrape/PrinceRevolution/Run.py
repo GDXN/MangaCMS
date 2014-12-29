@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Pr.Run"
+	loggerPath = "Main.PrRev.Run"
 
 	pluginName = "PRevScrape"
 

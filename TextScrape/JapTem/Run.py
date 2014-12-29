@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Jt.Run"
+	loggerPath = "Main.JapTem.Run"
 
 	pluginName = "JapTemScrape"
 

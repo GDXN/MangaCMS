@@ -13,7 +13,7 @@ import urllib.error
 
 class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'guhehe'
-	loggerPath = 'Main.Guhehe'
+	loggerPath = 'Main.Guhehe.Scrape'
 	pluginName = 'GuheheScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
