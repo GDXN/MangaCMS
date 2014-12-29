@@ -93,6 +93,7 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		for tagTag in tagTags:
 			tagStr = tagTag.get_text()
 			tagStr = tagStr.strip()
+			tagStr = tagStr.replace(":", " ") # Nuke colon literals (they break the tsvector index)
 			while "  " in tagStr:
 				tagStr = tagStr.replace("  ", " ")
 			tagStr = tagStr.replace(" ", "-")
@@ -248,3 +249,13 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# for x in range(10):
 		# 	dat = self.getItems(pageOverride=x)
 		# 	self.processLinksIntoDB(dat)
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		# getHistory()
+		run = FakkuFeedLoader()
+		# run.getFeed()
+		run.go()

@@ -112,3 +112,13 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# for x in range(10):
 		# 	dat = self.getFeed(pageOverride=x)
 		# 	self.processLinksIntoDB(dat)
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		# getHistory()
+		run = DjMoeDbLoader()
+		# run.getFeed()
+		run.go()

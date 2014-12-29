@@ -24,7 +24,7 @@ echo TODO: ADD PostgreSQL >= 9.3 install stuff here!
 # Install the libraries we actually need
 pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama
 pip3 install pyinotify python-dateutil apscheduler rarfile python-magic
-pip3 install babel cython irc psycopg2 python-levenshtein
+pip3 install babel cython irc psycopg2 python-levenshtein chardet
 pip3 install python-sql natsort pyyaml pillow rpyc server_reloader
 
 # numpy and scipy are just needed for the image deduplication stuff. They can be left out if

@@ -5,6 +5,7 @@ import settings
 import psycopg2
 import runStatus
 import time
+import traceback
 import abc
 
 
@@ -32,10 +33,11 @@ class ScraperBase(metaclass=abc.ABCMeta):
 	def checkInitStatusTable(self):
 		con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
 		with con.cursor() as cur:
-			cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text,
-																	running boolean,
-																	lastRun double precision,
+			cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name        text,
+																	running     boolean,
+																	lastRun     double precision,
 																	lastRunTime double precision,
+																	lastError   double precision DEFAULT 0,
 																	PRIMARY KEY(name))''')
 			print(self.pluginName)
 
@@ -72,6 +74,15 @@ class ScraperBase(metaclass=abc.ABCMeta):
 		con.commit()
 		con.close()
 
+	def setError(self, errTime):
+
+		con = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
+		with con.cursor() as cur:
+			cur.execute('''UPDATE pluginStatus SET lastError=%s WHERE name=%s;''', (errTime, self.pluginName))
+
+		con.commit()
+		con.close()
+
 
 	def go(self):
 		if self.amRunning():
@@ -81,11 +92,22 @@ class ScraperBase(metaclass=abc.ABCMeta):
 			self.log.info("%s Started.", self.pluginName)
 
 			runStart = time.time()
-			self.setStatus(self.pluginName, running=True, lastRun=runStart)
+			self.setStatus(running=True, lastRun=runStart)
 			try:
 				self._go()
+			except Exception:
+				# If we have a uncaught exception in the plugin, log the exception traceback (which will get logged to
+				# the DB), and then re-raise
+				self.setError(errTime=time.time())
+				self.log.critical("Uncaught major exception in plugin!")
+				self.log.critical("Traceback:")
+				for line in traceback.format_exc().split("\n"):
+					self.log.critical(line)
+
+				raise
+
 			finally:
-				self.setStatus(self.pluginName, running=False, lastRunTime=time.time()-runStart)
+				self.setStatus(running=False, lastRunTime=time.time()-runStart)
 				self.log.info("%s finished.", self.pluginName)
 
 

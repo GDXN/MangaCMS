@@ -20,6 +20,60 @@ COMPLAIN_ABOUT_DUPS = True
 import urllib.parse
 import ScrapePlugins.RetreivalDbBase
 
+import chardet
+
+class TolerantFTP(ftplib.FTP):
+
+	def retrlines(self, cmd, callback = None):
+		"""Retrieve data in line mode.  A new port is created for you.
+
+		Args:
+		  cmd: A RETR, LIST, or NLST command.
+		  callback: An optional single parameter callable that is called
+					for each line with the trailing CRLF stripped.
+					[default: print_line()]
+
+		Returns:
+		  The response code.
+
+		Tolerant of fucked up encoding issues. All received strings are decoded with
+		the encoding detected by chardet if the confidence is > 70%.
+		The default encoding is used if the chardet detected encoding lacks
+		sufficent confidence.
+		"""
+		if callback is None:
+			callback = ftplib.print_line
+		resp = self.sendcmd('TYPE A')
+		with self.transfercmd(cmd) as conn, conn.makefile('rb', encoding=None) as fp:
+			while 1:
+				line = fp.readline(self.maxline + 1)
+				guess = chardet.detect(line)
+
+				# print("Line type = ", type(line))
+				# print("conn type = ", type(conn))
+				# print("Guessed encoding - ", chardet.detect(line))
+				# print(line)
+				if guess['confidence'] > 0.7:
+					line = line.decode(guess['encoding'])
+				else:
+					line = line.decode(self.encoding)
+
+				if len(line) > self.maxline:
+					raise ftplib.Error("got more than %d bytes" % self.maxline)
+				if self.debugging > 2:
+					print('*retr*', repr(line))
+				if not line:
+					break
+				if line[-2:] == ftplib.CRLF:
+					line = line[:-2]
+				elif line[-1:] == '\n':
+					line = line[:-1]
+				callback(line)
+			# shutdown ssl layer
+			if ftplib._SSLSocket is not None and isinstance(conn, ftplib._SSLSocket):
+				conn.unwrap()
+		return self.voidresp()
+
 class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	log = logging.getLogger("Main.Mk.Uploader")
 
@@ -39,7 +93,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.wg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web")
 
 
-		self.ftp = ftplib.FTP(host=settings.mkSettings["ftpAddr"])
+		self.ftp = TolerantFTP(host=settings.mkSettings["ftpAddr"])
 
 		self.ftp.login()
 		self.enableUtf8()
@@ -54,6 +108,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# Command:	OPTS UTF8 ON
 			# Response:	200 UTF8 set to on
 			ret = self.ftp.sendcmd('OPTS UTF8 ON')
+			self.log.info("Response to 'OPTS UTF8 ON': '%s'", ret)
 			ret = ret.upper()
 			if "UTF8" in ret and "ON" in ret:
 				# Override undocumented class member to set the FTP encoding.

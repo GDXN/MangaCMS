@@ -301,3 +301,14 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			self.conn.commit()
 			return False
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		# getHistory()
+		run = FakkuContentLoader()
+		# run.getFeed()
+		run.go()

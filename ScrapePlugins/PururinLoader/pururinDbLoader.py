@@ -66,11 +66,13 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		soup = bs4.BeautifulSoup(page)
 
 		mainSection = soup.find("ul", class_="gallery-list")
+
 		doujinLink = mainSection.find_all("li", class_="gallery-block")
 
 		ret = []
 		for linkLi in doujinLink:
-			ret.append(self.parseLinkLi(linkLi))
+			tmp = self.parseLinkLi(linkLi)
+			ret.append(tmp)
 
 		return ret
 
