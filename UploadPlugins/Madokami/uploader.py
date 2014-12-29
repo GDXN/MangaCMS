@@ -333,8 +333,6 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dummy_fPath, fName = os.path.split(filePath)
 		url = urllib.parse.urljoin("http://manga.madokami.com", urllib.parse.quote(filePath.strip("/")))
 
-		fName = fName.encode('latin-1', 'ignore').decode('latin-1')
-
 		self.insertIntoDb(retreivalTime = time.time(),
 							sourceUrl   = url,
 							originName  = fName,
