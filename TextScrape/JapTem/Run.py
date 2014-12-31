@@ -21,3 +21,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking JapTem for updates")
 		scraper = JaptemScrape()
 		scraper.crawl()
+
+
+def test():
+	import logSetup
+	logSetup.initLogging()
+	scrp = Runner()
+	scrp.go()
+
+if __name__ == "__main__":
+	test()
