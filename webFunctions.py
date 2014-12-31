@@ -519,7 +519,11 @@ class WebGetRobust:
 			else:
 				self.log.info("No cookies to save?")
 		except Exception as e:
-			print("Possible error on exit (or just the destructor): '%s'." % e)
+			pass
+			# The destructor call order is too incoherent, and shit fails
+			# during the teardown with null-references. The error printout is
+			# not informative, so just silence it.
+			# print("Possible error on exit (or just the destructor): '%s'." % e)
 		finally:
 			cookieWriteLock.release()
 

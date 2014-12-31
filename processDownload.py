@@ -74,6 +74,14 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.warn("SrcRow:	'%s'", srcRow)
 		self.log.warn("DstRow:	'%s'", dstRow)
 
+	def scanIntersectingArchives(self, intersections):
+		self.log.info("File intersections:")
+		for key in intersections:
+			self.log.info("	%s common files:", key)
+			for val in intersections[key]:
+				self.log.info("		%s", val)
+
+
 
 	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, **kwargs):
 
@@ -119,7 +127,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# Let the remote deduper do it's thing.
 		# It will delete duplicates automatically.
 		dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
-		retTagsTmp, bestMatch = dc.process(moveToPath=moveToPath)
+		retTagsTmp, bestMatch, intersections = dc.process(moveToPath=moveToPath)
 		retTags += " " + retTagsTmp
 		retTags = retTags.strip()
 
@@ -129,6 +137,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				isPhash = True
 			self.crossLink(archivePath, bestMatch, isPhash=isPhash)
 
+		self.scanIntersectingArchives(intersections)
 
 		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
