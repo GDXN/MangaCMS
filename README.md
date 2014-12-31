@@ -137,8 +137,14 @@ Has lots of dependencies:
 Installing:
 Run the `installDeps.sh` script in the `setuptools` directory (note: must be 
 run with `sudo` or as root. Please review it before running for security 
-reasons). Note that the setup script will forcefully update your python 3 
-version to python 3.4.
+reasons).   
+The dependency installation cannot be done using only `pip`, unfortunately, as a 
+number of the changes made during the setup process are outside of what `pip` 
+can change. In particular, properly installing `PIL` requires installing a 
+number of system packages (`libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev`). Numpy/scipy also requires some system packages, and 
+the setup script also does some setup for postgres, such as installing it, and 
+enabling the `citext` extension. It also increases the number of `inotify` 
+watches. 
 
 Once you have installed the dependencies, you have to configure the various 
 options. Copy `settings.base.py` to `settings.py`, and then edit it:
