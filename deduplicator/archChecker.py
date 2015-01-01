@@ -1,14 +1,10 @@
 
 
-import UniversalArchiveInterface
-import os
 import os.path
 import logging
 import rpyc
-import magic
-import shutil
+import settings
 
-import hashlib
 
 PHASH_DISTANCE_THRESHOLD = 2
 

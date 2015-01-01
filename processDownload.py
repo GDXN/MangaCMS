@@ -3,7 +3,7 @@
 # Ideally, all downloaded archives should run through this function.
 import UploadPlugins.Madokami.uploader as up
 import archCleaner as ac
-import logging
+import deduplicator.archChecker
 import traceback
 import os.path
 import ScrapePlugins.RetreivalDbBase
@@ -74,12 +74,28 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.warn("SrcRow:	'%s'", srcRow)
 		self.log.warn("DstRow:	'%s'", dstRow)
 
-	def scanIntersectingArchives(self, intersections):
+	def scanIntersectingArchives(self, intersections, phashThresh, moveToPath):
+		pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
 		self.log.info("File intersections:")
 		for key in intersections:
 			self.log.info("	%s common files:", key)
-			for val in intersections[key]:
-				self.log.info("		%s", val)
+			for archivePath in intersections[key]:
+				self.log.info("		Scanning %s", archivePath)
+
+				# I need some sort of deletion lock for file removal. Outside deletion is disabled until that's done.
+
+				# dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
+				# retTags, bestMatch, dummy_intersections = dc.process(moveToPath=moveToPath)
+				# retTags = retTags.strip()
+
+				# if bestMatch:
+				# 	self.log.info("			Scan return: '%s', best-match: '%s'", retTags, bestMatch)
+				# 	isPhash = False
+				# 	if "phash-duplicate" in retTags:
+				# 		isPhash = True
+				# 	self.crossLink(archivePath, bestMatch, isPhash=isPhash)
+				# else:
+				# 	self.log.info("			Scan return: '%s'. No best match.", retTags)
 
 
 
@@ -95,15 +111,6 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			moveToPath = False
 
-		try:
-			import deduplicator.archChecker
-
-			deduper = True
-			print("Have file deduplication interface. Doing download duplicate checking!")
-		except Exception:
-			deduper = None
-			print("No deduplication tools installed.")
-
 		if moveToPath:
 			retTags = ""
 		else:
@@ -117,9 +124,6 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				retTags = "corrupt unprocessable"
 
 
-		# Can't do anything if the deduper isn't alive
-		if not deduper:
-			return ''
 
 		# Limit dedup matches to the served directories.
 		pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
@@ -137,7 +141,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				isPhash = True
 			self.crossLink(archivePath, bestMatch, isPhash=isPhash)
 
-		self.scanIntersectingArchives(intersections)
+		self.scanIntersectingArchives(intersections, phashThresh, moveToPath)
 
 		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
