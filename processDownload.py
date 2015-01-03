@@ -8,6 +8,7 @@ import traceback
 import os.path
 import ScrapePlugins.RetreivalDbBase
 import settings
+import runStatus
 
 PHASH_DISTANCE = 2
 
@@ -74,28 +75,43 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.warn("SrcRow:	'%s'", srcRow)
 		self.log.warn("DstRow:	'%s'", dstRow)
 
-	def scanIntersectingArchives(self, intersections, phashThresh, moveToPath):
+	def scanIntersectingArchives(self, containerPath, intersections, phashThresh, moveToPath):
+
 		pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
 		self.log.info("File intersections:")
-		for key in intersections:
+		keys = list(intersections)
+		keys.sort()
+		# Only look at the 3 largest keys
+		for key in keys[-3:]:
+			if not runStatus.run:
+				self.log.warning("Exiting early from scanIntersectingArchives() due to halt flag.")
+				return
+
 			self.log.info("	%s common files:", key)
-			for archivePath in intersections[key]:
+
+			# And limit the key checks to two files
+			for archivePath in intersections[key][:2]:
+
+				# Limit the checked files to just the context of the new file
+				if not archivePath.startswith(containerPath):
+					continue
 				self.log.info("		Scanning %s", archivePath)
 
 				# I need some sort of deletion lock for file removal. Outside deletion is disabled until that's done.
+				# EDIT: Wrapped the deduper end in a lock.
 
-				# dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
-				# retTags, bestMatch, dummy_intersections = dc.process(moveToPath=moveToPath)
-				# retTags = retTags.strip()
+				dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
+				retTags, bestMatch, dummy_intersections = dc.process(moveToPath=moveToPath)
+				retTags = retTags.strip()
 
-				# if bestMatch:
-				# 	self.log.info("			Scan return: '%s', best-match: '%s'", retTags, bestMatch)
-				# 	isPhash = False
-				# 	if "phash-duplicate" in retTags:
-				# 		isPhash = True
-				# 	self.crossLink(archivePath, bestMatch, isPhash=isPhash)
-				# else:
-				# 	self.log.info("			Scan return: '%s'. No best match.", retTags)
+				if bestMatch:
+					self.log.info("			Scan return: '%s', best-match: '%s'", retTags, bestMatch)
+					isPhash = False
+					if "phash-duplicate" in retTags:
+						isPhash = True
+					self.crossLink(archivePath, bestMatch, isPhash=isPhash)
+				else:
+					self.log.info("			Scan return: '%s'. No best match.", retTags)
 
 
 
@@ -141,7 +157,15 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				isPhash = True
 			self.crossLink(archivePath, bestMatch, isPhash=isPhash)
 
-		self.scanIntersectingArchives(intersections, phashThresh, moveToPath)
+
+		try:
+			self.scanIntersectingArchives(os.path.split(archivePath)[0], intersections, phashThresh, moveToPath)
+		except Exception:
+			self.log.error("Failure in scanIntersectingArchives()?")
+			for line in traceback.format_exc().split("\n"):
+				self.log.error(line)
+			self.log.error("Ignoring exception")
+
 
 		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""

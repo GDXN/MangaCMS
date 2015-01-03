@@ -16,7 +16,7 @@ import traceback
 import bs4
 import re
 import ScrapePlugins.RetreivalBase
-
+import psycopg2
 
 
 import processDownload
@@ -179,6 +179,9 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			return
 
 
+		except psycopg2.OperationalError:
+			self.log.info("Database issue?")
+			raise
 
 		except Exception:
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)

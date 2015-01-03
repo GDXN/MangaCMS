@@ -102,7 +102,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def enableUtf8(self):
 		features_string_ftp = self.ftp.sendcmd('FEAT')
-		self.log.info("FTP Feature string: '%s'", features_string_ftp)
+		# self.log.info("FTP Feature string: '%s'", features_string_ftp)
 		if 'UTF8' in features_string_ftp.upper():
 			self.log.info("Server supports UTF-8 charset. Trying to enable it.")
 			# Command:	OPTS UTF8 ON

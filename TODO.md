@@ -3,6 +3,7 @@ New LN Trans groups:
  - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 Todo:
+ - Filter spiral aggressively by manga directory
  - filter rating view by crosslink status
  - h rating system
  - deduper expose get matching archives for spiral
@@ -63,7 +64,7 @@ Long Term:
 <b>Add Scrapers for</b>
 
  - Manga
- 	- MangaPark.com 
+ 	- MangaPark.com
  	 - TONIGOBE
 	 - http://www.netcomics.com/ - Maybe?
 	 - https://www.emanga.com/ - Maybe?

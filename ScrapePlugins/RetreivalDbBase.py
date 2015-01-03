@@ -211,9 +211,15 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 					os.makedirs(targetDir)
 					return targetDir, True
 
+				except FileExistsError:
+					# Probably means the directory was concurrently created by another thread in the background?
+					self.log.critical("Directory doesn't exist, and yet it does?")
+					self.log.critical(traceback.format_exc())
+					pass
 				except OSError:
 					self.log.critical("Directory creation failed?")
 					self.log.critical(traceback.format_exc())
+
 			else:
 				self.log.warning("Directory not found in dir-dict, but it exists!")
 				self.log.warning("Directory-Path: %s", targetDir)

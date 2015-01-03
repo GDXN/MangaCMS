@@ -111,7 +111,7 @@ else:
 					<a href="itemsManga?${urllib.parse.urlencode(distinct)}">Distinct series</a> <a href="itemsManga?${urllib.parse.urlencode(nonDistinct)}">All Items</a>
 					## ${tableGenerators.genLegendTable()}
 					## ${tableGenerators.genMangaTable(tableKey=sourceFilter, limit=limit, offset=offset, distinct=onlyDistinct)}
-					${fetchTable.getMangaTable()}
+					${fetchTable.getMangaTable(tableKey=sourceFilter, limit=limit, offset=offset, distinct=onlyDistinct)}
 				</div>
 
 				% if pageNo > 0:
