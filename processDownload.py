@@ -82,7 +82,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		keys = list(intersections)
 		keys.sort()
 		# Only look at the 3 largest keys
-		for key in keys[-3:]:
+		for key in keys[-2:]:
 			if not runStatus.run:
 				self.log.warning("Exiting early from scanIntersectingArchives() due to halt flag.")
 				return
@@ -146,7 +146,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# Let the remote deduper do it's thing.
 		# It will delete duplicates automatically.
-		dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
+		dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter, lock=False)
 		retTagsTmp, bestMatch, intersections = dc.process(moveToPath=moveToPath)
 		retTags += " " + retTagsTmp
 		retTags = retTags.strip()
@@ -158,13 +158,13 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.crossLink(archivePath, bestMatch, isPhash=isPhash)
 
 
-		try:
-			self.scanIntersectingArchives(os.path.split(archivePath)[0], intersections, phashThresh, moveToPath)
-		except Exception:
-			self.log.error("Failure in scanIntersectingArchives()?")
-			for line in traceback.format_exc().split("\n"):
-				self.log.error(line)
-			self.log.error("Ignoring exception")
+		# try:
+		# 	self.scanIntersectingArchives(os.path.split(archivePath)[0], intersections, phashThresh, moveToPath)
+		# except Exception:
+		# 	self.log.error("Failure in scanIntersectingArchives()?")
+		# 	for line in traceback.format_exc().split("\n"):
+		# 		self.log.error(line)
+		# 	self.log.error("Ignoring exception")
 
 
 		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
