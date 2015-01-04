@@ -97,7 +97,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	def __init__(self):
-		self.log = logging.getLogger(self.loggerPath)
+		# This line HAS to be before ANY logging statements, or the automagic thread
+		# logging context management will fail.
+		self.loggers = {}
+
+		# Loggers are set up dynamically on first-access.
 		self.log.info("TextScrape Base startup")
 
 		# I have to wrap the DB in locks, since two pages may return
@@ -106,7 +110,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# Most of the time is spent in processing pages anyways
 		self.dbLock = threading.Lock()
 
-		self.loggers = {}
 		self.dbConnections = {}
 
 		self.newLinkQueue = queue.Queue()
@@ -122,10 +125,17 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def __getattribute__(self, name):
 
 		threadName = threading.current_thread().name
-		if name == "log" and "Thread-" in threadName:
-			if threadName not in self.loggers:
-				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
-				self.lastLoggerIndex += 1
+		if name == "log":
+			if "Thread-" in threadName:
+				if threadName not in self.loggers:
+					self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
+					self.lastLoggerIndex += 1
+
+			# If we're not called in the context of a thread, just return the base log-path
+			else:
+				self.loggers[threadName] = logging.getLogger("%s" % (self.loggerPath,))
+
+
 			return self.loggers[threadName]
 
 
