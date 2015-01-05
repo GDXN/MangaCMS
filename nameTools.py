@@ -97,6 +97,14 @@ def makeFilenameSafe(inStr):
 				 .replace("*",  " ") \
 				 .replace('"', " ")
 
+	# zero-width space bullshit (goddammit unicode)
+	inStr = inStr.replace("\u2009",  " ") \
+				 .replace("\u200A",  " ") \
+				 .replace("\u200B",  " ") \
+				 .replace("\u200C",  " ") \
+				 .replace("\u200D",  " ") \
+				 .replace("\uFEFF",  " ")
+
 	# Collapse all the repeated spaces down.
 	while inStr.find("  ")+1:
 		inStr = inStr.replace("  ", " ")
