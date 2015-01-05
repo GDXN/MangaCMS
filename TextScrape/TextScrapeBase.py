@@ -97,9 +97,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	def __init__(self):
-		# This line HAS to be before ANY logging statements, or the automagic thread
+		# These two lines HAVE to be before ANY logging statements, or the automagic thread
 		# logging context management will fail.
 		self.loggers = {}
+		self.lastLoggerIndex = 1
 
 		# Loggers are set up dynamically on first-access.
 		self.log.info("TextScrape Base startup")
@@ -114,7 +115,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.newLinkQueue = queue.Queue()
 
-		self.lastLoggerIndex = 1
 
 		self.log.info("Loading %s Runner BaseClass", self.pluginName)
 
