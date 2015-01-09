@@ -28,11 +28,11 @@ from apscheduler.executors.pool import ThreadPoolExecutor
 import datetime
 
 executors = {
-	'default': ThreadPoolExecutor(20)
+	'default': ThreadPoolExecutor(4)
 }
 job_defaults = {
 	'coalesce': True,
-	'max_instances': 3
+	'max_instances': 1
 }
 
 def scheduleJobs(sched, timeToStart):

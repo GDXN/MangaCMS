@@ -1,3 +1,5 @@
+delay loading h searches until within viewport
+
 New LN Trans groups:
  - Series system: http://lndb.info/
  - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
