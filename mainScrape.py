@@ -28,7 +28,7 @@ from apscheduler.executors.pool import ThreadPoolExecutor
 import datetime
 
 executors = {
-	'default': ThreadPoolExecutor(4)
+	'default': ThreadPoolExecutor(8)
 }
 job_defaults = {
 	'coalesce': True,
@@ -72,7 +72,7 @@ def scheduleJobs(sched, timeToStart):
 			continue
 		print("Have item to schedule - ", name, classInstance, "every", classInstance.REFRESH_INTERVAL, "seconds.")
 		sched.add_job(classInstance.refresh, trigger='interval', seconds=classInstance.REFRESH_INTERVAL, start_date=datetime.datetime.now()+datetime.timedelta(seconds=20+x))
-		x += 60
+		x += 60*2.5
 
 
 # Set up any auxilliary crap that needs to be initialized for

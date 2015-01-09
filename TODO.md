@@ -1,4 +1,3 @@
-delay loading h searches until within viewport
 
 New LN Trans groups:
  - Series system: http://lndb.info/
@@ -196,6 +195,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~delay loading h searches until within viewport~~
  - ~~h search in bu list page~~ Hopefully the trigram search load won't cause issues.
  - ~~Damaged Archive remover~~ Implemented.
  - ~~del json response undefined~~, AFICT, this is just IE11's `alert()` behaviour being bizarre on ARM.

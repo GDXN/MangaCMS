@@ -139,10 +139,23 @@ from ipaddress import IPv4Address, IPv4Network
 			};
 
 
-			var ret = ({});
-			ret["trigram-query-query-str"] = "${itemNameStr}";
-			ret["trigram-query-linktext"] = "${linkText}";
-			$.ajax("/api", {"data": ret, success: ajaxCallback_${col_id}});
+			$(function() {
+				$('#sp${col_id}').waypoint(
+					function()
+					{
+						var ret = ({});
+						ret["trigram-query-query-str"] = "${itemNameStr}";
+						ret["trigram-query-linktext"] = "${linkText}";
+						$.ajax("/api", {"data": ret, success: ajaxCallback_${col_id}});
+
+						// Destroy the scroll waypoint, so it doesn't trigger again.
+						this.destroy();
+					},
+					{
+						offset: '100%'
+					}
+					);
+				});
 
 		</script>
 		<img src='/rsc/ajax-loader.gif'>
@@ -188,6 +201,7 @@ from ipaddress import IPv4Address, IPv4Network
 <%def name="headerBase(key='showTT')">
 	${getCss()}
 	<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.waypoints.js"></script>
 	<script>
 
 		function searchMUForItem(formId)
