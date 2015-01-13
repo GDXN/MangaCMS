@@ -23,9 +23,6 @@ import processDownload
 
 class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
-
-
-
 	loggerPath = "Main.Mj.Cl"
 	pluginName = "MangaJoy Content Retreiver"
 	tableKey = "mj"
@@ -38,6 +35,9 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	retreivalThreads = 4
 	itemLimit = 500
+
+	# Mangajoy does recompress. Arrrgh.
+	PHASH_THRESH = 6
 
 	def checkDelay(self, inTime):
 		return inTime < (time.time() - 60*30)
@@ -171,7 +171,7 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			arch.close()
 
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True, phashThresh=self.PHASH_THRESH)
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)

@@ -1,9 +1,13 @@
+http://yoraikun.wordpress.com/
+ - test for bad del
+ - consolidate existence checks
 
 New LN Trans groups:
  - Series system: http://lndb.info/
  - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 Todo:
+
  - Filter spiral aggressively by manga directory
  - filter rating view by crosslink status
  - h rating system

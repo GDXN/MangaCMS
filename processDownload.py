@@ -10,7 +10,7 @@ import ScrapePlugins.RetreivalDbBase
 import settings
 import runStatus
 
-PHASH_DISTANCE = 2
+PHASH_DISTANCE = 4
 
 
 class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):

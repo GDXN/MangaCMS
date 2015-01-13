@@ -159,13 +159,11 @@ will also not work. You have to specify `/home/{username}/blah`).
 and if a download goes in this directory, it is highlighted in the web interface.
  - `baseDir`           = This is where the bulk manga downloads go, if a 
 folder is not found in the "picked" directory..
-
- - `djMoeDir`          = And DoujinMoe files
- - 'puRinDir'          = Pururin Files
- - 'ExhenMadokamiDir'  = ExHen.madokami Files
- - 'fkDir'             = Fakku Files Files
- - `fufuDir`           = Where Fufufuu.net files go
-
+ - `djMoeDir`          = And DoujinMoe files  
+ - `puRinDir`          = Pururin Files  
+ - `ExhenMadokamiDir`  = ExHen.madokami Files  
+ - `fkDir`             = Fakku Files Files  
+ - `fufuDir`           = Where Fufufuu.net files go  
  - `webCtntPath` = Path to the `ctnt` directory in the repo.
 
 
@@ -308,6 +306,7 @@ schema was always designed from the get-go to be scraper-centric.
 This is basically:
  - The first web application I'd ever written.
  - The first >5KLOC project I've ever done.
+ - I am absolutely terrible at producing nice-looking web pages.
  
 So take that into consideration when considering the codebase. I've learnt 
 a /LOT/ about designing a system for maintainability and modularity, but
