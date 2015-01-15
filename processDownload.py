@@ -115,7 +115,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, **kwargs):
+	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathFilter=None, **kwargs):
 
 		if 'phashThresh' in kwargs:
 			phashThresh = kwargs.pop('phashThresh')
@@ -136,7 +136,6 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if moveToPath:
 			retTags = ""
 		else:
-			print("Hashing?")
 			archCleaner = ac.ArchCleaner()
 			try:
 				retTags, archivePath = archCleaner.processNewArchive(archivePath, **kwargs)
@@ -148,7 +147,8 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		# Limit dedup matches to the served directories.
-		pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
+		if not pathFilter:
+			pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
 
 		# Let the remote deduper do it's thing.
 		# It will delete duplicates automatically.

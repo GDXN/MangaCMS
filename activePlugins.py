@@ -49,6 +49,9 @@ import TextScrape.SolitaryTranslation.Run
 import TextScrape.PrinceRevolution.Run
 import TextScrape.Krytyk.Run
 
+import TextScrape.UnlimitedNovelFailures.Run
+import TextScrape.Yoraikun.Run
+
 import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
 
@@ -98,18 +101,21 @@ scrapePlugins = {
 	# Madokami is two separate sections, because the feedLoader takes
 	# 5+ hours just to run.
 	40  : (ScrapePlugins.MangaMadokami.mkContentLoader,    60*60),
-	500 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       60*60*24*4),  # every 4 days, because I have to iterate over the ENTIRE site.
+	150 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       60*60*24*4),  # every 4 days, because I have to iterate over the ENTIRE site.
 
 
 
-	510 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
-	511 : (TextScrape.JapTem.Run,                          60*60*24*5),
-	512 : (TextScrape.Guhehe.Run,                          60*60*24*5),
-	513 : (TextScrape.SolitaryTranslation.Run,             60*60*24*5),
-	514 : (TextScrape.PrinceRevolution.Run,                60*60*24*5),
-	515 : (TextScrape.Krytyk.Run,                          60*60*24*5),
+	80 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
+	81 : (TextScrape.JapTem.Run,                          60*60*24*5),
+	82 : (TextScrape.Guhehe.Run,                          60*60*24*5),
+	83 : (TextScrape.SolitaryTranslation.Run,             60*60*24*5),
+	84 : (TextScrape.PrinceRevolution.Run,                60*60*24*5),
+	85 : (TextScrape.Krytyk.Run,                          60*60*24*5),
 
-	520 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+	86 : (TextScrape.UnlimitedNovelFailures.Run,          60*60*24*2),
+	87 : (TextScrape.Yoraikun.Run,                        60*60*24*2),
+
+	88 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 
 
 

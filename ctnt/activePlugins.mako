@@ -400,6 +400,30 @@ sidebarItemList = [
 			'type'          : 'Info'
 		},
 
+		{
+			"num"           : 51,
+			'dbKey'         : "YoraikunScrape",
+			'name'          : "Yorai-kun",
+			'dictKey'       : None,
+			'cssClass'      : "yrId",
+			'showOnHome'    : False,
+			'renderSideBar' : True,
+			'genRow'        : False,
+			'type'          : 'Info'
+		},
+
+		{
+			"num"           : 52,
+			'dbKey'         : "UnlimitedNovelFailuresScrape",
+			'name'          : "UNF",
+			'dictKey'       : None,
+			'cssClass'      : "unId",
+			'showOnHome'    : False,
+			'renderSideBar' : True,
+			'genRow'        : False,
+			'type'          : 'Info'
+		},
+
 
 		###################################################################################################################
 

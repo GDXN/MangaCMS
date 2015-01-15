@@ -1,20 +1,20 @@
 
 
 
-from TextScrape.Krytyk.Scrape import Scrape
+from TextScrape.UnlimitedNovelFailures.Scrape import Scrape
 
 import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Kry.Run"
+	loggerPath = "Main.Unf.Run"
 
-	pluginName = "KrytykScrape"
+	pluginName = "UnlimitedNovelFailuresScrape"
 
 
 	def _go(self):
 
-		self.log.info("Checking Krytyk for updates")
+		self.log.info("Checking Unlimited Novel Failures for updates")
 		scraper = Scrape()
 		scraper.crawl()
 

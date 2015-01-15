@@ -1,4 +1,4 @@
-http://yoraikun.wordpress.com/
+
 filter rating view by read and crosslink
  - test for bad del
  - consolidate existence checks
@@ -200,6 +200,8 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~unlimitednovelfailures~~
+ - ~~http://yoraikun.wordpress.com/~~
  - ~~delay loading h searches until within viewport~~
  - ~~h search in bu list page~~ Hopefully the trigram search load won't cause issues.
  - ~~Damaged Archive remover~~ Implemented.

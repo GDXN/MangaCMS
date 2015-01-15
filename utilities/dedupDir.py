@@ -1,6 +1,6 @@
 import os.path
 
-import runStatus
+import processDownload
 import nameTools as nt
 import shutil
 import settings
@@ -104,67 +104,19 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 		for dummy_num, basePath in parsedItems:
 			try:
-				if not deduplicator.archChecker.ArchChecker.isArchive(basePath):
-					print("Not archive!", basePath)
-					continue
+				# if not deduplicator.archChecker.ArchChecker.isArchive(basePath):
+				# 	print("Not archive!", basePath)
+				# 	continue
 
 				self.log.info("Scanning '%s'", basePath)
 
-				dc = deduplicator.archChecker.ArchChecker(basePath, pathFilter=pathFilter)
-
-				bestMatch = dc.getBestBinaryMatch()
-				if includePhash and not bestMatch:
-					phashMatch = dc.getBestPhashMatch()
-				else:
-					phashMatch = False
-
-				if bestMatch:
-					if bestMatch == basePath:
-						raise ValueError("Returned self-pointing path? Wat!")
-					self.log.warning("Archive not binary unique: '%s'", basePath)
-					duplicated = True
-					tags = " deleted was-duplicate"
-
-				elif phashMatch:
-					self.log.warning("Archive not phash unique: '%s'", basePath)
-					duplicated = True
-					tags = " deleted was-duplicate phash-duplicate"
-				else:
-					duplicated = False
-					self.log.info("Archive Contains unique files. Leaving alone!")
-
-
-				if duplicated:
-
-					self.log.info("Source file '%s'", basePath)
-					self.log.info("    Best  match '%s'", bestMatch)
-					self.log.info("    PHash match '%s'", phashMatch)
-
-
-					dst = basePath.replace("/", ";")
-					dst = os.path.join(delDir, dst)
-					self.log.info("Moving item from '%s'", basePath)
-					self.log.info("              to '%s'", dst)
-					try:
-						shutil.move(basePath, dst)
-
-						self.addTag(basePath, tags)
-
-						self.log.info("Not unique %s", basePath)
-					except KeyboardInterrupt:
-						raise
-					except OSError:
-						self.log.error("ERROR - Could not move file!")
-						self.log.error(traceback.format_exc())
+				proc = processDownload.MangaProcessor()
+				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathFilter=pathFilter)
+				self.addTag(basePath, tags)
 
 			except KeyboardInterrupt:
 				raise
-			except:
-				print("Error processing file '%s'" % basePath)
-				print("Traceback:")
-				traceback.print_exc()
-				print("")
-				print("")
+
 
 
 	def purgeDedupTempsMd5Hash(self, dirPath):

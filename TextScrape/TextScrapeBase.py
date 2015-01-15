@@ -94,6 +94,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def badwords(self):
 		pass
 
+	allImages = False
+
+
+	fileDomains = set()
 
 
 	def __init__(self):
@@ -120,6 +124,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 		self.checkInitPrimaryDb()
+
+		self.fileDomains.add(self.baseUrl)
+
 
 	# More hackiness to make sessions intrinsically thread-safe.
 	def __getattribute__(self, name):
@@ -245,7 +252,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 			url = urllib.parse.urljoin(self.baseUrl, turl)
 
 			# Filter by domain
-			if not self.baseUrl in url:
+			if not self.allImages and not any([base in url for base in self.fileDomains]):
 				continue
 
 			# and by blocked words

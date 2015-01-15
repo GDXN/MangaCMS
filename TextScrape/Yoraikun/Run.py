@@ -1,20 +1,20 @@
 
 
 
-from TextScrape.Krytyk.Scrape import Scrape
+from TextScrape.Yoraikun.Scrape import Scrape
 
 import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Kry.Run"
+	loggerPath = "Main.Yor.Run"
 
-	pluginName = "KrytykScrape"
+	pluginName = "YoraikunScrape"
 
 
 	def _go(self):
 
-		self.log.info("Checking Krytyk for updates")
+		self.log.info("Checking Yoraikun for updates")
 		scraper = Scrape()
 		scraper.crawl()
 
