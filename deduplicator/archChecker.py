@@ -6,7 +6,7 @@ import rpyc
 import settings
 
 
-PHASH_DISTANCE_THRESHOLD = 2
+PHASH_DISTANCE_THRESHOLD = 4
 
 
 class ArchChecker(object):

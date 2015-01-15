@@ -75,7 +75,10 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if "http://starkana.com/upload_manga" in td.a["href"]:
 				self.log.warning("Found missing item. Skipping")
 				continue
-			ret.append(self.getItemFromContainer(td, datetime.date.today()))
+			try:
+				ret.append(self.getItemFromContainer(td, datetime.date.today()))
+			except ValueError:
+				self.log.error("Failed to extract information from content: '%s'", td.get_text().strip())
 		return ret
 
 	def getMainItems(self, rangeOverride=None, rangeOffset=None):
@@ -98,7 +101,7 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		currentDate = None
 
-		for daysAgo in range(1, dayDelta+1):
+		for daysAgo in range(1+rangeOffset, dayDelta+1+rangeOffset):
 
 			url = self.feedUrl % daysAgo
 			page = self.wg.getpage(url)
@@ -123,9 +126,13 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 					if not "chapter" in div.a["href"]:
 						seriesPages.append(urllib.parse.urljoin(self.urlBase, div.a["href"]))
+
 					else:
-						item = self.getItemFromContainer(div, currentDate)
-						ret.append(item)
+
+						try:
+							ret.append(self.getItemFromContainer(div, datetime.date.today()))
+						except ValueError:
+							self.log.error("Failed to extract information from content: '%s'", div.get_text().strip())
 
 		# Starkana is fucking annoying, and when someone uploads more then just one chapter, the "view"
 		# link just goes to the root-page of the manga series, rather then actually having volume archives.
@@ -208,5 +215,18 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.processLinksIntoDB(feedItems)
 		self.log.info("Complete")
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = SkFeedLoader()
+
+		for x in range(50):
+			feedItems = run.getMainItems(rangeOffset=x)
+			run.processLinksIntoDB(feedItems)
 
 

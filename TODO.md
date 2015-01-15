@@ -1,4 +1,5 @@
 http://yoraikun.wordpress.com/
+filter rating view by read and crosslink
  - test for bad del
  - consolidate existence checks
 

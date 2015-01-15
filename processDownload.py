@@ -119,8 +119,14 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if 'phashThresh' in kwargs:
 			phashThresh = kwargs.pop('phashThresh')
+			self.log.warn("Phash search distance overridden!")
+			self.log.warn("Search distance = %s", phashThresh)
+			for line in traceback.format_stack().split("\n"):
+				self.log.warn(line)
+
 		else:
 			phashThresh = PHASH_DISTANCE
+			self.log.info("Phash search distance = %s", phashThresh)
 
 		if 'dedupMove' in kwargs:
 			moveToPath = kwargs.pop('dedupMove')

@@ -233,7 +233,7 @@ import re
 	<div class="contentdiv subdiv uncoloured">
 		<h3>${baseName}</h3>
 
-		<div>
+		<div class='watwat'>
 			<%
 
 			haveItem = False
@@ -249,7 +249,7 @@ import re
 
 
 		</div>
-		<div>
+		<div style='float:right'>
 			<%
 			if haveItem:
 				reader.generateInfoSidebar(itemDict)
