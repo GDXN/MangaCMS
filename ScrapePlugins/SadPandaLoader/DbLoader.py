@@ -165,6 +165,9 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		itemTable = soup.find("table", class_="itg")
 
+		if not itemTable:
+			return []
+
 		rows = itemTable.find_all("tr", class_=re.compile("gtr[01]"))
 
 		for row in rows:
@@ -207,9 +210,14 @@ def login():
 	run = DbLoader()
 	# run.checkLogin()
 	# run.checkExAccess()
-	for x in range(10):
-		ret = run.getFeed(settings.sadPanda['sadPandaSearches'][0], pageOverride=x)
-		run.processLinksIntoDB(ret)
+	for feed in settings.sadPanda['sadPandaSearches']:
+		for x in range(8):
+			ret = run.getFeed(feed, pageOverride=x)
+			if not ret:
+				break
+			run.processLinksIntoDB(ret)
+
+			time.sleep(5)
 	# run.go()
 
 
@@ -217,8 +225,8 @@ if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup(startObservers=False):
-		# login()
-		run = DbLoader()
-		run.go()
+		login()
+		# run = DbLoader()
+		# run.go()
 
 
