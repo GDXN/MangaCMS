@@ -18,6 +18,16 @@ import re
 import gzip
 import io
 
+
+
+import selenium.webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+
+
 #pylint: disable-msg=E1101, C0325, R0201, W0702, W0703
 
 # A urllib2 wrapper that provides error handling and logging, as well as cookie management. It's a bit crude, but it works.
@@ -182,7 +192,7 @@ class WebGetRobust:
 
 		# postData expects a dict
 		# addlHeaders also expects a dict
-	def getpage(self, pgreq, addlHeaders = None, returnMultiple = False, callBack=None, postData=None, soup=False):
+	def getpage(self, pgreq, addlHeaders = None, returnMultiple = False, callBack=None, postData=None, soup=False, retryQuantity=None, nativeError=False):
 
 		# pgreq = fixurl(pgreq)
 
@@ -226,7 +236,7 @@ class WebGetRobust:
 
 				retryCount = retryCount + 1
 
-				if retryCount > self.errorOutCount:
+				if (retryQuantity and retryCount > retryQuantity) or (not retryQuantity and retryCount > self.errorOutCount):
 					self.log.error("Failed to retrieve Website : %s at %s All Attempts Exhausted", pgreq.get_full_url(), time.ctime(time.time()))
 					pgctnt = None
 					try:
@@ -426,6 +436,9 @@ class WebGetRobust:
 			print(("Later attempt succeeded %s" % pgreq.get_full_url()))
 			#print len(pgctnt)
 		elif errored and pghandle == None:
+
+			if lastErr and nativeError:
+				raise lastErr
 			raise urllib.error.URLError("Failed to retreive page!")
 
 		if returnMultiple:
@@ -460,6 +473,10 @@ class WebGetRobust:
 		self.cj.set_cookie(inCookie)
 
 	def addSeleniumCookie(self, cookieDict):
+		'''
+		Install a cookie exported from a selenium webdriver into
+		the active opener
+		'''
 		# print cookieDict
 		cookie = http.cookiejar.Cookie(
 				version=0
@@ -535,6 +552,54 @@ class WebGetRobust:
 	def __del__(self):
 		# print "WGH Destructor called!"
 		self.saveCookies(halting=True)
+
+
+
+
+
+	def stepThroughCloudFlare(self, url, titleContains):
+		'''
+		Use Selenium+PhantomJS to access a resource behind cloudflare protection.
+
+		Params:
+			``url`` - The URL to access that is protected by cloudflare
+			``titleContains`` - A string that is in the title of the protected page, and NOT the
+				cloudflare intermediate page. The presence of this string in the page title
+				is used to determine whether the cloudflare protection has been successfully
+				penetrated.
+
+		'''
+		self.log.info("Attempting to access page through cloudflare browser verification.")
+
+		dcap = dict(DesiredCapabilities.PHANTOMJS)
+		wgSettings = dict(self.browserHeaders)
+
+		# Install the headers from the WebGet class into phantomjs
+		dcap["phantomjs.page.settings.userAgent"] = wgSettings.pop('User-Agent')
+		for headerName in wgSettings:
+			dcap['phantomjs.page.customHeaders.{header}'.format(header=headerName)] = wgSettings[headerName]
+
+		driver = selenium.webdriver.PhantomJS(desired_capabilities=dcap)
+		driver.set_window_size(1024, 768)
+
+		driver.get(url)
+
+		try:
+			WebDriverWait(driver, 20).until(EC.title_contains((titleContains)))
+			success = True
+			self.log.info("Successfully accessed main page!")
+		except TimeoutException:
+			self.log.error("Could not pass through cloudflare blocking!")
+			success = False
+		# Add cookies to cookiejar
+
+		for cookie in driver.get_cookies():
+			self.addSeleniumCookie(cookie)
+			#print cookie[u"value"]
+
+		self.syncCookiesFromFile()
+
+		return success
 
 
 
@@ -640,15 +705,33 @@ class DummyLog:									# For testing WebGetRobust (mostly)
 
 if __name__ == "__main__":
 	import logSetup
+	import sys
 	logSetup.initLogging()
 	print("Oh HAI")
 	wg = WebGetRobust()
 
-	content, handle = wg.getpage("http://www.lighttpd.net", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
-	content, handle = wg.getpage("http://www.example.org", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
-	content, handle = wg.getpage("https://www.google.com/images/srpr/logo11w.png", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
-	content, handle = wg.getpage("http://www.doujin-moe.us/ajax/newest.php", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
+	if len(sys.argv) == 3:
+		getUrl = sys.argv[1]
+		fName  = sys.argv[2]
+		print(getUrl, fName)
+
+		content = wg.getpage(getUrl)
+
+		try:
+			out = content.encode("utf-8")
+		except:
+			out = content
+
+		with open(fName, 'wb') as fp:
+			fp.write(out)
+
+
+
+	# content, handle = wg.getpage("http://www.lighttpd.net", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))
+	# content, handle = wg.getpage("http://www.example.org", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))
+	# content, handle = wg.getpage("https://www.google.com/images/srpr/logo11w.png", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))
+	# content, handle = wg.getpage("http://www.doujin-moe.us/ajax/newest.php", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))

@@ -161,6 +161,16 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.updateDbEntry(sourceUrl, dlState=-1)
 			raise
 
+
+	def setup(self):
+		'''
+		poke through cloudflare
+		'''
+
+		if not self.wg.stepThroughCloudFlare(self.urlBase, 'KissManga'):
+			raise ValueError("Could not access site due to cloudflare protection.")
+
+
 if __name__ == '__main__':
 	import utilities.testBase as tb
 

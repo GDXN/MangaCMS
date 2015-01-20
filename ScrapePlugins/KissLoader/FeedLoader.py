@@ -202,6 +202,9 @@ Not found
 
 	def go(self, historical=False):
 
+		if not self.wg.stepThroughCloudFlare(self.urlBase, 'KissManga'):
+			raise ValueError("Could not access site due to cloudflare protection.")
+
 		self.resetStuckItems()
 		self.log.info("Getting feed items")
 

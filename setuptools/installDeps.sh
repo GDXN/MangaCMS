@@ -10,7 +10,7 @@ fi
 
 # install said up-to-date python
 apt-get install -y python3.4 python3.4-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.3 unrar
-apt-get install -y postgresql-server-dev-9.3 postgresql-contrib libyaml-dev git
+apt-get install -y postgresql-server-dev-9.3 postgresql-contrib libyaml-dev git phantomjs
 
 # PIL/Pillow support stuff
 sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
@@ -25,7 +25,7 @@ echo TODO: ADD PostgreSQL >= 9.3 install stuff here!
 pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama
 pip3 install pyinotify python-dateutil apscheduler rarfile python-magic
 pip3 install babel cython irc psycopg2 python-levenshtein chardet
-pip3 install python-sql natsort pyyaml pillow rpyc server_reloader
+pip3 install python-sql natsort pyyaml pillow rpyc server_reloader selenium
 
 # numpy and scipy are just needed for the image deduplication stuff. They can be left out if
 # those functions are not desired.
