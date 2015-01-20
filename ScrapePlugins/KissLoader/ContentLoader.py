@@ -167,14 +167,15 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		poke through cloudflare
 		'''
 
-		if not self.wg.stepThroughCloudFlare(self.urlBase, 'KissManga'):
+
+		if not self.wg.stepThroughCloudFlare("http://kissmanga.com", 'KissManga'):
 			raise ValueError("Could not access site due to cloudflare protection.")
 
 
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup():
+	with tb.testSetup(startObservers=True):
 		cl = ContentLoader()
 
 		# pg = 'http://dynasty-scans.com/chapters/qualia_the_purple_ch16'

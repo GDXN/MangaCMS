@@ -95,8 +95,10 @@ Not found
 		while 1:
 
 
-
-			pages = self.getUpdatedSeries(self.seriesBase.format(num=cnt))
+			try:
+				pages = self.getUpdatedSeries(self.seriesBase.format(num=cnt))
+			except ValueError:
+				break
 
 
 			if not pages:
@@ -221,7 +223,7 @@ if __name__ == '__main__':
 	with tb.testSetup(startObservers=False):
 		fl = FeedLoader()
 		# fl.go(historical=True)
-		fl.go()
+		fl.go(historical=True)
 		# fl.getSeriesUrls()
 
 		# fl.getAllItems()

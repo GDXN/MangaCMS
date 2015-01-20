@@ -32,13 +32,8 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		if not runStatus.run:
 			return
 
-		todo = cl.retreiveTodoLinksFromDB()
+		cl.go()
 
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
-		cl.closeDB()
 
 
 
