@@ -24,3 +24,4 @@ __pycache__
 /BookCache/
 /waterStripper/cvtest/out
 /waterStripper/cvtest/tests
+/ScrapePlugins/SadPandaLoader/deploy.shim

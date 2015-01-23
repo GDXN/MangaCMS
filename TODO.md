@@ -1,4 +1,4 @@
-
+h search to each dir page
 filter rating view by read and crosslink
  - test for bad del
  - consolidate existence checks

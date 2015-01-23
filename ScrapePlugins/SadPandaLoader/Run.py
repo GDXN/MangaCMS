@@ -29,9 +29,12 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		cl.closeDB()
 
 
-if __name__ == "__main__":
+def test():
 	import utilities.testBase as tb
 
 	with tb.testSetup(startObservers=False):
 		run = Runner()
 		run.go()
+
+if __name__ == "__main__":
+	test()
