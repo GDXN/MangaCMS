@@ -1,5 +1,7 @@
-h search to each dir page
-filter rating view by read and crosslink
+ - tagging system
+ - revisit gdoc extractor. the extra spaces are annoying
+ - lcs diff system instead of levenshtein for change measurement.
+ - filter rating view by read and crosslink
  - test for bad del
  - consolidate existence checks
 
@@ -200,6 +202,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~h search to each dir page~~ It's probably going to be 95% false positives, but what the hell
  - ~~unlimitednovelfailures~~
  - ~~http://yoraikun.wordpress.com/~~
  - ~~delay loading h searches until within viewport~~

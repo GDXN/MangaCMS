@@ -730,19 +730,6 @@ colours = {
 
 
 <%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False, originTrigram=None)">
-	<table border="1px">
-		<tr>
-
-			<th class="uncoloured" width="5%">Date</th>
-			<th class="uncoloured" width="3%">St</th>
-			<th class="uncoloured" width="18%">Path</th>
-			<th class="uncoloured" width="25%">FileName</th>
-			<th class="uncoloured" width="30%">Tags</th>
-			<th class="uncoloured" width="8%">Size</th>
-			<th class="uncoloured" width="8%">DLTime</th>
-
-
-		</tr>
 
 	<%
 
@@ -776,12 +763,29 @@ colours = {
 
 
 	%>
+	% if tblCtntArr:
+		<table border="1px">
+			<tr>
 
-	% for row in tblCtntArr:
-		${renderHentaiRow(row)}
-	% endfor
+				<th class="uncoloured" width="5%">Date</th>
+				<th class="uncoloured" width="3%">St</th>
+				<th class="uncoloured" width="18%">Path</th>
+				<th class="uncoloured" width="25%">FileName</th>
+				<th class="uncoloured" width="30%">Tags</th>
+				<th class="uncoloured" width="8%">Size</th>
+				<th class="uncoloured" width="8%">DLTime</th>
 
-	</table>
+
+			</tr>
+
+			% for row in tblCtntArr:
+				${renderHentaiRow(row)}
+			% endfor
+
+		</table>
+	% else:
+		<div class="errorPattern">No items!</div>
+	% endif
 </%def>
 
 

@@ -27,7 +27,7 @@ validTables = [
 
 
 <%def name="genHentaiSearch(search)">
-	Wat? ${search}
+	${search}
 
 	${tableGenerators.genPronTable(originTrigram=search)}
 

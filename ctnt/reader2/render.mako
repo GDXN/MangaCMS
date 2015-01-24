@@ -191,10 +191,16 @@ import re
 		</div>
 		<%
 		if navPath:
-			reader.generateInfoSidebar(nt.dirNameProxy[navPath[-1]])
+			buId = reader.generateInfoSidebar(nt.dirNameProxy[navPath[-1]])
+		else:
+			buId = None
 
 		%>
 		<div style="clear:both"></div>
+
+		<%
+		reader.renderHTablesForBuId(buId)
+		%>
 	</div>
 	<%
 	reader.readerBrowseFooter()
@@ -252,16 +258,18 @@ import re
 		<div style='float:right'>
 			<%
 			if haveItem:
-				reader.generateInfoSidebar(itemDict)
+				buId = reader.generateInfoSidebar(itemDict)
 			else:
 				# Probably excessive error checking, since we should be confident we have an item from above.
 				reader.invalidKey(message="Could not find anything for that key. Are you sure it's correct?")
+				buId = None
 			%>
 		</div>
 		<div>
 			${tableGen.genMangaTable(seriesName=itemKey, limit=None, includeUploads=True)}
 			${tableGen.genLegendTable()}
 		</div>
+		${reader.renderHTablesForBuId(buId)}
 	</div>
 	<%
 	reader.readerBrowseFooter()

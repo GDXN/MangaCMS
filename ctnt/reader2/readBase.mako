@@ -26,6 +26,7 @@ import unicodedata
 import traceback
 import settings
 import urllib.parse
+import uuid
 
 styles = ["skId", "mtMonId", "czId", "mbId", "djMoeId", "navId"]
 
@@ -37,6 +38,61 @@ def dequoteDict(inDict):
 
 %>
 
+
+<%def name="renderHTablesForBuId(buId)">
+	<%
+	# Short circuit if we don't have anything to render.
+	if not buId:
+		return
+	if not ut.ip_in_whitelist():
+		return
+
+
+	names = nt.buSynonymsLookup[buId]
+	names.sort()
+	#
+	%>
+	<hr>
+	<div>
+		<div>
+			<b>Related Hentai Searches</b>
+		</div>
+		% for name in names:
+			<%
+			itemId = uuid.uuid4().hex
+			%>
+
+			<script type="text/javascript">
+				$(document).ready(function() {
+
+					$.get("/search/hs?q=${name | u}",
+						function( response, status, xhr )
+						{
+							if ( status == "error" )
+							{
+								var msg = "Sorry but there was an error: ";
+								$( "#${itemId}" ).html( msg + xhr.status + " " + xhr.statusText );
+							}
+							else
+							{
+								$('#${itemId}').html(response);
+							}
+						}
+					);
+
+				});
+
+			</script>
+
+
+
+			Name: ${name}
+			<div id='${itemId}'>
+				<center><img src='/js/loading.gif' /></center>
+			</div>
+		% endfor
+	</div>
+</%def>
 
 
 <%def name="readerBrowseHeader()">
@@ -461,7 +517,9 @@ def dequoteDict(inDict):
 
 	</div>
 
-
+	<%
+	return buId
+	%>
 
 </%def>
 
