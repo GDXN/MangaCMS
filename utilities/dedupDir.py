@@ -19,6 +19,10 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 	def addTag(self, srcPath, newTags):
 		with self.conn.cursor() as cur:
+
+			tags = None
+			rowId = None
+
 			cur.execute("BEGIN;")
 			basePath, fName = os.path.split(srcPath)
 			# print("fname='%s', path='%s'" % (fName, basePath))
@@ -48,13 +52,17 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					tags = row[1]
 					rowId = row[0]
 
-			elif not rows:
-				self.log.info("File {fname} not in manga database!".format(fname=srcPath))
-				return
-			else:
+			elif rows:
 				row = rows.pop()
 				tags = row[1]
 				rowId = row[0]
+			else:
+				self.log.info("File {fname} not in manga database!".format(fname=srcPath))
+				return
+
+			if not rowId:
+				self.log.warning("WAt?")
+				return
 
 			if tags == None:
 				tags = ''

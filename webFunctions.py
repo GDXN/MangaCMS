@@ -187,45 +187,221 @@ class WebGetRobust:
 		return pgctnt, hName
 
 
-		# HUGE GOD-FUNCTION.
-		# OH GOD FIXME.
-
-		# postData expects a dict
-		# addlHeaders also expects a dict
-	def getpage(self, pgreq, addlHeaders = None, returnMultiple = False, callBack=None, postData=None, soup=False, retryQuantity=None, nativeError=False):
-
-		# pgreq = fixurl(pgreq)
-
-		if soup:
-			self.log.warn("'soup' kwarg is depreciated. Please use the `getSoup()` call instead.")
-
-
-
-		originalString = pgreq
-
-
-		pgctnt = None
-		pghandle = None
-
-		retryCount = 0
-
+	def buildRequest(self, pgreq, postData, addlHeaders, binaryForm):
 		# Encode Unicode URL's properly
 		pgreq = iri2uri(pgreq)
 
 		try:
 			params = {}
+			headers = {}
 			if postData != None:
 				self.log.info("Making a post-request!")
 				params['data'] = urllib.parse.urlencode(postData).encode("utf-8")
 			if addlHeaders != None:
 				self.log.info("Have additional GET parameters!")
-				params['headers'] = addlHeaders
+				headers = addlHeaders
+			if binaryForm:
+				self.log.info("Binary form submission!")
+				if 'data' in params:
+					raise ValueError("You cannot make a binary form post and a plain post request at the same time!")
 
-			pgreq = urllib.request.Request(pgreq, **params)
+				params['data']            = binaryForm.make_result()
+				headers['Content-type']   =  binaryForm.get_content_type()
+				headers['Content-length'] =  len(params['data'])
+
+
+			return urllib.request.Request(pgreq, headers=headers, **params)
 
 		except:
 			self.log.critical("Invalid header or url")
 			raise
+
+
+	def decodeHtml(self, pageContent, cType):
+
+		if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
+
+			# Some wierdos put two charsets in their headers:
+			# `text/html;Charset=UTF-8;charset=UTF-8`
+			# Split, and take the first two entries.
+			dummy_docType, charset = cType.split(";")[:2]
+			charset = charset.split("=")[-1]
+
+
+		else:		# The server is not reporting an encoding in the headers.
+
+			# this *should* probably be done using a parser.
+			# However, it seems to be grossly overkill to shove the whole page (which can be quite large) through a parser just to pull out a tag that
+			# should be right near the page beginning anyways.
+			# As such, it's a regular expression for the moment
+
+			# Regex is of bytes type, since we can't convert a string to unicode until we know the encoding the
+			# bytes string is using, and we need the regex to get that encoding
+			coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pageContent, flags=re.IGNORECASE)
+
+			cType = b""
+			charset = None
+			try:
+				if coding:
+					cType = coding.group(1)
+					codecs.lookup(cType.decode("ascii"))
+					charset = cType.decode("ascii")
+
+			except LookupError:
+
+				# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
+				if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
+
+					dummy_docType, charset = cType.split(b";")
+					charset = charset.split(b"=")[-1]
+
+			if not charset:
+				self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
+				charset = "iso-8859-1"
+
+		try:
+			pageContent = str(pageContent, charset)
+
+		except UnicodeDecodeError:
+			self.log.error("Encoding Error! Stripping invalid chars.")
+			pageContent = pageContent.decode('utf-8', errors='ignore')
+
+		return pageContent
+
+	def decompressContent(self, coding, pgctnt):
+		#preLen = len(pgctnt)
+		if coding == 'deflate':
+			compType = "deflate"
+
+			pgctnt = zlib.decompress(pgctnt, -zlib.MAX_WBITS)
+
+		elif coding == 'gzip':
+			compType = "gzip"
+
+			buf = io.BytesIO(pgctnt)
+			f = gzip.GzipFile(fileobj=buf)
+			pgctnt = f.read()
+
+		elif coding == "sdch":
+			raise ValueError("Wait, someone other then google actually supports SDCH compression?")
+
+		else:
+			compType = "none"
+
+		return compType, pgctnt
+
+	def decodeTextContent(self, pgctnt, cType):
+
+		if cType:
+			if "text/html" in cType or \
+				'text/javascript' in cType or    \
+				'application/atom+xml' in cType:				# If this is a html/text page, we want to decode it using the local encoding
+
+				pgctnt = self.decodeHtml(pgctnt, cType)
+
+			elif "text/plain" in cType or "text/xml" in cType:
+				pgctnt = bs4.UnicodeDammit(pgctnt).unicode_markup
+
+			# Assume JSON is utf-8. Probably a bad idea?
+			elif "application/json" in cType:
+				pgctnt = pgctnt.decode('utf-8')
+
+			elif "text" in cType:
+				self.log.critical("Unknown content type!")
+				self.log.critical(cType)
+
+		else:
+			self.log.critical("No content disposition header!")
+			self.log.critical("Cannot guess content type!")
+
+		return pgctnt
+
+	def retreiveContent(self, pgreq, pghandle, callBack):
+		try:
+			# If we have a progress callback, call it for chunked read.
+			# Otherwise, just read in the entire content.
+			if callBack:
+				pgctnt = self.chunkRead(pghandle, 2 ** 17, reportHook=callBack)
+			else:
+				pgctnt = pghandle.read()
+
+
+			if pgctnt == None:
+				return False
+
+			self.log.info("URL fully retrieved.")
+
+			preDecompSize = len(pgctnt)/1000.0
+
+			encoded = pghandle.headers.get('Content-Encoding')
+			compType, pgctnt = self.decompressContent(encoded, pgctnt)
+
+
+			decompSize = len(pgctnt)/1000.0
+			# self.log.info("Page content type = %s", type(pgctnt))
+			cType = pghandle.headers.get("Content-Type")
+			if compType == 'none':
+				self.log.info("Compression type = %s. Content Size = %0.3fK. File type: %s.", compType, decompSize, cType)
+			else:
+				self.log.info("Compression type = %s. Content Size compressed = %0.3fK. Decompressed = %0.3fK. File type: %s.", compType, preDecompSize, decompSize, cType)
+
+			pgctnt = self.decodeTextContent(pgctnt, cType)
+
+			return pgctnt
+
+		except:
+			print("pghandle = ", pghandle)
+
+			self.log.error(sys.exc_info())
+			traceback.print_exc()
+			self.log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", self.retryDelay)
+
+			try:
+				self.log.critical("Critical Failure to retrieve page! %s at %s", pgreq.get_full_url(), time.ctime(time.time()))
+				self.log.critical("Exiting")
+			except:
+				self.log.critical("And the URL could not be printed due to an encoding error")
+			print()
+			self.log.error(pghandle)
+			time.sleep(self.retryDelay)
+
+		return False
+
+
+		# HUGE GOD-FUNCTION.
+		# OH GOD FIXME.
+
+		# postData expects a dict
+		# addlHeaders also expects a dict
+	def getpage(self, requestedUrl, **kwargs):
+
+		# pgreq = fixurl(pgreq)
+
+		# addlHeaders = None, returnMultiple = False, callBack=None, postData=None, soup=False, retryQuantity=None, nativeError=False, binaryForm=False
+
+		# If we have 'soup' as a param, just pop it, and call `getSoup()`.
+		if 'soup' in kwargs and kwargs['soup']:
+			self.log.warn("'soup' kwarg is depreciated. Please use the `getSoup()` call instead.")
+			kwargs.pop('soup')
+
+			return self.getSoup(requestedUrl, **kwargs)
+
+		# Decode the kwargs values
+		addlHeaders    = kwargs.setdefault("addlHeaders",     None)
+		returnMultiple = kwargs.setdefault("returnMultiple",  False)
+		callBack       = kwargs.setdefault("callBack",        None)
+		postData       = kwargs.setdefault("postData",        None)
+		retryQuantity  = kwargs.setdefault("retryQuantity",   None)
+		nativeError    = kwargs.setdefault("nativeError",     False)
+		binaryForm     = kwargs.setdefault("binaryForm",      False)
+
+
+
+		pgctnt = None
+		pghandle = None
+		retryCount = 0
+
+		pgreq = self.buildRequest(requestedUrl, postData, addlHeaders, binaryForm)
 
 		errored = False
 		lastErr = ""
@@ -240,8 +416,8 @@ class WebGetRobust:
 					self.log.error("Failed to retrieve Website : %s at %s All Attempts Exhausted", pgreq.get_full_url(), time.ctime(time.time()))
 					pgctnt = None
 					try:
-						self.log.critical(("Critical Failure to retrieve page! %s at %s, attempt %s" % (pgreq.get_full_url(), time.ctime(time.time()), retryCount)))
-						self.log.critical(("Error:", lastErr))
+						self.log.critical("Critical Failure to retrieve page! %s at %s, attempt %s", pgreq.get_full_url(), time.ctime(time.time()), retryCount)
+						self.log.critical("Error: %s", lastErr)
 						self.log.critical("Exiting")
 					except:
 						self.log.critical("And the URL could not be printed due to an encoding error")
@@ -259,7 +435,7 @@ class WebGetRobust:
 					lastErr = e
 					try:
 
-						self.log.warning("Original URL: %s", originalString)
+						self.log.warning("Original URL: %s", requestedUrl)
 						errored = True
 					except:
 						self.log.warning("And the URL could not be printed due to an encoding error")
@@ -272,7 +448,7 @@ class WebGetRobust:
 					time.sleep(self.retryDelay)
 
 				except UnicodeEncodeError:
-					self.log.critical("Unrecoverable Unicode issue retreiving page - %s", originalString)
+					self.log.critical("Unrecoverable Unicode issue retreiving page - %s", requestedUrl)
 					break
 
 				except Exception:
@@ -286,7 +462,7 @@ class WebGetRobust:
 					self.log.warning("Error Retrieving Page! - Trying again - Waiting 2.5 seconds")
 
 					try:
-						self.log.critical("Error on page - %s", originalString)
+						self.log.critical("Error on page - %s", requestedUrl)
 					except:
 						self.log.critical("And the URL could not be printed due to an encoding error")
 
@@ -296,141 +472,12 @@ class WebGetRobust:
 					continue
 
 				if pghandle != None:
-					try:
+					self.log.info("Request for URL: %s succeeded at %s On Attempt %s. Recieving...", pgreq.get_full_url(), time.ctime(time.time()), retryCount)
+					pgctnt = self.retreiveContent(pgreq, pghandle, callBack)
 
-						self.log.info("Request for URL: %s succeeded at %s On Attempt %s. Recieving...", pgreq.get_full_url(), time.ctime(time.time()), retryCount)
-						if callBack:
-							pgctnt = self.chunkRead(pghandle, 2 ** 17, reportHook = callBack)
-						else:
-							pgctnt = pghandle.read()
-						if pgctnt != None:
-
-							self.log.info("URL fully retrieved.")
-
-							preDecompSize = len(pgctnt)/1000.0
-
-							encoded = pghandle.headers.get('Content-Encoding')
-							#preLen = len(pgctnt)
-							if encoded == 'deflate':
-								compType = "deflate"
-
-								pgctnt = zlib.decompress(pgctnt, -zlib.MAX_WBITS)
-
-							elif encoded == 'gzip':
-								compType = "gzip"
-
-								buf = io.BytesIO(pgctnt)
-								f = gzip.GzipFile(fileobj=buf)
-								pgctnt = f.read()
-
-							elif encoded == "sdch":
-								raise ValueError("Wait, someone other then google actually supports SDCH compression?")
-
-							else:
-								compType = "none"
-
-							decompSize = len(pgctnt)/1000.0
-							# self.log.info("Page content type = %s", type(pgctnt))
-							cType = pghandle.headers.get("Content-Type")
-							if compType == 'none':
-								self.log.info("Compression type = %s. Content Size = %0.3fK. File type: %s.", compType, decompSize, cType)
-							else:
-								self.log.info("Compression type = %s. Content Size compressed = %0.3fK. Decompressed = %0.3fK. File type: %s.", compType, preDecompSize, decompSize, cType)
-
-							if cType:
-								if "text/html" in cType or \
-									'text/javascript' in cType or    \
-									'application/atom+xml' in cType:				# If this is a html/text page, we want to decode it using the local encoding
-
-									if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
-
-										# Some wierdos put two charsets in their headers:
-										# `text/html;Charset=UTF-8;charset=UTF-8`
-										# Split, and take the first two entries.
-										dummy_docType, charset = cType.split(";")[:2]
-										charset = charset.split("=")[-1]
-
-
-									else:		# The server is not reporting an encoding in the headers.
-
-										# this *should* probably be done using a parser.
-										# However, it seems to be grossly overkill to shove the whole page (which can be quite large) through a parser just to pull out a tag that
-										# should be right near the page beginning anyways.
-										# As such, it's a regular expression for the moment
-
-										# Regex is of bytes type, since we can't convert a string to unicode until we know the encoding the
-										# bytes string is using, and we need the regex to get that encoding
-										coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pgctnt, flags=re.IGNORECASE)
-
-										cType = b""
-										charset = None
-										try:
-											if coding:
-												cType = coding.group(1)
-												codecs.lookup(cType.decode("ascii"))
-												charset = cType.decode("ascii")
-
-										except LookupError:
-
-											# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
-											if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
-
-												dummy_docType, charset = cType.split(b";")
-												charset = charset.split(b"=")[-1]
-
-										if not charset:
-											self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
-											charset = "iso-8859-1"
-
-									try:
-										pgctnt = str(pgctnt, charset)
-
-									except UnicodeDecodeError:
-										self.log.error("Encoding Error! Stripping invalid chars.")
-										pgctnt = pgctnt.decode('utf-8', errors='ignore')
-
-									if soup:
-										pgctnt = bs4.BeautifulSoup(pgctnt)
-								elif "text/plain" in cType or "text/xml" in cType:
-									pgctnt = bs4.UnicodeDammit(pgctnt).unicode_markup
-
-								# Assume JSON is utf-8. Probably a bad idea?
-								elif "application/json" in cType:
-									pgctnt = pgctnt.decode('utf-8')
-
-								elif "text" in cType:
-									self.log.critical("Unknown content type!")
-									self.log.critical(cType)
-
-							else:
-								self.log.critical("No content disposition header!")
-								self.log.critical("Cannot guess content type!")
-
-
-
-							break
-
-
-					except:
-						print(("pghandle = ", pghandle))
-
-						self.log.error(sys.exc_info())
-						traceback.print_exc()
-						self.log.error("Error Retrieving Page! - Transfer failed. Waiting %s seconds before retrying", self.retryDelay)
-
-						try:
-							self.log.critical("Critical Failure to retrieve page! %s at %s", pgreq.get_full_url(), time.ctime(time.time()))
-							self.log.critical("Exiting")
-						except:
-							self.log.critical("And the URL could not be printed due to an encoding error")
-						print()
-						self.log.error(pghandle)
-						time.sleep(self.retryDelay)
-
-
-
-
-
+					# if retreiveContent did not return false, it managed to fetch valid results, so break
+					if pgctnt != False:
+						break
 
 		if errored and pghandle != None:
 			print(("Later attempt succeeded %s" % pgreq.get_full_url()))
@@ -442,14 +489,9 @@ class WebGetRobust:
 			raise urllib.error.URLError("Failed to retreive page!")
 
 		if returnMultiple:
-			if self.testMode:
-				raise ValueError("testing mode does not support multiple return values yet!")
 			return pgctnt, pghandle
 		else:
-			if self.testMode:
-				return self.testMode
-			else:
-				return pgctnt
+			return pgctnt
 
 	def syncCookiesFromFile(self):
 		self.log.info("Synchronizing cookies with cookieFile.")
@@ -568,6 +610,13 @@ class WebGetRobust:
 				is used to determine whether the cloudflare protection has been successfully
 				penetrated.
 
+		The current WebGetRobust headers are installed into the selenium browser, which
+		is then used to access the protected resource.
+
+		Once the protected page has properly loaded, the cloudflare access cookie is
+		then extracted from the selenium browser, and installed back into the WebGetRobust
+		instance, so it can continue to use the cloudflare auth in normal requests.
+
 		'''
 		self.log.info("Attempting to access page through cloudflare browser verification.")
 
@@ -673,19 +722,6 @@ def iri2uri(uri):
 		uri = uri+"?"
 	return uri
 
-def isList(obj):
-	"""isList(obj) -> Returns true if obj is a Python list.
-
-	This function does not return true if the object supplied
-	is a UserList object.
-	"""
-	return type(obj) == list
-
-
-def isTuple(obj):
-	"isTuple(obj) -> Returns true if obj is a Python tuple."
-	return type(obj) == tuple
-
 
 class DummyLog:									# For testing WebGetRobust (mostly)
 	logText = ""
@@ -727,11 +763,17 @@ if __name__ == "__main__":
 
 
 
-	# content, handle = wg.getpage("http://www.lighttpd.net", returnMultiple = True)
-	# print((handle.headers.get('Content-Encoding')))
-	# content, handle = wg.getpage("http://www.example.org", returnMultiple = True)
-	# print((handle.headers.get('Content-Encoding')))
-	# content, handle = wg.getpage("https://www.google.com/images/srpr/logo11w.png", returnMultiple = True)
-	# print((handle.headers.get('Content-Encoding')))
-	# content, handle = wg.getpage("http://www.doujin-moe.us/ajax/newest.php", returnMultiple = True)
-	# print((handle.headers.get('Content-Encoding')))
+	content, handle = wg.getpage("http://www.lighttpd.net", returnMultiple = True)
+	print((handle.headers.get('Content-Encoding')))
+	print(len(content))
+	content, handle = wg.getpage("http://www.example.org", returnMultiple = True)
+	print((handle.headers.get('Content-Encoding')))
+	content, handle = wg.getpage("https://www.google.com/images/srpr/logo11w.png", returnMultiple = True)
+	print((handle.headers.get('Content-Encoding')))
+	content, handle = wg.getpage("http://www.doujin-moe.us/ajax/newest.php", returnMultiple = True)
+	print((handle.headers.get('Content-Encoding')))
+
+
+	content = wg.getpage("http://www.lighttpd.net", getSoup = True)
+
+	content = wg.getSoup("http://www.lighttpd.net")
