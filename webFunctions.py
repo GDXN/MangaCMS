@@ -773,7 +773,8 @@ if __name__ == "__main__":
 	content, handle = wg.getpage("http://www.doujin-moe.us/ajax/newest.php", returnMultiple = True)
 	print((handle.headers.get('Content-Encoding')))
 
+	print("SoupGet")
+	content_1 = wg.getpage("http://www.lighttpd.net", soup = True)
 
-	content = wg.getpage("http://www.lighttpd.net", getSoup = True)
-
-	content = wg.getSoup("http://www.lighttpd.net")
+	content_2 = wg.getSoup("http://www.lighttpd.net")
+	assert(content_1 == content_2)
