@@ -851,16 +851,21 @@ class TextScraper(metaclass=abc.ABCMeta):
 		oldStr = str(old['contents'])
 		newStr = str(kwargs['contents'])
 
-		self.log.info("Calculating edit-distance")
+		# self.log.info("Calculating edit-distance")
+		self.log.info("Calculating Coarse length change")
 		print("String lengths", len(oldStr), len(newStr))
-		distance = lv.distance(oldStr, newStr)
-		self.log.info("Done")
-		space = min((len(oldStr), len(newStr)))
 
-		if space == 0:
-			space = 1
+		lChange = abs(len(oldStr) - len(newStr))
+		lTotal = max(len(oldStr) - len(newStr))
+		# distance = lv.distance(oldStr, newStr)
+		# distance = 0
+		# self.log.info("Done")
+		# space = min((len(oldStr), len(newStr)))
 
-		change = (distance / space) * 100
+		if lTotal == 0:
+			lTotal = 1
+
+		change = (lChange / lTotal) * 100
 		change = min((change, 100))
 		self.log.info("Percent change in page contents: %s", change)
 
