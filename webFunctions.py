@@ -69,7 +69,7 @@ class WebGetRobust:
 
 		# Due to general internet people douchebaggyness, I've basically said to hell with it and decided to spoof a whole assortment of browsers
 		# It should keep people from blocking this scraper *too* easily
-		self.browserHeaders = userAgents.getUserAgent()
+		self.browserHeaders = getUserAgent()
 
 		self.testMode = test		# if we don't want to actually contact the remote server, you pass a string containing
 									# pagecontent for testing purposes as test. It will get returned for any calls of getpage()
