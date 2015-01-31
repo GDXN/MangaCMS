@@ -114,11 +114,19 @@ seriesCols = (
 
 	<%
 
+
 		name = dataDict["seriesName"]
 		cleanedName = dataDict["seriesName"]
 
 		itemInfo = dataDict["itemInfo"]
 		folderName = itemInfo["dirKey"]
+
+
+		if not showMissingDir and not dataDict['itemInfo']['fqPath']:
+				return
+
+		if not showFoundDir and dataDict['itemInfo']['fqPath']:
+				return
 
 
 		if itemInfo["item"]:
@@ -131,8 +139,6 @@ seriesCols = (
 				if not showRatingFound:
 					return
 
-
-
 			rating = itemInfo["rating"]
 
 
@@ -142,6 +148,7 @@ seriesCols = (
 
 			rating = None
 			haveRating = "No Dir Found"
+
 
 		if (dataDict["currentChapter"] > 1) and not showOutOfDate:
 			return
@@ -175,12 +182,11 @@ seriesCols = (
 			<td class="padded"><a href="http://www.mangaupdates.com/series.html?id=${dataDict["mangaID"]}">BU</a></td>
 
 
-			% if dataDict["currentChapter"] == -1:
-				% if dataDict["readChapter"] == -1:
-					<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
-				% else:
-					<td bgcolor="${colours["upToDate"]}" class="padded">${dataDict["readChapter"]}</td>
-				% endif
+			% if dataDict["currentChapter"] == -1 and dataDict["readChapter"] == -1:
+				## If both entries are -1, the item is from the complete table, so show it's complete.
+				<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
+			% elif dataDict["currentChapter"] == -1 or dataDict["readChapter"] >= dataDict["currentChapter"]:
+				<td bgcolor="${colours["upToDate"]}" class="padded">${dataDict["readChapter"]}</td>
 			% else:
 				<td bgcolor="${colours["hasUnread"]}" class="padded">${dataDict["currentChapter"]}</td>
 			% endif
@@ -347,6 +353,18 @@ if "hasRating" in request.params:
 if "flatTable" in request.params and request.params["flatTable"] == "True":
 	flatTable = True
 
+
+showMissingDir = True
+showFoundDir = True
+
+if 'dirFound' in request.params:
+	if request.params["dirFound"] == "True":
+		showMissingDir = False
+
+	elif request.params["dirFound"] == "False":
+		showFoundDir = False
+
+print(showMissingDir, showFoundDir)
 print("Generating table")
 
 
@@ -374,25 +392,25 @@ print("Generating table")
 					<h3>Baka-Manga Updates</h3>
 					<div>
 
-						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px;">
-							Filter read status:
-							<ul style="width: 100px;">
-
-								<li> <a href="bmUpdates?readStatus=alldate">All read status</a></li>
-								<li> <a href="bmUpdates?readStatus=upToDate">Up to date</a></li>
-								<li> <a href="bmUpdates?readStatus=outOfDate">Out of date</a></li>
-							</ul>
-						</div>
-						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
-							Filter Rating state:
-							<ul style="width: 100px;">
-								<li> <a href="bmUpdates">All rating state</a></li>
-								<li> <a href="bmUpdates?hasRating=True">Has rating</a></li>
-								<li> <a href="bmUpdates?hasRating=False">No Rating</a></li>
-							</ul>
-						</div>
-
 						<%
+
+						allReadState  = request.params.copy()
+						upToDateRead  = request.params.copy()
+						outOfDateRead = request.params.copy()
+
+
+						allReadState["readStatus"]  = "alldate"
+						upToDateRead["readStatus"]  = "upToDate"
+						outOfDateRead["readStatus"] = "outOfDate"
+
+						allRatings = request.params.copy()
+						hasRating = request.params.copy()
+						noRating  = request.params.copy()
+
+						allRatings.pop("hasRating", None)
+						hasRating["hasRating"] = "True"
+						noRating["hasRating"] = "False"
+
 
 						singleTable = request.params.copy()
 						multiTable  = request.params.copy()
@@ -408,23 +426,82 @@ print("Generating table")
 						sortNames.pop("ratingSort", None)
 
 
+						allDirs    = request.params.copy()
+						dirFound   = request.params.copy()
+						dirMissing = request.params.copy()
+
+
+						allDirs.pop("dirFound", None)
+						dirFound["dirFound"]   = "True"
+						dirMissing["dirFound"] = "False"
+
+
+
+
+						#############################################
+
+						read1 = '➔' if ('readStatus' not in request.params or request.params['readStatus'] == 'alldate') else ''
+						read2 = '➔' if ('readStatus' in request.params and request.params['readStatus'] == 'upToDate') else ''
+						read3 = '➔' if ('readStatus' in request.params and request.params['readStatus'] == 'outOfDate') else ''
+
+						rate1 = '➔' if ('hasRating' not in request.params) else ''
+						rate2 = '➔' if ('hasRating' in request.params and request.params['hasRating'] == 'True') else ''
+						rate3 = '➔' if ('hasRating' in request.params and request.params['hasRating'] == 'False') else ''
+
+						list1 = '➔' if ('flatTable' not in request.params) else ''
+						list2 = '➔' if ('flatTable' in request.params and request.params['flatTable'] == 'True') else ''
+
+						sort1 = '➔' if ('ratingSort' not in request.params) else ''
+						sort2 = '➔' if ('ratingSort' in request.params and request.params['ratingSort'] == 'True') else ''
+
+						dir1 = '➔' if ('dirFound' not in request.params) else ''
+						dir2 = '➔' if ('dirFound' in request.params and request.params['dirFound'] == 'True') else ''
+						dir3 = '➔' if ('dirFound' in request.params and request.params['dirFound'] == 'False') else ''
+
+
 						%>
+
+
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px;">
+							Filter read status:
+							<ul style="width: 100px;">
+
+								<li>${read1} <a href="bmUpdates?${urllib.parse.urlencode(allReadState)}">All read status</a></li>
+								<li>${read2} <a href="bmUpdates?${urllib.parse.urlencode(upToDateRead)}">Up to date</a></li>
+								<li>${read3} <a href="bmUpdates?${urllib.parse.urlencode(outOfDateRead)}">Out of date</a></li>
+							</ul>
+						</div>
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
+							Filter Rating state:
+							<ul style="width: 100px;">
+								<li>${rate1} <a href="bmUpdates?${urllib.parse.urlencode(allRatings)}">All rating state</a></li>
+								<li>${rate2} <a href="bmUpdates?${urllib.parse.urlencode(hasRating)}">Has rating</a></li>
+								<li>${rate3} <a href="bmUpdates?${urllib.parse.urlencode(noRating)}">No Rating</a></li>
+							</ul>
+						</div>
 
 						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
 							Grouping:
 							<ul style="width: 100px;">
-								<li> <a href="bmUpdates?${urllib.parse.urlencode(multiTable)}">By list</a></li>
-								<li> <a href="bmUpdates?${urllib.parse.urlencode(singleTable)}">Single Table</a></li>
+								<li>${list1} <a href="bmUpdates?${urllib.parse.urlencode(multiTable)}">By list</a></li>
+								<li>${list2} <a href="bmUpdates?${urllib.parse.urlencode(singleTable)}">Single Table</a></li>
 							</ul>
 						</div>
-
-
 
 						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
 							Sorting:
 							<ul style="width: 100px;">
-								<li> <a href="bmUpdates?${urllib.parse.urlencode(sortNames)}">Alphabetically</a></li>
-								<li> <a href="bmUpdates?${urllib.parse.urlencode(sortRating)}">By Rating</a></li>
+								<li>${sort1} <a href="bmUpdates?${urllib.parse.urlencode(sortNames)}">Alphabetically</a></li>
+								<li>${sort2} <a href="bmUpdates?${urllib.parse.urlencode(sortRating)}">By Rating</a></li>
+							</ul>
+						</div>
+
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
+							Linked to dir:
+							<ul style="width: 100px;">
+								<li>${dir1} <a href="bmUpdates?${urllib.parse.urlencode(allDirs)}">All Items</a></li>
+								<li>${dir2} <a href="bmUpdates?${urllib.parse.urlencode(dirFound)}">Have local Directory</a></li>
+								<li>${dir3} <a href="bmUpdates?${urllib.parse.urlencode(dirMissing)}">Missing local directory</a></li>
 							</ul>
 						</div>
 

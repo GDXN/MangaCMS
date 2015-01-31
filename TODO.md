@@ -1,4 +1,5 @@
  - tagging system
+ add filter to mu page for only items with found dirs  
  - revisit gdoc extractor. the extra spaces are annoying
  - lcs diff system instead of levenshtein for change measurement.
  - filter rating view by read and crosslink
@@ -202,6 +203,9 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~mask empty lists~~ List generation is procedural, I don't know if the list is empty until I've finished generating it.
+ - ~~mu page cahp number comparrisons are messed up~~
+ - ~~also handle read to > latest translated as noted on mu~~
  - ~~h search to each dir page~~ It's probably going to be 95% false positives, but what the hell
  - ~~unlimitednovelfailures~~
  - ~~http://yoraikun.wordpress.com/~~
