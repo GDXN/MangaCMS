@@ -5,6 +5,7 @@
 
 <%namespace name="sideBar"         file="gensidebar.mako"/>
 <%namespace name="ut"              file="utilities.mako"/>
+<%namespace name="tableGenerators" file="/gentable.mako"/>
 
 <%!
 # Module level!
@@ -96,140 +97,57 @@ seriesCols = (
 
 
 
-<%def name="makeTooltipTable(name, cleanedName, folderName, itemPath)">
-	<ul>
-		<li>Name: '${name | h}'</li>
-		<li>Cleaned Name: '${cleanedName | h}'</li>
-		<li>DirSort Name: '${folderName | h}'</li>
-		% if itemPath:
-			<li>Dir: '${itemPath | h}'</li>
-		% endif
-	</ul>
-
-</%def>
-
-
-<%def name="genRow(dataDict)">
-
+<%def name="genBmUpdateTableFiltered(tblData)">
 
 	<%
+	# Sort list by rating decending, then seriesName ascending
+	if "ratingSort" in request.params and request.params["ratingSort"] == "True":
+		tblData.sort(key=lambda x: (nt.ratingStrToInt(x['itemInfo']['rating'])*-1, x["seriesName"]))
+	else:
+		tblData.sort(key=lambda x: (x["seriesName"]))  # Sort list by seriesName asc
 
+	procRows = []
 
-		name = dataDict["seriesName"]
-		cleanedName = dataDict["seriesName"]
+	for row in tblData:
+		itemInfo = row["itemInfo"]
 
-		itemInfo = dataDict["itemInfo"]
-		folderName = itemInfo["dirKey"]
+		if not showMissingDir and not row['itemInfo']['fqPath']:
+				continue
 
-
-		if not showMissingDir and not dataDict['itemInfo']['fqPath']:
-				return
-
-		if not showFoundDir and dataDict['itemInfo']['fqPath']:
-				return
+		if not showFoundDir and row['itemInfo']['fqPath']:
+				continue
 
 
 		if itemInfo["item"]:
 			if not itemInfo["rating"]:
 				haveRating = "Unrated"
 				if not showRatingMissing:
-					return
+					continue
 			if itemInfo["rating"]:
 				haveRating = "Rated"
 				if not showRatingFound:
-					return
+					continue
 
 			rating = itemInfo["rating"]
 
-
 		else:
 			if not showRatingMissing:
-				return
-
+				continue
 			rating = None
 			haveRating = "No Dir Found"
 
+		if (row["currentChapter"] > 1) and not showOutOfDate:
+			continue
+		if (row["currentChapter"] == -1) and not showUpToDate:
+			continue
 
-		if (dataDict["currentChapter"] > 1) and not showOutOfDate:
-			return
-		if (dataDict["currentChapter"] == -1) and not showUpToDate:
-			return
+		procRows.append(row)
 
-		%>
-		<tr>
-			<td class="padded">${dataDict["mangaID"]}</td>
-			<td class="padded">${name}</td>
-			<td class="padded">
-				${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else "None"}
+	# genBmUpdateTable(procRows)
 
-				% if 'hentai' in (str(dataDict['tags'])+str(dataDict['genre'])).lower():
-					<span style='float:right'>
-						${ut.createHentaiSearch("Hentai Search", name)}
-					</span>
-				% endif
+	tableGenerators.genSeriesListingTable(procRows)
+	%>
 
-			</td>
-
-			% if haveRating == "Unrated":
-				<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NR</td>
-			% elif haveRating == "No Dir Found":
-				<td bgcolor="${colours["notInMT"]}"    class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NDF</td>
-			% else:
-				<td class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">${rating}</td>
-			%endif
-
-
-			<td class="padded"><a href="http://www.mangaupdates.com/series.html?id=${dataDict["mangaID"]}">BU</a></td>
-
-
-			% if dataDict["currentChapter"] == -1 and dataDict["readChapter"] == -1:
-				## If both entries are -1, the item is from the complete table, so show it's complete.
-				<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
-			% elif dataDict["currentChapter"] == -1 or dataDict["readChapter"] >= dataDict["currentChapter"]:
-				<td bgcolor="${colours["upToDate"]}" class="padded">${dataDict["readChapter"]}</td>
-			% else:
-				<td bgcolor="${colours["hasUnread"]}" class="padded">${dataDict["currentChapter"]}</td>
-			% endif
-
-			% if dataDict["readChapter"] == -1:
-				<td class="padded">Finished</td>
-			% else:
-				<td class="padded">${dataDict["readChapter"]}</td>
-			% endif
-		</tr>
-
-</%def>
-
-
-
-<%def name="genBmUpdateTable(tblData)">
-	<table border="1px">
-		<tr>
-				<th class="padded" width="55">Bu ID</th>
-				<th class="padded" width="300">Full Name</th>
-				<th class="padded" width="300">Cleaned Name</th>
-				<th class="padded" width="30">Rating</th>
-				<th class="padded" width="30">MU It</th>
-				<th class="padded" width="50">Latest Chapter</th>
-				<th class="padded" width="60">Read-To Chapter</th>
-					</tr>
-
-		<%
-		# print("tableGen")
-
-		if "ratingSort" in request.params and request.params["ratingSort"] == "True":
-			# Sort list by rating decending, then seriesName ascending
-			tblData.sort(key=lambda x: (nt.ratingStrToInt(x['itemInfo']['rating'])*-1, x["seriesName"]))
-
-		else:
-			tblData.sort(key=lambda x: (x["seriesName"]))  # Sort list by seriesName asc
-
-		for dataDict in tblData:
-			genRow(dataDict)
-
-		%>
-
-	</table>
 </%def>
 
 
@@ -265,7 +183,7 @@ def getItemsInLists():
 
 	ret = []
 
-	tableTopology = ("mangaID", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre')
+	tableTopology = ("muId", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre')
 	for item in buItems:
 		tmp = dict(zip(tableTopology, item))
 
@@ -516,7 +434,7 @@ print("Generating table")
 								<div style="margin-top: 10px;">
 									<div style="display:inline;"><h4 style="display:inline;">List: ${key}</h4></div>
 								</div>
-								${genBmUpdateTable(items[key])}
+								${genBmUpdateTableFiltered(items[key])}
 							</div>
 						% endfor
 					</div>

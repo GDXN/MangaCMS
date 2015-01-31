@@ -22,7 +22,7 @@ import urllib.parse
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
-<%namespace name="tagFuncs"        file="/tags/tagFuncs.mako"/>
+<%namespace name="genericFuncs"        file="/tags/genericFuncs.mako"/>
 
 <html>
 <head>
@@ -41,9 +41,9 @@ import urllib.parse
 
 
 if "genre" in request.params and request.params["genre"]:
-	tagFuncs.genTagBody(genre=request.params["genre"])
+	genericFuncs.genTagBody(genre=request.params["genre"])
 else:
-	tagFuncs.genTagError()
+	genericFuncs.genTagError()
 %>
 
 

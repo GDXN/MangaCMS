@@ -18,7 +18,7 @@ import urllib.parse
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
-<%namespace name="tagFuncs"        file="/tags/tagFuncs.mako"/>
+<%namespace name="genericFuncs"        file="/tags/genericFuncs.mako"/>
 
 <html>
 <head>
@@ -47,7 +47,7 @@ else:
 
 
 
-tags = tagFuncs.getAllTags(prefix, alphabetize)
+tags = genericFuncs.getAllTags(prefix, alphabetize)
 
 %>
 
@@ -61,14 +61,14 @@ tags = tagFuncs.getAllTags(prefix, alphabetize)
 		<div class="subdiv skId">
 			<div class="contentdiv">
 				<h3>Manga Tags!</h3>
-				${tagFuncs.genOptionRow(tags=True)}
+				${genericFuncs.genOptionRow(tags=True)}
 				<div id='mangatable'>
 					% if not tags:
 						<div class='errorPattern'>
 							<p>No tags starting with letter '${prefix}'</p>
 						</div>
 					% else:
-						${tagFuncs.gentagTable(tags=tags)}
+						${genericFuncs.gentagTable(tags=tags)}
 					% endif
 				</div>
 			</div>

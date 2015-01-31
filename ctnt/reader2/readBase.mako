@@ -5,7 +5,7 @@
 <%namespace name="tableGenerators" file="/gentable.mako"/>
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
-<%namespace name="tagFuncs"        file="/tags/tagFuncs.mako"/>
+<%namespace name="genericFuncs"        file="/tags/genericFuncs.mako"/>
 
 
 <%!
@@ -480,7 +480,7 @@ def dequoteDict(inDict):
 					tags.sort()
 					%>
 					% for item in tags:
-						<li>${tagFuncs.makeTagLink(item)}</li>
+						<li>${genericFuncs.makeTagLink(item)}</li>
 					% endfor
 				</ul>
 			</div>
@@ -491,7 +491,7 @@ def dequoteDict(inDict):
 				Bu Genre:
 
 				% for item in buGenre.split():
-					${tagFuncs.makeGenreLink(item)}
+					${genericFuncs.makeGenreLink(item)}
 				% endfor
 			</div>
 		% endif

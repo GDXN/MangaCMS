@@ -18,7 +18,7 @@ import urllib.parse
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
-<%namespace name="tagFuncs"        file="/tags/tagFuncs.mako"/>
+<%namespace name="genericFuncs"        file="/tags/genericFuncs.mako"/>
 
 <html>
 <head>
@@ -47,7 +47,7 @@ else:
 
 
 
-genres = tagFuncs.getAllGenres(prefix, alphabetize)
+genres = genericFuncs.getAllGenres(prefix, alphabetize)
 
 %>
 
@@ -61,14 +61,14 @@ genres = tagFuncs.getAllGenres(prefix, alphabetize)
 		<div class="subdiv skId">
 			<div class="contentdiv">
 				<h3>Manga Genres!</h3>
-				${tagFuncs.genOptionRow(genres=True)}
+				${genericFuncs.genOptionRow(genres=True)}
 				<div id='mangatable'>
 					% if not genres:
 						<div class='errorPattern'>
 							<p>No genres starting with letter '${prefix}'</p>
 						</div>
 					% else:
-						${tagFuncs.gentagTable(genre=genres)}
+						${genericFuncs.gentagTable(genre=genres)}
 					% endif
 				</div>
 			</div>

@@ -194,9 +194,22 @@ colours = {
 	# Categories
 
 	"valid cat"  : "FFFFFF",
-	"picked"    : "999999"
-	}
+	"picked"    : "999999",
 
+	# Download Status
+	"hasUnread"       : "FF9999",
+	"upToDate"        : "99FF99",
+	"notInMT"         : "9999FF",
+
+
+	"created-dir"     : "FFE4B2",
+	"not checked"     : "FFFFFF",
+
+	# Categories
+
+	"valid category"  : "FFFFFF",
+	"bad category"    : "999999"
+	}
 
 %>
 
@@ -553,6 +566,9 @@ colours = {
 </%def>
 
 
+
+
+
 ################################################################################################################################################################################################################
 ## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ################################################################################################################################################################################################################
@@ -794,6 +810,238 @@ colours = {
 ## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ################################################################################################################################################################################################################
 ##
+## ##     ##    ###    ##    ##  ######      ###        ######  ######## ########  #### ########  ######
+## ###   ###   ## ##   ###   ## ##    ##    ## ##      ##    ## ##       ##     ##  ##  ##       ##    ##
+## #### ####  ##   ##  ####  ## ##         ##   ##     ##       ##       ##     ##  ##  ##       ##
+## ## ### ## ##     ## ## ## ## ##   #### ##     ##     ######  ######   ########   ##  ######    ######
+## ##     ## ######### ##  #### ##    ##  #########          ## ##       ##   ##    ##  ##             ##
+## ##     ## ##     ## ##   ### ##    ##  ##     ##    ##    ## ##       ##    ##   ##  ##       ##    ##
+## ##     ## ##     ## ##    ##  ######   ##     ##     ######  ######## ##     ## #### ########  ######
+##
+## This is mostly indended to provide a central point for
+## row-generation in the views that involve mangaupdates-
+## referenced data
+##
+##
+
+
+
+<%def name="makeTooltipTable(name, cleanedName, folderName, itemPath)">
+	<ul>
+		<li>Name: '${name | h}'</li>
+		<li>Cleaned Name: '${cleanedName | h}'</li>
+		<li>DirSort Name: '${folderName | h}'</li>
+		% if itemPath:
+			<li>Dir: '${itemPath | h}'</li>
+		% endif
+	</ul>
+
+</%def>
+
+
+<%def name="genRow(dataDict)">
+
+
+	<%
+
+
+		name = dataDict["seriesName"]
+		cleanedName = dataDict["seriesName"]
+
+		itemInfo = dataDict["itemInfo"]
+		folderName = itemInfo["dirKey"]
+
+		if itemInfo["item"]:
+			if not itemInfo["rating"]:
+				haveRating = "Unrated"
+			if itemInfo["rating"]:
+				haveRating = "Rated"
+
+			rating = itemInfo["rating"]
+
+
+		else:
+			rating = None
+			haveRating = "No Dir Found"
+
+
+		%>
+		<tr>
+			<td class="padded">${name}</td>
+			<td class="padded">
+				${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else ""}
+
+				% if 'hentai' in (str(dataDict['tags'])+str(dataDict['genre'])).lower():
+					<span style='float:right'>
+						${ut.createHentaiSearch("Hentai Search", name)}
+					</span>
+				% endif
+
+			</td>
+
+			% if haveRating == "Unrated":
+				<td bgcolor="${colours["hasUnread"]}"  class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">NR</td>
+			% elif haveRating == "No Dir Found":
+				<td></td>
+			% else:
+				<td class="padded showTT" mouseovertext="${makeTooltipTable(name, cleanedName, folderName, itemInfo["fqPath"])}">${rating}</td>
+			%endif
+
+
+			<td class="padded"><a href="http://www.mangaupdates.com/series.html?id=${dataDict["muId"]}">${dataDict["muId"]}</a></td>
+
+
+			## No translated files at all
+			% if dataDict["currentChapter"] == None and dataDict["readChapter"] == None:
+				<td class="padded"></td>
+
+			## Translated files, but not on any list.
+			% elif dataDict["currentChapter"] != None and dataDict["readChapter"] == None:
+				<td class="padded">${dataDict["currentChapter"]}</td>
+
+			## Read chapters, but nothing indicated as translated. Treat it as up-to-date
+			% elif dataDict["currentChapter"] == None and dataDict["readChapter"] != None:
+				<td bgcolor="${colours["upToDate"]}" class="padded">${dataDict["readChapter"]}</td>
+
+			## If both entries are -1, the item is from the complete table, so show it's complete.
+			% elif dataDict["currentChapter"] == -1 and dataDict["readChapter"] == -1:
+				<td bgcolor="${colours["upToDate"]}" class="padded">✓</td>
+
+			## At this point, both items are valid integers, and at least one of them isn't -1
+			## Therefore, if the read chapter is > -1, and also greater or equal to the current chapter, we're up-to-date
+			% elif dataDict["currentChapter"] == -1 or dataDict["readChapter"] >= dataDict["currentChapter"]:
+				<td bgcolor="${colours["upToDate"]}" class="padded">${dataDict["readChapter"]}</td>
+
+			## Otherwise, the chapter is out-of-date, so show that.
+			% else:
+				<td bgcolor="${colours["hasUnread"]}" class="padded">${dataDict["currentChapter"]}</td>
+			% endif
+
+
+			% if dataDict["readChapter"] == -1:
+				<td bgcolor="${colours["upToDate"]}" class="padded">Finished</td>
+			% elif dataDict["readChapter"] == None:
+				<td class="padded"></td>
+			% else:
+				<td class="padded">${dataDict["readChapter"]}</td>
+			% endif
+		</tr>
+
+</%def>
+
+
+
+<%def name="genSeriesListingTable(tblData)">
+	<table border="1px">
+		<tr>
+				<th class="padded" width="300">Full Name</th>
+				<th class="padded" width="300">Cleaned Name</th>
+				<th class="padded" width="30">Rating</th>
+				<th class="padded" width="30">MuId</th>
+				<th class="padded" width="50">Latest Chapter</th>
+				<th class="padded" width="60">Read-To Chapter</th>
+					</tr>
+
+		<%
+
+		for dataDict in tblData:
+			genRow(dataDict)
+
+		%>
+
+	</table>
+</%def>
+
+<%def name="genMatchingKeyTable(rows)">
+
+
+	<%
+
+
+
+	%>
+	<table border="1px" style="width: 100%;">
+		<tr>
+				<th class="uncoloured" >Tag</th>
+				<th class="uncoloured" style="width: 70px; min-width: 70px;">BuId</th>
+				<th class="uncoloured" style="width: 70px; min-width: 70px;">Rating</th>
+				<th class="uncoloured" style="width: 70px; min-width: 70px;">Available</th>
+				<th class="uncoloured" style="width: 70px; min-width: 70px;">Read</th>
+		</tr>
+
+		% for  buName, buId, readingProgress, availProgress, tags, genre  in rows:
+			<%
+			if not availProgress:
+				availProgress = ''
+			if not readingProgress:
+				readingProgress = ''
+
+			itemInfo = nt.dirNameProxy[buName]
+
+
+			statusColor = ''
+			if readingProgress == -1 and availProgress == -1:
+				availProgress = '✓'
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+			elif readingProgress == -1:
+				pass
+			elif availProgress == -1:
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+			elif readingProgress and availProgress and int(readingProgress) < int(availProgress):
+				statusColor = 'bgcolor="%s"' % colours["hasUnread"]
+			elif readingProgress:
+				statusColor = 'bgcolor="%s"' % colours["upToDate"]
+
+			if readingProgress == -1:
+				readingProgress = ''
+
+			if availProgress == -1:
+				availProgress = readingProgress
+
+			if not tags:
+				tags = ''
+			if not genre:
+				genre = ''
+
+			%>
+
+			<tr>
+				<td class="padded">
+					${ut.createReaderLink(buName, itemInfo)}
+
+					% if 'hentai' in (tags+genre).lower():
+
+						<span style='float:right'>
+							${ut.createHentaiSearch("Hentai Search", buName)}
+						</span>
+					% endif
+				</td>
+				<td class="padded">
+					${ut.idToLink(buId)}
+				</td>
+				<td class="padded">
+					${"" if itemInfo['rating'] == None else itemInfo['rating']}
+				</td>
+
+
+
+
+				<td  class="padded" ${statusColor}>${availProgress}</td>
+
+				<td class="padded">${readingProgress}</td>
+
+			</tr>
+		% endfor
+
+
+	</table>
+</%def>
+
+
+################################################################################################################################################################################################################
+## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+################################################################################################################################################################################################################
+##
 ## ##       ########  ######   ######## ##    ## ########
 ## ##       ##       ##    ##  ##       ###   ## ##     ##
 ## ##       ##       ##        ##       ####  ## ##     ##
@@ -804,21 +1052,43 @@ colours = {
 ##
 
 <%def name="genLegendTable(pron=False, hideSource=False)">
+	<%
+
+	limitedColours = {
+		# Download Status
+		"failed"          : "000000",
+		"no match"        : "FF9999",
+		"moved"           : "FFFF99",
+		"Done"            : "99FF99",
+		"Uploaded"        : "90e0FF",
+		"working"         : "9999FF",
+		"queued"          : "FF77FF",
+		"new dir"         : "FFE4B2",
+		"error"           : "FF0000",
+
+		# Categories
+
+		"valid cat"  : "FFFFFF",
+		"picked"    : "999999",
+
+		}
+
+	%>
 	<div class="legend">
 
 		<table border="1px" style="width: 100%;">
 			<colgroup>
-				% for x in range(len(colours)):
-					<col style="width: ${int(100/len(colours))}%" />
+				% for x in range(len(limitedColours)):
+					<col style="width: ${int(100/len(limitedColours))}%" />
 				% endfor
 			</colgroup>
 			<tr>
-				% for key, value in colours.items():
+				% for key, value in limitedColours.items():
 					<td class="uncoloured legend">${key.title()}</td>
 				% endfor
 			</tr>
 			<tr>
-				% for key, value in colours.items():
+				% for key, value in limitedColours.items():
 					<td bgcolor="${value}"> &nbsp;</td>
 				% endfor
 			</tr>
