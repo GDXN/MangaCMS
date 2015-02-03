@@ -85,11 +85,11 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def parseRow(self, row, curUrlPath, dirName):
 
 
-		if not len(row.find_all("td")) == 4:
+		if not len(row.find_all("td")) == 6:
 			return None, None
 
 
-		name, modified, size, tags = row.find_all("td")
+		name, size, modified, tags, report, read = row.find_all("td")
 
 
 		relUrl, linkName = self.parseOutLink(row.a)

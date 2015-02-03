@@ -17,7 +17,7 @@ import re
 import gzip
 import io
 
-
+import base64
 
 import random
 random.seed()
@@ -41,6 +41,26 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from threading import Lock
 cookieWriteLock = Lock()
 
+class PreemptiveBasicAuthHandler(urllib.request.HTTPBasicAuthHandler):
+	'''Preemptive basic auth.
+
+	Instead of waiting for a 403 to then retry with the credentials,
+	send the credentials if the url is handled by the password manager.
+	Note: please use realm=None when calling add_password.'''
+	def http_request(self, req):
+		url = req.get_full_url()
+		realm = None
+		# this is very similar to the code from retry_http_basic_auth()
+		# but returns a request object.
+		user, pw = self.passwd.find_user_password(realm, url)
+		if pw:
+			raw = "%s:%s" % (user, pw)
+			raw = raw.encode("ascii")
+			auth = b'Basic ' + base64.standard_b64encode(raw).strip()
+			req.add_unredirected_header(self.auth_header, auth)
+		return req
+
+	https_request = http_request
 
 class WebGetRobust:
 	COOKIEFILE = 'cookies.lwp'				# the path and filename to save your cookies in
@@ -82,7 +102,7 @@ class WebGetRobust:
 			passManager = urllib.request.HTTPPasswordMgrWithDefaultRealm()
 			for url, username, password in creds:
 				passManager.add_password(None, url, username, password)
-			self.credHandler = urllib.request.HTTPBasicAuthHandler(passManager)
+			self.credHandler = PreemptiveBasicAuthHandler(passManager)
 		else:
 			self.credHandler = None
 
