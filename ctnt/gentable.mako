@@ -348,8 +348,10 @@ colours = {
 	itemInfo = nt.dirNameProxy[sourceSeriesName]
 	if itemInfo["rating"]:
 		rating = itemInfo["rating"]
+		ratingNum = nt.ratingStrToFloat(rating)
 	else:
 		rating = ""
+		ratingNum = nt.ratingStrToFloat(rating)
 
 	# clamp times to now, if we have items that are in the future.
 	# Work around for some time-zone fuckups in the MangaBaby Scraper.
@@ -487,7 +489,16 @@ colours = {
 				<b>
 			% endif
 
+			% if ratingNum >= 2:
+				<span style="color: red;">
+			% endif
+
 			${originName}
+
+
+			% if ratingNum >= 2:
+				</span>
+			% endif
 
 			% if shouldBold:
 				</b>

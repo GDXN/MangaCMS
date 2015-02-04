@@ -1,5 +1,5 @@
  - tagging system
- add filter to mu page for only items with found dirs  
+ - add filter to mu page for only items with found dirs  
  - revisit gdoc extractor. the extra spaces are annoying
  - lcs diff system instead of levenshtein for change measurement.
  - filter rating view by read and crosslink
@@ -16,7 +16,6 @@ Todo:
  - filter rating view by crosslink status
  - h rating system
  - deduper expose get matching archives for spiral
- - ~~readability performance~~ The problem is entirely levenshtein distance calculation. Huh.
  - info table position when multiple sources
  - volumeifacator
  - Proper to-download series system
@@ -196,13 +195,8 @@ Partial series:
 
 
 
-
-
-
-
-
-
 <b>Complete:</b>
+ - ~~readability performance~~ ~~The problem is entirely levenshtein distance calculation. Huh.~~ Wound up just using string length difference. Eh...
  - ~~mask empty lists~~ List generation is procedural, I don't know if the list is empty until I've finished generating it.
  - ~~mu page cahp number comparrisons are messed up~~
  - ~~also handle read to > latest translated as noted on mu~~
