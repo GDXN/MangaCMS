@@ -185,9 +185,10 @@ def initLogging(logLevel=logging.INFO, logToDb=True):
 
 	global LOGGING_INITIALIZED
 	if LOGGING_INITIALIZED:
-
+		current_stack = traceback.format_stack()
 		print("ERROR - Logging initialized twice!")
-		print(traceback.format_exc())
+		for line in current_stack:
+			print(line.rstrip())
 		return
 
 	LOGGING_INITIALIZED = True

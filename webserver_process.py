@@ -53,10 +53,6 @@ def runServer():
 	fixup_cherrypy_logs()
 
 
-	# The filesystem watching mechanism breaks the autoreloader
-	# It crashes on restart unless the whole python interpreter is restarted.
-	# cherrypy.config.update({'engine.autoreload.on':False})
-
 	houseKeepingTasks = []
 	for name, classInstance in nt.__dict__.items():
 		if  isinstance(classInstance, type) or not hasattr(classInstance, "NEEDS_REFRESHING"):

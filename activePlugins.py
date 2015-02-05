@@ -132,7 +132,7 @@ if __name__ == "__main__":
 	2 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 
 
-}
+	}
 
 
 

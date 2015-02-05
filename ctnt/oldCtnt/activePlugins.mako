@@ -537,6 +537,19 @@ sidebarItemList = [
 		},
 
 
+		{
+			"num"           : 35,
+			'dbKey'         : "ExArchive",
+			'name'          : "ExArch",
+			'dictKey'       : "exArch",
+			'cssClass'      : "exArId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Porn'
+		},
+
+
 	]
 
 

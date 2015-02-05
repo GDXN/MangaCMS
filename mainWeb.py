@@ -7,7 +7,7 @@ if sys.version_info < ( 3, 4):
 
 if __name__ == "__main__":
 	import runStatus
-	runStatus.preloadDicts = True
+	runStatus.preloadDicts = False
 
 
 # mainScrape does actual schema updating. We just want to check the version, and bail

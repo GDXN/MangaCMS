@@ -60,10 +60,14 @@ class PageResource(object):
 	conn = None  # Shaddup, pylint.
 
 	def __init__(self):
-		self.base_directory = settings.webCtntPath
+		self.old_directory    = settings.webCtntPath
+		self.mvc_directory    = settings.webMvcPath
+		self.static_directory = settings.staticCtntPath
+
 		# self.dirProxy = nameTools.DirNameProxy(settings.mangaFolders)
 		self.dbPath = settings.DATABASE_DB_NAME
-		self.lookupEngine = TemplateLookup(directories=[self.base_directory], module_directory='./ctntCache', strict_undefined=True)
+		self.lookupEngine_base = TemplateLookup(directories=[self.old_directory], module_directory='./ctntCache', strict_undefined=True)
+		self.lookupEngine_mvc  = TemplateLookup(directories=[self.mvc_directory], module_directory='./ctntCache', strict_undefined=True)
 
 		self.openDB()
 
@@ -108,9 +112,11 @@ class PageResource(object):
 			return "application/unknown"
 
 
-	def getRawContent(self, reqPath):
+	def getRawContent(self, reqPath, context):
+		print("Raw content request!", reqPath, context)
 
 		self.log.info("Request for raw content at URL %s", reqPath)
+
 		with open(reqPath, "rb") as fp:
 			ret = Response(body=fp.read())
 			ret.content_type = self.guessItemMimeType(reqPath)
@@ -123,32 +129,60 @@ class PageResource(object):
 		if redir:
 			return redir
 		else:
-			return self.getPageHaveAuth(request)
+			return self.getPageHaveAuth(request, context=self.old_directory, engine=self.lookupEngine_base)
 
-	def checkProcessPath(self, reqPath):
+
+	def getMvcPage(self, request):
+
+		# This janky hack chops out the path-prefix for the new web UI version.
+		# This is done by modifying the request, but because the `request.path`
+		# parameter is a getter that internally looks at the request.environ dict,
+		# we have to fix it there, rather then just assigning to `request.path`.
+		request.environ['PATH_INFO'] = request.environ['PATH_INFO'][2:]
+
+		redir = self.checkAuth(request)
+		if redir:
+			return redir
+		else:
+			return self.getPageHaveAuth(request, context=self.mvc_directory, engine=self.lookupEngine_mvc)
+
+	def findTemplateFile(self, reqPath, context):
 
 		# Check if there is a mako file at the path, and choose that preferentially over other files.
 		# Includes adding `.mako` to the path if needed.
 
-		makoPath = reqPath + ".mako"
+		templatePostFixes = ['.mako', '.mako.css']
 
-		absolute_path = os.path.join(self.base_directory, reqPath)
+		for searchPostfix in templatePostFixes:
+
+			if reqPath.endswith(searchPostfix):
+				makoPath = reqPath
+			else:
+				makoPath = reqPath + searchPostfix
+
+
+			mako_absolute_path = os.path.join(context, makoPath)
+			makoPath = os.path.normpath(mako_absolute_path)
+
+			if os.path.exists(makoPath):
+				if not makoPath.startswith(context):
+					raise IOError()
+
+				return makoPath, True
+
+
+		absolute_path = os.path.join(self.static_directory, reqPath)
 		reqPath = os.path.normpath(absolute_path)
 
-		mako_absolute_path = os.path.join(self.base_directory, makoPath)
-		makoPath = os.path.normpath(mako_absolute_path)
-
-		if os.path.exists(makoPath):
-			reqPath = makoPath
-
 		# Block attempts to access directories outside of the content dir
-		if not reqPath.startswith(self.base_directory):
+		if not reqPath.startswith(self.static_directory):
+			print("reqPath:", reqPath)
 			raise IOError()
 
-		return reqPath
+		return reqPath, False
 
 	# @profile(immediate=True, entries=150)
-	def getPageHaveAuth(self, request):
+	def getPageHaveAuth(self, request, context, engine):
 
 		if not "cookieid" in request.session or not request.session["cookieid"] in self.sessionManager:
 
@@ -163,42 +197,40 @@ class PageResource(object):
 		if not reqPath.split("/")[-1]:
 			reqPath += "index.mako"
 
-		reqPath = self.checkProcessPath(reqPath)
+			print(request)
 
-		# print("Content path = ", reqPath, os.path.exists(reqPath))
+
+		reqPath, isTemplate = self.findTemplateFile(reqPath, context)
+
+		print("Content path = ", reqPath, os.path.exists(reqPath))
 		try:
 
 			# Conditionally parse and render mako files.
-			if reqPath.endswith(".mako"):
-				relPath = reqPath.replace(self.base_directory, "")
-				pgTemplate = self.lookupEngine.get_template(relPath)
+			if isTemplate:
+				relPath = reqPath.replace(context, "")
+				pgTemplate = engine.get_template(relPath)
 
 				self.log.info("Request for mako page %s", reqPath)
 				pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn)
 				self.log.info("Mako page Rendered %s", reqPath)
 
-				return Response(body=pageContent)
-			elif reqPath.endswith(".mako.css"):
-				relPath = reqPath.replace(self.base_directory, "")
-				pgTemplate = self.lookupEngine.get_template(relPath)
+				if reqPath.endswith(".css"):
+					return Response(body=pageContent, content_type='text/css')
+				else:
+					return Response(body=pageContent)
 
-				self.log.info("Request for mako css file %s", reqPath)
-				pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn)
-				self.log.info("Mako page Rendered %s", reqPath)
-
-				return Response(body=pageContent, content_type='text/css')
 			else:
-				return self.getRawContent(reqPath)
+				return self.getRawContent(reqPath, self.static_directory)
 
 		except mako.exceptions.TopLevelLookupException:
 			self.log.error("404 Request for page at url: %s", reqPath)
-			pgTemplate = self.lookupEngine.get_template("error.mako")
+			pgTemplate = engine.get_template("error.mako")
 			pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, tracebackStr=traceback.format_exc(), error_str="NO PAGE! 404")
 			return Response(body=pageContent)
 		except:
 			self.log.error("Page rendering error! url: %s", reqPath)
 			self.log.error(traceback.format_exc())
-			pgTemplate = self.lookupEngine.get_template("error.mako")
+			pgTemplate = engine.get_template("error.mako")
 			pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, tracebackStr=traceback.format_exc(), error_str="EXCEPTION! WAT?")
 			return Response(body=pageContent)
 
@@ -228,7 +260,7 @@ class PageResource(object):
 				reqPath = request.path.lstrip("/")
 
 				reqPath = reqPath + ".mako"
-				pgTemplate = self.lookupEngine.get_template(reqPath)
+				pgTemplate = self.lookupEngine_base.get_template(reqPath)
 				pageContent = pgTemplate.render_unicode(request=request)
 				return Response(body=pageContent, headers=headers)
 
@@ -264,7 +296,7 @@ class PageResource(object):
 		if redir:
 			return redir
 
-		pgTemplate = self.lookupEngine.get_template('reader2/render.mako')
+		pgTemplate = self.lookupEngine_base.get_template('reader2/render.mako')
 
 		self.log.info("Request for mako page %s", 'reader2/render.mako')
 		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, sessionArchTool=session)
@@ -285,7 +317,7 @@ class PageResource(object):
 		if redir:
 			return redir
 
-		pgTemplate = self.lookupEngine.get_template('reader2/renderPron.mako')
+		pgTemplate = self.lookupEngine_base.get_template('reader2/renderPron.mako')
 
 		self.log.info("Request for mako page %s", 'reader2/renderPron.mako')
 		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, sessionArchTool=session)
@@ -345,7 +377,7 @@ class PageResource(object):
 
 
 
-		pgTemplate = self.lookupEngine.get_template('books/render.mako')
+		pgTemplate = self.lookupEngine_base.get_template('books/render.mako')
 		self.log.info("Rendering mako page %s", 'books/render.mako')
 		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn)
 		self.log.info("Mako page Rendered %s", 'books/render.mako')
@@ -389,7 +421,10 @@ def buildApp():
 	config.add_route(name='static-file',            pattern='/js')
 	config.add_route(name='root',                   pattern='/')
 
-	config.add_route(name='leaf',                   pattern='/*page')
+
+	config.add_route(name='mvc_style',             pattern='/m/*page')
+
+	config.add_route(name='leaf',                  pattern='/*page')
 
 	config.add_view(resource.readerTwoPages,         http_cache=0, route_name='reader-redux-container')
 	config.add_view(resource.readerTwoPorn,          http_cache=0, route_name='porn-get-arch')
@@ -404,6 +439,11 @@ def buildApp():
 	config.add_view(resource.getPage,                http_cache=0, context=NotFound)
 
 	config.add_view(resource.getApi,                 http_cache=0, route_name='api')
+
+
+	config.add_view(resource.getMvcPage,             http_cache=0, route_name='mvc_style')
+
+
 
 
 	# config.add_view(route_name='auth', match_param='action=in', renderer='string', request_method='POST')

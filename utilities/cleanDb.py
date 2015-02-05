@@ -23,6 +23,7 @@ import hashlib
 import utilities.EmptyRetreivalDb
 import processDownload
 
+
 class PathCleaner(ScrapePlugins.DbBase.DbBase):
 	loggerPath = "Main.Pc"
 	tableName  = "MangaItems"
