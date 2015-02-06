@@ -1,3 +1,8 @@
+http://skythewood.blogspot.com/
+http://forums.animesuki.com/showthread.php?t=127729
+http://imoutoliciouslnt.blogspot.ca/2014/04/overlord-v01-prologue.html
+
+
  - tagging system
  - add filter to mu page for only items with found dirs  
  - revisit gdoc extractor. the extra spaces are annoying

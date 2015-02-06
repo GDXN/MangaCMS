@@ -134,6 +134,33 @@ class PageResource(object):
 
 	def getMvcPage(self, request):
 
+		# All the "Pages" in the new interface system are routed by code in the mako files,
+		# rather then by pyramid. This is (mostly) done because modifying the pyramid
+		# routing requires restarting the entire server, which itself requires
+		# re-instantiating all the watched directories. This is rather prohibitive in
+		# terms of load-time.
+		request.environ['PATH_INFO'] = request.environ['PATH_INFO'][2:]
+
+		redir = self.checkAuth(request)
+		if redir:
+			return redir
+
+
+		absolute_path = os.path.join(self.mvc_directory, 'base_route.mako')
+		reqPath = os.path.normpath(absolute_path)
+		relPath = reqPath.replace(self.mvc_directory, "")
+		pgTemplate = self.lookupEngine_mvc.get_template(relPath)
+
+
+		self.log.info("Request for MVC-based mako page %s", reqPath)
+		pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn)
+		self.log.info("Mako page Rendered %s", reqPath)
+
+		return Response(body=pageContent)
+
+
+	def getMvcResource(self, request):
+
 		# This janky hack chops out the path-prefix for the new web UI version.
 		# This is done by modifying the request, but because the `request.path`
 		# parameter is a getter that internally looks at the request.environ dict,
@@ -192,12 +219,11 @@ class PageResource(object):
 
 		fix_matchdict(request)
 
-		self.log.info("Starting Serving request from %s", request.remote_addr)
+		self.log.info("Starting Serving old-style request from %s", request.remote_addr)
 		reqPath = request.path.lstrip("/")
 		if not reqPath.split("/")[-1]:
 			reqPath += "index.mako"
-
-			print(request)
+			self.log.info("Appending 'index.mako'")
 
 
 		reqPath, isTemplate = self.findTemplateFile(reqPath, context)
@@ -422,6 +448,7 @@ def buildApp():
 	config.add_route(name='root',                   pattern='/')
 
 
+	config.add_route(name='mvc_rsc',               pattern='/r/*page')
 	config.add_route(name='mvc_style',             pattern='/m/*page')
 
 	config.add_route(name='leaf',                  pattern='/*page')
@@ -442,6 +469,7 @@ def buildApp():
 
 
 	config.add_view(resource.getMvcPage,             http_cache=0, route_name='mvc_style')
+	config.add_view(resource.getMvcResource,         http_cache=0, route_name='mvc_rsc')
 
 
 
