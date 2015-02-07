@@ -51,7 +51,6 @@ import urllib.parse
 		cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s AND src=%s LIMIT 1;", ('{char}%'.format(char=char), rootKey))
 		ret[char] = cursor.fetchone()
 
-
 	for key in string.ascii_lowercase:
 		if ret[key]:
 			ret[key.upper()] = ret[key]

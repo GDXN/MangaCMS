@@ -51,6 +51,8 @@ import TextScrape.Krytyk.Run
 
 import TextScrape.UnlimitedNovelFailures.Run
 import TextScrape.Yoraikun.Run
+import TextScrape.SkyTheWood.Run
+import TextScrape.Imoutolicious.Run
 
 import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
@@ -114,6 +116,8 @@ scrapePlugins = {
 
 	86 : (TextScrape.UnlimitedNovelFailures.Run,          60*60*24*2),
 	87 : (TextScrape.Yoraikun.Run,                        60*60*24*2),
+	87 : (TextScrape.SkyTheWood.Run,                      60*60*24*2),
+	87 : (TextScrape.Imoutolicious.Run,                   60*60*24*2),
 
 	88 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 

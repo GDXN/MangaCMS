@@ -757,8 +757,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 		if not hadFile:
-			with open(fqPath, "wb") as fp:
-				fp.write(content)
+			try:
+				with open(fqPath, "wb") as fp:
+					fp.write(content)
+			except OSError:
+				self.log.error("Error when attempting to save file. ")
+				with transaction(cur):
+					newRowDict = {"dlstate" : -1}
+					self.updateDbEntry(url=url, commit=False, **newRowDict)
 
 
 	def getToDo(self):
