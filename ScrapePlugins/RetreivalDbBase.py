@@ -563,7 +563,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 				print("linksDicts", linksDicts)
 				print("WAT")
 
-			row = self.getRowsByValue(sourceUrl=link["sourceUrl"])
+			row = self.getRowsByValue(sourceUrl=link["sourceUrl"], limitByKey=False)
+
 			if not row:
 				newItems += 1
 

@@ -856,7 +856,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		print("String lengths", len(oldStr), len(newStr))
 
 		lChange = abs(len(oldStr) - len(newStr))
-		lTotal = max((len(oldStr) - len(newStr)))
+		lTotal = max((len(oldStr), len(newStr)))
 		# distance = lv.distance(oldStr, newStr)
 		# distance = 0
 		# self.log.info("Done")
