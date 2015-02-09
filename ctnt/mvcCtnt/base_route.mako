@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 
 
-<%include file="view/index.mako"/>
+
 
 <%
 
@@ -12,17 +12,15 @@ while 1:
 		break
 	path.append(item)
 
-
-
-
 route_root = path.pop(0)
 
-# if route_root == '':
-# 	route_index()
-
-
-
-
-
-
 %>
+
+
+% if route_root == '':
+	<%include file="view/index.mako"/>
+% else:
+	Invalid route!
+% endif
+
+

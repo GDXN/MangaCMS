@@ -1,6 +1,4 @@
-http://skythewood.blogspot.com/
-http://forums.animesuki.com/showthread.php?t=127729
-http://imoutoliciouslnt.blogspot.ca/2014/04/overlord-v01-prologue.html
+ 
 
 
  - tagging system
@@ -107,6 +105,8 @@ Long Term:
 	 - ~~http://www.princerevolution.org~~
 	 - ~~http://solitarytranslation.wordpress.com/~~
 	 - ~~http://krytykal.org/~~
+	 - ~~http://skythewood.blogspot.com/~~
+ 	 - ~~http://imoutoliciouslnt.blogspot.ca/~~
 
 <b>Reader</b>
 

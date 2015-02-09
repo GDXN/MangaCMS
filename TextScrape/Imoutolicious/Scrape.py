@@ -100,9 +100,8 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				print("Wat", item)
 
 		title = doc.title()
-		title = title.replace(" Imoutolicious Light Novel Translations:", "")
+		title = title.replace("Imoutolicious Light Novel Translations:", "")
 		title = title.strip()
-
 		return title, contents
 
 

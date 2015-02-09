@@ -31,6 +31,7 @@ DNLDED = 2
 
 	randomLink      = sidebar.fetchRandomLink()
 
+
 	%>
 
 	<div class="statusdiv">
@@ -61,7 +62,7 @@ DNLDED = 2
 				% endfor
 
 				<hr>
-				% if utilities.ip_in_whitelist():
+				% if adultPlug:
 					<hr>
 					<li><a href="/itemsPron"><b>All Pron</b></a>
 					% for item in [item for item in adultPlug]:
@@ -96,6 +97,7 @@ DNLDED = 2
 					% if item['errored']:
 						<a href="/errorLog">Had Error!</a><br />
 					% endif
+
 					${item['runStart']}<br />
 					${item['runState']}
 
