@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.Yoraikun.Scrape import Scrape
+from .Scrape import Scrape
 
 import ScrapePlugins.RunBase
 

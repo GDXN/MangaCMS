@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.UnlimitedNovelFailures.Scrape import Scrape
+from .Scrape import Scrape
 
 import ScrapePlugins.RunBase
 

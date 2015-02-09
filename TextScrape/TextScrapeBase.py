@@ -99,12 +99,21 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	fileDomains = set()
 
+	scannedDomains = set()
+
 
 	def __init__(self):
 		# These two lines HAVE to be before ANY logging statements, or the automagic thread
 		# logging context management will fail.
 		self.loggers = {}
 		self.lastLoggerIndex = 1
+		self.scannedDomains.add(self.baseUrl)
+
+		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
+		tmp = self.scannedDomains
+		self.scannedDomains = set()
+		for url in tmp:
+			self.scannedDomains.add(url.lower())
 
 		# Loggers are set up dynamically on first-access.
 		self.log.info("TextScrape Base startup")
@@ -203,7 +212,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 
-	def extractLinks(self, pageCtnt):
+	def extractLinks(self, pageCtnt, url=None):
+		if url == None:
+			url = self.baseUrl
 		soup = bs4.BeautifulSoup(pageCtnt)
 
 		for link in soup.find_all("a"):
@@ -214,10 +225,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 			except KeyError:
 				continue
 
-			url = urllib.parse.urljoin(self.baseUrl, turl)
+			url = urllib.parse.urljoin(url, turl)
 
 			# Filter by domain
-			if not self.baseUrl in url:
+			# print("Filtering", any([rootUrl in url for rootUrl in self.scannedDomains]), url)
+			if not any([rootUrl in url.lower() for rootUrl in self.scannedDomains]):
 				continue
 
 			# and by blocked words

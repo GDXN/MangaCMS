@@ -48,6 +48,11 @@ import urllib.parse
 
 	ret = {}
 	for char in string.punctuation + string.whitespace + string.ascii_letters + string.digits:
+
+		# Escape the postgresql special chars in the like search.
+		if char == "_" or char == "%":
+			char = r"\\"+char
+
 		cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s AND src=%s LIMIT 1;", ('{char}%'.format(char=char), rootKey))
 		ret[char] = cursor.fetchone()
 

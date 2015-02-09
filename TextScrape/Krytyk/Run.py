@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.Krytyk.Scrape import Scrape
+from .Scrape import Scrape
 
 import ScrapePlugins.RunBase
 

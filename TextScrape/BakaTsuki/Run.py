@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.BakaTsuki.tsukiScrape import TsukiScrape
+from .tsukiScrape import TsukiScrape
 
 import ScrapePlugins.RunBase
 

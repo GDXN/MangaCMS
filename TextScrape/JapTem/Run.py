@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.JapTem.japtemScrape import JaptemScrape
+from .japtemScrape import JaptemScrape
 
 import ScrapePlugins.RunBase
 

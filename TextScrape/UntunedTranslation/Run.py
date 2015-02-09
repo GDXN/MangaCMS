@@ -7,14 +7,14 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.PrRev.Run"
+	loggerPath = "Main.UnTl.Run"
 
-	pluginName = "PRevScrape"
+	pluginName = "UntunedTranslationScrape"
 
 
 	def _go(self):
 
-		self.log.info("Checking Prince Revolution for updates")
+		self.log.info("Checking Untuned Translation for updates")
 		scraper = Scrape()
 		scraper.crawl()
 
@@ -24,8 +24,6 @@ def test():
 	logSetup.initLogging()
 	scrp = Runner()
 	scrp.go()
-	# scrp.retreiveItemFromUrl(scrp.startUrl)
-	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')
 
 
 if __name__ == "__main__":

@@ -1,25 +1,21 @@
 
 
 
-from .guheheScrape import GuheheScrape
+from .Scrape import Scrape
 
 import ScrapePlugins.RunBase
 
-import time
-
-import runStatus
-
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Guhehe.Run"
+	loggerPath = "Main.NDTl.Run"
 
-	pluginName = "GuheheScrape"
+	pluginName = "NDScrape"
 
 
 	def _go(self):
 
-		self.log.info("Checking JapTem for updates")
-		scraper = GuheheScrape()
+		self.log.info("Checking NanoDesu for updates")
+		scraper = Scrape()
 		scraper.crawl()
 
 

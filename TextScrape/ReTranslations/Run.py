@@ -1,7 +1,7 @@
 
 
 
-from TextScrape.ReTranslations.reScrape import ReScrape
+from .reScrape import ReScrape
 
 import ScrapePlugins.RunBase
 
