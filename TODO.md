@@ -1,5 +1,11 @@
- 
 
+http://deusexscans.blogspot.com/
+http://deusexscans.blogspot.com/2014/08/one-turn-kill-of-dark-partisan-vol-1_29.html 
+
+ http://lasolistia.com/haruparty/ - Google doc mess?
+
+m0205 https://manga0205.wordpress.com/
+ocytl https://oniichanyamete.wordpress.com/
 
  - tagging system
  - add filter to mu page for only items with found dirs  
@@ -107,6 +113,7 @@ Long Term:
 	 - ~~http://krytykal.org/~~
 	 - ~~http://skythewood.blogspot.com/~~
  	 - ~~http://imoutoliciouslnt.blogspot.ca/~~
+ 	 - ~~https://wartdf.wordpress.com/current-projects/~~
 
 <b>Reader</b>
 

@@ -40,9 +40,9 @@ pip3 install numpy scipy
 sudo pip3 install git+https://github.com/stalkerg/python-readability
 sudo pip3 install git+https://github.com/bear/parsedatetime
 
-# Pylzma for 7z support. py3k support is still not in Pypi for no good reason
+# Pylzma for 7z support. ~~py3k support is still not in Pypi for no good reason~~
 # Never mind. Bugged the dev a bit, and it's now up to date.
-sudo pip3 install pylzma
+sudo pip3 install pylzma markdown
 
 sudo pip3 install git+https://github.com/fake-name/UniversalArchiveInterface.git
 

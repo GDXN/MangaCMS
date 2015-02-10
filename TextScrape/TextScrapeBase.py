@@ -4,9 +4,9 @@
 import runStatus
 runStatus.preloadDicts = False
 
-import Levenshtein as lv
+# import Levenshtein as lv
 
-
+import markdown
 import logging
 import settings
 import abc
@@ -16,13 +16,15 @@ import functools
 import operator as opclass
 
 import sql
-import sql.operators as sqlo
+# import sql.operators as sqlo
+
 
 import hashlib
 import psycopg2
 import os
 import traceback
 import bs4
+import readability.readability
 import time
 import queue
 from concurrent.futures import ThreadPoolExecutor
@@ -100,20 +102,21 @@ class TextScraper(metaclass=abc.ABCMeta):
 	fileDomains = set()
 
 	scannedDomains = set()
-
+	scannedDomainSet = set()
 
 	def __init__(self):
 		# These two lines HAVE to be before ANY logging statements, or the automagic thread
 		# logging context management will fail.
 		self.loggers = {}
 		self.lastLoggerIndex = 1
-		self.scannedDomains.add(self.baseUrl)
+		self.scannedDomainSet.add(self.baseUrl)
 
 		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
-		tmp = self.scannedDomains
+		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
 		self.scannedDomains = set()
-		for url in tmp:
-			self.scannedDomains.add(url.lower())
+		for url in self.scannedDomainSet:
+			url = urllib.parse.urlsplit(url.lower()).netloc
+			self.scannedDomains.add(url)
 
 		# Loggers are set up dynamically on first-access.
 		self.log.info("TextScrape Base startup")
@@ -134,7 +137,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.checkInitPrimaryDb()
 
-		self.fileDomains.add(self.baseUrl)
+		self.fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
 
 
 	# More hackiness to make sessions intrinsically thread-safe.
@@ -210,11 +213,15 @@ class TextScraper(metaclass=abc.ABCMeta):
 		url = '/books/render?url=%s' % urllib.parse.quote(url)
 		return url
 
-
+	# check if domain `url` is a sub-domain of the scanned domains.
+	def checkDomain(self, url):
+		return any([rootUrl in url.lower() for rootUrl in self.scannedDomains])
 
 	def extractLinks(self, pageCtnt, url=None):
 		if url == None:
 			url = self.baseUrl
+			# We assume the base URL is root of all the URLs if not told otherwise
+
 		soup = bs4.BeautifulSoup(pageCtnt)
 
 		for link in soup.find_all("a"):
@@ -228,8 +235,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 			url = urllib.parse.urljoin(url, turl)
 
 			# Filter by domain
-			# print("Filtering", any([rootUrl in url for rootUrl in self.scannedDomains]), url)
-			if not any([rootUrl in url.lower() for rootUrl in self.scannedDomains]):
+			# print("Filtering", self.checkDomain(url), url)
+			if not self.checkDomain(url):
 				continue
 
 			# and by blocked words
@@ -337,6 +344,54 @@ class TextScraper(metaclass=abc.ABCMeta):
 		return fqpath
 
 
+
+
+	def processPage(self, url, content, mimeType):
+
+
+		pgTitle, pgBody = self.cleanBtPage(content)
+		self.extractLinks(content, url=url)
+		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
+
+
+	def processAsMarkdown(self, content):
+		self.log.info("Plain-text file. Processing with markdown.")
+		# Take the first non-empty line, and just assume it's the title. It'll be close enough.
+		title = content.strip().split("\n")[0].strip()
+		content = markdown.markdown(content)
+		return title, content
+
+	# Retreive remote content at `url`, call the appropriate handler for the
+	# transferred content (e.g. is it an image/html page/binary file)
+	def retreiveItemFromUrl(self, url):
+		self.log.info("Fetching page '%s'", url)
+		content, fName, mimeType = self.getItem(url)
+
+		links = []
+
+		if mimeType == 'text/html':
+			self.log.info("Processing '%s' as HTML.", url)
+			self.processPage(url, content, mimeType)
+
+		elif mimeType in ['text/plain']:
+			title, content = self.processAsMarkdown(content)
+			self.updateDbEntry(url=url, title=title, contents=content, mimetype='text/html', dlstate=2)
+
+		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
+			self.log.info("Processing '%s' as an image file.", url)
+			self.saveFile(url, mimeType, fName, content)
+
+		elif mimeType in ["application/octet-stream"]:
+			self.log.info("Processing '%s' as an binary file.", url)
+			self.saveFile(url, mimeType, fName, content)
+		else:
+			self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
+
+
+		return links
+
+
+
 	########################################################################################################################
 	#                      Process management
 	########################################################################################################################
@@ -421,6 +476,57 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.log.info("Crawler scanned a total of '%s' pages", len(haveUrls))
 		self.log.info("Queue Feeder thread exiting!")
+
+
+
+	def cleanBtPage(self, inPage):
+
+		# since readability strips tag attributes, we preparse with BS4,
+		# parse with readability, and then do reformatting *again* with BS4
+		# Yes, this is ridiculous.
+		soup = bs4.BeautifulSoup(inPage)
+
+		# Decompose all the parts we don't want
+		for key in self.decompose:
+			for instance in soup.find_all(True, attrs=key):
+				instance.decompose()
+
+
+		doc = readability.readability.Document(soup.prettify())
+		doc.parse()
+		content = doc.content()
+
+		soup = bs4.BeautifulSoup(content)
+
+		contents = ''
+
+
+		# Relink all the links so they work in the reader.
+		for aTag in soup.find_all("a"):
+			try:
+				aTag["href"] = self.convertToReaderUrl(aTag["href"])
+			except KeyError:
+				continue
+
+		for imtag in soup.find_all("img"):
+			try:
+				imtag["src"] = self.convertToReaderUrl(imtag["src"])
+			except KeyError:
+				continue
+
+		# Generate HTML string for /just/ the contents of the <body> tag.
+		for item in soup.body.contents:
+			if type(item) is bs4.Tag:
+				contents += item.prettify()
+			elif type(item) is bs4.NavigableString:
+				contents += item
+			else:
+				print("Wat", item)
+
+		title = doc.title()
+		title = title.replace(self.stripTitle, "")
+
+		return title, contents
 
 
 	##############################################################################################################################################
