@@ -68,6 +68,7 @@ import TextScrape.Manga0205.Run
 import TextScrape.OniiChanYamete.Run
 
 import TextScrape.Sousetsuka.Run
+import TextScrape.Defiring.Run
 
 
 
@@ -157,6 +158,7 @@ scrapePlugins = {
 	99  : (TextScrape.Manga0205.Run,                       days(2)),
 	100 : (TextScrape.OniiChanYamete.Run,                  days(2)),
 	101 : (TextScrape.Sousetsuka.Run,                      days(2)),
+	102 : (TextScrape.Defiring.Run,                        days(2)),
 
 
 }

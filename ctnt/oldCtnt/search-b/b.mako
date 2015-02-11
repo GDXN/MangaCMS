@@ -22,7 +22,7 @@ import urllib.parse
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
-<%namespace name="searchFuncs"     file="/search/searchFuncs.mako"/>
+<%namespace name="searchFuncs"     file="/search-h/searchFuncs.mako"/>
 
 <html>
 <head>
@@ -39,7 +39,7 @@ import urllib.parse
 
 if 'q' in request.params:
 	searchterm = request.params['q']
-	searchFuncs.genSearchBody(searchterm, 'hentaiitems')
+	searchFuncs.genSearchBody(searchterm, 'book_items')
 else:
 	searchFuncs.genSearchError("No search query specified!")
 

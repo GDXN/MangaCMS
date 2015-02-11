@@ -95,7 +95,20 @@ from ipaddress import IPv4Address, IPv4Network
 </%def>
 
 
-<%def name="createHentaiSearch(linkText, itemNameStr)">
+
+
+<%def name="createHentaiSearch(linkText, itemNameStr, )">
+	<%
+	createTrigramSearchSearch(linkText, itemNameStr, 'trigram-query-hentai-str', 'trigram-query-linktext')
+	%>
+</%def>
+<%def name="createBookSearch(linkText, itemNameStr, )">
+	<%
+	createTrigramSearchSearch(linkText, itemNameStr, 'trigram-query-book-str', 'trigram-query-linktext')
+	%>
+</%def>
+
+<%def name="createTrigramSearchSearch(linkText, itemNameStr, searchStr, searchText)">
 	<%
 
 	# cur = sqlCon.cursor()
@@ -144,8 +157,8 @@ from ipaddress import IPv4Address, IPv4Network
 					function()
 					{
 						var ret = ({});
-						ret["trigram-query-query-str"] = "${itemNameStr}";
-						ret["trigram-query-linktext"] = "${linkText}";
+						ret["${searchStr}"] = "${itemNameStr}";
+						ret["${searchText}"] = "${linkText}";
 						$.ajax("/api", {"data": ret, success: ajaxCallback_${col_id}});
 
 						// Destroy the scroll waypoint, so it doesn't trigger again.

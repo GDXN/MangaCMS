@@ -50,6 +50,8 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 
 				# Block user pages
 				"title=User:",
+				"=Talk:",
+				"=talk:",
 
 				# Links within page
 				"http://www.baka-tsuki.org/#",

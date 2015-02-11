@@ -525,6 +525,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		title = doc.title()
 		title = title.replace(self.stripTitle, "")
+		title = title.strip()
 
 		return title, contents
 
@@ -583,6 +584,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				("%s_change_index"     % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (change   );'''  ),
 			]
 
+		# CREATE INDEX book_title_trigram ON book_items USING gin (title gin_trgm_ops);
 
 		# CREATE INDEX  book_items_title_coll_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
 		# CREATE INDEX  book_items_fhash_index ON book_items (fhash);

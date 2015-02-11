@@ -653,7 +653,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 			# CREATE INDEX hentaiitems_tags_gin_index ON hentaiitems USING gin((lower(tags)::tsvector));
 			# CREATE INDEX mangaitems_tags_gin_index ON mangaitems USING gin((lower(tags)::tsvector));
-			# CREATE INDEX mangaitems_oname_trigram ON mangaitems USING USING gin (originname gin_trgm_ops);
+			# CREATE INDEX hentaiitems_oname_trigram ON hentaiitems USING gin (originname gin_trgm_ops);
+			# CREATE INDEX mangaitems_oname_trigram ON mangaitems USING gin (originname gin_trgm_ops);
 			# UPDATE hentaiitems SET tags = replace(tags, ':', '_')
 			# UPDATE hentaiitems SET tags = lower(tags)
 

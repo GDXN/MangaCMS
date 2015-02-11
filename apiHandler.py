@@ -143,9 +143,9 @@ class ApiInterface(object):
 		return Response(body=json.dumps({"Status": "Success", "Message": "Download state reset."}))
 
 
-	def getTrigramSearch(self, request):
+	def getHentaiTrigramSearch(self, request):
 
-		itemNameStr = request.params['trigram-query-query-str']
+		itemNameStr = request.params['trigram-query-hentai-str']
 		linkText = request.params['trigram-query-linktext']
 
 		cur = self.conn.cursor()
@@ -153,9 +153,27 @@ class ApiInterface(object):
 		ret = cur.fetchone()[0]
 
 		if ret:
-			ret = "<a href='/search/h?q=%s'>%s</a>" % (urllib.parse.quote_plus(itemNameStr.encode("utf-8")), linkText)
+			ret = "<a href='/search-h/h?q=%s'>%s</a>" % (urllib.parse.quote_plus(itemNameStr.encode("utf-8")), linkText)
 		else:
 			ret = 'No H Items'
+
+		return Response(body=json.dumps({"Status": "Success", "contents": ret}))
+
+
+
+	def getBookTrigramSearch(self, request):
+
+		itemNameStr = request.params['trigram-query-book-str']
+		linkText = request.params['trigram-query-linktext']
+
+		cur = self.conn.cursor()
+		cur.execute("""SELECT COUNT(*) FROM book_items WHERE title %% %s;""", (itemNameStr, ))
+		ret = cur.fetchone()[0]
+
+		if ret:
+			ret = "<a href='/search-b/b?q=%s'>%s</a>" % (urllib.parse.quote_plus(itemNameStr.encode("utf-8")), linkText)
+		else:
+			ret = 'No Book Items'
 
 		return Response(body=json.dumps({"Status": "Success", "contents": ret}))
 
@@ -212,9 +230,12 @@ class ApiInterface(object):
 		elif "reset-download" in request.params:
 			self.log.info("Download Reset!")
 			return self.resetDownload(request)
-		elif "trigram-query-query-str" in request.params and "trigram-query-linktext" in request.params:
+		elif "trigram-query-hentai-str" in request.params and "trigram-query-linktext" in request.params:
 			self.log.info("Trigram query existence check")
-			return self.getTrigramSearch(request)
+			return self.getHentaiTrigramSearch(request)
+		elif "trigram-query-book-str" in request.params and "trigram-query-linktext" in request.params:
+			self.log.info("Trigram query existence check")
+			return self.getBookTrigramSearch(request)
 		elif 'delete-item' in request.params:
 			return self.deleteItem(request)
 

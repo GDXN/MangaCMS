@@ -1,12 +1,11 @@
 
+
 http://deusexscans.blogspot.com/
 http://deusexscans.blogspot.com/2014/08/one-turn-kill-of-dark-partisan-vol-1_29.html 
 
  http://lasolistia.com/haruparty/ - Google doc mess?
 
-m0205 https://manga0205.wordpress.com/
-ocytl https://oniichanyamete.wordpress.com/
-
+ - Scrape "Type" entry from mangaupdates
  - tagging system
  - add filter to mu page for only items with found dirs  
  - revisit gdoc extractor. the extra spaces are annoying
@@ -114,6 +113,12 @@ Long Term:
 	 - ~~http://skythewood.blogspot.com/~~
  	 - ~~http://imoutoliciouslnt.blogspot.ca/~~
  	 - ~~https://wartdf.wordpress.com/current-projects/~~
+	 - ~~defrtl https://defiring.wordpress.com/~~
+	 - ~~souse  http://sousetsuka.blogspot.com/~~
+	 - ~~m0205  https://manga0205.wordpress.com/~~
+	 - ~~ocytl  https://oniichanyamete.wordpress.com/~~
+
+
 
 <b>Reader</b>
 

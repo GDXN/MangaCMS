@@ -13,12 +13,14 @@ import nameTools as nt
 validTables = [
 	'mangaitems',
 	'hentaiitems',
+	'book_items'
 	]
 
 %>
 
 
 <%namespace name="tableGenerators" file="/gentable.mako"/>
+<%namespace name="bookSearch"      file="/books/renderSearch.mako"/>
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
@@ -32,12 +34,18 @@ validTables = [
 	${tableGenerators.genPronTable(originTrigram=search)}
 
 </%def>
+<%def name="genBookSearch(search)">
+	${search}
+	${bookSearch.genBookSearch(originTrigram=search)}
+
+</%def>
 
 <%def name="genSearchBody(search, tablename)">
 	<%
 	if not tablename in validTables:
 		print("WAT?")
 		return genSearchError("Invalid table to search!")
+
 	%>
 	<div>
 		${sideBar.getSideBar(sqlCon)}
@@ -50,7 +58,8 @@ validTables = [
 					<div id='mangatable'>
 						% if tablename == 'hentaiitems':
 							${genHentaiSearch(search)}
-
+						% elif tablename == 'book_items':
+							${genBookSearch(search)}
 						% elif tablename == 'mangaitems':
 							Manga search not currently functional!
 						% endif

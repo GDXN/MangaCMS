@@ -100,6 +100,7 @@ hentaiCols = (
 	)
 
 
+
 # and the series table
 seriesTable = sql.Table("mangaseries")
 
@@ -755,7 +756,6 @@ colours = {
 
 </%def>
 
-
 <%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False, originTrigram=None)">
 
 	<%
@@ -882,7 +882,11 @@ colours = {
 			<td class="padded">
 				${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else ""}
 
-				% if 'hentai' in (str(dataDict['tags'])+str(dataDict['genre'])).lower():
+				% if 'novel' in (name+str(dataDict['tags'])+str(dataDict['genre'])).lower():
+					<span style='float:right'>
+						${ut.createBookSearch("Books Found", name)}
+					</span>
+				% elif 'hentai' in (str(dataDict['tags'])+str(dataDict['genre'])).lower():
 					<span style='float:right'>
 						${ut.createHentaiSearch("Hentai Search", name)}
 					</span>
