@@ -62,7 +62,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	]
 
 
-	def cleanBtPage(self, inPage):
+	def extractLinks(self, pageCtnt, url=None):
 
 		# since readability strips tag attributes, we preparse with BS4,
 		# parse with readability, and then do reformatting *again* with BS4
@@ -111,38 +111,6 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 		return title, contents
 
-
-
-	def processPage(self, url, content, mimeType):
-
-
-		pgTitle, pgBody = self.cleanBtPage(content)
-		self.extractLinks(content)
-		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
-
-
-	# Retreive remote content at `url`, call the appropriate handler for the
-	# transferred content (e.g. is it an image/html page/binary file)
-	def retreiveItemFromUrl(self, url):
-		self.log.info("Fetching page '%s'", url)
-		content, fName, mimeType = self.getItem(url)
-
-		links = []
-
-		if mimeType == 'text/html':
-			self.log.info("Processing '%s' as HTML.", url)
-			self.processPage(url, content, mimeType)
-		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
-			self.log.info("Processing '%s' as an image file.", url)
-			self.saveFile(url, mimeType, fName, content)
-		elif mimeType in ["application/octet-stream"]:
-			self.log.info("Processing '%s' as an binary file.", url)
-			self.saveFile(url, mimeType, fName, content)
-		else:
-			self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
-
-
-		return links
 
 def test():
 	scrp = Scrape()

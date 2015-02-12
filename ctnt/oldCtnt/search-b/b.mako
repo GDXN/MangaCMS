@@ -39,6 +39,13 @@ import urllib.parse
 
 if 'q' in request.params:
 	searchterm = request.params['q']
+
+	# MangaUpdates denotes novels by inserting "(Novel)" in the title. That makes the search results
+	# kind of cranky, so strip that out.
+	searchterm = searchterm.replace("(Novel)", "")
+	searchterm = searchterm.replace("(novel)", "")
+	searchterm = searchterm.strip()
+
 	searchFuncs.genSearchBody(searchterm, 'book_items')
 else:
 	searchFuncs.genSearchError("No search query specified!")

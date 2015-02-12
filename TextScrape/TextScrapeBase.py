@@ -55,6 +55,34 @@ def transaction(cursor, commit=True):
 
 
 
+
+def rebaseUrl(url, base):
+	"""Rebase one url according to base"""
+
+	parsed = urllib.parse.urlparse(url)
+	if parsed.scheme == parsed.netloc == '':
+		return urllib.parse.urljoin(base, url)
+	else:
+		return url
+
+
+# source: http://stackoverflow.com/q/2725156/414272
+# TODO: "These aren't necessarily simple URLs ..."
+urlContainingTargets = [
+	('a', 'href'), ('applet', 'codebase'), ('area', 'href'), ('base', 'href'),
+	('blockquote', 'cite'), ('body', 'background'), ('del', 'cite'),
+	('form', 'action'), ('frame', 'longdesc'), ('frame', 'src'),
+	('head', 'profile'), ('iframe', 'longdesc'), ('iframe', 'src'),
+	('img', 'longdesc'), ('img', 'src'), ('img', 'usemap'), ('input', 'src'),
+	('input', 'usemap'), ('ins', 'cite'), ('link', 'href'),
+	('object', 'classid'), ('object', 'codebase'), ('object', 'data'),
+	('object', 'usemap'), ('q', 'cite'), ('script', 'src'), ('audio', 'src'),
+	('button', 'formaction'), ('command', 'icon'), ('embed', 'src'),
+	('html', 'manifest'), ('input', 'formaction'), ('source', 'src'),
+	('video', 'poster'), ('video', 'src'),
+]
+
+
 class RowExistsException(Exception):
 	pass
 
@@ -218,6 +246,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		return any([rootUrl in url.lower() for rootUrl in self.scannedDomains])
 
 	def extractLinks(self, pageCtnt, url=None):
+		# All links have been resolved to fully-qualified paths at this point.
+
 		if url == None:
 			url = self.baseUrl
 			# We assume the base URL is root of all the URLs if not told otherwise
@@ -228,11 +258,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 			# Skip empty anchor tags
 			try:
-				turl = link["href"]
+				url = link["href"]
 			except KeyError:
 				continue
-
-			url = urllib.parse.urljoin(url, turl)
 
 			# Filter by domain
 			# print("Filtering", self.checkDomain(url), url)
@@ -259,16 +287,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 		for imtag in soup.find_all("img"):
 						# Skip empty anchor tags
 			try:
-				turl = imtag["src"]
+				url = imtag["src"]
 			except KeyError:
 				continue
 
 			# Skip tags with `img src=""`.
 			# No idea why they're there, but they are
-			if not turl:
+			if not url:
 				continue
-
-			url = urllib.parse.urljoin(self.baseUrl, turl)
 
 			# Filter by domain
 			if not self.allImages and not any([base in url for base in self.fileDomains]):
@@ -345,14 +371,26 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 
-
-	def processPage(self, url, content, mimeType):
-
-
-		pgTitle, pgBody = self.cleanBtPage(content)
+	def processHtmlPage(self, url, content, mimeType):
+		content = self.canonizeUrls(content, url)
 		self.extractLinks(content, url=url)
+		pgTitle, pgBody = self.cleanHtmlPage(content)
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
+	def canonizeUrls(self, content, pageUrl):
+		self.log.info("Making all links on page absolute.")
+		soup = bs4.BeautifulSoup(content)
+		for (tag, attr) in urlContainingTargets:
+			for link in soup.findAll(tag):
+				try:
+					url = link[attr]
+				except KeyError:
+					pass
+				else:
+					link[attr] = rebaseUrl(url, pageUrl)
+					if link[attr] != url:
+						self.log.debug("Changed URL from '%s' to '%s'", url, link[attr])
+		return str(soup)
 
 	def processAsMarkdown(self, content):
 		self.log.info("Plain-text file. Processing with markdown.")
@@ -371,7 +409,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		if mimeType == 'text/html':
 			self.log.info("Processing '%s' as HTML.", url)
-			self.processPage(url, content, mimeType)
+			self.processHtmlPage(url, content, mimeType)
 
 		elif mimeType in ['text/plain']:
 			title, content = self.processAsMarkdown(content)
@@ -479,12 +517,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 
-	def cleanBtPage(self, inPage):
+	def cleanHtmlPage(self, pageCtnt, url=None):
 
 		# since readability strips tag attributes, we preparse with BS4,
 		# parse with readability, and then do reformatting *again* with BS4
 		# Yes, this is ridiculous.
-		soup = bs4.BeautifulSoup(inPage)
+		soup = bs4.BeautifulSoup(pageCtnt)
 
 		# Decompose all the parts we don't want
 		for key in self.decompose:

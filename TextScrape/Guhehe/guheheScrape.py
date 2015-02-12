@@ -95,40 +95,6 @@ class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 
-	def processPage(self, url, content, mimeType):
-
-
-		pgTitle, pgBody = self.cleanPage(content)
-		self.extractLinks(content)
-		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
-
-
-	# Retreive remote content at `url`, call the appropriate handler for the
-	# transferred content (e.g. is it an image/html page/binary file)
-	def retreiveItemFromUrl(self, url):
-		self.log.info("Fetching page '%s'", url)
-		try:
-			content, fName, mimeType = self.getItem(url)
-
-			links = []
-
-			if mimeType == 'text/html':
-				self.log.info("Processing '%s' as HTML.", url)
-				self.processPage(url, content, mimeType)
-			elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
-				self.log.info("Processing '%s' as an image file.", url)
-				self.saveFile(url, mimeType, fName, content)
-			elif mimeType in ["application/octet-stream"]:
-				self.log.info("Processing '%s' as an binary file.", url)
-				self.saveFile(url, mimeType, fName, content)
-			else:
-				self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
-
-		except urllib.error.URLError:
-			self.log.warn("Page retreival failed!")
-			self.updateDbEntry(url=url, dlstate=-1)
-
-
 
 
 

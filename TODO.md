@@ -1,4 +1,11 @@
+http://10.1.1.8:8081/books/render?url=https%3A//oniichanyamete.wordpress.com/2014/12/09/%25e8%2598%2587%25e3%2582%258a%25e3%2581%25ae%25e9%25ad%2594%25e7%258e%258byomigaeri-no-maou-001/
+ - ~~rtd scraper broken~~
+ - ~~strip (novel) from search text~~
+ 
+heretic trans missing clockwork planet
+Oniichanyamete all Yomigaeri no Maou (Novel)   text missing
 
+everyone at http://www.mangaupdates.com/releases.html?search=116177&stype=series
 
 http://deusexscans.blogspot.com/
 http://deusexscans.blogspot.com/2014/08/one-turn-kill-of-dark-partisan-vol-1_29.html 
