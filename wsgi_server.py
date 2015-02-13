@@ -381,7 +381,7 @@ class PageResource(object):
 		if "url" in request.params:
 
 			itemUrl = urllib.parse.unquote(request.params["url"])
-
+			print("ItemURL: ", itemUrl)
 			# self.conn
 			cur = self.conn.cursor()
 			cur.execute('BEGIN')

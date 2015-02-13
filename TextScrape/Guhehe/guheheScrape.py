@@ -42,59 +42,13 @@ class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 	decompose = [
-				('header',  {'id':'main-header'}),
-				('footer',  {'id':'main-footer'}),
-				('section', {'id':'comment-wrap'}),
-				('div',     {'id':'sidebar'}),
+				{'id':'main-header'},
+				{'id':'main-footer'},
+				{'id':'comment-wrap'},
+				{'id':'sidebar'},
 				]
 
-	def cleanPage(self, inPage):
-
-		soup = bs4.BeautifulSoup(inPage)
-		for name, tagAttrs in self.decompose:
-
-			for tag in soup.find_all(name, attrs=tagAttrs):
-				tag.decompose()
-
-
-		inPage = soup.prettify()
-		doc = readability.readability.Document(inPage, positive_keywords=self.positive_keywords, negative_keywords=self.negative_keywords)
-		doc.parse()
-		content = doc.content()
-
-		soup = bs4.BeautifulSoup(content)
-
-		for aTag in soup.find_all("a"):
-			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
-			except KeyError:
-				continue
-
-		for imtag in soup.find_all("img"):
-			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
-			except KeyError:
-				continue
-
-
-		contents = ''
-
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
-
-		title = doc.title()
-		title = title.replace('| guhehe.TRANSLATIONS', "")
-		title = title.strip()
-
-		return title, contents
-
-
-
+	stripTitle = '| guhehe.TRANSLATIONS'
 
 
 

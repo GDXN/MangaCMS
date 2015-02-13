@@ -1,9 +1,38 @@
-http://10.1.1.8:8081/books/render?url=https%3A//oniichanyamete.wordpress.com/2014/12/09/%25e8%2598%2587%25e3%2582%258a%25e3%2581%25ae%25e9%25ad%2594%25e7%258e%258byomigaeri-no-maou-001/
- - ~~rtd scraper broken~~
- - ~~strip (novel) from search text~~
- 
+New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
+
+mu view only book items
+Check LN Scrapers after changes: 
+	BakaTsuki
+	CETranslation
+	Guhehe
+	HaruParty
+	Imoutolicious
+	JapTem
+	Krytyk
+	KyakkaTranslation
+	Manga0205
+	NanoDesuTranslation
+	PrinceRevolution
+	ReTranslations
+	SakuraHonyakuTranslation
+	Setsuna86Translation
+	SkyTheWood
+	SolitaryTranslation
+	Sousetsuka
+	UnbreakableMachineDollTrans
+	UnlimitedNovelFailures
+	
+
+
+	~~UntunedTranslation~~
+	~~WarTdf~~
+	~~HereticTranslation~~
+	~~Yoraikun~~
+	~~Defiring~~
+	~~OniiChanYamete~~
+
+
 heretic trans missing clockwork planet
-Oniichanyamete all Yomigaeri no Maou (Novel)   text missing
 
 everyone at http://www.mangaupdates.com/releases.html?search=116177&stype=series
 
@@ -220,6 +249,10 @@ Partial series:
 
 
 <b>Complete:</b>
+
+ - ~~rtd scraper broken~~
+ - ~~strip (novel) from search text~~
+ - ~~Oniichanyamete all Yomigaeri no Maou (Novel)   text missing~~ (Fixed, unicode in URL issue)
  - ~~readability performance~~ ~~The problem is entirely levenshtein distance calculation. Huh.~~ Wound up just using string length difference. Eh...
  - ~~mask empty lists~~ List generation is procedural, I don't know if the list is empty until I've finished generating it.
  - ~~mu page cahp number comparrisons are messed up~~

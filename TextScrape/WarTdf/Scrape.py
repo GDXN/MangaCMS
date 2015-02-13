@@ -6,9 +6,6 @@ if __name__ == "__main__":
 
 import TextScrape.TextScrapeBase
 
-import markdown
-import readability.readability
-import bs4
 import webFunctions
 
 
@@ -57,6 +54,8 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				"?share=",
 
 				]
+
+
 
 	decompose = [
 		{'id'    :'header'},

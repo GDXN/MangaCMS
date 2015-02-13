@@ -18,7 +18,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	threads = 3
 
 	baseUrl = "https://oniichanyamete.wordpress.com/"
-	startUrl = baseUrl
+	startUrl = 'https://oniichanyamete.wordpress.com/2014/12/09/蘇りの魔王yomigaeri-no-maou-001/'
 
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
@@ -63,6 +63,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 		{'class' : 'photo-meta'},
 		{'class' : 'bit'},
 		{'id'    : 'bit'},
+		{'id'    : 'secondary'},
 		{'id'    : 'search-container'},
 		{'id'    : 'likes-other-gravatars'},
 		{'id'    : 'sidebar'},

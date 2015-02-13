@@ -53,6 +53,16 @@ def transaction(cursor, commit=True):
 		if commit:
 			cursor.execute("COMMIT;")
 
+def completeUnescape(url):
+
+	while True:
+		url2 = urllib.parse.unquote(url)
+		url2 = url2.split("#")[0]
+		if url2 == url:
+			break
+		url = url2
+
+	return url
 
 
 
@@ -124,6 +134,19 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def badwords(self):
 		pass
 
+
+	decompose       = []
+
+	# General annoying comment bullshit and sharing widgets.
+	#
+	decomposeBefore = [
+		{'name'     : 'likes-master'},  # Bullshit sharing widgets
+		{'id'       : 'jp-post-flair'},
+		{'class'    : 'commentlist'},  # Scrub out the comments so we don't try to fetch links from them
+		{'class'    : 'post-share-buttons'},
+		{'class'    : 'comments'},
+		{'id'       : 'comments'},
+	]
 	allImages = False
 
 
@@ -131,6 +154,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	scannedDomains = set()
 	scannedDomainSet = set()
+
+	stripTitle = ''
 
 	def __init__(self):
 		# These two lines HAVE to be before ANY logging statements, or the automagic thread
@@ -144,6 +169,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.scannedDomains = set()
 		for url in self.scannedDomainSet:
 			url = urllib.parse.urlsplit(url.lower()).netloc
+			if not url:
+				raise ValueError("One of the scanned domains collapsed down to an empty string: '%s'!" % url)
 			self.scannedDomains.add(url)
 
 		# Loggers are set up dynamically on first-access.
@@ -243,16 +270,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	# check if domain `url` is a sub-domain of the scanned domains.
 	def checkDomain(self, url):
+		# print(self.scannedDomains)
+		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self.scannedDomains]), url, [rootUrl in url.lower() for rootUrl in self.scannedDomains])
 		return any([rootUrl in url.lower() for rootUrl in self.scannedDomains])
 
-	def extractLinks(self, pageCtnt, url=None):
+	def extractLinks(self, soup):
 		# All links have been resolved to fully-qualified paths at this point.
-
-		if url == None:
-			url = self.baseUrl
-			# We assume the base URL is root of all the URLs if not told otherwise
-
-		soup = bs4.BeautifulSoup(pageCtnt)
 
 		for link in soup.find_all("a"):
 
@@ -310,19 +333,20 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 			url = url.split("#")[0]
 
+
 			# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
+			url = completeUnescape(url)
 			self.upsert(url, istext=False)
 
 
 	def convertToReaderImage(self, inStr):
-		self.convertToReaderUrl(inStr)
+		return self.convertToReaderUrl(inStr)
 
-	def relink(self, inStr):
-		soup = bs4.BeautifulSoup(inStr)
+	def relink(self, soup):
 
 		for aTag in soup.find_all("a"):
 			try:
-				if self.baseUrl in aTag["href"]:
+				if self.checkDomain(aTag["href"]):
 					aTag["href"] = self.convertToReaderUrl(aTag["href"])
 			except KeyError:
 				continue
@@ -330,24 +354,15 @@ class TextScraper(metaclass=abc.ABCMeta):
 		for imtag in soup.find_all("img"):
 			try:
 				imtag["src"] = self.convertToReaderImage(imtag["src"])
+				# print("New image URL", imtag['src'])
 
-				imtag["style"] = 'width: 100%;'
+				# Force images that are oversize to fit the window.
+				imtag["style"] = 'max-width: 95%;'
 
 			except KeyError:
 				continue
 
-
-		contents = ''
-
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
-
-		return contents
+		return soup
 
 
 
@@ -371,15 +386,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 
-	def processHtmlPage(self, url, content, mimeType):
-		content = self.canonizeUrls(content, url)
-		self.extractLinks(content, url=url)
-		pgTitle, pgBody = self.cleanHtmlPage(content)
-		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
-
-	def canonizeUrls(self, content, pageUrl):
+	def canonizeUrls(self, soup, pageUrl):
 		self.log.info("Making all links on page absolute.")
-		soup = bs4.BeautifulSoup(content)
+
 		for (tag, attr) in urlContainingTargets:
 			for link in soup.findAll(tag):
 				try:
@@ -390,30 +399,110 @@ class TextScraper(metaclass=abc.ABCMeta):
 					link[attr] = rebaseUrl(url, pageUrl)
 					if link[attr] != url:
 						self.log.debug("Changed URL from '%s' to '%s'", url, link[attr])
-		return str(soup)
+		return soup
 
-	def processAsMarkdown(self, content):
+
+	def decomposeItems(self, soup, toDecompose):
+		# Decompose all the parts we don't want
+		for key in toDecompose:
+			for instance in soup.find_all(True, attrs=key):
+				instance.decompose() # This call permutes the tree!
+		return soup
+
+	def cleanHtmlPage(self, soup, url=None):
+
+		# since readability strips tag attributes, we preparse with BS4,
+		# parse with readability, and then do reformatting *again* with BS4
+		# Yes, this is ridiculous.
+
+		doc = readability.readability.Document(soup.prettify())
+		doc.parse()
+		content = doc.content()
+
+		soup = bs4.BeautifulSoup(content)
+		soup = self.relink(soup)
+		contents = ''
+
+
+		# Generate HTML string for /just/ the contents of the <body> tag.
+		for item in soup.body.contents:
+			if type(item) is bs4.Tag:
+				contents += item.prettify()
+			elif type(item) is bs4.NavigableString:
+				contents += item
+			else:
+				print("Wat", item)
+
+
+		title = doc.title()
+		title = title.replace(self.stripTitle, "")
+		title = title.strip()
+
+		return title, contents
+
+
+
+	# Process a plain HTML page.
+	# This call does a set of operations to permute and clean a HTML page.
+	#
+	# First, it decomposes all tags with attributes dictated in the `decomposeBefore` class variable
+	# it then canonizes all the URLs on the page, extracts all the URLs from the page,
+	# then decomposes all the tags in the `decompose` class variable, feeds the content through
+	# readability, and finally saves the processed HTML into the database
+	def processHtmlPage(self, url, content, mimeType):
+		self.log.info("Processing '%s' as HTML.", url)
+
+
+		soup = bs4.BeautifulSoup(content)
+
+		soup = self.decomposeItems(soup, self.decomposeBefore)
+		soup = self.canonizeUrls(soup, url)
+
+		if self.checkDomain(url):
+			self.extractLinks(soup)
+
+		soup = self.decomposeItems(soup, self.decompose)
+
+		pgTitle, pgBody = self.cleanHtmlPage(soup)
+		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
+
+
+	# Format a text-file using markdown to make it actually nice to look at.
+	def processAsMarkdown(self, content, url):
 		self.log.info("Plain-text file. Processing with markdown.")
 		# Take the first non-empty line, and just assume it's the title. It'll be close enough.
 		title = content.strip().split("\n")[0].strip()
 		content = markdown.markdown(content)
-		return title, content
 
+		self.updateDbEntry(url=url, title=title, contents=content, mimetype='text/html', dlstate=2)
+
+
+	# This is the main function that's called by the task management system.
 	# Retreive remote content at `url`, call the appropriate handler for the
 	# transferred content (e.g. is it an image/html page/binary file)
 	def retreiveItemFromUrl(self, url):
-		self.log.info("Fetching page '%s'", url)
-		content, fName, mimeType = self.getItem(url)
 
-		links = []
+		url = completeUnescape(url)
+		# Snip off leading slashes that have shown up a few times.
+		if url.startswith("//"):
+			url = 'http://'+url[2:]
+
+		self.log.info("Fetching page '%s'", url)
+		try:
+			content, fName, mimeType = self.getItem(url)
+		except ValueError:
+
+			for line in traceback.format_exc().split("\n"):
+				self.log.critical(line)
+			self.upsert(url, dlstate=-1, contents='Error downloading!')
+			return
 
 		if mimeType == 'text/html':
-			self.log.info("Processing '%s' as HTML.", url)
 			self.processHtmlPage(url, content, mimeType)
 
 		elif mimeType in ['text/plain']:
-			title, content = self.processAsMarkdown(content)
-			self.updateDbEntry(url=url, title=title, contents=content, mimetype='text/html', dlstate=2)
+			self.processAsMarkdown(content, url)
+
 
 		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
 			self.log.info("Processing '%s' as an image file.", url)
@@ -424,9 +513,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self.saveFile(url, mimeType, fName, content)
 		else:
 			self.log.warn("Unknown MIME Type? '%s', Url: '%s'", mimeType, url)
-
-
-		return links
 
 
 
@@ -515,57 +601,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.log.info("Crawler scanned a total of '%s' pages", len(haveUrls))
 		self.log.info("Queue Feeder thread exiting!")
 
-
-
-	def cleanHtmlPage(self, pageCtnt, url=None):
-
-		# since readability strips tag attributes, we preparse with BS4,
-		# parse with readability, and then do reformatting *again* with BS4
-		# Yes, this is ridiculous.
-		soup = bs4.BeautifulSoup(pageCtnt)
-
-		# Decompose all the parts we don't want
-		for key in self.decompose:
-			for instance in soup.find_all(True, attrs=key):
-				instance.decompose()
-
-
-		doc = readability.readability.Document(soup.prettify())
-		doc.parse()
-		content = doc.content()
-
-		soup = bs4.BeautifulSoup(content)
-
-		contents = ''
-
-
-		# Relink all the links so they work in the reader.
-		for aTag in soup.find_all("a"):
-			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
-			except KeyError:
-				continue
-
-		for imtag in soup.find_all("img"):
-			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
-			except KeyError:
-				continue
-
-		# Generate HTML string for /just/ the contents of the <body> tag.
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
-
-		title = doc.title()
-		title = title.replace(self.stripTitle, "")
-		title = title.strip()
-
-		return title, contents
 
 
 	##############################################################################################################################################
@@ -877,7 +912,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 		hadFile = False
-
 		# Yeah, I'm hashing twice in lots of cases. Bite me
 		fHash = self.getHash(content)
 
@@ -896,7 +930,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 			with transaction(cur):
 
 				cur.execute("SELECT dbid, fspath, contents, mimetype  FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (url, ))
-				dbid, havePath, haveCtnt, haveMime = cur.fetchone()
+				row = cur.fetchone()
+				if not row:
+					self.log.critical("Failure when saving file for URL '%s'", url)
+					self.log.critical("File name: '%s'", fileName)
+					return
+
+				dbid, havePath, haveCtnt, haveMime = row
 				# self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
 
 				if not hadFile:
@@ -1009,6 +1049,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 			title = kwargs['title']
 		else:
 			title = old['title']
+
+		if not title:
+			title = ''
 		if old['contents'] == None:
 			old['contents'] = ''
 

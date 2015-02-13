@@ -246,11 +246,14 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 <%
 
+print("Request params", request.params)
 
 
 if "url" in request.params:
 	url = urllib.parse.unquote(request.params["url"])
+	print("Rendering ID", url)
 	renderId(url)
+
 elif "tree" in request.params:
 
 	if not "key" in request.params:
@@ -270,10 +273,6 @@ elif "tree" in request.params:
 else:
 	badId()
 %>
-
-
-
-
 
 
 
