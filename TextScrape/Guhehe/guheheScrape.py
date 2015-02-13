@@ -18,11 +18,11 @@ class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 2
+	threads = 3
 
 
 	baseUrl = "http://guhehe.net/"
-	startUrl = 'http://guhehe.net/series/'
+	startUrl = 'http://guhehe.net/volumes/'
 
 	badwords = [
 				"/about/",
@@ -33,22 +33,32 @@ class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
 				'?replytocom=',
 				]
 
-	positive_keywords = ['main_content']
+	# positive_keywords = ['main_content']
 
-	negative_keywords = ['mw-normal-catlinks',
-						"printfooter",
-						"mw-panel",
-						'portal']
+	# negative_keywords = ['mw-normal-catlinks',
+	# 					"printfooter",
+	# 					"mw-panel",
+	# 					'portal']
 
+
+	decomposeBefore = [
+		{'class'      :'comments-area'},
+	]
 
 	decompose = [
-				{'id':'main-header'},
-				{'id':'main-footer'},
-				{'id':'comment-wrap'},
-				{'id':'sidebar'},
-				]
 
-	stripTitle = '| guhehe.TRANSLATIONS'
+
+		{'class'  : 'main-nav'},
+		{'class'  : 'inside-right-sidebar'},
+		{'class'  : 'screen-reader-text'},
+		{'class'  : 'site-footer'},
+		{'class'  : 'menu-toggle'},
+		{'class'  : 'site-header'},
+		{'class'  : 'paging-navigation'},
+		{'class'  : 'comments-area'},
+	]
+
+	stripTitle = 'guhehe.TRANSLATIONS |'
 
 
 

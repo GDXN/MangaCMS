@@ -21,15 +21,24 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	threads = 3
 
 	baseUrl = "http://skythewood.blogspot.sg/"
+
+	scannedDomainSet = set(['http://skythewood.blogspot.sg/', 'http://skythewood.blogspot.com/'])
 	fileDomains = set(['bp.blogspot.com'])
 	startUrl = baseUrl
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
 					'#comment-form',
-					'the-imouto-petter.html',
 					'/search/label/',
+					'/search?',
+					'/feeds/',
 				]
+
+
+	decomposeBefore = [
+		{'class'      :'post-share-buttons'},
+		{'class'      :'comments'},
+	]
 
 	decompose = [
 		{'id'    : 'header'},
@@ -55,55 +64,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	# Grab all images, ignoring host domain
 	allImages = True
 
-	def extractLinks(self, pageCtnt, url=None):
-
-		# since readability strips tag attributes, we preparse with BS4,
-		# parse with readability, and then do reformatting *again* with BS4
-		# Yes, this is ridiculous.
-		soup = bs4.BeautifulSoup(inPage)
-
-		# Decompose all the parts we don't want
-		for key in self.decompose:
-			for instance in soup.find_all(True, attrs=key):
-				instance.decompose()
-
-
-		doc = readability.readability.Document(soup.prettify())
-		doc.parse()
-		content = doc.content()
-
-		soup = bs4.BeautifulSoup(content)
-
-		contents = ''
-
-
-		# Relink all the links so they work in the reader.
-		for aTag in soup.find_all("a"):
-			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
-			except KeyError:
-				continue
-
-		for imtag in soup.find_all("img"):
-			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
-			except KeyError:
-				continue
-
-		# Generate HTML string for /just/ the contents of the <body> tag.
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
-
-		title = doc.title()
-		title = title.replace("Skythewood translations:", "")
-		title = title.strip()
-
-		return title, contents
+	stripTitle = 'Skythewood translations:'
 
 
 

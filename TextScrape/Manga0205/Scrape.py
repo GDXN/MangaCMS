@@ -43,6 +43,11 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 				]
 
+
+	decomposeBefore = [
+		{'id'         : 'comments'},
+	]
+
 	decompose = [
 		{'class' : 'site-header'},
 		{'id'    : 'site-header'},

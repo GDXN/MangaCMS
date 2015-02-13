@@ -22,7 +22,7 @@ class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 	baseUrl = "http://japtem.com/"
-	startUrl = baseUrl
+	startUrl = 'http://japtem.com/ul-volume-5-chapter-7/'
 
 	badwords = ["fanfic.php",
 				"/forums/",
@@ -43,55 +43,37 @@ class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
 						"mw-panel",
 						'portal']
 
-	strip = ['slider-container', 'secondarymenu-container', 'mainmenu-container', 'mobile-menu', 'footer', 'sidebar', 'disqus_thread', 'sharedaddy', 'scrollUp']
 
 
-	def cleanPage(self, inPage):
 
-		soup = bs4.BeautifulSoup(inPage)
-		for rm in self.strip:
-
-			for tag in soup.find_all("div", class_=rm):
-				tag.decompose()
-			for tag in soup.find_all("select", class_=rm):
-				tag.decompose()
-			for tag in soup.find_all("div", id=rm):
-				tag.decompose()
-
-		inPage = soup.prettify()
-		doc = readability.readability.Document(inPage, positive_keywords=self.positive_keywords, negative_keywords=self.negative_keywords)
-		doc.parse()
-		content = doc.content()
-
-		soup = bs4.BeautifulSoup(content)
-
-		for aTag in soup.find_all("a"):
-			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
-			except KeyError:
-				continue
-
-		for imtag in soup.find_all("img"):
-			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
-			except KeyError:
-				continue
+	decomposeBefore = [
+		{'id'      :'disqus_thread'},
+	]
 
 
-		contents = ''
+	decompose = [
+		{'class' : 'slider-container'},
+		{'class' : 'secondarymenu-container'},
+		{'class' : 'mainmenu-container'},
+		{'class' : 'mobile-menu'},
+		{'class' : 'footer'},
+		{'class' : 'sidebar'},
+		{'class' : 'disqus_thread'},
+		{'class' : 'sharedaddy'},
+		{'class' : 'pagination'},
+		{'class' : 'scrollUp'},
 
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
+		{'id' : 'slider-container'},
+		{'id' : 'secondarymenu-container'},
+		{'id' : 'mainmenu-container'},
+		{'id' : 'mobile-menu'},
+		{'id' : 'footer'},
+		{'id' : 'sidebar'},
+		{'id' : 'disqus_thread'},
+		{'id' : 'sharedaddy'},
+		{'id' : 'scrollUp'},
+	]
 
-		title = doc.title()
-
-
-		return title, contents
 
 
 

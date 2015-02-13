@@ -1,29 +1,32 @@
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 
+Scrape external <a> links that look like images
+
 mu view only book items
 Check LN Scrapers after changes: 
-	BakaTsuki
-	CETranslation
-	Guhehe
 	HaruParty
-	Imoutolicious
-	JapTem
 	Krytyk
 	KyakkaTranslation
-	Manga0205
 	NanoDesuTranslation
 	PrinceRevolution
 	ReTranslations
-	SakuraHonyakuTranslation
 	Setsuna86Translation
-	SkyTheWood
 	SolitaryTranslation
-	Sousetsuka
 	UnbreakableMachineDollTrans
-	UnlimitedNovelFailures
 	
 
 
+	~~BakaTsuki~~
+
+	~~Sousetsuka~~
+	~~SakuraHonyakuTranslation~~
+	~~JapTem~~
+	~~SkyTheWood~~
+	~~UnlimitedNovelFailures~~
+	~~Manga0205~~
+	~~Imoutolicious~~
+	~~Guhehe~~
+	~~CETranslation~~
 	~~UntunedTranslation~~
 	~~WarTdf~~
 	~~HereticTranslation~~
@@ -31,8 +34,9 @@ Check LN Scrapers after changes:
 	~~Defiring~~
 	~~OniiChanYamete~~
 
+http://tlwiki.org/
 
-heretic trans missing clockwork planet
+
 
 everyone at http://www.mangaupdates.com/releases.html?search=116177&stype=series
 
@@ -249,7 +253,7 @@ Partial series:
 
 
 <b>Complete:</b>
-
+ - ~~heretic trans missing clockwork planet~~
  - ~~rtd scraper broken~~
  - ~~strip (novel) from search text~~
  - ~~Oniichanyamete all Yomigaeri no Maou (Novel)   text missing~~ (Fixed, unicode in URL issue)

@@ -28,25 +28,26 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 				"/forums/",
 
 				# Yes, I only speak&read english. Leave me to my filtering shame.
-				"Category:German",
-				"Category:Spanish",
-				"Category:French",
-				"Category:Vietnamese",
-				"Category:Russian",
+				"Category:Brazilian",
 				"Category:Brazilian_Portuguese",
-				"Category:Italian",
-				"Category:Polish",
-				"Category:Romanian",
-				"Category:Hungarian",
-				"Category:Norwegian",
-				"Category:Korean",
-				"Category:Lithuanian",
-				"Category:Indonesian",
-				"Category:Greek",
-				"Category:Turkish",
-				"Category:Filipino",
 				"Category:Czech",
 				"Category:Esperanto",
+				"Category:Filipino",
+				"Category:French",
+				"Category:German",
+				"Category:Greek",
+				"Category:Hungarian",
+				"Category:Indonesian",
+				"Category:Italian",
+				"Category:Korean",
+				"Category:Lithuanian",
+				"Category:Norwegian",
+				"Category:Polish",
+				"Category:Romanian",
+				"Category:Russian",
+				"Category:Spanish",
+				"Category:Turkish",
+				"Category:Vietnamese",
 
 				# Block user pages
 				"title=User:",
@@ -75,9 +76,15 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 	stripTitle = ' - Baka-Tsuki'
 
 
-
+	decomposeBefore = [
+		{'id'      :'mw-head'},
+	]
 	decompose = [
 		{'role'    :'navigation'},
+		{'id'      :'footer'},
+		{'id'      :'mw-panel'},
+		{'id'      :'mw-head'},
+		{'id'      :'mw-navigation'},
 
 	]
 

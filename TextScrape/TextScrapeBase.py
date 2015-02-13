@@ -53,11 +53,12 @@ def transaction(cursor, commit=True):
 		if commit:
 			cursor.execute("COMMIT;")
 
-def completeUnescape(url):
+def urlClean(url):
 
 	while True:
 		url2 = urllib.parse.unquote(url)
 		url2 = url2.split("#")[0]
+		url2 = url2.split("?")[0]
 		if url2 == url:
 			break
 		url = url2
@@ -76,6 +77,7 @@ def rebaseUrl(url, base):
 		return url
 
 
+# All tags you need to look into to do link canonization
 # source: http://stackoverflow.com/q/2725156/414272
 # TODO: "These aren't necessarily simple URLs ..."
 urlContainingTargets = [
@@ -107,7 +109,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 	tableName       = "book_items"
 	changeTableName = "book_changes"
 
-	threads = 1
+	threads = 2
 
 	QUERY_DEBUG = False
 
@@ -252,8 +254,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# If there is an encoding in the content-type (or any other info), strip it out.
 		# We don't care about the encoding, since WebFunctions will already have handled that,
 		# and returned a decoded unicode object.
-		if ";" in mType:
+
+		if mType and ";" in mType:
 			mType = mType.split(";")[0].strip()
+
 
 		self.log.info("Retreived file of type '%s', name of '%s' with a size of %0.3f K", mType, fileN, len(content)/1000.0)
 		return content, fileN, mType
@@ -331,15 +335,15 @@ class TextScraper(metaclass=abc.ABCMeta):
 			if hadbad:
 				continue
 
-			url = url.split("#")[0]
-
 
 			# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
-			url = completeUnescape(url)
+			url = urlClean(url)
 			self.upsert(url, istext=False)
 
 
 	def convertToReaderImage(self, inStr):
+		inStr = urlClean(inStr)
+
 		return self.convertToReaderUrl(inStr)
 
 	def relink(self, soup):
@@ -415,7 +419,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# parse with readability, and then do reformatting *again* with BS4
 		# Yes, this is ridiculous.
 
-		doc = readability.readability.Document(soup.prettify())
+		ctnt = soup.prettify()
+		doc = readability.readability.Document(ctnt)
 		doc.parse()
 		content = doc.content()
 
@@ -482,7 +487,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# transferred content (e.g. is it an image/html page/binary file)
 	def retreiveItemFromUrl(self, url):
 
-		url = completeUnescape(url)
+		url = urlClean(url)
 		# Snip off leading slashes that have shown up a few times.
 		if url.startswith("//"):
 			url = 'http://'+url[2:]
@@ -502,6 +507,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		elif mimeType in ['text/plain']:
 			self.processAsMarkdown(content, url)
+		elif mimeType in ['text/xml', 'text/atom+xml']:
+			self.log.info("XML File?")
+			self.log.info("URL: '%s'", url)
 
 
 		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
@@ -1052,6 +1060,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		if not title:
 			title = ''
+
+		if not old:
+			self.log.error("Couldn't find original db entry for item?")
+			return
+
 		if old['contents'] == None:
 			old['contents'] = ''
 

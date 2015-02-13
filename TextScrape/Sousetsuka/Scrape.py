@@ -15,7 +15,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 1
+	threads = 2
 
 	baseUrl = "https://sousetsuka.blogspot.com/"
 	startUrl = baseUrl
@@ -42,11 +42,19 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				"twitter.com",
 				"mailto:",
 				"showComment=",
+				".yahoo.com",
 
 				# Who the fuck shares shit like this anyways?
 				"?share=",
 
 				]
+
+
+	decomposeBefore = [
+		{'class' : 'comments'},
+		{'id'    : 'addthis-share'},
+		{'id'    : 'info-bt'},
+	]
 
 	decompose = [
 		{'class' : 'sidebar-wrapper'},

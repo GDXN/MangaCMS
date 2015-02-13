@@ -18,10 +18,12 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 1
+	threads = 3
 
 	baseUrl = "https://sakurahonyaku.wordpress.com/"
 	startUrl = 'https://sakurahonyaku.wordpress.com/projects/'
+
+	fileDomains = set(['files.wordpress.com'])
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
@@ -73,54 +75,8 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	]
 
 
-	def extractLinks(self, pageCtnt, url=None):
+	stripTitle = '| 桜翻訳!'
 
-		# since readability strips tag attributes, we preparse with BS4,
-		# parse with readability, and then do reformatting *again* with BS4
-		# Yes, this is ridiculous.
-		soup = bs4.BeautifulSoup(inPage)
-
-		# Decompose all the parts we don't want
-		for key in self.decompose:
-			for instance in soup.find_all(True, attrs=key):
-				instance.decompose()
-
-
-		doc = readability.readability.Document(soup.prettify())
-		doc.parse()
-		content = doc.content()
-
-		soup = bs4.BeautifulSoup(content)
-
-		contents = ''
-
-
-		# Relink all the links so they work in the reader.
-		for aTag in soup.find_all("a"):
-			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
-			except KeyError:
-				continue
-
-		for imtag in soup.find_all("img"):
-			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
-			except KeyError:
-				continue
-
-		# Generate HTML string for /just/ the contents of the <body> tag.
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
-
-		title = doc.title()
-		title = title.replace("| 桜翻訳!", "")
-
-		return title, contents
 
 
 

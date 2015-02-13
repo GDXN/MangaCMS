@@ -28,6 +28,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	badwords = [
 					'#comment-form',
 					'/search/label/',
+					'/search?',
 					'/comments/default',
 				]
 
