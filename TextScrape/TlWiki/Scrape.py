@@ -10,17 +10,17 @@ import urllib.parse
 import webFunctions
 
 
-class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
-	tableKey = 'tsuki'
-	loggerPath = 'Main.Tsuki.Scrape'
-	pluginName = 'TsukiScrape'
+class Scrape(TextScrape.TextScrapeBase.TextScraper):
+	tableKey = 'tlwiki'
+	loggerPath = 'Main.TlWiki.Scrape'
+	pluginName = 'TlWikiScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	threads = 4
 
 
-	baseUrl = "http://www.baka-tsuki.org/"
+	baseUrl = "http://tlwiki.org/"
 	startUrl = baseUrl
 
 	badwords = ["/blog/",
@@ -69,10 +69,10 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 				"title=Help:",
 				"?title=User_talk:",
 				"&oldid=",
-				"title=Baka-Tsuki:",
+				"title=TlWiki:",
 				"title=Special:Book"]
 
-	stripTitle = ' - Baka-Tsuki'
+	stripTitle = '- TLWiki'
 
 
 	decomposeBefore = [
@@ -86,6 +86,8 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 		{'id'      :'mw-navigation'},
 
 	]
+
+
 
 	def urlClean(self, url):
 
@@ -111,7 +113,7 @@ class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 def test():
-	scrp = TsukiScrape()
+	scrp = Scrape()
 	scrp.crawl()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')

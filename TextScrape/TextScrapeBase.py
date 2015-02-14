@@ -53,17 +53,6 @@ def transaction(cursor, commit=True):
 		if commit:
 			cursor.execute("COMMIT;")
 
-def urlClean(url):
-
-	while True:
-		url2 = urllib.parse.unquote(url)
-		url2 = url2.split("#")[0]
-		url2 = url2.split("?")[0]
-		if url2 == url:
-			break
-		url = url2
-
-	return url
 
 
 
@@ -241,6 +230,19 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# ------------------------------------------------------------------------------------------------------------------
 
 
+
+	def urlClean(self, url):
+
+		while True:
+			url2 = urllib.parse.unquote(url)
+			url2 = url2.split("#")[0]
+			url2 = url2.split("?")[0]
+			if url2 == url:
+				break
+			url = url2
+
+		return url
+
 	def getItem(self, itemUrl):
 
 		content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
@@ -303,7 +305,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				continue
 
 			# Remove any URL fragments causing multiple retreival of the same resource.
-			url = urlClean(url)
+			url = self.urlClean(url)
 
 			# upsert for `url`. Reset dlstate if needed
 
@@ -337,12 +339,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 			# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
-			url = urlClean(url)
+			url = self.urlClean(url)
 			self.upsert(url, istext=False)
 
 
 	def convertToReaderImage(self, inStr):
-		inStr = urlClean(inStr)
+		inStr = self.urlClean(inStr)
 		return self.convertToReaderUrl(inStr)
 
 	def relink(self, soup):
@@ -487,7 +489,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# transferred content (e.g. is it an image/html page/binary file)
 	def retreiveItemFromUrl(self, url):
 
-		url = urlClean(url)
+		url = self.urlClean(url)
 		# Snip off leading slashes that have shown up a few times.
 		if url.startswith("//"):
 			url = 'http://'+url[2:]

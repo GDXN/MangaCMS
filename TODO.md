@@ -1,15 +1,22 @@
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 
-Scrape external <a> links that look like images
 
 none in tag list broken
 
 mu view only book items
+
+LN TODO: 
+	Add transparent scraping into GDoc content
+	Scrape external <a> links that look like images
+	Make link converter aware of all the other LN scrapers, so inter-site links work.
+
+
 Check LN Scrapers after changes: 
 
 	GDoc driven:
-		HaruParty
+		HaruParty http://lasolistia.com/haruparty/ 
 		ReTranslations
+
 	
 	## SolitaryTranslation - Password bullshit
 
@@ -38,8 +45,13 @@ Check LN Scrapers after changes:
 	~~OniiChanYamete~~
 	~~GravityTranslations~~
 
-http://tlwiki.org/
 
+
+Should I start scraping VN translation patches?:
+
+	~~http://tlwiki.org/~~
+
+	http://novelnews.net/
 
 
 everyone at http://www.mangaupdates.com/releases.html?search=116177&stype=series
@@ -47,11 +59,10 @@ everyone at http://www.mangaupdates.com/releases.html?search=116177&stype=series
 http://deusexscans.blogspot.com/
 http://deusexscans.blogspot.com/2014/08/one-turn-kill-of-dark-partisan-vol-1_29.html 
 
- http://lasolistia.com/haruparty/ - Google doc mess?
 
  - Scrape "Type" entry from mangaupdates
  - tagging system
- - add filter to mu page for only items with found dirs  
+
  - revisit gdoc extractor. the extra spaces are annoying
  - lcs diff system instead of levenshtein for change measurement.
  - filter rating view by read and crosslink
@@ -257,6 +268,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~add filter to mu page for only items with found dirs  ~~
  - ~~heretic trans missing clockwork planet~~
  - ~~rtd scraper broken~~
  - ~~strip (novel) from search text~~
