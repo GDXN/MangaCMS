@@ -18,9 +18,11 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 1
+	threads = 3
 
 	baseUrl = "https://setsuna86blog.wordpress.com/"
+
+	scannedDomainSet = set(['http://files.wordpress.com', 'https://setsuna86blog.files.wordpress.com'])
 	startUrl = baseUrl
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
@@ -44,16 +46,19 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				]
 
 	decompose = [
-		{'id'    :'header'},
+		{'id'    : 'header'},
 		{'class' : 'widget-area'},
 		{'id'    : 'primary'},
 		{'id'    : 'footer'},
 		{'class' : 'bit'},
 		{'id'    : 'bit'},
+		{'id'    : 'likes-master'},
+		{'id'    : 'likes-other-gravatars'},
+		{'id'    : 'colophon'},
+		{'id'    : 'entry-author-info'},
 		{'id'    : 'carousel-reblog-box'},
 		{'id'    : 'infinite-footer'},
 		{'id'    : 'nav-above'},
-		{'id'    : 'nav-below'},
 		{'id'    : 'jp-post-flair'},
 		{'id'    : 'comments'},
 		{'class' : 'entry-utility'},
@@ -61,54 +66,17 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	]
 
 
-	def extractLinks(self, pageCtnt, url=None):
 
-		# since readability strips tag attributes, we preparse with BS4,
-		# parse with readability, and then do reformatting *again* with BS4
-		# Yes, this is ridiculous.
-		soup = bs4.BeautifulSoup(inPage)
+	decomposeBefore = [
+		{'class' : 'comments'},
+		{'class' : 'comments-area'},
+		{'id'    : 'addthis-share'},
+		{'id'    : 'info-bt'},
+		{'id'    : 'comments'},
+	]
 
-		# Decompose all the parts we don't want
-		for key in self.decompose:
-			for instance in soup.find_all(True, attrs=key):
-				instance.decompose()
+	stripTitle = '| SETSUNA86BLOG'
 
-
-		doc = readability.readability.Document(soup.prettify())
-		doc.parse()
-		content = doc.content()
-
-		soup = bs4.BeautifulSoup(content)
-
-		contents = ''
-
-
-		# Relink all the links so they work in the reader.
-		for aTag in soup.find_all("a"):
-			try:
-				aTag["href"] = self.convertToReaderUrl(aTag["href"])
-			except KeyError:
-				continue
-
-		for imtag in soup.find_all("img"):
-			try:
-				imtag["src"] = self.convertToReaderUrl(imtag["src"])
-			except KeyError:
-				continue
-
-		# Generate HTML string for /just/ the contents of the <body> tag.
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
-
-		title = doc.title()
-		title = title.replace(" | SETSUNA86BLOG", "")
-
-		return title, contents
 
 
 

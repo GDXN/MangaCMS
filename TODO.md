@@ -2,22 +2,23 @@ New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 
 Scrape external <a> links that look like images
 
+none in tag list broken
+
 mu view only book items
 Check LN Scrapers after changes: 
 	HaruParty
-	Krytyk
-	KyakkaTranslation
 	NanoDesuTranslation
-	PrinceRevolution
 	ReTranslations
-	Setsuna86Translation
 	SolitaryTranslation
-	UnbreakableMachineDollTrans
 	
-
 
 	~~BakaTsuki~~
 
+	~~PrinceRevolution~~
+	~~Setsuna86Translation~~
+	~~KyakkaTranslation~~
+	~~Krytyk~~
+	~~UnbreakableMachineDollTran~~
 	~~Sousetsuka~~
 	~~SakuraHonyakuTranslation~~
 	~~JapTem~~

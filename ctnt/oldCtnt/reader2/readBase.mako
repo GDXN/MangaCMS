@@ -65,7 +65,7 @@ def dequoteDict(inDict):
 			<script type="text/javascript">
 				$(document).ready(function() {
 
-					$.get("/search/hs?q=${name | u}",
+					$.get("/search-h/hs?q=${name | u}",
 						function( response, status, xhr )
 						{
 							if ( status == "error" )
