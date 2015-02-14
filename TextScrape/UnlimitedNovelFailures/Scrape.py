@@ -35,6 +35,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 					'?share=',
 					'/comment-page-',
 					'wp-login.php',
+					'/project/index.php',
 				]
 
 	decompose = [

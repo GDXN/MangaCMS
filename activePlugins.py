@@ -45,7 +45,7 @@ import TextScrape.JapTem.Run
 import TextScrape.Guhehe.Run
 import TextScrape.ReTranslations.Run
 
-import TextScrape.SolitaryTranslation.Run
+# import TextScrape.SolitaryTranslation.Run
 import TextScrape.PrinceRevolution.Run
 import TextScrape.Krytyk.Run
 
@@ -134,7 +134,7 @@ scrapePlugins = {
 	80  : (TextScrape.BakaTsuki.Run,                       days(7)),  # Every 7 days, because books is slow to update
 	81  : (TextScrape.JapTem.Run,                          days(5)),
 	82  : (TextScrape.Guhehe.Run,                          days(5)),
-	83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
+	# 83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
 	84  : (TextScrape.PrinceRevolution.Run,                days(5)),
 	85  : (TextScrape.Krytyk.Run,                          days(5)),
 

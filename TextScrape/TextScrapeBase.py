@@ -154,8 +154,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	fileDomains = set()
 
+	_scannedDomains = set()
 	scannedDomains = set()
-	scannedDomainSet = set()
 
 	stripTitle = ''
 
@@ -164,16 +164,16 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# logging context management will fail.
 		self.loggers = {}
 		self.lastLoggerIndex = 1
-		self.scannedDomainSet.add(self.baseUrl)
+		self.scannedDomains.add(self.baseUrl)
 
 		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
 		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
-		self.scannedDomains = set()
-		for url in self.scannedDomainSet:
+		self._scannedDomains = set()
+		for url in self.scannedDomains:
 			url = urllib.parse.urlsplit(url.lower()).netloc
 			if not url:
 				raise ValueError("One of the scanned domains collapsed down to an empty string: '%s'!" % url)
-			self.scannedDomains.add(url)
+			self._scannedDomains.add(url)
 
 		# Loggers are set up dynamically on first-access.
 		self.log.info("TextScrape Base startup")
@@ -275,8 +275,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# check if domain `url` is a sub-domain of the scanned domains.
 	def checkDomain(self, url):
 		# print(self.scannedDomains)
-		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self.scannedDomains]), url, [rootUrl in url.lower() for rootUrl in self.scannedDomains])
-		return any([rootUrl in url.lower() for rootUrl in self.scannedDomains])
+		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self.scannedDomains]), url)
+		return any([rootUrl in url.lower() for rootUrl in self._scannedDomains])
 
 	def extractLinks(self, soup):
 		# All links have been resolved to fully-qualified paths at this point.
@@ -303,7 +303,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				continue
 
 			# Remove any URL fragments causing multiple retreival of the same resource.
-			url = url.split("#")[0]
+			url = urlClean(url)
 
 			# upsert for `url`. Reset dlstate if needed
 
@@ -343,7 +343,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	def convertToReaderImage(self, inStr):
 		inStr = urlClean(inStr)
-
 		return self.convertToReaderUrl(inStr)
 
 	def relink(self, soup):
@@ -469,6 +468,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		soup = self.decomposeItems(soup, self.decompose)
 
 		pgTitle, pgBody = self.cleanHtmlPage(soup)
+		self.log.info("Page with title '%s' retreived.", pgTitle)
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
 

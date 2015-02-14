@@ -6,14 +6,16 @@ none in tag list broken
 
 mu view only book items
 Check LN Scrapers after changes: 
-	HaruParty
-	NanoDesuTranslation
-	ReTranslations
-	SolitaryTranslation
+
+	GDoc driven:
+		HaruParty
+		ReTranslations
 	
+	## SolitaryTranslation - Password bullshit
 
 	~~BakaTsuki~~
 
+	~~NanoDesuTranslation~~
 	~~PrinceRevolution~~
 	~~Setsuna86Translation~~
 	~~KyakkaTranslation~~
@@ -34,6 +36,7 @@ Check LN Scrapers after changes:
 	~~Yoraikun~~
 	~~Defiring~~
 	~~OniiChanYamete~~
+	~~GravityTranslations~~
 
 http://tlwiki.org/
 
