@@ -16,6 +16,7 @@ import operator as opclass
 
 import settings
 
+from natsort import natsorted
 startTime = time.time()
 
 bookTable = sql.Table("book_items")
@@ -56,7 +57,7 @@ def buildQuery(srcTbl, cols, **kwargs):
 	else:
 		where=None
 
-	query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.title), where=where)
+	query = srcTbl.select(*cols, where=where)
 
 
 	return query
@@ -99,6 +100,8 @@ def buildQuery(srcTbl, cols, **kwargs):
 		row = dict(zip(['dbid', 'src', 'dlstate', 'url', 'title', 'series', 'istext', 'fhash', 'mimetype'], row))
 		rows.append(row)
 
+
+	rows = natsorted(rows, key=lambda x: x['title'].replace("-", " "))
 
 	%>
 	% if rows:

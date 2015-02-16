@@ -141,6 +141,10 @@ seriesCols = (
 		if (row["currentChapter"] == -1) and not showUpToDate:
 			continue
 
+		if onlyBooks:
+			if not 'novel' in (str(row["seriesName"])+str(row['tags'])+str(row['genre'])).lower():
+				continue
+
 		procRows.append(row)
 
 	# genBmUpdateTable(procRows)
@@ -282,6 +286,10 @@ if 'dirFound' in request.params:
 	elif request.params["dirFound"] == "False":
 		showFoundDir = False
 
+onlyBooks = False
+if 'booksOnly' in request.params and request.params['booksOnly'] == 'True':
+	onlyBooks = True
+
 print(showMissingDir, showFoundDir)
 print("Generating table")
 
@@ -355,6 +363,13 @@ print("Generating table")
 
 
 
+						allItems = request.params.copy()
+						booksOnly = request.params.copy()
+
+						allItems.pop("booksOnly", None)
+						booksOnly["booksOnly"] = "True"
+
+
 
 						#############################################
 
@@ -375,6 +390,10 @@ print("Generating table")
 						dir1 = '➔' if ('dirFound' not in request.params) else ''
 						dir2 = '➔' if ('dirFound' in request.params and request.params['dirFound'] == 'True') else ''
 						dir3 = '➔' if ('dirFound' in request.params and request.params['dirFound'] == 'False') else ''
+
+
+						books1 = '➔' if ('booksOnly' not in request.params) else ''
+						books2 = '➔' if ('booksOnly' in request.params and request.params['booksOnly'] == 'True') else ''
 
 
 						%>
@@ -413,6 +432,13 @@ print("Generating table")
 								<li>${sort2} <a href="bmUpdates?${urllib.parse.urlencode(sortRating)}">By Rating</a></li>
 							</ul>
 						</div>
+						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
+							Sorting:
+							<ul style="width: 100px;">
+								<li>${books1} <a href="bmUpdates?${urllib.parse.urlencode(allItems)}">All Items</a></li>
+								<li>${books2} <a href="bmUpdates?${urllib.parse.urlencode(booksOnly)}">Books Only</a></li>
+							</ul>
+						</div>
 
 						<div class="" style="white-space:nowrap; display: inline-block; margin-left: 10px; vertical-align:top">
 							Linked to dir:
@@ -422,6 +448,8 @@ print("Generating table")
 								<li>${dir3} <a href="bmUpdates?${urllib.parse.urlencode(dirMissing)}">Missing local directory</a></li>
 							</ul>
 						</div>
+
+
 
 						<hr>
 

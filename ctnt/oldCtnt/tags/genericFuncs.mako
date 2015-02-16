@@ -197,10 +197,9 @@ import nameTools as nt
 
 <%def name="genExistenceFilterdiv(pathPrefix, request)">
 	<%
-	options = [('Dir Found', 'yes'), ('No Dir', 'no')]
+	options = [('All', 'all'), ('Dir Found', 'yes'), ('No Dir', 'no')]
 	%>
 	<div style='float:left'>
-		<a href='/tags/${pathPrefix}'>None</a>
 		% for name, option in options:
 			<%
 			params = request.params.copy();

@@ -1,10 +1,8 @@
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
-book search natsort
-none in tag list broken
 
-mu view only book items
+
 
 LN TODO: 
 	Add transparent scraping into GDoc content
@@ -269,7 +267,10 @@ Partial series:
 
 
 <b>Complete:</b>
- - ~~add filter to mu page for only items with found dirs  ~~
+ - ~~book search natsort~~
+ - ~~mu view only book items~~
+ - ~~none in tag list broken~~
+ - ~~add filter to mu page for only items with found dirs~~
  - ~~heretic trans missing clockwork planet~~
  - ~~rtd scraper broken~~
  - ~~strip (novel) from search text~~

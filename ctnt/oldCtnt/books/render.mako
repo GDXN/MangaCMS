@@ -9,7 +9,7 @@ import urllib.parse
 import time
 import uuid
 import settings
-
+from natsort import natsorted
 def compact_trie(inKey, inDict):
 
 	if len(inDict) == 0:
@@ -230,6 +230,9 @@ def build_trie(iterItem, getKey=lambda x: x):
 	print("Dictinct = ", ret)
 
 	ret = set([item[0].lower() for item in ret])
+	ret = list(ret)
+
+	ret = natsorted(ret, key=lambda x: x.replace("-", " "))
 	%>
 	% if len(ret) > 1:
 		% for item in ret:
