@@ -4,7 +4,7 @@ import bs4
 
 import re
 import io
-import json
+import logging
 
 import zipfile
 import webFunctions
@@ -15,7 +15,7 @@ import urllib.error
 
 class GDocExtractor(object):
 
-
+	log = logging.getLogger("Main.GDoc")
 	wg = webFunctions.WebGetRobust(logPath="Main.GDoc.Web")
 
 	def __init__(self, targetUrl):
@@ -47,28 +47,44 @@ class GDocExtractor(object):
 		# I'm just resolving them here, rather then keeping them around because it makes things easier.
 		gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
 		simpleCheck = gdocBaseRe.search(url)
-		if simpleCheck:
+		if simpleCheck and not url.endswith("/pub"):
 			return True, simpleCheck.group(1)
 
+		return False, url
 
-		elif url.startswith("http://www.google.com/url?q=") and "bit.ly" in url:
+	@classmethod
+	def clearBitLy(cls, url):
+		if "bit.ly" in url:
+
+			try:
+
+				dummy_ctnt, handle = cls.wg.getpage(url, returnMultiple=True)
+				# Recurse into redirects
+				return cls.clearBitLy(handle.geturl())
+
+			except urllib.error.URLError:
+				print("Error resolving redirect!")
+				return None
+
+		return url
+
+
+	@classmethod
+	def clearOutboundProxy(cls, url):
+		'''
+		So google proxies all their outbound links through a redirect so they can detect outbound links.
+		This call strips them out if they are present.
+
+		'''
+		if url.startswith("http://www.google.com/url?q="):
 			qs = urllib.parse.urlparse(url).query
 			query = urllib.parse.parse_qs(qs)
 			if not "q" in query:
 				raise ValueError("No target?")
 
-			bitly = query["q"].pop()
-			try:
-				dummy_ctnt, handle = cls.wg.getpage(bitly, returnMultiple=True)
+			return query["q"].pop()
 
-				# Recurse into redirects
-				return cls.isGdocUrl(handle.geturl())
-
-			except urllib.error.URLError:
-				print("Error resolving redirect!")
-				return False, None
-		return False, url
-
+		return url
 
 
 	def extract(self):
@@ -79,6 +95,16 @@ class GDocExtractor(object):
 			return None, []
 
 		baseName = fName.split(".")[0]
+
+		if not isinstance(arch, bytes):
+			if 'You need permission' in arch or 'Sign in to continue to Docs':
+				self.log.critical("Retreiving zip archive failed?")
+				self.log.critical("Retreived content type: '%s'", type(arch))
+				raise TypeError("Cannot access document? Is it protected?")
+			else:
+				with open("tmp_page.html", "w") as fp:
+					fp.write(arch)
+				raise ValueError("Doc not valid?")
 
 		zp = io.BytesIO(arch)
 		zfp = zipfile.ZipFile(zp)

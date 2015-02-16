@@ -33,6 +33,9 @@ import nameTools
 
 from contextlib import contextmanager
 
+
+import TextScrape.gDocParse as gdp
+
 class DownloadException(Exception):
 	pass
 
@@ -159,10 +162,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
 		self._scannedDomains = set()
 		for url in self.scannedDomains:
-			url = urllib.parse.urlsplit(url.lower()).netloc
-			if not url:
-				raise ValueError("One of the scanned domains collapsed down to an empty string: '%s'!" % url)
-			self._scannedDomains.add(url)
+			self.installBaseUrl(url)
+
+		# Tell the path filtering mechanism that we can fetch google doc files
+		self._scannedDomains.add('https://docs.google.com/document/')
+		self._scannedDomains.add('https://drive.google.com/folderview')
+		self._scannedDomains.add('https://drive.google.com/open')
 
 		# Loggers are set up dynamically on first-access.
 		self.log.info("TextScrape Base startup")
@@ -223,11 +228,25 @@ class TextScraper(metaclass=abc.ABCMeta):
 			return object.__getattribute__(self, name)
 
 
+	def installBaseUrl(self, url):
+		netloc = urllib.parse.urlsplit(url.lower()).netloc
+		if not netloc:
+			raise ValueError("One of the scanned domains collapsed down to an empty string: '%s'!" % url)
+		self._scannedDomains.add(netloc)
 
 
-	# ------------------------------------------------------------------------------------------------------------------
-	#                      Web Scraping stuff
-	# ------------------------------------------------------------------------------------------------------------------
+
+	########################################################################################################################
+	#
+	#	 ######   ######  ########     ###    ########  #### ##    ##  ######      ######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
+	#	##    ## ##    ## ##     ##   ## ##   ##     ##  ##  ###   ## ##    ##     ##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
+	#	##       ##       ##     ##  ##   ##  ##     ##  ##  ####  ## ##           ##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
+	#	 ######  ##       ########  ##     ## ########   ##  ## ## ## ##   ####    ######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
+	#	      ## ##       ##   ##   ######### ##         ##  ##  #### ##    ##     ##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
+	#	##    ## ##    ## ##    ##  ##     ## ##         ##  ##   ### ##    ##     ##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
+	#	 ######   ######  ##     ## ##     ## ##        #### ##    ##  ######      ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
+	#
+	########################################################################################################################
 
 
 
@@ -236,7 +255,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 		while True:
 			url2 = urllib.parse.unquote(url)
 			url2 = url2.split("#")[0]
-			url2 = url2.split("?")[0]
 			if url2 == url:
 				break
 			url = url2
@@ -268,6 +286,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def preprocessReaderUrl(self, inUrl):
 		return inUrl
 
+	# Hook so plugins can modify the internal URLs as part of the relinking process
+	def preprocessGdocReaderUrl(self, inUrl):
+		return inUrl
+
 	def convertToReaderUrl(self, inUrl):
 		inUrl = self.preprocessReaderUrl(inUrl)
 		url = urllib.parse.urljoin(self.baseUrl, inUrl)
@@ -277,7 +299,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# check if domain `url` is a sub-domain of the scanned domains.
 	def checkDomain(self, url):
 		# print(self.scannedDomains)
-		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self.scannedDomains]), url)
+		# if "drive" in url:
+		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
 		return any([rootUrl in url.lower() for rootUrl in self._scannedDomains])
 
 	def extractLinks(self, soup):
@@ -304,14 +327,23 @@ class TextScraper(metaclass=abc.ABCMeta):
 			if hadbad:
 				continue
 
-			# Remove any URL fragments causing multiple retreival of the same resource.
-			url = self.urlClean(url)
+			url = gdp.GDocExtractor.clearOutboundProxy(url)
+			url = gdp.GDocExtractor.clearBitLy(url)
+			isGdoc, realUrl = gdp.GDocExtractor.isGdocUrl(url)
+			if isGdoc:
+				realUrl = self.trimGDocUrl(realUrl)
+				self.log.info("Resolved URL = '%s'", realUrl)
+				self.newLinkQueue.put(realUrl)
 
-			# upsert for `url`. Reset dlstate if needed
+			else:
 
-			self.newLinkQueue.put(url)
+				# Remove any URL fragments causing multiple retreival of the same resource.
+				url = self.urlClean(url)
+
+				self.newLinkQueue.put(url)
 
 
+	def extractImages(self, soup):
 
 		for imtag in soup.find_all("img"):
 						# Skip empty anchor tags
@@ -347,7 +379,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 		inStr = self.urlClean(inStr)
 		return self.convertToReaderUrl(inStr)
 
-	def relink(self, soup):
+	def relink(self, soup, imRelink=None):
+		# The google doc reader relinking mechanisms requires overriding the
+		# image relinking mechanism. As such, allow that to be overridden
+		# if needed
+		if not imRelink:
+			imRelink = self.convertToReaderImage
 
 		for aTag in soup.find_all("a"):
 			try:
@@ -358,7 +395,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		for imtag in soup.find_all("img"):
 			try:
-				imtag["src"] = self.convertToReaderImage(imtag["src"])
+				imtag["src"] = imRelink(imtag["src"])
 				# print("New image URL", imtag['src'])
 
 				# Force images that are oversize to fit the window.
@@ -466,6 +503,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		if self.checkDomain(url):
 			self.extractLinks(soup)
+			self.extractImages(soup)
 
 		soup = self.decomposeItems(soup, self.decompose)
 
@@ -484,17 +522,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.updateDbEntry(url=url, title=title, contents=content, mimetype='text/html', dlstate=2)
 
 
-	# This is the main function that's called by the task management system.
-	# Retreive remote content at `url`, call the appropriate handler for the
-	# transferred content (e.g. is it an image/html page/binary file)
-	def retreiveItemFromUrl(self, url):
 
-		url = self.urlClean(url)
-		# Snip off leading slashes that have shown up a few times.
-		if url.startswith("//"):
-			url = 'http://'+url[2:]
-
-		self.log.info("Fetching page '%s'", url)
+	def retreivePlainResource(self, url):
+		self.log.info("Fetching Simple Resource: '%s'", url)
 		try:
 			content, fName, mimeType = self.getItem(url)
 		except ValueError:
@@ -527,7 +557,213 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	########################################################################################################################
-	#                      Process management
+	#
+	#	 ######    #######   #######   ######   ##       ########    ########   #######   ######   ######
+	#	##    ##  ##     ## ##     ## ##    ##  ##       ##          ##     ## ##     ## ##    ## ##    ##
+	#	##        ##     ## ##     ## ##        ##       ##          ##     ## ##     ## ##       ##
+	#	##   #### ##     ## ##     ## ##   #### ##       ######      ##     ## ##     ## ##        ######
+	#	##    ##  ##     ## ##     ## ##    ##  ##       ##          ##     ## ##     ## ##             ##
+	#	##    ##  ##     ## ##     ## ##    ##  ##       ##          ##     ## ##     ## ##    ## ##    ##
+	#	 ######    #######   #######   ######   ######## ########    ########   #######   ######   ######
+	#
+	########################################################################################################################
+
+	def trimGDocUrl(self, url):
+
+		url = url.split("#")[0]
+
+		# If the url has 'preview/' on the end, chop that off
+		if url.endswith("preview/"):
+			url = url[:-8]
+		if url.endswith("/preview"):
+			url = url[:-7]
+		# if url.endswith("/pub"):
+		# 	url = url[:-3]
+
+
+		return url
+
+	def processGdocResources(self, resources):
+
+		self.fMap = {}
+
+
+		for fName, mimeType, content in resources:
+			m = hashlib.md5()
+			m.update(content)
+			fHash = m.hexdigest()
+
+			hashName = self.tableKey+fHash
+
+			self.fMap[fName] = hashName
+
+			fName = os.path.split(fName)[-1]
+
+			self.log.info("Resource = '%s', '%s', '%s'", fName, mimeType, hashName)
+			if mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
+				self.log.info("Processing resource '%s' as an image file. (mimetype: %s)", fName, mimeType)
+				self.upsert(hashName, istext=False)
+				self.saveFile(hashName, mimeType, fName, content)
+			elif mimeType in ["application/octet-stream"]:
+				self.log.info("Processing '%s' as an binary file.", fName)
+				self.upsert(hashName, istext=False)
+				self.saveFile(hashName, mimeType, fName, content)
+			else:
+				self.log.warn("Unknown MIME Type? '%s', FileName: '%s'", mimeType, fName)
+
+		if len(resources) == 0:
+			self.log.info("File had no resource content!")
+
+
+
+	def cleanGdocPage(self, soup):
+
+		title = soup.title.get_text().strip()
+
+		for span in soup.find_all("span"):
+			span['style'] = ''
+
+		return title, soup
+
+
+
+	# Hook so plugins can modify the internal URLs as part of the relinking process
+	def preprocessGdocReaderUrl(self, inUrl):
+		if inUrl.lower().endswith("/preview"):
+			inUrl = inUrl[:-len("/preview")]
+
+		return inUrl
+
+
+	def convertToGdocReaderImage(self, url):
+		if url in self.fMap:
+			url = self.fMap[url]
+		else:
+			raise ValueError("Unknown image URL! = '%s'" % url)
+
+		url = '/books/render?url=%s' % urllib.parse.quote(url)
+		return url
+
+
+
+	def processGdocPage(self, url, content):
+		dummy_fName, content = content
+		print("Page size: ", len(content))
+		soup = bs4.BeautifulSoup(content)
+
+		pgTitle, soup = self.cleanGdocPage(soup)
+
+		self.extractLinks(soup)
+		self.log.info("Page title = '%s'", pgTitle)
+		soup = self.relink(soup, imRelink=self.convertToGdocReaderImage)
+
+		url = self.preprocessGdocReaderUrl(url)
+
+		# Since the content we're extracting will be embedded into another page, we want to
+		# strip out the <body> and <html> tags. `unwrap()`  replaces the soup with the contents of the
+		# tag it's called on. We end up with just the contents of the <body> tag.
+		soup.body.unwrap()
+		pgBody = soup.prettify()
+
+		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype='text/html', dlstate=2)
+
+
+
+
+	def retreiveGoogleDoc(self, url):
+
+
+		self.log.info("Should fetch google doc at '%s'", url)
+		doc = gdp.GDocExtractor(url)
+
+
+
+		attempts = 0
+
+		mainPage = None
+		while 1:
+			attempts += 1
+			try:
+				mainPage, resources = doc.extract()
+			except TypeError:
+				self.log.critical('Extracting item failed!')
+				for line in traceback.format_exc().strip().split("\n"):
+					self.log.critical(line.strip())
+			if mainPage:
+				break
+			if attempts > 3:
+				raise DownloadException
+
+		self.processGdocResources(resources)
+
+		self.processGdocPage(url, mainPage)
+
+
+
+	def extractGoogleDriveFolder(self, url):
+		'''
+		Extract all the relevant links from a google drive directory, and push them into
+		the queued URL queue.
+
+		'''
+
+		urls = gdp.GDocExtractor.getDriveFileUrls(url)
+		for url in urls:
+			self.newLinkQueue.put(url)
+
+		self.log.warning("Generate google doc disambiguation page!")
+
+		self.log.info("Found %s items in google drive directory", len(urls))
+
+
+
+	########################################################################################################################
+	#
+	#	########    ###     ######  ##    ##    ########  ####  ######  ########     ###    ########  ######  ##     ## ######## ########
+	#	   ##      ## ##   ##    ## ##   ##     ##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ## ##       ##     ##
+	#	   ##     ##   ##  ##       ##  ##      ##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ## ##       ##     ##
+	#	   ##    ##     ##  ######  #####       ##     ##  ##   ######  ########  ##     ##    ##    ##       ######### ######   ########
+	#	   ##    #########       ## ##  ##      ##     ##  ##        ## ##        #########    ##    ##       ##     ## ##       ##   ##
+	#	   ##    ##     ## ##    ## ##   ##     ##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ## ##       ##    ##
+	#	   ##    ##     ##  ######  ##    ##    ########  ####  ######  ##        ##     ##    ##     ######  ##     ## ######## ##     ##
+	#
+	########################################################################################################################
+
+	# This is the main function that's called by the task management system.
+	# Retreive remote content at `url`, call the appropriate handler for the
+	# transferred content (e.g. is it an image/html page/binary file)
+	def dispatchUrlRequest(self, url):
+
+		url = self.urlClean(url)
+		# Snip off leading slashes that have shown up a few times.
+		if url.startswith("//"):
+			url = 'http://'+url[2:]
+
+		netloc = urllib.parse.urlsplit(url.lower()).netloc
+
+		isGdoc, realUrl = gdp.GDocExtractor.isGdocUrl(url)
+		if 'drive.google.com' in netloc:
+			self.log.info("Google Drive content!")
+			self.extractGoogleDriveFolder(url)
+		elif isGdoc:
+			self.log.info("Google Docs content!")
+			self.retreiveGoogleDoc(realUrl)
+		else:
+			self.retreivePlainResource(url)
+
+
+
+
+	########################################################################################################################
+	#
+	#	########  ########   #######   ######  ########  ######   ######      ######   #######  ##    ## ######## ########   #######  ##
+	#	##     ## ##     ## ##     ## ##    ## ##       ##    ## ##    ##    ##    ## ##     ## ###   ##    ##    ##     ## ##     ## ##
+	#	##     ## ##     ## ##     ## ##       ##       ##       ##          ##       ##     ## ####  ##    ##    ##     ## ##     ## ##
+	#	########  ########  ##     ## ##       ######    ######   ######     ##       ##     ## ## ## ##    ##    ########  ##     ## ##
+	#	##        ##   ##   ##     ## ##       ##             ##       ##    ##       ##     ## ##  ####    ##    ##   ##   ##     ## ##
+	#	##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ##    ##    ## ##     ## ##   ###    ##    ##    ##  ##     ## ##
+	#	##        ##     ##  #######   ######  ########  ######   ######      ######   #######  ##    ##    ##    ##     ##  #######  ########
+	#
 	########################################################################################################################
 
 	def queueLoop(self):
@@ -546,7 +782,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				if url:
 
 					try:
-						self.retreiveItemFromUrl(url)
+						self.dispatchUrlRequest(url)
 					except urllib.error.URLError:
 						content = "DOWNLOAD FAILED"
 						content += "<br>"
@@ -614,7 +850,17 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	##############################################################################################################################################
-	#                      Schema definition
+	#
+	#
+	#	 ######   ######  ##     ## ######## ##     ##    ###       ########  ######## ######## #### ##    ## #### ######## ####  #######  ##    ##
+	#	##    ## ##    ## ##     ## ##       ###   ###   ## ##      ##     ## ##       ##        ##  ###   ##  ##     ##     ##  ##     ## ###   ##
+	#	##       ##       ##     ## ##       #### ####  ##   ##     ##     ## ##       ##        ##  ####  ##  ##     ##     ##  ##     ## ####  ##
+	#	 ######  ##       ######### ######   ## ### ## ##     ##    ##     ## ######   ######    ##  ## ## ##  ##     ##     ##  ##     ## ## ## ##
+	#	      ## ##       ##     ## ##       ##     ## #########    ##     ## ##       ##        ##  ##  ####  ##     ##     ##  ##     ## ##  ####
+	#	##    ## ##    ## ##     ## ##       ##     ## ##     ##    ##     ## ##       ##        ##  ##   ###  ##     ##     ##  ##     ## ##   ###
+	#	 ######   ######  ##     ## ######## ##     ## ##     ##    ########  ######## ##       #### ##    ## ####    ##    ####  #######  ##    ##
+	#
+	#
 	##############################################################################################################################################
 
 	def checkInitPrimaryDb(self):
@@ -719,7 +965,17 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	##############################################################################################################################################
-	#                      DB Interfacing
+	#
+	#
+	#	########  ########     ######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
+	#	##     ## ##     ##    ##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
+	#	##     ## ##     ##    ##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
+	#	##     ## ########     ######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
+	#	##     ## ##     ##    ##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
+	#	##     ## ##     ##    ##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
+	#	########  ########     ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
+	#
+	#
 	##############################################################################################################################################
 
 
@@ -1074,11 +1330,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 		newStr = str(kwargs['contents'])
 
 		# self.log.info("Calculating edit-distance")
-		self.log.info("Calculating Coarse length change")
-		print("String lengths", len(oldStr), len(newStr))
+		# print("String lengths", len(oldStr), len(newStr))
 
 		lChange = abs(len(oldStr) - len(newStr))
 		lTotal = max((len(oldStr), len(newStr)))
+		self.log.info("Coarse length change: '%s'", lChange)
 		# distance = lv.distance(oldStr, newStr)
 		# distance = 0
 		# self.log.info("Done")
