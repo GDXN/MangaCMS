@@ -40,37 +40,40 @@ import ScrapePlugins.FoolSlide.CasanovaScans.Run
 import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 
 
+
 import TextScrape.BakaTsuki.Run
-import TextScrape.JapTem.Run
-import TextScrape.Guhehe.Run
-import TextScrape.ReTranslations.Run
-
-# import TextScrape.SolitaryTranslation.Run
-import TextScrape.PrinceRevolution.Run
-import TextScrape.Krytyk.Run
-
-import TextScrape.UnlimitedNovelFailures.Run
-import TextScrape.Yoraikun.Run
-import TextScrape.SkyTheWood.Run
-import TextScrape.Imoutolicious.Run
-
-import TextScrape.UntunedTranslation.Run
 import TextScrape.CETranslation.Run
-import TextScrape.HereticTranslation.Run
-
-import TextScrape.NanoDesuTranslation.Run
-import TextScrape.SakuraHonyakuTranslation.Run
-import TextScrape.KyakkaTranslation.Run
-import TextScrape.UnbreakableMachineDollTrans.Run
-import TextScrape.WarTdf.Run
-
-import TextScrape.Manga0205.Run
-import TextScrape.OniiChanYamete.Run
-
-import TextScrape.Sousetsuka.Run
 import TextScrape.Defiring.Run
-
-
+import TextScrape.EcWebNovel.Run
+import TextScrape.GravityTrans.Run
+import TextScrape.Guhehe.Run
+import TextScrape.HaruParty.Run
+import TextScrape.HereticTranslation.Run
+import TextScrape.Imoutolicious.Run
+import TextScrape.JapTem.Run
+import TextScrape.Krytyk.Run
+import TextScrape.KyakkaTranslation.Run
+import TextScrape.LorCromwell.Run
+import TextScrape.Mahoutsuki.Run
+import TextScrape.Manga0205.Run
+import TextScrape.NanoDesuTranslation.Run
+import TextScrape.Noitl.Run
+import TextScrape.OniiChanYamete.Run
+import TextScrape.PirateYoshi.Run
+import TextScrape.PrinceRevolution.Run
+import TextScrape.ReTranslations.Run
+import TextScrape.SakuraHonyakuTranslation.Run
+import TextScrape.Setsuna86Translation.Run
+import TextScrape.SkyTheWood.Run
+import TextScrape.SolitaryTranslation.Run
+import TextScrape.Sousetsuka.Run
+import TextScrape.TlWiki.Run
+import TextScrape.TsuigekiTrans.Run
+import TextScrape.UnbreakableMachineDollTrans.Run
+import TextScrape.UnlimitedNovelFailures.Run
+import TextScrape.UntunedTranslation.Run
+import TextScrape.WarTdf.Run
+import TextScrape.Yoraikun.Run
 
 import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
@@ -159,6 +162,16 @@ scrapePlugins = {
 	# 100 : (TextScrape.OniiChanYamete.Run,                  days(2)),
 	# 101 : (TextScrape.Sousetsuka.Run,                      days(2)),
 	# 102 : (TextScrape.Defiring.Run,                        days(2)),
+
+	# 103 : (TextScrape.TsuigekiTrans.Run,                   days(2)),
+	# 104 : (TextScrape.Setsuna86Translation.Run,            days(2)),
+	# 105 : (TextScrape.PirateYoshi.Run,                     days(2)),
+	# 106 : (TextScrape.Noitl.Run,                           days(2)),
+	# 107 : (TextScrape.Mahoutsuki.Run,                      days(2)),
+	# 108 : (TextScrape.HaruParty.Run,                       days(2)),
+	# 109 : (TextScrape.LorCromwell.Run,                     days(2)),
+	# 110 : (TextScrape.EcWebNovel.Run,                      days(2)),
+	# 111 : (TextScrape.GravityTrans.Run,                    days(2)),
 
 
 }

@@ -2,13 +2,13 @@ New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 
-http://ecwebnovel.blogspot.ca/
-https://tsuigeki.wordpress.com/
-https://pirateyoshi.wordpress.com/
-https://mahoutsuki.wordpress.com/
-https://lorcromwell.wordpress.com/
-http://noitl.blogspot.com/
-https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web
+
+
+
+
+noitl       - http://noitl.blogspot.com/, https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web
+ecwebnovel  - http://ecwebnovel.blogspot.ca/
+ 
 
 missing page link to original
 add jump to source to end of page
@@ -177,11 +177,13 @@ Long Term:
  	 - ~~http://imoutoliciouslnt.blogspot.ca/~~
  	 - ~~https://wartdf.wordpress.com/current-projects/~~
 	 - ~~defrtl https://defiring.wordpress.com/~~
-	 - ~~souse  http://sousetsuka.blogspot.com/~~
-	 - ~~m0205  https://manga0205.wordpress.com/~~
-	 - ~~ocytl  https://oniichanyamete.wordpress.com/~~
-
-
+	 - ~~souse        http://sousetsuka.blogspot.com/~~
+	 - ~~m0205        https://manga0205.wordpress.com/~~
+	 - ~~ocytl        https://oniichanyamete.wordpress.com/~~
+	 - ~~tsuigeki     https://tsuigeki.wordpress.com/~~
+	 - ~~pirateyoshi  https://pirateyoshi.wordpress.com/~~
+	 - ~~mahoutsuki   https://mahoutsuki.wordpress.com/~~
+	 - ~~lorcromwell  https://lorcromwell.wordpress.com/~~
 
 <b>Reader</b>
 

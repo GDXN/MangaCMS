@@ -232,11 +232,15 @@ class TextScraper(metaclass=abc.ABCMeta):
 		pass
 
 
-	decompose       = []
 
-	# General annoying comment bullshit and sharing widgets.
-	#
-	decomposeBefore = [
+	# `decompose` and `decomposeBefore` are defined in the child plugins
+	decompose       = []
+	decomposeBefore = []
+
+	# `_decompose` and `_decomposeBefore` are the actual arrays of items to decompose, that are loaded with the contents of
+	# `decompose` and `decomposeBefore` on plugin initialization
+	_decompose       = []
+	_decomposeBefore = [
 		{'name'     : 'likes-master'},  # Bullshit sharing widgets
 		{'id'       : 'jp-post-flair'},
 		{'class'    : 'commentlist'},  # Scrub out the comments so we don't try to fetch links from them
@@ -244,14 +248,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 		{'class'    : 'comments'},
 		{'id'       : 'comments'},
 	]
+	fileDomains     = []
 
-	allImages = False
-
-
-	fileDomains = set()
-
+	_badwords       = set()
 	_scannedDomains = set()
-	scannedDomains = set()
+	allImages       = False
+	_fileDomains    = set()
+	scannedDomains  = set()
+	tld             = set()
 
 	stripTitle = ''
 
@@ -290,12 +294,26 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.log.info("Loading %s Runner BaseClass", self.pluginName)
 
 		self.checkInitPrimaryDb()
-		self.fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
+		self._fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
 
 
 		self._relinkDomains = set()
 		for url in fetchRelinkableDomains():
 			self._relinkDomains.add(url)
+
+		# Move the plugin-defined decompose calls into the control lists
+		for item in self.decompose:
+			self._decompose.append(item)
+
+		for item in self.decomposeBefore:
+			self._decomposeBefore.append(item)
+
+		for item in self.badwords:
+			self._badwords.add(item)
+
+		for item in self.fileDomains:
+			self._fileDomains.add(item)
+
 
 
 	# More hackiness to make sessions intrinsically thread-safe.
@@ -335,11 +353,33 @@ class TextScraper(metaclass=abc.ABCMeta):
 			return object.__getattribute__(self, name)
 
 
+
 	def installBaseUrl(self, url):
 		netloc = urllib.parse.urlsplit(url.lower()).netloc
 		if not netloc:
 			raise ValueError("One of the scanned domains collapsed down to an empty string: '%s'!" % url)
-		self._scannedDomains.add(netloc)
+
+		# Generate the possible wordpress netloc values.
+		if 'wordpress.com' in netloc:
+			subdomain, mainDomain, tld = netloc.rsplit(".")[-3:]
+
+			self._scannedDomains.add("www.{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+			self._scannedDomains.add("{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+			self._scannedDomains.add("www.{sub}.files.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+			self._scannedDomains.add("{sub}.files.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+
+		# Blogspot is annoying and sometimes a single site is spread over several tlds. *.com, *.sg, etc...
+		if 'blogspot.' in netloc:
+			subdomain, mainDomain, tld = netloc.rsplit(".")[-3:]
+			self.tld.add(tld)
+			for tld in self.tld:
+				self._scannedDomains.add("www.{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+				self._scannedDomains.add("{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+
+				self._fileDomains.add('bp.blogspot.{tld}'.format(tld=tld))
+		else:
+			self._scannedDomains.add(netloc)
+
 
 
 
@@ -456,7 +496,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 			# and by blocked words
 			hadbad = False
-			for badword in self.badwords:
+			for badword in self._badwords:
 				if badword in url:
 					hadbad = True
 			if hadbad:
@@ -499,12 +539,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 				continue
 
 			# Filter by domain
-			if not self.allImages and not any([base in url for base in self.fileDomains]):
+			if not self.allImages and not any([base in url for base in self._fileDomains]):
 				continue
 
 			# and by blocked words
 			hadbad = False
-			for badword in self.badwords:
+			for badword in self._badwords:
 				if badword in url:
 					hadbad = True
 			if hadbad:
@@ -541,6 +581,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 				# Force images that are oversize to fit the window.
 				imtag["style"] = 'max-width: 95%;'
+
+				if 'width' in imtag.attrs:
+					del imtag.attrs['width']
+				if 'height' in imtag.attrs:
+					del imtag.attrs['height']
 
 			except KeyError:
 				continue
@@ -629,7 +674,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# Process a plain HTML page.
 	# This call does a set of operations to permute and clean a HTML page.
 	#
-	# First, it decomposes all tags with attributes dictated in the `decomposeBefore` class variable
+	# First, it decomposes all tags with attributes dictated in the `_decomposeBefore` class variable
 	# it then canonizes all the URLs on the page, extracts all the URLs from the page,
 	# then decomposes all the tags in the `decompose` class variable, feeds the content through
 	# readability, and finally saves the processed HTML into the database
@@ -639,14 +684,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		soup = bs4.BeautifulSoup(content)
 
-		soup = self.decomposeItems(soup, self.decomposeBefore)
+		soup = self.decomposeItems(soup, self._decomposeBefore)
 		soup = self.canonizeUrls(soup, url)
 
 		if self.checkDomain(url):
 			self.extractLinks(soup)
 			self.extractImages(soup)
 
-		soup = self.decomposeItems(soup, self.decompose)
+		soup = self.decomposeItems(soup, self._decompose)
 
 		pgTitle, pgBody = self.cleanHtmlPage(soup)
 		self.log.info("Page with title '%s' retreived.", pgTitle)
