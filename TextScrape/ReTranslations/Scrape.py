@@ -10,7 +10,7 @@ import webFunctions
 
 # import TextScrape.ReTranslations.gDocParse as gdp
 
-class ReScrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'retrans'
 	loggerPath = 'Main.ReTrans.Scrape'
 	pluginName = 'ReTransScrape'
@@ -21,17 +21,17 @@ class ReScrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 	startUrl = [
-		"https://docs.google.com/document/d/1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM/preview",
-		"https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview"
+		"https://docs.google.com/document/d/1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM",
+		"https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0"
 		]
 	baseUrl = "https://docs.google.com/document/"
 
-	badwords = []
+	badwords = ['http://docs.google.com/abuse']
 
 
 
 def test():
-	scrp = ReScrape()
+	scrp = Scrape()
 	scrp.crawl()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')

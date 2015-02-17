@@ -1,7 +1,7 @@
 
 
 
-from .reScrape import ReScrape
+from .Scrape import Scrape
 
 import ScrapePlugins.RunBase
 
@@ -19,7 +19,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 
 		self.log.info("Checking Re:Translations for updates")
-		scraper = ReScrape()
+		scraper = Scrape()
 		scraper.crawl()
 
 

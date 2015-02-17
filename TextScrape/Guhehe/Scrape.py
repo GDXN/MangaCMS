@@ -11,7 +11,7 @@ import bs4
 import webFunctions
 import urllib.error
 
-class GuheheScrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'guhehe'
 	loggerPath = 'Main.Guhehe.Scrape'
 	pluginName = 'GuheheScrape'

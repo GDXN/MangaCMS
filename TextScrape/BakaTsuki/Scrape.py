@@ -10,7 +10,7 @@ import urllib.parse
 import webFunctions
 
 
-class TsukiScrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'tsuki'
 	loggerPath = 'Main.Tsuki.Scrape'
 	pluginName = 'TsukiScrape'

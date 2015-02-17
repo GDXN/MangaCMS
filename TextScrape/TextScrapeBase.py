@@ -25,6 +25,9 @@ import os
 import traceback
 import bs4
 import readability.readability
+import os.path
+import os
+from importlib.machinery import SourceFileLoader
 import time
 import queue
 from concurrent.futures import ThreadPoolExecutor
@@ -57,7 +60,17 @@ def transaction(cursor, commit=True):
 			cursor.execute("COMMIT;")
 
 
-
+########################################################################################################################
+#
+#	#### ##     ## ########   #######  ########  ########    ##        #######   #######  ##    ## ##     ## ########
+#	 ##  ###   ### ##     ## ##     ## ##     ##    ##       ##       ##     ## ##     ## ##   ##  ##     ## ##     ##
+#	 ##  #### #### ##     ## ##     ## ##     ##    ##       ##       ##     ## ##     ## ##  ##   ##     ## ##     ##
+#	 ##  ## ### ## ########  ##     ## ########     ##       ##       ##     ## ##     ## #####    ##     ## ########
+#	 ##  ##     ## ##        ##     ## ##   ##      ##       ##       ##     ## ##     ## ##  ##   ##     ## ##
+#	 ##  ##     ## ##        ##     ## ##    ##     ##       ##       ##     ## ##     ## ##   ##  ##     ## ##
+#	#### ##     ## ##         #######  ##     ##    ##       ########  #######   #######  ##    ##  #######  ##
+#
+########################################################################################################################
 
 def rebaseUrl(url, base):
 	"""Rebase one url according to base"""
@@ -67,6 +80,94 @@ def rebaseUrl(url, base):
 		return urllib.parse.urljoin(base, url)
 	else:
 		return url
+
+
+def getPythonScriptModules():
+	moduleDir = os.path.split(os.path.realpath(__file__))[0]
+
+
+	ret = []
+	moduleRoot = 'TextScrape'
+	for fName in os.listdir(moduleDir):
+		itemPath = os.path.join(moduleDir, fName)
+		if os.path.isdir(itemPath):
+			modulePath = "%s.%s" % (moduleRoot, fName)
+			for fName in os.listdir(itemPath):
+
+				# Skip files without a '.py' extension
+				if not fName == "Scrape.py":
+					continue
+
+				fPath = os.path.join(itemPath, fName)
+				fName = fName.split(".")[0]
+				fqModuleName = "%s.%s" % (modulePath, fName)
+				# Skip the __init__.py file.
+				if fName == "__init__":
+					continue
+
+				ret.append((fPath, fqModuleName))
+
+	return ret
+
+def findPluginClass(module, prefix):
+
+	interfaces = []
+	for item in dir(module):
+		if not item.startswith(prefix):
+			continue
+
+		plugClass = getattr(module, item)
+		if not "plugin_type" in dir(plugClass) and plugClass.plugin_type == "TextScraper":
+			continue
+		if not 'tableKey' in dir(plugClass):
+			continue
+
+		interfaces.append((plugClass.tableKey, plugClass))
+
+	return interfaces
+
+def loadPlugins():
+	modules = getPythonScriptModules()
+	ret = {}
+
+	for fPath, modName in modules:
+		loader = SourceFileLoader(modName, fPath)
+		mod = loader.load_module()
+		plugClasses = findPluginClass(mod, 'Scrape')
+		for key, pClass in plugClasses:
+			if key in ret:
+				raise ValueError("Two plugins providing an interface with the same name? Name: '%s'" % key)
+			ret[key] = pClass
+	return ret
+
+
+def fetchRelinkableDomains():
+	domains = set()
+	pluginDict = loadPlugins()
+	for plugin in pluginDict:
+		plg = pluginDict[plugin]
+		url = urllib.parse.urlsplit(plg.baseUrl.lower()).netloc
+
+		domains.add(url)
+		if url.startswith("www."):
+			domains.add(url[4:])
+
+		for domain in plg.scannedDomains:
+			url = urllib.parse.urlsplit(domain.lower()).netloc
+
+			domains.add(url)
+			if url.startswith("www."):
+				domains.add(url[4:])
+
+
+	return domains
+
+
+
+
+
+
+
 
 
 # All tags you need to look into to do link canonization
@@ -95,6 +196,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
+
+	plugin_type = 'TextScraper'
 
 	validKwargs = []
 
@@ -141,6 +244,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		{'class'    : 'comments'},
 		{'id'       : 'comments'},
 	]
+
 	allImages = False
 
 
@@ -185,10 +289,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.log.info("Loading %s Runner BaseClass", self.pluginName)
 
-
 		self.checkInitPrimaryDb()
-
 		self.fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
+
+
+		self._relinkDomains = set()
+		for url in fetchRelinkableDomains():
+			self._relinkDomains.add(url)
 
 
 	# More hackiness to make sessions intrinsically thread-safe.
@@ -291,6 +398,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		return inUrl
 
 	def convertToReaderUrl(self, inUrl):
+		inUrl = self.urlClean(inUrl)
 		inUrl = self.preprocessReaderUrl(inUrl)
 		url = urllib.parse.urljoin(self.baseUrl, inUrl)
 		url = '/books/render?url=%s' % urllib.parse.quote(url)
@@ -302,6 +410,32 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# if "drive" in url:
 		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
 		return any([rootUrl in url.lower() for rootUrl in self._scannedDomains])
+
+	def checkFollowGoogleUrl(self, url):
+		'''
+		I don't want to scrape outside of the google doc document context.
+
+		Therefore, if we have a URL that's on docs.google.com, and doesn't have
+		'/document/d/ in the URL, block it.
+		'''
+		# Short circuit for non docs domains
+		url = url.lower()
+		netloc = urllib.parse.urlsplit(url).netloc
+		if not "docs.google.com" in netloc:
+			return True
+
+		if '/document/d/' in url:
+			return True
+
+		return False
+
+
+	# check if domain `url` is a sub-domain of the domains we should relink.
+	def checkRelinkDomain(self, url):
+		# print(self.scannedDomains)
+		# if "drive" in url:
+		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
+		return any([rootUrl in url.lower() for rootUrl in self._relinkDomains])
 
 	def extractLinks(self, soup):
 		# All links have been resolved to fully-qualified paths at this point.
@@ -319,6 +453,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 			if not self.checkDomain(url):
 				continue
 
+
 			# and by blocked words
 			hadbad = False
 			for badword in self.badwords:
@@ -329,6 +464,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 			url = gdp.GDocExtractor.clearOutboundProxy(url)
 			url = gdp.GDocExtractor.clearBitLy(url)
+
+
+
+			if not self.checkFollowGoogleUrl(url):
+				continue
+
+
 			isGdoc, realUrl = gdp.GDocExtractor.isGdocUrl(url)
 			if isGdoc:
 				realUrl = self.trimGDocUrl(realUrl)
@@ -339,7 +481,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 				# Remove any URL fragments causing multiple retreival of the same resource.
 				url = self.urlClean(url)
-
 				self.newLinkQueue.put(url)
 
 
@@ -388,7 +529,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		for aTag in soup.find_all("a"):
 			try:
-				if self.checkDomain(aTag["href"]):
+				if self.checkRelinkDomain(aTag["href"]):
 					aTag["href"] = self.convertToReaderUrl(aTag["href"])
 			except KeyError:
 				continue
@@ -689,6 +830,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 				self.log.critical('Extracting item failed!')
 				for line in traceback.format_exc().strip().split("\n"):
 					self.log.critical(line.strip())
+
+				if not url.endswith("/pub"):
+					url = url+"/pub"
+
+				self.log.info("Attempting to access as plain content instead.")
+				url = self.urlClean(url)
+				self.newLinkQueue.put(url)
+				return
 			if mainPage:
 				break
 			if attempts > 3:
@@ -700,18 +849,23 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 
-	def extractGoogleDriveFolder(self, url):
+	def extractGoogleDriveFolder(self, driveUrl):
 		'''
 		Extract all the relevant links from a google drive directory, and push them into
 		the queued URL queue.
 
 		'''
 
-		urls = gdp.GDocExtractor.getDriveFileUrls(url)
+		urls, pgTitle = gdp.GDocExtractor.getDriveFileUrls(driveUrl)
 		for url in urls:
 			self.newLinkQueue.put(url)
 
-		self.log.warning("Generate google doc disambiguation page!")
+		self.log.info("Generating google drive disambiguation page!")
+		disamb = gdp.makeDriveDisambiguation(urls, pgTitle)
+
+
+		self.updateDbEntry(url=driveUrl, title=pgTitle, contents=disamb, mimetype='text/html', dlstate=2)
+
 
 		self.log.info("Found %s items in google drive directory", len(urls))
 
@@ -1319,8 +1473,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 		if not title:
 			title = ''
 
+
+		item = kwargs['url'] if 'url' in kwargs else kwargs['dbid']
 		if not old:
-			self.log.error("Couldn't find original db entry for item?")
+			self.log.error("Couldn't find original db entry for item '%s'?", item)
 			return
 
 		if old['contents'] == None:
@@ -1355,3 +1511,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 		m = hashlib.md5()
 		m.update(fCont)
 		return m.hexdigest()
+
+
+if __name__ == "__main__":
+	print("Test mode!")
+	domains = fetchRelinkableDomains()
+

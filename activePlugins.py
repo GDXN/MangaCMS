@@ -131,34 +131,34 @@ scrapePlugins = {
 
 
 
-	80  : (TextScrape.BakaTsuki.Run,                       days(7)),  # Every 7 days, because books is slow to update
-	81  : (TextScrape.JapTem.Run,                          days(5)),
-	82  : (TextScrape.Guhehe.Run,                          days(5)),
-	# 83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
-	84  : (TextScrape.PrinceRevolution.Run,                days(5)),
-	85  : (TextScrape.Krytyk.Run,                          days(5)),
+	# 80  : (TextScrape.BakaTsuki.Run,                       days(7)),  # Every 7 days, because books is slow to update
+	# 81  : (TextScrape.JapTem.Run,                          days(5)),
+	# 82  : (TextScrape.Guhehe.Run,                          days(5)),
+	# # 83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
+	# 84  : (TextScrape.PrinceRevolution.Run,                days(5)),
+	# 85  : (TextScrape.Krytyk.Run,                          days(5)),
 
-	86  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
-	87  : (TextScrape.Yoraikun.Run,                        days(2)),
-	88  : (TextScrape.SkyTheWood.Run,                      days(2)),
-	89  : (TextScrape.Imoutolicious.Run,                   days(2)),
+	# 86  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
+	# 87  : (TextScrape.Yoraikun.Run,                        days(2)),
+	# 88  : (TextScrape.SkyTheWood.Run,                      days(2)),
+	# 89  : (TextScrape.Imoutolicious.Run,                   days(2)),
 
-	90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+	# 90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 
-	91  : (TextScrape.UntunedTranslation.Run,              days(2)),
-	92  : (TextScrape.CETranslation.Run,                   days(2)),
-	93  : (TextScrape.HereticTranslation.Run,              days(2)),
+	# 91  : (TextScrape.UntunedTranslation.Run,              days(2)),
+	# 92  : (TextScrape.CETranslation.Run,                   days(2)),
+	# 93  : (TextScrape.HereticTranslation.Run,              days(2)),
 
-	94  : (TextScrape.NanoDesuTranslation.Run,             days(2)),
-	95  : (TextScrape.SakuraHonyakuTranslation.Run,        days(2)),
-	96  : (TextScrape.KyakkaTranslation.Run,               days(2)),
-	97  : (TextScrape.UnbreakableMachineDollTrans.Run,     days(2)),
-	98  : (TextScrape.WarTdf.Run,                          days(2)),
+	# 94  : (TextScrape.NanoDesuTranslation.Run,             days(2)),
+	# 95  : (TextScrape.SakuraHonyakuTranslation.Run,        days(2)),
+	# 96  : (TextScrape.KyakkaTranslation.Run,               days(2)),
+	# 97  : (TextScrape.UnbreakableMachineDollTrans.Run,     days(2)),
+	# 98  : (TextScrape.WarTdf.Run,                          days(2)),
 
-	99  : (TextScrape.Manga0205.Run,                       days(2)),
-	100 : (TextScrape.OniiChanYamete.Run,                  days(2)),
-	101 : (TextScrape.Sousetsuka.Run,                      days(2)),
-	102 : (TextScrape.Defiring.Run,                        days(2)),
+	# 99  : (TextScrape.Manga0205.Run,                       days(2)),
+	# 100 : (TextScrape.OniiChanYamete.Run,                  days(2)),
+	# 101 : (TextScrape.Sousetsuka.Run,                      days(2)),
+	# 102 : (TextScrape.Defiring.Run,                        days(2)),
 
 
 }

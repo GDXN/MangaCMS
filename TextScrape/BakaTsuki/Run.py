@@ -1,7 +1,7 @@
 
 
 
-from .tsukiScrape import TsukiScrape
+from .Scrape import Scrape
 
 import ScrapePlugins.RunBase
 
@@ -19,7 +19,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 
 		self.log.info("Checking Baka-Tsuki for updates")
-		scraper = TsukiScrape()
+		scraper = Scrape()
 		scraper.crawl()
 
 

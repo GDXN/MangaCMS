@@ -1,7 +1,7 @@
 
 
 
-from .guheheScrape import GuheheScrape
+from .Scrape import Scrape
 
 import ScrapePlugins.RunBase
 
@@ -19,7 +19,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 
 		self.log.info("Checking JapTem for updates")
-		scraper = GuheheScrape()
+		scraper = Scrape()
 		scraper.crawl()
 
 

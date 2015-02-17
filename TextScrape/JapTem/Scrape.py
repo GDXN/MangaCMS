@@ -11,7 +11,7 @@ import bs4
 import webFunctions
 import urllib.error
 
-class JaptemScrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	tableKey = 'japtem'
 	loggerPath = 'Main.JapTem.Scrape'
 	pluginName = 'JapTemScrape'

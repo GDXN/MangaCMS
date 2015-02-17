@@ -33,13 +33,31 @@ class GDocExtractor(object):
 
 	@classmethod
 	def getDriveFileUrls(cls, url):
-		ctnt = cls.wg.getpage(url)
+		ctnt, handle = cls.wg.getpage(url, returnMultiple=True)
+
+		# Pull out the title for the disambiguation page.
+		soup = bs4.BeautifulSoup(ctnt)
+		title = soup.title.string
 
 		# horrible keyhole optimization regex abomination
 		# this really, /REALLY/ should be a actual parser.
+		# Unfortunately, the actual google doc URLs are only available in some JS literals,
+		# so we have to deal with it.
 		driveFolderRe = re.compile(r'(https://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
 		items = driveFolderRe.findall(ctnt)
-		return set(items)
+
+		ret = set()
+
+		# Google drive supports a `read?{google doc path} mode. As such, we look at the actual URL,
+		# which tells us if we redirected to a plain google doc, and add it of we did.
+		handleUrl = handle.geturl()
+		if handleUrl != url:
+			if cls.isGdocUrl(handleUrl):
+				cls.log.info("Direct read redirect: '%s'", handleUrl)
+				ret.add(handleUrl)
+		for item in items:
+			ret.add(item)
+		return items, title
 
 	@classmethod
 	def isGdocUrl(cls, url):
@@ -133,6 +151,22 @@ class GDocExtractor(object):
 
 
 
+def makeDriveDisambiguation(urls, pageHeader):
+
+	soup = bs4.BeautifulSoup()
+
+	tag = soup.new_tag('h3')
+	tag.string = 'Google Drive directory: %s' % pageHeader
+	soup.append(tag)
+	for url in urls:
+		tag = soup.new_tag('a', href=url)
+		tag.string = url
+		soup.append(tag)
+		tag = soup.new_tag('br')
+		soup.append(tag)
+	return soup.prettify()
+
+
 def test():
 	import webFunctions
 	wg = webFunctions.WebGetRobust()
@@ -141,12 +175,34 @@ def test():
 	# url = 'https://docs.google.com/document/d/17__cAhkFCT2rjOrJN1fK2lBdpQDSO0XtZBEvCzN5jH8/preview'
 	url = 'https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview'
 
+	urls = [
+		'https://docs.google.com/document/d/1RrLZ-j9uS5dJPXR44VLajWrGPJl34CVfAeJ7pELPMy4',
+		'https://docs.google.com/document/d/1_1e7D30N16Q1Pw6q68iCrOGhHZNhXd3C9jDrRXbXCTc',
+		'https://docs.google.com/document/d/1ke-eW78CApO0EgfY_X_ZgLyEEcEQ2fH8vK_oGbhROPM',
+		'https://docs.google.com/document/d/1Dl5XbPHThX6xCxhIHL9oY0zDbIuQn6fXckXQ16rECps',
+		'https://docs.google.com/document/d/12UHbPduKDVjSk99VVdf5OHdaHxzN3nuIcAGrW5oV5E8',
+		'https://docs.google.com/document/d/1ebJOszL08TqJw1VvyaVfO72On4rQBPca6CujSYy-McY',
+		'https://docs.google.com/document/d/19vXfdmkAyLWcfV2BkgIxNawD2QwCoeFEQtV8wYwTamU',
+		'https://docs.google.com/document/d/1RGqoPR6sfjJY_ZxLfQGa4YLNIW5zKj1HTWa6qmFLQfg',
+		'https://docs.google.com/document/d/1TDmwoB6Y7XiPJRZ7-OGjAhEqPPbdasazn0vBbCvj8IM',
+		'https://docs.google.com/document/d/1o40vXZAW6v81NlNl4o6Jvjch0GO2ETv5JgwKqXfOpOQ',
+		'https://docs.google.com/document/d/1STcAhI6J9CEEx7nQFGAt_mnxfgo0fMOrb4Ls0EYWRHk',
+		'https://docs.google.com/document/d/1xyyhV5yeoRTZHPCPX6yeL8BbVzybhFM27EyInFtjwZQ',
+		'https://docs.google.com/document/d/11RzD2ILc1MKH5VA4jBzCDO7DIFRzUFCjAe7-MnJfDLY',
+		'https://docs.google.com/document/d/1AVyCN0nXTTqVrrMaqJRUSkTP1Ksyop9H-UHWvdMB5Ps',
+		'https://docs.google.com/document/d/18VaVO2VnFMo5Lv6VFZ4hP-lbX3XxHKnPu6wc2sxxA6U',
+		'https://docs.google.com/document/d/1XuD5iloTWdpFAAzuSHpQuPKVwsrQeyAlT0CSFoIYk3A',
+		'https://docs.google.com/document/d/1yoKoZq3DBCXLJ__1LNod_d_p6SkKC2VzQ3r-pjlOa4M',
+		'https://docs.google.com/document/d/1CIJLV1CN57naLf9gG9Y6C7aZ6ieLM9uL5CGquxCNPQM',
+		'https://docs.google.com/document/d/1m9yGcNhNfQRCfdcmwb4mAy2sVG3BXHjM6cBFKjzmvFw',
+	]
 
+	# print(makeDriveDisambiguation(urls))
+	# parse = GDocExtractor(url)
+	# base, resc = parse.extract()
+	# # parse.getTitle()
 
-	parse = GDocExtractor(url)
-	base, resc = parse.extract()
-	# parse.getTitle()
-
+	print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
 
 	# with open("test.html", "wb") as fp:
 	# 	fp.write(ret.encode("utf-8"))
