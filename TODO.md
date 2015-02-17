@@ -6,12 +6,11 @@ https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relin
 
 
 
-noitl       - http://noitl.blogspot.com/, https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web
-ecwebnovel  - http://ecwebnovel.blogspot.ca/
+
  
 
-missing page link to original
-add jump to source to end of page
+
+
 
 LN TODO: 
 	Add transparent scraping into GDoc content
@@ -22,8 +21,8 @@ LN TODO:
 Check LN Scrapers after changes: 
 
 	GDoc driven:
-		HaruParty http://lasolistia.com/haruparty/ 
-		ReTranslations
+		~~HaruParty http://lasolistia.com/haruparty/ ~~
+		~~ReTranslations~~
 
 	
 	## SolitaryTranslation - Password bullshit
@@ -58,7 +57,6 @@ Check LN Scrapers after changes:
 Should I start scraping VN translation patches?:
 
 	~~http://tlwiki.org/~~
-
 	http://novelnews.net/
 
 
@@ -184,6 +182,8 @@ Long Term:
 	 - ~~pirateyoshi  https://pirateyoshi.wordpress.com/~~
 	 - ~~mahoutsuki   https://mahoutsuki.wordpress.com/~~
 	 - ~~lorcromwell  https://lorcromwell.wordpress.com/~~
+	 - ~~noitl        http://noitl.blogspot.com/, https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web~~
+	 - ~~ecwebnovel   http://ecwebnovel.blogspot.ca/~~
 
 <b>Reader</b>
 
@@ -278,6 +278,8 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~missing page link to original~~
+ - ~~add jump to source to end of page~~
  - ~~book search natsort~~
  - ~~mu view only book items~~
  - ~~none in tag list broken~~

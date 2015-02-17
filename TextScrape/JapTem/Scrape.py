@@ -26,6 +26,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	badwords = ["fanfic.php",
 				"/forums/",
+				"/forum/",
 				"/fanfic",         # Fucking slash fics.
 				"/cdn-cgi/",
 				"/help/",

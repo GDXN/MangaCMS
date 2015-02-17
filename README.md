@@ -52,14 +52,36 @@ Plugin scrapers for:
 	 - HBrowse
 	 - Exhentai/SadPanda
 	 - Tadanohito
+	 
  - Light Novels Sites:
 	 - Baka-Tsuki 
+	 - NanoDesuTranslation
+	 - PrinceRevolution
+	 - Setsuna86Translation
+	 - KyakkaTranslation
+	 - Krytyk
+	 - UnbreakableMachineDollTran
+	 - Sousetsuka
+	 - SakuraHonyakuTranslation
 	 - JapTem
-	 - Re:Translations
+	 - SkyTheWood
+	 - UnlimitedNovelFailures
+	 - Manga0205
+	 - Imoutolicious
 	 - Guhehe
+	 - CETranslation
+	 - UntunedTranslation
+	 - WarTdf
+	 - HereticTranslation
+	 - Yoraikun
+	 - Defiring
+	 - OniiChanYamete
+	 - GravityTranslations
+	 - Re:Translations
 	 - Solitary Translations
-	 - Prince Revolution
 	 - Krytykal.org
+	 - ...more...
+
  - Metadata:
 	 - MangaUpdates (metadata only).
  - Defunct:

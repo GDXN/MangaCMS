@@ -391,7 +391,23 @@ class PageResource(object):
 
 			if not ret:
 				self.log.warn("Request for book content '%s' failed because it's not in the database.", itemUrl)
-				return Response(status_int=404, body='Item not found in Book item database!')
+				responseBody = '''
+				<html>
+					<head>
+						<title>Item not found!</title>
+					</head>
+					<body>
+						<div>
+							<h3>Item not found in Book item database!</h3>
+						</div>
+						<div>
+							<a href='{url}'>Try to retreive from original source</a>
+						</div>
+					</body>
+				</html>
+
+				'''.format(url=itemUrl)
+				return Response(status_int=404, body=responseBody)
 
 			mimetype, fsPath = ret.pop()
 

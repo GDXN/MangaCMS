@@ -145,7 +145,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 
 
-<%def name="renderPage(title, contents)">
+<%def name="renderPage(title, contents, itemUrl)">
 	<!DOCTYPE html>
 	<html>
 		<head>
@@ -159,6 +159,11 @@ def build_trie(iterItem, getKey=lambda x: x):
 				<div class="subdiv">
 					<div class="contentdiv"  style="font-size:20px">
 						${contents}
+					</div>
+					<hr>
+
+					<div>
+						<a href='${itemUrl}'>Original source: ${itemUrl}</a>
 					</div>
 				</div>
 			</div>
@@ -177,7 +182,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 		badId()
 	else:
 		title, series, mimetype, fsPath, contents = page.pop()
-		renderPage(title, contents)
+		renderPage(title, contents, itemUrl)
 	%>
 
 </%def>
