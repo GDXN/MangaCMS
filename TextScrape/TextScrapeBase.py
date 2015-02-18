@@ -398,6 +398,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	def urlClean(self, url):
+		# Google docs can be accessed with or without the '/preview' postfix
+		# We want to remove this if it's present, so we don't duplicate content.
+		netloc = urllib.parse.urlsplit(url).netloc
+		if 'docs.google.com' in netloc and url.endswith("/preview"):
+			url = url[:-len('preview')]
+		if 'docs.google.com' in netloc and url.endswith("/preview/"):
+			url = url[:-len('preview/')]
+
 
 		while True:
 			url2 = urllib.parse.unquote(url)

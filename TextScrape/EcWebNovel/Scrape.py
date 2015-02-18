@@ -22,7 +22,7 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 	startUrl = baseUrl
 
 
-	tld = set(['com', 'ca'])
+	tld = set(['com', 'ca', 'fr'])
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

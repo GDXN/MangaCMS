@@ -4,14 +4,30 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+import TextScrape.WordpressScrape
+
+import webFunctions
 
 
+class Scrape(TextScrape.WordpressScrape.WordpressScrape):
+	tableKey = 'tomo'
+	loggerPath = 'Main.Tomorolls.Scrape'
+	pluginName = 'TomorollsScrape'
 
-class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
+	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
+
+	threads = 1
+
+	baseUrl = "https://tomorolls.wordpress.com/"
+	startUrl = baseUrl
+
+
+	scannedDomains = set((
+		'https://tomorolls.wordpress.com/',
+	))
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
-	_badwords = set([
+	badwords = [
 				"/manga/",
 				"/recruitment/",
 				"wpmp_switcher=mobile",
@@ -21,22 +37,24 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 				# Why do people think they need a fucking comment system?
 				'/?replytocom=',
 				'#comments',
-				'/comments/',
 
 				# Mask out the PDFs
 				"-online-pdf-viewer/",
 
 				# Who the fuck shares shit like this anyways?
 				"?share=",
-				'wp-login.php',
 
-				])
+				]
 
-	_decompose = [
+	decompose = [
 		{'id'    : 'header'},
 		{'class' : 'widget-area'},
+
 		{'id'    : 'footer'},
 		{'class' : 'photo-meta'},
+		{'class' : 'bit'},
+		{'id'    : 'bit'},
+		{'id'    : 'headerimg'},
 		{'id'    : 'likes-other-gravatars'},
 		{'id'    : 'sidebar'},
 		{'id'    : 'carousel-reblog-box'},
@@ -45,22 +63,13 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 		{'id'    : 'nav-below'},
 		{'id'    : 'jp-post-flair'},
 		{'id'    : 'comments'},
-		{'id'    : 'colophon'},
-		{'id'    : 'branding'},
-		{'id'    : 'primary-sidebar'},
-		{'id'    : 'search-container'},
-		{'id'    : 'primary-navigation'},
 		{'class' : 'entry-utility'},
-		{'class' : 'site-header'},
-		{'class' : 'comments-link'},
-		{'class' : 'screen-reader-text'},
-		{'class' : 'menu-toggle'},
+		{'class' : 'wpcnt'},
+		{'id'    : 'site-navigation'},
 
 	]
 
-	fileDomains = ['wp.com']
-
-	_decomposeBefore = [
+	decomposeBefore = [
 		{'class' : 'comments'},
 		{'class' : 'wpcnt'},
 		{'id'    : 'comments'},
@@ -68,15 +77,9 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 		{'id'    : 'addthis-share'},
 		{'id'    : 'info-bt'},
 		{'id'    : 'jp-post-flair'},
-		{'class' : 'wpcnt'},
-		{'class' : 'bit'},
-		{'id'    : 'bit'},
-		{'id'    : 'infinite-footer'},
-		{'name'  : "likes-master"}
 	]
 
-
-
+	stripTitle = "| Tomorolls"
 
 
 

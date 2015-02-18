@@ -1,15 +1,66 @@
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
+https images still fucked
+
+
+~~dangling /preview in gdocs~~
+
+https://binhjamin.wordpress.com/
 
 
 
+http://www.baka-tsuki.org/project/index.php?title=Mushoku_Tensei
+http://www.baka-tsuki.org/project/index.php?title=Tate_no_Yuusha_no_Nariagari
+https://docs.google.com/document/d/10KAGFVd2ESbuuALG--fxFbyEALfOfS2t0YjL2GlIkaY/preview
+https://docs.google.com/document/d/17taISyRebqOdRhIuclyBT94kKbWrJgN3Fc1WvyOWey0/preview
+https://docs.google.com/document/d/1DL6dpctSl_DME-4cnnZ8mkfCIb9nIMlu8P8JhDU-it8/preview
+https://docs.google.com/document/d/1Lzfs2R1eYPfBDoMEXP4NKsorA7TTQD1Yl9JXZsShAaM/pub
+https://docs.google.com/document/d/1P8975xchjaZNw7gEiQkrV1w01akcJhUjlcd4fo4uWNU/edit?usp=sharing
+https://docs.google.com/document/d/1PfyUTq0EfhjdRABQFLbC2C9ByHTzm1CcsnDxq2h3t8c/preview
+https://docs.google.com/document/d/1rhoCQcOUW1eccV4Fsh6K76u0Vup7DMQhBfDcknEbFHI/preview
+https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview
+https://docs.google.com/document/d/1xInAD8v06AIX_urMZRRXHBocDsqBEePMoU1EOTfGRZQ/pub
+https://drive.google.com/folderview?id=0B7S7F3SG9T9EdXJYeG5BNXJkQnc&usp=drive_web
+https://drive.google.com/folderview?id=0ByPeaKaqUsGFQVAxUEM2bUI0R0E&usp=sharing
+https://sites.google.com/site/sekaigameoredake/
 
+http://novel.dawnglare.com/
 
+hikuo      - http://hikuosan.blogspot.com
+kurotsuki  - http://kurotsuki-novel.blogspot.com
+sword      - http://swordandgame.blogspot.ca
+lazy9      - http://9ethtranslations.wordpress.com
+kobato     - http://kobatochandaisuki.wordpress.com
+tsal       - http://tsaltranslation.wordpress.com
+bluesilver - https://bluesilvertranslations.wordpress.com
+hokage     - https://hokagetranslations.wordpress.com
+metal      - https://metalhaguremt.wordpress.com
 
- 
+## panofi     - http://panofitrans.blogspot.com
+## zmun       - http://zmunjali.wordpress.com
+## tomo       - https://tomorolls.wordpress.com
+## binh       - https://binhjamin.wordpress.com
 
+https://docs.google.com/document/d/1P8975xchjaZNw7gEiQkrV1w01akcJhUjlcd4fo4uWNU/edit?usp=sharing
+https://sites.google.com/site/sekaigameoredake/
 
+## http://sousetsuka.blogspot.com
+## http://skythewood.blogspot.sg/
+
+## http://manga0205.wordpress.com
+## http://oniichanyamete.wordpress.com
+## http://pirateyoshi.wordpress.com
+## http://tsuigeki.wordpress.com
+## http://wartdf.wordpress.com
+## http://yoraikun.wordpress.com
+## https://defiring.wordpress.com
+## https://gravitytranslations.wordpress.com
+## https://oniichanyamete.wordpress.com
+
+## http://japtem.com/
+## http://krytykal.org/
+## http://unlimitednovelfailures.mangamatters.com/
 
 
 LN TODO: 
