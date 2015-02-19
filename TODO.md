@@ -27,13 +27,13 @@ http://novel.dawnglare.com/
 hikuo      - http://hikuosan.blogspot.com
 kurotsuki  - http://kurotsuki-novel.blogspot.com
 sword      - http://swordandgame.blogspot.ca
-lazy9      - http://9ethtranslations.wordpress.com
 kobato     - http://kobatochandaisuki.wordpress.com
-tsal       - http://tsaltranslation.wordpress.com
-bluesilver - https://bluesilvertranslations.wordpress.com
 hokage     - https://hokagetranslations.wordpress.com
 metal      - https://metalhaguremt.wordpress.com
 
+## tsal       - http://tsaltranslation.wordpress.com
+## bluesilver - https://bluesilvertranslations.wordpress.com
+## lazy9      - http://9ethtranslations.wordpress.com
 ## panofi     - http://panofitrans.blogspot.com
 ## zmun       - http://zmunjali.wordpress.com
 ## tomo       - https://tomorolls.wordpress.com

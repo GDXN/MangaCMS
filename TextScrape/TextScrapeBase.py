@@ -488,48 +488,51 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def extractLinks(self, soup):
 		# All links have been resolved to fully-qualified paths at this point.
 
-		for link in soup.find_all("a"):
 
-			# Skip empty anchor tags
-			try:
-				url = link["href"]
-			except KeyError:
-				continue
-
-			# Filter by domain
-			# print("Filtering", self.checkDomain(url), url)
-			if not self.checkDomain(url):
-				continue
+		for (tag, attr) in urlContainingTargets:
+			for link in soup.findAll(tag):
 
 
-			# and by blocked words
-			hadbad = False
-			for badword in self._badwords:
-				if badword in url:
-					hadbad = True
-			if hadbad:
-				continue
+				# Skip empty anchor tags
+				try:
+					url = link["href"]
+				except KeyError:
+					continue
 
-			url = gdp.GDocExtractor.clearOutboundProxy(url)
-			url = gdp.GDocExtractor.clearBitLy(url)
-
-
-
-			if not self.checkFollowGoogleUrl(url):
-				continue
+				# Filter by domain
+				# print("Filtering", self.checkDomain(url), url)
+				if not self.checkDomain(url):
+					continue
 
 
-			isGdoc, realUrl = gdp.GDocExtractor.isGdocUrl(url)
-			if isGdoc:
-				realUrl = self.trimGDocUrl(realUrl)
-				self.log.info("Resolved URL = '%s'", realUrl)
-				self.newLinkQueue.put(realUrl)
+				# and by blocked words
+				hadbad = False
+				for badword in self._badwords:
+					if badword in url:
+						hadbad = True
+				if hadbad:
+					continue
 
-			else:
+				url = gdp.GDocExtractor.clearOutboundProxy(url)
+				url = gdp.GDocExtractor.clearBitLy(url)
 
-				# Remove any URL fragments causing multiple retreival of the same resource.
-				url = self.urlClean(url)
-				self.newLinkQueue.put(url)
+
+
+				if not self.checkFollowGoogleUrl(url):
+					continue
+
+
+				isGdoc, realUrl = gdp.GDocExtractor.isGdocUrl(url)
+				if isGdoc:
+					realUrl = self.trimGDocUrl(realUrl)
+					self.log.info("Resolved URL = '%s'", realUrl)
+					self.newLinkQueue.put(realUrl)
+
+				else:
+
+					# Remove any URL fragments causing multiple retreival of the same resource.
+					url = self.urlClean(url)
+					self.newLinkQueue.put(url)
 
 
 	def extractImages(self, soup):
@@ -1569,4 +1572,5 @@ class TextScraper(metaclass=abc.ABCMeta):
 if __name__ == "__main__":
 	print("Test mode!")
 	domains = fetchRelinkableDomains()
+	print(domains)
 
