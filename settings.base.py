@@ -21,6 +21,7 @@ DATABASE_IP      = "127.0.0.1"
 # Note: Paths have to be absolute.
 pickedDir        = r"/SOMETHING/MP"
 baseDir          = r"/SOMETHING/Manga/"
+unlinkedDir      = r"/SOMETHING/MangaUnlinked/"
 
 # The directory "Context" of all the hentai items.
 # This determines the path mask that will be used when deduplicating
@@ -36,6 +37,9 @@ hbDir            = r"/SOMETHING/H/H-Browse"
 nhDir            = r"/SOMETHING/H/N-Hentai"
 spDir            = r"/SOMETHING/H/ExHentai"
 tadanohitoDir    = r"/SOMETHING/H/Tadanohito"
+
+
+globalDedupContext = [pickedDir, baseDir, unlinkedDir, mangaCmsHContext]
 
 # Paths for database and web content
 webCtntPath      = '/SOMETHING/MangaCMS/ctnt'
@@ -314,6 +318,7 @@ ircMotdScraperMaskChannels = [
 
 
 
+
 # Book Sources (maps database key to proper name)
 bookSources = [
 	('tsuki',   'Baka-Tsuki'),
@@ -323,9 +328,55 @@ bookSources = [
 	('prev',    'Prince Revolution'),
 	('solt',    'Solitary Translations'),
 	('kryt',    'Krytyk\'s Translations'),
+	('yora',    'Yoraikun Translation'),
+	('unf',     'Unlimited Novel Failures'),
+	('iml',     'Imoutolicious Translations'),
+	('stw',     'SkyTheWood Translations'),
+
+
+	('htl',     'Heretic Translation'),
+	('ntl',     'NanoDesu Translation'),
+	('cetl',    'CE Translation'),
+	('se86',    'Setsuna86 Trans'),
+	('untl',    'Untuned Translation'),
+
+	('unbrktl', 'Unbreakable Translation'),
+	('kytl',    'Kyakka Translation'),
+	('sktl',    'Sakura Honyaku Translation'),
+
+	('rtdtl',   'RaiseTheDead Translation'),
+
+	('hptytl',  'HaruPARTY Translation'),
+	('m0205',   'Manga0205 Translations'),
+	('ocytl',   'Onii-chan Yamete'),
+
+	('souse',   'Sousetsuka Translations'),
+	('defrtl',  'Defiring Translations'),
+	('gravtl',  'Gravity Translations'),
+	('tlwiki',  'TL Wiki Translations'),
+
+
+	('tsuigeki',     'Tsuigeki'),
+	('pirateyoshi',  'PirateYoshi'),
+	('mahoutsuki',   'MahouTsuki'),
+	('lorcromwell',  'Lorcromwell'),
+	('noitl',        'Noitl'),
+	('ecwebnovel',   'Ecwebnovel'),
+
+
+	('hikuo',        'Hikuo'),      # http://hikuosan.blogspot.com
+	('kurotsuki',    'Kurotsuki'),  # http://kurotsuki-novel.blogspot.com
+	('panofi',       'Panofi'),     # http://panofitrans.blogspot.com
+	('sword',        'Sword'),      # http://swordandgame.blogspot.ca
+	('lazy9',        'Lazy9'),      # http://9ethtranslations.wordpress.com
+	('kobato',       'Kobato'),     # http://kobatochandaisuki.wordpress.com
+	('tsal',         'Tsal'),       # http://tsaltranslation.wordpress.com
+	('zmun',         'Zmun'),       # http://zmunjali.wordpress.com
+	('binh',         'Binh'),       # https://binhjamin.wordpress.com
+	('bluesilver',   'Bluesilver'), # https://bluesilvertranslations.wordpress.com
+	('hokage',       'Hokage'),     # https://hokagetranslations.wordpress.com
+	('metal',        'Metal'),      # https://metalhaguremt.wordpress.com
+	('tomo',         'Tomo'),       # https://tomorolls.wordpress.com
+
 ]
-
-
-
-
 
