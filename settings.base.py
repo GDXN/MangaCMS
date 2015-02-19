@@ -42,9 +42,10 @@ tadanohitoDir    = r"/SOMETHING/H/Tadanohito"
 globalDedupContext = [pickedDir, baseDir, unlinkedDir, mangaCmsHContext]
 
 # Paths for database and web content
-webCtntPath      = '/SOMETHING/MangaCMS/ctnt'
+webCtntPath      = '/SOMETHING/MangaCMS/ctnt/oldCtnt'
+webMvcPath       = '/SOMETHING/MangaCMS/ctnt/mvcCtnt'
+staticCtntPath   = '/SOMETHING/MangaCMS/ctnt/staticContent'
 bookCachePath    = '/SOMETHING/MangaCMS/BookCache'
-
 
 # Path to the directory of images that get auto-removed from archives on download.
 badImageDir  = r"/SOMETHING/MangaCMS/removeImages"

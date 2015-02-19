@@ -5,6 +5,7 @@ https images still fucked
 
 
 ~~dangling /preview in gdocs~~
+http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1mR5PaJOxzbB-vTX1GzP7BzXnQ5ih75s_SfJEqAmw5S0/edit
 
 
 http://www.baka-tsuki.org/project/index.php?title=Mushoku_Tensei
