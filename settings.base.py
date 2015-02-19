@@ -6,6 +6,8 @@ Add your username + password for each site.
 Yes, this is all stored in plaintext. It's not high security.
 You are not using the same password everywhere anyways, .... right?
 
+Delete all lines above and including this one before trying to run anything, please.
+
 # Your postgres SQL database credentials for the primary database.
 # the DATABASE_USER must have write access to the database DATABASE_DB_NAME
 DATABASE_USER    = "MangaCMSUser"
@@ -21,7 +23,7 @@ pickedDir        = r"/SOMETHING/MP"
 baseDir          = r"/SOMETHING/Manga/"
 
 # The directory "Context" of all the hentai items.
-# This determines the path mask that will be used when deduplicating 
+# This determines the path mask that will be used when deduplicating
 # hentai items.
 # If you aren't running the deduper, just specify something basic, like "/"
 mangaCmsHContext = r"/SOMETHING/H/"
@@ -66,7 +68,7 @@ mangaFolders = {
 			"interval" : 5,
 			"lastScan" : 0
 		},
-	# Keys above 100 are not included in normal directory search behaviour when 
+	# Keys above 100 are not included in normal directory search behaviour when
 	# deciding where to place downloaded files (e.g. downloads will never be placed
 	# in a directory with a key >= 100)
 	#100 : {
@@ -80,7 +82,7 @@ mangaFolders = {
 ratingsSort = {
 	"thresh"  : 2,    # At or greater then what rating is the automover is triggered.
 	"tokey"   : 1,
-	"fromkey" : [10, 12],
+	"fromkey" : [10],
 }
 
 # How long should entries in the logging table be kept for?
@@ -140,8 +142,8 @@ sadPanda = {
 	[
 		'other stuff'
 	],
-	
-	# Exclude compound tags are slightly complex. Basically, if the first item is present, 
+
+	# Exclude compound tags are slightly complex. Basically, if the first item is present,
 	# and the second is *NOT*, the item will be filtered. In the below case, if something is tagged
 	# "translated", and is not also tagged "english", it will be filtered (and not downloaded)
 	"excludeCompoundTags" :

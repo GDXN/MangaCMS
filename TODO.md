@@ -6,9 +6,6 @@ https images still fucked
 
 ~~dangling /preview in gdocs~~
 
-https://binhjamin.wordpress.com/
-
-
 
 http://www.baka-tsuki.org/project/index.php?title=Mushoku_Tensei
 http://www.baka-tsuki.org/project/index.php?title=Tate_no_Yuusha_no_Nariagari
