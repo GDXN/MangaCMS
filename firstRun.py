@@ -11,7 +11,6 @@ import ScrapePlugins.DjMoeLoader.djMoeDbLoader
 import ScrapePlugins.BtSeriesFetcher.btSeriesEnqueuer
 import ScrapePlugins.BtLoader.btFeedLoader
 
-import ScrapePlugins.CxLoader.cxFeedLoader
 
 '''
 We need one instance of each type of plugin (series, manga, hentai), plus some extra for no particular reason (safety!)
@@ -25,8 +24,7 @@ toInit = [
 	ScrapePlugins.DjMoeLoader.djMoeDbLoader.DjMoeDbLoader,
 	ScrapePlugins.BtSeriesFetcher.btSeriesEnqueuer.BtSeriesEnqueuer,
 	ScrapePlugins.BtLoader.btFeedLoader.BtFeedLoader,
-	ScrapePlugins.CxLoader.cxFeedLoader.CxFeedLoader,
-]
+	]
 
 
 def firstRun():
