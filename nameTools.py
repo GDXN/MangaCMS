@@ -754,6 +754,10 @@ class DirNameProxy(object):
 
 	def random(self):
 		items = self.getTotalItems()
+
+		# Special-case for no items, return nothing.
+		if items == 0:
+			return {"fqPath" : None, "item": None, "inKey" : None, "dirKey": 'None', "rating": None, "sourceDict": None}
 		index = random.randint(0, items-1)
 		# print("Getting random item with indice", index)
 		return self.getByIndex(index)
@@ -762,7 +766,7 @@ class DirNameProxy(object):
 		if index < 0 or index >= self.getTotalItems():
 			raise ValueError("Index value exceeds allowable range - %s" % index)
 		for dummy_key, itemSet in self._dirDicts.items():
-			if index > len(itemSet):
+			if index >= len(itemSet):
 				index -= len(itemSet)
 				continue
 			else:
