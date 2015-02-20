@@ -40,40 +40,28 @@ import ScrapePlugins.FoolSlide.CasanovaScans.Run
 import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 
 
+import TextScrape.WpBlogs.Run
 
 import TextScrape.BakaTsuki.Run
 import TextScrape.CETranslation.Run
-import TextScrape.Defiring.Run
 import TextScrape.EcWebNovel.Run
-import TextScrape.GravityTrans.Run
 import TextScrape.Guhehe.Run
 import TextScrape.HaruParty.Run
 import TextScrape.HereticTranslation.Run
 import TextScrape.Imoutolicious.Run
 import TextScrape.JapTem.Run
 import TextScrape.Krytyk.Run
-import TextScrape.KyakkaTranslation.Run
-import TextScrape.LorCromwell.Run
-import TextScrape.Mahoutsuki.Run
-import TextScrape.Manga0205.Run
-import TextScrape.NanoDesuTranslation.Run
 import TextScrape.Noitl.Run
-import TextScrape.OniiChanYamete.Run
-import TextScrape.PirateYoshi.Run
 import TextScrape.PrinceRevolution.Run
 import TextScrape.ReTranslations.Run
-import TextScrape.SakuraHonyakuTranslation.Run
 import TextScrape.Setsuna86Translation.Run
 import TextScrape.SkyTheWood.Run
-import TextScrape.SolitaryTranslation.Run
 import TextScrape.Sousetsuka.Run
 import TextScrape.TlWiki.Run
-import TextScrape.TsuigekiTrans.Run
-import TextScrape.UnbreakableMachineDollTrans.Run
 import TextScrape.UnlimitedNovelFailures.Run
 import TextScrape.UntunedTranslation.Run
 import TextScrape.WarTdf.Run
-import TextScrape.Yoraikun.Run
+
 
 import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
@@ -134,44 +122,34 @@ scrapePlugins = {
 
 
 
-	# 80  : (TextScrape.BakaTsuki.Run,                       days(7)),  # Every 7 days, because books is slow to update
-	# 81  : (TextScrape.JapTem.Run,                          days(5)),
-	# 82  : (TextScrape.Guhehe.Run,                          days(5)),
-	# # 83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
-	# 84  : (TextScrape.PrinceRevolution.Run,                days(5)),
-	# 85  : (TextScrape.Krytyk.Run,                          days(5)),
+	80  : (TextScrape.BakaTsuki.Run,                       days(7)),  # Every 7 days, because books is slow to update
+	81  : (TextScrape.JapTem.Run,                          days(5)),
+	82  : (TextScrape.Guhehe.Run,                          days(5)),
 
-	# 86  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
-	# 87  : (TextScrape.Yoraikun.Run,                        days(2)),
-	# 88  : (TextScrape.SkyTheWood.Run,                      days(2)),
-	# 89  : (TextScrape.Imoutolicious.Run,                   days(2)),
+	83  : (TextScrape.WpBlogs.Run,                         days(1)),
 
-	# 90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+	# 83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
+	84  : (TextScrape.PrinceRevolution.Run,                days(5)),
+	85  : (TextScrape.Krytyk.Run,                          days(5)),
 
-	# 91  : (TextScrape.UntunedTranslation.Run,              days(2)),
-	# 92  : (TextScrape.CETranslation.Run,                   days(2)),
-	# 93  : (TextScrape.HereticTranslation.Run,              days(2)),
+	86  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
+	88  : (TextScrape.SkyTheWood.Run,                      days(2)),
+	89  : (TextScrape.Imoutolicious.Run,                   days(2)),
 
-	# 94  : (TextScrape.NanoDesuTranslation.Run,             days(2)),
-	# 95  : (TextScrape.SakuraHonyakuTranslation.Run,        days(2)),
-	# 96  : (TextScrape.KyakkaTranslation.Run,               days(2)),
-	# 97  : (TextScrape.UnbreakableMachineDollTrans.Run,     days(2)),
-	# 98  : (TextScrape.WarTdf.Run,                          days(2)),
+	90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 
-	# 99  : (TextScrape.Manga0205.Run,                       days(2)),
-	# 100 : (TextScrape.OniiChanYamete.Run,                  days(2)),
-	# 101 : (TextScrape.Sousetsuka.Run,                      days(2)),
-	# 102 : (TextScrape.Defiring.Run,                        days(2)),
+	91  : (TextScrape.UntunedTranslation.Run,              days(2)),
+	92  : (TextScrape.CETranslation.Run,                   days(2)),
+	93  : (TextScrape.HereticTranslation.Run,              days(2)),
 
-	# 103 : (TextScrape.TsuigekiTrans.Run,                   days(2)),
-	# 104 : (TextScrape.Setsuna86Translation.Run,            days(2)),
-	# 105 : (TextScrape.PirateYoshi.Run,                     days(2)),
-	# 106 : (TextScrape.Noitl.Run,                           days(2)),
-	# 107 : (TextScrape.Mahoutsuki.Run,                      days(2)),
-	# 108 : (TextScrape.HaruParty.Run,                       days(2)),
-	# 109 : (TextScrape.LorCromwell.Run,                     days(2)),
-	# 110 : (TextScrape.EcWebNovel.Run,                      days(2)),
-	# 111 : (TextScrape.GravityTrans.Run,                    days(2)),
+	98  : (TextScrape.WarTdf.Run,                          days(2)),
+
+	101 : (TextScrape.Sousetsuka.Run,                      days(2)),
+
+	104 : (TextScrape.Setsuna86Translation.Run,            days(2)),
+	106 : (TextScrape.Noitl.Run,                           days(2)),
+	108 : (TextScrape.HaruParty.Run,                       days(2)),
+	110 : (TextScrape.EcWebNovel.Run,                      days(2)),
 
 
 }

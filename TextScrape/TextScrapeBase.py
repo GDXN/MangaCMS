@@ -146,7 +146,17 @@ def fetchRelinkableDomains():
 	pluginDict = loadPlugins()
 	for plugin in pluginDict:
 		plg = pluginDict[plugin]
-		url = urllib.parse.urlsplit(plg.baseUrl.lower()).netloc
+
+		if isinstance(plg.baseUrl, (set, list)):
+			for url in plg.baseUrl:
+				url = urllib.parse.urlsplit(url.lower()).netloc
+				domains.add(url)
+
+				if url.startswith("www."):
+					domains.add(url[4:])
+
+		else:
+			url = urllib.parse.urlsplit(plg.baseUrl.lower()).netloc
 
 		domains.add(url)
 		if url.startswith("www."):
@@ -161,13 +171,6 @@ def fetchRelinkableDomains():
 
 
 	return domains
-
-
-
-
-
-
-
 
 
 # All tags you need to look into to do link canonization
@@ -191,6 +194,7 @@ urlContainingTargets = [
 class RowExistsException(Exception):
 	pass
 
+# This whole mess is getting too hueg and clumsy. FIXME!
 
 class TextScraper(metaclass=abc.ABCMeta):
 
@@ -264,7 +268,16 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# logging context management will fail.
 		self.loggers = {}
 		self.lastLoggerIndex = 1
-		self.scannedDomains.add(self.baseUrl)
+
+		if isinstance(self.baseUrl, (set, list)):
+			for url in self.baseUrl:
+				self.scannedDomains.add(url)
+				self._fileDomains.add(urllib.parse.urlsplit(url.lower()).netloc)
+		else:
+			self.scannedDomains.add(self.baseUrl)
+			self._fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
+
+
 
 		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
 		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
@@ -294,7 +307,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.log.info("Loading %s Runner BaseClass", self.pluginName)
 
 		self.checkInitPrimaryDb()
-		self._fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
 
 
 		self._relinkDomains = set()
@@ -405,6 +417,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 			url = url[:-len('preview')]
 		if 'docs.google.com' in netloc and url.endswith("/preview/"):
 			url = url[:-len('preview/')]
+		if 'docs.google.com' in netloc and url.endswith("/"):
+			url = url[:-len('/')]
 
 
 		while True:
@@ -413,6 +427,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 			if url2 == url:
 				break
 			url = url2
+
+		# Clean off whitespace.
+		url = url.strip()
 
 		return url
 
@@ -441,15 +458,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def preprocessReaderUrl(self, inUrl):
 		return inUrl
 
-	# Hook so plugins can modify the internal URLs as part of the relinking process
-	def preprocessGdocReaderUrl(self, inUrl):
-		return inUrl
 
 	def convertToReaderUrl(self, inUrl):
 		inUrl = self.urlClean(inUrl)
 		inUrl = self.preprocessReaderUrl(inUrl)
-		url = urllib.parse.urljoin(self.baseUrl, inUrl)
-		url = '/books/render?url=%s' % urllib.parse.quote(url)
+		# The link will have been canonized at this point
+		url = '/books/render?url=%s' % urllib.parse.quote(inUrl)
 		return url
 
 	# check if domain `url` is a sub-domain of the scanned domains.
@@ -495,7 +509,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 				# Skip empty anchor tags
 				try:
-					url = link["href"]
+					url = link[attr]
 				except KeyError:
 					continue
 
@@ -660,24 +674,27 @@ class TextScraper(metaclass=abc.ABCMeta):
 		content = doc.content()
 
 		soup = bs4.BeautifulSoup(content)
-		soup = self.relink(soup)
+		soup = self.relink(soup, url)
 		contents = ''
 
 
-		# Generate HTML string for /just/ the contents of the <body> tag.
-		for item in soup.body.contents:
-			if type(item) is bs4.Tag:
-				contents += item.prettify()
-			elif type(item) is bs4.NavigableString:
-				contents += item
-			else:
-				print("Wat", item)
+
+		# Since the content we're extracting will be embedded into another page, we want to
+		# strip out the <body> and <html> tags. `unwrap()`  replaces the soup with the contents of the
+		# tag it's called on. We end up with just the contents of the <body> tag.
+		soup.body.unwrap()
+		contents = soup.prettify()
 
 
 		title = doc.title()
-		title = title.replace(self.stripTitle, "")
-		title = title.strip()
 
+		if isinstance(self.stripTitle, (list, set)):
+			for stripTitle in self.stripTitle:
+				title = title.replace(stripTitle, "")
+		else:
+			title = title.replace(self.stripTitle, "")
+
+		title = title.strip()
 		return title, contents
 
 
@@ -847,6 +864,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		dummy_fName, content = content
 		print("Page size: ", len(content))
 		soup = bs4.BeautifulSoup(content)
+		self.canonizeUrls(soup, url)
 
 		pgTitle, soup = self.cleanGdocPage(soup)
 
@@ -1021,7 +1039,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.resetStuckItems()
 
 		haveUrls = set()
-		if isinstance(self.startUrl, list):
+		if isinstance(self.startUrl, (list, set)):
 			for url in self.startUrl:
 				self.upsert(url, dlstate=0)
 		else:
@@ -1089,6 +1107,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 												fhash     CITEXT,
 												mimetype  CITEXT,
 												fspath    text DEFAULT '',
+												netloc    CITEXT,
 												UNIQUE(fhash));'''.format(tableName=self.tableName))
 
 
@@ -1149,6 +1168,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				self.table.src,
 				self.table.dlstate,
 				self.table.url,
+				self.table.netloc,
 				self.table.title,
 				self.table.series,
 				self.table.contents,
@@ -1164,6 +1184,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				"src"        : self.table.src,
 				"dlstate"    : self.table.dlstate,
 				"url"        : self.table.url,
+				"netloc"        : self.table.netloc,
 				"title"      : self.table.title,
 				"series"     : self.table.series,
 				"contents"   : self.table.contents,
@@ -1217,6 +1238,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 		cols = [self.table.src]
 		vals = [self.tableKey]
 
+		if 'url' in kwargs:
+
+			cols.append(self.table.netloc)
+			vals.append(urllib.parse.urlparse(kwargs['url']).netloc.lower())
+
 		for key, val in kwargs.items():
 			key = key.lower()
 
@@ -1226,7 +1252,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 			vals.append(val)
 
 		query = self.table.insert(columns=cols, values=[vals], returning=returning)
-
 		query, params = tuple(query)
 
 		return query, params
@@ -1254,6 +1279,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	def generateUpdateQuery(self, **kwargs):
+
+		cols = []
+		vals = []
+		if 'url' in kwargs:
+			cols.append(self.table.netloc)
+			vals.append(urllib.parse.urlparse(kwargs['url']).netloc.lower())
+
 		if "dbid" in kwargs:
 			where = (self.table.dbid == kwargs.pop('dbid'))
 		elif "url" in kwargs:
@@ -1261,8 +1293,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 		else:
 			raise ValueError("GenerateUpdateQuery must be passed a single unique column identifier (either dbId or url)")
 
-		cols = []
-		vals = []
+		# Extract and insert the netloc if needed.
+		if 'url' in kwargs:
+			print("Urlparse!")
+			cols.append(self.table.netloc)
+			vals.append(urllib.parse.urlparse(kwargs['url']).netloc.lower())
+
 
 		for key, val in kwargs.items():
 			key = key.lower()
@@ -1492,9 +1528,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	def upsert(self, pgUrl, commit=True, **kwargs):
-
 		cur = self.conn.cursor()
-
 
 		try:
 			with transaction(cur, commit=commit):
