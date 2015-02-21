@@ -24,7 +24,7 @@ https://drive.google.com/folderview?id=0ByPeaKaqUsGFQVAxUEM2bUI0R0E&usp=sharing
 https://sites.google.com/site/sekaigameoredake/
 
 http://novel.dawnglare.com/
-
+https://hokagetranslations.wordpress.com/2015/01/25/monster-musume-harem-o-tsukurou-chapter-3-girl-skill-magical-power-quantity/comment-page-1/
 hikuo      - http://hikuosan.blogspot.com
 kurotsuki  - http://kurotsuki-novel.blogspot.com
 sword      - http://swordandgame.blogspot.ca

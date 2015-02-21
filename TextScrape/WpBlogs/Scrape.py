@@ -63,6 +63,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'http://www.seizonthetranslation.wordpress.com',
 		'http://www.skyworldthetranslation.wordpress.com',
 		'http://zmunjali.wordpress.com',
+		'https://xantbos.wordpress.com/',
 		'https://9ethtranslations.wordpress.com/',
 		'https://binhjamin.wordpress.com',
 		'https://binhjamin.wordpress.com/',

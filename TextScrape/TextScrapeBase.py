@@ -527,7 +527,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				if hadbad:
 					continue
 
-				url = gdp.GDocExtractor.clearOutboundProxy(url)
+				url = gdp.clearOutboundProxy(url)
 				url = gdp.GDocExtractor.clearBitLy(url)
 
 
@@ -536,7 +536,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 					continue
 
 
-				isGdoc, realUrl = gdp.GDocExtractor.isGdocUrl(url)
+				isGdoc, realUrl = gdp.isGdocUrl(url)
 				if isGdoc:
 					realUrl = self.trimGDocUrl(realUrl)
 					self.log.info("Resolved URL = '%s'", realUrl)
@@ -921,6 +921,41 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.processGdocPage(url, mainPage)
 
+	def retreiveGoogleFile(self, url):
+
+
+		self.log.info("Should fetch google file at '%s'", url)
+		doc = gdp.GFileExtractor(url)
+
+		attempts = 0
+
+		mainPage = None
+		while 1:
+			attempts += 1
+			try:
+				mainPage, resources = doc.extract()
+			except TypeError:
+				self.log.critical('Extracting item failed!')
+				for line in traceback.format_exc().strip().split("\n"):
+					self.log.critical(line.strip())
+
+				if not url.endswith("/pub"):
+					url = url+"/pub"
+
+				self.log.info("Attempting to access as plain content instead.")
+				url = self.urlClean(url)
+				self.newLinkQueue.put(url)
+				return
+			if mainPage:
+				break
+			if attempts > 3:
+				raise DownloadException
+
+
+		self.processGdocResources(resources)
+
+		self.processGdocPage(url, mainPage)
+
 
 
 	def extractGoogleDriveFolder(self, driveUrl):
@@ -936,6 +971,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.log.info("Generating google drive disambiguation page!")
 		disamb = gdp.makeDriveDisambiguation(urls, pgTitle)
+		# print(disamb)
 
 
 		self.updateDbEntry(url=driveUrl, title=pgTitle, contents=disamb, mimetype='text/html', dlstate=2)
@@ -969,13 +1005,19 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		netloc = urllib.parse.urlsplit(url.lower()).netloc
 
-		isGdoc, realUrl = gdp.GDocExtractor.isGdocUrl(url)
+		isGdoc, realUrl = gdp.isGdocUrl(url)
+		isGfile, fileUrl = gdp.isGFileUrl(url)
 		if 'drive.google.com' in netloc:
 			self.log.info("Google Drive content!")
 			self.extractGoogleDriveFolder(url)
 		elif isGdoc:
 			self.log.info("Google Docs content!")
 			self.retreiveGoogleDoc(realUrl)
+
+		elif isGfile:
+			self.log.info("Google File content!")
+			self.retreiveGoogleFile(realUrl)
+
 		else:
 			self.retreivePlainResource(url)
 
@@ -1041,6 +1083,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		haveUrls = set()
 		if isinstance(self.startUrl, (list, set)):
 			for url in self.startUrl:
+				self.log.info("Start URL: '%s'", url)
 				self.upsert(url, dlstate=0)
 		else:
 			self.upsert(self.startUrl, dlstate=0)
@@ -1056,6 +1099,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 			while runStatus.run:
 				try:
 					got = self.newLinkQueue.get_nowait()
+					# print("Got", got)
 					if not got in haveUrls:
 						self.upsert(got, dlstate=0)
 						haveUrls.add(got)
@@ -1537,7 +1581,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		except psycopg2.IntegrityError:
 			if kwargs:
 				with transaction(cur, commit=commit):
-					self.updateDbEntry(url=pgUrl, **kwargs)
+					self.updateDbEntry(url=pgUrl, src=self.tableKey, **kwargs)
 
 
 	def insertDelta(self, **kwargs):

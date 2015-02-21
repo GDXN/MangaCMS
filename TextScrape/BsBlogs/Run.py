@@ -7,14 +7,14 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Htl.Run"
+	loggerPath = "Main.BsBlogs.Run"
 
-	pluginName = "HeriticTranslationScrape"
+	pluginName = "BlogspotBlogScrape"
 
 
 	def _go(self):
 
-		self.log.info("Checking HeriticTranslation for updates")
+		self.log.info("Checking Blogspot Blogs for updates")
 		scraper = Scrape()
 		scraper.crawl()
 
@@ -24,7 +24,6 @@ def test():
 	logSetup.initLogging()
 	scrp = Runner()
 	scrp.go()
-
 
 if __name__ == "__main__":
 	test()

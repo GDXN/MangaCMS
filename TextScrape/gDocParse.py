@@ -11,6 +11,68 @@ import webFunctions
 import mimetypes
 import urllib.parse
 import urllib.error
+import json
+
+import TextScrape.jsLiteralParse
+
+
+
+def isGdocUrl(url):
+	# This is messy, because it has to work through bit.ly redirects.
+	# I'm just resolving them here, rather then keeping them around because it makes things easier.
+	gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
+	simpleCheck = gdocBaseRe.search(url)
+	if simpleCheck and not url.endswith("/pub"):
+		return True, simpleCheck.group(1)
+
+	return False, url
+
+
+def isGFileUrl(url):
+	# This is messy, because it has to work through bit.ly redirects.
+	# I'm just resolving them here, rather then keeping them around because it makes things easier.
+	gFileBaseRe = re.compile(r'(https?://docs.google.com/file/d/[-_0-9a-zA-Z]+)')
+	simpleCheck = gFileBaseRe.search(url)
+	if simpleCheck and not url.endswith("/pub"):
+		return True, simpleCheck.group(1)
+
+	return False, url
+
+
+
+def clearOutboundProxy(url):
+	'''
+	So google proxies all their outbound links through a redirect so they can detect outbound links.
+	This call strips them out if they are present.
+
+	'''
+	if url.startswith("http://www.google.com/url?q="):
+		qs = urllib.parse.urlparse(url).query
+		query = urllib.parse.parse_qs(qs)
+		if not "q" in query:
+			raise ValueError("No target?")
+
+		return query["q"].pop()
+
+	return url
+
+
+
+def clearBitLy(url):
+
+	if "bit.ly" in url:
+		wg = webFunctions.WebGetRobust(logPath="Main.BitLy.Web")
+		try:
+
+			dummy_ctnt, handle = wg.getpage(url, returnMultiple=True)
+			# Recurse into redirects
+			return clearBitLy(handle.geturl())
+
+		except urllib.error.URLError:
+			print("Error resolving redirect!")
+			return None
+
+	return url
 
 
 class GDocExtractor(object):
@@ -20,7 +82,7 @@ class GDocExtractor(object):
 
 	def __init__(self, targetUrl):
 
-		isGdoc, url = self.isGdocUrl(targetUrl)
+		isGdoc, url = isGdocUrl(targetUrl)
 		if not isGdoc:
 			raise ValueError("Passed URL '%s' is not a google document?" % targetUrl)
 
@@ -43,7 +105,7 @@ class GDocExtractor(object):
 		# this really, /REALLY/ should be a actual parser.
 		# Unfortunately, the actual google doc URLs are only available in some JS literals,
 		# so we have to deal with it.
-		driveFolderRe = re.compile(r'(https://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
+		driveFolderRe = re.compile(r'(https://docs.google.com/(?:document|file)/d/[-_0-9a-zA-Z]+)')
 		items = driveFolderRe.findall(ctnt)
 
 		ret = set()
@@ -52,57 +114,12 @@ class GDocExtractor(object):
 		# which tells us if we redirected to a plain google doc, and add it of we did.
 		handleUrl = handle.geturl()
 		if handleUrl != url:
-			if cls.isGdocUrl(handleUrl):
+			if isGdocUrl(handleUrl):
 				cls.log.info("Direct read redirect: '%s'", handleUrl)
 				ret.add(handleUrl)
 		for item in items:
 			ret.add(item)
 		return items, title
-
-	@classmethod
-	def isGdocUrl(cls, url):
-		# This is messy, because it has to work through bit.ly redirects.
-		# I'm just resolving them here, rather then keeping them around because it makes things easier.
-		gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
-		simpleCheck = gdocBaseRe.search(url)
-		if simpleCheck and not url.endswith("/pub"):
-			return True, simpleCheck.group(1)
-
-		return False, url
-
-	@classmethod
-	def clearBitLy(cls, url):
-		if "bit.ly" in url:
-
-			try:
-
-				dummy_ctnt, handle = cls.wg.getpage(url, returnMultiple=True)
-				# Recurse into redirects
-				return cls.clearBitLy(handle.geturl())
-
-			except urllib.error.URLError:
-				print("Error resolving redirect!")
-				return None
-
-		return url
-
-
-	@classmethod
-	def clearOutboundProxy(cls, url):
-		'''
-		So google proxies all their outbound links through a redirect so they can detect outbound links.
-		This call strips them out if they are present.
-
-		'''
-		if url.startswith("http://www.google.com/url?q="):
-			qs = urllib.parse.urlparse(url).query
-			query = urllib.parse.parse_qs(qs)
-			if not "q" in query:
-				raise ValueError("No target?")
-
-			return query["q"].pop()
-
-		return url
 
 
 	def extract(self):
@@ -149,6 +166,94 @@ class GDocExtractor(object):
 		return baseFile, resources
 
 
+
+
+
+class GFileExtractor(object):
+
+	log = logging.getLogger("Main.GFile")
+	wg = webFunctions.WebGetRobust(logPath="Main.GFile.Web")
+
+	def __init__(self, targetUrl):
+
+		isGdoc, url = isGFileUrl(targetUrl)
+		if not isGdoc:
+			raise ValueError("Passed URL '%s' is not a google document?" % targetUrl)
+
+		self.url = url
+		self.refererUrl = url
+
+		self.document = ''
+
+		self.currentChunk = ''
+
+	def extract(self):
+
+		try:
+			content = self.wg.getpage(self.url, addlHeaders={'Referer': self.refererUrl})
+		except IndexError:
+			print("ERROR: Failure retreiving page!")
+			return None, []
+
+
+
+
+		initRe = re.compile('_initProjector\((.*?)\)', re.DOTALL)
+
+		pageConf = initRe.findall(content)
+		if not pageConf:
+			self.log.error('Could not find download JSON on google file page "%s"', self.url)
+		conf = pageConf.pop()
+
+		conf = TextScrape.jsLiteralParse.jsParse('[{cont}]'.format(cont=conf.strip()))
+
+		# assert len(conf)
+		metadata = conf[-1]
+		assert len(metadata) == 32
+		title = metadata[1]
+		dlUrl = metadata[18]
+
+		print(title)
+		print(dlUrl)
+		fileUrl = dlUrl.encode("ascii").decode('unicode-escape')
+
+
+
+		# baseName = fName.split(".")[0]
+
+		# if not isinstance(arch, bytes):
+		# 	if 'You need permission' in arch or 'Sign in to continue to Docs':
+		# 		self.log.critical("Retreiving zip archive failed?")
+		# 		self.log.critical("Retreived content type: '%s'", type(arch))
+		# 		raise TypeError("Cannot access document? Is it protected?")
+		# 	else:
+		# 		with open("tmp_page.html", "w") as fp:
+		# 			fp.write(arch)
+		# 		raise ValueError("Doc not valid?")
+
+		# zp = io.BytesIO(arch)
+		# zfp = zipfile.ZipFile(zp)
+
+		# resources = []
+		# baseFile = None
+
+		# for item in zfp.infolist():
+		# 	if not "/" in item.filename and not baseFile:
+		# 		contents = zfp.open(item).read()
+		# 		contents = bs4.UnicodeDammit(contents).unicode_markup
+
+		# 		baseFile = (item.filename, contents)
+
+		# 	elif baseName in item.filename and baseName:
+		# 		raise ValueError("Multiple base file items?")
+
+		# 	else:
+		# 		resources.append((item.filename, mimetypes.guess_type(item.filename)[0], zfp.open(item).read()))
+
+		# if not baseFile:
+		# 	raise ValueError("No base file found!")
+
+		# return baseFile, resources
 
 
 def makeDriveDisambiguation(urls, pageHeader):
@@ -202,7 +307,13 @@ def test():
 	# base, resc = parse.extract()
 	# # parse.getTitle()
 
-	print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
+	# print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
+
+
+	extr = GFileExtractor('https://docs.google.com/file/d/0B8UYgI2TD_nmNUMzNWJpZnJkRkU')
+	extr = GFileExtractor('https://docs.google.com/file/d/0B8UYgI2TD_nmNUMzNWJpZnJkRkU/edit')
+	print(extr)
+	print(extr.extract())
 
 	# with open("test.html", "wb") as fp:
 	# 	fp.write(ret.encode("utf-8"))

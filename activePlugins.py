@@ -43,23 +43,15 @@ import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import TextScrape.WpBlogs.Run
 
 import TextScrape.BakaTsuki.Run
-import TextScrape.CETranslation.Run
-import TextScrape.EcWebNovel.Run
 import TextScrape.Guhehe.Run
 import TextScrape.HaruParty.Run
-import TextScrape.HereticTranslation.Run
-import TextScrape.Imoutolicious.Run
 import TextScrape.JapTem.Run
 import TextScrape.Krytyk.Run
-import TextScrape.Noitl.Run
 import TextScrape.PrinceRevolution.Run
 import TextScrape.ReTranslations.Run
 import TextScrape.Setsuna86Translation.Run
-import TextScrape.SkyTheWood.Run
-import TextScrape.Sousetsuka.Run
 import TextScrape.TlWiki.Run
 import TextScrape.UnlimitedNovelFailures.Run
-import TextScrape.UntunedTranslation.Run
 import TextScrape.WarTdf.Run
 
 
@@ -131,26 +123,11 @@ scrapePlugins = {
 	# 83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
 	84  : (TextScrape.PrinceRevolution.Run,                days(5)),
 	85  : (TextScrape.Krytyk.Run,                          days(5)),
-
 	86  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
-	88  : (TextScrape.SkyTheWood.Run,                      days(2)),
-	89  : (TextScrape.Imoutolicious.Run,                   days(2)),
-
 	90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
-
-	91  : (TextScrape.UntunedTranslation.Run,              days(2)),
-	92  : (TextScrape.CETranslation.Run,                   days(2)),
-	93  : (TextScrape.HereticTranslation.Run,              days(2)),
-
 	98  : (TextScrape.WarTdf.Run,                          days(2)),
-
-	101 : (TextScrape.Sousetsuka.Run,                      days(2)),
-
 	104 : (TextScrape.Setsuna86Translation.Run,            days(2)),
-	106 : (TextScrape.Noitl.Run,                           days(2)),
 	108 : (TextScrape.HaruParty.Run,                       days(2)),
-	110 : (TextScrape.EcWebNovel.Run,                      days(2)),
-
 
 }
 
