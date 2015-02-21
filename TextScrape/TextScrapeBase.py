@@ -528,7 +528,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 					continue
 
 				url = gdp.clearOutboundProxy(url)
-				url = gdp.GDocExtractor.clearBitLy(url)
+				url = gdp.clearBitLy(url)
 
 
 
@@ -748,6 +748,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self.upsert(url, dlstate=-1, contents='Error downloading!')
 			return
 
+		self.dispatchContent(url, content, fName, mimeType)
+
+	def dispatchContent(self, url, content, fName, mimeType):
+		self.log.info("Dispatching file '%s' with mime-type '%s'", fName, mimeType)
 		if mimeType == 'text/html':
 			self.processHtmlPage(url, content, mimeType)
 
@@ -929,11 +933,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		attempts = 0
 
-		mainPage = None
 		while 1:
 			attempts += 1
 			try:
-				mainPage, resources = doc.extract()
+				content, fName, mType = doc.extract()
 			except TypeError:
 				self.log.critical('Extracting item failed!')
 				for line in traceback.format_exc().strip().split("\n"):
@@ -946,16 +949,15 @@ class TextScraper(metaclass=abc.ABCMeta):
 				url = self.urlClean(url)
 				self.newLinkQueue.put(url)
 				return
-			if mainPage:
+			if content:
 				break
 			if attempts > 3:
 				raise DownloadException
 
 
-		self.processGdocResources(resources)
+			self.log.error("No content? Retrying!")
 
-		self.processGdocPage(url, mainPage)
-
+		self.dispatchContent(url, content, fName, mType)
 
 
 	def extractGoogleDriveFolder(self, driveUrl):

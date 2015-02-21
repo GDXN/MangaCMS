@@ -16,29 +16,29 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 1
+	threads = 6
 
 	baseUrl = [
-		# "http://untuned-strings.blogspot.com/",
-		# "https://sousetsuka.blogspot.com/",
-		# "http://skythewood.blogspot.sg/",
-		# "http://panofitrans.blogspot.com/",
-		# "http://noitl.blogspot.com/",
-		# "http://imoutoliciouslnt.blogspot.ca/",
-		# "http://hereticlnt.blogspot.com/",
-		# "http://ecwebnovel.blogspot.ca/",
+		"http://untuned-strings.blogspot.com/",
+		"https://sousetsuka.blogspot.com/",
+		"http://skythewood.blogspot.sg/",
+		"http://panofitrans.blogspot.com/",
+		"http://noitl.blogspot.com/",
+		"http://imoutoliciouslnt.blogspot.ca/",
+		"http://hereticlnt.blogspot.com/",
+		"http://ecwebnovel.blogspot.ca/",
 		"http://cetranslation.blogspot.com/",
-		# "http://cetranslation.blogspot.sg/",
+		"http://cetranslation.blogspot.sg/",
 
 	]
 
 	startUrl = [
 		'https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web',
-		]
-		# 'http://imoutoliciouslnt.blogspot.ca/p/projects.html',
-		# 'http://cetranslation.blogspot.com/p/projects.html',
 
-		# ] + baseUrl
+		'http://imoutoliciouslnt.blogspot.ca/p/projects.html',
+		'http://cetranslation.blogspot.com/p/projects.html',
+
+		] + baseUrl
 
 
 	tld = set(['com', 'ca', 'fr', 'sg'])

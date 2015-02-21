@@ -3,6 +3,8 @@ https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 https images still fucked
 
+http://krytykal.org/alice-tale/arc-1/part-1/chapter-1/
+http://10.1.1.8:8081/books/render?url=http%3A//krytykal.org/alice-tale/arc-1/part-1/chapter-1/
 
 ~~dangling /preview in gdocs~~
 http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1mR5PaJOxzbB-vTX1GzP7BzXnQ5ih75s_SfJEqAmw5S0/edit

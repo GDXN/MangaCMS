@@ -187,13 +187,44 @@ class GFileExtractor(object):
 
 		self.currentChunk = ''
 
+
+
+	def getItem(self, itemUrl, addlHeaders=None):
+
+		content, handle = self.wg.getpage(itemUrl, returnMultiple=True, addlHeaders={'Referer': self.refererUrl})
+		if not content or not handle:
+			raise ValueError("Failed to retreive file from page '%s'!" % itemUrl)
+
+
+
+		info = handle.info()
+		if not 'Content-Disposition' in info:
+			info['Content-Disposition'] = ''
+
+		fileN = TextScrape.jsLiteralParse.parseContentDispositon(info['Content-Disposition'], itemUrl)
+		fileN = bs4.UnicodeDammit(fileN).unicode_markup
+
+		mType = handle.info()['Content-Type']
+
+		# If there is an encoding in the content-type (or any other info), strip it out.
+		# We don't care about the encoding, since WebFunctions will already have handled that,
+		# and returned a decoded unicode object.
+
+		if mType and ";" in mType:
+			mType = mType.split(";")[0].strip()
+
+
+		self.log.info("Retreived file of type '%s', name of '%s' with a size of %0.3f K", mType, fileN, len(content)/1000.0)
+		return content, fileN, mType
+
+
 	def extract(self):
 
 		try:
-			content = self.wg.getpage(self.url, addlHeaders={'Referer': self.refererUrl})
+			content = self.wg.getpage(self.url)
 		except IndexError:
 			print("ERROR: Failure retreiving page!")
-			return None, []
+			return None, None, None
 
 
 
@@ -207,53 +238,28 @@ class GFileExtractor(object):
 
 		conf = TextScrape.jsLiteralParse.jsParse('[{cont}]'.format(cont=conf.strip()))
 
-		# assert len(conf)
+		# Verify the jsLiteral data structure is what we expect.
 		metadata = conf[-1]
 		assert len(metadata) == 32
 		title = metadata[1]
 		dlUrl = metadata[18]
 
-		print(title)
-		print(dlUrl)
 		fileUrl = dlUrl.encode("ascii").decode('unicode-escape')
 
 
+		try:
+			file, fName, mType = self.getItem(fileUrl, addlHeaders={'Referer': self.refererUrl})
+		except IndexError:
+			self.log.error("ERROR: Failure retreiving page!")
+			return None, None, None
 
-		# baseName = fName.split(".")[0]
+		if title not in fName:
+			fName = title + " " + fName
 
-		# if not isinstance(arch, bytes):
-		# 	if 'You need permission' in arch or 'Sign in to continue to Docs':
-		# 		self.log.critical("Retreiving zip archive failed?")
-		# 		self.log.critical("Retreived content type: '%s'", type(arch))
-		# 		raise TypeError("Cannot access document? Is it protected?")
-		# 	else:
-		# 		with open("tmp_page.html", "w") as fp:
-		# 			fp.write(arch)
-		# 		raise ValueError("Doc not valid?")
 
-		# zp = io.BytesIO(arch)
-		# zfp = zipfile.ZipFile(zp)
 
-		# resources = []
-		# baseFile = None
-
-		# for item in zfp.infolist():
-		# 	if not "/" in item.filename and not baseFile:
-		# 		contents = zfp.open(item).read()
-		# 		contents = bs4.UnicodeDammit(contents).unicode_markup
-
-		# 		baseFile = (item.filename, contents)
-
-		# 	elif baseName in item.filename and baseName:
-		# 		raise ValueError("Multiple base file items?")
-
-		# 	else:
-		# 		resources.append((item.filename, mimetypes.guess_type(item.filename)[0], zfp.open(item).read()))
-
-		# if not baseFile:
-		# 	raise ValueError("No base file found!")
-
-		# return baseFile, resources
+		# print(fName, type(file), mType)
+		return file, fName, mType
 
 
 def makeDriveDisambiguation(urls, pageHeader):
@@ -302,6 +308,27 @@ def test():
 		'https://docs.google.com/document/d/1m9yGcNhNfQRCfdcmwb4mAy2sVG3BXHjM6cBFKjzmvFw',
 	]
 
+	fUrls = [
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmWG04bG5teFdNZlk',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmTlQ3UXY1WGlOZVk',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmMU1ab3g3MFhIdkk',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmaDQxY1l4VFVQTXc',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmQjB4UE5ZMkdVeDg',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmU0tPeXlRYm00MHM',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmeVBGcjRQUVpDSjA',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmSmtWVVpkZG14RVk',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmanB5ZEZHRHNSNDg',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmNlp0a0RZSmZ3UFk',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmOTRCU3FWSzdYV3M',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmRjhrUDNPZXlCQWs',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmNUMzNWJpZnJkRkU',
+		'https://docs.google.com/file/d/0B1aV_gkFqPDdbnh6Q244b1lDN0k/',
+		'https://docs.google.com/file/d/0B8UYgI2TD_nmNUMzNWJpZnJkRkU/edit',
+		'https://docs.google.com/file/d/0B1aV_gkFqPDdMUUtM3ViaVdzM0E/',
+		'https://docs.google.com/file/d/0B1aV_gkFqPDdM181YkRFWlBzUlE/',
+		'https://docs.google.com/file/d/0B1aV_gkFqPDdY1RTNWcxcjlURDQ/edit',
+	]
+
 	# print(makeDriveDisambiguation(urls))
 	# parse = GDocExtractor(url)
 	# base, resc = parse.extract()
@@ -310,10 +337,10 @@ def test():
 	# print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
 
 
-	extr = GFileExtractor('https://docs.google.com/file/d/0B8UYgI2TD_nmNUMzNWJpZnJkRkU')
-	extr = GFileExtractor('https://docs.google.com/file/d/0B8UYgI2TD_nmNUMzNWJpZnJkRkU/edit')
-	print(extr)
-	print(extr.extract())
+	for fUrl in fUrls:
+		extr = GFileExtractor(fUrl)
+		print(extr)
+		print(extr.extract())
 
 	# with open("test.html", "wb") as fp:
 	# 	fp.write(ret.encode("utf-8"))
@@ -325,3 +352,21 @@ if __name__ == "__main__":
 		logSetup.initLogging()
 
 	test()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
