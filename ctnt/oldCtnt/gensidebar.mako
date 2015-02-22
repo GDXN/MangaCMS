@@ -62,6 +62,7 @@ DNLDED = 2
 				<hr>
 				<li><a href="/books/">Books!</a>
 				<li><a href="/books/changeView">New Books</a>
+				<li><a href="/books/search">Book Search</a>
 				<hr>
 				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>
 				<li><a href="/tags/tags">M Tags</a>
