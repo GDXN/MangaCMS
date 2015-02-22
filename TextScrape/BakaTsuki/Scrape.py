@@ -49,6 +49,27 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				"Category:Vietnamese",
 				"Special:RecentChangesLinked",
 				"Format_guideline",
+				"(Bahasa_Indonesia)",
+
+				"(Indonesia)",
+				"(German)",
+				"(French)",
+				"(Russian)",
+				"(Italian)",
+				"(Romanian)",
+				"(Norwegian)",
+				"(Lithuanian)",
+				"(Greek)",
+				"(Filipino)",
+				"(Esperanto)",
+				"(Spanish)",
+				"(Vietnamese)",
+				"(Brazilian_Portuguese)",
+				"(Polish)",
+				"(Hungarian)",
+				"(Korean)",
+				"(Turkish)",
+				"(Czech)",
 
 				# Block user pages
 				"title=User:",
@@ -113,7 +134,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 def test():
-	scrp = TsukiScrape()
+	scrp = Scrape()
 	scrp.crawl()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')

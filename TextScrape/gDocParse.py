@@ -275,7 +275,7 @@ def makeDriveDisambiguation(urls, pageHeader):
 		soup.append(tag)
 		tag = soup.new_tag('br')
 		soup.append(tag)
-	return soup.prettify()
+	return soup
 
 
 def test():

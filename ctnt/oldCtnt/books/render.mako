@@ -9,6 +9,8 @@ import urllib.parse
 import time
 import uuid
 import settings
+
+srcLut = dict(settings.bookSources)
 from natsort import natsorted
 def compact_trie(inKey, inDict):
 
@@ -145,7 +147,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 
 
-<%def name="renderPage(title, contents, itemUrl)">
+<%def name="renderPage(title, contents, itemUrl, src)">
 	<!DOCTYPE html>
 	<html>
 		<head>
@@ -163,6 +165,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 					<hr>
 
 					<div>
+						Src: ${srcLut[src]} <br>
 						<a href='${itemUrl}'>Original source: ${itemUrl}</a>
 					</div>
 				</div>
@@ -175,14 +178,14 @@ def build_trie(iterItem, getKey=lambda x: x):
 <%def name="renderId(itemUrl)">
 	<%
 	cur = sqlCon.cursor()
-	cur.execute("SELECT title, series, mimetype, fsPath, contents FROM book_items WHERE url=%s;", (itemUrl, ))
+	cur.execute("SELECT src, title, series, mimetype, fsPath, contents FROM book_items WHERE url=%s;", (itemUrl, ))
 	page = cur.fetchall()
 	if len(page) != 1:
 		print("Bad URL", itemUrl)
 		badId()
 	else:
-		title, series, mimetype, fsPath, contents = page.pop()
-		renderPage(title, contents, itemUrl)
+		src, title, series, mimetype, fsPath, contents = page.pop()
+		renderPage(title, contents, itemUrl, src)
 	%>
 
 </%def>

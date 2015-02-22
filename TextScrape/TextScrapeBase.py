@@ -985,9 +985,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self.newLinkQueue.put(url)
 
 		self.log.info("Generating google drive disambiguation page!")
-		disamb = gdp.makeDriveDisambiguation(urls, pgTitle)
+		soup = gdp.makeDriveDisambiguation(urls, pgTitle)
 		# print(disamb)
 
+		soup = self.relink(soup, url)
+
+		disamb = soup.prettify()
 
 		self.updateDbEntry(url=driveUrl, title=pgTitle, contents=disamb, mimetype='text/html', dlstate=2)
 
