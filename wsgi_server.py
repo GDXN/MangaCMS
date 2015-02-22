@@ -378,41 +378,70 @@ class PageResource(object):
 		fix_matchdict(request)
 		self.log.info("Request for book content. Matchdict = '%s'", request.params)
 
-		if "url" in request.params:
+		if "url" in request.params or 'mdsum' in request.params:
 
-			itemUrl = urllib.parse.unquote(request.params["url"])
-			print("ItemURL: ", itemUrl)
-			# self.conn
-			cur = self.conn.cursor()
-			cur.execute('BEGIN')
-			cur.execute("SELECT mimetype, fsPath FROM book_items WHERE url=%s;", (itemUrl, ))
+			if 'url' in request.params:
+				itemUrl = urllib.parse.unquote(request.params["url"])
+				print("ItemURL: ", itemUrl)
+				# self.conn
+				cur = self.conn.cursor()
+				cur.execute('BEGIN')
+				cur.execute("SELECT mimetype, fsPath FROM book_items WHERE url=%s;", (itemUrl, ))
 
-			ret = cur.fetchall()
+				ret = cur.fetchall()
 
-			if not ret:
-				self.log.warn("Request for book content '%s' failed because it's not in the database.", itemUrl)
-				responseBody = '''
-				<html>
-					<head>
-						<title>Item not found!</title>
-					</head>
-					<body>
-						<div>
-							<h3>Item not found in Book item database!</h3>
-						</div>
-						<div>
-							<a href='{url}'>Try to retreive from original source</a>
-						</div>
-					</body>
-				</html>
+				if not ret:
+					self.log.warn("Request for book content '%s' failed because it's not in the database.", itemUrl)
+					responseBody = '''
+					<html>
+						<head>
+							<title>Item not found!</title>
+						</head>
+						<body>
+							<div>
+								<h3>Item not found in Book item database!</h3>
+							</div>
+							<div>
+								<a href='{url}'>Try to retreive from original source</a>
+							</div>
+						</body>
+					</html>
 
-				'''.format(url=itemUrl)
-				return Response(status_int=404, body=responseBody)
+					'''.format(url=itemUrl)
+					return Response(status_int=404, body=responseBody)
+
+			elif 'mdsum' in request.params:
+				itemHash = urllib.parse.unquote(request.params["mdsum"])
+				print("ItemHash: ", itemHash)
+				# self.conn
+				cur = self.conn.cursor()
+				cur.execute('BEGIN')
+				cur.execute("SELECT mimetype, fsPath FROM book_items WHERE fhash=%s;", (itemHash, ))
+
+				ret = cur.fetchall()
+				print(ret)
+				if not ret:
+					self.log.warn("Request for book content '%s' failed because it's not in the database.", itemHash)
+					responseBody = '''
+					<html>
+						<head>
+							<title>Item not found!</title>
+						</head>
+						<body>
+							<div>
+								<h3>Item with hash {itemhash} not found in Book item database!</h3>
+							</div>
+						</body>
+					</html>
+
+					'''.format(itemhash=itemHash)
+					return Response(status_int=404, body=responseBody)
+
 
 			mimetype, fsPath = ret.pop()
 
-			if mimetype != 'text/html':
-				self.log.warn("Request for book content '%s' failed because the file is missing.", itemUrl)
+			if not 'text' in mimetype:
+				self.log.warn("Request for book content '%s' failed because the file is missing.", request.params)
 				if not os.path.exists(fsPath):
 					return Response(status_int=404, body='File for book item is missing!')
 				return FileResponse(path=fsPath, content_type=mimetype)

@@ -535,8 +535,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 				if not self.checkFollowGoogleUrl(url):
 					continue
 
-
 				isGdoc, realUrl = gdp.isGdocUrl(url)
+
+				if realUrl == 'https://docs.google.com/document/d/images':
+					continue
+
 				if isGdoc:
 					realUrl = self.trimGDocUrl(realUrl)
 					self.log.info("Resolved URL = '%s'", realUrl)
@@ -813,7 +816,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 			hashName = self.tableKey+fHash
 
-			self.fMap[fName] = hashName
+			self.fMap[fName] = fHash
 
 			fName = os.path.split(fName)[-1]
 
@@ -853,13 +856,23 @@ class TextScraper(metaclass=abc.ABCMeta):
 		return inUrl
 
 
-	def convertToGdocReaderImage(self, url):
-		if url in self.fMap:
-			url = self.fMap[url]
-		else:
-			raise ValueError("Unknown image URL! = '%s'" % url)
+	def convertToGdocReaderImage(self, srcUrl):
 
-		url = '/books/render?url=%s' % urllib.parse.quote(url)
+		itemHash = None
+		for rscEnd in self.fMap:
+			if srcUrl.endswith(rscEnd):
+				itemHash = self.fMap[rscEnd]
+
+		# if srcUrl in self.fMap:
+		# 	url = self.fMap[srcUrl]
+		# elif any([fUrl in url for fUrl in self.fMap]):
+		# 	print('wat')
+		# 	raise ValueError("Unknown image URL! = '%s'" % url)
+		if not itemHash:
+			raise ValueError("Unknown image URL! = '%s' (hash '%s')" % (srcUrl, itemHash))
+
+		url = '/books/render?mdsum=%s' % urllib.parse.quote(itemHash)
+
 		return url
 
 

@@ -47,6 +47,8 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				"Category:Spanish",
 				"Category:Turkish",
 				"Category:Vietnamese",
+				"Special:RecentChangesLinked",
+				"Format_guideline",
 
 				# Block user pages
 				"title=User:",
