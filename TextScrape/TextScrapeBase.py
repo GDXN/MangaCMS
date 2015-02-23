@@ -327,6 +327,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self._fileDomains.add(item)
 
 
+		for url in self._scannedDomains:
+			self.log.info("Scanned domain:		%s", url)
+
 
 	# More hackiness to make sessions intrinsically thread-safe.
 	def __getattribute__(self, name):
@@ -541,15 +544,17 @@ class TextScraper(metaclass=abc.ABCMeta):
 					continue
 
 				if isGdoc:
-					realUrl = self.trimGDocUrl(realUrl)
-					self.log.info("Resolved URL = '%s'", realUrl)
+					realUrl = gdp.trimGDocUrl(realUrl)
+					# self.log.info("Resolved URL = '%s'", realUrl)
 					self.newLinkQueue.put(realUrl)
+					# self.log.info("New G link: '%s'", realUrl)
 
 				else:
 
 					# Remove any URL fragments causing multiple retreival of the same resource.
 					url = self.urlClean(url)
 					self.newLinkQueue.put(url)
+					# self.log.info("Newlink: '%s'", url)
 
 
 	def extractImages(self, soup):
@@ -789,20 +794,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 	#
 	########################################################################################################################
 
-	def trimGDocUrl(self, url):
-
-		url = url.split("#")[0]
-
-		# If the url has 'preview/' on the end, chop that off
-		if url.endswith("preview/"):
-			url = url[:-8]
-		if url.endswith("/preview"):
-			url = url[:-7]
-		# if url.endswith("/pub"):
-		# 	url = url[:-3]
-
-
-		return url
 
 	def processGdocResources(self, resources):
 
@@ -890,7 +881,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		soup = self.relink(soup, imRelink=self.convertToGdocReaderImage)
 
 		url = self.preprocessGdocReaderUrl(url)
-
+		url = gdp.trimGDocUrl(url)
 		# Since the content we're extracting will be embedded into another page, we want to
 		# strip out the <body> and <html> tags. `unwrap()`  replaces the soup with the contents of the
 		# tag it's called on. We end up with just the contents of the <body> tag.
@@ -980,12 +971,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		'''
 
-		urls, pgTitle = gdp.GDocExtractor.getDriveFileUrls(driveUrl)
-		for url in urls:
+		docReferences, pgTitle = gdp.GDocExtractor.getDriveFileUrls(driveUrl)
+		# print('docReferences', docReferences)
+		for dummy_title, url in docReferences:
+
 			self.newLinkQueue.put(url)
 
 		self.log.info("Generating google drive disambiguation page!")
-		soup = gdp.makeDriveDisambiguation(urls, pgTitle)
+		soup = gdp.makeDriveDisambiguation(docReferences, pgTitle)
 		# print(disamb)
 
 		soup = self.relink(soup, url)
@@ -995,7 +988,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.updateDbEntry(url=driveUrl, title=pgTitle, contents=disamb, mimetype='text/html', dlstate=2)
 
 
-		self.log.info("Found %s items in google drive directory", len(urls))
+		self.log.info("Found %s items in google drive directory", len(docReferences))
 
 
 
@@ -1020,6 +1013,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# Snip off leading slashes that have shown up a few times.
 		if url.startswith("//"):
 			url = 'http://'+url[2:]
+
+		# print('Dispatch URL', url)
 
 		netloc = urllib.parse.urlsplit(url.lower()).netloc
 
@@ -1119,7 +1114,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 					got = self.newLinkQueue.get_nowait()
 
 					if not got in haveUrls:
-						self.log.info("Newlink: '%s'", got)
+						self.log.info("New URL: '%s'", got)
+
 						self.upsert(got, dlstate=0)
 						haveUrls.add(got)
 
@@ -1551,7 +1547,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				cur.execute('''SELECT dbid, url FROM {tableName} WHERE dlstate=%s AND src=%s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey))
 				row = cur.fetchone()
 
-
+				# print(row)
 
 
 				if not row:

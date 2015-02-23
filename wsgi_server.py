@@ -440,10 +440,15 @@ class PageResource(object):
 
 			mimetype, fsPath = ret.pop()
 
-			if not 'text' in mimetype:
-				self.log.warn("Request for book content '%s' failed because the file is missing.", request.params)
+			if not mimetype:
+				self.log.warn("Request for book content '%s' failed because the file has not been retreived yet.", request.params)
+				return Response(status_int=404, body='File has not yet been retreived!')
+
+			elif not 'text' in mimetype:
 				if not os.path.exists(fsPath):
-					return Response(status_int=404, body='File for book item is missing!')
+					self.log.warn("Request for book resource content '%s', which is missing.", request.params)
+					return Response(status_int=404, body='File is missing! Has it not been fetched yet?')
+				self.log.info("Request for book resource content '%s'", request.params)
 				return FileResponse(path=fsPath, content_type=mimetype)
 
 

@@ -20,8 +20,8 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	baseUrl = "http://lasolistia.com/haruparty/"
 	# startUrl = 'https://docs.google.com/document/d/1ZdweQdjIBqNsJW6opMhkkRcSlrbgUN5WHCcYrMY7oqI'
 	# startUrl = 'https://docs.google.com/document/d/1xInAD8v06AIX_urMZRRXHBocDsqBEePMoU1EOTfGRZQ/pub'
-	# startUrl = 'https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'
-	startUrl = baseUrl
+	startUrl = 'https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'
+	# startUrl = baseUrl
 
 
 	# Any url containing any of the words in the `badwords` list will be ignored.

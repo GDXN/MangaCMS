@@ -16,6 +16,28 @@ import json
 import TextScrape.jsLiteralParse
 
 
+def trimGDocUrl(url):
+
+	url = url.split("#")[0]
+
+	# If the url has 'preview/' on the end, chop that off
+	strip = [
+		'/preview?pli=1',
+		"/preview/",
+		"/preview",
+		"/edit?usp=drive_web",
+		"/edit?usp=sharing"
+		]
+
+	for ending in strip:
+		if url.endswith(ending):
+			url = url[:-len(ending)]
+
+	# if url.endswith("/pub"):
+	# 	url = url[:-3]
+
+
+	return url
 
 def isGdocUrl(url):
 	# This is messy, because it has to work through bit.ly redirects.
@@ -23,7 +45,8 @@ def isGdocUrl(url):
 	gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)')
 	simpleCheck = gdocBaseRe.search(url)
 	if simpleCheck and not url.endswith("/pub"):
-		return True, simpleCheck.group(1)
+		# return True, simpleCheck.group(1)
+		return True, trimGDocUrl(url)
 
 	return False, url
 
@@ -101,24 +124,50 @@ class GDocExtractor(object):
 		soup = bs4.BeautifulSoup(ctnt)
 		title = soup.title.string
 
-		# horrible keyhole optimization regex abomination
-		# this really, /REALLY/ should be a actual parser.
-		# Unfortunately, the actual google doc URLs are only available in some JS literals,
-		# so we have to deal with it.
-		driveFolderRe = re.compile(r'(https://docs.google.com/(?:document|file)/d/[-_0-9a-zA-Z]+)')
-		items = driveFolderRe.findall(ctnt)
-
-		ret = set()
-
 		# Google drive supports a `read?{google doc path} mode. As such, we look at the actual URL,
-		# which tells us if we redirected to a plain google doc, and add it of we did.
+		# which tells us if we redirected to a plain google doc, and just return that if the redirect occured.
 		handleUrl = handle.geturl()
 		if handleUrl != url:
 			if isGdocUrl(handleUrl):
 				cls.log.info("Direct read redirect: '%s'", handleUrl)
-				ret.add(handleUrl)
-		for item in items:
-			ret.add(item)
+				return [(title, handleUrl)], title
+
+		jsRe = re.compile('var data = (.*?); _initFolderLandingPageApplication\(config, data\)', re.DOTALL)
+
+		items = jsRe.findall(ctnt)
+		assert len(items) == 1
+
+		data = '{cont}'.format(cont=items.pop().strip())
+		conf = TextScrape.jsLiteralParse.jsParse(data)
+
+		# The keys+data in the data/conf are:
+		# 'folderName'  - Title of the folder, just a string
+		# 'viewerItems' - List of lists of the items in the folder, which contains the title, previewimage, and url for each item.
+		# 				Other stuff (mime types) for the files, but they're all google internal mime-types and look to be the same for
+		# 				Every file, even if they're different docs types.
+		# 'folderModel' - List of UID and the view URL. Looks to be completely redundant, as all the information is also in 'viewerItems'
+
+		assert 'viewerItems' in conf
+		assert 'folderName' in conf
+
+		title = conf['folderName']
+
+		pages = conf['viewerItems']
+
+		items = []
+		for page in pages:
+			assert len(page) == 18
+
+			# Item 2 is the title, item 17 is the doc URL
+			# The doc URL is unicode escaped, annoyingly
+			itemTitle = page[2]
+			itemUrl   = page[17].encode('ascii').decode('unicode_escape')
+
+			itemUrl = trimGDocUrl(itemUrl)
+
+			items.append((itemTitle, itemUrl))
+
+
 		return items, title
 
 
@@ -269,9 +318,9 @@ def makeDriveDisambiguation(urls, pageHeader):
 	tag = soup.new_tag('h3')
 	tag.string = 'Google Drive directory: %s' % pageHeader
 	soup.append(tag)
-	for url in urls:
+	for title, url in urls:
 		tag = soup.new_tag('a', href=url)
-		tag.string = url
+		tag.string = title
 		soup.append(tag)
 		tag = soup.new_tag('br')
 		soup.append(tag)
@@ -334,13 +383,13 @@ def test():
 	# base, resc = parse.extract()
 	# # parse.getTitle()
 
-	# print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
+	print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
 
 
-	for fUrl in fUrls:
-		extr = GFileExtractor(fUrl)
-		print(extr)
-		print(extr.extract())
+	# for fUrl in fUrls:
+	# 	extr = GFileExtractor(fUrl)
+	# 	print(extr)
+	# 	print(extr.extract())
 
 	# with open("test.html", "wb") as fp:
 	# 	fp.write(ret.encode("utf-8"))
