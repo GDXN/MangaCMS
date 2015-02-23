@@ -88,6 +88,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://wartdf.wordpress.com/',
 		'https://yoraikun.wordpress.com/',
 		'https://zmunjali.wordpress.com/',
+		'https://setsuna86blog.wordpress.com/'
 	]
 
 	startUrl = baseUrl
@@ -229,6 +230,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'(NanoDesu)',
 		'A Translation of the',
 		'Roxism HQ |',
+		'| SETSUNA86BLOG'
 	]
 
 

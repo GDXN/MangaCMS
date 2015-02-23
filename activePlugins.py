@@ -49,7 +49,6 @@ import TextScrape.JapTem.Run
 import TextScrape.Krytyk.Run
 import TextScrape.PrinceRevolution.Run
 import TextScrape.ReTranslations.Run
-import TextScrape.Setsuna86Translation.Run
 import TextScrape.TlWiki.Run
 import TextScrape.UnlimitedNovelFailures.Run
 import TextScrape.WarTdf.Run
@@ -120,13 +119,11 @@ scrapePlugins = {
 
 	83  : (TextScrape.WpBlogs.Run,                         days(1)),
 
-	# 83  : (TextScrape.SolitaryTranslation.Run,             days(5)),
 	84  : (TextScrape.PrinceRevolution.Run,                days(5)),
 	85  : (TextScrape.Krytyk.Run,                          days(5)),
 	86  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
 	90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 	98  : (TextScrape.WarTdf.Run,                          days(2)),
-	104 : (TextScrape.Setsuna86Translation.Run,            days(2)),
 	108 : (TextScrape.HaruParty.Run,                       days(2)),
 
 }

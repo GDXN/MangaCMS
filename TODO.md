@@ -5,7 +5,12 @@ https images still fucked
 
 http://krytykal.org/alice-tale/arc-1/part-1/chapter-1/
 http://10.1.1.8:8081/books/render?url=http%3A//krytykal.org/alice-tale/arc-1/part-1/chapter-1/
+http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
 
+# Extract the titles from gdoc?
+http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/folderview%3Fid%3D0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c%26usp%3Ddrive_web
+
+https://gekkahimethetranslation.wordpress.com/
 ~~dangling /preview in gdocs~~
 http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1mR5PaJOxzbB-vTX1GzP7BzXnQ5ih75s_SfJEqAmw5S0/edit
 
@@ -63,19 +68,19 @@ https://sites.google.com/site/sekaigameoredake/
 ## http://unlimitednovelfailures.mangamatters.com/
 
 
-LN TODO: 
+LN TODO:
 	Add transparent scraping into GDoc content
 	Scrape external <a> links that look like images
 	Make link converter aware of all the other LN scrapers, so inter-site links work.
 
 
-Check LN Scrapers after changes: 
+Check LN Scrapers after changes:
 
 	GDoc driven:
 		~~HaruParty http://lasolistia.com/haruparty/ ~~
 		~~ReTranslations~~
 
-	
+
 	## SolitaryTranslation - Password bullshit
 
 	~~BakaTsuki~~
@@ -114,7 +119,7 @@ Should I start scraping VN translation patches?:
 everyone at http://www.mangaupdates.com/releases.html?search=116177&stype=series
 
 http://deusexscans.blogspot.com/
-http://deusexscans.blogspot.com/2014/08/one-turn-kill-of-dark-partisan-vol-1_29.html 
+http://deusexscans.blogspot.com/2014/08/one-turn-kill-of-dark-partisan-vol-1_29.html
 
 
  - Scrape "Type" entry from mangaupdates

@@ -1117,8 +1117,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 			while runStatus.run:
 				try:
 					got = self.newLinkQueue.get_nowait()
-					# print("Got", got)
+
 					if not got in haveUrls:
+						self.log.info("Newlink: '%s'", got)
 						self.upsert(got, dlstate=0)
 						haveUrls.add(got)
 
@@ -1202,6 +1203,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				("%s_src_index"        % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (src   );'''     ),
 				("%s_url_index"        % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (url   );'''     ),
 				("%s_change_index"     % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (change   );'''  ),
+				("%s_netloc_index"     % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (change   );'''  ),
 			]
 
 		# CREATE INDEX book_title_trigram ON book_items USING gin (title gin_trgm_ops);
