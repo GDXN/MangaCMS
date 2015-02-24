@@ -473,8 +473,19 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def checkDomain(self, url):
 		# print(self.scannedDomains)
 		# if "drive" in url:
-		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
-		return any([rootUrl in url.lower() for rootUrl in self._scannedDomains])
+		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
+		for rootUrl in self._scannedDomains:
+			if urllib.parse.urlsplit(rootUrl).netloc != rootUrl:
+				if url.lower().startswith(rootUrl):
+					# print("CheckDomain 1", url)
+					return True
+			else:
+				if rootUrl in url.lower():
+					# print("CheckDomain 2", url)
+					return True
+
+		# print("CheckDomain False", url)
+		return False
 
 	def checkFollowGoogleUrl(self, url):
 		'''
@@ -516,6 +527,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 				except KeyError:
 					continue
 
+				url = gdp.clearOutboundProxy(url)
+				url = gdp.clearBitLy(url)
+
+
+
 				# Filter by domain
 				# print("Filtering", self.checkDomain(url), url)
 				if not self.checkDomain(url):
@@ -530,30 +546,30 @@ class TextScraper(metaclass=abc.ABCMeta):
 				if hadbad:
 					continue
 
-				url = gdp.clearOutboundProxy(url)
-				url = gdp.clearBitLy(url)
-
-
-
 				if not self.checkFollowGoogleUrl(url):
 					continue
 
-				isGdoc, realUrl = gdp.isGdocUrl(url)
 
-				if realUrl == 'https://docs.google.com/document/d/images':
-					continue
+				if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
+					url = gdp.trimGDocUrl(url)
 
-				if isGdoc:
-					realUrl = gdp.trimGDocUrl(realUrl)
-					# self.log.info("Resolved URL = '%s'", realUrl)
-					self.newLinkQueue.put(realUrl)
-					# self.log.info("New G link: '%s'", realUrl)
+
+					if url == 'https://docs.google.com/document/d/images':
+						continue
+
+					# self.log.info("Resolved URL = '%s'", url)
+					self.putNewUrl(url)
+					# self.log.info("New G link: '%s'", url)
 
 				else:
 
 					# Remove any URL fragments causing multiple retreival of the same resource.
+					if url != gdp.trimGDocUrl(url):
+						print('Old URL: "%s"' % url)
+						print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
+						raise ValueError("Wat? Url change? Url: '%s'" % url)
 					url = self.urlClean(url)
-					self.newLinkQueue.put(url)
+					self.putNewUrl(url)
 					# self.log.info("Newlink: '%s'", url)
 
 
@@ -913,12 +929,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 				for line in traceback.format_exc().strip().split("\n"):
 					self.log.critical(line.strip())
 
+
+				url = gdp.trimGDocUrl(url)
 				if not url.endswith("/pub"):
 					url = url+"/pub"
-
 				self.log.info("Attempting to access as plain content instead.")
 				url = self.urlClean(url)
-				self.newLinkQueue.put(url)
+				self.putNewUrl(url)
 				return
 			if mainPage:
 				break
@@ -951,7 +968,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 				self.log.info("Attempting to access as plain content instead.")
 				url = self.urlClean(url)
-				self.newLinkQueue.put(url)
+				url = gdp.trimGDocUrl(url)
+				self.putNewUrl(url)
 				return
 			if content:
 				break
@@ -974,8 +992,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		docReferences, pgTitle = gdp.GDocExtractor.getDriveFileUrls(driveUrl)
 		# print('docReferences', docReferences)
 		for dummy_title, url in docReferences:
-
-			self.newLinkQueue.put(url)
+			url = gdp.trimGDocUrl(url)
+			self.putNewUrl(url)
 
 		self.log.info("Generating google drive disambiguation page!")
 		soup = gdp.makeDriveDisambiguation(docReferences, pgTitle)
@@ -990,6 +1008,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.log.info("Found %s items in google drive directory", len(docReferences))
 
+
+
+	def putNewUrl(self, url):
+		if gdp.isGdocUrl(url) or gdp.isGFileUrl(url):
+			if gdp.trimGDocUrl(url) != url:
+				raise ValueError("Invalid link crept through! Link: '%s'" % url)
+		self.newLinkQueue.put(url)
 
 
 	########################################################################################################################
@@ -1115,7 +1140,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 					if not got in haveUrls:
 						self.log.info("New URL: '%s'", got)
-
 						self.upsert(got, dlstate=0)
 						haveUrls.add(got)
 
@@ -1342,6 +1366,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		cols = []
 		vals = []
+
+		# By default, take ownership of any pages we're operating on by setting it's src key to us
+		if not 'src' in kwargs:
+			cols.append(self.table.src)
+			vals.append(self.tableKey)
+
 		if 'url' in kwargs:
 			cols.append(self.table.netloc)
 			vals.append(urllib.parse.urlparse(kwargs['url']).netloc.lower())
@@ -1379,7 +1409,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, commit=True, **kwargs):
 
-		self.insertDelta(**kwargs)
 
 		query, queryArguments = self.generateUpdateQuery(**kwargs)
 
@@ -1391,6 +1420,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 			with transaction(cur, commit=commit):
 				cur.execute(query, queryArguments)
 
+		self.insertDelta(**kwargs)
 
 
 	def deleteDbEntry(self, commit=True, **kwargs):
@@ -1588,6 +1618,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	def upsert(self, pgUrl, commit=True, **kwargs):
+		if 'url' in kwargs and 'drive_web' in kwargs['url']:
+			print()
+			print()
+			print("WAT")
+			print()
+			print(traceback.format_stack())
+			print()
 		cur = self.conn.cursor()
 
 		try:
@@ -1626,8 +1663,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		item = kwargs['url'] if 'url' in kwargs else kwargs['dbid']
 		if not old:
-			self.log.error("Couldn't find original db entry for item '%s'?", item)
-			return
+			raise ValueError("Couldn't find original db entry for item '%s'?" % item)
+
 
 		if old['contents'] == None:
 			old['contents'] = ''

@@ -5,8 +5,6 @@ https images still fucked
 
 Write tool for flushing/aggregating book resource content items.
 
-http://krytykal.org/alice-tale/arc-1/part-1/chapter-1/
-http://10.1.1.8:8081/books/render?url=http%3A//krytykal.org/alice-tale/arc-1/part-1/chapter-1/
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
 
 # Extract the titles from gdoc?

@@ -22,12 +22,27 @@ def trimGDocUrl(url):
 
 	# If the url has 'preview/' on the end, chop that off
 	strip = [
-		'/preview?pli=1',
 		"/preview/",
 		"/preview",
-		"/edit?usp=drive_web",
-		"/edit?usp=sharing"
+		"/edit",
 		]
+
+	urlParam = urllib.parse.urlparse(url)
+
+	qs = urllib.parse.parse_qs(urlParam.query)
+	if urlParam.query and 'google.com' in urllib.parse.urlparse(url).netloc:
+		qs.pop('usp', None)
+		qs.pop('pli', None)
+		qs.pop('authuser', None)
+		if qs:
+			qs = urllib.parse.urlencode(qs, doseq=True)
+		else:
+			qs = ''
+	# This trims off any fragment, and re-adds the query-string(if present) with any google keys removed
+	params = urlParam[:4] + (qs, '')
+	# print("Params", params)
+	url = urllib.parse.urlunparse(params)
+
 
 	for ending in strip:
 		if url.endswith(ending):
@@ -57,7 +72,7 @@ def isGFileUrl(url):
 	gFileBaseRe = re.compile(r'(https?://docs.google.com/file/d/[-_0-9a-zA-Z]+)')
 	simpleCheck = gFileBaseRe.search(url)
 	if simpleCheck and not url.endswith("/pub"):
-		return True, simpleCheck.group(1)
+		return True, trimGDocUrl(url)
 
 	return False, url
 
@@ -130,6 +145,7 @@ class GDocExtractor(object):
 		if handleUrl != url:
 			if isGdocUrl(handleUrl):
 				cls.log.info("Direct read redirect: '%s'", handleUrl)
+				handleUrl = trimGDocUrl(handleUrl)
 				return [(title, handleUrl)], title
 
 		jsRe = re.compile('var data = (.*?); _initFolderLandingPageApplication\(config, data\)', re.DOTALL)

@@ -17,6 +17,9 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	threads = 1
 
+	# SELECT COUNT(*) FROM book_items WHERE url LIKE 'https://login.yahoo.com%';
+	# SELECT COUNT(*) FROM book_items WHERE url LIKE 'http://b.scorecardresearch.com/%';
+
 	baseUrl = "http://lasolistia.com/haruparty/"
 	# startUrl = 'https://docs.google.com/document/d/1ZdweQdjIBqNsJW6opMhkkRcSlrbgUN5WHCcYrMY7oqI'
 	# startUrl = 'https://docs.google.com/document/d/1xInAD8v06AIX_urMZRRXHBocDsqBEePMoU1EOTfGRZQ/pub'
@@ -31,7 +34,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				"wpmp_switcher=mobile",
 				"account/begin_password_reset",
 				"/comment-page-",
-
+				'yahoo.com/'
 				# Why do people think they need a fucking comment system?
 				'/?replytocom=',
 				'#comments',
@@ -45,6 +48,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 				# Who the fuck shares shit like this anyways?
 				"?share=",
+				"scorecardresearch.com/",
 
 				]
 
