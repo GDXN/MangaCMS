@@ -26,6 +26,9 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	badwords = ["/blog/",
 				"/forums/",
 
+				# Block loaded resource
+				"project/load.php",
+
 				# Yes, I only speak&read english. Leave me to my filtering shame.
 				"Category:Brazilian",
 				"Category:Brazilian_Portuguese",

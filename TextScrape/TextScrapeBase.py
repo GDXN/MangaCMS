@@ -254,7 +254,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 	]
 	fileDomains     = []
 
-	_badwords       = set()
+	_badwords       = set([
+		'gprofiles.js'
+		])
 	_scannedDomains = set()
 	allImages       = False
 	_fileDomains    = set()
@@ -269,6 +271,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.loggers = {}
 		self.lastLoggerIndex = 1
 
+
+
+		self._relinkDomains = set()
+		for url in fetchRelinkableDomains():
+			self._relinkDomains.add(url)
+
 		if isinstance(self.baseUrl, (set, list)):
 			for url in self.baseUrl:
 				self.scannedDomains.add(url)
@@ -277,18 +285,17 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self.scannedDomains.add(self.baseUrl)
 			self._fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
 
-
-
-		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
-		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
 		self._scannedDomains = set()
-		for url in self.scannedDomains:
-			self.installBaseUrl(url)
 
 		# Tell the path filtering mechanism that we can fetch google doc files
 		self._scannedDomains.add('https://docs.google.com/document/')
 		self._scannedDomains.add('https://drive.google.com/folderview')
 		self._scannedDomains.add('https://drive.google.com/open')
+
+		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
+		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
+		for url in self.scannedDomains:
+			self.installBaseUrl(url)
 
 		# Loggers are set up dynamically on first-access.
 		self.log.info("TextScrape Base startup")
@@ -308,10 +315,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.checkInitPrimaryDb()
 
-
-		self._relinkDomains = set()
-		for url in fetchRelinkableDomains():
-			self._relinkDomains.add(url)
 
 		# Move the plugin-defined decompose calls into the control lists
 		for item in self.decompose:
@@ -392,6 +395,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 				self._scannedDomains.add("{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
 
 				self._fileDomains.add('bp.blogspot.{tld}'.format(tld=tld))
+
+		# Blogspot is annoying and sometimes a single site is spread over several tlds. *.com, *.sg, etc...
+		if 'google.' in netloc:
+			pass
 		else:
 			self._scannedDomains.add(netloc)
 
@@ -473,13 +480,14 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def checkDomain(self, url):
 		# print(self.scannedDomains)
 		# if "drive" in url:
-		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
 		for rootUrl in self._scannedDomains:
-			if urllib.parse.urlsplit(rootUrl).netloc != rootUrl:
+			if urllib.parse.urlsplit(rootUrl).netloc != '' and urllib.parse.urlsplit(rootUrl).netloc != rootUrl:
+				# print("Mismatch: ", rootUrl, urllib.parse.urlsplit(rootUrl).netloc)
 				if url.lower().startswith(rootUrl):
 					# print("CheckDomain 1", url)
 					return True
 			else:
+				# print("Match", rootUrl)
 				if rootUrl in url.lower():
 					# print("CheckDomain 2", url)
 					return True
@@ -518,6 +526,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 		for (tag, attr) in urlContainingTargets:
+
 			for link in soup.findAll(tag):
 
 
@@ -533,8 +542,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 				# Filter by domain
-				# print("Filtering", self.checkDomain(url), url)
 				if not self.checkDomain(url):
+					# print("Filtering", self.checkDomain(url), url)
 					continue
 
 
@@ -544,6 +553,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 					if badword in url:
 						hadbad = True
 				if hadbad:
+
+					# print("hadbad", self.checkDomain(url), url)
 					continue
 
 				if not self.checkFollowGoogleUrl(url):
@@ -553,8 +564,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
 					url = gdp.trimGDocUrl(url)
 
-
-					if url == 'https://docs.google.com/document/d/images':
+					if url.startswith('https://docs.google.com/document/d/images'):
 						continue
 
 					# self.log.info("Resolved URL = '%s'", url)
@@ -562,13 +572,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 					# self.log.info("New G link: '%s'", url)
 
 				else:
-
+					# print('Url: "%s"' % url)
+					url = self.urlClean(url)
 					# Remove any URL fragments causing multiple retreival of the same resource.
 					if url != gdp.trimGDocUrl(url):
 						print('Old URL: "%s"' % url)
 						print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
 						raise ValueError("Wat? Url change? Url: '%s'" % url)
-					url = self.urlClean(url)
 					self.putNewUrl(url)
 					# self.log.info("Newlink: '%s'", url)
 
@@ -742,6 +752,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		if self.checkDomain(url):
 			self.extractLinks(soup)
 			self.extractImages(soup)
+		else:
+			self.log.warn("Not extracting images or links for url '%s'", url)
 
 		soup = self.decomposeItems(soup, self._decompose)
 
@@ -1014,6 +1026,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		if gdp.isGdocUrl(url) or gdp.isGFileUrl(url):
 			if gdp.trimGDocUrl(url) != url:
 				raise ValueError("Invalid link crept through! Link: '%s'" % url)
+		if '/view/export?format=zip' in url:
+			raise ValueError("Wat?")
 		self.newLinkQueue.put(url)
 
 

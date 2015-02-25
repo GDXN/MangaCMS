@@ -25,21 +25,30 @@ def trimGDocUrl(url):
 		"/preview/",
 		"/preview",
 		"/edit",
+		"/view",
 		]
 
 	urlParam = urllib.parse.urlparse(url)
 
-	qs = urllib.parse.parse_qs(urlParam.query)
+	qArr = urllib.parse.parse_qs(urlParam.query)
 	if urlParam.query and 'google.com' in urllib.parse.urlparse(url).netloc:
-		qs.pop('usp', None)
-		qs.pop('pli', None)
-		qs.pop('authuser', None)
-		if qs:
-			qs = urllib.parse.urlencode(qs, doseq=True)
+		qArr.pop('usp', None)
+		qArr.pop('pli', None)
+		qArr.pop('authuser', None)
+		if qArr:
+			queryStr = urllib.parse.urlencode(qArr, doseq=True)
 		else:
-			qs = ''
+			queryStr = ''
+	else:
+		# Unfortunately, parsing and re-encoding can reorder the parameters in the URL.
+		# Since there is some idiot-checking to see if the url has changed if it /shouldn't/
+		# and reodering would break that, we don't just use urlencode by default, unless it's
+		# actually changed anything.
+		queryStr = urlParam.query
+
 	# This trims off any fragment, and re-adds the query-string(if present) with any google keys removed
-	params = urlParam[:4] + (qs, '')
+	# print(urlParam, (queryStr, ''))
+	params = urlParam[:4] + (queryStr, '')
 	# print("Params", params)
 	url = urllib.parse.urlunparse(params)
 
@@ -124,6 +133,7 @@ class GDocExtractor(object):
 		if not isGdoc:
 			raise ValueError("Passed URL '%s' is not a google document?" % targetUrl)
 
+		url = trimGDocUrl(url)
 		self.url = url+'/export?format=zip'
 		self.refererUrl = targetUrl
 

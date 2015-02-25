@@ -30,6 +30,10 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 		"http://cetranslation.blogspot.com/",
 		"http://cetranslation.blogspot.sg/",
 
+		"http://hikuosan.blogspot.com",
+		"http://kurotsuki-novel.blogspot.com",
+		"http://swordandgame.blogspot.ca",
+
 	]
 
 	startUrl = [

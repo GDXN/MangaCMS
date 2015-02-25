@@ -29,7 +29,8 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 				# Who the fuck shares shit like this anyways?
 				"?share=",
 				'wp-login.php',
-				'public-api.wordpress.com'
+				'public-api.wordpress.com',
+				'xmlrpc.php',
 
 				])
 

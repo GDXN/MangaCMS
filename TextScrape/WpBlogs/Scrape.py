@@ -89,6 +89,8 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://yoraikun.wordpress.com/',
 		'https://zmunjali.wordpress.com/',
 		'https://setsuna86blog.wordpress.com/'
+		'https://tensaitranslations.wordpress.com/',
+		'https://gekkahimethetranslation.wordpress.com/',
 	]
 
 	startUrl = baseUrl

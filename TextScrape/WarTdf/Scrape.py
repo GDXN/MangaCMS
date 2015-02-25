@@ -4,33 +4,33 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+import TextScrape.WordpressScrape
 
 import webFunctions
 
 
-class Scrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 	tableKey = 'rtdtl'
 	loggerPath = 'Main.RaiseTheDead.Scrape'
 	pluginName = 'RaiseTheDeadScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 3
+	threads = 1
 
 	baseUrl = "https://wartdf.wordpress.com/"
 	startUrl = [
 		baseUrl,
-		'http://pastebin.com/C8cU0ZPq',
-		'http://pastebin.com/Gm4xYe35',
-		'http://pastebin.com/iGjtwjVR',
-		'http://pastebin.com/VyPC3Kdn',
-		'http://pastebin.com/NS6kwFvL',
-		'http://pastebin.com/raw.php?i=C8cU0ZPq',
-		'http://pastebin.com/raw.php?i=Gm4xYe35',
-		'http://pastebin.com/raw.php?i=iGjtwjVR',
-		'http://pastebin.com/raw.php?i=VyPC3Kdn',
-		'http://pastebin.com/raw.php?i=NS6kwFvL',
+		# 'http://pastebin.com/C8cU0ZPq',
+		# 'http://pastebin.com/Gm4xYe35',
+		# 'http://pastebin.com/iGjtwjVR',
+		# 'http://pastebin.com/VyPC3Kdn',
+		# 'http://pastebin.com/NS6kwFvL',
+		# 'http://pastebin.com/raw.php?i=C8cU0ZPq',
+		# 'http://pastebin.com/raw.php?i=Gm4xYe35',
+		# 'http://pastebin.com/raw.php?i=iGjtwjVR',
+		# 'http://pastebin.com/raw.php?i=VyPC3Kdn',
+		# 'http://pastebin.com/raw.php?i=NS6kwFvL',
 		]
 
 	fileDomains = set(['files.wordpress.com'])
@@ -52,7 +52,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 				# Who the fuck shares shit like this anyways?
 				"?share=",
-
+				"/feed/",
 				]
 
 

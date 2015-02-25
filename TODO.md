@@ -7,35 +7,18 @@ Write tool for flushing/aggregating book resource content items.
 
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
 
-# Extract the titles from gdoc?
-http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/folderview%3Fid%3D0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c%26usp%3Ddrive_web
 
-https://gekkahimethetranslation.wordpress.com/
+## http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/folderview%3Fid%3D0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c%26usp%3Ddrive_web
+
+
+
 ~~dangling /preview in gdocs~~
-http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1mR5PaJOxzbB-vTX1GzP7BzXnQ5ih75s_SfJEqAmw5S0/edit
-
-
-http://www.baka-tsuki.org/project/index.php?title=Mushoku_Tensei
-http://www.baka-tsuki.org/project/index.php?title=Tate_no_Yuusha_no_Nariagari
-https://docs.google.com/document/d/10KAGFVd2ESbuuALG--fxFbyEALfOfS2t0YjL2GlIkaY/preview
-https://docs.google.com/document/d/17taISyRebqOdRhIuclyBT94kKbWrJgN3Fc1WvyOWey0/preview
-https://docs.google.com/document/d/1DL6dpctSl_DME-4cnnZ8mkfCIb9nIMlu8P8JhDU-it8/preview
-https://docs.google.com/document/d/1Lzfs2R1eYPfBDoMEXP4NKsorA7TTQD1Yl9JXZsShAaM/pub
-https://docs.google.com/document/d/1P8975xchjaZNw7gEiQkrV1w01akcJhUjlcd4fo4uWNU/edit?usp=sharing
-https://docs.google.com/document/d/1PfyUTq0EfhjdRABQFLbC2C9ByHTzm1CcsnDxq2h3t8c/preview
-https://docs.google.com/document/d/1rhoCQcOUW1eccV4Fsh6K76u0Vup7DMQhBfDcknEbFHI/preview
-https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0/preview
-https://docs.google.com/document/d/1xInAD8v06AIX_urMZRRXHBocDsqBEePMoU1EOTfGRZQ/pub
-https://drive.google.com/folderview?id=0B7S7F3SG9T9EdXJYeG5BNXJkQnc&usp=drive_web
-https://drive.google.com/folderview?id=0ByPeaKaqUsGFQVAxUEM2bUI0R0E&usp=sharing
-https://sites.google.com/site/sekaigameoredake/
 
 http://novel.dawnglare.com/
-https://hokagetranslations.wordpress.com/2015/01/25/monster-musume-harem-o-tsukurou-chapter-3-girl-skill-magical-power-quantity/comment-page-1/
-hikuo      - http://hikuosan.blogspot.com
-kurotsuki  - http://kurotsuki-novel.blogspot.com
-sword      - http://swordandgame.blogspot.ca
 
+## hikuo      - http://hikuosan.blogspot.com
+## kurotsuki  - http://kurotsuki-novel.blogspot.com
+## sword      - http://swordandgame.blogspot.ca
 ## kobato     - http://kobatochandaisuki.wordpress.com
 ## hokage     - https://hokagetranslations.wordpress.com
 ## metal      - https://metalhaguremt.wordpress.com
@@ -334,6 +317,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~Extract the titles from gdoc?~~
  - ~~missing page link to original~~
  - ~~add jump to source to end of page~~
  - ~~book search natsort~~
