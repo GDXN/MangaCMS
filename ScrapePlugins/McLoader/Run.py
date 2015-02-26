@@ -41,3 +41,12 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl.processTodoLinks(todo)
 		cl.closeDB()
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=True):
+
+		run = Runner()
+		run.go()

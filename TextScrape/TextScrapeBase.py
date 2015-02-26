@@ -1023,6 +1023,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 	def putNewUrl(self, url):
+		if not url.lower().startswith("http"):
+			raise ValueError("Url isn't a url: '%s'" % url)
 		if gdp.isGdocUrl(url) or gdp.isGFileUrl(url):
 			if gdp.trimGDocUrl(url) != url:
 				raise ValueError("Invalid link crept through! Link: '%s'" % url)

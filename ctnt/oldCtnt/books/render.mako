@@ -159,7 +159,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 			<div class="bookdiv">
 
 				<div class="subdiv">
-					<div class="contentdiv"  style="font-size:20px">
+					<div class="contentdiv bookcontent">
 						${contents}
 					</div>
 					<hr>

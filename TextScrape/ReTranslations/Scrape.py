@@ -30,7 +30,9 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	badwords = ['http://docs.google.com/abuse']
 
-
+	decompose = [
+		{'type' : "text/css"}
+	]
 
 def test():
 	scrp = Scrape()

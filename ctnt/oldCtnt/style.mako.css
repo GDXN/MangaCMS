@@ -36,6 +36,18 @@ table
 
 }
 
+
+tr:nth-child(even)
+{
+	background: #ffffff
+}
+tr:nth-child(odd)
+{
+	background: #f0f0ff
+}
+
+
+
 td
 {
 	margin: 0;
@@ -101,6 +113,30 @@ div.bookdiv
 	overflow:hidden;
 }
 
+
+.bookcontent
+{
+	font-size:20px;
+}
+
+.bookcontent td
+{
+	margin: 0;
+	padding: 1px;
+	border-width: 1px 1px 0 0;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	font-size:20px;
+
+}
+
+.bookcontent tr
+{
+	background: #ffffff
+}
+
+
+
 div.subdiv
 {
 	border:2px solid;
@@ -162,16 +198,6 @@ div.navId
 	}
 
 % endfor
-
-tr:nth-child(even)
-{
-	background: #ffffff
-}
-tr:nth-child(odd)
-{
-	background: #f0f0ff
-}
-
 
 
 
