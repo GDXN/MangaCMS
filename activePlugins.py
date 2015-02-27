@@ -40,18 +40,22 @@ import ScrapePlugins.FoolSlide.CasanovaScans.Run
 import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 
 
-import TextScrape.WpBlogs.Run
-
-import TextScrape.BakaTsuki.Run
-import TextScrape.Guhehe.Run
-import TextScrape.HaruParty.Run
-import TextScrape.JapTem.Run
-import TextScrape.Krytyk.Run
 import TextScrape.PrinceRevolution.Run
+import TextScrape.WpBlogs.Run
+import TextScrape.BakaTsuki.Run
+import TextScrape.SekaiGaGame.Run
 import TextScrape.ReTranslations.Run
+import TextScrape.Krytyk.Run
 import TextScrape.TlWiki.Run
-import TextScrape.UnlimitedNovelFailures.Run
+import TextScrape.Dawnglare.Run
 import TextScrape.WarTdf.Run
+import TextScrape.UnlimitedNovelFailures.Run
+import TextScrape.BsBlogs.Run
+import TextScrape.JapTem.Run
+import TextScrape.Guhehe.Run
+import TextScrape.DearestFairy.Run
+import TextScrape.HaruParty.Run
+
 
 
 import ScrapePlugins.MangaMadokami.mkContentLoader

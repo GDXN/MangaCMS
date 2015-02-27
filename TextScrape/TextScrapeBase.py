@@ -226,6 +226,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	QUERY_DEBUG = False
 	IGNORE_MALFORMED_URLS = False
+	FOLLOW_GOOGLE_LINKS = True
 
 	@abc.abstractproperty
 	def pluginName(self):
@@ -277,6 +278,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'add.my.yahoo.com',
 		'public-api.wordpress.com',
 		'r-login.wordpress.com',
+		'twitter.com',
+		'facebook.com',
 		])
 	_scannedDomains = set()
 	allImages       = False
@@ -308,10 +311,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self._scannedDomains = set()
 
-		# Tell the path filtering mechanism that we can fetch google doc files
-		self._scannedDomains.add('https://docs.google.com/document/')
-		self._scannedDomains.add('https://drive.google.com/folderview')
-		self._scannedDomains.add('https://drive.google.com/open')
+		if self.FOLLOW_GOOGLE_LINKS:
+			# Tell the path filtering mechanism that we can fetch google doc files
+			self._scannedDomains.add('https://docs.google.com/document/')
+			self._scannedDomains.add('https://drive.google.com/folderview')
+			self._scannedDomains.add('https://drive.google.com/open')
 
 		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
 		# We also extract /just/ the netloc, so http/https differences don't cause a problem.

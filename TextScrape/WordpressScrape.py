@@ -12,6 +12,7 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	_badwords = set([
+				"r-login.wordpress.com",
 				"/manga/",
 				"/recruitment/",
 				"wpmp_switcher=mobile",

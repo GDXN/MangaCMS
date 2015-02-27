@@ -9,25 +9,23 @@ http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.
 
 
 
-http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/16v8Q9Kice7pinXq4_aoEBr6Viu7CuRWPyv_TyE7wXOg
-formatting oddness
+
 
 
 
 ## TO ADD: 
 =======
 
-http://giraffecorps.liamak.net/
-http://shinsekai.cadet-nine.org/
-http://earlandfairy.weebly.com/
 http://pokkoo-shuu.tumblr.com/thelunacyofdukevenomania
 http://sayasamax3.tumblr.com/post/56013645417/high-speed-translations-and-summaries
 http://toshosen-tsl.livejournal.com/
 
 General Resource: http://englishlightnovels.com/
-
 Use http://lndb.info/ as BU-like?
 
+## http://earlandfairy.weebly.com/
+## http://shinsekai.cadet-nine.org/
+## http://giraffecorps.liamak.net/
 ## http://gravitytranslations.com/
 ## https://sites.google.com/site/sekaigameoredake/
 ## http://novel.dawnglare.com/
@@ -333,6 +331,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/16v8Q9Kice7pinXq4_aoEBr6Viu7CuRWPyv_TyE7wXOg formatting oddness~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fhokagetranslations.wordpress.com%2Ftag%2Fmonster-musume-harem-o-tsukurou-make-a-monster-girl-harem%2F header not cleared~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/folderview%3Fid%3D0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c%26usp%3Ddrive_web~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/10_3RfB9ZSNhNrlsF1YB53NJqjQ1Nu3F0b6d01bfPHxU formatting wut~~

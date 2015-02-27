@@ -74,9 +74,20 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 		'http://gravitytranslations.wordpress.com/',
 		'http://gravitytranslations.com/',             # The wordpress address redirects to the plain URL
+
+		# Non explicitly wordpress blogs (that use wordpress internally)
+		"http://giraffecorps.liamak.net/",
+
+		'http://shinsekai.cadet-nine.org/',
+
 	]
 
-	startUrl = 'https://binhjamin.wordpress.com'
+	startUrl = [
+			"https://binhjamin.wordpress.com",
+			"http://giraffecorps.liamak.net/",
+			"http://shinsekai.cadet-nine.org/",
+			"http://gravitytranslations.com/",
+			]
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
@@ -96,6 +107,12 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 				# Who the fuck shares shit like this anyways?
 				"?share=",
+
+
+				"giraffecorps.liamak.net/pdf/",
+				"giraffecorps.liamak.net/contact/",
+				"giraffecorps.liamak.net/extras/",
+				"wp-comments-post",
 
 				]
 
@@ -166,6 +183,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		{'id'              : 'site-navigation'},
 		{'name'            : 'likes-master'},
 		{'style'           : 'display:none'},
+		{'role'            : 'banner'},
 
 
 
@@ -214,7 +232,12 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'A Translation of the',
 		'Roxism HQ |',
 		'| SETSUNA86BLOG',
-		'mahoutsuki translation |'
+		'mahoutsuki translation |',
+		'&#124; Giraffe Corps',
+		'| Giraffe Corps',
+		'| Shin Sekai Yori &#8211; From the New World',
+		'| Shin Sekai Yori - From the New World',
+		'| Shin Sekai Yori – From the New World',
 	]
 
 
