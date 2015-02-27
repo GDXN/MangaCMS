@@ -19,6 +19,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	threads = 10
 
+	IGNORE_MALFORMED_URLS = True
 
 	baseUrl = "http://www.baka-tsuki.org/"
 	startUrl = baseUrl

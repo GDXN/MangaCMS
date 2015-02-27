@@ -20,18 +20,11 @@ def trimGDocUrl(url):
 
 	url = url.split("#")[0]
 
-	# If the url has 'preview/' on the end, chop that off
-	strip = [
-		"/preview/",
-		"/preview",
-		"/edit",
-		"/view",
-		]
 
 	urlParam = urllib.parse.urlparse(url)
 
 	qArr = urllib.parse.parse_qs(urlParam.query)
-	if urlParam.query and 'google.com' in urllib.parse.urlparse(url).netloc:
+	if urlParam.query and 'google.com' in urlParam.netloc:
 		qArr.pop('usp', None)
 		qArr.pop('pli', None)
 		qArr.pop('authuser', None)
@@ -52,10 +45,17 @@ def trimGDocUrl(url):
 	# print("Params", params)
 	url = urllib.parse.urlunparse(params)
 
-
-	for ending in strip:
-		if url.endswith(ending):
-			url = url[:-len(ending)]
+	# If the url has 'preview/' on the end, chop that off (but only for google content)
+	if 'docs.google.com' in urlParam.netloc:
+		strip = [
+			"/preview/",
+			"/preview",
+			"/edit",
+			"/view",
+			]
+		for ending in strip:
+			if url.endswith(ending):
+				url = url[:-len(ending)]
 
 	# if url.endswith("/pub"):
 	# 	url = url[:-3]
@@ -87,13 +87,17 @@ def isGFileUrl(url):
 
 
 
+
+
+
 def clearOutboundProxy(url):
 	'''
 	So google proxies all their outbound links through a redirect so they can detect outbound links.
 	This call strips them out if they are present.
 
 	'''
-	if url.startswith("http://www.google.com/url?q="):
+	# 'https://www.google.com/url?sntz=1&q=https://bluesilvertranslations.wordpress.com/&usg=AFQjCNFzgp4e2VefkBwffciUm_xsCC4_zg&sa=D'?
+	if url.startswith("http://www.google.com/url?"):
 		qs = urllib.parse.urlparse(url).query
 		query = urllib.parse.parse_qs(qs)
 		if not "q" in query:

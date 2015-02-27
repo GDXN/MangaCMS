@@ -196,6 +196,20 @@ class RowExistsException(Exception):
 
 # This whole mess is getting too hueg and clumsy. FIXME!
 
+
+########################################################################################################################
+#
+#	##     ##    ###    #### ##    ##     ######  ##          ###     ######   ######
+#	###   ###   ## ##    ##  ###   ##    ##    ## ##         ## ##   ##    ## ##    ##
+#	#### ####  ##   ##   ##  ####  ##    ##       ##        ##   ##  ##       ##
+#	## ### ## ##     ##  ##  ## ## ##    ##       ##       ##     ##  ######   ######
+#	##     ## #########  ##  ##  ####    ##       ##       #########       ##       ##
+#	##     ## ##     ##  ##  ##   ###    ##    ## ##       ##     ## ##    ## ##    ##
+#	##     ## ##     ## #### ##    ##     ######  ######## ##     ##  ######   ######
+#
+########################################################################################################################
+
+
 class TextScraper(metaclass=abc.ABCMeta):
 
 	# Abstract class (must be subclassed)
@@ -211,6 +225,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 	threads = 2
 
 	QUERY_DEBUG = False
+	IGNORE_MALFORMED_URLS = False
 
 	@abc.abstractproperty
 	def pluginName(self):
@@ -261,6 +276,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'edit.yahoo.com',
 		'add.my.yahoo.com',
 		'public-api.wordpress.com',
+		'r-login.wordpress.com',
 		])
 	_scannedDomains = set()
 	allImages       = False
@@ -635,7 +651,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		if not imRelink:
 			imRelink = self.convertToReaderImage
 
-		print("Image relinker:", imRelink)
+		# print("Image relinker:", imRelink)
 
 		for aTag in soup.find_all("a"):
 			try:
@@ -750,9 +766,16 @@ class TextScraper(metaclass=abc.ABCMeta):
 		title = title.strip()
 		return title, contents
 
+	# Methods to allow the child-class to modify the content at various points.
 	def extractTitle(self, srcSoup, doc, url):
 		title = doc.title()
 		return title
+
+	def postprocessBody(self, soup):
+		return soup
+
+	def preprocessBody(self, soup):
+		return soup
 
 
 	# Process a plain HTML page.
@@ -764,21 +787,32 @@ class TextScraper(metaclass=abc.ABCMeta):
 	# readability, and finally saves the processed HTML into the database
 	def processHtmlPage(self, url, content, mimeType):
 		self.log.info("Processing '%s' as HTML.", url)
-
-
 		soup = bs4.BeautifulSoup(content)
 
+
+		# Allow child-class hooking
+		soup = self.preprocessBody(soup)
+
+		# Clear out any particularly obnoxious content before doing any parsing.
 		soup = self.decomposeItems(soup, self._decomposeBefore)
+
+		# Make all the page URLs fully qualified, so they're unambiguous
 		soup = self.canonizeUrls(soup, url)
 
+		# Conditionally pull out the page content and enqueue it.
 		if self.checkDomain(url):
 			self.extractLinks(soup)
 			self.extractImages(soup)
 		else:
 			self.log.warn("Not extracting images or links for url '%s'", url)
 
+		# Do the later cleanup to prep the content for local rendering.
 		soup = self.decomposeItems(soup, self._decompose)
 
+		# Allow child-class hooking
+		soup = self.postprocessBody(soup)
+
+		# Process page with readability, extract title.
 		pgTitle, pgBody = self.cleanHtmlPage(soup, url=url)
 		self.log.info("Page with title '%s' retreived.", pgTitle)
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
@@ -1080,13 +1114,22 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	def putNewUrl(self, url):
 		if not url.lower().startswith("http"):
+			if self.IGNORE_MALFORMED_URLS:
+				self.log.error("Skipping a malformed URL!")
+				self.log.error("Bad URL: '%s'", url)
+				return
 			raise ValueError("Url isn't a url: '%s'" % url)
 		if gdp.isGdocUrl(url) or gdp.isGFileUrl(url):
 			if gdp.trimGDocUrl(url) != url:
 				raise ValueError("Invalid link crept through! Link: '%s'" % url)
+
+
 		if '/view/export?format=zip' in url:
 			raise ValueError("Wat?")
 		self.newLinkQueue.put(url)
+
+
+
 
 
 	########################################################################################################################
@@ -1130,9 +1173,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		else:
 			self.retreivePlainResource(url)
-
-
-
 
 	########################################################################################################################
 	#

@@ -9,7 +9,8 @@ http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.
 
 
 
-
+http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/16v8Q9Kice7pinXq4_aoEBr6Viu7CuRWPyv_TyE7wXOg
+formatting oddness
 
 
 

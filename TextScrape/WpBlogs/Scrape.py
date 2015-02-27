@@ -16,6 +16,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
+	IGNORE_MALFORMED_URLS = True
 	threads = 6
 
 	baseUrl = [
@@ -46,7 +47,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://xantbos.wordpress.com/',
 		'https://9ethtranslations.wordpress.com/',
 		'https://binhjamin.wordpress.com',
-		'https://binhjamin.wordpress.com/',
 		'https://bluesilvertranslations.wordpress.com',
 		'https://defiring.wordpress.com/',
 		'https://hokagetranslations.wordpress.com',
@@ -76,7 +76,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'http://gravitytranslations.com/',             # The wordpress address redirects to the plain URL
 	]
 
-	startUrl = baseUrl
+	startUrl = 'https://binhjamin.wordpress.com'
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
@@ -220,6 +220,13 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 	# def checkDomain(self, url):
 	# 	return False
+
+	def postprocessBody(self, soup):
+		for style_tag in soup.find_all('style'):
+			style_tag.decompose()
+		for mid_span in soup.find_all("span", _class="c3"):
+			mid_span.unwrap()
+		return soup
 
 def test():
 	scrp = Scrape()
