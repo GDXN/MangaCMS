@@ -397,7 +397,6 @@ class WebGetRobust:
 		# postData expects a dict
 		# addlHeaders also expects a dict
 	def getpage(self, requestedUrl, **kwargs):
-
 		# pgreq = fixurl(pgreq)
 
 		# addlHeaders = None, returnMultiple = False, callBack=None, postData=None, soup=False, retryQuantity=None, nativeError=False, binaryForm=False
@@ -448,7 +447,9 @@ class WebGetRobust:
 
 				#print "execution", retryCount
 				try:
+					# print("Getpage!", requestedUrl, kwargs)
 					pghandle = self.opener.open(pgreq)					# Get Webpage
+					# print("Gotpage")
 
 				except urllib.error.HTTPError as e:								# Lotta logging
 					self.log.warning("Error opening page: %s at %s On Attempt %s.", pgreq.get_full_url(), time.ctime(time.time()), retryCount)
@@ -1047,10 +1048,10 @@ if __name__ == "__main__":
 
 
 
-	content, handle = wg.getpage("http://www.lighttpd.net", returnMultiple = True)
+	content, handle = wg.getpage("http://japtem.com/wp-content/uploads/2014/07/Arifureta.png", returnMultiple = True)
 	print((handle.headers.get('Content-Encoding')))
 	print(len(content))
-	content, handle = wg.getpage("http://www.example.org", returnMultiple = True)
+	content, handle = wg.getpage("http://japtem.com/wp-content/uploads/2014/03/knm.png", returnMultiple = True)
 	print((handle.headers.get('Content-Encoding')))
 	content, handle = wg.getpage("https://www.google.com/images/srpr/logo11w.png", returnMultiple = True)
 	print((handle.headers.get('Content-Encoding')))

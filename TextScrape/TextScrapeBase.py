@@ -255,7 +255,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 	fileDomains     = []
 
 	_badwords       = set([
-		'gprofiles.js'
+		'gprofiles.js',
+		'www.netvibes.com',
+		'accounts.google.com',
+		'edit.yahoo.com',
+		'add.my.yahoo.com',
+		'public-api.wordpress.com',
 		])
 	_scannedDomains = set()
 	allImages       = False
@@ -396,9 +401,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 				self._fileDomains.add('bp.blogspot.{tld}'.format(tld=tld))
 
-		# Blogspot is annoying and sometimes a single site is spread over several tlds. *.com, *.sg, etc...
-		if 'google.' in netloc:
+
+		if 'sites.google.com/site/' in url:
+			self._scannedDomains.add(url)
+
+		elif 'google.' in netloc:
 			pass
+
 		else:
 			self._scannedDomains.add(netloc)
 
@@ -626,6 +635,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		if not imRelink:
 			imRelink = self.convertToReaderImage
 
+		print("Image relinker:", imRelink)
+
 		for aTag in soup.find_all("a"):
 			try:
 				if self.checkRelinkDomain(aTag["href"]):
@@ -694,21 +705,30 @@ class TextScraper(metaclass=abc.ABCMeta):
 		for key in toDecompose:
 			for instance in soup.find_all(True, attrs=key):
 				instance.decompose() # This call permutes the tree!
+
+		# Clear out all the iframes
+		for instance in soup.find_all('iframe'):
+			instance.decompose()
+
+		# Clean out any local stylesheets
+		for instance in soup.find_all('style'):
+			instance.decompose()
+
 		return soup
 
-	def cleanHtmlPage(self, soup, url=None):
+	def cleanHtmlPage(self, srcSoup, url=None):
 
 		# since readability strips tag attributes, we preparse with BS4,
 		# parse with readability, and then do reformatting *again* with BS4
 		# Yes, this is ridiculous.
 
-		ctnt = soup.prettify()
+		ctnt = srcSoup.prettify()
 		doc = readability.readability.Document(ctnt)
 		doc.parse()
 		content = doc.content()
 
 		soup = bs4.BeautifulSoup(content)
-		soup = self.relink(soup, url)
+		soup = self.relink(soup)
 		contents = ''
 
 
@@ -719,8 +739,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		soup.body.unwrap()
 		contents = soup.prettify()
 
-
-		title = doc.title()
+		title = self.extractTitle(soup, doc, url)
 
 		if isinstance(self.stripTitle, (list, set)):
 			for stripTitle in self.stripTitle:
@@ -731,6 +750,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 		title = title.strip()
 		return title, contents
 
+	def extractTitle(self, srcSoup, doc, url):
+		title = doc.title()
+		return title
 
 
 	# Process a plain HTML page.
@@ -757,7 +779,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		soup = self.decomposeItems(soup, self._decompose)
 
-		pgTitle, pgBody = self.cleanHtmlPage(soup)
+		pgTitle, pgBody = self.cleanHtmlPage(soup, url=url)
 		self.log.info("Page with title '%s' retreived.", pgTitle)
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
@@ -786,6 +808,27 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		self.dispatchContent(url, content, fName, mimeType)
 
+
+	########################################################################################################################
+	#
+	#	##     ## #### ##     ## ########         ######## ##    ## ########  ########
+	#	###   ###  ##  ###   ### ##                  ##     ##  ##  ##     ## ##
+	#	#### ####  ##  #### #### ##                  ##      ####   ##     ## ##
+	#	## ### ##  ##  ## ### ## ######   #######    ##       ##    ########  ######
+	#	##     ##  ##  ##     ## ##                  ##       ##    ##        ##
+	#	##     ##  ##  ##     ## ##                  ##       ##    ##        ##
+	#	##     ## #### ##     ## ########            ##       ##    ##        ########
+	#
+	#	########  ####  ######  ########     ###    ########  ######  ##     ## ######## ########
+	#	##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ## ##       ##     ##
+	#	##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ## ##       ##     ##
+	#	##     ##  ##   ######  ########  ##     ##    ##    ##       ######### ######   ########
+	#	##     ##  ##        ## ##        #########    ##    ##       ##     ## ##       ##   ##
+	#	##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ## ##       ##    ##
+	#	########  ####  ######  ##        ##     ##    ##     ######  ##     ## ######## ##     ##
+	#
+	########################################################################################################################
+
 	def dispatchContent(self, url, content, fName, mimeType):
 		self.log.info("Dispatching file '%s' with mime-type '%s'", fName, mimeType)
 		if mimeType == 'text/html':
@@ -793,9 +836,22 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		elif mimeType in ['text/plain']:
 			self.processAsMarkdown(content, url)
-		elif mimeType in ['text/xml', 'text/atom+xml']:
+
+		elif mimeType in ['text/xml', 'text/atom+xml', 'application/xml']:
 			self.log.info("XML File?")
 			self.log.info("URL: '%s'", url)
+			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
+
+
+		elif mimeType in ['text/css']:
+			self.log.info("CSS!")
+			self.log.info("URL: '%s'", url)
+			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
+
+		elif mimeType in ['application/x-javascript']:
+			self.log.info("Javascript Resource!")
+			self.log.info("URL: '%s'", url)
+			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
 
 		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
 			self.log.info("Processing '%s' as an image file.", url)
@@ -1011,7 +1067,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		soup = gdp.makeDriveDisambiguation(docReferences, pgTitle)
 		# print(disamb)
 
-		soup = self.relink(soup, url)
+		soup = self.relink(soup)
 
 		disamb = soup.prettify()
 
@@ -1122,6 +1178,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				else:
 					timeouts += 1
 					time.sleep(1)
+					self.log.info("Fetch task waiting.")
 
 				if timeouts > 5:
 					break
@@ -1601,7 +1658,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 				else:
 					dbid, url = row
 					cur.execute('UPDATE {tableName} SET dlstate=%s WHERE dbid=%s;'.format(tableName=self.tableName), (1, dbid))
-					return url
+
+		if not url.startswith("http"):
+			raise ValueError("Non HTTP URL in database: '%s'!" % url)
+		return url
 
 
 
@@ -1635,23 +1695,36 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	def upsert(self, pgUrl, commit=True, **kwargs):
 		if 'url' in kwargs and 'drive_web' in kwargs['url']:
-			print()
-			print()
-			print("WAT")
-			print()
-			print(traceback.format_stack())
-			print()
+			self.log.error('')
+			self.log.error('')
+			self.log.error("WAT")
+			self.log.error('')
+			self.log.error(traceback.format_stack())
+			self.log.error('')
+
+
+		if 'url' in kwargs and not kwargs['url'].startswith("http"):
+			self.log.error('')
+			self.log.error('')
+			self.log.error("WAT")
+			self.log.error('')
+			self.log.error(traceback.format_stack())
+			self.log.error('')
+
+
 		cur = self.conn.cursor()
+
+		# print("Upserting!")
 
 		try:
 			with transaction(cur, commit=commit):
 				self.insertIntoDb(commit=False, url=pgUrl, **kwargs)
-				return
+
 		except psycopg2.IntegrityError:
 			if kwargs:
 				with transaction(cur, commit=commit):
 					self.updateDbEntry(url=pgUrl, src=self.tableKey, **kwargs)
-
+		# print("Upserted")
 
 	def insertDelta(self, **kwargs):
 

@@ -102,7 +102,8 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 
 	decomposeBefore = [
-		{'id'      :'mw-head'},
+		{'id'      : 'mw-head'},
+		{'rel'     : 'EditURI'},
 	]
 	decompose = [
 		{'role'    :'navigation'},

@@ -12,11 +12,10 @@ http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.
 
 
 
+
 ## TO ADD: 
 =======
 
-http://novel.dawnglare.com/
-https://sites.google.com/site/sekaigameoredake/
 http://giraffecorps.liamak.net/
 http://shinsekai.cadet-nine.org/
 http://earlandfairy.weebly.com/
@@ -28,6 +27,9 @@ General Resource: http://englishlightnovels.com/
 
 Use http://lndb.info/ as BU-like?
 
+## http://gravitytranslations.com/
+## https://sites.google.com/site/sekaigameoredake/
+## http://novel.dawnglare.com/
 
 ## hikuo      - http://hikuosan.blogspot.com
 ## kurotsuki  - http://kurotsuki-novel.blogspot.com
@@ -330,6 +332,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fhokagetranslations.wordpress.com%2Ftag%2Fmonster-musume-harem-o-tsukurou-make-a-monster-girl-harem%2F header not cleared~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/folderview%3Fid%3D0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c%26usp%3Ddrive_web~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/10_3RfB9ZSNhNrlsF1YB53NJqjQ1Nu3F0b6d01bfPHxU formatting wut~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1eJWjpwP04A-CANLD22dZTujLBN1FIyLyjH6XQvjeNYc/pub strip container div~~

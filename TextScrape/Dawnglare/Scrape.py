@@ -12,16 +12,16 @@ import webFunctions
 import urllib.error
 
 class Scrape(TextScrape.TextScrapeBase.TextScraper):
-	tableKey = 'japtem'
-	loggerPath = 'Main.JapTem.Scrape'
-	pluginName = 'JapTemScrape'
+	tableKey = 'dawn'
+	loggerPath = 'Main.DawnGlare.Scrape'
+	pluginName = 'DawnGlareScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 2
+	threads = 1
 
 
-	baseUrl = "http://japtem.com/"
+	baseUrl = "http://novel.dawnglare.com/"
 	startUrl = baseUrl
 
 	badwords = ["fanfic.php",
@@ -80,6 +80,11 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 		{'id' : 'scrollUp'},
 	]
 
+
+
+	def extractTitle(self, soup, doc, url):
+		title = "DawnGlare Trans: '%s'" % url
+		return title
 
 
 

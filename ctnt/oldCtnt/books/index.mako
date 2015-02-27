@@ -42,9 +42,13 @@ import string
 import urllib.parse
 %>
 
-<%def name="renderTreeRoot(rootKey, rootTitle)">
+<%def name="renderTreeRoot(srcDomain)">
 	<%
 
+	## rootKey, rootTitle
+
+	## cur = sqlCon.cursor()
+	## cur.execute("""SELECT DISTINCT(netloc) FROM book_items WHERE istext=TRUE;""", (srcDomain, ))
 
 	ret = {}
 	for char in string.punctuation + string.whitespace + string.ascii_letters + string.digits:
@@ -53,7 +57,7 @@ import urllib.parse
 		if char == "_" or char == "%":
 			char = r"\\"+char
 
-		cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s AND src=%s LIMIT 1;", ('{char}%'.format(char=char), rootKey))
+		cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s AND netloc=%s LIMIT 1;", ('{char}%'.format(char=char), srcDomain))
 		ret[char] = cursor.fetchone()
 
 	for key in string.ascii_lowercase:
@@ -63,8 +67,9 @@ import urllib.parse
 	have = list(set([key.upper() for key, val in ret.items() if val ]))
 	have.sort()
 
-
-
+	print("Query for '%s'" % srcDomain)
+	if not have:
+		return
 
 
 	curBase = 'item-%s' % int(time.time()*1000)
@@ -74,23 +79,37 @@ import urllib.parse
 
 	%>
 
-	<ul>
+	<div class="css-treeview">
+		<ul>
 
-		<li><input type="checkbox" id="${curBase}" checked="checked" /><label for="${curBase}">${rootTitle}</label>
-			<ul>
-				% for key in have:
-					<li>
-					${treeRender.lazyTreeNode(rootKey, key)}
-					</li>
-				% endfor
-			</ul>
-		</li>
-	</ul>
+			<li><input type="checkbox" id="${curBase}" checked="checked" /><label for="${curBase}">${srcDomain.title()}</label>
+				<ul>
+					% for key in have:
+						<li>
+						${treeRender.lazyTreeNode(srcDomain, key)}
+						</li>
+					% endfor
+				</ul>
+			</li>
+		</ul>
+
+	</div>
+	<hr>
 </%def>
 
 
 <body>
 
+<%
+
+cur = sqlCon.cursor()
+cur.execute("""SELECT DISTINCT(netloc) FROM book_items WHERE istext=TRUE ORDER BY netloc;""")
+ret = cur.fetchall()
+print("Dictinct = ", ret)
+
+
+
+%>
 
 <div>
 	${sideBar.getSideBar(sqlCon)}
@@ -103,12 +122,20 @@ import urllib.parse
 				cursor = sqlCon.cursor()
 				%>
 
-				% for srcKey, srcName in settings.bookSources:
-					<div class="css-treeview">
-						${renderTreeRoot(srcKey, srcName)}
-					</div>
-					<hr>
+				% for srcDomain, in ret:
+					<%
+					if not srcDomain:
+						srcDomain = ''
+					renderTreeRoot(srcDomain)
+					%>
 				% endfor
+
+				## % for srcKey, srcName in settings.bookSources:
+				## 	<div class="css-treeview">
+				## 		${renderTreeRoot(srcKey, srcName)}
+				## 	</div>
+				## 	<hr>
+				## % endfor
 
 			</div>
 

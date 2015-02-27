@@ -122,7 +122,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 	<%
 
 		cur = sqlCon.cursor()
-		cur.execute("SELECT url, dbid, title FROM book_items WHERE src = %s AND mimetype = %s AND lower(title) LIKE lower(%s) ORDER BY title;", (rootKey, 'text/html', keyBase+'%'))
+		cur.execute("SELECT url, dbid, title FROM book_items WHERE netloc = %s AND mimetype = %s AND lower(title) LIKE lower(%s) ORDER BY title;", (rootKey, 'text/html', keyBase+'%'))
 		ret = cur.fetchall()
 
 		if not ret:
@@ -165,7 +165,13 @@ def build_trie(iterItem, getKey=lambda x: x):
 					<hr>
 
 					<div>
-						Src: ${srcLut[src]} <br>
+						<%
+						if src in srcLut:
+							srcStr = srcLut[src]
+						else:
+							srcStr = "Source Key: '%s'" % src
+						%>
+						Src: ${srcStr} <br>
 						<a href='${itemUrl}'>Original source: ${itemUrl}</a>
 					</div>
 				</div>
@@ -242,14 +248,16 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 	ret = natsorted(ret, key=lambda x: x.replace("-", " "))
 	%>
-	% if len(ret) > 1:
-		% for item in ret:
-			${lazyTreeNode(rootKey, item)}
-		% endfor
-	% else:
-		${renderWholeBranch(rootKey, treeKey)}
-	% endif
+	## Fukkit, just render the entire branch
+	## % if len(ret) > 1:
+	## 	% for item in ret:
+	## 		${lazyTreeNode(rootKey, item)}
+	## 	% endfor
+	## % else:
+	## 	${renderWholeBranch(rootKey, treeKey)}
+	## % endif
 
+	${renderWholeBranch(rootKey, treeKey)}
 
 </%def>
 
@@ -257,7 +265,9 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 <%
 
+
 print("Request params", request.params)
+
 
 
 if "url" in request.params:
@@ -272,11 +282,6 @@ elif "tree" in request.params:
 		return
 
 	key = request.params['key']
-
-	# Require a valid tree key to work.
-	if not key in [item[0] for item in settings.bookSources]:
-		needId()
-		return
 
 	prefix = urllib.parse.unquote(request.params["tree"])
 	lazyTreeRender(key, prefix)

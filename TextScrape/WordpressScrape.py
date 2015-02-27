@@ -52,8 +52,10 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 		{'id'    : 'primary-sidebar'},
 		{'id'    : 'search-container'},
 		{'id'    : 'primary-navigation'},
+		{'id'    : 'site-header'},
 		{'class' : 'entry-utility'},
 		{'class' : 'site-header'},
+		{'class' : 'header-main'},
 		{'class' : 'comments-link'},
 		{'class' : 'breadcrumbs'},
 		{'class' : 'screen-reader-text'},
@@ -77,20 +79,6 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 		{'id'    : 'infinite-footer'},
 		{'name'  : "likes-master"}
 	]
-
-
-
-	def decomposeItems(self, soup, toDecompose):
-		# Decompose all the parts we don't want
-		for key in toDecompose:
-			for instance in soup.find_all(True, attrs=key):
-				instance.decompose() # This call permutes the tree!
-
-		# Clear out all the iframes
-		for instance in soup.find_all('iframe'):
-			instance.decompose()
-
-		return soup
 
 
 

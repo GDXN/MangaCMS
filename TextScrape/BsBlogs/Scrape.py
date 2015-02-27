@@ -167,19 +167,6 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 	# Grab all images, ignoring host domain
 	allImages = True
 
-	# Override the decomposition call, and remove all the iframes.
-	def decomposeItems(self, soup, toDecompose):
-		# Decompose all the parts we don't want
-		for key in toDecompose:
-			for instance in soup.find_all(True, attrs=key):
-				instance.decompose() # This call permutes the tree!
-
-		# Clear out all the iframes
-		for instance in soup.find_all('iframe'):
-			instance.decompose()
-
-		return soup
-
 
 	# def checkDomain(self, url):
 	# 	return False

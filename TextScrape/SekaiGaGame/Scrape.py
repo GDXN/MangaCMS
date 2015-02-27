@@ -12,19 +12,22 @@ import webFunctions
 import urllib.error
 
 class Scrape(TextScrape.TextScrapeBase.TextScraper):
-	tableKey = 'japtem'
-	loggerPath = 'Main.JapTem.Scrape'
-	pluginName = 'JapTemScrape'
+	tableKey = 'sekaigagame'
+	loggerPath = 'Main.SekaiGaGame.Scrape'
+	pluginName = 'SekaiGaGameScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 2
+	threads = 1
 
 
-	baseUrl = "http://japtem.com/"
+	baseUrl = "https://sites.google.com/site/sekaigameoredake/"
 	startUrl = baseUrl
 
-	badwords = ["fanfic.php",
+	badwords = [
+				"pages/reportAbuse",
+
+				"fanfic.php",
 				"/viewtopic.php",
 				"/memberlist.php",
 				"/search.php",
@@ -79,6 +82,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 		{'id' : 'sharedaddy'},
 		{'id' : 'scrollUp'},
 	]
+
 
 
 

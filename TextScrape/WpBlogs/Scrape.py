@@ -24,7 +24,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'http://fateapocryphathetranslation.wordpress.com',
 		'http://fuyuugakuenthetranslation.wordpress.com',
 		'http://gjbuthetranslation.wordpress.com',
-		'http://gravitytranslations.wordpress.com/',
 		'http://grimgalthetranslation.wordpress.com',
 		'http://hellotranslations.wordpress.com',
 		'http://hennekothetranslation.wordpress.com',
@@ -43,25 +42,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'http://solitarytranslation.wordpress.com/',
 		'http://thecatscans.wordpress.com/',
 		'http://tsaltranslation.wordpress.com',
-		'http://www.amaburithetranslation.wordpress.com',
-		'http://www.fateapocryphathetranslation.wordpress.com',
-		'http://www.fuyuugakuenthetranslation.wordpress.com',
-		'http://www.gjbuthetranslation.wordpress.com',
-		'http://www.gravitytranslations.wordpress.com/',
-		'http://www.grimgalthetranslation.wordpress.com',
-		'http://www.hellotranslations.wordpress.com',
-		'http://www.hennekothetranslation.wordpress.com',
-		'http://www.korezombiethetranslation.wordpress.com',
-		'http://www.loveyouthetranslation.wordpress.com',
-		'http://www.maoyuuthetranslation.wordpress.com/',
-		'http://www.mayochikithetranslation.wordpress.com',
-		'http://www.ojamajothetranslation.wordpress.com',
-		'http://www.oregairuthetranslation.wordpress.com',
-		'http://www.oreimothetranslation.wordpress.com',
-		'http://www.rokkathetranslation.wordpress.com/',
-		'http://www.sasamisanthetranslation.wordpress.com',
-		'http://www.seizonthetranslation.wordpress.com',
-		'http://www.skyworldthetranslation.wordpress.com',
 		'http://zmunjali.wordpress.com',
 		'https://xantbos.wordpress.com/',
 		'https://9ethtranslations.wordpress.com/',
@@ -79,7 +59,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://nanodesutranslations.wordpress.com/',
 		'https://oniichanyamete.wordpress.com/',
 		'https://pirateyoshi.wordpress.com/',
-		'https://pirateyoshi.wordpress.com/',
 		'https://sakurahonyaku.wordpress.com/',
 		'https://setsuna86blog.wordpress.com/',
 		'https://tomorolls.wordpress.com',
@@ -88,14 +67,16 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://wartdf.wordpress.com/',
 		'https://yoraikun.wordpress.com/',
 		'https://zmunjali.wordpress.com/',
-		'https://setsuna86blog.wordpress.com/'
+		'https://setsuna86blog.wordpress.com/',
 		'https://tensaitranslations.wordpress.com/',
 		'https://gekkahimethetranslation.wordpress.com/',
+		'https://ohanashimi.wordpress.com/',
+
+		'http://gravitytranslations.wordpress.com/',
+		'http://gravitytranslations.com/',             # The wordpress address redirects to the plain URL
 	]
 
 	startUrl = baseUrl
-
-
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
@@ -232,7 +213,8 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'(NanoDesu)',
 		'A Translation of the',
 		'Roxism HQ |',
-		'| SETSUNA86BLOG'
+		'| SETSUNA86BLOG',
+		'mahoutsuki translation |'
 	]
 
 
