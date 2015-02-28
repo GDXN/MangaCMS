@@ -280,6 +280,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'r-login.wordpress.com',
 		'twitter.com',
 		'facebook.com',
+		'public-api.wordpress.com',
 		])
 	_scannedDomains = set()
 	allImages       = False
@@ -426,7 +427,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self._scannedDomains.add(url)
 
 		elif 'google.' in netloc:
-			pass
+			self.log.info("Skipping URL: '%s'", url)
 
 		else:
 			self._scannedDomains.add(netloc)
@@ -550,7 +551,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
 		return any([rootUrl in url.lower() for rootUrl in self._relinkDomains])
 
-	def extractLinks(self, soup):
+	def extractLinks(self, soup, baseUrl):
 		# All links have been resolved to fully-qualified paths at this point.
 
 
@@ -589,6 +590,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				if not self.checkFollowGoogleUrl(url):
 					continue
 
+				url = self.urlClean(url)
 
 				if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
 					url = gdp.trimGDocUrl(url)
@@ -597,22 +599,20 @@ class TextScraper(metaclass=abc.ABCMeta):
 						continue
 
 					# self.log.info("Resolved URL = '%s'", url)
-					self.putNewUrl(url)
+					self.putNewUrl(url, baseUrl)
 					# self.log.info("New G link: '%s'", url)
 
 				else:
-					# print('Url: "%s"' % url)
-					url = self.urlClean(url)
 					# Remove any URL fragments causing multiple retreival of the same resource.
 					if url != gdp.trimGDocUrl(url):
 						print('Old URL: "%s"' % url)
 						print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
 						raise ValueError("Wat? Url change? Url: '%s'" % url)
-					self.putNewUrl(url)
+					self.putNewUrl(url, baseUrl)
 					# self.log.info("Newlink: '%s'", url)
 
 
-	def extractImages(self, soup):
+	def extractImages(self, soup, baseUrl):
 
 		for imtag in soup.find_all("img"):
 						# Skip empty anchor tags
@@ -641,7 +641,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 			# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
 			url = self.urlClean(url)
-			self.upsert(url, istext=False)
+
+			self.putNewUrl(url, baseUrl=baseUrl, istext=False)
 
 
 	def convertToReaderImage(self, inStr):
@@ -805,8 +806,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		# Conditionally pull out the page content and enqueue it.
 		if self.checkDomain(url):
-			self.extractLinks(soup)
-			self.extractImages(soup)
+			self.extractLinks(soup, url)
+			self.extractImages(soup, url)
 		else:
 			self.log.warn("Not extracting images or links for url '%s'", url)
 
@@ -886,7 +887,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self.log.info("URL: '%s'", url)
 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
 
-		elif mimeType in ['application/x-javascript']:
+		elif mimeType in ['application/x-javascript', 'application/javascript']:
 			self.log.info("Javascript Resource!")
 			self.log.info("URL: '%s'", url)
 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
@@ -895,7 +896,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 			self.log.info("Processing '%s' as an image file.", url)
 			self.saveFile(url, mimeType, fName, content)
 
-		elif mimeType in ["application/octet-stream", "application/x-mobipocket-ebook", "application/pdf"]:
+		elif mimeType in ["application/octet-stream", "application/x-mobipocket-ebook", "application/pdf", "application/zip"]:
 			self.log.info("Processing '%s' as an binary file.", url)
 			self.saveFile(url, mimeType, fName, content)
 
@@ -998,7 +999,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		pgTitle, soup = self.cleanGdocPage(soup)
 
-		self.extractLinks(soup)
+		self.extractLinks(soup, url)
 		self.log.info("Page title = '%s'", pgTitle)
 		soup = self.relink(soup, imRelink=self.convertToGdocReaderImage)
 
@@ -1116,21 +1117,35 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 
 
-	def putNewUrl(self, url):
+	def putNewUrl(self, url, baseUrl=None, istext=True):
 		if not url.lower().startswith("http"):
-			if self.IGNORE_MALFORMED_URLS:
+			if baseUrl:
+				# If we have a base-url to extract the scheme from, we pull that out, concatenate
+				# it onto the rest of the url segments, and then unsplit that back into a full URL
+				scheme = urllib.parse.urlsplit(baseUrl.lower()).scheme
+				rest = urllib.parse.urlsplit(baseUrl.lower())[1:]
+				params = (scheme, ) + rest
+
+				self.log.info("Had to add scheme (%s) to URL: '%s'", scheme, url)
+				url = urllib.parse.urlunsplit(params)
+
+			elif self.IGNORE_MALFORMED_URLS:
 				self.log.error("Skipping a malformed URL!")
 				self.log.error("Bad URL: '%s'", url)
 				return
-			raise ValueError("Url isn't a url: '%s'" % url)
+			else:
+				raise ValueError("Url isn't a url: '%s'" % url)
 		if gdp.isGdocUrl(url) or gdp.isGFileUrl(url):
 			if gdp.trimGDocUrl(url) != url:
 				raise ValueError("Invalid link crept through! Link: '%s'" % url)
 
 
+		if not url.lower().startswith('http'):
+			raise ValueError("Failure adding scheme to URL: '%s'" % url)
+
 		if '/view/export?format=zip' in url:
 			raise ValueError("Wat?")
-		self.newLinkQueue.put(url)
+		self.newLinkQueue.put((url, istext))
 
 
 
@@ -1192,16 +1207,16 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	def queueLoop(self):
 		self.log.info("Fetch thread starting")
-		try:
-			# Timeouts is used to track when queues are empty
-			# Since I have multiple threads, and there are known
-			# situations where we can be certain that there will be
-			# only one request (such as at startup), we need to
-			# have a mechanism for retrying fetches from a queue a few
-			# times before concluding there is nothing left to do
-			timeouts = 0
-			while runStatus.run:
 
+		# Timeouts is used to track when queues are empty
+		# Since I have multiple threads, and there are known
+		# situations where we can be certain that there will be
+		# only one request (such as at startup), we need to
+		# have a mechanism for retrying fetches from a queue a few
+		# times before concluding there is nothing left to do
+		timeouts = 0
+		while runStatus.run:
+			try:
 				url = self.getToDo()
 				if url:
 
@@ -1227,9 +1242,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 				if timeouts > 5:
 					break
 
-			self.log.info("Fetch thread exiting!")
-		except Exception:
-			traceback.print_exc()
+			except Exception:
+				traceback.print_exc()
+		self.log.info("Fetch thread exiting!")
 
 	def crawl(self):
 
@@ -1254,11 +1269,20 @@ class TextScraper(metaclass=abc.ABCMeta):
 			while runStatus.run:
 				try:
 					got = self.newLinkQueue.get_nowait()
+					if not got:
+						continue
+					if len(got) == 2:
+						url, istext = got
+						if not url in haveUrls:
 
-					if not got in haveUrls:
-						self.log.info("New URL: '%s'", got)
-						self.upsert(got, dlstate=0)
-						haveUrls.add(got)
+							if url.lower().startswith('http'):
+								self.log.info("New URL: '%s'", url)
+								self.upsert(url, istext=istext, dlstate=0)
+								haveUrls.add(url)
+							else:
+								raise ValueError("Invalid URL added: '%s'", got)
+					else:
+						raise ValueError("Data from queue is not a 2-tuple? '%s'" % got)
 
 				except queue.Empty:
 					time.sleep(0.01)

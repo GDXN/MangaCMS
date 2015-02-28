@@ -14,6 +14,7 @@ import utilities.dedupDir
 import utilities.approxFileSorter
 import utilities.autoOrganize as autOrg
 import utilities.cleanDb
+import utilities.bookClean
 import utilities.cleanFiles
 import deduplicator.remoteInterface
 
@@ -73,6 +74,13 @@ def printHelp():
 	print("*********************************************************")
 	print("	lookup {name}")
 	print("		Lookup {name} in the MangaUpdates name synonym lookup table, print the results.")
+	print()
+	print("	crosslink-books")
+	print("		Make sure the netloc column of the book_items table is up to date.")
+	print()
+	print("	clean-book-cache")
+	print("		Clean out and delete any old files from the book content cache")
+	print("		that no longer has any entries in the database.")
 	print()
 
 	print("*********************************************************")
@@ -139,12 +147,11 @@ def parseOneArgCall(cmd):
 		pc.fixDjMItems()
 	elif mainArg.lower() == "reload-tree":
 		deduplicator.remoteInterface.treeReload()
-	elif mainArg.lower() == "import-djm":
-		if not len(sys.argv) == 3:
-			print("You must specify a path to import from!")
-			return
-		sourcePath = sys.argv[2]
-		pc.importDjMItems(sourcePath)
+	elif mainArg.lower() == "crosslink-books":
+		utilities.bookClean.updateNetloc()
+	elif mainArg.lower() == "clean-book-cache":
+		utilities.bookClean.cleanBookContent()
+
 	else:
 		print("Unknown arg!")
 
@@ -246,7 +253,6 @@ def parseThreeArgCall(cmd, arg1, arg2):
 			return
 		utilities.dedupDir.moveUnlinkable(arg1, arg2)
 		return
-
 
 	elif cmd == "auto-clean":
 		if not os.path.exists(arg1):

@@ -72,21 +72,19 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://gekkahimethetranslation.wordpress.com/',
 		'https://ohanashimi.wordpress.com/',
 
-		'http://gravitytranslations.wordpress.com/',
-		'http://gravitytranslations.com/',             # The wordpress address redirects to the plain URL
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		"http://giraffecorps.liamak.net/",
-
+		"http://www.taptaptaptaptap.net/",
 		'http://shinsekai.cadet-nine.org/',
 
+		'http://gravitytranslations.wordpress.com/',
+		'http://gravitytranslations.com/',             # The wordpress address redirects to the plain URL
 	]
 
 	startUrl = [
-			"https://binhjamin.wordpress.com",
-			"http://giraffecorps.liamak.net/",
-			"http://shinsekai.cadet-nine.org/",
-			"http://gravitytranslations.com/",
+			"http://www.taptaptaptaptap.net/",
+
 			]
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
@@ -113,6 +111,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 				"giraffecorps.liamak.net/contact/",
 				"giraffecorps.liamak.net/extras/",
 				"wp-comments-post",
+				"/page/page/",
 
 				]
 
@@ -156,6 +155,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		{'class'           : 'wpcnt'},
 		{'class'           : 'wpcom-follow-bubbles'},
 		{'class'           : 'xoxo'},
+		{'class'           : 'meta'},
 		{'id'              : 'access'},
 		{'id'              : 'bit'},
 		{'id'              : 'branding'},
@@ -238,6 +238,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'| Shin Sekai Yori &#8211; From the New World',
 		'| Shin Sekai Yori - From the New World',
 		'| Shin Sekai Yori – From the New World',
+		':: tappity tappity tap.'
 	]
 
 

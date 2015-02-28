@@ -16,9 +16,9 @@ import json
 import TextScrape.jsLiteralParse
 
 
-def trimGDocUrl(url):
+def trimGDocUrl(rawUrl):
 
-	url = url.split("#")[0]
+	url = rawUrl.split("#")[0]
 
 
 	urlParam = urllib.parse.urlparse(url)
