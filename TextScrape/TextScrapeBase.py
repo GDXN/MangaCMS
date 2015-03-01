@@ -281,6 +281,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'twitter.com',
 		'facebook.com',
 		'public-api.wordpress.com',
+		'/page/page/'
 		])
 	_scannedDomains = set()
 	allImages       = False
@@ -355,8 +356,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 		for item in self.fileDomains:
 			self._fileDomains.add(item)
 
-
-		for url in self._scannedDomains:
+		tmp = list(self._scannedDomains)
+		tmp.sort()
+		for url in tmp:
 			self.log.info("Scanned domain:		%s", url)
 
 

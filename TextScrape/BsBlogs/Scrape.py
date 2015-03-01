@@ -80,7 +80,10 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 				'the-imouto-petter.html',
 				'tinypic.com',
 				'updated-max',
+				'/page/page/',
 
+				# I don't know why the scrape is walking over to taptaptap content, but it's fucking annoying.
+				'www.taptaptaptaptap.net',
 				]
 
 	decomposeBefore = [

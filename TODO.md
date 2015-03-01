@@ -9,9 +9,15 @@ http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.
 
 
 
+sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 
+basename in book changes not workimg
 
+Hachinantte, Sore wa Naideshou!
+
+http://hikuosan.blogspot.com/2015/01/kamitachi-ni-hirowareta-otoko-prologue1.html
+https://lygartranslations.wordpress.com/novels/elf-tensei/
 
 ## TO ADD: 
 =======
