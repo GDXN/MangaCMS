@@ -218,7 +218,7 @@ class WebGetRobust:
 			params = {}
 			headers = {}
 			if postData != None:
-				self.log.info("Making a post-request!")
+				self.log.info("Making a post-request! Params: '%s'", postData)
 				params['data'] = urllib.parse.urlencode(postData).encode("utf-8")
 			if addlHeaders != None:
 				self.log.info("Have additional GET parameters!")
@@ -417,7 +417,10 @@ class WebGetRobust:
 		nativeError    = kwargs.setdefault("nativeError",     False)
 		binaryForm     = kwargs.setdefault("binaryForm",      False)
 
-
+		# Conditionally encode the referrer if needed, because otherwise
+		# urllib will barf on unicode referrer values.
+		if addlHeaders and 'Referer' in addlHeaders:
+			addlHeaders['Referer'] = iri2uri(addlHeaders['Referer'])
 
 		pgctnt = None
 		pghandle = None
@@ -473,6 +476,8 @@ class WebGetRobust:
 
 				except UnicodeEncodeError:
 					self.log.critical("Unrecoverable Unicode issue retreiving page - %s", requestedUrl)
+					for line in traceback.format_exc().split("\n"):
+						self.log.critical("%s", line.rstrip())
 					break
 
 				except Exception:

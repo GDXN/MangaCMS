@@ -3,7 +3,6 @@ https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 https images still fucked
 
-Write tool for flushing/aggregating book resource content items.
 
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
 
@@ -16,8 +15,7 @@ basename in book changes not workimg
 
 Hachinantte, Sore wa Naideshou!
 
-http://hikuosan.blogspot.com/2015/01/kamitachi-ni-hirowareta-otoko-prologue1.html
-https://lygartranslations.wordpress.com/novels/elf-tensei/
+
 
 ## TO ADD: 
 =======
@@ -29,6 +27,8 @@ http://toshosen-tsl.livejournal.com/
 General Resource: http://englishlightnovels.com/
 Use http://lndb.info/ as BU-like?
 
+## http://hikuosan.blogspot.com/2015/01/kamitachi-ni-hirowareta-otoko-prologue1.html
+## https://lygartranslations.wordpress.com/novels/elf-tensei/
 ## http://earlandfairy.weebly.com/
 ## http://shinsekai.cadet-nine.org/
 ## http://giraffecorps.liamak.net/
@@ -140,7 +140,6 @@ New LN Trans groups:
 
 Todo:
 
- - Filter spiral aggressively by manga directory
  - filter rating view by crosslink status
  - h rating system
  - deduper expose get matching archives for spiral
@@ -150,13 +149,13 @@ Todo:
  - autotrim empty dirs
  - Trigger full series download if a series is seen by a scraper, and the local directory is both found, and rated above a threshold (Done for Batoto, needs per-plugin work. Add facilities to pluginBase?)
  - Trigger series download if on any BU list as well (partial)
- - base nt off muid system
+ - ~~base nt off muid system~~ Axed, MU isn't as encyclopedic as I thought at one point.
  - ability to browse dirs by mu list cross-link
  - select 201 to determine next page
  - add half star rating options
  - h tag collation system
  - consolidation system for h tags
- - out of row colours
+ - ~~out of row colours~~ (Fixed by some low-effort HSV transforms)
  - linebreaks in long filenames in reader popup need work
  - zoom mode indicator for smart mode in reader
  - ability to specify MU id in directory name? [Lnnn] or sommat?
@@ -185,8 +184,9 @@ Todo:
 
 Deduper R2:
 
- - deduper spiral out to significant intersections on new scan (Depends on new cleaned-up deduper system)
- - phash filter by resolution for deletion decision
+ - ~~deduper spiral out to significant intersections on new scan (Depends on new cleaned-up deduper system)~~ Too much overhead.
+ 	- Filter spiral aggressively by manga directory?
+ - ~~phash filter by resolution for deletion decision~~ (Done)
  - Image entropy is not useful for quantifying image ancestry
 
 Long Term:
@@ -337,6 +337,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~Write tool for flushing/aggregating book resource content items. (Done)~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/16v8Q9Kice7pinXq4_aoEBr6Viu7CuRWPyv_TyE7wXOg formatting oddness~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fhokagetranslations.wordpress.com%2Ftag%2Fmonster-musume-harem-o-tsukurou-make-a-monster-girl-harem%2F header not cleared~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/folderview%3Fid%3D0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c%26usp%3Ddrive_web~~

@@ -11,6 +11,7 @@ import webFunctions
 import json
 import time
 import urllib.error
+import settings
 
 class Monitor(TextScrape.MonitorBase.MonitorBase):
 	tableName = 'books_lndb'
@@ -52,6 +53,40 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 			raise ValueError("No CSRF Cookie!")
 
 		return cookie
+
+
+	def checkLogin(self):
+
+		checkPage = self.wg.getpage(self.baseurl)
+		if not "you are logged in." in checkPage:
+			self.log.info("Whoops, need to get Login cookie")
+		else:
+			self.log.info("Still logged in")
+			return
+
+
+
+		CsrfToken = self.getCsrfCookie()
+
+		addlHeaders = {'Referer': 'http://lndb.info/auth/login'}
+		logondict   = {
+						'csrf_test_name' : CsrfToken,
+						"login"          : settings.lndb["login"],
+						"password"       : settings.lndb["passwd"],
+						"remember"       : "1",
+						"submit_login"   : "Log in"
+					}
+
+
+		getPage = self.wg.getpage(r"http://lndb.info/auth/login", postData=logondict, addlHeaders=addlHeaders)
+		if "Incorrect login" in getPage:
+			self.log.error("Login failed!")
+			raise ValueError("Cannot login to LNDB. Is your login/password valid?")
+		elif "you are logged in." in getPage:
+			self.log.info("Logged in successfully!")
+
+		self.wg.saveCookies()
+
 
 	##############################################################################################################################
 	#
@@ -101,17 +136,22 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 
 	def upsertChanges(self, page_offset=1):
 		changes = 0
-		for item in self.getChanges(page_offset).values():
+		items = self.getChanges(page_offset)
+		for item in items.values():
 			have = self.getRowByValue(cTitle=item['title'])
 			if have and have['lastChanged'] >= item['date']:
 				continue
 			elif have:
-				self.updateDbEntry(item['dbId'], changeState=0)
+				self.log.info("Item changed: '%s', '%s'", have['lastChanged'], item['date'])
+				self.updateDbEntry(have['dbId'], changeState=0, lastChanged=have['lastChanged'])
 			else:
 				self.insertIntoDb(cTitle=item['title'], lastChanged=item['date'], firstSeen=time.time(), seriesEntry=True)
 			changes += 1
 
-		self.log.info("Changed items to re-scan: %s", changes)
+		numItemsOnPage = len(items)
+		self.log.info("Changed items to re-scan: %s. Total distinct items on page: %s'", changes, numItemsOnPage)
+
+		return numItemsOnPage
 
 	###########################################################################################################################################
 	#
@@ -146,7 +186,6 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 	covers      - Cover Array
 	'''
 
-
 	def getSoupForSeriesItem(self, itemtitle):
 		url      = urllib.parse.urljoin(self.baseurl, '/light_novel/view/' + itemtitle.replace(' ', '_'))
 		referrer = urllib.parse.urljoin(self.baseurl, '/light_novel/' + itemtitle.replace(' ', '_'))
@@ -154,10 +193,13 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 		soup = None
 		for x in range(3):
 			try:
-				soup = self.wg.getSoup(url, addlHeaders={'Referer': referrer})
+				# You have to specify the 'X-Requested-With' param, or you'll get a 404
+				soup = self.wg.getSoup(url, addlHeaders={'Referer': referrer, 'X-Requested-With': 'XMLHttpRequest'})
 				break
 			except urllib.error.URLError:
 				time.sleep(4)
+				# Randomize the user agent again
+				self.wg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web")
 		if not soup:
 			raise ValueError("Could not retreive page!")
 		return soup
@@ -240,21 +282,34 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 				self.updateSeriesItem(item)
 			else:
 				raise ValueError("How did a non-series-entry item get created?")
+			time.sleep(1)
 
 	def go(self):
-		# Check for new changes
-		self.upsertChanges()
+		# # Login if needed:
+		# self.checkLogin()
+
+		# # Check for new changes
+		# self.upsertChanges()
 
 		# And then fetch and update as needed.
 		self.updateOutdated()
 
+	def scanAllSeries(self):
+		offset = 45
+		while True:
+			x = self.upsertChanges(page_offset=offset)
+			if x == 0:
+				break
+			time.sleep(2.5)
+
+			offset += 1
+
+
 def test():
 	scrp = Monitor()
-	for x in range(185):
-		scrp.upsertChanges(page_offset=x)
-		time.sleep(2.5)
+	# scrp.scanAllSeries()
 	# scrp.updateOutdated()
-	# scrp.go()
+	scrp.go()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 
 

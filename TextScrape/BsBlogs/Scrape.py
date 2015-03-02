@@ -33,6 +33,9 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 		"http://hikuosan.blogspot.com",
 		"http://kurotsuki-novel.blogspot.com",
 		"http://swordandgame.blogspot.ca",
+		"http://hikuosan.blogspot.com",
+
+
 
 	]
 

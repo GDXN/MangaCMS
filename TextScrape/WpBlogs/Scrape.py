@@ -71,7 +71,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://tensaitranslations.wordpress.com/',
 		'https://gekkahimethetranslation.wordpress.com/',
 		'https://ohanashimi.wordpress.com/',
-
+		"https://lygartranslations.wordpress.com",
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		"http://giraffecorps.liamak.net/",
