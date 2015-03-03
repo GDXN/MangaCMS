@@ -37,6 +37,7 @@ import datetime
 from babel.dates import format_timedelta
 import os.path
 import settings
+import traceback
 import string
 
 import urllib.parse
@@ -74,40 +75,112 @@ startTime = time.time()
 
 <%def name="renderId(itemId)">
 	<%
+	print("LNDB Item: ------------------------", itemId)
 
 	cursor = sqlCon.cursor()
 
-	cursor.execute("""SELECT dbid,
-							changestate,
-							ctitle,
-							otitle,
-							vtitle,
-							jtitle,
-							jvtitle,
-							series,
-							pub,
-							label,
-							volno,
-							author,
-							illust,
-							target,
-							description,
-							seriesentry,
-							covers,
-							readingprogress,
-							availprogress,
-							rating,
-							reldate,
-							lastchanged,
-							lastchecked,
-							firstseen FROM books_lndb WHERE dbid=%s;""", (itemId, ))
+	cursor.execute("""SELECT books_lndb.dbid,
+							books_lndb.changestate,
+							books_lndb.ctitle,
+							books_lndb.otitle,
+							books_lndb.vtitle,
+							books_lndb.jtitle,
+							books_lndb.jvtitle,
+							books_lndb.series,
+							books_lndb.pub,
+							books_lndb.label,
+							books_lndb.volno,
+							books_lndb.author,
+							books_lndb.illust,
+							books_lndb.target,
+							books_lndb.description,
+							books_lndb.seriesentry,
+							books_lndb.covers,
+							books_lndb.readingprogress,
+							books_lndb.availprogress,
+							books_lndb.rating,
+							books_lndb.reldate,
+							books_lndb.lastchanged,
+							books_lndb.lastchecked,
+							books_lndb.firstseen,
+							listname
+						FROM books_lndb
+						LEFT JOIN books_lndb_series_list ON books_lndb_series_list.seriesId = books_lndb.dbid
+						WHERE books_lndb.dbid=%s;""", (itemId, ))
 	item = cursor.fetchone()
+
+	print("Return:", item)
+
+	dbid,                    \
+			changestate,     \
+			ctitle,          \
+			otitle,          \
+			vtitle,          \
+			jtitle,          \
+			jvtitle,         \
+			series,          \
+			pub,             \
+			label,           \
+			volno,           \
+			author,          \
+			illust,          \
+			target,          \
+			description,     \
+			seriesentry,     \
+			covers,          \
+			readingprogress, \
+			availprogress,   \
+			rating,          \
+			reldate,         \
+			lastchanged,     \
+			lastchecked,     \
+			firstseen,       \
+			listname = item
+
 
 	%>
 
 
-	<h2>Book item ${itemId}</h2>
+	<h2>Series: ${ctitle}</h2>
+	<div style="float:right">
+		<div class="lightRect itemInfoBox">
+			List: ${listname}
+		</div>
+	</div>
 	<div>
+		<table>
+
+			<col width="200">
+			<col width="200">
+			<tr>
+				<td>Series Name:</td>
+				<td>${ctitle}</td>
+			</tr>
+
+			<tr>
+				<td>Japanese Name:</td>
+				<td>${jtitle}</td>
+			</tr>
+
+			<tr>
+				<td>Author:</td>
+				<td>${author}</td>
+			</tr>
+
+			<tr>
+				<td>Illustrator:</td>
+				<td>${illust}</td>
+			</tr>
+			<tr>
+				<td>Target Demographic:</td>
+				<td>${target}</td>
+			</tr>
+
+			<tr>
+				<td>Published Volumes:</td>
+				<td>${volno}</td>
+			</tr>
+		</table>
 		${item}
 	</div>
 </%def>
@@ -123,6 +196,7 @@ startTime = time.time()
 			renderId(seriesId)
 			return
 		except:
+			traceback.print_exc()
 			pass
 
 	queryError("No item ID in URL!")

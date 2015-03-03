@@ -283,4 +283,15 @@ from ipaddress import IPv4Address, IPv4Network
 
 
 
+<%def name="getUrlParam(paramName)">
+	<%
+	if paramName in request.params:
+		return request.params[paramName]
+	else:
+		return None
+	%>
+</%def>
+
+
+
 
