@@ -72,6 +72,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://gekkahimethetranslation.wordpress.com/',
 		'https://ohanashimi.wordpress.com/',
 		"https://lygartranslations.wordpress.com",
+		"https://reantoanna.wordpress.com",
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		"http://giraffecorps.liamak.net/",
@@ -80,6 +81,44 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 		'http://gravitytranslations.wordpress.com/',
 		'http://gravitytranslations.com/',             # The wordpress address redirects to the plain URL
+
+
+		"http://fuzionlife.wordpress.com/",
+		"http://gekkahimethetranslation.wordpress.com/",
+		"http://lastexorcist.wordpress.com/",
+		"http://magelifeblog.wordpress.com/",
+		"http://nightofthehuntingparty.wordpress.com/",
+		"http://pactwebserial.wordpress.com/",
+		"http://parahumans.wordpress.com/",
+		"http://rejecthero.wordpress.com/",
+		"http://rumorblock.wordpress.com/",
+		"http://shinynewjustice.wordpress.com/",
+		"http://stcon.wordpress.com/",
+		"http://stoneburners.wordpress.com/",
+		"http://taulsn.wordpress.com/",
+		"http://tieshaunn.wordpress.com/",
+		"http://tmbrakta.wordpress.com/",
+		"http://tusjecht.wordpress.com/",
+		"http://twistedcogs.wordpress.com/",
+		"http://villainousintent.wordpress.com/",
+		"https://agreyworld.wordpress.com/",
+		"https://anathemaserial.wordpress.com/",
+		"https://endonline.wordpress.com/",
+		"https://farmerbob1.wordpress.com/",
+		"https://flickerhero.wordpress.com/",
+		"https://fromwhencecamethenamed.wordpress.com/",
+		"https://gargoyleserial.wordpress.com/",
+		"https://hajiko.wordpress.com/",
+		"https://heartcrusadescans.wordpress.com/",
+		"https://itranslateln.wordpress.com/",
+		"https://kamitranslation.wordpress.com/",
+		"https://natsutl.wordpress.com/",
+		"https://paztok.wordpress.com/",
+		"https://shintranslations.wordpress.com/",
+		"https://vaancruze.wordpress.com/",
+
+
+
 	]
 
 	startUrl = [

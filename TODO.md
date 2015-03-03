@@ -6,6 +6,11 @@ https images still fucked
 
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
 
+https://reantoanna.wordpress.com/2015/02/17/only-im-not-attacked-in-a-world-over-runned-by-zombies-vol-1-chapter-1-8/
+
+
+http://10.1.1.8:8081/search-b/b?q=kansustoppu
+http://10.1.1.8:8081/search-b/b?q=Maou+no+Hajimekata+
 
 
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
@@ -15,10 +20,47 @@ basename in book changes not workimg
 
 Hachinantte, Sore wa Naideshou!
 
+https://kobatochandaisuki.wordpress.com/
+https://shintranslations.wordpress.com/
+https://tensaitranslations.wordpress.com/
+https://hellotranslations.wordpress.com/
+https://heartcrusadescans.wordpress.com/
 
+http://arkmachinetranslations.com/
+http://www.pegasusfarts.com/
+http://worldofwatermelons.com/
+http://www.wuxiaworld.com/
 
 ## TO ADD: 
 =======
+
+
+
+http://a0132.blogspot.ca/
+http://aquarilasscenario.blogspot.com/
+http://arzengi.blogspot.com/
+http://avertranslation.blogspot.sg/
+http://ecwebnovel.blogspot.ca/
+http://hereticlnt.blogspot.com/
+http://hereticlnt.blogspot.sg/
+http://hikuosan.blogspot.com/
+http://imoutoliciouslnt.blogspot.ca/
+http://imoutoliciouslnt.blogspot.com/
+http://jawztranslations.blogspot.com/
+http://kurotsuki-novel.blogspot.com/
+http://nakulas.blogspot.com/
+http://panofitrans.blogspot.com/
+http://royalroadweed.blogspot.co.il/
+http://skythewood.blogspot.com.
+http://skythewood.blogspot.sg/
+http://sousetsuka.blogspot.com/
+http://swordandgame.blogspot.ca/
+http://the-last-skull.blogspot.com/
+http://thenakedsol.blogspot.com.
+http://thezombieknight.blogspot.co.uk/
+http://untuned-strings.blogspot.com/
+http://xhawk77x.blogspot.com/
+
 
 http://pokkoo-shuu.tumblr.com/thelunacyofdukevenomania
 http://sayasamax3.tumblr.com/post/56013645417/high-speed-translations-and-summaries
@@ -26,6 +68,7 @@ http://toshosen-tsl.livejournal.com/
 
 General Resource: http://englishlightnovels.com/
 Use http://lndb.info/ as BU-like?
+Also: http://aho-updates.com/
 
 ## http://hikuosan.blogspot.com/2015/01/kamitachi-ni-hirowareta-otoko-prologue1.html
 ## https://lygartranslations.wordpress.com/novels/elf-tensei/
