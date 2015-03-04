@@ -12,6 +12,9 @@ https://reantoanna.wordpress.com/2015/02/17/only-im-not-attacked-in-a-world-over
 http://10.1.1.8:8081/search-b/b?q=kansustoppu
 http://10.1.1.8:8081/search-b/b?q=Maou+no+Hajimekata+
 
+http://10.1.1.8:8081/books/render?url=http://skythewood.blogspot.com/2014/10/O12.html
+http://10.1.1.8:8081/books/render?url=http%3A%2F%2Fskythewood.blogspot.ca%2Fp%2Fknights-and-magic-author-amazake-no.html
+fubky relinking
 
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 

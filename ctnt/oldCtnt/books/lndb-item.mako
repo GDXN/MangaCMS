@@ -137,14 +137,30 @@ startTime = time.time()
 			firstseen,       \
 			listname = item
 
+	cursor.execute("""SELECT listname
+					FROM books_lndb_lists;""")
 
+	lists = cursor.fetchall()
+
+	# Unpack the 1-tuples that fetchall() returns.
+	lists = [list[0] for list in lists]
+	print(lists)
 	%>
 
 
 	<h2>Series: ${ctitle}</h2>
 	<div style="float:right">
 		<div class="lightRect itemInfoBox">
-			List: ${listname}
+			List:<br>
+
+			<select name="list" id="list" onchange="listChange(this.value)" style='width:180px;'>
+				% for list in lists:
+					<option value="${list}"   ${"selected='selected''" if listname == list else ""}>${list}</option>
+				% endfor
+				<option value=""   ${"selected='selected''" if listname == None else ""}>No List</option>
+
+			</select>
+			<span id="list-status">✓</span>
 		</div>
 	</div>
 	<div>

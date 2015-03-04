@@ -213,6 +213,27 @@ class ApiInterface(object):
 		return Response(body=json.dumps({"Status": "Success", "contents": 'Item moved to recycle bin!'}))
 
 
+
+	def addBookList(self, request):
+
+		newList = request.params['listName']
+
+		cur = self.conn.cursor()
+		cur.execute("""SELECT COUNT(*) FROM books_lndb_lists WHERE listname=%s;""", (newList, ))
+		ret = cur.fetchone()[0]
+
+		if ret:
+			return Response(body=json.dumps({"Status": "Failed", "contents": 'List already exists!'}))
+
+
+		cur = self.conn.cursor()
+		cur.execute("""INSERT INTO books_lndb_lists (listname) VALUES (%s);""", (newList, ))
+		cur.execute('COMMIT')
+
+		return Response(body=json.dumps({"Status": "Success", "contents": 'New list added!'}))
+
+
+
 	def handleApiCall(self, request):
 
 		self.log.info("API Call! %s", request.params)
@@ -238,8 +259,10 @@ class ApiInterface(object):
 			return self.getBookTrigramSearch(request)
 		elif 'delete-item' in request.params:
 			return self.deleteItem(request)
+		elif 'add-book-list' in request.params:
+			return self.addBookList(request)
 
 		else:
 			self.log.warning("Unknown API call")
 			self.log.warning("Call params: '%s'", request.params)
-			return Response(body="wat?")
+			return Response(body=json.dumps({"Status": "Failed", "contents": "Unknown API Call.\nCall parameters: '%s'." % str(list(request.params.keys()))}))
