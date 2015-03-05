@@ -39,6 +39,7 @@ import os.path
 import settings
 import traceback
 import string
+import nameTools as nt
 
 import urllib.parse
 %>
@@ -67,19 +68,151 @@ startTime = time.time()
 
 	</div>
 
+</%def>
 
 
+<%def name="renderListSelector(cursor, listname, itemId)">
+
+	<%
+	cursor.execute("""SELECT listname
+					FROM books_lndb_lists;""")
+
+	lists = cursor.fetchall()
+
+	# Unpack the 1-tuples that fetchall() returns.
+	lists = [list[0] for list in lists]
+
+	%>
+
+
+	<script>
+
+		function listChangeCallback(reqData, statusStr, jqXHR)
+		{
+			console.log("Ajax request succeeded");
+			console.log(reqData);
+			console.log(statusStr);
+
+			var status = $.parseJSON(reqData);
+			console.log(status)
+			if (status.Status == "Success")
+			{
+				$('#list-status').html("✓");
+				location.reload();
+			}
+			else
+			{
+				$('#list-status').html("✗");
+				alert("ERROR!\n"+status.Message)
+			}
+
+		};
+		function listChange(newList)
+		{
+			$('#list-status').html("❍");
+
+			var ret = ({});
+			ret["set-list-for-book"] = "${itemId}";
+			ret["listName"] = newList;
+			$.ajax("/api", {"data": ret, success: listChangeCallback});
+			// alert("New value - "+newList);
+		}
+	</script>
+
+	<div class="lightRect itemInfoBox">
+		List:<br>
+
+		<select name="list" id="list" onchange="listChange(this.value)" style='width:180px;'>
+			% for list in lists:
+				<option value="${list}"   ${"selected='selected''" if listname == list else ""}>${list}</option>
+			% endfor
+			<option value=""   ${"selected='selected''" if listname == None else ""}>No List</option>
+
+		</select>
+		<span id="list-status">✓</span>
+	</div>
 
 </%def>
 
 
-<%def name="renderId(itemId)">
+
+<%def name="renderReadTo(cursor, itemId, readingprogress, availprogress)">
+
 	<%
-	print("LNDB Item: ------------------------", itemId)
+	cursor.execute("""SELECT listname
+					FROM books_lndb_lists;""")
 
-	cursor = sqlCon.cursor()
+	lists = cursor.fetchall()
 
-	cursor.execute("""SELECT books_lndb.dbid,
+	# Unpack the 1-tuples that fetchall() returns.
+	lists = [list[0] for list in lists]
+	print(lists)
+	if availprogress < 0:
+		availprogress = ' -'
+	if readingprogress < 0:
+		readingprogress = ' -'
+
+	%>
+	<script>
+
+
+		function readToCallback	(reqData, statusStr, jqXHR)
+		{
+			console.log("Ajax request succeeded");
+			console.log(reqData);
+			console.log(statusStr);
+
+			var status = $.parseJSON(reqData);
+			console.log(status)
+			if (status.Status == "Success")
+			{
+				$('#reading-status').html("✓");
+				$('#readto').html(status.readTo);
+			}
+			else
+			{
+				$('#reading-status').html("✗");
+				alert("ERROR!\n"+status.Message)
+			}
+
+		};
+		function changeRating(delta)
+		{
+			$('#reading-status').html("❍");
+
+			var ret = ({});
+			ret["set-read-for-book"] = "${itemId}";
+			ret["itemDelta"] = delta;
+			$.ajax("/api", {"data": ret, success: readToCallback});
+			// alert("New value - "+delta);
+		}
+	</script>
+
+	<div class="lightRect itemInfoBox">
+		<div>
+			Read to: <span id='readto'>${readingprogress}</span><br>
+			<a href="javascript:void(0)" onclick='changeRating(+10);'>+10</a>
+			<a href="javascript:void(0)" onclick='changeRating(+5);'>+5</a>
+			<a href="javascript:void(0)" onclick='changeRating(+1);'>+1</a>
+			<a href="javascript:void(0)" onclick='changeRating(-1);'>-1</a>
+			<a href="javascript:void(0)" onclick='changeRating(-5);'>-5</a>
+			<a href="javascript:void(0)" onclick='changeRating(-10);'>-10</a>
+
+		</div>
+		<div>
+			Available: <span id='available'>${availprogress}</span>
+		</div>
+		<div>
+		</div>
+		<span id="reading-status">✓</span>
+	</div>
+
+</%def>
+
+
+<%def name="getLndbItemInfo(cursor, itemId)">
+	<%
+		cursor.execute("""SELECT books_lndb.dbid,
 							books_lndb.changestate,
 							books_lndb.ctitle,
 							books_lndb.otitle,
@@ -107,62 +240,63 @@ startTime = time.time()
 						FROM books_lndb
 						LEFT JOIN books_lndb_series_list ON books_lndb_series_list.seriesId = books_lndb.dbid
 						WHERE books_lndb.dbid=%s;""", (itemId, ))
-	item = cursor.fetchone()
+		item = cursor.fetchone()
 
-	print("Return:", item)
+		keys = ['dbid', 'changestate', 'ctitle', 'otitle',
+			'vtitle', 'jtitle', 'jvtitle', 'series',
+			'pub', 'label', 'volno', 'author',
+			'illust', 'target', 'description',
+			'seriesentry', 'covers', 'readingprogress',
+			'availprogress', 'rating', 'reldate',
+			'lastchanged', 'lastchecked', 'firstseen',
+			'listname']
+		ret = dict(zip(keys, item))
+		return ret
 
-	dbid,                    \
-			changestate,     \
-			ctitle,          \
-			otitle,          \
-			vtitle,          \
-			jtitle,          \
-			jvtitle,         \
-			series,          \
-			pub,             \
-			label,           \
-			volno,           \
-			author,          \
-			illust,          \
-			target,          \
-			description,     \
-			seriesentry,     \
-			covers,          \
-			readingprogress, \
-			availprogress,   \
-			rating,          \
-			reldate,         \
-			lastchanged,     \
-			lastchecked,     \
-			firstseen,       \
-			listname = item
+	%>
+</%def>
 
-	cursor.execute("""SELECT listname
-					FROM books_lndb_lists;""")
+<%def name="getMangaUpdatesInfo(cursor, muId)">
+	<%
 
-	lists = cursor.fetchall()
+		cursor.execute("""SELECT buid, availprogress, readingprogress, buname, bulist, butags
+						FROM mangaseries
 
-	# Unpack the 1-tuples that fetchall() returns.
-	lists = [list[0] for list in lists]
-	print(lists)
+						WHERE buid=%s;""", (muId, ))
+		item = cursor.fetchone()
+
+		keys = ("muId", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre')
+		ret = dict(zip(keys, item))
+		return ret
+
+	%>
+</%def>
+
+
+<%def name="renderId(itemId)">
+	<%
+
+	cursor = sqlCon.cursor()
+
+
+	data = getLndbItemInfo(cursor, itemId)
+
+
+	muId = nt.getMangaUpdatesId(data['ctitle'])
+
 	%>
 
 
-	<h2>Series: ${ctitle}</h2>
+	<h2>Series: ${data['ctitle']}</h2>
+
+
 	<div style="float:right">
-		<div class="lightRect itemInfoBox">
-			List:<br>
-
-			<select name="list" id="list" onchange="listChange(this.value)" style='width:180px;'>
-				% for list in lists:
-					<option value="${list}"   ${"selected='selected''" if listname == list else ""}>${list}</option>
-				% endfor
-				<option value=""   ${"selected='selected''" if listname == None else ""}>No List</option>
-
-			</select>
-			<span id="list-status">✓</span>
-		</div>
+		<%
+		renderListSelector(cursor, data['listname'], itemId)
+		renderReadTo(cursor, itemId, data['readingprogress'], data['availprogress'])
+		%>
 	</div>
+
 	<div>
 		<table>
 
@@ -170,35 +304,80 @@ startTime = time.time()
 			<col width="200">
 			<tr>
 				<td>Series Name:</td>
-				<td>${ctitle}</td>
+				<td>${data['ctitle']}</td>
 			</tr>
 
 			<tr>
 				<td>Japanese Name:</td>
-				<td>${jtitle}</td>
+				<td>${data['jtitle']}</td>
 			</tr>
 
 			<tr>
 				<td>Author:</td>
-				<td>${author}</td>
+				<td>${data['author']}</td>
 			</tr>
 
 			<tr>
 				<td>Illustrator:</td>
-				<td>${illust}</td>
+				<td>${data['illust']}</td>
 			</tr>
 			<tr>
 				<td>Target Demographic:</td>
-				<td>${target}</td>
+				<td>${data['target']}</td>
 			</tr>
 
 			<tr>
 				<td>Published Volumes:</td>
-				<td>${volno}</td>
+				<td>${data['volno']}</td>
 			</tr>
 		</table>
-		${item}
 	</div>
+	% if muId:
+		<%
+		muData = getMangaUpdatesInfo(cursor, muId)
+		%>
+		<h3 style='text-align:left;'>MangaUpdates Cross-Reference: ${data['ctitle']}</h3>
+		## <div>
+		## 	${muId}
+		## 	${muData}
+		## </div>
+		<table>
+
+			<col width="200">
+			<col width="200">
+			<tr>
+				<td>Series Name:</td>
+				<td>${muData['seriesName']}</td>
+			</tr>
+
+			<tr>
+				<td>MU List:</td>
+				<td>${muData['listName']}</td>
+			</tr>
+
+
+			<tr>
+				<td>Read to:</td>
+				<td>${muData['readChapter']}</td>
+			</tr>
+			<tr>
+				<td>Available chapters:</td>
+				<%
+				avail = muData['currentChapter']
+				if avail == -1 and muData['readChapter'] >= 0:
+					avail = muData['readChapter']
+				elif avail == -1:
+					avail = None
+				%>
+				<td>${avail}</td>
+			</tr>
+			<tr>
+				<td>Tags:</td>
+				<td>${muData['tags']}</td>
+			</tr>
+		</table>
+
+	% endif
 </%def>
 
 

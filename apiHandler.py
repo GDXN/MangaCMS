@@ -233,6 +233,91 @@ class ApiInterface(object):
 		return Response(body=json.dumps({"Status": "Success", "contents": 'New list added!'}))
 
 
+	def removeBookList(self, request):
+
+		newList = request.params['listName']
+
+		cur = self.conn.cursor()
+		cur.execute("""SELECT COUNT(*) FROM books_lndb_lists WHERE listname=%s;""", (newList, ))
+		ret = cur.fetchone()[0]
+
+		if ret:
+			return Response(body=json.dumps({"Status": "Failed", "contents": 'Cannot delete list that doesn\'t exist!'}))
+
+
+		cur = self.conn.cursor()
+		cur.execute("""DELETE FROM books_lndb_lists WHERE listname=%s;""", (newList, ))
+		cur.execute('COMMIT')
+
+		return Response(body=json.dumps({"Status": "Success", "contents": 'List Deleted!'}))
+
+
+	def setListForBook(self, request):
+		bookId = request.params['set-list-for-book']
+		listName = request.params['listName']
+
+		if not listName:
+			cur = self.conn.cursor()
+			cur.execute("""DELETE FROM books_lndb_series_list WHERE seriesid=%s;""", (bookId, ))
+
+			return Response(body=json.dumps({"Status": "Success", "contents": 'Item list cleared!'}))
+
+
+		# Check if the item already is in the list table.
+		cur = self.conn.cursor()
+		cur.execute("""SELECT COUNT(*) FROM books_lndb_series_list WHERE seriesid=%s;""", (bookId, ))
+		ret = cur.fetchone()[0]
+
+		if ret:
+			cur = self.conn.cursor()
+			cur.execute("""UPDATE books_lndb_series_list SET listname=%s WHERE seriesid=%s;""", (listName, bookId))
+			cur.execute('COMMIT')
+
+			return Response(body=json.dumps({"Status": "Success", "contents": 'Updated list for item!'}))
+
+
+		cur = self.conn.cursor()
+		cur.execute("""INSERT INTO books_lndb_series_list (seriesid, listname) VALUES (%s, %s);""", (bookId, listName))
+		cur.execute('COMMIT')
+
+		return Response(body=json.dumps({"Status": "Success", "contents": 'Item list updated!'}))
+
+
+
+	def setReadForBook(self, request):
+
+		bookId = request.params['set-read-for-book']
+		readChange = request.params['itemDelta']
+
+		try:
+			readChange = int(readChange)
+		except ValueError:
+			return Response(body=json.dumps({"Status": "Failed", "contents": 'Change value not an integer!'}))
+
+		# Check if the item already is in the list table.
+		cur = self.conn.cursor()
+		cur.execute("""SELECT readingprogress FROM books_lndb WHERE dbid=%s;""", (bookId, ))
+		retRow = cur.fetchone()
+		if not retRow:
+			return Response(body=json.dumps({"Status": "Failed", "contents": 'ID Not in database!'}))
+		curRead = retRow[0]
+
+		total = curRead + readChange
+		if total < -1:
+			total = -1
+
+		cur.execute("""UPDATE books_lndb SET readingprogress=%s WHERE dbid=%s;""", (total, bookId))
+		cur.execute('COMMIT')
+
+		if total < 0:
+			total = '-'
+		ret = {
+			"Status": "Success",
+			"contents": 'Current read-to status: %s!' % total,
+			"readTo": total
+			}
+		return Response(body=json.dumps(ret))
+
 
 	def handleApiCall(self, request):
 
@@ -261,6 +346,12 @@ class ApiInterface(object):
 			return self.deleteItem(request)
 		elif 'add-book-list' in request.params:
 			return self.addBookList(request)
+		elif 'remove-book-list' in request.params:
+			return self.removeBookList(request)
+		elif 'set-list-for-book' in request.params:
+			return self.setListForBook(request)
+		elif 'set-read-for-book' in request.params:
+			return self.setReadForBook(request)
 
 		else:
 			self.log.warning("Unknown API call")

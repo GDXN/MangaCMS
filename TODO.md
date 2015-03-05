@@ -1,3 +1,11 @@
+books api:
+
+'set-list': special case None to remove. Use listid rather then string?
+'set-read': +1 +5 +10. -1, -5, -10
+
+'add-list'
+'remove-list'
+
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
