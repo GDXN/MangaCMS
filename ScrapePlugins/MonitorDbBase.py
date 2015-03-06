@@ -65,6 +65,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 							"buOriginState",
 							"buDescription",
 							"buRelState",
+							"buType",
 
 							"readingProgress",
 							"availProgress",
@@ -85,6 +86,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 							"buOriginState",
 							"buDescription",
 							"buRelState",
+							"buType",
 
 							"readingProgress",
 							"availProgress",
@@ -319,9 +321,9 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 		toRow   = self.getRowByValue(**toDict)
 
 		if not fromRow:
-			raise ValueError("FromRow has no corresponding value in the dictionary! FromRow={row1}".format(row1=fromRow, row2=toRow))
+			raise ValueError("FromRow has no corresponding value in the dictionary! FromRow={row1}".format(row1=fromRow))
 		if not toRow:
-			raise ValueError("ToRow has no corresponding value in the dictionary! ToRow={row2}".format(row1=fromRow, row2=toRow))
+			raise ValueError("ToRow has no corresponding value in the dictionary! ToRow={row2}".format(row2=toRow))
 
 		# self.printDict(fromRow)
 		# self.printDict(toRow)
@@ -351,7 +353,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			toRow.pop("dbId")
 
 
-			with self.transaction() as cur:
+			with self.transaction():
 
 				self.deleteRowById(fromRow["dbId"], commit=False)
 				self.updateDbEntry(dbId, commit=False, **toRow)
@@ -522,6 +524,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 												buOriginState   text,
 												buDescription   text,
 												buRelState      text,
+												buType          text,
 
 												readingProgress int,
 												availProgress   int,
@@ -547,6 +550,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 						("%s_buId_index"         % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buId  )''' ),
 						("%s_buTags_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buTags)''' ),
 						("%s_buGenre_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buGenre)'''),
+						("%s_buType_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buType)'''),
 
 						# And the GiN indexes to allow full-text searching so we can search by genre/tags.
 						("%s_buTags_gin_index"   % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin((lower(buTags)::tsvector))'''),

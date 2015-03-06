@@ -189,6 +189,7 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		availProg = self.getAvailProgress(soup)
 		tags      = self.extractTags(soup)
 		genres    = self.extractGenres(soup)
+		type      = self.getType(soup)
 
 		author    = self.getAuthor(soup)
 		artist    = self.getArtist(soup)
@@ -200,14 +201,15 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		# print("Basename = ", baseName)
 		self.log.info("Basename = %s, AltNames = %s", baseName, altNames)
 		self.log.info("Author = %s, Artist = %s", author, artist)
-		self.log.info("ReleaseState %s, desc len = %s", relState, len(desc))
+		self.log.info("ReleaseState %s, desc len = %s, type = %s", relState, len(desc), type)
 		kwds = {
 			"lastChecked"   : time.time(),
 			"buName"        : baseName,
 			"buArtist"      : artist,
 			"buAuthor"      : author,
 			"buDescription" : desc,
-			"buRelState"    : relState
+			"buRelState"    : relState,
+			"buType"        : type
 		}
 		if release:
 			kwds["lastChanged"] = release
@@ -420,6 +422,19 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def getAuthor(self, soup):
 
 		header = soup.find("b", text="Author(s)")
+		if not header:
+			return ""
+
+		container = header.parent.find_next_sibling("div", class_="sContent")
+		if not container:
+			return ""
+
+
+		return ", ".join(container.strings).strip().strip(" ,")
+
+	def getType(self, soup):
+
+		header = soup.find("b", text="Type")
 		if not header:
 			return ""
 

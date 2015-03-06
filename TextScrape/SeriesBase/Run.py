@@ -7,16 +7,16 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.LNDB.Run"
+	loggerPath = "Main.SeriesDbBase.Run"
 
-	pluginName = "LNDBScrape"
+	pluginName = "BookSeriesTableGen"
 
 
 	def _go(self):
 
-		self.log.info("Checking LNDB for updates")
+		self.log.info("Creating seriesTables")
 		scraper = Monitor()
-		scraper.go()
+		scraper.crawl()
 
 
 def test():

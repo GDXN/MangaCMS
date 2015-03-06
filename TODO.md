@@ -1,11 +1,3 @@
-books api:
-
-'set-list': special case None to remove. Use listid rather then string?
-'set-read': +1 +5 +10. -1, -5, -10
-
-'add-list'
-'remove-list'
-
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
@@ -22,9 +14,15 @@ http://10.1.1.8:8081/search-b/b?q=Maou+no+Hajimekata+
 
 http://10.1.1.8:8081/books/render?url=http://skythewood.blogspot.com/2014/10/O12.html
 http://10.1.1.8:8081/books/render?url=http%3A%2F%2Fskythewood.blogspot.ca%2Fp%2Fknights-and-magic-author-amazake-no.html
-fubky relinking
+funky relinking
 
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
+
+
+break down and scrape http://www.royalroadl.com/
+
+book ratings!
+
 
 
 basename in book changes not workimg
@@ -36,7 +34,8 @@ https://shintranslations.wordpress.com/
 https://tensaitranslations.wordpress.com/
 https://hellotranslations.wordpress.com/
 https://heartcrusadescans.wordpress.com/
-
+https://durandaru.wordpress.com/
+https://natsutl.wordpress.com/projects/magi-craft-meister/
 http://arkmachinetranslations.com/
 http://www.pegasusfarts.com/
 http://worldofwatermelons.com/

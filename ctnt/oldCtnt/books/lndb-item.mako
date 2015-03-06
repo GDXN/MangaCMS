@@ -75,7 +75,7 @@ startTime = time.time()
 
 	<%
 	cursor.execute("""SELECT listname
-					FROM books_lndb_lists;""")
+					FROM book_series_lists;""")
 
 	lists = cursor.fetchall()
 
@@ -140,7 +140,7 @@ startTime = time.time()
 
 	<%
 	cursor.execute("""SELECT listname
-					FROM books_lndb_lists;""")
+					FROM book_series_lists;""")
 
 	lists = cursor.fetchall()
 
@@ -238,7 +238,7 @@ startTime = time.time()
 							books_lndb.firstseen,
 							listname
 						FROM books_lndb
-						LEFT JOIN books_lndb_series_list ON books_lndb_series_list.seriesId = books_lndb.dbid
+						LEFT JOIN book_series_series_list ON book_series_series_list.seriesId = books_lndb.dbid
 						WHERE books_lndb.dbid=%s;""", (itemId, ))
 		item = cursor.fetchone()
 

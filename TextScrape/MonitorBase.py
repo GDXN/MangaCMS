@@ -35,6 +35,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 	# def nameMapTableName(self):
 	# 	return None
 
+	seriesMonitor = False
 
 	'''
 	Source items:
@@ -511,36 +512,55 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 												lastChecked     double precision,
 												firstSeen       double precision NOT NULL,
 
-												constraint uniqueSeries unique (cTitle, seriesEntry)
+												constraint {tableName}_uniqueSeries unique (cTitle, seriesEntry)
 												);'''.format(tableName=self.tableName))
 
-			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_lists (
-												dbId            SERIAL PRIMARY KEY,
-												listname        CITEXT UNIQUE
-												);'''.format(tableName=self.tableName))
+			if self.seriesMonitor:
+				cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_lists (
+													dbId            SERIAL PRIMARY KEY,
+													listname        CITEXT UNIQUE
+													);'''.format(tableName=self.tableName))
 
-			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_series_list (
-												dbId            SERIAL PRIMARY KEY,
-												seriesId        integer references {tableName}(dbId) ON DELETE CASCADE,
-												listname        CITEXT,
+				cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_series_list (
+													dbId            SERIAL PRIMARY KEY,
+													seriesId        integer references {tableName}(dbId) ON DELETE CASCADE,
+													listname        CITEXT,
 
-												constraint singleListOnly unique (seriesId)
-												);'''.format(tableName=self.tableName))
+													constraint {tableName}_singleListOnly unique (seriesId)
+													);'''.format(tableName=self.tableName))
 
-			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_tags (
-												dbId            SERIAL PRIMARY KEY,
-												tagname         CITEXT UNIQUE
 
-												);'''.format(tableName=self.tableName))
+				cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_link_list (
+													dbId            SERIAL PRIMARY KEY,
+													itemTable       CITEXT,
+													itemId          integer,
+													listname        CITEXT,
 
-			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_series_tags (
-												dbId            SERIAL PRIMARY KEY,
-												seriesId        integer references {tableName}(dbId) ON DELETE CASCADE,
-												tag             CITEXT,
+													constraint {tableName}_singleRefOnly unique (itemTable, itemId)
+													);'''.format(tableName=self.tableName))
 
-												constraint noDuplicateTags unique (seriesId, tag)
-												);'''.format(tableName=self.tableName))
+				cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_tags (
+													dbId            SERIAL PRIMARY KEY,
+													tagname         CITEXT UNIQUE
 
+													);'''.format(tableName=self.tableName))
+
+				cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_series_tags (
+													dbId            SERIAL PRIMARY KEY,
+													seriesId        integer references {tableName}(dbId) ON DELETE CASCADE,
+													tag             CITEXT,
+
+													constraint {tableName}_noDuplicateTags unique (seriesId, tag)
+													);'''.format(tableName=self.tableName))
+				'''
+
+				DROP TABLE books_lndb_lists CASCADE;
+				DROP TABLE books_lndb_series_list CASCADE;
+				DROP TABLE books_lndb_series_tags CASCADE;
+				DROP TABLE books_lndb_tags CASCADE;
+				DROP TABLE books_lndb_link_list CASCADE;
+
+				'''
 
 			cur.execute("SELECT relname FROM pg_class;")
 			haveIndexes = cur.fetchall()

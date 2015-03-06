@@ -286,10 +286,10 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 
 	def go(self):
 		# # Login if needed:
-		# self.checkLogin()
+		self.checkLogin()
 
 		# # Check for new changes
-		# self.upsertChanges()
+		self.upsertChanges()
 
 		# And then fetch and update as needed.
 		self.updateOutdated()

@@ -270,7 +270,7 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	def getAllManga(self):
 		urlFormat = 'https://www.mangaupdates.com/series.html?page={page}&perpage=100'
 		self.log.info("MU Updater scanning MangaUpdates to get all available manga.")
-		run = 1
+		run = 456
 		while run:
 			url = urlFormat.format(page=run)
 
