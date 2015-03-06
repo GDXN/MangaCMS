@@ -118,13 +118,13 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		"https://vaancruze.wordpress.com/",
 
 
+		"https://durandaru.wordpress.com/",
+
+
 
 	]
 
-	startUrl = [
-			"http://www.taptaptaptaptap.net/",
-
-			]
+	startUrl = baseUrl
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

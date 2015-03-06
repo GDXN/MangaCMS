@@ -29,13 +29,7 @@ basename in book changes not workimg
 
 Hachinantte, Sore wa Naideshou!
 
-https://kobatochandaisuki.wordpress.com/
-https://shintranslations.wordpress.com/
-https://tensaitranslations.wordpress.com/
-https://hellotranslations.wordpress.com/
-https://heartcrusadescans.wordpress.com/
-https://durandaru.wordpress.com/
-https://natsutl.wordpress.com/projects/magi-craft-meister/
+
 http://arkmachinetranslations.com/
 http://www.pegasusfarts.com/
 http://worldofwatermelons.com/
@@ -80,6 +74,14 @@ General Resource: http://englishlightnovels.com/
 Use http://lndb.info/ as BU-like?
 Also: http://aho-updates.com/
 
+
+## https://kobatochandaisuki.wordpress.com/
+## https://shintranslations.wordpress.com/
+## https://tensaitranslations.wordpress.com/
+## https://hellotranslations.wordpress.com/
+## https://heartcrusadescans.wordpress.com/
+## https://durandaru.wordpress.com/
+## https://natsutl.wordpress.com/
 ## http://hikuosan.blogspot.com/2015/01/kamitachi-ni-hirowareta-otoko-prologue1.html
 ## https://lygartranslations.wordpress.com/novels/elf-tensei/
 ## http://earlandfairy.weebly.com/
