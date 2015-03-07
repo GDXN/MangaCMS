@@ -10,7 +10,7 @@ import settings
 import nameTools as nt
 import ScrapePlugins.DbBase
 
-class MonitorBase(ScrapePlugins.DbBase.DbBase):
+class SeriesBase(ScrapePlugins.DbBase.DbBase):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
@@ -27,34 +27,17 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 	def loggerPath(self):
 		return None
 
-	@abc.abstractmethod
-	def tableName(self):
-		return None
+	# @abc.abstractmethod
+	# def tableName(self):
+	# 	return None
+
+	tableName = 'book_series'
 
 	# @abc.abstractmethod
 	# def nameMapTableName(self):
 	# 	return None
 
 	seriesMonitor = False
-
-	'''
-	Source items:
-	seriesEntry - Is this the entry for a series, or a individual volume/chapter
-	cTitle      - Chapter Title (cleaned for URL use)
-	oTitle      - Chapter Title (Raw, can contain non-URL safe chars)
-	jTitle      - Title in Japanese
-	vTitle      - Volume Title
-	jvTitle     - Japanese Volume Title
-	series      - Light Novel
-	pub	        - Publisher
-	label       - Light Novel Label
-	volNo       - Volumes
-	author      - Author
-	illust      - Illustrator
-	target      - Target Readership
-	relDate     - Release Date
-	covers      - Cover Array
-	'''
 
 
 
@@ -70,61 +53,22 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 		self.checkInitPrimaryDb()
 
 		self.validKwargs  = [
-							"changeState",
-
-							"cTitle",
-							"oTitle",
-							"jTitle",
-							"vTitle",
-							"jvTitle",
-							"series",
-							"pub",
-							"label",
-							"volNo",
-							"author",
-							"illust",
-							"target",
-							"relDate",
-							"covers",
-							"description",
-
-							"seriesEntry",
-
-							"readingProgress",
-							"availProgress",
-							"rating",
-							"lastChanged",
-							"lastChecked",
-							"firstSeen"]
+								"dbId",
+								"itemName",
+								"itemTable",
+								"readingProgress",
+								"availProgress",
+								"rating",
+							]
 
 		self.validColName = [
-							"dbId",
-							"changeState",
-
-							"cTitle",
-							"oTitle",
-							"vTitle",
-							"jTitle",
-							"jvTitle",
-							"series",
-							"pub",
-							"label",
-							"volNo",
-							"author",
-							"illust",
-							"target",
-							"relDate",
-							"covers",
-							"description",
-
-							"seriesEntry",
-
-							"readingProgress",
-							"availProgress",
-							"rating",
-							"lastChanged",
-							"lastChecked",
-							"firstSeen"]
+								"dbId",
+								"itemName",
+								"itemTable",
+								"readingProgress",
+								"availProgress",
+								"rating",
+							]
 
 
 
@@ -136,13 +80,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 	# The end result is each thread just uses `self.conn` and `self.log` as normal, but actually get a instance of each that is
 	# specifically allocated for just that thread
 	#
-	# ~~Sqlite 3 doesn't like having it's DB handles shared across threads. You can turn the checking off, but I had
-	# db issues when it was disabled. This is a much more robust fix~~
-	#
-	# Migrated to PostgreSQL. We'll see how that works out.
-	#
 	# The log indirection is just so log statements include their originating thread. I like lots of logging.
-	#
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	def __getattribute__(self, name):
@@ -176,8 +114,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Tools
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
-	# Operations are MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
-	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 
 
 	def buildInsertArgs(self, **kwargs):
@@ -199,8 +135,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 
 
 	# Insert new item into DB.
-	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
-	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 	def insertIntoDb(self, commit=True, **kwargs):
 		keysStr, valuesStr, queryAdditionalArgs = self.buildInsertArgs(**kwargs)
 
@@ -219,13 +153,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, dbId, commit=True, **kwargs):
-		print("FIXME?")
-		# traceback.print_stack()
-		# # lowercase the tags/genre
-		# if "srcGenre" in kwargs:
-		# 	kwargs['srcGenre'] = kwargs['srcGenre'].lower()
-		# if "srcTags" in kwargs:
-		# 	kwargs['srcTags'] = kwargs['srcTags'].lower()
 
 		queries = []
 		qArgs = []
@@ -264,24 +191,10 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 			cur.execute(query, qArgs)
 
 
-	# def deleteRowBySrc(self, srcId, commit=True):
-	# 	srcId = str(srcId)
-	# 	query1 = ''' DELETE FROM {tableN} WHERE srcId=%s;'''.format(tableN=self.nameMapTableName)
-	# 	qArgs = (srcId, )
-	# 	query2 = ''' DELETE FROM {tableN} WHERE srcId=%s;'''.format(tableN=self.tableName)
-	# 	qArgs = (srcId, )
-
-	# 	with self.transaction(commit=commit) as cur:
-	# 		cur.execute(query1, qArgs)
-	# 		cur.execute(query2, qArgs)
-
-	# 	if commit:
-	# 		self.conn.commit()
-
 	def getRowsByValue(self, **kwargs):
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
-		validCols = ["dbId", "cTitle", "changeState"]
+		validCols = ["dbId", "itemName", "itemTable"]
 		key, val = kwargs.popitem()
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
@@ -334,135 +247,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 				retL.append(item[0])
 		return retL
 
-	# def printDict(self, inDict):
-	# 	keys = list(inDict.keys())
-	# 	keys.sort()
-	# 	print("Dict ------")
-	# 	for key in keys:
-	# 		keyStr = "{key}".format(key=key)
-	# 		print("	", keyStr, " "*(20-len(keyStr)), inDict[key])
-
-	# def printDb(self):
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute('SELECT * FROM {db};'.format(db=self.tableName))
-	# 		for line in cur.fetchall():
-	# 			print(line)
-
-
-	# def insertBareNameItems(self, items):
-
-	# 	new = 0
-	# 	with self.transaction() as cur:
-
-
-	# 		for name, mId in items:
-	# 			row = self.getRowByValue(srcId=mId)
-	# 			if row:
-	# 				if name.lower() != row["srcName"].lower():
-	# 					self.log.warning("Name disconnect!")
-	# 					self.log.warning("New name='%s', old name='%s'.", name, row["srcName"])
-	# 					self.log.warning("Whole row=%s", row)
-	# 					self.updateDbEntry(row["dbId"], srcName=name, commit=False, lastChanged=0, lastChecked=0)
-
-	# 			else:
-	# 				row = self.getRowByValue(srcName=name)
-	# 				if row:
-	# 					self.log.error("Conflicting with existing series?")
-	# 					self.log.error("Existing row = %s, %s", row["srcName"], row["srcId"])
-	# 					self.log.error("Current item = %s, %s", name, mId)
-	# 					self.updateDbEntry(row["dbId"], srcName=name, commit=False, lastChanged=0, lastChecked=0)
-	# 				else:
-	# 					self.insertIntoDb(srcName=name,
-	# 									srcId=mId,
-	# 									lastChanged=0,
-	# 									lastChecked=0,
-	# 									firstSeen=time.time(),
-	# 									commit=False)
-	# 					new += 1
-	# 				# cur.execute("""INSERT INTO %s (srcId, name)VALUES (?, ?);""" % self.nameMapTableName, (srcId, name))
-
-	# 	if new:
-	# 		self.log.info("%s new items in inserted set.", new)
-
-	# def insertNames(self, srcId, names):
-	# 	self.log.info("Updating name synonym table for %s with %s name(s).", srcId, len(names))
-	# 	with self.transaction() as cur:
-
-
-	# 		# delete the old names from the table, so if they're removed from the source, we'll match that.
-	# 		cur.execute("DELETE FROM {tableName} WHERE srcId=%s;".format(tableName=self.nameMapTableName), (srcId, ))
-
-	# 		alreadyAddedNames = []
-	# 		for name in names:
-	# 			fsSafeName = nt.prepFilenameForMatching(name)
-	# 			if not fsSafeName:
-	# 				fsSafeName = nt.makeFilenameSafe(name)
-
-	# 			# we have to block duplicate names. Generally, it's pretty common
-	# 			# for multiple names to screen down to the same name after
-	# 			# passing through `prepFilenameForMatching()`.
-	# 			if fsSafeName in alreadyAddedNames:
-	# 				continue
-
-	# 			alreadyAddedNames.append(fsSafeName)
-
-	# 			cur.execute("""INSERT INTO %s (srcId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (srcId, name, fsSafeName))
-
-	# 	self.log.info("Updated!")
-	# def getIdFromName(self, name):
-
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""SELECT srcId FROM %s WHERE name=%%s;""" % self.nameMapTableName, (name, ))
-	# 		ret = cur.fetchall()
-	# 	if ret:
-	# 		if len(ret[0]) != 1:
-	# 			raise ValueError("Have ambiguous name. Cannot definitively link to manga series.")
-	# 		return ret[0][0]
-	# 	else:
-	# 		return None
-
-	# def getIdFromDirName(self, fsSafeName):
-
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""SELECT srcId FROM %s WHERE fsSafeName=%%s;""" % self.nameMapTableName, (fsSafeName, ))
-	# 		ret = cur.fetchall()
-	# 	if ret:
-	# 		if len(ret[0]) != 1:
-	# 			raise ValueError("Have ambiguous fsSafeName. Cannot definitively link to manga series.")
-	# 		return ret[0][0]
-	# 	else:
-	# 		return None
-
-	# def getNamesFromId(self, mId):
-
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""SELECT name FROM %s WHERE srcId=%%s::TEXT;""" % self.nameMapTableName, (mId, ))
-	# 		ret = cur.fetchall()
-	# 	if ret:
-	# 		return ret
-	# 	else:
-	# 		return None
-
-
-	# def getlastCheckedFromId(self, mId):
-
-	# 	with self.conn.cursor() as cur:
-	# 		ret = cur.execute("""SELECT lastChecked FROM %s WHERE srcId=%%s::TEXT;""" % self.tableName, (mId, ))
-	# 		ret = cur.fetchall()
-	# 	if len(ret) > 1:
-	# 		raise ValueError("How did you get more then one srcId?")
-	# 	if ret:
-	# 		# Return structure is [(time)]
-	# 		# we want to just return time
-	# 		return ret[0][0]
-	# 	else:
-	# 		return None
-
-
-	# def updatelastCheckedFromId(self, mId, changed):
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""UPDATE %s SET lastChecked=%%s WHERE srcId=%%s::TEXT;""" % self.tableName, (changed, mId))
-	# 	self.conn.commit()
 
 
 
@@ -477,56 +261,83 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 	def checkInitPrimaryDb(self):
 
 		self.log.info( "Content Retreiver Opening DB...",)
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
+
+			# List table
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_lists (
+												dbId            SERIAL PRIMARY KEY,
+												listname        CITEXT UNIQUE
+												);'''.format(tableName=self.tableName))
+
+			# List of book tables for the link list to have as foreign key references.
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_table_links (
+												dbId            SERIAL PRIMARY KEY,
+												tableName       CITEXT UNIQUE
+
+												);'''.format(tableName=self.tableName))
+
+			# Aggregate tags for items in the DB
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_tags (
+												dbId            SERIAL PRIMARY KEY,
+												tagname         CITEXT UNIQUE
+
+												);'''.format(tableName=self.tableName))
+
 			## LastChanged is when the last scanlation release was released
 			# Last checked is when the page was actually last scanned.
 			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 												dbId            SERIAL PRIMARY KEY,
 
-												changeState      int DEFAULT 0,
 
-												cTitle           CITEXT UNIQUE,
-												oTitle           text,
-												vTitle           text,
-												jTitle           text,
-												jvTitle          text,
-												series           text,
-												pub              text,
-												label            text,
-												volNo            CITEXT,
-												author           text,
-												illust           text,
-												target           CITEXT,
-												description      text,
+												itemName         CITEXT UNIQUE,
+												itemTable        integer references {tableName}_table_links(dbid),
 
-												seriesEntry      BOOL,
+												readingProgress  int,
+												availProgress    int,
 
-												covers           text[],
+												rating           int,
 
-												availProgress   int,
-
-												rating          int,
-												relDate         double precision,
-												lastChanged     double precision,
-												lastChecked     double precision,
-												firstSeen       double precision NOT NULL,
-
-												constraint {tableName}_uniqueSeries unique (cTitle, seriesEntry)
+												constraint {tableName}_uniqueSeries unique (itemName, itemTable)
 												);'''.format(tableName=self.tableName))
+
+
+			# Items on each list
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_series_list (
+												dbId            SERIAL PRIMARY KEY,
+												seriesId        integer references {tableName}(dbId) ON DELETE CASCADE,
+												listname        CITEXT,
+
+												constraint {tableName}_singleListOnly unique (seriesId)
+												);'''.format(tableName=self.tableName))
+
+
+			'''
+
+			DROP TABLE book_series CASCADE;
+			DROP TABLE book_series_link_list CASCADE;
+			DROP TABLE book_series_lists CASCADE;
+			DROP TABLE book_series_series_list CASCADE;
+			DROP TABLE book_series_table_links CASCADE;
+			DROP TABLE book_series_tags CASCADE;
+
+
+
+			DROP TABLE books_lndb_lists CASCADE;
+			DROP TABLE books_lndb_series_list CASCADE;
+			DROP TABLE books_lndb_series_tags CASCADE;
+			DROP TABLE books_lndb_tags CASCADE;
+			DROP TABLE books_lndb_link_list CASCADE;
+
+			'''
 
 			cur.execute("SELECT relname FROM pg_class;")
 			haveIndexes = cur.fetchall()
 			haveIndexes = [index[0] for index in haveIndexes]
 
-			indexes = [	("%s_lastChanged_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChanged)'''),
-						("%s_changeState_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (changeState)'''),
-						("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
-						("%s_firstSeen_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (firstSeen)'''  ),
-						("%s_rating_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (rating)'''     ),
-						("%s_cTitle_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (cTitle)'''     ),
-						("%s_target_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (target)'''     ),
-						("%s_series_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (series)'''     ),
-						("%s_seriesEntry_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (seriesEntry)'''),
+			indexes = [	("%s_rating_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (rating)'''     ),
+						("%s_itemName_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (itemName)'''     ),
+						("%s_itemTable_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (itemTable)'''     ),
+
 
 						# # And the GiN indexes to allow full-text searching so we can search by genre/tags.
 						# ("%s_srcTags_gin_index"   % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin((lower(srcTags)::tsvector))'''),

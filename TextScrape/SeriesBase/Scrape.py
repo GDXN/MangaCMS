@@ -4,16 +4,15 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.MonitorBase
+import TextScrape.SystemSeriesBase
 import urllib.error
 
-class Monitor(TextScrape.MonitorBase.MonitorBase):
-	tableName = 'book_series'
-	loggerPath = 'Main.LNDB.Monitor'
-	pluginName = 'LNDBMonitor'
-	plugin_type = 'SeriesMonitor'
+class Monitor(TextScrape.SystemSeriesBase.SeriesBase):
 
-	seriesMonitor = True
+	loggerPath = 'Main.Series.Base'
+	pluginName = 'SeriesBase'
+	plugin_type = 'SeriesBase'
+
 
 	def go(self):
 		# This just ensures the needed table exists.

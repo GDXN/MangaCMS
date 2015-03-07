@@ -52,7 +52,16 @@ def trimGDocUrl(rawUrl):
 			"/preview",
 			"/edit",
 			"/view",
+			"/mobilebasic",
+			"/mobilebasic?viewopt=127",
 			]
+
+		gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)(.*)$')
+		simpleCheck = gdocBaseRe.search(url)
+		if simpleCheck:
+			if any([item in simpleCheck.group(2) for item in strip]):
+				url = simpleCheck.group(1)
+
 		for ending in strip:
 			if url.endswith(ending):
 				url = url[:-len(ending)]

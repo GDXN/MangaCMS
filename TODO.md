@@ -3,6 +3,7 @@ https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 https images still fucked
 
+explain analyze book links
 
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
 
@@ -23,13 +24,14 @@ break down and scrape http://www.royalroadl.com/
 
 book ratings!
 
+pg pool!
 
 
 basename in book changes not workimg
 
 Hachinantte, Sore wa Naideshou!
 
-
+http://heaven.neo-romance.net/manga/ch00.php
 http://arkmachinetranslations.com/
 http://www.pegasusfarts.com/
 http://worldofwatermelons.com/

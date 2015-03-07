@@ -488,7 +488,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			# we want to just return time
 			return ret[0][0]
 		else:
-			return None
+			return 0
 
 
 	def updateLastCheckedFromId(self, mId, changed):

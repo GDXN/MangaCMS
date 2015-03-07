@@ -25,3 +25,4 @@ __pycache__
 /waterStripper/cvtest/out
 /waterStripper/cvtest/tests
 /ScrapePlugins/SadPandaLoader/deploy.shim
+*.pyc

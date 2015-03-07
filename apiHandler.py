@@ -188,6 +188,11 @@ class ApiInterface(object):
 		print(srcPathBase)
 		print(srcPathFrag)
 		fqPath = os.path.join(srcPathBase, srcPathFrag)
+		fqPath = os.path.abspath(fqPath)
+
+		# Prevent path traversal crap.
+		if not srcPathBase in fqPath:
+			return Response(body=json.dumps({"Status": "Failed", "contents": "Nice path traversal try!"}))
 
 		if not os.path.exists(fqPath):
 			return Response(body=json.dumps({"Status": "Failed", "contents": "Item does not exist?"}))
@@ -219,7 +224,7 @@ class ApiInterface(object):
 		newList = request.params['listName']
 
 		cur = self.conn.cursor()
-		cur.execute("""SELECT COUNT(*) FROM books_lndb_lists WHERE listname=%s;""", (newList, ))
+		cur.execute("""SELECT COUNT(*) FROM book_series_lists WHERE listname=%s;""", (newList, ))
 		ret = cur.fetchone()[0]
 
 		if ret:
@@ -227,7 +232,7 @@ class ApiInterface(object):
 
 
 		cur = self.conn.cursor()
-		cur.execute("""INSERT INTO books_lndb_lists (listname) VALUES (%s);""", (newList, ))
+		cur.execute("""INSERT INTO book_series_lists (listname) VALUES (%s);""", (newList, ))
 		cur.execute('COMMIT')
 
 		return Response(body=json.dumps({"Status": "Success", "contents": 'New list added!'}))
@@ -238,7 +243,7 @@ class ApiInterface(object):
 		newList = request.params['listName']
 
 		cur = self.conn.cursor()
-		cur.execute("""SELECT COUNT(*) FROM books_lndb_lists WHERE listname=%s;""", (newList, ))
+		cur.execute("""SELECT COUNT(*) FROM book_series_lists WHERE listname=%s;""", (newList, ))
 		ret = cur.fetchone()[0]
 
 		if ret:
@@ -246,7 +251,7 @@ class ApiInterface(object):
 
 
 		cur = self.conn.cursor()
-		cur.execute("""DELETE FROM books_lndb_lists WHERE listname=%s;""", (newList, ))
+		cur.execute("""DELETE FROM book_series_lists WHERE listname=%s;""", (newList, ))
 		cur.execute('COMMIT')
 
 		return Response(body=json.dumps({"Status": "Success", "contents": 'List Deleted!'}))
@@ -258,26 +263,26 @@ class ApiInterface(object):
 
 		if not listName:
 			cur = self.conn.cursor()
-			cur.execute("""DELETE FROM books_lndb_series_list WHERE seriesid=%s;""", (bookId, ))
+			cur.execute("""DELETE FROM book_series_series_list WHERE seriesid=%s;""", (bookId, ))
 
 			return Response(body=json.dumps({"Status": "Success", "contents": 'Item list cleared!'}))
 
 
 		# Check if the item already is in the list table.
 		cur = self.conn.cursor()
-		cur.execute("""SELECT COUNT(*) FROM books_lndb_series_list WHERE seriesid=%s;""", (bookId, ))
+		cur.execute("""SELECT COUNT(*) FROM book_series_series_list WHERE seriesid=%s;""", (bookId, ))
 		ret = cur.fetchone()[0]
 
 		if ret:
 			cur = self.conn.cursor()
-			cur.execute("""UPDATE books_lndb_series_list SET listname=%s WHERE seriesid=%s;""", (listName, bookId))
+			cur.execute("""UPDATE book_series_series_list SET listname=%s WHERE seriesid=%s;""", (listName, bookId))
 			cur.execute('COMMIT')
 
 			return Response(body=json.dumps({"Status": "Success", "contents": 'Updated list for item!'}))
 
 
 		cur = self.conn.cursor()
-		cur.execute("""INSERT INTO books_lndb_series_list (seriesid, listname) VALUES (%s, %s);""", (bookId, listName))
+		cur.execute("""INSERT INTO book_series_series_list (seriesid, listname) VALUES (%s, %s);""", (bookId, listName))
 		cur.execute('COMMIT')
 
 		return Response(body=json.dumps({"Status": "Success", "contents": 'Item list updated!'}))
@@ -320,11 +325,90 @@ class ApiInterface(object):
 
 
 	def handleApiCall(self, request):
+		'''
+		API Call handler.
+
+		All API calls are done as GET requests. The response value is a JSON dictionary (or an error page).
+		All response JSON objects will have a 'Status' Field, containing the literal string 'Success' if
+		the API call was successful, or 'Failed' if it failed.
+		Each response should also have a "contents" field, containing either the call's return value, or
+		a human readable status message (for calls that permute server state, rather then do lookup)
+
+		Available API Methods:
+		 - "change-rating"
+			Required parameters:
+			 - "change-rating": Valid series name (e.g. something that can be looked up in the NT interface)
+			 - "new-rating": The new rating of the series, as anything that will successfully cast to float()
+			Updates the rating of a series by modifying the directory name.
+			In general, it should only return a response once the update is complete. This isn't *completely*
+			functional, though. There is some odd behaviour when directories are moved that I have not
+			bothered to properly debug.
+
+		 - "update-series"
+			Required parameters:
+			 - "old_buName"
+			 - "old_mtName"
+			 - "old_buId"
+			 - "old_mtId"
+			Used for cross-linking Mangaupdates and MangaTraders series.
+			Basically useless, should probably be removed.
+
+		 - "reset-download"
+			Required parameters:
+			 - "reset-download": database ID for the manga download to reset.
+			Resets the download state of a item in the database. Only functions on a download with a dlState < 0,
+			e.g. a failed download.
+
+		 - "trigram-query-hentai-str"
+			Required parameters:
+			 - 'trigram-query-hentai-str': The name of the hentai to search for
+			 - 'trigram-query-linktext': The string content of the returned link if the search returned results
+
+			Do a trigram search (e.g. fuzzy text search) for a hentai title.
+			'contents' contains HTML markup for a web-interface link to a page containing the search results, or
+			"no entries found" text.
+
+
+		 - "trigram-query-book-str"
+			Required parameters:
+			 - 'trigram-query-book-str': The name of the book to search for
+			 - 'trigram-query-linktext': The string content of the returned link if the search returned results
+
+			Do a trigram search (e.g. fuzzy text search) for a book title.
+			'contents' contains HTML markup for a web-interface link to a page containing the search results, or
+			"no entries found" text.
+
+			Note: This is functionally identical to the behaviour of "trigram-query-hentai-str", aside from the table it searches.
+
+		 - "delete-item"
+			Required parameters:
+			 - 'src-dict': The nt dictionary that the item is from
+			 - 'src-path': the path of the item within the base path of the src-dict.
+
+			Move an item to the recycle bin.
+
+			The path is generated by taking the base path of the dict specified by 'src-dict',
+			concatenating `src-path` onto it.
+
+			The "deleted" item is then moved to the recycle bin directory specified in the settings.py file
+
+		################################################################################
+		# Book Management Stuff:
+		################################################################################
+		 - "add-book-list"
+			Required parameters:
+			 - 'listName'
+
+		 - "remove-book-list"
+		 - "set-list-for-book"
+		 - "set-read-for-book"
+
+		'''
 
 		self.log.info("API Call! %s", request.params)
 
 		if request.remote_addr in settings.noHighlightAddresses:
-			return Response(body=json.dumps({"Status": "Failed", "Message": "API calls are blocked from the reverse-proxy IP."}))
+			return Response(body=json.dumps({"Status": "Failed", "contents": "API calls are blocked from the reverse-proxy IP."}))
 
 
 		if "change-rating" in request.params:

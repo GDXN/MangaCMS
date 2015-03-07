@@ -12,8 +12,9 @@ import json
 import time
 import urllib.error
 import settings
+import TextScrape.NovelMixin
 
-class Monitor(TextScrape.MonitorBase.MonitorBase):
+class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBase):
 	tableName = 'books_lndb'
 	loggerPath = 'Main.LNDB.Monitor'
 	pluginName = 'LNDBMonitor'
@@ -123,7 +124,7 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 				date     = dateutil.parser.parse(item['revision_date'])
 				date     = time.mktime(date.timetuple())
 
-				title    = item['light_novel_title']
+				title    = item['light_novel_title'].strip()
 
 				line     = {'title' : title, 'date' : date}
 
@@ -138,6 +139,8 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 		changes = 0
 		items = self.getChanges(page_offset)
 		for item in items.values():
+			self.upsertNovelName(item['title'])
+
 			have = self.getRowByValue(cTitle=item['title'])
 			if have and have['lastChanged'] >= item['date']:
 				continue
@@ -257,6 +260,7 @@ class Monitor(TextScrape.MonitorBase.MonitorBase):
 		# print(item)
 		soup = self.getSoupForSeriesItem(item['cTitle'])
 		data = self.extractSeriesInfo(soup)
+
 
 		self.updateDbEntry(item['dbId'], changeState=2, **data)
 

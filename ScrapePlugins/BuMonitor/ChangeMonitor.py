@@ -9,11 +9,7 @@ import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 import time
 import settings
-
-# TODO: Drive change monitoring by watching
-# https://www.mangaupdates.com/releases.html
-
-
+import TextScrape.NovelMixin
 
 import ScrapePlugins.MonitorDbBase
 
@@ -26,7 +22,7 @@ CHECK_INTERVAL_OTHER = 60 * 60 * 24 * 30  # Every month
 def toInt(inStr):
 	return int(''.join(ele for ele in inStr if ele.isdigit()))
 
-class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
+class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	loggerPath       = "Main.Bu.DateUpdater"
 	pluginName       = "BakaUpdates Update Date Monitor"

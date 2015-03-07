@@ -16,7 +16,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		self.log.info("Creating seriesTables")
 		scraper = Monitor()
-		scraper.crawl()
+		scraper.go()
 
 
 def test():
