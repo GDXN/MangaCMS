@@ -24,6 +24,7 @@ class NovelMixin(metaclass=abc.ABCMeta):
 
 
 	def upsertNovelName(self, seriesName):
+
 		with self.transaction() as cur:
 			tableId = self.__getEnsureTableLinkExists(cur)
 

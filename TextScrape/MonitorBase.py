@@ -73,6 +73,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 							"changeState",
 
 							"cTitle",
+							"cleanedTitle",
 							"oTitle",
 							"jTitle",
 							"vTitle",
@@ -99,6 +100,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 							"changeState",
 
 							"cTitle",
+							"cleanedTitle",
 							"oTitle",
 							"vTitle",
 							"jTitle",
@@ -348,6 +350,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 												changeState      int DEFAULT 0,
 
 												cTitle           CITEXT UNIQUE,
+												cleanedTitle     CITEXT,
 												oTitle           text,
 												vTitle           text,
 												jTitle           text,
@@ -382,6 +385,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 						("%s_changeState_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (changeState)'''),
 						("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
 						("%s_firstSeen_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (firstSeen)'''  ),
+						("%s_cleanedTitle_index" % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (cleanedTitle)'''  ),
 
 						("%s_cTitle_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (cTitle)'''     ),
 						("%s_target_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (target)'''     ),

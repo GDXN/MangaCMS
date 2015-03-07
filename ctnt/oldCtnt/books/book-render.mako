@@ -48,7 +48,7 @@ import urllib.parse
 	%>
 	<tr>
 		<td>${sourceSite}</td>
-		<td>${ut.makeBookItemLink(itemname, itemname)}</td>
+		<td>${ut.makeBookIdLink(dbid, itemname)}</td>
 		<td>${rating}</td>
 		<td>${reading}</td>
 		<td>${available}</td>

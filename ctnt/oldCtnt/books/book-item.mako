@@ -49,14 +49,6 @@ startTime = time.time()
 # print("Rendering begun")
 %>
 
-<%def name="renderRow(rowData)">
-	<h2>LNDB Book Series: </h2>
-</%def>
-
-<%def name="renderError(rowData)">
-	<h2>LNDB Book Series: </h2>
-</%def>
-
 
 
 <%def name="queryError(errStr=None)">
@@ -71,16 +63,25 @@ startTime = time.time()
 </%def>
 
 
-<%def name="renderListSelector(cursor, listname, itemId)">
+<%def name="renderListSelector(cursor, itemId)">
 
 	<%
 	cursor.execute("""SELECT listname
 					FROM book_series_lists;""")
 
 	lists = cursor.fetchall()
-
 	# Unpack the 1-tuples that fetchall() returns.
 	lists = [list[0] for list in lists]
+
+	cursor.execute('''SELECT listname
+						FROM book_series_list_entries
+						WHERE seriesId=%s''', (itemId, ))
+	ret = cursor.fetchone()
+	if ret:
+		itemList = ret[0]
+	else:
+		itemList = None
+
 
 	%>
 
@@ -124,9 +125,9 @@ startTime = time.time()
 
 		<select name="list" id="list" onchange="listChange(this.value)" style='width:180px;'>
 			% for list in lists:
-				<option value="${list}"   ${"selected='selected''" if listname == list else ""}>${list}</option>
+				<option value="${list}"   ${"selected='selected''" if itemList == list else ""}>${list}</option>
 			% endfor
-			<option value=""   ${"selected='selected''" if listname == None else ""}>No List</option>
+			<option value=""   ${"selected='selected''" if itemList == None else ""}>No List</option>
 
 		</select>
 		<span id="list-status">✓</span>
@@ -210,54 +211,68 @@ startTime = time.time()
 </%def>
 
 
-<%def name="getLndbItemInfo(cursor, itemId)">
-	<%
-		cursor.execute("""SELECT books_lndb.dbid,
-							books_lndb.changestate,
-							books_lndb.ctitle,
-							books_lndb.otitle,
-							books_lndb.vtitle,
-							books_lndb.jtitle,
-							books_lndb.jvtitle,
-							books_lndb.series,
-							books_lndb.pub,
-							books_lndb.label,
-							books_lndb.volno,
-							books_lndb.author,
-							books_lndb.illust,
-							books_lndb.target,
-							books_lndb.description,
-							books_lndb.seriesentry,
-							books_lndb.covers,
-							books_lndb.readingprogress,
-							books_lndb.availprogress,
-							books_lndb.rating,
-							books_lndb.reldate,
-							books_lndb.lastchanged,
-							books_lndb.lastchecked,
-							books_lndb.firstseen,
-							listname
-						FROM books_lndb
-						LEFT JOIN book_series_series_list ON book_series_series_list.seriesId = books_lndb.dbid
-						WHERE books_lndb.dbid=%s;""", (itemId, ))
-		item = cursor.fetchone()
+<%def name="renderControlDiv(cursor, itemId, readingprogress, availprogress)">
 
-		keys = ['dbid', 'changestate', 'ctitle', 'otitle',
-			'vtitle', 'jtitle', 'jvtitle', 'series',
-			'pub', 'label', 'volno', 'author',
-			'illust', 'target', 'description',
-			'seriesentry', 'covers', 'readingprogress',
-			'availprogress', 'rating', 'reldate',
-			'lastchanged', 'lastchecked', 'firstseen',
-			'listname']
+	<div style="float:right">
+		<%
+		renderListSelector(cursor, itemId)
+		renderReadTo(cursor, itemId, readingprogress, availprogress)
+		%>
+	</div>
+
+
+</%def>
+
+<%def name="getLndbItemInfo(cursor, title)">
+	<%
+		ctitle = title.replace("(Novel)", " ").strip()
+		cleanedtitle = nt.prepFilenameForMatching(title)
+		print("cleanedTitle: '%s'" % cleanedtitle)
+		cursor.execute("""SELECT dbid, changestate, ctitle, otitle,
+								vtitle, jtitle, jvtitle, series,
+								pub, label, volno, author,
+								illust, target, description, seriesentry,
+								covers, reldate, lastchanged, lastchecked,
+								firstseen, cleanedtitle
+						FROM books_lndb
+						WHERE cleanedtitle=%s;""", (cleanedtitle, ))
+		item = cursor.fetchone()
+		if not item:
+			return None
+		keys = [
+				"dbid",
+				"changestate",
+				"ctitle",
+				"otitle",
+				"vtitle",
+				"jtitle",
+				"jvtitle",
+				"series",
+				"pub",
+				"label",
+				"volno",
+				"author",
+				"illust",
+				"target",
+				"description",
+				"seriesentry",
+				"covers",
+				"reldate",
+				"lastchanged",
+				"lastchecked",
+				"firstseen",
+				"cleanedtitle"
+				]
 		ret = dict(zip(keys, item))
 		return ret
+
 
 	%>
 </%def>
 
-<%def name="getMangaUpdatesInfo(cursor, muId)">
+<%def name="getMangaUpdatesInfo(muId)">
 	<%
+		cursor = sqlCon.cursor()
 
 		cursor.execute("""SELECT buid, availprogress, readingprogress, buname, bulist, butags
 						FROM mangaseries
@@ -273,126 +288,187 @@ startTime = time.time()
 </%def>
 
 
-<%def name="renderId(itemId)">
+<%def name="renderLndbInfo(itemName)">
+	<div>
+		<%
+
+		cursor = sqlCon.cursor()
+
+
+		data = getLndbItemInfo(cursor, itemName)
+
+
+
+		%>
+		<strong>LNDB Info</strong>
+		% if not data:
+			<div>No LNDB Entry!</div>
+
+		% else:
+
+
+			<div>
+				<table>
+
+					<col width="200">
+					<col width="200">
+					<tr>
+						<td>Series Name:</td>
+						<td>${data['ctitle']}</td>
+					</tr>
+
+					<tr>
+						<td>Japanese Name:</td>
+						<td>${data['jtitle']}</td>
+					</tr>
+
+					<tr>
+						<td>Author:</td>
+						<td>${data['author']}</td>
+					</tr>
+
+					<tr>
+						<td>Illustrator:</td>
+						<td>${data['illust']}</td>
+					</tr>
+					<tr>
+						<td>Target Demographic:</td>
+						<td>${data['target']}</td>
+					</tr>
+
+					<tr>
+						<td>Published Volumes:</td>
+						<td>${data['volno']}</td>
+					</tr>
+				</table>
+			</div>
+		% endif
+	</div>
+	<br>
+</%def>
+
+<%def name="renderMangaupdatesInfo(title)">
+	<div>
+		<%
+		muId = nt.getMangaUpdatesId(title)
+		%>
+		% if muId:
+			<%
+			muData = getMangaUpdatesInfo(muId)
+			%>
+			<strong>MangaUpdates Info</strong>
+			## <div>
+			## 	${muId}
+			## 	${muData}
+			## </div>
+			<table>
+
+				<col width="200">
+				<col width="200">
+				<tr>
+					<td>Series Name:</td>
+					<td>${muData['seriesName']}</td>
+				</tr>
+
+				<tr>
+					<td>MU List:</td>
+					<td>${muData['listName']}</td>
+				</tr>
+
+
+				<tr>
+					<td>Read to:</td>
+					<td>${muData['readChapter']}</td>
+				</tr>
+				<tr>
+					<td>Available chapters:</td>
+					<%
+					avail = muData['currentChapter']
+					if avail == -1 and muData['readChapter'] >= 0:
+						avail = muData['readChapter']
+					elif avail == -1:
+						avail = None
+					%>
+					<td>${avail}</td>
+				</tr>
+				<tr>
+					<td>Tags:</td>
+					<td>${muData['tags']}</td>
+				</tr>
+			</table>
+
+		% endif
+	</div>
+</%def>
+
+
+<%def name="renderForId(dbId)">
 	<%
 
+
 	cursor = sqlCon.cursor()
+	cursor.execute("SELECT dbid, itemname, itemtable, readingprogress, availprogress, rating FROM book_series WHERE dbid=%s", (dbId, ))
+	row = cursor.fetchone()
+	print(row)
 
+	if not row:
+		queryError("Database ID is not valid")
+		return
 
-	data = getLndbItemInfo(cursor, itemId)
-
-
-	muId = nt.getMangaUpdatesId(data['ctitle'])
+	dbid, itemname, itemtable, readingprogress, availprogress, rating = row
 
 	%>
 
 
-	<h2>Series: ${data['ctitle']}</h2>
+	<h2>Item Title: ${itemname}</h2>
 
+	<%
 
-	<div style="float:right">
-		<%
-		renderListSelector(cursor, data['listname'], itemId)
-		renderReadTo(cursor, itemId, data['readingprogress'], data['availprogress'])
-		%>
-	</div>
-
-	<div>
-		<table>
-
-			<col width="200">
-			<col width="200">
-			<tr>
-				<td>Series Name:</td>
-				<td>${data['ctitle']}</td>
-			</tr>
-
-			<tr>
-				<td>Japanese Name:</td>
-				<td>${data['jtitle']}</td>
-			</tr>
-
-			<tr>
-				<td>Author:</td>
-				<td>${data['author']}</td>
-			</tr>
-
-			<tr>
-				<td>Illustrator:</td>
-				<td>${data['illust']}</td>
-			</tr>
-			<tr>
-				<td>Target Demographic:</td>
-				<td>${data['target']}</td>
-			</tr>
-
-			<tr>
-				<td>Published Volumes:</td>
-				<td>${data['volno']}</td>
-			</tr>
-		</table>
-	</div>
-	% if muId:
-		<%
-		muData = getMangaUpdatesInfo(cursor, muId)
-		%>
-		<h3 style='text-align:left;'>MangaUpdates Cross-Reference: ${data['ctitle']}</h3>
-		## <div>
-		## 	${muId}
-		## 	${muData}
-		## </div>
-		<table>
-
-			<col width="200">
-			<col width="200">
-			<tr>
-				<td>Series Name:</td>
-				<td>${muData['seriesName']}</td>
-			</tr>
-
-			<tr>
-				<td>MU List:</td>
-				<td>${muData['listName']}</td>
-			</tr>
-
-
-			<tr>
-				<td>Read to:</td>
-				<td>${muData['readChapter']}</td>
-			</tr>
-			<tr>
-				<td>Available chapters:</td>
-				<%
-				avail = muData['currentChapter']
-				if avail == -1 and muData['readChapter'] >= 0:
-					avail = muData['readChapter']
-				elif avail == -1:
-					avail = None
-				%>
-				<td>${avail}</td>
-			</tr>
-			<tr>
-				<td>Tags:</td>
-				<td>${muData['tags']}</td>
-			</tr>
-		</table>
-
-	% endif
+	renderControlDiv(cursor, dbid, readingprogress, availprogress)
+	renderLndbInfo(itemname)
+	renderMangaupdatesInfo(itemname)
+	%>
 </%def>
 
+<%def name="renderTitle(title)">
+
+	<h2>Item Title: ${title}</h2>
+	<div>
+		<strong>Warning: No id link, cannot edit read status.</strong>
+	</div>
+	<br>
+	<%
+	renderLndbInfo(title)
+	renderMangaupdatesInfo(title)
+	%>
+</%def>
 
 <%def name="render()">
 	<%
 
 
-	if "lndb" in request.params:
-		try:
-			seriesId = int(request.params["lndb"])
-			renderId(seriesId)
-			return
-		except:
-			traceback.print_exc()
-			pass
+
+	dbId = ut.getUrlParam('dbid')
+	title = ut.getUrlParam('title')
+	lndbId = ut.getUrlParam('lndb')
+	if dbId:
+		renderForId(dbId)
+		return
+	elif title:
+		renderTitle(title)
+		return
+	elif lndbId:
+
+		queryError("Whoops! LNDB id lookup isn't working yet")
+		## try:
+		## 	## seriesId = int(lndbId)
+		## 	## renderId(seriesId)
+		## 	return
+		## except:
+		## 	traceback.print_exc()
+		## 	pass
+
+		return
 
 	queryError("No item ID in URL!")
 

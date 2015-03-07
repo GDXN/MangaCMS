@@ -304,10 +304,10 @@ class SeriesBase(ScrapePlugins.DbBase.DbBase):
 
 
 			# Items on each list
-			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_series_list (
+			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_list_entries (
 												dbId            SERIAL PRIMARY KEY,
 												seriesId        integer references {tableName}(dbId) ON DELETE CASCADE,
-												listname        CITEXT,
+												listname        CITEXT references {tableName}_lists(listname) ON DELETE CASCADE,
 
 												constraint {tableName}_singleListOnly unique (seriesId)
 												);'''.format(tableName=self.tableName))

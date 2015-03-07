@@ -107,6 +107,12 @@ def printHelp():
 	print("	reload-tree")
 	print("		Reload the BK tree from the database.")
 	print("	")
+	print("	lndb-cleaned-regen")
+	print("		regenerate the set of cleaned LNDB item titles..")
+	print("	")
+	print("	truncate-trailing-novel")
+	print("		Clean out the trailing '(Novel)' from mangaupdates novel items.")
+	print("	")
 
 	print("*********************************************************")
 	print("Remote deduper interface")
@@ -151,6 +157,10 @@ def parseOneArgCall(cmd):
 		utilities.bookClean.updateNetloc()
 	elif mainArg.lower() == "clean-book-cache":
 		utilities.bookClean.cleanBookContent()
+	elif mainArg.lower() == "lndb-cleaned-regen":
+		utilities.bookClean.regenLndbCleanedNames()
+	elif mainArg.lower() == "truncate-trailing-novel":
+		utilities.bookClean.truncateTrailingNovel()
 
 	else:
 		print("Unknown arg!")

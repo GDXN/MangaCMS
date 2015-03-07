@@ -263,26 +263,26 @@ class ApiInterface(object):
 
 		if not listName:
 			cur = self.conn.cursor()
-			cur.execute("""DELETE FROM book_series_series_list WHERE seriesid=%s;""", (bookId, ))
+			cur.execute("""DELETE FROM book_series_list_entries WHERE seriesid=%s;""", (bookId, ))
 
 			return Response(body=json.dumps({"Status": "Success", "contents": 'Item list cleared!'}))
 
 
 		# Check if the item already is in the list table.
 		cur = self.conn.cursor()
-		cur.execute("""SELECT COUNT(*) FROM book_series_series_list WHERE seriesid=%s;""", (bookId, ))
+		cur.execute("""SELECT COUNT(*) FROM book_series_list_entries WHERE seriesid=%s;""", (bookId, ))
 		ret = cur.fetchone()[0]
 
 		if ret:
 			cur = self.conn.cursor()
-			cur.execute("""UPDATE book_series_series_list SET listname=%s WHERE seriesid=%s;""", (listName, bookId))
+			cur.execute("""UPDATE book_series_list_entries SET listname=%s WHERE seriesid=%s;""", (listName, bookId))
 			cur.execute('COMMIT')
 
 			return Response(body=json.dumps({"Status": "Success", "contents": 'Updated list for item!'}))
 
 
 		cur = self.conn.cursor()
-		cur.execute("""INSERT INTO book_series_series_list (seriesid, listname) VALUES (%s, %s);""", (bookId, listName))
+		cur.execute("""INSERT INTO book_series_list_entries (seriesid, listname) VALUES (%s, %s);""", (bookId, listName))
 		cur.execute('COMMIT')
 
 		return Response(body=json.dumps({"Status": "Success", "contents": 'Item list updated!'}))
@@ -301,7 +301,7 @@ class ApiInterface(object):
 
 		# Check if the item already is in the list table.
 		cur = self.conn.cursor()
-		cur.execute("""SELECT readingprogress FROM books_lndb WHERE dbid=%s;""", (bookId, ))
+		cur.execute("""SELECT readingprogress FROM book_series WHERE dbid=%s;""", (bookId, ))
 		retRow = cur.fetchone()
 		if not retRow:
 			return Response(body=json.dumps({"Status": "Failed", "contents": 'ID Not in database!'}))
@@ -311,7 +311,7 @@ class ApiInterface(object):
 		if total < -1:
 			total = -1
 
-		cur.execute("""UPDATE books_lndb SET readingprogress=%s WHERE dbid=%s;""", (total, bookId))
+		cur.execute("""UPDATE book_series SET readingprogress=%s WHERE dbid=%s;""", (total, bookId))
 		cur.execute('COMMIT')
 
 		if total < 0:

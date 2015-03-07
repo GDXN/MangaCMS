@@ -12,6 +12,7 @@ import os
 import settings
 import ScrapePlugins.DbBase
 import ScrapePlugins.RetreivalDbBase
+import nameTools as nt
 
 
 class BookCleaner(ScrapePlugins.DbBase.DbBase):
@@ -116,6 +117,21 @@ class BookCleaner(ScrapePlugins.DbBase.DbBase):
 			os.unlink(file)
 		self.log.info("Trim Complete.")
 
+
+
+	def regenLndbCleanedNames(self):
+		self.openDB()
+		self.log.info("Regenerating LNDB lookup column table")
+		with self.transaction() as cur:
+			cur.execute("""SELECT dbid, ctitle FROM books_lndb;""")
+			ret = cur.fetchall()
+			for dbId, cTitle in ret:
+				cleaned = nt.prepFilenameForMatching(cTitle)
+				cur.execute("""UPDATE  books_lndb SET cleanedTitle=%s WHERE dbid=%s;""", (cleaned, dbId))
+				print(dbId, cleaned, cTitle)
+
+
+
 def updateNetloc():
 	bc = BookCleaner()
 	bc.syncNetlocs()
@@ -123,5 +139,12 @@ def updateNetloc():
 def cleanBookContent():
 	bc = BookCleaner()
 	bc.purgeStaleFileFromBookContent()
+
+
+
+def regenLndbCleanedNames():
+	bc = BookCleaner()
+	bc.regenLndbCleanedNames()
+
 
 
