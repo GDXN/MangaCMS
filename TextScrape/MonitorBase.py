@@ -90,9 +90,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 
 							"seriesEntry",
 
-							"readingProgress",
-							"availProgress",
-							"rating",
 							"lastChanged",
 							"lastChecked",
 							"firstSeen"]
@@ -119,9 +116,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 
 							"seriesEntry",
 
-							"readingProgress",
-							"availProgress",
-							"rating",
 							"lastChanged",
 							"lastChecked",
 							"firstSeen"]
@@ -334,138 +328,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 				retL.append(item[0])
 		return retL
 
-	# def printDict(self, inDict):
-	# 	keys = list(inDict.keys())
-	# 	keys.sort()
-	# 	print("Dict ------")
-	# 	for key in keys:
-	# 		keyStr = "{key}".format(key=key)
-	# 		print("	", keyStr, " "*(20-len(keyStr)), inDict[key])
-
-	# def printDb(self):
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute('SELECT * FROM {db};'.format(db=self.tableName))
-	# 		for line in cur.fetchall():
-	# 			print(line)
-
-
-	# def insertBareNameItems(self, items):
-
-	# 	new = 0
-	# 	with self.transaction() as cur:
-
-
-	# 		for name, mId in items:
-	# 			row = self.getRowByValue(srcId=mId)
-	# 			if row:
-	# 				if name.lower() != row["srcName"].lower():
-	# 					self.log.warning("Name disconnect!")
-	# 					self.log.warning("New name='%s', old name='%s'.", name, row["srcName"])
-	# 					self.log.warning("Whole row=%s", row)
-	# 					self.updateDbEntry(row["dbId"], srcName=name, commit=False, lastChanged=0, lastChecked=0)
-
-	# 			else:
-	# 				row = self.getRowByValue(srcName=name)
-	# 				if row:
-	# 					self.log.error("Conflicting with existing series?")
-	# 					self.log.error("Existing row = %s, %s", row["srcName"], row["srcId"])
-	# 					self.log.error("Current item = %s, %s", name, mId)
-	# 					self.updateDbEntry(row["dbId"], srcName=name, commit=False, lastChanged=0, lastChecked=0)
-	# 				else:
-	# 					self.insertIntoDb(srcName=name,
-	# 									srcId=mId,
-	# 									lastChanged=0,
-	# 									lastChecked=0,
-	# 									firstSeen=time.time(),
-	# 									commit=False)
-	# 					new += 1
-	# 				# cur.execute("""INSERT INTO %s (srcId, name)VALUES (?, ?);""" % self.nameMapTableName, (srcId, name))
-
-	# 	if new:
-	# 		self.log.info("%s new items in inserted set.", new)
-
-	# def insertNames(self, srcId, names):
-	# 	self.log.info("Updating name synonym table for %s with %s name(s).", srcId, len(names))
-	# 	with self.transaction() as cur:
-
-
-	# 		# delete the old names from the table, so if they're removed from the source, we'll match that.
-	# 		cur.execute("DELETE FROM {tableName} WHERE srcId=%s;".format(tableName=self.nameMapTableName), (srcId, ))
-
-	# 		alreadyAddedNames = []
-	# 		for name in names:
-	# 			fsSafeName = nt.prepFilenameForMatching(name)
-	# 			if not fsSafeName:
-	# 				fsSafeName = nt.makeFilenameSafe(name)
-
-	# 			# we have to block duplicate names. Generally, it's pretty common
-	# 			# for multiple names to screen down to the same name after
-	# 			# passing through `prepFilenameForMatching()`.
-	# 			if fsSafeName in alreadyAddedNames:
-	# 				continue
-
-	# 			alreadyAddedNames.append(fsSafeName)
-
-	# 			cur.execute("""INSERT INTO %s (srcId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (srcId, name, fsSafeName))
-
-	# 	self.log.info("Updated!")
-	# def getIdFromName(self, name):
-
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""SELECT srcId FROM %s WHERE name=%%s;""" % self.nameMapTableName, (name, ))
-	# 		ret = cur.fetchall()
-	# 	if ret:
-	# 		if len(ret[0]) != 1:
-	# 			raise ValueError("Have ambiguous name. Cannot definitively link to manga series.")
-	# 		return ret[0][0]
-	# 	else:
-	# 		return None
-
-	# def getIdFromDirName(self, fsSafeName):
-
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""SELECT srcId FROM %s WHERE fsSafeName=%%s;""" % self.nameMapTableName, (fsSafeName, ))
-	# 		ret = cur.fetchall()
-	# 	if ret:
-	# 		if len(ret[0]) != 1:
-	# 			raise ValueError("Have ambiguous fsSafeName. Cannot definitively link to manga series.")
-	# 		return ret[0][0]
-	# 	else:
-	# 		return None
-
-	# def getNamesFromId(self, mId):
-
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""SELECT name FROM %s WHERE srcId=%%s::TEXT;""" % self.nameMapTableName, (mId, ))
-	# 		ret = cur.fetchall()
-	# 	if ret:
-	# 		return ret
-	# 	else:
-	# 		return None
-
-
-	# def getlastCheckedFromId(self, mId):
-
-	# 	with self.conn.cursor() as cur:
-	# 		ret = cur.execute("""SELECT lastChecked FROM %s WHERE srcId=%%s::TEXT;""" % self.tableName, (mId, ))
-	# 		ret = cur.fetchall()
-	# 	if len(ret) > 1:
-	# 		raise ValueError("How did you get more then one srcId?")
-	# 	if ret:
-	# 		# Return structure is [(time)]
-	# 		# we want to just return time
-	# 		return ret[0][0]
-	# 	else:
-	# 		return None
-
-
-	# def updatelastCheckedFromId(self, mId, changed):
-	# 	with self.conn.cursor() as cur:
-	# 		cur.execute("""UPDATE %s SET lastChecked=%%s WHERE srcId=%%s::TEXT;""" % self.tableName, (changed, mId))
-	# 	self.conn.commit()
-
-
-
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Management
@@ -503,9 +365,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 
 												covers           text[],
 
-												availProgress   int,
 
-												rating          int,
 												relDate         double precision,
 												lastChanged     double precision,
 												lastChecked     double precision,
@@ -522,7 +382,7 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 						("%s_changeState_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (changeState)'''),
 						("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
 						("%s_firstSeen_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (firstSeen)'''  ),
-						("%s_rating_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (rating)'''     ),
+
 						("%s_cTitle_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (cTitle)'''     ),
 						("%s_target_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (target)'''     ),
 						("%s_series_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (series)'''     ),

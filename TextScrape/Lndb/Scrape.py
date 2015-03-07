@@ -311,7 +311,7 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 
 def test():
 	scrp = Monitor()
-	# scrp.scanAllSeries()
+	scrp.scanAllSeries()
 	# scrp.updateOutdated()
 	scrp.go()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)

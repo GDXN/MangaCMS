@@ -67,8 +67,13 @@ from ipaddress import IPv4Address, IPv4Network
 </%def>
 
 <%def name="makeLndbItemLink(dbid, linkText)">
-	<a href='/books/lndb-item?dbid=${dbid}'>${linkText}</a>
+	<a href='/books/book-item?lndb=${dbid | u}'>${linkText}</a>
 </%def>
+
+<%def name="makeBookItemLink(title, linkText)">
+	<a href='/books/book-item?title=${title | u}'>${linkText}</a>
+</%def>
+
 
 <%def name="idToLink(buId)">
 	<%

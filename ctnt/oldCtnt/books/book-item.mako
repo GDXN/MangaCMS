@@ -385,9 +385,9 @@ startTime = time.time()
 	<%
 
 
-	if "dbid" in request.params:
+	if "lndb" in request.params:
 		try:
-			seriesId = int(request.params["dbid"])
+			seriesId = int(request.params["lndb"])
 			renderId(seriesId)
 			return
 		except:

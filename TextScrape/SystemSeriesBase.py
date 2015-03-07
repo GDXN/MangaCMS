@@ -279,8 +279,10 @@ class SeriesBase(ScrapePlugins.DbBase.DbBase):
 			# Aggregate tags for items in the DB
 			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName}_tags (
 												dbId            SERIAL PRIMARY KEY,
-												tagname         CITEXT UNIQUE
+												seriesId        integer references {tableName}(dbId) ON DELETE CASCADE,
+												tagname         CITEXT,
 
+												constraint {tableName}_noDuplicateSeriesTags unique (seriesId, tagname)
 												);'''.format(tableName=self.tableName))
 
 			## LastChanged is when the last scanlation release was released
@@ -292,10 +294,10 @@ class SeriesBase(ScrapePlugins.DbBase.DbBase):
 												itemName         CITEXT UNIQUE,
 												itemTable        integer references {tableName}_table_links(dbid),
 
-												readingProgress  int,
-												availProgress    int,
+												readingProgress  int DEFAULT -1,
+												availProgress    int DEFAULT -1,
 
-												rating           int,
+												rating           int DEFAULT -1,
 
 												constraint {tableName}_uniqueSeries unique (itemName, itemTable)
 												);'''.format(tableName=self.tableName))
@@ -327,6 +329,11 @@ class SeriesBase(ScrapePlugins.DbBase.DbBase):
 			DROP TABLE books_lndb_series_tags CASCADE;
 			DROP TABLE books_lndb_tags CASCADE;
 			DROP TABLE books_lndb_link_list CASCADE;
+
+
+			UPDATE book_series SET readingProgress = -1 WHERE readingProgress IS NULL;
+			UPDATE book_series SET availProgress = -1 WHERE availProgress IS NULL;
+			UPDATE book_series SET rating = -1 WHERE rating IS NULL;
 
 			'''
 

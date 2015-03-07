@@ -83,7 +83,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 
 	def gobig(self):
 		self.checkLogin()
-		items = self.getItemsToCheck(allTheItems=True)
+		items = self.getItemsToCheck(noLimit=True)
 		totItems = len(items)
 		scanned = 0
 
@@ -218,6 +218,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		if genres:
 			kwds["buGenre"] = " ".join(genres)
 
+
 		return kwds, altNames
 
 		# Retreive page for mId, extract relevant information, and update the DB with the scraped info
@@ -226,6 +227,15 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		kwds, altNames = self.getItemInfo(mId)
 		if not kwds:
 			return
+
+		if kwds['buType'] == 'Novel':
+			self.upsertNovelName(kwds['buName'])
+			if 'availProgress' in kwds:
+				self.updateNovelAvailable(kwds['buName'], kwds['availProgress'])
+			if 'buTags' in kwds:
+				self.updateNovelTags(kwds['buName'], kwds['buTags'])
+			if 'buGenre' in kwds:
+				self.updateNovelTags(kwds['buName'], kwds['buGenre'])
 
 
 		haveRows = self.getRowByValue(buName=kwds['buName'])

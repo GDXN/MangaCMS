@@ -44,6 +44,22 @@ import urllib.parse
 %>
 
 
+<%
+
+
+cursor = sqlCon.cursor()
+cursor.execute("""SELECT tablename FROM book_series_table_links;""")
+ret = cursor.fetchall()
+
+print(ret)
+
+validTables = [item[0] for item in ret]
+
+tableFilter = ut.getUrlParam('src')
+if tableFilter not in validTables:
+	tableFilter = None
+
+%>
 
 
 <body>
@@ -58,7 +74,7 @@ import urllib.parse
 				<h2>LNDB Content!</h2>
 
 				<%
-				bookRender.renderBookSeries(tableFilter='books_lndb')
+				bookRender.renderBookSeries(tableFilter=tableFilter)
 				%>
 
 
