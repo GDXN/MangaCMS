@@ -7,6 +7,7 @@
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
 <%namespace name="treeRender"      file="/books/render.mako"/>
+<%namespace name="bookRender"       file="/books/book-render.mako"/>
 
 <html>
 <head>
@@ -50,11 +51,11 @@ startTime = time.time()
 
 
 <%def name="renderList(listName)">
+	<h2>List: ${listName}</h2>
 	<%
 
-
+	bookRender.renderBookList(listName)
 	%>
-	<h2>List: ${listName}</h2>
 </%def>
 
 

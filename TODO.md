@@ -3,6 +3,8 @@ https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 https images still fucked
 
+missing image: http://10.1.1.8:8081/books/render?url=https%3A//shintranslations.wordpress.com/vol-1-chapter-1/
+
 explain analyze book links
 
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou

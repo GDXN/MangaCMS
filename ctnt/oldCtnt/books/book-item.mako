@@ -225,7 +225,10 @@ startTime = time.time()
 
 <%def name="getLndbItemInfo(cursor, title)">
 	<%
-		ctitle = title.replace("(Novel)", " ").strip()
+
+		if title.endswith("(Novel)"):
+			title = title[:-len("(Novel)")]
+
 		cleanedtitle = nt.prepFilenameForMatching(title)
 		print("cleanedTitle: '%s'" % cleanedtitle)
 		cursor.execute("""SELECT dbid, changestate, ctitle, otitle,

@@ -103,7 +103,7 @@ class MonitorPlugin(cherrypy.process.plugins.SimplePlugin):
 
 def serverProcess():
 
-	nt.dirNameProxy.startDirObservers()
+	# nt.dirNameProxy.startDirObservers()
 	runServer()
 	# webThread = threading.Thread(target=runServer)
 	# webThread.start()

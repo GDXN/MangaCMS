@@ -78,6 +78,10 @@ from ipaddress import IPv4Address, IPv4Network
 	<a href='/books/book-item?dbid=${dbid | u}'>${linkText}</a>
 </%def>
 
+<%def name="makeBookListLink(listname, linkText)">
+	<a href='/books/book-lists?list=${listname | u}'>${linkText}</a>
+</%def>
+
 
 <%def name="idToLink(buId)">
 	<%
