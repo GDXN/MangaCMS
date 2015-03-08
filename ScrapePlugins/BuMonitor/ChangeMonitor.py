@@ -5,7 +5,7 @@ import sys
 import re
 import bs4
 import traceback
-import urllib.parse
+import random
 from concurrent.futures import ThreadPoolExecutor
 import time
 import settings
@@ -82,10 +82,11 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		self.checkItems(items)
 
 	def gobig(self):
+		self.log.info("Going big! Running ALL THE THREADS!")
 		self.checkLogin()
-		items = self.getItemsToCheck(noLimit=True)
-		totItems = len(items)
-		scanned = 0
+		items = self.getItemsToCheck(noLimit=True, allTheItems=True)
+
+		self.log.info("Number of items to check: '%s'", len(items))
 
 		if items:
 			def iter_baskets_from(items, maxbaskets=3):
@@ -183,7 +184,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 
 		release   = self.getLatestRelease(soup)
 		availProg = self.getAvailProgress(soup)
-		tags      = self.extractTags(soup)
+		tags      = self.fetchTags(mId, soup)
 		genres    = self.extractGenres(soup)
 		type      = self.getType(soup)
 
@@ -370,17 +371,30 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		return outList
 
 
-	def extractTags(self, soup):
+	def fetchTags(self, mId, soup):
 
-		tagsHeaderB = soup.find("b", text="Categories")
+		# https://www.mangaupdates.com/ajax/show_categories.php?s=81129&type=1&cache_j=33680585,60978550,84319640
+
+		# url += "&cache_j=" + Math.floor(Math.random()*100000000) + "," + Math.floor(Math.random()*100000000) + "," + Math.floor(Math.random()*100000000)
+
+		tagAjaxUrl = 'https://www.mangaupdates.com/ajax/show_categories.php?s={mId}&type={type}&cache_j={num1},{num2},{num3}'.format(mId=mId,
+																																	type=1,
+																																	num1=int(random.random()*100000000),
+																																	num2=int(random.random()*100000000),
+																																	num3=int(random.random()*100000000))
+
+		soup = self.wgH.getSoup(tagAjaxUrl, addlHeaders={'Referer': self.itemURL.format(buId=mId)})
+
+		tagsHeaderB = soup.find("div", id="cat_opts")
 
 		if not tagsHeaderB:
 			return []
 
-		container = tagsHeaderB.parent.find_next_sibling("div", class_="sContent")
-
-		if not container and not "Vote these categories" in container.get_text():
+		if (not "Vote these categories" in soup.get_text()) and (not "Log in to vote!" in soup.get_text()):
 			return []
+
+		container = soup.find("ul")
+
 
 		tags = container.find_all("li")
 
@@ -392,6 +406,8 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		outList = []
 		for tag in tags:
 			outList.append(tag.replace(" ", "-"))
+
+		self.log.info("Item has %s tags.", len(tags))
 		return outList
 
 
@@ -471,7 +487,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		if not container:
 			return ""
 
-		return " ".join(container.strings).strip().strip(" ,")
+		return "%s" % container.prettify()
 
 
 	def getReleaseState(self, soup):
@@ -493,7 +509,9 @@ if __name__ == "__main__":
 	with tb.testSetup(startObservers=False):
 
 		run = BuDateUpdater()
-		ret1, ret2 = run.getItemInfo("81129")
+		run.checkLogin()
+		# ret1, ret2 = run.getItemInfo("81129")
+		# ret1, ret2 = run.getItemInfo("120125")
 		# print(ret1)
 		# print(ret2)
 		# run.updateItem(101, "45918")

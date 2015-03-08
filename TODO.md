@@ -7,15 +7,20 @@ missing image: http://10.1.1.8:8081/books/render?url=https%3A//shintranslations.
 
 explain analyze book links
 
+MISSING NEW MU TAGS
+
+change book links to point to book page rather then search
+
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
+Missing items. Rescraping
 
-https://reantoanna.wordpress.com/2015/02/17/only-im-not-attacked-in-a-world-over-runned-by-zombies-vol-1-chapter-1-8/
-
-
-http://10.1.1.8:8081/search-b/b?q=kansustoppu
-http://10.1.1.8:8081/search-b/b?q=Maou+no+Hajimekata+
+Description from BU is missing internal HTML.
+Name synonyms in bu table for books.
 
 http://10.1.1.8:8081/books/render?url=http://skythewood.blogspot.com/2014/10/O12.html
+## Run-on text mess
+
+
 http://10.1.1.8:8081/books/render?url=http%3A%2F%2Fskythewood.blogspot.ca%2Fp%2Fknights-and-magic-author-amazake-no.html
 funky relinking
 
@@ -24,7 +29,11 @@ sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 break down and scrape http://www.royalroadl.com/
 
-book ratings!
+~~book ratings!~~
+
+http://www.wuxiaworld.com/
+
+content in iframe: https://bluesilvertranslations.wordpress.com/2015/01/19/000-prologue-tang-third-young-master-crossing-over-v2/
 
 pg pool!
 
@@ -81,7 +90,7 @@ General Resource: http://englishlightnovels.com/
 Use http://lndb.info/ as BU-like?
 Also: http://aho-updates.com/
 
-
+## https://reantoanna.wordpress.com
 ## https://kobatochandaisuki.wordpress.com/
 ## https://shintranslations.wordpress.com/
 ## https://tensaitranslations.wordpress.com/
@@ -132,6 +141,9 @@ https://docs.google.com/document/d/1P8975xchjaZNw7gEiQkrV1w01akcJhUjlcd4fo4uWNU/
 ## http://krytykal.org/
 ## http://unlimitednovelfailures.mangamatters.com/
 
+Non-Catalog Novels:
+## http://10.1.1.8:8081/search-b/b?q=kansustoppu
+## http://10.1.1.8:8081/search-b/b?q=Maou+no+Hajimekata
 
 LN TODO:
 	Add transparent scraping into GDoc content
