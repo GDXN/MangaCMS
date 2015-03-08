@@ -66,6 +66,7 @@ DNLDED = 2
 				<li><a href="/books/changeView">New Books</a>
 				<li><a href="/books/search">Book Search</a>
 				<li><a href="/books/book-sources?src=books_lndb">LNDB</a>
+				<li><a href="/books/book-sources?src=books_custom">Custom</a>
 				<li><a href="/books/book-sources?src=MangaSeries">MU Books</a>
 				<hr>
 				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>

@@ -51,9 +51,8 @@ startTime = time.time()
 
 
 <%def name="renderList(listName)">
-	<h2>List: ${listName}</h2>
-	<%
 
+	<%
 	bookRender.renderBookList(listName)
 	%>
 </%def>
@@ -98,6 +97,14 @@ startTime = time.time()
 			</table>
 		% endif
 	</div>
+
+
+	<%
+
+	return lists
+
+	%>
+
 
 </%def>
 
@@ -161,17 +168,87 @@ startTime = time.time()
 	</script>
 </%def>
 
+<%def name="renderListManagementControls(listName)">
+	<%
+	cursor = sqlCon.cursor()
+	cursor.execute("""SELECT dbid
+					FROM book_series_lists
+					WHERE listname=%s;""", (listName, ))
+
+	tgtList = cursor.fetchall()
+
+	%>
+
+	% if not tgtList:
+		wat
+		<%
+		return
+		%>
+	% endif
+
+
+	<script>
+
+		function itemDeletedCallback(reqData, statusStr, jqXHR)
+		{
+			console.log("Ajax request succeeded");
+			console.log(reqData);
+			console.log(statusStr);
+
+			var status = $.parseJSON(reqData);
+			console.log(status)
+			if (status.Status == "Success")
+			{
+				window.location.replace("/books/book-lists")
+			}
+			else
+			{
+				alert("ERROR!\n"+status.contents)
+			}
+
+		};
+		function deleteListItem(newList)
+		{
+
+
+			var ret = ({});
+			ret["remove-book-list"] = true;
+			ret["listName"] = '${listName}';
+
+			var confirm = window.confirm("Are you sure you want to delete the list named '${listName}'?");
+
+			if (confirm == true)
+			{
+				$.ajax("/api", {"data": ret, success: itemDeletedCallback});
+			}
+
+		}
+	</script>
+
+	<div class="lightRect itemInfoBox">
+		Delete this list:
+		<button onclick="deleteListItem()">Delete</button>
+	</div>
+</%def>
+
 <%def name="renderAllLists()">
 	<h2>Book Lists</h2>
 	<%
-	renderListTable()
-	%>
-	<br>
-	<hr>
-	<br>
-	<%
 	renderListControls()
+	lists = renderListTable()
+
+
 	%>
+	<hr>
+	% for list, in lists:
+		<div>
+			<br>
+			<strong>List: ${list}</strong>
+			<%
+			renderList(list)
+			%>
+		</div>
+	% endfor
 </%def>
 
 
@@ -190,12 +267,15 @@ listName = ut.getUrlParam('list')
 
 			<div class="subdiv">
 				<div class="contentdiv">
-					<%
-					if listName:
+					% if listName:
+						<h2>List: ${listName}</h2>
+						<%
 						renderList(listName)
-					else:
-						renderAllLists()
-					%>
+						renderListManagementControls(listName)
+						%>
+					% else:
+						<% renderAllLists() %>
+					% endif
 
 
 				</div>

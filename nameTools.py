@@ -195,6 +195,26 @@ def extractRatingToFloat(inStr):
 	return ratingStrToFloat(rating)
 
 
+
+def floatToRatingStr(newRating):
+
+	# print("Rating change call!")
+	newRating, remainder = int(newRating), int((newRating%1)*2)
+	if newRating > 0 and newRating <= 5:
+		ratingStr = "+"*newRating
+	elif newRating == 0:
+		ratingStr = ""
+	elif newRating < 0 and newRating > -6:
+		ratingStr = "-"*abs(newRating)
+	else:
+		raise ValueError("Invalid rating value: %s!", newRating)
+	if remainder:
+		ratingStr += "~"
+
+	return ratingStr
+
+
+
 def getCleanedName(inStr):
 	inStr = re.sub(r"\d+\-\d+",                " ", inStr)				#Scrub interdigit hyphens
 	inStr = re.sub(r"([\[\]_\+0-9()=,\?])",    " ", inStr)				#clean brackets, symbols, and numbers: (Removed "-")
@@ -651,19 +671,7 @@ class DirNameProxy(object):
 		if newRating == 0:
 			return
 
-
-		# print("Rating change call!")
-		newRating, remainder = int(newRating), int((newRating%1)*2)
-		if newRating > 0 and newRating <= 5:
-			ratingStr = "+"*newRating
-		elif newRating == 0:
-			ratingStr = ""
-		elif newRating < 0 and newRating > -6:
-			ratingStr = "-"*abs(newRating)
-		else:
-			raise ValueError("Invalid rating value!")
-		if remainder:
-			ratingStr += "~"
+		ratingStr = floatToRatingStr(newRating)
 
 		if len(ratingStr):
 			ratingStr = " [{rat}] ".format(rat=ratingStr)

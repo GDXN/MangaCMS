@@ -35,9 +35,8 @@ import urllib.parse
 	itemname = stripNovel(rowDict['itemname'])
 
 
-	rating = ''
-	if rowDict['ratingVal'] >= 0:
-		rating = '%s' % rowDict['ratingVal']
+	## Multiply by 0.5 to convert from fixed-point int to float
+	rating = nt.floatToRatingStr(rowDict['ratingVal'] * 0.5)
 
 	reading = ''
 	if rowDict['readingprogress'] >= 0:
@@ -53,6 +52,7 @@ import urllib.parse
 	mapper = {
 		'books_lndb': 'LNDB',
 		'MangaSeries': 'MU',
+		'books_custom': 'MAN',
 	}
 
 	sources = []
@@ -151,8 +151,6 @@ import urllib.parse
 		ON book_series.dbid = book_series_list_entries.seriesid
 		{srcFilter};'''.format(srcFilter=srcFilter)
 
-	print(query)
-	print(args	)
 	cursor.execute(query, args)
 
 	seriesList = cursor.fetchall()
@@ -163,13 +161,13 @@ import urllib.parse
 
 	<div>
 
-		<table border="1px">
+		<table border="1px" class='fullwidth'>
 			<tr>
-					<th class="padded" width="90">Source</th>
-					<th class="padded" width="400">Full Name</th>
-					<th class="padded" width="30">Rating</th>
-					<th class="padded" width="30">Read-To Chapter</th>
-					<th class="padded" width="30">Latest Chapter</th>
+					<th class="padded" width="130px">List</th>
+					<th class="padded">Full Name</th>
+					<th class="padded" width="60px">Rating</th>
+					<th class="padded" width="70px">Read-To Chapter</th>
+					<th class="padded" width="70px">Latest Chapter</th>
 			</tr>
 
 			<%
@@ -183,13 +181,64 @@ import urllib.parse
 </%def>
 
 
+<%def name="renderBookAdd()">
+	<br>
+	<div>
+		<strong>
+			Add new book item:
+		</strong>
 
+
+
+		<script>
+
+			function listChangeCallback(reqData, statusStr, jqXHR)
+			{
+				console.log("Ajax request succeeded");
+				console.log(reqData);
+				console.log(statusStr);
+
+				var status = $.parseJSON(reqData);
+				console.log(status)
+				if (status.Status == "Success")
+				{
+					$('#list-status').html("✓");
+					location.reload();
+				}
+				else
+				{
+					$('#list-status').html("✗");
+					alert("ERROR!\n"+status.contents)
+				}
+
+			};
+			function listChange()
+			{
+				$('#list-status').html("❍");
+
+				var ret = ({});
+				ret["new-custom-book"] = true;
+				ret["new-name"] = $('#new-name').val();
+				$.ajax("/api", {"data": ret, success: listChangeCallback});
+				// alert("New value - "+ret["listName"]);
+			}
+		</script>
+
+
+		<form action=''>
+			<span>
+				<input type="text" id="new-name">
+				<input type="button" value='Add' onclick="listChange()">
+			</span>
+		</form>
+	</div>
+</%def>
 <%def name="renderBookSeries(tableFilter=None)">
 	<%
 
 
 	if tableFilter:
-		srcFilter = '''AND book_series_table_links.tablename = %s'''
+		srcFilter = '''WHERE book_series_table_links.tablename = %s'''
 		args = (tableFilter, )
 	else:
 		srcFilter = ''
@@ -225,6 +274,10 @@ import urllib.parse
 
 	%>
 
+	% if tableFilter == 'books_custom':
+		${renderBookAdd()}
+	% endif
+
 	TODO: Add filtering stuff!
 
 	<div>
@@ -232,11 +285,11 @@ import urllib.parse
 		<table border="1px">
 			<tr>
 					<th class="padded" width="90">Source</th>
-					<th class="padded" width="400">Full Name</th>
-					<th class="padded" width="30">List</th>
-					<th class="padded" width="30">Rating</th>
-					<th class="padded" width="30">Read-To Chapter</th>
-					<th class="padded" width="30">Latest Chapter</th>
+					<th class="padded" width="450">Full Name</th>
+					<th class="padded" width="90">List</th>
+					<th class="padded" width="80">Rating</th>
+					<th class="padded" width="80">Read-To Chapter</th>
+					<th class="padded" width="80">Latest Chapter</th>
 			</tr>
 
 			<%

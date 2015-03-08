@@ -28,6 +28,9 @@ book ratings!
 
 pg pool!
 
+## Not consolidating:
+http://10.1.1.8:8081/books/book-item?dbid=172
+http://10.1.1.8:8081/books/book-item?dbid=1488
 
 basename in book changes not workimg
 

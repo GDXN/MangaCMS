@@ -128,13 +128,13 @@ import nameTools as nt
 
 
 
-<%def name="makeTagLink(tag)">
-	<a href='/tags/tag?tag=${tag | u}'>${tag}</a>
+<%def name="makeTagLink(tag, params='')">
+	<a href='/tags/tag?tag=${tag | u}${params}'>${tag}</a>
 </%def>
 
 
-<%def name="makeGenreLink(genre)">
-	<a href='/tags/genre?genre=${genre | u}'>${genre}</a>
+<%def name="makeGenreLink(genre, params='')">
+	<a href='/tags/genre?genre=${genre | u}${params}'>${genre}</a>
 </%def>
 
 

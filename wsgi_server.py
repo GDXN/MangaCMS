@@ -46,8 +46,8 @@ import mimetypes
 reasons = '''
 
 <!--
-So.... Yeah. Many browsers don't display custom 404 pages if the content is <
-512 bytes. Because reasons.
+So.... Yeah. Many browsers don't display custom 404 pages if the content
+is < 512 bytes long. Because reasons.
 
 Anyways, pad that shit out so it actually works.
 ______________ ___ .___  _________ __________  _____    ___________________

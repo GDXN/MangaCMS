@@ -65,12 +65,18 @@ def buildQuery(srcTbl, cols, **kwargs):
 %>
 
 
-## {'src': 'tsuki', 'url': 'http://www.baka-tsuki.org/project/index.php?title=Talk:Baka_to_Test_to_Shoukanjuu&action=info', 'title': 'Information for "Talk:Baka to Test to Shoukanjuu"', 'dlstate': 2, 'dbid': 510721, 'istext': True, 'mimetype': 'text/html', 'series': None, 'fhash': None}
-
 <%def name="renderBookRow(row)">
+	<%
+	if row['src'] in srcLookup:
+		source = srcLookup[row['src']]
+	else:
+		source = row['src']
+
+	%>
 	<tr>
-		<td>${srcLookup[row['src']]}</td>
+		<td>${source}</td>
 		<td><a href='/books/render?url=${row['url'] | u}'>${row['title']}</a></td>
+		<td><a href='${row['url']}'>src</a></td>
 	</tr>
 </%def>
 
@@ -105,11 +111,12 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 	%>
 	% if rows:
-		<table border="1px">
+		<table border="1px" class='fullwidth'>
 			<tr>
 
-				<th class="uncoloured" width="8%">Source</th>
-				<th class="uncoloured" width="25%">Title</th>
+				<th class="uncoloured" width="15%">Source</th>
+				<th class="uncoloured">Title</th>
+				<th class="uncoloured" width="8%">OrigLnk</th>
 
 
 			</tr>

@@ -7,6 +7,8 @@
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
 <%namespace name="treeRender"      file="/books/render.mako"/>
+<%namespace name="bookSearch"      file="/books/renderSearch.mako"/>
+<%namespace name="genericFuncs"    file="/tags/genericFuncs.mako"/>
 
 <html>
 <head>
@@ -147,7 +149,7 @@ startTime = time.time()
 
 	# Unpack the 1-tuples that fetchall() returns.
 	lists = [list[0] for list in lists]
-	print(lists)
+	## print(lists)
 	if availprogress < 0:
 		availprogress = ' -'
 	if readingprogress < 0:
@@ -157,14 +159,14 @@ startTime = time.time()
 	<script>
 
 
-		function readToCallback	(reqData, statusStr, jqXHR)
+		function readToCallback(reqData, statusStr, jqXHR)
 		{
 			console.log("Ajax request succeeded");
 			console.log(reqData);
 			console.log(statusStr);
 
 			var status = $.parseJSON(reqData);
-			console.log(status)
+			console.log('Status value: '+status.Status)
 			if (status.Status == "Success")
 			{
 				$('#reading-status').html("✓");
@@ -207,16 +209,151 @@ startTime = time.time()
 		</div>
 		<span id="reading-status">✓</span>
 	</div>
+</%def>
 
+<%def name="renderDeleteControl(cursor, itemId, srcTableId)">
+
+	<%
+	cursor.execute("""SELECT dbid, tablename
+					FROM book_series_table_links;""")
+
+	tables = cursor.fetchall()
+
+	# Unpack the 1-tuples that fetchall() returns.
+	lut = {}
+	## print(tables)
+	for tableId, tableName in tables:
+		lut[tableId] = tableName
+
+
+	deleteableTable = 'books_custom'
+
+	if lut[srcTableId] != deleteableTable:
+		return
+
+	%>
+
+	<script>
+
+		function itemDeletedCallback(reqData, statusStr, jqXHR)
+		{
+			console.log("Ajax request succeeded");
+			console.log(reqData);
+			console.log(statusStr);
+
+			var status = $.parseJSON(reqData);
+			console.log(status)
+			if (status.Status == "Success")
+			{
+				window.location.replace("/books/book-sources?src=books_custom")
+			}
+			else
+			{
+				alert("ERROR!\n"+status.Message)
+			}
+
+		};
+		function deleteBookItem(newList)
+		{
+
+
+			var ret = ({});
+			ret["delete-custom-book"] = true;
+			ret["delete-id"] = ${itemId};
+
+			var confirm = window.confirm("Are you sure you want to delete this item?");
+
+			if (confirm == true)
+			{
+				$.ajax("/api", {"data": ret, success: itemDeletedCallback});
+			}
+
+		}
+	</script>
+
+	<div class="lightRect itemInfoBox">
+		Delete custom book:
+		<button onclick="deleteBookItem()">Delete</button>
+	</div>
 </%def>
 
 
-<%def name="renderControlDiv(cursor, itemId, readingprogress, availprogress)">
+<%def name="renderItemRatingControl(cursor, itemId, rating)">
+	<%
+	ratings = [
+		(-1,       "-"),
+		(0,         ""),
+		(0.5,      "~"),
+		(1,        "+"),
+		(1.5,     "+~"),
+		(2,       "++"),
+		(2.5,    "++~"),
+		(3,      "+++"),
+		(3.5,   "+++~"),
+		(4,     "++++"),
+		(4.5,  "++++~"),
+		(5,    "+++++"),
+		(5.5, "+++++~"),
+	]
+	%>
+	<script>
+
+		function ratingChangeCallback(reqData, statusStr, jqXHR)
+		{
+			console.log("Ajax request succeeded");
+			console.log(reqData);
+			console.log(statusStr);
+
+			var status = $.parseJSON(reqData);
+			console.log(status)
+			if (status.Status == "Success")
+			{
+				$('#rating-status').html("✓");
+				console.log("Succeeded!");
+				// location.reload();
+			}
+			else
+			{
+				$('#rating-status').html("✗");
+				alert("ERROR!\n"+status.Message)
+			}
+
+		};
+		function ratingChange(newList)
+		{
+			$('#rating-status').html("❍");
+
+			var ret = ({});
+			ret["set-rating-for-book"] = "${itemId}";
+			ret["rating"] = newList;
+			$.ajax("/api", {"data": ret, success: ratingChangeCallback});
+			// alert("New value - "+newList);
+		}
+	</script>
+
+
+	<div class="lightRect itemInfoBox">
+		Item Rating:<br>
+
+		<select name="list" id="list" onchange="ratingChange(this.value)" style='width:180px;'>
+			% for value, literal in ratings:
+				<option value="${value}"   ${"selected='selected''" if value == rating else ""}>${literal}</option>
+			% endfor
+
+		</select>
+		<span id="rating-status">✓</span>
+	</div>
+
+</%def>
+
+<%def name="renderControlDiv(cursor, itemId, readingprogress, availprogress, rating, srcTableId)">
 
 	<div style="float:right">
 		<%
 		renderListSelector(cursor, itemId)
+		renderItemRatingControl(cursor, itemId, rating)
 		renderReadTo(cursor, itemId, readingprogress, availprogress)
+		renderDeleteControl(cursor, itemId, srcTableId)
 		%>
 	</div>
 
@@ -230,7 +367,7 @@ startTime = time.time()
 			title = title[:-len("(Novel)")]
 
 		cleanedtitle = nt.prepFilenameForMatching(title)
-		print("cleanedTitle: '%s'" % cleanedtitle)
+		## print("cleanedTitle: '%s'" % cleanedtitle)
 		cursor.execute("""SELECT dbid, changestate, ctitle, otitle,
 								vtitle, jtitle, jvtitle, series,
 								pub, label, volno, author,
@@ -277,17 +414,30 @@ startTime = time.time()
 	<%
 		cursor = sqlCon.cursor()
 
-		cursor.execute("""SELECT buid, availprogress, readingprogress, buname, bulist, butags
+		cursor.execute("""SELECT buid, availprogress, readingprogress, buname, bulist, butags, bugenre, budescription
 						FROM mangaseries
 
 						WHERE buid=%s;""", (muId, ))
 		item = cursor.fetchone()
 
-		keys = ("muId", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre')
+		keys = ("muId", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre', 'description')
 		ret = dict(zip(keys, item))
 		return ret
 
 	%>
+</%def>
+
+<%def name="renderItemSearch(itemName)">
+	<br>
+	<strong>Search results for item</strong>
+	<%
+
+
+	if itemName.endswith("(Novel)"):
+		itemName = itemName[:-len("(Novel)")]
+	bookSearch.genBookSearch(originTrigram=itemName)
+	%>
+
 </%def>
 
 
@@ -313,8 +463,8 @@ startTime = time.time()
 			<div>
 				<table>
 
-					<col width="200">
-					<col width="200">
+					<col width="200px">
+					<col width="400px">
 					<tr>
 						<td>Series Name:</td>
 						<td>${data['ctitle']}</td>
@@ -352,6 +502,9 @@ startTime = time.time()
 
 <%def name="renderMangaupdatesInfo(title)">
 	<div>
+
+		<strong>MangaUpdates Info</strong>
+
 		<%
 		muId = nt.getMangaUpdatesId(title)
 		%>
@@ -359,25 +512,23 @@ startTime = time.time()
 			<%
 			muData = getMangaUpdatesInfo(muId)
 			%>
-			<strong>MangaUpdates Info</strong>
 			## <div>
 			## 	${muId}
 			## 	${muData}
 			## </div>
 			<table>
 
-				<col width="200">
-				<col width="200">
+				<col width="200px">
+				<col width="400px">
 				<tr>
 					<td>Series Name:</td>
-					<td>${muData['seriesName']}</td>
+					<td>${ut.idToLink(muId, muData['seriesName'])}</td>
 				</tr>
 
 				<tr>
 					<td>MU List:</td>
 					<td>${muData['listName']}</td>
 				</tr>
-
 
 				<tr>
 					<td>Read to:</td>
@@ -395,11 +546,56 @@ startTime = time.time()
 					<td>${avail}</td>
 				</tr>
 				<tr>
-					<td>Tags:</td>
-					<td>${muData['tags']}</td>
+					<td>Genre:</td>
+					<td>
+						<ul>
+							<%
+							if not muData['genre']:
+								muData['genre'] = ""
+
+							genre = muData['genre'].split(" ")
+							genre.sort()
+							%>
+							% for item in genre:
+								<li>${genericFuncs.makeGenreLink(item, '&showonlyexists=all')}</li>
+							% endfor
+						</ul>
+					</td>
 				</tr>
+				<tr>
+					<td>Tags:</td>
+					<td>
+						<ul>
+							<%
+							if not muData['tags']:
+								muData['tags'] = ""
+
+							tags = muData['tags'].split(" ")
+							tags.sort()
+							%>
+							% for item in tags:
+								<li>${genericFuncs.makeTagLink(item, '&showonlyexists=all')}</li>
+							% endfor
+						</ul>
+
+
+					</td>
+				</tr>
+
+				<tr>
+					<td>MU Description:</td>
+					<td>${muData['description']}</td>
+				</tr>
+
+				<tr>
+					<td>MU ID:</td>
+					<td>${muId}</td>
+				</tr>
+
 			</table>
 
+		% else:
+			<div>No MangaUpdates Entry!</div>
 		% endif
 	</div>
 </%def>
@@ -412,13 +608,16 @@ startTime = time.time()
 	cursor = sqlCon.cursor()
 	cursor.execute("SELECT dbid, itemname, itemtable, readingprogress, availprogress, rating FROM book_series WHERE dbid=%s", (dbId, ))
 	row = cursor.fetchone()
-	print(row)
+
 
 	if not row:
 		queryError("Database ID is not valid")
 		return
 
-	dbid, itemname, itemtable, readingprogress, availprogress, rating = row
+	dbid, itemname, srcTableId, readingprogress, availprogress, rating = row
+
+	## Convert fixed point rating to float
+	rating = rating * 0.5
 
 	%>
 
@@ -427,9 +626,10 @@ startTime = time.time()
 
 	<%
 
-	renderControlDiv(cursor, dbid, readingprogress, availprogress)
+	renderControlDiv(cursor, dbid, readingprogress, availprogress, rating, srcTableId)
 	renderLndbInfo(itemname)
 	renderMangaupdatesInfo(itemname)
+	renderItemSearch(itemname)
 	%>
 </%def>
 
@@ -443,6 +643,7 @@ startTime = time.time()
 	<%
 	renderLndbInfo(title)
 	renderMangaupdatesInfo(title)
+	renderItemSearch(title)
 	%>
 </%def>
 

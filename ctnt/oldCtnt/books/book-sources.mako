@@ -71,8 +71,9 @@ if tableFilter not in validTables:
 
 		<div class="subdiv">
 			<div class="contentdiv">
-				<h2>LNDB Content!</h2>
-
+				<h2>Book Content!</h2>
+				<strong>Source filter: ${tableFilter}</strong>
+				<br>
 				<%
 				bookRender.renderBookSeries(tableFilter=tableFilter)
 				%>

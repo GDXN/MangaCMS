@@ -43,7 +43,6 @@ if 'q' in request.params:
 	# MangaUpdates denotes novels by inserting "(Novel)" in the title. That makes the search results
 	# kind of cranky, so strip that out.
 	searchterm = searchterm.replace("(Novel)", "")
-	searchterm = searchterm.replace("(novel)", "")
 	searchterm = searchterm.strip()
 
 	searchFuncs.genSearchBody(searchterm, 'book_items')

@@ -73,12 +73,12 @@ class ApiInterface(object):
 			updateDat = {key: newName}
 			if not existingRow:
 				inserter.updateDbEntry(mergeRow['dbId'], **updateDat)
-				ret = json.dumps({"Status": "Succeeded", "Message": "Updated Row!"})
+				ret = json.dumps({"Status": "Success", "Message": "Updated Row!"})
 			else:
 				fromDict = {"dbId": updRowId}
 				toDict = {"dbId": existingRow['dbId']}
 				inserter.mergeItems(fromDict, toDict)
-				ret = json.dumps({"Status": "Succeeded", "Message": "Merged Rows!"})
+				ret = json.dumps({"Status": "Success", "Message": "Merged Rows!"})
 		else:
 			ret = json.dumps({"Status": "Failed", "Message": "Invalid argument!"})
 
@@ -240,18 +240,21 @@ class ApiInterface(object):
 
 	def removeBookList(self, request):
 
-		newList = request.params['listName']
+		delList = request.params['listName']
+		print("listname: '%s'" % delList)
 
 		cur = self.conn.cursor()
-		cur.execute("""SELECT COUNT(*) FROM book_series_lists WHERE listname=%s;""", (newList, ))
-		ret = cur.fetchone()[0]
+		cur.execute("""SELECT COUNT(*) FROM book_series_lists WHERE listname=%s;""", (delList, ))
+		ret = cur.fetchone()
 
-		if ret:
+
+		if not ret:
+			print("List does not exist?")
 			return Response(body=json.dumps({"Status": "Failed", "contents": 'Cannot delete list that doesn\'t exist!'}))
 
 
 		cur = self.conn.cursor()
-		cur.execute("""DELETE FROM book_series_lists WHERE listname=%s;""", (newList, ))
+		cur.execute("""DELETE FROM book_series_lists WHERE listname=%s;""", (delList, ))
 		cur.execute('COMMIT')
 
 		return Response(body=json.dumps({"Status": "Success", "contents": 'List Deleted!'}))
@@ -320,6 +323,63 @@ class ApiInterface(object):
 			"Status": "Success",
 			"contents": 'Current read-to status: %s!' % total,
 			"readTo": total
+			}
+		return Response(body=json.dumps(ret))
+
+	def setRatingForBook(self, request):
+
+		bookId = request.params["set-rating-for-book"]
+		ratingStr = request.params["rating"]
+
+		try:
+			newRating = float(ratingStr)
+
+			# Ratings are granular in 0.5 increments. Convert to integer fixed point (the db stores ints)
+			newRating = newRating * 2
+		except ValueError:
+			return Response(body=json.dumps({"Status": "Failed", "contents": 'Change value not an integer!'}))
+
+		cur = self.conn.cursor()
+		cur.execute("""UPDATE book_series SET rating=%s WHERE dbid=%s;""", (newRating, bookId))
+		cur.execute('COMMIT')
+
+		ret = {
+			"Status": "Success",
+			"contents": 'Current rating status: %s!' % (newRating/0.5),
+			}
+		return Response(body=json.dumps(ret))
+
+	def newCustomBook(self, request):
+
+		assert request.params["new-custom-book"] == 'true'
+		title = request.params["new-name"]
+
+
+		cur = self.conn.cursor()
+		cur.execute("""INSERT INTO book_series (itemname, itemtable) VALUES (%s, (SELECT dbid FROM book_series_table_links WHERE tablename=%s));""", (title, 'books_custom'))
+		cur.execute('COMMIT')
+
+		ret = {
+			"Status": "Success",
+			"contents": 'Inserted book: %s!' % title,
+			}
+		return Response(body=json.dumps(ret))
+
+
+	def deleteCustomBook(self, request):
+
+
+		assert request.params["delete-custom-book"] == 'true'
+		deleteId = request.params["delete-id"]
+
+
+		cur = self.conn.cursor()
+		cur.execute("""DELETE FROM book_series WHERE dbid=%s AND itemtable=(SELECT dbid FROM book_series_table_links WHERE tablename=%s);""", (deleteId, 'books_custom'))
+		cur.execute('COMMIT')
+
+		ret = {
+			"Status": "Success",
+			"contents": 'Item Deleted: %s!' % (deleteId),
 			}
 		return Response(body=json.dumps(ret))
 
@@ -436,6 +496,14 @@ class ApiInterface(object):
 			return self.setListForBook(request)
 		elif 'set-read-for-book' in request.params:
 			return self.setReadForBook(request)
+		elif "set-rating-for-book" in request.params:
+			return self.setRatingForBook(request)
+
+		elif "new-custom-book" in request.params:
+			return self.newCustomBook(request)
+		elif "delete-custom-book" in request.params:
+			return self.deleteCustomBook(request)
+
 
 		else:
 			self.log.warning("Unknown API call")

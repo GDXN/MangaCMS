@@ -6,7 +6,7 @@ class NovelMixin(metaclass=abc.ABCMeta):
 
 
 
-	def __getEnsureTableLinkExists(self, cur):
+	def _getEnsureTableLinkExists(self, cur):
 		# Dereference the source table.
 		while 1:
 			cur.execute('SELECT dbId FROM book_series_table_links WHERE tableName=%s;', (self.tableName, ))
@@ -14,7 +14,7 @@ class NovelMixin(metaclass=abc.ABCMeta):
 			if ret:
 				return ret[0]
 
-			self.log.info("First run for table %s? Inserting table name into linkTable.")
+			self.log.info("First run for table %s? Inserting table name into linkTable.", self.tableName)
 			cur.execute('INSERT INTO book_series_table_links (tableName) VALUES (%s) RETURNING dbId;', (self.tableName, ))
 			ret = cur.fetchone()
 
@@ -26,7 +26,7 @@ class NovelMixin(metaclass=abc.ABCMeta):
 	def upsertNovelName(self, seriesName):
 
 		with self.transaction() as cur:
-			tableId = self.__getEnsureTableLinkExists(cur)
+			tableId = self._getEnsureTableLinkExists(cur)
 
 			cur.execute('SELECT dbId FROM book_series WHERE itemName=%s AND itemTable=%s;', (seriesName, tableId))
 
@@ -42,7 +42,7 @@ class NovelMixin(metaclass=abc.ABCMeta):
 	def updateNovelAvailable(self, seriesName, availableChapters):
 
 		with self.transaction() as cur:
-			tableId = self.__getEnsureTableLinkExists(cur)
+			tableId = self._getEnsureTableLinkExists(cur)
 
 			cur.execute('SELECT dbId FROM book_series WHERE itemName=%s AND itemTable=%s;', (seriesName, tableId))
 
@@ -61,7 +61,7 @@ class NovelMixin(metaclass=abc.ABCMeta):
 
 		with self.transaction() as cur:
 
-			tableId = self.__getEnsureTableLinkExists(cur)
+			tableId = self._getEnsureTableLinkExists(cur)
 			cur.execute('SELECT dbId FROM book_series WHERE itemName=%s AND itemTable=%s;', (seriesName, tableId))
 			ret = cur.fetchone()
 			assert bool(ret)

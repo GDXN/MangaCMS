@@ -2,6 +2,7 @@
 
 
 from .Scrape import Monitor
+from .Custom import CustomMonitor
 
 import ScrapePlugins.RunBase
 
@@ -16,6 +17,8 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		self.log.info("Creating seriesTables")
 		scraper = Monitor()
+		scraper.go()
+		scraper = CustomMonitor()
 		scraper.go()
 
 

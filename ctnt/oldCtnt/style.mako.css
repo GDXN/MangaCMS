@@ -32,8 +32,14 @@ table
 	border-width: 0 0 1px 1px;
 	border-spacing: 0;
 	border-collapse: collapse;
-	table-layout: fixed
+	table-layout: fixed;
 
+
+}
+
+table.fullwidth
+{
+	width: 100%;
 }
 
 
