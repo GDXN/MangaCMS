@@ -130,6 +130,80 @@ class BookCleaner(ScrapePlugins.DbBase.DbBase):
 				cur.execute("""UPDATE  books_lndb SET cleanedTitle=%s WHERE dbid=%s;""", (cleaned, dbId))
 				print(dbId, cleaned, cTitle)
 
+	def cleanBookLinkSources(self):
+		self.openDB()
+		self.log.info("Wat?")
+		with self.transaction() as cur:
+			cur.execute("""SELECT dbid, src, url FROM book_items;""")
+			ret = cur.fetchall()
+
+			items = {}
+
+			for dbid, src, url in ret:
+				if not src in items:
+					items[src] = set()
+
+				netloc = urllib.parse.urlparse(url).netloc
+				if not netloc:
+					continue
+					# print("WAT?", src, url)
+
+
+				if 'wordpress.com' in netloc and src != 'wp' and 'wartdf.wordpress.com' not in netloc:
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('wp', dbid))
+
+
+				if 'giraffecorps.liamak.net' in netloc and src != 'wp' and 'wartdf.wordpress.com' not in netloc:
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('wp', dbid))
+
+				if 'gravitytranslations.com' in netloc and src != 'wp' and 'wartdf.wordpress.com' not in netloc:
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('wp', dbid))
+
+
+				if '.blogspot.' in netloc and src != 'bs':
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('bs', dbid))
+
+				if 'www.taptaptaptaptap.net' in netloc and src != 'bs':
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('bs', dbid))
+
+				if 'japtem.com' in netloc and src != 'japtem':
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('japtem', dbid))
+
+
+				if 'www.princerevolution.org' in netloc and src != 'prev':
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('prev', dbid))
+
+
+				if 'guhehe.net' in netloc and src != 'guhehe':
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('guhehe', dbid))
+
+
+				if 'lasolistia.com' in netloc and src != 'hptytl':
+					print(src, url)
+					cur.execute('UPDATE book_items SET src=%s WHERE dbid=%s;', ('hptytl', dbid))
+
+
+				# 'www.google.com', 'guhehe.net', 'www.lasolistia.com', 'www.baka-tsuki.org', 'www.guhehe.net', 'lasolistia.com', 'docs.google.com'
+
+				items[src].add((netloc))
+
+			# print(items)
+
+				# print(dbid, src, url)=
+			print(items)
+		# 	for dbId, cTitle in ret:
+		# 		cleaned = nt.prepFilenameForMatching(cTitle)
+		# 		cur.execute("""UPDATE  books_lndb SET cleanedTitle=%s WHERE dbid=%s;""", (cleaned, dbId))
+		# 		print(dbId, cleaned, cTitle)
+
 
 
 def updateNetloc():
@@ -145,6 +219,10 @@ def cleanBookContent():
 def regenLndbCleanedNames():
 	bc = BookCleaner()
 	bc.regenLndbCleanedNames()
+
+def fixBookLinkSources():
+	bc = BookCleaner()
+	bc.cleanBookLinkSources()
 
 
 

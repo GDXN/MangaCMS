@@ -21,7 +21,10 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	threads = 2
 
 
-	baseUrl = "http://japtem.com/"
+	baseUrl = [
+			"http://japtem.com/",
+			"http://www.japtem.com/",
+		]
 	startUrl = baseUrl
 
 	badwords = ["fanfic.php",

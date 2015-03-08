@@ -18,19 +18,21 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 	threads = 1
 
-	baseUrl = "https://wartdf.wordpress.com/"
+	baseUrl = [
+			"https://wartdf.wordpress.com/"
+		]
 	startUrl = [
 		baseUrl,
-		# 'http://pastebin.com/C8cU0ZPq',
-		# 'http://pastebin.com/Gm4xYe35',
-		# 'http://pastebin.com/iGjtwjVR',
-		# 'http://pastebin.com/VyPC3Kdn',
-		# 'http://pastebin.com/NS6kwFvL',
-		# 'http://pastebin.com/raw.php?i=C8cU0ZPq',
-		# 'http://pastebin.com/raw.php?i=Gm4xYe35',
-		# 'http://pastebin.com/raw.php?i=iGjtwjVR',
-		# 'http://pastebin.com/raw.php?i=VyPC3Kdn',
-		# 'http://pastebin.com/raw.php?i=NS6kwFvL',
+		'http://pastebin.com/C8cU0ZPq',
+		'http://pastebin.com/Gm4xYe35',
+		'http://pastebin.com/iGjtwjVR',
+		'http://pastebin.com/VyPC3Kdn',
+		'http://pastebin.com/NS6kwFvL',
+		'http://pastebin.com/raw.php?i=C8cU0ZPq',
+		'http://pastebin.com/raw.php?i=Gm4xYe35',
+		'http://pastebin.com/raw.php?i=iGjtwjVR',
+		'http://pastebin.com/raw.php?i=VyPC3Kdn',
+		'http://pastebin.com/raw.php?i=NS6kwFvL',
 		]
 
 	fileDomains = set(['files.wordpress.com'])

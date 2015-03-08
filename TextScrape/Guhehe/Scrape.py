@@ -21,7 +21,10 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	threads = 3
 
 
-	baseUrl = "http://guhehe.net/"
+	baseUrl = [
+		"http://guhehe.net/",
+		"http://www.guhehe.net/"
+		]
 	startUrl = 'http://guhehe.net/volumes/'
 
 	badwords = [

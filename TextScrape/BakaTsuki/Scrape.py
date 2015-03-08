@@ -115,18 +115,6 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	]
 
-	def urlClean(self, url):
-
-		while True:
-			url2 = urllib.parse.unquote(url)
-			url2 = url2.split("#")[0]
-			# url2 = url2.split("?")[0]    # MediaWiki needs the ? params for proper page navigation.
-			if url2 == url:
-				break
-			url = url2
-
-		return url
-
 	def changeFilter(self, url, title, changePercentage):
 		# Skip title cruft on baka-tsuki
 		if title.strip().startswith("File:"):

@@ -281,7 +281,12 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'twitter.com',
 		'facebook.com',
 		'public-api.wordpress.com',
-		'/page/page/'
+		'www.wretch.cc',
+		'delicious.com',
+		'www.paypal.com',
+		'digg.com',
+		'topwebfiction.com',
+		'/page/page/',
 		])
 	_scannedDomains = set()
 	allImages       = False
@@ -1793,7 +1798,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		except psycopg2.IntegrityError:
 			if kwargs:
 				with transaction(cur, commit=commit):
-					self.updateDbEntry(url=pgUrl, src=self.tableKey, **kwargs)
+					self.updateDbEntry(url=pgUrl, **kwargs)
 		# print("Upserted")
 
 	def insertDelta(self, **kwargs):

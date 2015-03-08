@@ -64,7 +64,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://tomorolls.wordpress.com',
 		'https://tsuigeki.wordpress.com/',
 		'https://unbreakablemachinedoll.wordpress.com/',
-		'https://wartdf.wordpress.com/',
 		'https://yoraikun.wordpress.com/',
 		'https://zmunjali.wordpress.com/',
 		'https://setsuna86blog.wordpress.com/',
@@ -151,6 +150,11 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 				"giraffecorps.liamak.net/extras/",
 				"wp-comments-post",
 				"/page/page/",
+				'/feed/',
+
+				'rejecthero.wordpress.com',
+				'farmerbob1.wordpress.com',
+				'pactwebserial.wordpress.com',
 
 				]
 

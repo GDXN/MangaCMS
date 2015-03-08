@@ -16,37 +16,39 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 6
+	threads = 1
 
 	baseUrl = [
-		"http://untuned-strings.blogspot.com/",
-		"https://sousetsuka.blogspot.com/",
-		"http://skythewood.blogspot.sg/",
-		"http://panofitrans.blogspot.com/",
-		"http://noitl.blogspot.com/",
-		"http://imoutoliciouslnt.blogspot.ca/",
-		"http://hereticlnt.blogspot.com/",
-		"http://ecwebnovel.blogspot.ca/",
-		"http://cetranslation.blogspot.com/",
-		"http://cetranslation.blogspot.sg/",
-
+		"http://untuned-strings.blogspot.com",
+		"https://sousetsuka.blogspot.com",
+		"http://skythewood.blogspot.sg",
+		"http://panofitrans.blogspot.com",
+		"http://noitl.blogspot.com",
+		"http://imoutoliciouslnt.blogspot.ca",
+		"http://imoutoliciouslnt.blogspot.com.au",
+		"http://hereticlnt.blogspot.com",
+		"http://ecwebnovel.blogspot.ca",
+		"http://cetranslation.blogspot.com",
+		"http://cetranslation.blogspot.sg",
 		"http://hikuosan.blogspot.com",
 		"http://kurotsuki-novel.blogspot.com",
 		"http://swordandgame.blogspot.ca",
 		"http://hikuosan.blogspot.com",
-
+		"http://skythewood.blogspot.com",
 
 
 	]
 
 	startUrl = [
-		'https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web',
+		# 'https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web',
 		# 'https://docs.google.com/document/d/1LKdA3x0k3I3Hbemmp5tc_xu0IMGyhwjV7y6UV5bUhXU',
 		# ]
-		'http://imoutoliciouslnt.blogspot.ca/p/projects.html',
-		'http://cetranslation.blogspot.com/p/projects.html',
+		# 'http://imoutoliciouslnt.blogspot.ca/p/projects.html',
+		# 'http://cetranslation.blogspot.com/p/projects.html',
 
-		] + baseUrl
+		'http://skythewood.blogspot.ca/p/knights-and-magic-author-amazake-no.html'
+		]
+		# ] + baseUrl
 
 
 	tld = set(['com', 'ca', 'fr', 'sg'])
@@ -176,6 +178,13 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 
 	# def checkDomain(self, url):
 	# 	return False
+
+	# def crawl(self):
+	# 	print('wat')
+
+
+	# 	print(self.checkDomain('https://gekkahimethetranslation.wordpress.com/volume-2/chapter-2-little-one-eyed-princess/chapter-2-7/'))
+	# 	print(self.checkDomain('https://gekkahimethetranslation.wordpress.com/volume-2/chapter-2-little-one-eyed-princess/chapter-2-11/'))
 
 def test():
 	scrp = Scrape()

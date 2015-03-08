@@ -113,6 +113,9 @@ def printHelp():
 	print("	truncate-trailing-novel")
 	print("		Clean out the trailing '(Novel)' from mangaupdates novel items.")
 	print("	")
+	print("	fix-book-link-sources")
+	print("		.")
+	print("	")
 
 	print("*********************************************************")
 	print("Remote deduper interface")
@@ -161,6 +164,8 @@ def parseOneArgCall(cmd):
 		utilities.bookClean.regenLndbCleanedNames()
 	elif mainArg.lower() == "truncate-trailing-novel":
 		utilities.bookClean.truncateTrailingNovel()
+	elif mainArg.lower() == "fix-book-link-sources":
+		utilities.bookClean.fixBookLinkSources()
 
 	else:
 		print("Unknown arg!")
