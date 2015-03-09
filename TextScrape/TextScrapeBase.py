@@ -287,6 +287,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'digg.com',
 		'topwebfiction.com',
 		'/page/page/',
+		'www.addtoany.com'
 		])
 	_scannedDomains = set()
 	allImages       = False
@@ -518,16 +519,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# print(self.scannedDomains)
 		# if "drive" in url:
 		for rootUrl in self._scannedDomains:
-			if urllib.parse.urlsplit(rootUrl).netloc != '' and urllib.parse.urlsplit(rootUrl).netloc != rootUrl:
-				# print("Mismatch: ", rootUrl, urllib.parse.urlsplit(rootUrl).netloc)
-				if url.lower().startswith(rootUrl):
-					# print("CheckDomain 1", url)
-					return True
-			else:
-				# print("Match", rootUrl)
-				if rootUrl in url.lower():
-					# print("CheckDomain 2", url)
-					return True
+			if urllib.parse.urlsplit(url).netloc != '' and urllib.parse.urlsplit(url).netloc == rootUrl:
+				return True
+
+			if url.lower().startswith(rootUrl):
+				return True
 
 		# print("CheckDomain False", url)
 		return False
@@ -734,6 +730,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 			for instance in soup.find_all(True, attrs=key):
 				instance.decompose() # This call permutes the tree!
 
+		return soup
+
+	def decomposeAdditional(self, soup):
+
 		# Clear out all the iframes
 		for instance in soup.find_all('iframe'):
 			instance.decompose()
@@ -820,6 +820,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		# Do the later cleanup to prep the content for local rendering.
 		soup = self.decomposeItems(soup, self._decompose)
+
+		soup = self.decomposeAdditional(soup)
 
 		# Allow child-class hooking
 		soup = self.postprocessBody(soup)
@@ -1133,7 +1135,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 				rest = urllib.parse.urlsplit(baseUrl.lower())[1:]
 				params = (scheme, ) + rest
 
-				self.log.info("Had to add scheme (%s) to URL: '%s'", scheme, url)
+				# self.log.info("Had to add scheme (%s) to URL: '%s'", scheme, url)
 				url = urllib.parse.urlunsplit(params)
 
 			elif self.IGNORE_MALFORMED_URLS:
@@ -1338,8 +1340,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 												fhash     CITEXT,
 												mimetype  CITEXT,
 												fspath    text DEFAULT '',
-												netloc    CITEXT,
-												UNIQUE(fhash));'''.format(tableName=self.tableName))
+												netloc    CITEXT);'''.format(tableName=self.tableName))
 
 
 
@@ -1372,9 +1373,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 				("%s_url_index"        % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (url   );'''     ),
 				("%s_change_index"     % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (change   );'''  ),
 				("%s_netloc_index"     % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s (change   );'''  ),
+				("%s_title_trigram"    % self.changeTableName, self.changeTableName, '''CREATE INDEX %s ON %s USING gin (title gin_trgm_ops);'''  ),
 			]
 
+		# CREATE INDEX book_series_name_trigram ON book_series USING gin (itemname gin_trgm_ops);
 		# CREATE INDEX book_title_trigram ON book_items USING gin (title gin_trgm_ops);
+
+		# ALTER INDEX book_title_trigram RENAME TO book_items_title_trigram;
 
 		# CREATE INDEX  book_items_title_coll_index ON book_items USING BTREE (title COLLATE "en_US" text_pattern_ops);
 		# CREATE INDEX  book_items_fhash_index ON book_items (fhash);
