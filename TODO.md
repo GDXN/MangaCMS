@@ -18,19 +18,20 @@ Description from BU is missing internal HTML.
 Name synonyms in bu table for books.
 
 
-
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 
-break down and scrape http://www.royalroadl.com/
-Also adult: http://games.adult-fanfiction.org/index.php
-http://storiesonline.net/
-https://www.fictionpress.com/
+Western:
+ - http://games.adult-fanfiction.org/index.php
+ - http://storiesonline.net/
+ - ## https://www.fictionpress.com/
+ - ## http://www.royalroadl.com/
 
 
-http://www.wuxiaworld.com/
 
 
+
+Add: http://hotchocolatescans.mokkori.fr
 
 pg pool!
 

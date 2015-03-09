@@ -287,7 +287,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'digg.com',
 		'topwebfiction.com',
 		'/page/page/',
-		'www.addtoany.com'
+		'www.addtoany.com',
+		'www.stumbleupon.com',
 		])
 	_scannedDomains = set()
 	allImages       = False

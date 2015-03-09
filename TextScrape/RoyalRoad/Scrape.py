@@ -21,7 +21,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 1
+	threads = 5
 
 	FOLLOW_GOOGLE_LINKS = False
 	allImages = False
