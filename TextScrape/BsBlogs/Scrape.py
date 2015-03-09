@@ -16,7 +16,7 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 1
+	threads = 6
 
 	baseUrl = [
 		"http://untuned-strings.blogspot.com",

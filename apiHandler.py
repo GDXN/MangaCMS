@@ -171,7 +171,7 @@ class ApiInterface(object):
 		ret = cur.fetchone()[0]
 
 		if ret:
-			ret = "<a href='/search-b/b?q=%s'>%s</a>" % (urllib.parse.quote_plus(itemNameStr.encode("utf-8")), linkText)
+			ret = "<a href='/books/book-item?title=%s'>%s</a>" % (urllib.parse.quote_plus(itemNameStr.encode("utf-8")), linkText)
 		else:
 			ret = 'No Book Items'
 

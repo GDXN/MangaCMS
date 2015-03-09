@@ -601,6 +601,36 @@ startTime = time.time()
 </%def>
 
 
+
+<%def name="lookupCrosslink(title)">
+	<%
+	cursor = sqlCon.cursor()
+	cursor.execute("SELECT dbid, itemname FROM book_series WHERE (itemname %% %s) ORDER BY dbid ASC;", (title, ))
+	rows = cursor.fetchall()
+	%>
+
+
+	<h2>Title Search: ${title}</h2>
+	<div>
+		<strong>Warning: No id link, cannot modify reading status.</strong>
+	</div>
+	% if rows:
+		<div>
+			Candidate cross-links
+			% for dbId, name in rows:
+					<ul>
+						<li><a href='/books/book-item?dbid=${dbId}'>${dbId} - ${name}</a>
+					</ul>
+			% endfor
+		</div>
+	% endif
+	<br>
+
+</%def>
+
+
+
+
 <%def name="renderForId(dbId)">
 	<%
 
@@ -633,14 +663,12 @@ startTime = time.time()
 	%>
 </%def>
 
+
+
 <%def name="renderTitle(title)">
 
-	<h2>Item Title: ${title}</h2>
-	<div>
-		<strong>Warning: No id link, cannot edit read status.</strong>
-	</div>
-	<br>
 	<%
+	lookupCrosslink(title)
 	renderLndbInfo(title)
 	renderMangaupdatesInfo(title)
 	renderItemSearch(title)

@@ -123,7 +123,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 	]
 
-	startUrl = baseUrl
+	startUrl = ['https://bluesilvertranslations.wordpress.com',]
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

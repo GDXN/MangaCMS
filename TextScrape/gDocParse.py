@@ -54,6 +54,7 @@ def trimGDocUrl(rawUrl):
 			"/view",
 			"/mobilebasic",
 			"/mobilebasic?viewopt=127",
+			"/pub?embedded=true",
 			]
 
 		gdocBaseRe = re.compile(r'(https?://docs.google.com/document/d/[-_0-9a-zA-Z]+)(.*)$')

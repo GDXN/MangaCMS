@@ -9,7 +9,7 @@ explain analyze book links
 
 MISSING NEW MU TAGS
 
-change book links to point to book page rather then search
+~~change book links to point to book page rather then search~~
 
 http://10.1.1.8:8081/books/render?url=http%3A//www.baka-tsuki.org/project/index.php%3Ftitle%3DGekka_no_Utahime_to_Magi_no_Ou
 Missing items. Rescraping
@@ -17,23 +17,20 @@ Missing items. Rescraping
 Description from BU is missing internal HTML.
 Name synonyms in bu table for books.
 
-http://10.1.1.8:8081/books/render?url=http://skythewood.blogspot.com/2014/10/O12.html
-## Run-on text mess
 
-
-http://10.1.1.8:8081/books/render?url=http%3A%2F%2Fskythewood.blogspot.ca%2Fp%2Fknights-and-magic-author-amazake-no.html
-funky relinking
 
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 
 break down and scrape http://www.royalroadl.com/
+Also adult: http://games.adult-fanfiction.org/index.php
+http://storiesonline.net/
+https://www.fictionpress.com/
 
-~~book ratings!~~
 
 http://www.wuxiaworld.com/
 
-content in iframe: https://bluesilvertranslations.wordpress.com/2015/01/19/000-prologue-tang-third-young-master-crossing-over-v2/
+
 
 pg pool!
 
@@ -411,6 +408,10 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~http://10.1.1.8:8081/books/render?url=http://skythewood.blogspot.com/2014/10/O12.html Run-on text mess~~ Source is wierd. Can't do much.
+ - ~~content in iframe: https://bluesilvertranslations.wordpress.com/2015/01/19/000-prologue-tang-third-young-master-crossing-over-v2/ wat~~ (Now pulling links from iframes)
+ - ~~http://10.1.1.8:8081/books/render?url=http%3A%2F%2Fskythewood.blogspot.ca%2Fp%2Fknights-and-magic-author-amazake-no.html funky relinking~~
+ - ~~book ratings!~~
  - ~~Write tool for flushing/aggregating book resource content items. (Done)~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/16v8Q9Kice7pinXq4_aoEBr6Viu7CuRWPyv_TyE7wXOg formatting oddness~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fhokagetranslations.wordpress.com%2Ftag%2Fmonster-musume-harem-o-tsukurou-make-a-monster-girl-harem%2F header not cleared~~
