@@ -44,15 +44,45 @@ class NovelMixin(metaclass=abc.ABCMeta):
 		with self.transaction() as cur:
 			tableId = self._getEnsureTableLinkExists(cur)
 
-			cur.execute('SELECT dbId FROM book_series WHERE itemName=%s AND itemTable=%s;', (seriesName, tableId))
+			cur.execute('SELECT dbId, availProgress FROM book_series WHERE itemName=%s AND itemTable=%s;', (seriesName, tableId))
 
 			ret = cur.fetchone()
-			if not ret:
-				self.log.error("Item is not in the database! Wat?")
-				self.log.error("Item: '%s', sourceTable: '%s'", seriesName, self.tableName)
-				raise ValueError
 
+			if not ret and '(Novel)' in seriesName:
+				self.log.warn("Item is not in the database! Wat?")
+				self.log.warn("Item: '%s', sourceTable: '%s'", seriesName, self.tableName)
+				return
+			elif not ret:
+				return
+
+			dummy_dbId, progress = ret
+
+			# Only do the update if the new number is actually larger, or if it's been set to -2 (e.g. "Complete")
+			if progress >= availableChapters or (availableChapters == -2 and availableChapters != progress):
+				return
 			cur.execute('UPDATE book_series SET availProgress=%s WHERE itemName=%s AND itemTable=%s;', (availableChapters, seriesName, tableId))
+
+
+	def updateNovelRead(self, seriesName, readChapters):
+
+		with self.transaction() as cur:
+			tableId = self._getEnsureTableLinkExists(cur)
+
+			cur.execute('SELECT dbId, readingprogress FROM book_series WHERE itemName=%s AND itemTable=%s;', (seriesName, tableId))
+
+			ret = cur.fetchone()
+			if not ret and '(Novel)' in seriesName:
+				self.log.warn("Item is not in the database! Wat?")
+				self.log.warn("Item: '%s', sourceTable: '%s'", seriesName, self.tableName)
+				return
+			elif not ret:
+				return
+
+			dummy_dbId, progress = ret
+			# Only do the update if the new number is actually larger, or if it's been set to -2 (e.g. "Complete")
+			if progress >= readChapters or (readChapters == -2 and readChapters != progress):
+				return
+			cur.execute('UPDATE book_series SET readingprogress=%s WHERE itemName=%s AND itemTable=%s;', (readChapters, seriesName, tableId))
 
 
 	def updateNovelTags(self, seriesName, tags):

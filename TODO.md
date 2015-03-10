@@ -1,3 +1,7 @@
+WP-Scrape keeps barfing
+~~Block comment crap on FictionPress~~
+~~Add functional text scrapers to scheduler~~
+
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
@@ -7,7 +11,7 @@ missing image: http://10.1.1.8:8081/books/render?url=https%3A//shintranslations.
 
 explain analyze book links
 
-MISSING NEW MU TAGS
+~~MISSING NEW MU TAGS~~
 
 ~~change book links to point to book page rather then search~~
 
@@ -17,6 +21,7 @@ Missing items. Rescraping
 Description from BU is missing internal HTML.
 Name synonyms in bu table for books.
 
+serve compressed
 
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
@@ -26,12 +31,19 @@ Western:
  - http://storiesonline.net/
  - ## https://www.fictionpress.com/
  - ## http://www.royalroadl.com/
+ 
+ LNDB / MU covers
+ 
+ book availability not updating (different components)
+ sync read to as well
 
 
+book search link all parameter
 
-
-
+http://ckmscans.halofight.com/
 Add: http://hotchocolatescans.mokkori.fr
+
+autocleaner thing?
 
 pg pool!
 

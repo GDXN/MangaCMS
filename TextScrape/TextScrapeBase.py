@@ -555,6 +555,56 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
 		return any([rootUrl in url.lower() for rootUrl in self._relinkDomains])
 
+
+	def processLinkItem(self, url, baseUrl):
+
+
+		url = gdp.clearOutboundProxy(url)
+		url = gdp.clearBitLy(url)
+
+
+
+		# Filter by domain
+		if not self.checkDomain(url):
+			# print("Filtering", self.checkDomain(url), url)
+			return
+
+
+		# and by blocked words
+		hadbad = False
+		for badword in self._badwords:
+			if badword in url:
+				hadbad = True
+		if hadbad:
+
+			# print("hadbad", self.checkDomain(url), url)
+			return
+
+
+		if not self.checkFollowGoogleUrl(url):
+			return
+
+		url = self.urlClean(url)
+
+		if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
+			url = gdp.trimGDocUrl(url)
+
+			if url.startswith('https://docs.google.com/document/d/images'):
+				return
+
+			# self.log.info("Resolved URL = '%s'", url)
+			self.putNewUrl(url, baseUrl)
+			# self.log.info("New G link: '%s'", url)
+
+		else:
+			# Remove any URL fragments causing multiple retreival of the same resource.
+			if url != gdp.trimGDocUrl(url):
+				print('Old URL: "%s"' % url)
+				print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
+				raise ValueError("Wat? Url change? Url: '%s'" % url)
+			self.putNewUrl(url, baseUrl)
+			# self.log.info("Newlink: '%s'", url)
+
 	def extractLinks(self, soup, baseUrl):
 		# All links have been resolved to fully-qualified paths at this point.
 
@@ -570,50 +620,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 				except KeyError:
 					continue
 
-				url = gdp.clearOutboundProxy(url)
-				url = gdp.clearBitLy(url)
 
-
-
-				# Filter by domain
-				if not self.checkDomain(url):
-					# print("Filtering", self.checkDomain(url), url)
-					continue
-
-
-				# and by blocked words
-				hadbad = False
-				for badword in self._badwords:
-					if badword in url:
-						hadbad = True
-				if hadbad:
-
-					# print("hadbad", self.checkDomain(url), url)
-					continue
-
-				if not self.checkFollowGoogleUrl(url):
-					continue
-
-				url = self.urlClean(url)
-
-				if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
-					url = gdp.trimGDocUrl(url)
-
-					if url.startswith('https://docs.google.com/document/d/images'):
-						continue
-
-					# self.log.info("Resolved URL = '%s'", url)
-					self.putNewUrl(url, baseUrl)
-					# self.log.info("New G link: '%s'", url)
-
-				else:
-					# Remove any URL fragments causing multiple retreival of the same resource.
-					if url != gdp.trimGDocUrl(url):
-						print('Old URL: "%s"' % url)
-						print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
-						raise ValueError("Wat? Url change? Url: '%s'" % url)
-					self.putNewUrl(url, baseUrl)
-					# self.log.info("Newlink: '%s'", url)
+				self.processLinkItem(url, baseUrl)
 
 
 	def extractImages(self, soup, baseUrl):
@@ -1287,7 +1295,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 							if url.lower().startswith('http'):
 								self.log.info("New URL: '%s'", url)
-								self.upsert(url, istext=istext, dlstate=0)
+
+								# Only reset the downloadstate for content, not
+								# resources
+								if istext:
+									self.upsert(url, istext=istext, dlstate=0)
+								else:
+									self.upsert(url, istext=istext)
 								haveUrls.add(url)
 							else:
 								raise ValueError("Invalid URL added: '%s'", got)
