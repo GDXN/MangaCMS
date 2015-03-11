@@ -733,6 +733,9 @@ def iri2uri(uri):
 	"""Convert an IRI to a URI. Note that IRIs must be
 	passed in a unicode strings. That is, do not utf-8 encode
 	the IRI before passing it into the function."""
+
+	assert uri != None, 'iri2uri must be passed a non-none string!'
+
 	original = uri
 	if isinstance(uri ,str):
 		(scheme, authority, path, query, fragment) = urllib.parse.urlsplit(uri)

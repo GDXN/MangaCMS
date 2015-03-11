@@ -12,11 +12,8 @@ import urllib.request, urllib.parse, urllib.error
 import traceback
 
 import settings
-import bs4
 import json
 import processDownload
-
-import hashlib
 
 import ScrapePlugins.RetreivalBase
 
@@ -27,8 +24,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.CrunchyRoll.Cl"
 	pluginName = "CrunchyRoll Content Retreiver"
-	tableKey    = "cr"
-	urlBase = "http://www.crunchyroll.com/"
+	tableKey   = "cr"
+	urlBase    = "http://www.crunchyroll.com/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -104,6 +101,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		pageno = 1
 		for page in chapterInfo['pages']:
 			url = page['locale']['enUS']['encrypted_composed_image_url']
+			if url == None or url == 'null':
+				raise ValueError("Item has null URLs?")
 			imageUrls.append((pageno, url))
 
 			pageno += 1
