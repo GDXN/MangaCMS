@@ -1,13 +1,17 @@
 WP-Scrape keeps barfing
 ~~Block comment crap on FictionPress~~
 ~~Add functional text scrapers to scheduler~~
+~~include altnames in search set~~ (Ajax load ALL THE THIGNS)
+~~http://10.1.1.8:8081/books/render?url=http%3A//japtem.com/arifureta-volume-9-chapter-4/ missing~~ (Not anymore?)
+~~mu link works in list table, fails in item: http://10.1.1.8:8081/books/book-item?dbid=24 (Naming issue)~~
 
-http://10.1.1.8:8081/books/render?url=http%3A//japtem.com/arifureta-volume-9-chapter-4/ missing
 
-http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1M2VpqmXNb31RwrRIeQ2FsKEbd8xfIdKTmHtR4K9ga8U/edit should relink as http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1M2VpqmXNb31RwrRIeQ2FsKEbd8xfIdKTmHtR4K9ga8U
-container http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1xInAD8v06AIX_urMZRRXHBocDsqBEePMoU1EOTfGRZQ%2Fpub
+~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1M2VpqmXNb31RwrRIeQ2FsKEbd8xfIdKTmHtR4K9ga8U/edit should relink as http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1M2VpqmXNb31RwrRIeQ2FsKEbd8xfIdKTmHtR4K9ga8U
+container http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1xInAD8v06AIX_urMZRRXHBocDsqBEePMoU1EOTfGRZQ%2Fpub fixed gdoc relink cleaning issue~~
 
-include altnames in search set
+bs is scraping wp comtent again also bt
+example: http://10.1.1.8:8081/books/book-item?dbid=139
+http://10.1.1.8:8081/books/book-item?dbid=269
 
 
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
@@ -15,10 +19,10 @@ https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 https images still fucked
 
-missing image: http://10.1.1.8:8081/books/render?url=https%3A//shintranslations.wordpress.com/vol-1-chapter-1/
 
 explain analyze book links
 
+~~missing image: http://10.1.1.8:8081/books/render?url=https%3A//shintranslations.wordpress.com/vol-1-chapter-1/ (Seems to have it now)~~
 ~~MISSING NEW MU TAGS~~
 ~~change book links to point to book page rather then search~~
 
@@ -34,7 +38,7 @@ Fetch covers from LNDB/MangaUpdates. Hook them into the web-content system.
 
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
-book-item load search ajax
+~~book-item load search ajax~~
 
 Western:
  - http://games.adult-fanfiction.org/index.php

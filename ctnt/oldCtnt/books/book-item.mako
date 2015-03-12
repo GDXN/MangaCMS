@@ -16,12 +16,6 @@
 
 	${ut.headerBase()}
 
-	<script type="text/javascript">
-		$(document).ready(function() {
-		// Tooltip only Text
-
-	</script>
-
 	<link rel="stylesheet" href="/books/treeview.css">
 
 </head>
@@ -416,30 +410,69 @@ startTime = time.time()
 
 		cursor.execute("""SELECT buid, availprogress, readingprogress, buname, bulist, butags, bugenre, budescription
 						FROM mangaseries
-
 						WHERE buid=%s;""", (muId, ))
 		item = cursor.fetchone()
 
 		keys = ("muId", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre', 'description')
 		ret = dict(zip(keys, item))
+
+
+		cursor.execute("""SELECT name
+						FROM munamelist
+						WHERE buid=%s;""", (muId, ))
+		synonyms = cursor.fetchall()
+
+		## Unpack the DB return format
+		ret['altNames'] = [item[0] for item in synonyms]
+		ret['altNames'].sort()
 		return ret
 
 	%>
 </%def>
 
-<%def name="renderItemSearch(itemName)">
-	<br>
-	<strong>Search results for item</strong>
-	<%
+<%def name="renderItemSearch(itemNames)">
 
 
-	if itemName.endswith("(Novel)"):
-		itemName = itemName[:-len("(Novel)")]
-	bookSearch.genBookSearch(originTrigram=itemName)
-	%>
+	<script type="text/javascript">
 
+		function asyncRequest(targetUrl, replaceId)
+		{
+			$.get(targetUrl,
+				function( response, status, xhr )
+				{
+					if ( status == "error" )
+					{
+						var msg = "Sorry but there was an error: ";
+						$( "#error" ).html( msg + xhr.status + " " + xhr.statusText );
+					}
+					else
+					{
+						console.log('Output: ', replaceId)
+						$('#'+replaceId).html(response);
+					}
+				}
+			);
+		};
+
+	</script>
+
+	% for itemName in itemNames:
+		<br>
+		<strong>Search results for item</strong> '${itemName}':
+		<div id='delLoad-${id(itemName)}'>
+
+			<script>
+
+				$(document).ready(function() {
+					asyncRequest('/books/renderSearch?searchTitle=${itemName|u}', 'delLoad-${id(itemName)}');
+
+				});
+
+			</script>
+			<center><img src='/js/loading.gif' /></center>
+		</div>
+	% endfor
 </%def>
-
 
 <%def name="renderLndbInfo(itemName)">
 	<div>
@@ -506,7 +539,24 @@ startTime = time.time()
 		<strong>MangaUpdates Info</strong>
 
 		<%
-		muId = nt.getMangaUpdatesId(title)
+
+		## We want to default to the novel item in mangaUpdates. Therefore, we preferentially look up
+		## the item with the postfix "(Novel)", and only use the plain title if the novel *isn't* in
+		## mangaupdates.
+
+		muId = None
+		if not title.endswith('(Novel)'):
+			muId = nt.getMangaUpdatesId(title+' (Novel)')
+		if not muId:
+			muId = nt.getMangaUpdatesId(title)
+
+		## This call also returns a list of similar names for search purposes
+		baseName = title
+		if baseName.endswith('(Novel)'):
+			baseName = baseName[:-len('(Novel)')]
+			baseName = baseName.strip()
+
+		ret = [baseName]
 		%>
 		% if muId:
 			<%
@@ -582,6 +632,7 @@ startTime = time.time()
 					</td>
 				</tr>
 
+
 				<tr>
 					<td>MU Description:</td>
 					<td>${muData['description']}</td>
@@ -592,12 +643,35 @@ startTime = time.time()
 					<td>${muId}</td>
 				</tr>
 
+				<tr>
+					<td>Alternative Names:</td>
+					<td>
+						<ul>
+							% for altName in muData['altNames']:
+								<li>${altName}</li>
+								<%
+								if altName.endswith('(Novel)'):
+									altName = altName[:-len('(Novel)')]
+									altName = altName.strip()
+								if not altName in ret:
+									ret.append(altName)
+								%>
+							% endfor
+						</ul>
+
+
+					</td>
+				</tr>
 			</table>
 
 		% else:
 			<div>No MangaUpdates Entry!</div>
 		% endif
 	</div>
+
+	<%
+	return ret
+	%>
 </%def>
 
 
@@ -658,8 +732,8 @@ startTime = time.time()
 
 	renderControlDiv(cursor, dbid, readingprogress, availprogress, rating, srcTableId)
 	renderLndbInfo(itemname)
-	renderMangaupdatesInfo(itemname)
-	renderItemSearch(itemname)
+	searchItems = renderMangaupdatesInfo(itemname)
+	renderItemSearch(searchItems)
 	%>
 </%def>
 
@@ -670,8 +744,8 @@ startTime = time.time()
 	<%
 	lookupCrosslink(title)
 	renderLndbInfo(title)
-	renderMangaupdatesInfo(title)
-	renderItemSearch(title)
+	searchItems = renderMangaupdatesInfo(title)
+	renderItemSearch(searchItems)
 	%>
 </%def>
 

@@ -90,8 +90,8 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 
 	query, params = tuple(query)
-	print('query', query)
-	print('params', params)
+	## print('query', query)
+	## print('params', params)
 
 	with sqlCon.cursor() as cur:
 
@@ -130,3 +130,11 @@ def buildQuery(srcTbl, cols, **kwargs):
 		<div class="errorPattern">No items!</div>
 	% endif
 </%def>
+
+<%
+
+	sName = ut.getUrlParam('searchTitle')
+	if sName:
+		sName = sName.strip()
+		genBookSearch(originTrigram=sName)
+%>

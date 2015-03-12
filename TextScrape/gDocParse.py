@@ -18,10 +18,15 @@ import TextScrape.jsLiteralParse
 
 def trimGDocUrl(rawUrl):
 
+
 	url = rawUrl.split("#")[0]
 
 
 	urlParam = urllib.parse.urlparse(url)
+
+	# Short circuit so we don't munge non-google URLs
+	if not 'google.com' in urlParam.netloc:
+		return rawUrl
 
 	qArr = urllib.parse.parse_qs(urlParam.query)
 	if urlParam.query and 'google.com' in urlParam.netloc:

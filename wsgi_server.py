@@ -499,11 +499,37 @@ class PageResource(object):
 
 			if not mimetype:
 				self.log.warn("Request for book content '%s' failed because the file has not been retreived yet.", request.params)
-				return Response(status_int=404, body='File has not yet been retreived!')
+
+
+				responseBody = '''
+				<html>
+					<head>
+						<title>Item not yet retreived!</title>
+					</head>
+					<body>
+						<div>
+							<h3>Item was found in the book item database, but it seems to have no
+							mime-type, which means it has probably not been retreived yet.</h3>
+
+						</div>
+						<div>
+							Request Parameters: {params}
+					</body>
+				</html>
+
+
+
+				'''.format(params=request.params)
+				responseBody += reasons
+
+
+				return Response(status_int=404, body=responseBody	)
 
 			elif not 'text' in mimetype:
 				if not os.path.exists(fsPath):
 					self.log.warn("Request for book resource content '%s', which is missing.", request.params)
+
+
 					return Response(status_int=404, body='File is missing! Has it not been fetched yet?')
 				self.log.info("Request for book resource content '%s'", request.params)
 				return FileResponse(path=fsPath, content_type=mimetype)

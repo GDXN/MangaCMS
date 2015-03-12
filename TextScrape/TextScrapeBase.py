@@ -282,6 +282,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 		'facebook.com',
 		'public-api.wordpress.com',
 		'www.wretch.cc',
+		'ws-na.amazon-adsystem.com/widgets/',
 		'delicious.com',
 		'www.paypal.com',
 		'digg.com',
@@ -461,14 +462,7 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def urlClean(self, url):
 		# Google docs can be accessed with or without the '/preview' postfix
 		# We want to remove this if it's present, so we don't duplicate content.
-		netloc = urllib.parse.urlsplit(url).netloc
-		if 'docs.google.com' in netloc and url.endswith("/preview"):
-			url = url[:-len('preview')]
-		if 'docs.google.com' in netloc and url.endswith("/preview/"):
-			url = url[:-len('preview/')]
-		if 'docs.google.com' in netloc and url.endswith("/"):
-			url = url[:-len('/')]
-
+		url = gdp.trimGDocUrl(url)
 
 		while True:
 			url2 = urllib.parse.unquote(url)
@@ -520,10 +514,11 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# print(self.scannedDomains)
 		# if "drive" in url:
 		for rootUrl in self._scannedDomains:
-			if urllib.parse.urlsplit(url).netloc != '' and urllib.parse.urlsplit(url).netloc == rootUrl:
-				return True
+			if urllib.parse.urlsplit(url).netloc:
+				if urllib.parse.urlsplit(url).netloc == rootUrl:
+					return True
 
-			if url.lower().startswith(rootUrl):
+			elif url.lower().startswith(rootUrl):
 				return True
 
 		# print("CheckDomain False", url)
@@ -665,6 +660,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# The google doc reader relinking mechanisms requires overriding the
 		# image relinking mechanism. As such, allow that to be overridden
 		# if needed
+
+		# TODO: Convert this to use list of all tags with src attributes.
+
 		if not imRelink:
 			imRelink = self.convertToReaderImage
 
@@ -737,6 +735,13 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# Decompose all the parts we don't want
 		for key in toDecompose:
 			for instance in soup.find_all(True, attrs=key):
+
+				# So.... yeah. At least one blogspot site has EVERY class used in the
+				# <body> tag, for no coherent reason. Therefore, *never* decompose the <body>
+				# tag, even if it has a bad class in it.
+				if instance.name == 'body':
+					continue
+
 				instance.decompose() # This call permutes the tree!
 
 		return soup
@@ -1160,6 +1165,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		if not url.lower().startswith('http'):
 			raise ValueError("Failure adding scheme to URL: '%s'" % url)
+
+		if not self.checkDomain(url) and istext:
+			raise ValueError("Invalid url somehow got through: '%s'" % url)
 
 		if '/view/export?format=zip' in url:
 			raise ValueError("Wat?")

@@ -117,19 +117,19 @@ scrapePlugins = {
 
 
 
-	80  : (TextScrape.BakaTsuki.Run,                       days(3)),  # Every 3 days, because books is slow to update
-	81  : (TextScrape.JapTem.Run,                          days(3)),
-	82  : (TextScrape.Guhehe.Run,                          days(3)),
+	# 80  : (TextScrape.BakaTsuki.Run,                       days(3)),  # Every 3 days, because books is slow to update
+	# 81  : (TextScrape.JapTem.Run,                          days(3)),
+	# 82  : (TextScrape.Guhehe.Run,                          days(3)),
 
-	83  : (TextScrape.WpBlogs.Run,                         days(1)),
-	84  : (TextScrape.BsBlogs.Run,                         days(1)),
+	# 83  : (TextScrape.WpBlogs.Run,                         days(1)),
+	# 84  : (TextScrape.BsBlogs.Run,                         days(1)),
 
-	85  : (TextScrape.PrinceRevolution.Run,                days(5)),
-	86  : (TextScrape.Krytyk.Run,                          days(5)),
-	87  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
-	90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
-	98  : (TextScrape.WarTdf.Run,                          days(1)),
-	108 : (TextScrape.HaruParty.Run,                       days(2)),
+	# 85  : (TextScrape.PrinceRevolution.Run,                days(5)),
+	# 86  : (TextScrape.Krytyk.Run,                          days(5)),
+	# 87  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
+	# 90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+	# 98  : (TextScrape.WarTdf.Run,                          days(1)),
+	# 108 : (TextScrape.HaruParty.Run,                       days(2)),
 
 }
 
