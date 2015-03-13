@@ -161,14 +161,13 @@ def fetchRelinkableDomains():
 		domains.add(url)
 		if url.startswith("www."):
 			domains.add(url[4:])
+		if hasattr(plg, 'scannedDomains'):
+			for domain in plg.scannedDomains:
+				url = urllib.parse.urlsplit(domain.lower()).netloc
 
-		for domain in plg.scannedDomains:
-			url = urllib.parse.urlsplit(domain.lower()).netloc
-
-			domains.add(url)
-			if url.startswith("www."):
-				domains.add(url[4:])
-
+				domains.add(url)
+				if url.startswith("www."):
+					domains.add(url[4:])
 
 	return domains
 
@@ -257,44 +256,10 @@ class TextScraper(metaclass=abc.ABCMeta):
 	decompose       = []
 	decomposeBefore = []
 
-	# `_decompose` and `_decomposeBefore` are the actual arrays of items to decompose, that are loaded with the contents of
-	# `decompose` and `decomposeBefore` on plugin initialization
-	_decompose       = []
-	_decomposeBefore = [
-		{'name'     : 'likes-master'},  # Bullshit sharing widgets
-		{'id'       : 'jp-post-flair'},
-		{'class'    : 'commentlist'},  # Scrub out the comments so we don't try to fetch links from them
-		{'class'    : 'post-share-buttons'},
-		{'class'    : 'comments'},
-		{'id'       : 'comments'},
-	]
+
 	fileDomains     = []
 
-	_badwords       = set([
-		'gprofiles.js',
-		'www.netvibes.com',
-		'accounts.google.com',
-		'edit.yahoo.com',
-		'add.my.yahoo.com',
-		'public-api.wordpress.com',
-		'r-login.wordpress.com',
-		'twitter.com',
-		'facebook.com',
-		'public-api.wordpress.com',
-		'www.wretch.cc',
-		'ws-na.amazon-adsystem.com/widgets/',
-		'delicious.com',
-		'www.paypal.com',
-		'digg.com',
-		'topwebfiction.com',
-		'/page/page/',
-		'www.addtoany.com',
-		'www.stumbleupon.com',
-		])
-	_scannedDomains = set()
 	allImages       = False
-	_fileDomains    = set()
-	scannedDomains  = set()
 	tld             = set()
 
 	stripTitle = ''
@@ -305,7 +270,48 @@ class TextScraper(metaclass=abc.ABCMeta):
 		self.loggers = {}
 		self.lastLoggerIndex = 1
 
+		self._tld           = set()
+		self._fileDomains   = set()
+		self.scannedDomains = set()
 
+
+		self._badwords       = set([
+			'gprofiles.js',
+			'netvibes.com',
+			'accounts.google.com',
+			'edit.yahoo.com',
+			'add.my.yahoo.com',
+			'public-api.wordpress.com',
+			'r-login.wordpress.com',
+			'twitter.com',
+			'facebook.com',
+			'public-api.wordpress.com',
+			'wretch.cc',
+			'ws-na.amazon-adsystem.com',
+			'delicious.com',
+			'paypal.com',
+			'digg.com',
+			'topwebfiction.com',
+			'/page/page/',
+			'addtoany.com',
+			'stumbleupon.com',
+			'delicious.com',
+			'reddit.com',
+			'newsgator.com',
+			'technorati.com',
+			])
+
+		# `_decompose` and `_decomposeBefore` are the actual arrays of items to decompose, that are loaded with the contents of
+		# `decompose` and `decomposeBefore` on plugin initialization
+		self._decompose       = []
+		self._decomposeBefore = [
+			{'name'     : 'likes-master'},  # Bullshit sharing widgets
+			{'id'       : 'jp-post-flair'},
+			{'class'    : 'commentlist'},  # Scrub out the comments so we don't try to fetch links from them
+			{'class'    : 'post-share-buttons'},
+			{'class'    : 'comments'},
+			{'id'       : 'comments'},
+		]
 
 		self._relinkDomains = set()
 		for url in fetchRelinkableDomains():
@@ -363,6 +369,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 		for item in self.fileDomains:
 			self._fileDomains.add(item)
+
+		for item in self.tld:
+			self._tld.add(item)
 
 		tmp = list(self._scannedDomains)
 		tmp.sort()
@@ -425,8 +434,8 @@ class TextScraper(metaclass=abc.ABCMeta):
 		# Blogspot is annoying and sometimes a single site is spread over several tlds. *.com, *.sg, etc...
 		if 'blogspot.' in netloc:
 			subdomain, mainDomain, tld = netloc.rsplit(".")[-3:]
-			self.tld.add(tld)
-			for tld in self.tld:
+			self._tld.add(tld)
+			for tld in self._tld:
 				self._scannedDomains.add("www.{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
 				self._scannedDomains.add("{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
 
@@ -511,7 +520,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	# check if domain `url` is a sub-domain of the scanned domains.
 	def checkDomain(self, url):
-		# print(self.scannedDomains)
 		# if "drive" in url:
 		for rootUrl in self._scannedDomains:
 			if urllib.parse.urlsplit(url).netloc:
@@ -545,7 +553,6 @@ class TextScraper(metaclass=abc.ABCMeta):
 
 	# check if domain `url` is a sub-domain of the domains we should relink.
 	def checkRelinkDomain(self, url):
-		# print(self.scannedDomains)
 		# if "drive" in url:
 		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
 		return any([rootUrl in url.lower() for rootUrl in self._relinkDomains])
@@ -1275,6 +1282,9 @@ class TextScraper(metaclass=abc.ABCMeta):
 	def crawl(self):
 
 		self.resetStuckItems()
+
+		if hasattr(self, 'preFlight'):
+			self.preFlight()
 
 		haveUrls = set()
 		if isinstance(self.startUrl, (list, set)):
