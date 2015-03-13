@@ -41,10 +41,13 @@ sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 ~~book-item load search ajax~~
 
 Western:
- - http://storiesonline.net/
+ - http://www.literotica.com
+ - http://www.wattpad.com
+ - http://www.wolfpub.org (?)
  - ## http://games.adult-fanfiction.org/index.php
  - ## https://www.fictionpress.com/
  - ## http://www.royalroadl.com/
+ - ## ~~http://storiesonline.net/ s~~ (Login bullshit)
  
  LNDB / MU covers
  
@@ -78,7 +81,7 @@ http://www.wuxiaworld.com/
 ## TO ADD: 
 =======
 
-
+http://avertranslation.com/
 
 http://a0132.blogspot.ca/
 http://aquarilasscenario.blogspot.com/
