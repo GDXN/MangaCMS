@@ -9,7 +9,7 @@ WP-Scrape keeps barfing
 ~~http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1M2VpqmXNb31RwrRIeQ2FsKEbd8xfIdKTmHtR4K9ga8U/edit should relink as http://10.1.1.8:8081/books/render?url=https%3A//docs.google.com/document/d/1M2VpqmXNb31RwrRIeQ2FsKEbd8xfIdKTmHtR4K9ga8U
 container http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1xInAD8v06AIX_urMZRRXHBocDsqBEePMoU1EOTfGRZQ%2Fpub fixed gdoc relink cleaning issue~~
 
-bs is scraping wp comtent again also bt
+~~bs is scraping wp comtent again also bt~~ (Fixed, was class variable issue.)
 example: http://10.1.1.8:8081/books/book-item?dbid=139
 http://10.1.1.8:8081/books/book-item?dbid=269
 
@@ -41,8 +41,8 @@ sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 ~~book-item load search ajax~~
 
 Western:
- - http://games.adult-fanfiction.org/index.php
  - http://storiesonline.net/
+ - ## http://games.adult-fanfiction.org/index.php
  - ## https://www.fictionpress.com/
  - ## http://www.royalroadl.com/
  
