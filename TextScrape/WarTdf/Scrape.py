@@ -22,7 +22,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 			"https://wartdf.wordpress.com/"
 		]
 	startUrl = [
-		baseUrl,
 		'http://pastebin.com/C8cU0ZPq',
 		'http://pastebin.com/Gm4xYe35',
 		'http://pastebin.com/iGjtwjVR',
@@ -33,7 +32,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'http://pastebin.com/raw.php?i=iGjtwjVR',
 		'http://pastebin.com/raw.php?i=VyPC3Kdn',
 		'http://pastebin.com/raw.php?i=NS6kwFvL',
-		]
+		] + baseUrl
 
 	fileDomains = set(['files.wordpress.com'])
 
