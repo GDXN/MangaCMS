@@ -495,12 +495,8 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 
 
 	def processLinkItem(self, url, baseUrl):
-
-
 		url = gdp.clearOutboundProxy(url)
 		url = gdp.clearBitLy(url)
-
-
 
 		# Filter by domain
 		if not self.checkDomain(url):
@@ -509,14 +505,12 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 
 
 		# and by blocked words
-		hadbad = False
 		for badword in self._badwords:
 			if badword in url:
-				hadbad = True
-		if hadbad:
+				# print("hadbad", self.checkDomain(url), url)
 
-			# print("hadbad", self.checkDomain(url), url)
-			return
+				return
+
 
 
 		if not self.checkFollowGoogleUrl(url):
@@ -562,6 +556,32 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 				self.processLinkItem(url, baseUrl)
 
 
+	def processImageLink(self, url, baseUrl):
+
+
+		# Skip tags with `img src=""`.
+		# No idea why they're there, but they are
+		if not url:
+			return
+
+		# Filter by domain
+		if not self.allImages and not any([base in url for base in self._fileDomains]):
+			return
+
+		# and by blocked words
+		hadbad = False
+		for badword in self._badwords:
+			if badword in url:
+				hadbad = True
+		if hadbad:
+			return
+
+
+		# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
+		url = self.urlClean(url)
+
+		self.putNewUrl(url, baseUrl=baseUrl, istext=False)
+
 	def extractImages(self, soup, baseUrl):
 
 		for imtag in soup.find_all("img"):
@@ -571,28 +591,7 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 			except KeyError:
 				continue
 
-			# Skip tags with `img src=""`.
-			# No idea why they're there, but they are
-			if not url:
-				continue
-
-			# Filter by domain
-			if not self.allImages and not any([base in url for base in self._fileDomains]):
-				continue
-
-			# and by blocked words
-			hadbad = False
-			for badword in self._badwords:
-				if badword in url:
-					hadbad = True
-			if hadbad:
-				continue
-
-
-			# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
-			url = self.urlClean(url)
-
-			self.putNewUrl(url, baseUrl=baseUrl, istext=False)
+			self.processImageLink(url, baseUrl)
 
 
 	def convertToReaderImage(self, inStr):
@@ -1238,7 +1237,15 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 				processes.append(executor.submit(self.queueLoop))
 
 
+			todoIntegrator = time.time()
+			printInterval = 15  # Print items in queue every 10 seconds
 			while runStatus.run:
+
+				# Every 15 seconds, print how many items remain todo.
+				if time.time() > (todoIntegrator + printInterval):
+					self.log.info("Items remaining in todo queue: %s", self.getTodoCount())
+					todoIntegrator += printInterval
+
 				try:
 					got = self.newLinkQueue.get_nowait()
 					if not got:

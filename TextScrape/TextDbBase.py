@@ -572,6 +572,18 @@ class TextDbBase(metaclass=abc.ABCMeta):
 		return url
 
 
+	def getTodoCount(self):
+		cur = self.conn.cursor()
+
+		with transaction(cur):
+
+			cur.execute('''SELECT COUNT(*) FROM {tableName} WHERE dlstate=%s AND src=%s;'''.format(tableName=self.tableName), (0, self.tableKey))
+			row = cur.fetchone()
+
+			return row[0]
+
+
+
 
 	def resetStuckItems(self):
 		self.log.info("Resetting stuck downloads in DB")

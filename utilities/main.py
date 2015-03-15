@@ -68,6 +68,12 @@ def printHelp():
 	print("		Scan the contents of {src-path}, and try to infer the series for each subdirectory.")
 	print("		If a subdir has no matching series, move it to {to-path}")
 	print("	")
+	print("	h-clean {del-dir}")
+	print("		Walk through the historical H items and remove superceded duplicates.")
+	print("		Processing is done in DB-ID order, which is roughtly chronological..")
+	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
+	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
+	print("	")
 
 	print("*********************************************************")
 	print("Miscellaneous Tools")
@@ -232,6 +238,13 @@ def parseTwoArgCall(cmd, val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.cleanFiles.cleanArchives(val)
+		return
+
+	elif cmd == "h-clean":
+		if not os.path.exists(val):
+			print("Passed path '%s' does not exist!" % val)
+			return
+		utilities.dedupDir.runHDeduper(val)
 		return
 
 

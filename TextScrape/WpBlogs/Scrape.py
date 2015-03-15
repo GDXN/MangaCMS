@@ -72,11 +72,14 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://ohanashimi.wordpress.com/',
 		"https://lygartranslations.wordpress.com",
 		"https://reantoanna.wordpress.com",
+		"https://nightraccoon.wordpress.com"
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		"http://giraffecorps.liamak.net/",
 		"http://www.taptaptaptaptap.net/",
 		'http://shinsekai.cadet-nine.org/',
+
+		"http://avertranslation.com",
 
 		'http://gravitytranslations.wordpress.com/',
 		'http://gravitytranslations.com/',             # The wordpress address redirects to the plain URL
@@ -99,7 +102,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		"http://tmbrakta.wordpress.com/",
 		"http://tusjecht.wordpress.com/",
 		"http://twistedcogs.wordpress.com/",
-		"http://villainousintent.wordpress.com/",
 		"https://agreyworld.wordpress.com/",
 		"https://anathemaserial.wordpress.com/",
 		"https://endonline.wordpress.com/",

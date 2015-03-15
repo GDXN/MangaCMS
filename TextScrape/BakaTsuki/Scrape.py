@@ -24,16 +24,18 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 	baseUrl = "http://www.baka-tsuki.org/"
 	startUrl = baseUrl
 
-	badwords = ["/blog/",
+	badwords = [
+				"/blog/",
 				"/forums/",
 
-				# Block loaded resource
+				# Block loaded resources
 				"project/load.php",
 
 				# Yes, I only speak&read english. Leave me to my filtering shame.
 				"Category:Brazilian",
 				"Category:Brazilian_Portuguese",
 				"Category:Czech",
+				"Category:Bulgarian",
 				"Category:Esperanto",
 				"Category:Filipino",
 				"Category:French",
@@ -94,10 +96,21 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				"action=history",
 				"action=info",
 				"title=Help:",
-				"?title=User_talk:",
+				"title=User_talk:",
 				"&oldid=",
 				"title=Baka-Tsuki:",
-				"title=Special:Book"]
+				"title=Special:Book",
+
+				"Special:WhatLinksHere",
+				"Special:UserLogin",
+				"action=edit",
+				"diff=",
+				"feed=atom",
+				"action=submit",
+
+				"~Russian_Version~",
+
+				]
 
 	stripTitle = ' - Baka-Tsuki'
 
@@ -129,9 +142,6 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 def test():
 	scrp = Scrape()
 	scrp.crawl()
-	# scrp.retreiveItemFromUrl(scrp.startUrl)
-	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')
-
 
 if __name__ == "__main__":
 	test()

@@ -27,7 +27,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 		]
 	startUrl = baseUrl
 
-	badwords = ["fanfic.php",
+	badwords = [
 				"/viewtopic.php",
 				"/memberlist.php",
 				"/search.php",
@@ -35,7 +35,6 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 				"/styles/prosilver/theme/",
 				"/forums/",
 				"/forum/",
-				"/fanfic",         # Fucking slash fics.
 				"/cdn-cgi/",
 				"/help/",
 				"?share=",

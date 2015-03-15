@@ -125,6 +125,29 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			except KeyboardInterrupt:
 				raise
 
+	def cleanHHistory(self, delDir):
+		self.log.info("Querying for items.")
+		with self.conn.cursor() as cur:
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems ORDER BY dbid ASC")
+			ret = cur.fetchall()
+
+		for dbid, filename, downloadpath, tags in ret:
+
+			if tags and 'was-duplicate' in tags.split():
+				continue
+
+			if not filename or not downloadpath:
+				self.log.error("Invalid path info: '%s', '%s'", downloadpath, filename)
+
+			fpath = os.path.join(downloadpath, filename)
+			if not os.path.exists(fpath):
+				continue
+
+			proc = processDownload.HentaiProcessor()
+			tags = proc.processDownload(seriesName=None, archivePath=fpath)
+			self.log.info("Adding tags: '%s'", tags)
+			self.addTag(fpath, tags)
+
 
 
 	def purgeDedupTempsMd5Hash(self, dirPath):
@@ -339,6 +362,16 @@ def runDeduper(basePath, deletePath):
 	dd.setupDbApi()
 
 	dd.cleanDirectory(basePath, deletePath)
+
+	dd.closeDB()
+
+def runHDeduper(deletePath):
+
+	dd = DirDeduper()
+	dd.openDB()
+	dd.setupDbApi()
+
+	dd.cleanHHistory(deletePath)
 
 	dd.closeDB()
 

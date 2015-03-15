@@ -1,3 +1,5 @@
+https://nightraccoon.wordpress.com/2015/01/29/chapter-28-fairy-garden/
+
 WP-Scrape keeps barfing
 ~~Block comment crap on FictionPress~~
 ~~Add functional text scrapers to scheduler~~
