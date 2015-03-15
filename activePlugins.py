@@ -29,6 +29,7 @@ import ScrapePlugins.HBrowseLoader.Run
 import ScrapePlugins.Crunchyroll.Run
 import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 import ScrapePlugins.IrcGrabber.BotRunner
+import ScrapePlugins.Kawaii.Run
 
 import ScrapePlugins.FoolSlide.RhLoader.Run
 import ScrapePlugins.FoolSlide.VortexLoader.Run
@@ -97,6 +98,7 @@ scrapePlugins = {
 	22 : (ScrapePlugins.SadPandaLoader.Run,                  hours(2)),
 	23 : (ScrapePlugins.WebtoonsReader.Run,                  hours(6)),
 	24 : (ScrapePlugins.Tadanohito.Run,                      hours(6)),
+	25 : (ScrapePlugins.Kawaii.Run,                          hours(12)),
 
 	# FoolSlide modules
 	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          hours(12)),
