@@ -83,14 +83,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# print(rows)
 		items = []
 		for row in rows:
-			# self.log.info("Row = %s", row)
-
-			# Wait 18 hours after an item is uploaded to actually scrape it, since it looks like uploads
-			# are almost always in a fucked up order at the start
-			# Seriously, these kind of things are sequentially numbered. How can you fuck that up?
-			# They manage, somehow.
-			if row["retreivalTime"] < (time.time() - 60*60*18):
-				items.append(row)  # Actually the contentID
+			items.append(row)
 		self.log.info("Have %s new items to retreive in PururinDownloader" % len(items))
 
 		return items

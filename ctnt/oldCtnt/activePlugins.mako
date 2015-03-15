@@ -271,7 +271,7 @@ sidebarItemList = [
 		{
 			"num"           : 32,
 			'dbKey'         : "MsLoader",
-			'name'          : "MangaStream",
+			'name'          : "MangaStrm",
 			'dictKey'       : "ms",
 			'cssClass'      : "msId",
 			'showOnHome'    : True,
@@ -320,6 +320,18 @@ sidebarItemList = [
 			'name'          : "IRC Trigger",
 			'dictKey'       : "irc-trg",
 			'cssClass'      : "ircId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
+		{
+			"num"           : 36,
+			'dbKey'         : "kawaii",
+			'name'          : "Kawaii Scans",
+			'dictKey'       : "kw",
+			'cssClass'      : "kawaii",
 			'showOnHome'    : True,
 			'renderSideBar' : True,
 			'genRow'        : True,
