@@ -41,8 +41,8 @@ sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 Western:
  - http://www.literotica.com
- - http://www.wattpad.com
  - http://www.wolfpub.org (?)
+ - ## http://www.wattpad.com
  - ## http://games.adult-fanfiction.org/index.php
  - ## https://www.fictionpress.com/
  - ## http://www.royalroadl.com/
