@@ -78,6 +78,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		"http://giraffecorps.liamak.net/",
 		"http://www.taptaptaptaptap.net/",
 		'http://shinsekai.cadet-nine.org/',
+		"http://avertranslation.com/",
 
 		"http://avertranslation.com",
 
@@ -125,7 +126,8 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 	]
 
-	startUrl = ['https://bluesilvertranslations.wordpress.com',]
+	# startUrl = ['https://bluesilvertranslations.wordpress.com',]
+	startUrl = baseUrl
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

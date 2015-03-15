@@ -1,6 +1,3 @@
-https://nightraccoon.wordpress.com/2015/01/29/chapter-28-fairy-garden/
-
-WP-Scrape keeps barfing
 ~~Block comment crap on FictionPress~~
 ~~Add functional text scrapers to scheduler~~
 ~~include altnames in search set~~ (Ajax load ALL THE THIGNS)
@@ -59,8 +56,8 @@ Western:
 
 book search link all parameter
 
-http://ckmscans.halofight.com/
 Add: http://hotchocolatescans.mokkori.fr
+http://ckmscans.halofight.com/
 
 autocleaner thing?
 
@@ -83,31 +80,16 @@ http://www.wuxiaworld.com/
 ## TO ADD: 
 =======
 
-http://avertranslation.com/
 
-http://a0132.blogspot.ca/
 http://aquarilasscenario.blogspot.com/
 http://arzengi.blogspot.com/
-http://avertranslation.blogspot.sg/
-http://ecwebnovel.blogspot.ca/
-http://hereticlnt.blogspot.com/
-http://hereticlnt.blogspot.sg/
 http://hikuosan.blogspot.com/
-http://imoutoliciouslnt.blogspot.ca/
-http://imoutoliciouslnt.blogspot.com/
-http://jawztranslations.blogspot.com/
-http://kurotsuki-novel.blogspot.com/
 http://nakulas.blogspot.com/
-http://panofitrans.blogspot.com/
 http://royalroadweed.blogspot.co.il/
-http://skythewood.blogspot.com.
-http://skythewood.blogspot.sg/
-http://sousetsuka.blogspot.com/
 http://swordandgame.blogspot.ca/
 http://the-last-skull.blogspot.com/
 http://thenakedsol.blogspot.com.
 http://thezombieknight.blogspot.co.uk/
-http://untuned-strings.blogspot.com/
 http://xhawk77x.blogspot.com/
 
 
@@ -119,6 +101,25 @@ General Resource: http://englishlightnovels.com/
 Use http://lndb.info/ as BU-like?
 Also: http://aho-updates.com/
 
+
+## http://avertranslation.com/
+## http://avertranslation.blogspot.sg/
+## http://a0132.blogspot.ca/
+## http://hereticlnt.blogspot.com/
+## http://hereticlnt.blogspot.sg/
+## http://kurotsuki-novel.blogspot.com/
+## http://jawztranslations.blogspot.com/
+## http://panofitrans.blogspot.com/
+## http://untuned-strings.blogspot.com/
+## http://imoutoliciouslnt.blogspot.ca/
+## http://imoutoliciouslnt.blogspot.com/
+## http://skythewood.blogspot.com.
+## http://skythewood.blogspot.sg/
+## http://sousetsuka.blogspot.com/
+## http://ecwebnovel.blogspot.ca/
+
+## https://sites.google.com/site/sekaigameoredake/
+
 ## https://reantoanna.wordpress.com
 ## https://kobatochandaisuki.wordpress.com/
 ## https://shintranslations.wordpress.com/
@@ -127,28 +128,26 @@ Also: http://aho-updates.com/
 ## https://heartcrusadescans.wordpress.com/
 ## https://durandaru.wordpress.com/
 ## https://natsutl.wordpress.com/
-## http://hikuosan.blogspot.com/2015/01/kamitachi-ni-hirowareta-otoko-prologue1.html
-## https://lygartranslations.wordpress.com/novels/elf-tensei/
+## http://hikuosan.blogspot.com
+## https://lygartranslations.wordpress.com/
 ## http://earlandfairy.weebly.com/
 ## http://shinsekai.cadet-nine.org/
 ## http://giraffecorps.liamak.net/
 ## http://gravitytranslations.com/
-## https://sites.google.com/site/sekaigameoredake/
 ## http://novel.dawnglare.com/
-
-## hikuo      - http://hikuosan.blogspot.com
-## kurotsuki  - http://kurotsuki-novel.blogspot.com
-## sword      - http://swordandgame.blogspot.ca
-## kobato     - http://kobatochandaisuki.wordpress.com
-## hokage     - https://hokagetranslations.wordpress.com
-## metal      - https://metalhaguremt.wordpress.com
-## tsal       - http://tsaltranslation.wordpress.com
-## bluesilver - https://bluesilvertranslations.wordpress.com
-## lazy9      - http://9ethtranslations.wordpress.com
-## panofi     - http://panofitrans.blogspot.com
-## zmun       - http://zmunjali.wordpress.com
-## tomo       - https://tomorolls.wordpress.com
-## binh       - https://binhjamin.wordpress.com
+## http://hikuosan.blogspot.com
+## http://kurotsuki-novel.blogspot.com
+## http://swordandgame.blogspot.ca
+## http://kobatochandaisuki.wordpress.com
+## https://hokagetranslations.wordpress.com
+## https://metalhaguremt.wordpress.com
+## http://tsaltranslation.wordpress.com
+## https://bluesilvertranslations.wordpress.com
+## http://9ethtranslations.wordpress.com
+## http://panofitrans.blogspot.com
+## http://zmunjali.wordpress.com
+## https://tomorolls.wordpress.com
+## https://binhjamin.wordpress.com
 
 https://docs.google.com/document/d/1P8975xchjaZNw7gEiQkrV1w01akcJhUjlcd4fo4uWNU/edit?usp=sharing
 

@@ -18,7 +18,7 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 2
+	threads = 4
 
 
 	baseUrl = [

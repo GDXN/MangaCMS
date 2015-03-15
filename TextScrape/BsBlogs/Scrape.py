@@ -35,20 +35,19 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 		"http://swordandgame.blogspot.ca",
 		"http://hikuosan.blogspot.com",
 		"http://skythewood.blogspot.com",
+		"http://a0132.blogspot.ca/",
+		"http://jawztranslations.blogspot.com/",
 
 
 	]
 
 	startUrl = [
-		# 'https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web',
-		# 'https://docs.google.com/document/d/1LKdA3x0k3I3Hbemmp5tc_xu0IMGyhwjV7y6UV5bUhXU',
-		# ]
-		# 'http://imoutoliciouslnt.blogspot.ca/p/projects.html',
-		# 'http://cetranslation.blogspot.com/p/projects.html',
+		'https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web',
+		'https://docs.google.com/document/d/1LKdA3x0k3I3Hbemmp5tc_xu0IMGyhwjV7y6UV5bUhXU',
+		'http://imoutoliciouslnt.blogspot.ca/p/projects.html',
+		'http://cetranslation.blogspot.com/p/projects.html',
 
-		'http://skythewood.blogspot.ca/p/knights-and-magic-author-amazake-no.html'
-		]
-		# ] + baseUrl
+		] + baseUrl
 
 
 	tld = set(['com', 'ca', 'fr', 'sg'])
