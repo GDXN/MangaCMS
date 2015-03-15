@@ -312,6 +312,7 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 		if self.FOLLOW_GOOGLE_LINKS:
 			# Tell the path filtering mechanism that we can fetch google doc files
 			self._scannedDomains.add('https://docs.google.com/document/')
+			self._scannedDomains.add('https://docs.google.com/spreadsheets/')
 			self._scannedDomains.add('https://drive.google.com/folderview')
 			self._scannedDomains.add('https://drive.google.com/open')
 
@@ -462,7 +463,7 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 				if urllib.parse.urlsplit(url).netloc == rootUrl:
 					return True
 
-			elif url.lower().startswith(rootUrl):
+			if url.lower().startswith(rootUrl):
 				return True
 
 		# print("CheckDomain False", url)
