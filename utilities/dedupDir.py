@@ -128,7 +128,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def cleanHHistory(self, delDir):
 		self.log.info("Querying for items.")
 		with self.conn.cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems ORDER BY dbid ASC")
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE sourcesite='sp' ORDER BY dbid ASC")
 			ret = cur.fetchall()
 
 		for dbid, filename, downloadpath, tags in ret:

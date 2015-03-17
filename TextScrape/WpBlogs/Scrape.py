@@ -20,6 +20,8 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 	threads = 6
 
 	baseUrl = [
+		'https://bluesilvertranslations.wordpress.com',
+
 		'http://9ethtranslations.wordpress.com',
 		'http://amaburithetranslation.wordpress.com',
 		'http://fateapocryphathetranslation.wordpress.com',
@@ -47,7 +49,6 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://xantbos.wordpress.com/',
 		'https://9ethtranslations.wordpress.com/',
 		'https://binhjamin.wordpress.com',
-		'https://bluesilvertranslations.wordpress.com',
 		'https://defiring.wordpress.com/',
 		'https://hokagetranslations.wordpress.com',
 		'https://kyakka.wordpress.com',
@@ -72,7 +73,8 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'https://ohanashimi.wordpress.com/',
 		"https://lygartranslations.wordpress.com",
 		"https://reantoanna.wordpress.com",
-		"https://nightraccoon.wordpress.com"
+		"https://nightraccoon.wordpress.com",
+		"https://netblazer.wordpress.com/",
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		"http://giraffecorps.liamak.net/",
@@ -126,8 +128,11 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 	]
 
-	# startUrl = ['https://bluesilvertranslations.wordpress.com',]
 	startUrl = baseUrl
+	# startUrl = ['https://bluesilvertranslations.wordpress.com',]
+	# startUrl = 'https://docs.google.com/document/d/1RfQP2Hj5JLtzFWy9d1F8kWVfLkjFuVFlTq87yQrOmmI'
+	# startUrl = 'https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'
+	# startUrl = 'https://docs.google.com/document/d/1ZdweQdjIBqNsJW6opMhkkRcSlrbgUN5WHCcYrMY7oqI'
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
@@ -159,6 +164,9 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 				'rejecthero.wordpress.com',
 				'farmerbob1.wordpress.com',
 				'pactwebserial.wordpress.com',
+
+
+				'https://docs.google.com/forms/d',
 
 				]
 
@@ -287,6 +295,54 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'| Shin Sekai Yori – From the New World',
 		':: tappity tappity tap.'
 	]
+
+
+	titleTweakLut = [
+		{
+			'contain' : ['yuusha party no kawaii ko ga ita no de, kokuhaku shite mita',
+			             '告白してみた'],
+			'badUrl'  : ['1ljoXDy-ti5N7ZYPbzDsj5kvYFl3lEWaJ1l3Lzv1cuuM'],
+			'url'     : 'docs.google.com',
+			'add'    : 'Yuusha Party no Kawaii Ko ga ita no de, Kokuhaku Shite Mita - '
+		},
+		{
+			'contain' : ['tang san'],
+			'badUrl'  : [],
+			'url'     : 'docs.google.com',
+			'add'    : 'Douluo Dalu - '
+		},
+	]
+
+	# Methods to allow the child-class to modify the content at various points.
+	def extractTitle(self, srcSoup, doc, url):
+
+		title = doc.title()
+		if not title:
+			title = srcSoup.title.get_text().strip()
+
+		content = str(srcSoup).lower()
+		for tweakDict in self.titleTweakLut:
+
+			# print()
+			# print(tweakDict)
+			# print()
+
+			# print('contain', any([item.lower() in content.lower() for item in tweakDict['contain']]))
+			# print('badUrl', not any([item in url for item in tweakDict['badUrl']]))
+			# print('url', tweakDict['url'] in url)
+
+			if any([item in content for item in tweakDict['contain']]) and \
+				(not any([item in url for item in tweakDict['badUrl']])) and \
+				tweakDict['url'] in url:
+
+				self.log.info("Need to tweak title for url '%s', adding '%s'", url, tweakDict['add'])
+				title = tweakDict['add'] + title
+
+		return title
+
+# SELECT title FROM book_items WHERE contents LIKE '%tang san%';
+
+# SELECT title FROM book_items WHERE contents LIKE '%yuusha party no kawaii ko ga ita no de, kokuhaku shite mita%';
 
 
 	# def checkDomain(self, url):

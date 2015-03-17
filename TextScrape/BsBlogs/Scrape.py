@@ -37,6 +37,7 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 		"http://skythewood.blogspot.com",
 		"http://a0132.blogspot.ca/",
 		"http://jawztranslations.blogspot.com/",
+		"http://swordandgame.blogspot.it/",
 
 
 	]
@@ -50,7 +51,7 @@ class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
 		] + baseUrl
 
 
-	tld = set(['com', 'ca', 'fr', 'sg'])
+	tld = set(['com', 'ca', 'fr', 'sg', 'it'])
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

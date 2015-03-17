@@ -21,18 +21,9 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 	baseUrl = [
 			"https://wartdf.wordpress.com/"
 		]
-	startUrl = [
-		'http://pastebin.com/C8cU0ZPq',
-		'http://pastebin.com/Gm4xYe35',
-		'http://pastebin.com/iGjtwjVR',
-		'http://pastebin.com/VyPC3Kdn',
-		'http://pastebin.com/NS6kwFvL',
-		'http://pastebin.com/raw.php?i=C8cU0ZPq',
-		'http://pastebin.com/raw.php?i=Gm4xYe35',
-		'http://pastebin.com/raw.php?i=iGjtwjVR',
-		'http://pastebin.com/raw.php?i=VyPC3Kdn',
-		'http://pastebin.com/raw.php?i=NS6kwFvL',
-		] + baseUrl
+
+
+	startUrl = baseUrl
 
 	fileDomains = set(['files.wordpress.com'])
 
@@ -86,6 +77,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 	]
 
 	stripTitle = 'Raising the Dead |'
+
 
 
 def test():

@@ -789,11 +789,17 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
 
+
+	# Methods to allow the child-class to modify the content at various points.
+	def extractMarkdownTitle(self, content, url):
+		# Take the first non-empty line, and just assume it's the title. It'll be close enough.
+		title = content.strip().split("\n")[0].strip()
+		return title
+
 	# Format a text-file using markdown to make it actually nice to look at.
 	def processAsMarkdown(self, content, url):
 		self.log.info("Plain-text file. Processing with markdown.")
-		# Take the first non-empty line, and just assume it's the title. It'll be close enough.
-		title = content.strip().split("\n")[0].strip()
+		title = self.extractMarkdownTitle(content, url)
 		content = markdown.markdown(content)
 
 		self.updateDbEntry(url=url, title=title, contents=content, mimetype='text/html', dlstate=2)
@@ -917,9 +923,12 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 
 
 
-	def cleanGdocPage(self, soup):
+	def cleanGdocPage(self, soup, url):
 
-		title = soup.title.get_text().strip()
+
+		doc = readability.readability.Document(str(soup))
+
+		title = self.extractTitle(soup, doc, url)
 
 		for span in soup.find_all("span"):
 			span['style'] = ''
@@ -963,7 +972,7 @@ class TextScraper(TextScrape.TextDbBase.TextDbBase, metaclass=abc.ABCMeta):
 		soup = bs4.BeautifulSoup(content)
 		self.canonizeUrls(soup, url)
 
-		pgTitle, soup = self.cleanGdocPage(soup)
+		pgTitle, soup = self.cleanGdocPage(soup, url)
 
 		self.extractLinks(soup, url)
 		self.log.info("Page title = '%s'", pgTitle)
