@@ -123,6 +123,8 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 
 
 		"https://durandaru.wordpress.com/",
+		"https://hui3r.wordpress.com/",
+		"https://thatguywhosthere.wordpress.com/",
 
 
 

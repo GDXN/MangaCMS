@@ -128,7 +128,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def cleanHHistory(self, delDir):
 		self.log.info("Querying for items.")
 		with self.conn.cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE sourcesite='sp' ORDER BY dbid ASC")
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE sourcesite='sp' AND dbid > 92183 ORDER BY dbid ASC")
 			ret = cur.fetchall()
 
 		for dbid, filename, downloadpath, tags in ret:
@@ -345,6 +345,11 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 
+class HDirDeduper(DirDeduper):
+	loggerPath = "Main.HDirDedup"
+	tableName  = "MangaItems"
+
+
 def runRestoreDeduper(sourcePath):
 
 	dd = DirDeduper()
@@ -367,7 +372,7 @@ def runDeduper(basePath, deletePath):
 
 def runHDeduper(deletePath):
 
-	dd = DirDeduper()
+	dd = HDirDeduper()
 	dd.openDB()
 	dd.setupDbApi()
 
