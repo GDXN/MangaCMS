@@ -14,11 +14,6 @@
 
 	${ut.headerBase()}
 
-	<script type="text/javascript">
-		$(document).ready(function() {
-		// Tooltip only Text
-
-	</script>
 
 	<link rel="stylesheet" href="/books/treeview.css">
 
@@ -37,65 +32,9 @@ import datetime
 from babel.dates import format_timedelta
 import os.path
 import settings
-import string
 
 import urllib.parse
 %>
-
-<%def name="renderTreeRoot(srcDomain)">
-	<%
-
-	## rootKey, rootTitle
-
-	## cur = sqlCon.cursor()
-	## cur.execute("""SELECT DISTINCT(netloc) FROM book_items WHERE istext=TRUE;""", (srcDomain, ))
-
-	ret = {}
-	for char in string.punctuation + string.whitespace + string.ascii_letters + string.digits:
-
-		# Escape the postgresql special chars in the like search.
-		if char == "_" or char == "%":
-			char = r"\\"+char
-
-		cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s AND netloc=%s LIMIT 1;", ('{char}%'.format(char=char), srcDomain))
-		ret[char] = cursor.fetchone()
-
-	for key in string.ascii_lowercase:
-		if ret[key]:
-			ret[key.upper()] = ret[key]
-			del(ret[key])
-	have = list(set([key.upper() for key, val in ret.items() if val ]))
-	have.sort()
-
-	print("Query for '%s'" % srcDomain)
-	if not have:
-		return
-
-
-	curBase = 'item-%s' % int(time.time()*1000)
-
-	childNum = 0
-	# print(trie)
-
-	%>
-
-	<div class="css-treeview">
-		<ul>
-
-			<li><input type="checkbox" id="${curBase}" checked="checked" /><label for="${curBase}">${srcDomain.title()}</label>
-				<ul>
-					% for key in have:
-						<li>
-						${treeRender.lazyTreeNode(srcDomain, key)}
-						</li>
-					% endfor
-				</ul>
-			</li>
-		</ul>
-
-	</div>
-	<hr>
-</%def>
 
 
 <body>
@@ -126,7 +65,7 @@ print("Dictinct = ", ret)
 					<%
 					if not srcDomain:
 						srcDomain = ''
-					renderTreeRoot(srcDomain)
+					treeRender.renderTree(srcDomain)
 					%>
 				% endfor
 

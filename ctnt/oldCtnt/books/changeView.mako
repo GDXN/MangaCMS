@@ -14,12 +14,6 @@
 
 	${ut.headerBase()}
 
-	<script type="text/javascript">
-		$(document).ready(function() {
-		// Tooltip only Text
-
-	</script>
-
 	<link rel="stylesheet" href="/books/treeview.css">
 
 </head>
