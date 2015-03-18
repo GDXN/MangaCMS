@@ -63,6 +63,15 @@ import urllib.parse
 			sources.append(source)
 	sources = ", ".join(sources)
 
+	if available == '':
+		available = None
+	else:
+		available = int(available)
+
+	if reading == '':
+		reading = None
+	else:
+		reading = int(reading)
 
 	%>
 	<tr>
@@ -79,8 +88,43 @@ import urllib.parse
 		% endif
 
 		<td>${rating}</td>
-		<td>${reading}</td>
-		<td>${available}</td>
+
+
+		## No translated files at all
+		% if available == None and reading == None:
+			<td></td>
+
+		## Translated files, but not on any list.
+		% elif available != None and reading == None:
+			<td>${available}</td>
+
+		## Read chapters, but nothing indicated as translated. Treat it as up-to-date
+		% elif available == None and reading != None:
+			<td bgcolor="${tableGenerators.attr.colours["upToDate"]}">${reading}</td>
+
+		## If both entries are -1, the item is from the complete table, so show it's complete.
+		% elif available == -1 and reading == -1:
+			<td bgcolor="${tableGenerators.attr.colours["upToDate"]}">✓</td>
+
+		## At this point, both items are valid integers, and at least one of them isn't -1
+		## Therefore, if the read chapter is > -1, and also greater or equal to the current chapter, we're up-to-date
+		% elif reading >= available:
+			<td bgcolor="${tableGenerators.attr.colours["upToDate"]}">${reading}</td>
+
+		## Otherwise, the chapter is out-of-date, so show that.
+		% else:
+			<td bgcolor="${tableGenerators.attr.colours["hasUnread"]}">${available}</td>
+		% endif
+
+
+		% if reading == -1:
+			<td bgcolor="${tableGenerators.attr.colours["upToDate"]}">Finished</td>
+		% elif reading == None:
+			<td></td>
+		% else:
+			<td>${reading}</td>
+		% endif
+
 	</tr>
 </%def>
 
@@ -166,8 +210,8 @@ import urllib.parse
 					<th class="padded" width="130px">List</th>
 					<th class="padded">Full Name</th>
 					<th class="padded" width="60px">Rating</th>
-					<th class="padded" width="70px">Read-To Chapter</th>
 					<th class="padded" width="70px">Latest Chapter</th>
+					<th class="padded" width="70px">Read-To Chapter</th>
 			</tr>
 
 			<%

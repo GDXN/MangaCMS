@@ -176,24 +176,24 @@ from ipaddress import IPv4Address, IPv4Network
 
 	$(document).ready(function() {
 	// Tooltip only Text
-	$('.${key}').hover(function(){
-		// Hover over code
-		var mouseovertext = $(this).attr('mouseovertext');
-		$(this).data('tipText', mouseovertext).removeAttr('mouseovertext');
-		$('<p class="tooltip"></p>')
-		.html(mouseovertext)
-		.appendTo('body')
-		.fadeIn('slow');
-	}, function() {
-		// Hover out code
-		$(this).attr('mouseovertext', $(this).data('tipText'));
-		$('.tooltip').remove();
-	}).mousemove(function(e) {
-		var mousex = e.pageX + 20; //Get X coordinates
-		var mousey = e.pageY + 10; //Get Y coordinates
-		$('.tooltip')
-		.css({ top: mousey, left: mousex })
-	});
+		$('.${key}').hover(function(){
+			// Hover over code
+			var mouseovertext = $(this).attr('mouseovertext');
+			$(this).data('tipText', mouseovertext).removeAttr('mouseovertext');
+			$('<p class="tooltip"></p>')
+			.html(mouseovertext)
+			.appendTo('body')
+			.fadeIn('slow');
+		}, function() {
+			// Hover out code
+			$(this).attr('mouseovertext', $(this).data('tipText'));
+			$('.tooltip').remove();
+		}).mousemove(function(e) {
+			var mousex = e.pageX + 20; //Get X coordinates
+			var mousey = e.pageY + 10; //Get Y coordinates
+			$('.tooltip')
+			.css({ top: mousey, left: mousex })
+		});
 	});
 </%def>
 

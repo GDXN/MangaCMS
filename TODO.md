@@ -1,14 +1,20 @@
 
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
 
-http://10.1.1.8:8081/books/render?url=https%3A//yoraikun.wordpress.com/2015/02/09/konjiki-no-wordmaster-chapter-32/ prev not relinked
+ 
 
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 https images still fucked
 
+mu archive release info
+mangaeden api
 
+still missing sites from aho
+
+## avail chapters color code in book list
+## rework books page, defer loading moar
 ## pastebin stuff override title
 ## generalized title injection would be useful, actually
 
@@ -99,6 +105,8 @@ Also: http://aho-updates.com/
 
 ## https://sites.google.com/site/sekaigameoredake/
 
+## https://hui3r.wordpress.com/
+## https://thatguywhosthere.wordpress.com/
 ## https://reantoanna.wordpress.com
 ## https://kobatochandaisuki.wordpress.com/
 ## https://shintranslations.wordpress.com/
@@ -418,6 +426,7 @@ Partial series:
 
 
 <b>Complete:</b>
+- ~~http://10.1.1.8:8081/books/render?url=https%3A//yoraikun.wordpress.com/2015/02/09/konjiki-no-wordmaster-chapter-32/ prev not relinked~~ Fixt
  - ~~Name synonyms in bu table for books.~~
  - ~~book availability not updating (different components)~~
  - ~~sync read to as well~~

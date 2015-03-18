@@ -9,6 +9,7 @@ import urllib.parse
 import time
 import uuid
 import settings
+import string
 
 srcLut = dict(settings.bookSources)
 from natsort import natsorted
@@ -115,6 +116,92 @@ def build_trie(iterItem, getKey=lambda x: x):
 		% endif
 		</li>
 	</ul>
+</%def>
+
+
+<%def name="renderTree(srcDomain)">
+
+	<%
+	itemId = abs(hash(srcDomain))
+	%>
+
+	<div class="css-treeview">
+		<ul>
+
+			<li><input type="checkbox" id="id${itemId}" loaded=0 /><label for="id${itemId}">${srcDomain.title()}</label>
+				<ul>
+					<li id="id${itemId}"><img src='/js/loading.gif' /></li>
+				</ul>
+			</li>
+		</ul>
+
+		<script>
+			function checkboxEvent(e)
+			{
+				input = $('input#id${itemId}');
+				if (input.is(':checked') && input.attr("loaded") == 0)
+				{
+					input.attr("loaded", 1)
+					$('li#id${itemId}').load("/books/render?root=${urllib.parse.quote(srcDomain)}")
+				}
+			}
+
+			$('#id${itemId}').on('change', checkboxEvent);
+
+			console.log("Item checked: ", $('input#id${itemId}').is(':checked'));
+		</script>
+
+
+
+	</div>
+	<hr>
+
+</%def>
+
+<%def name="renderTreeRoot(srcDomain)">
+	<%
+
+	## rootKey, rootTitle
+
+	cursor = sqlCon.cursor()
+	## cur.execute("""SELECT DISTINCT(netloc) FROM book_items WHERE istext=TRUE;""", (srcDomain, ))
+
+	ret = {}
+	for char in string.punctuation + string.whitespace + string.ascii_letters + string.digits:
+
+		# Escape the postgresql special chars in the like search.
+		if char == "_" or char == "%":
+			char = r"\\"+char
+
+		cursor.execute("SELECT dbid FROM book_items WHERE title LIKE %s AND netloc=%s LIMIT 1;", ('{char}%'.format(char=char), srcDomain))
+		ret[char] = cursor.fetchone()
+
+	for key in string.ascii_lowercase:
+		if ret[key]:
+			ret[key.upper()] = ret[key]
+			del(ret[key])
+	have = list(set([key.upper() for key, val in ret.items() if val ]))
+	have.sort()
+
+	print("Query for '%s'" % srcDomain)
+	if not have:
+		return
+
+
+	curBase = 'item-%s' % int(time.time()*1000)
+
+	childNum = 0
+	# print(trie)
+
+	%>
+
+	% for key in have:
+		<li>
+		${lazyTreeNode(srcDomain, key)}
+		</li>
+	% endfor
+
+
 </%def>
 
 
@@ -285,6 +372,11 @@ elif "tree" in request.params:
 
 	prefix = urllib.parse.unquote(request.params["tree"])
 	lazyTreeRender(key, prefix)
+
+elif "root" in request.params:
+
+	domain = urllib.parse.unquote(request.params["root"])
+	renderTreeRoot(domain)
 
 else:
 	badId()
