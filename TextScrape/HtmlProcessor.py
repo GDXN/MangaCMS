@@ -53,7 +53,7 @@ def rebaseUrl(url, base):
 
 # All tags you need to look into to do link canonization
 # source: http://stackoverflow.com/q/2725156/414272
-# TODO: "These aren't necessarily simple URLs ..."
+# "These aren't necessarily simple URLs ..."
 urlContainingTargets = [
 	(False, 'a',          'href'),
 	(False, 'applet',     'codebase'),
@@ -111,7 +111,7 @@ class HtmlPageProcessor():
 
 	# stripTitle = ''
 
-	def __init__(self, baseUrl, loggerPath, **kwargs):
+	def __init__(self, baseUrls, pageUrl, pgContent, loggerPath, **kwargs):
 		self.loggerPath = loggerPath
 		self.loggers = {}
 		self.lastLoggerIndex = 1
@@ -120,20 +120,19 @@ class HtmlPageProcessor():
 		self._fileDomains   = set()
 		self.scannedDomains = set()
 
+		self.content = pgContent
+		self.baseUrls = baseUrls
+		self.pageUrl = pageUrl
 
-		self.baseUrl = baseUrl
-
-		kwargs.setdefault("startUrl",         self.baseUrl)
 		kwargs.setdefault("badwords",         [])
 		kwargs.setdefault("decompose",        [])
 		kwargs.setdefault("decomposeBefore",  [])
 		kwargs.setdefault("fileDomains",      [])
-		kwargs.setdefault("allImages",        False)
+		kwargs.setdefault("allImages",        True)
 		kwargs.setdefault("tld",              set())
 		kwargs.setdefault("stripTitle",       '')
 
 
-		self.startUrl        = kwargs["startUrl"]
 		self.badwords        = kwargs["badwords"]
 		self.decompose       = kwargs["decompose"]
 		self.decomposeBefore = kwargs["decomposeBefore"]
@@ -187,13 +186,13 @@ class HtmlPageProcessor():
 		for url in TextScrape.RelinkLookup.RELINKABLE:
 			self._relinkDomains.add(url)
 
-		if isinstance(self.baseUrl, (set, list)):
-			for url in self.baseUrl:
+		if isinstance(self.baseUrls, (set, list)):
+			for url in self.baseUrls:
 				self.scannedDomains.add(url)
 				self._fileDomains.add(urllib.parse.urlsplit(url.lower()).netloc)
 		else:
-			self.scannedDomains.add(self.baseUrl)
-			self._fileDomains.add(urllib.parse.urlsplit(self.baseUrl.lower()).netloc)
+			self.scannedDomains.add(self.baseUrls)
+			self._fileDomains.add(urllib.parse.urlsplit(self.baseUrls.lower()).netloc)
 
 		self._scannedDomains = set()
 
@@ -203,11 +202,6 @@ class HtmlPageProcessor():
 			self._scannedDomains.add('https://docs.google.com/spreadsheets/')
 			self._scannedDomains.add('https://drive.google.com/folderview')
 			self._scannedDomains.add('https://drive.google.com/open')
-
-		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
-		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
-		for url in self.scannedDomains:
-			self.installBaseUrl(url)
 
 
 		# Move the plugin-defined decompose calls into the control lists
@@ -223,8 +217,16 @@ class HtmlPageProcessor():
 		for item in self.fileDomains:
 			self._fileDomains.add(item)
 
+		# You need to install the TLDs before the baseUrls, because the baseUrls
+		# are permuted driven by the TLDs, to some extent.
 		for item in self.tld:
 			self._tld.add(item)
+
+		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
+		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
+		for url in self.scannedDomains:
+			self.installBaseUrl(url)
+
 
 		tmp = list(self._scannedDomains)
 		tmp.sort()
@@ -281,8 +283,12 @@ class HtmlPageProcessor():
 			self.log.info("Skipping URL: '%s'", url)
 
 		else:
-			self._scannedDomains.add(netloc)
 
+			base, tld = netloc.rsplit(".", 1)
+			self._tld.add(tld)
+			for tld in self._tld:
+				self._scannedDomains.add("{main}.{tld}".format(main=base, tld=tld))
+				print(self._scannedDomains)
 
 
 
@@ -421,7 +427,7 @@ class HtmlPageProcessor():
 				return
 
 			# self.log.info("Resolved URL = '%s'", url)
-			self.putNewUrl(url, baseUrl)
+			return self.processNewUrl(url, baseUrl)
 			# self.log.info("New G link: '%s'", url)
 
 		else:
@@ -430,30 +436,15 @@ class HtmlPageProcessor():
 				print('Old URL: "%s"' % url)
 				print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
 				raise ValueError("Wat? Url change? Url: '%s'" % url)
-			self.putNewUrl(url, baseUrl)
+			return self.processNewUrl(url, baseUrl)
 			# self.log.info("Newlink: '%s'", url)
 
-	def extractLinks(self, soup, baseUrl):
-		# All links have been resolved to fully-qualified paths at this point.
-
-		ret = []
-		for (dummy_isImg, tag, attr) in urlContainingTargets:
-
-			for link in soup.findAll(tag):
-
-
-				# Skip empty anchor tags
-				try:
-					url = link[attr]
-				except KeyError:
-					continue
-
-
-				self.processLinkItem(url, baseUrl)
 
 
 	def processImageLink(self, url, baseUrl):
 
+
+		print("Image tag search", url)
 
 		# Skip tags with `img src=""`.
 		# No idea why they're there, but they are
@@ -471,15 +462,40 @@ class HtmlPageProcessor():
 				hadbad = True
 		if hadbad:
 			return
+		print("Image tag search", url)
 
 
 		# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
 		url = self.urlClean(url)
 
-		self.putNewUrl(url, baseUrl=baseUrl, istext=False)
+		return self.processNewUrl(url, baseUrl=baseUrl, istext=False)
+
+
+	def extractLinks(self, soup, baseUrl):
+		# All links have been resolved to fully-qualified paths at this point.
+
+		ret = []
+		for (dummy_isImg, tag, attr) in urlContainingTargets:
+
+			for link in soup.findAll(tag):
+
+
+				# Skip empty anchor tags
+				try:
+					url = link[attr]
+				except KeyError:
+					continue
+
+
+				item = self.processLinkItem(url, baseUrl)
+				if item:
+					ret.append(item)
+
+		return ret
+
 
 	def extractImages(self, soup, baseUrl):
-
+		ret = []
 		for imtag in soup.find_all("img"):
 						# Skip empty anchor tags
 			try:
@@ -487,7 +503,10 @@ class HtmlPageProcessor():
 			except KeyError:
 				continue
 
-			self.processImageLink(url, baseUrl)
+			item = self.processImageLink(url, baseUrl)
+			if item:
+				ret.append(item)
+		return ret
 
 
 	def convertToReaderImage(self, inStr):
@@ -626,7 +645,7 @@ class HtmlPageProcessor():
 
 
 
-	def putNewUrl(self, url, baseUrl=None, istext=True):
+	def processNewUrl(self, url, baseUrl=None, istext=True):
 		if not url.lower().startswith("http"):
 			if baseUrl:
 				# If we have a base-url to extract the scheme from, we pull that out, concatenate
@@ -657,7 +676,7 @@ class HtmlPageProcessor():
 
 		if '/view/export?format=zip' in url:
 			raise ValueError("Wat?")
-		self.newLinkQueue.put((url, istext))
+		return url
 
 
 
@@ -669,9 +688,9 @@ class HtmlPageProcessor():
 	# it then canonizes all the URLs on the page, extracts all the URLs from the page,
 	# then decomposes all the tags in the `decompose` class variable, feeds the content through
 	# readability, and finally saves the processed HTML into the database
-	def processHtmlPage(self, url, content, mimeType):
-		self.log.info("Processing '%s' as HTML.", url)
-		soup = bs4.BeautifulSoup(content)
+	def extractContent(self):
+		self.log.info("Processing '%s' as HTML.", self.pageUrl)
+		soup = bs4.BeautifulSoup(self.content)
 
 
 		# Allow child-class hooking
@@ -681,14 +700,16 @@ class HtmlPageProcessor():
 		soup = self.decomposeItems(soup, self._decomposeBefore)
 
 		# Make all the page URLs fully qualified, so they're unambiguous
-		soup = self.canonizeUrls(soup, url)
+		soup = self.canonizeUrls(soup, self.pageUrl)
 
 		# Conditionally pull out the page content and enqueue it.
-		if self.checkDomain(url):
-			self.extractLinks(soup, url)
-			self.extractImages(soup, url)
+		if self.checkDomain(self.pageUrl):
+			plainLinks = self.extractLinks(soup, self.pageUrl)
+			imageLinks = self.extractImages(soup, self.pageUrl)
 		else:
-			self.log.warn("Not extracting images or links for url '%s'", url)
+			self.log.warn("Not extracting images or links for url '%s'", self.pageUrl)
+			plainLinks = []
+			imageLinks = []
 
 		# Do the later cleanup to prep the content for local rendering.
 		soup = self.decomposeItems(soup, self._decompose)
@@ -699,9 +720,19 @@ class HtmlPageProcessor():
 		soup = self.postprocessBody(soup)
 
 		# Process page with readability, extract title.
-		pgTitle, pgBody = self.cleanHtmlPage(soup, url=url)
+		pgTitle, pgBody = self.cleanHtmlPage(soup, url=self.pageUrl)
 		self.log.info("Page with title '%s' retreived.", pgTitle)
-		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
+
+		ret = {}
+		ret['fLinks']   = plainLinks
+		ret['iLinks']   = imageLinks
+		ret['title']    = pgTitle
+		ret['contents'] = pgBody
+
+
+		return ret
+
+		# self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype=mimeType, dlstate=2)
 
 
 
@@ -710,8 +741,15 @@ class HtmlPageProcessor():
 
 if __name__ == "__main__":
 	print("Test mode!")
+	import webFunctions
 	import logSetup
 	logSetup.initLogging()
-	scraper = HtmlPageProcessor('http://www.arstechnica.com', 'Main.Test')
+
+	wg = webFunctions.WebGetRobust()
+	content = wg.getpage('http://www.arstechnica.com')
+	scraper = HtmlPageProcessor(['http://www.arstechnica.com', "http://cdn.arstechnica.com/"], 'http://www.arstechnica.com', content, 'Main.Test', tld=['com', 'net'])
 	print(scraper)
+	extr = scraper.extractContent()
+	print(extr['iLinks'])
+	# print(extr['fLinks'])
 
