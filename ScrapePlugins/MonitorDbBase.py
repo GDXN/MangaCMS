@@ -11,6 +11,11 @@ import nameTools as nt
 import ScrapePlugins.DbBase
 
 class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
+	'''
+	This was originally supposed to be a general purpose series monitoring
+	base, but at this point it's basically only useful for MangaUpdates.
+	Meh?
+	'''
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
@@ -590,8 +595,28 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 			indexes = [	("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (buId      )'''       ),
 						("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (name      )'''       ),
-						("%s_fSafeName_fs_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
+						("%s_fSafeName_fs_name_index"   % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
 						("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (fsSafeName)'''       )
+			]
+
+
+			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
+												dbId            SERIAL PRIMARY KEY,
+												buId            text,
+												vol             double precision,
+												chap            double precision,
+												other           text,
+												releaseText     text,
+
+												FOREIGN KEY(buId) REFERENCES %s(buId),
+												UNIQUE(buId, vol, chap, other)
+												);''' % (self.itemReleases, self.tableName))
+
+
+
+			indexes = [
+						("%s_nameTable_buId_index"      % self.itemReleases, self.itemReleases, '''CREATE INDEX %s ON %s (buId      )'''       ),
+
 			]
 
 			for name, table, nameFormat in indexes:

@@ -8,6 +8,9 @@ https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
 https images still fucked
 
+rss+timeouts for change monitoring
+http://aho-updates.com/groups
+
 mu archive release info
 mangaeden api
 

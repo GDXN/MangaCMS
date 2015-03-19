@@ -26,6 +26,7 @@ class BuWatchMonitor(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBa
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"
 	changedTableName = "muItemChanged"
+	itemReleases     = "muReleases"
 
 	baseURL          = "http://www.mangaupdates.com/"
 	baseListURL      = r"http://www.mangaupdates.com/mylist.html"
