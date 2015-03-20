@@ -26,7 +26,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			cur.execute("BEGIN;")
 			basePath, fName = os.path.split(srcPath)
 			# print("fname='%s', path='%s'" % (fName, basePath))
-			cur.execute('''SELECT dbId, tags FROM MangaItems WHERE fileName=%s AND downloadPath=%s;''', (fName, basePath))
+			cur.execute('''SELECT dbId, tags FROM {tableName} WHERE fileName=%s AND downloadPath=%s;'''.format(tableName=self.tableName), (fName, basePath))
 			rows = cur.fetchall()
 			if len(rows) > 1:
 				exists = 0
@@ -70,7 +70,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			for tag in newTags.split():
 				tags.add(tag)
 
-			cur.execute('''UPDATE MangaItems SET tags=%s WHERE dbId=%s;''', (" ".join(tags), rowId))
+			cur.execute('''UPDATE {tableName} SET tags=%s WHERE dbId=%s;'''.format(tableName=self.tableName), (" ".join(tags), rowId))
 			cur.execute("COMMIT;")
 
 	def setupDbApi(self):
@@ -128,7 +128,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def cleanHHistory(self, delDir):
 		self.log.info("Querying for items.")
 		with self.conn.cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE sourcesite='sp' AND dbid > 92183 ORDER BY dbid ASC")
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems ORDER BY dbid ASC")
 			ret = cur.fetchall()
 
 		for dbid, filename, downloadpath, tags in ret:
@@ -347,7 +347,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 class HDirDeduper(DirDeduper):
 	loggerPath = "Main.HDirDedup"
-	tableName  = "MangaItems"
+	tableName  = "HentaiItems"
 
 
 def runRestoreDeduper(sourcePath):
