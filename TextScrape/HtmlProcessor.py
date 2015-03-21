@@ -6,19 +6,16 @@ runStatus.preloadDicts = False
 
 # import Levenshtein as lv
 
-import logging
-import settings
 import urllib.parse
-import threading
 
-import os
 import bs4
-import os.path
+import copy
 import readability.readability
-
+import webFunctions
 import TextScrape.RelinkLookup
+import TextScrape.urlFuncs
 
-import nameTools
+import LogBase
 
 
 
@@ -93,58 +90,7 @@ urlContainingTargets = [
 ]
 
 
-class HtmlPageProcessor():
-
-
-	IGNORE_MALFORMED_URLS = False
-	FOLLOW_GOOGLE_LINKS = True
-
-	# # `decompose` and `decomposeBefore` are defined in the child plugins
-	# decompose       = []
-	# decomposeBefore = []
-
-
-	# fileDomains     = []
-
-	# allImages       = False
-	# tld             = set()
-
-	# stripTitle = ''
-
-	def __init__(self, baseUrls, pageUrl, pgContent, loggerPath, **kwargs):
-		self.loggerPath = loggerPath
-		self.loggers = {}
-		self.lastLoggerIndex = 1
-
-		self._tld           = set()
-		self._fileDomains   = set()
-		self.scannedDomains = set()
-
-		self.content = pgContent
-		self.baseUrls = baseUrls
-		self.pageUrl = pageUrl
-
-		kwargs.setdefault("badwords",         [])
-		kwargs.setdefault("decompose",        [])
-		kwargs.setdefault("decomposeBefore",  [])
-		kwargs.setdefault("fileDomains",      [])
-		kwargs.setdefault("allImages",        True)
-		kwargs.setdefault("tld",              set())
-		kwargs.setdefault("stripTitle",       '')
-
-
-		self.badwords        = kwargs["badwords"]
-		self.decompose       = kwargs["decompose"]
-		self.decomposeBefore = kwargs["decomposeBefore"]
-		self.fileDomains     = kwargs["fileDomains"]
-		self.allImages       = kwargs["allImages"]
-		self.tld             = kwargs["tld"]
-		self.stripTitle      = kwargs["stripTitle"]
-
-
-
-
-		self._badwords       = set([
+GLOBAL_BAD = [
 			'gprofiles.js',
 			'netvibes.com',
 			'accounts.google.com',
@@ -168,35 +114,71 @@ class HtmlPageProcessor():
 			'reddit.com',
 			'newsgator.com',
 			'technorati.com',
-			])
+	]
 
-		# `_decompose` and `_decomposeBefore` are the actual arrays of items to decompose, that are loaded with the contents of
-		# `decompose` and `decomposeBefore` on plugin initialization
-		self._decompose       = []
-		self._decomposeBefore = [
+GLOBAL_DECOMPOSE_BEFORE = [
 			{'name'     : 'likes-master'},  # Bullshit sharing widgets
 			{'id'       : 'jp-post-flair'},
-			{'class'    : 'commentlist'},  # Scrub out the comments so we don't try to fetch links from them
 			{'class'    : 'post-share-buttons'},
+			{'class'    : 'commentlist'},  # Scrub out the comments so we don't try to fetch links from them
 			{'class'    : 'comments'},
 			{'id'       : 'comments'},
 		]
+
+GLOBAL_DECOMPOSE_AFTER = []
+
+class HtmlPageProcessor(LogBase.LoggerMixin):
+
+	loggerPath = "Main.HtmlProc"
+
+	def __init__(self, baseUrls, pageUrl, pgContent, loggerPath, **kwargs):
+		self.loggerPath = loggerPath+".HtmlExtract"
+
+		self._tld           = set()
+		self._fileDomains   = set()
+		self.scannedDomains = set()
+
+		self.content = pgContent
+		self.pageUrl = pageUrl
+
+		kwargs.setdefault("badwords",         [])
+		kwargs.setdefault("decompose",        [])
+		kwargs.setdefault("decomposeBefore",  [])
+		kwargs.setdefault("fileDomains",      [])
+		kwargs.setdefault("allImages",        True)
+		kwargs.setdefault("followGLinks",     True)
+		kwargs.setdefault("ignoreBadLinks",   False)
+		kwargs.setdefault("tld",              set())
+		kwargs.setdefault("stripTitle",       '')
+
+
+
+		self.allImages       = kwargs["allImages"]
+		self.stripTitle      = kwargs["stripTitle"]
+		self.ignoreBadLinks  = kwargs['ignoreBadLinks']
+
+
+		self._badwords       = set(GLOBAL_BAD)
+		# `_decompose` and `_decomposeBefore` are the actual arrays of items to decompose, that are loaded with the contents of
+		# `decompose` and `decomposeBefore` on plugin initialization
+		self._decompose       = copy.copy(GLOBAL_DECOMPOSE_AFTER)
+		self._decomposeBefore = copy.copy(GLOBAL_DECOMPOSE_BEFORE)
 
 		self._relinkDomains = set()
 		for url in TextScrape.RelinkLookup.RELINKABLE:
 			self._relinkDomains.add(url)
 
-		if isinstance(self.baseUrls, (set, list)):
-			for url in self.baseUrls:
+		if isinstance(baseUrls, (set, list)):
+			for url in baseUrls:
 				self.scannedDomains.add(url)
 				self._fileDomains.add(urllib.parse.urlsplit(url.lower()).netloc)
 		else:
-			self.scannedDomains.add(self.baseUrls)
-			self._fileDomains.add(urllib.parse.urlsplit(self.baseUrls.lower()).netloc)
+			self.scannedDomains.add(baseUrls)
+			self._fileDomains.add(urllib.parse.urlsplit(baseUrls.lower()).netloc)
 
 		self._scannedDomains = set()
 
-		if self.FOLLOW_GOOGLE_LINKS:
+		if kwargs['followGLinks']:
 			# Tell the path filtering mechanism that we can fetch google doc files
 			self._scannedDomains.add('https://docs.google.com/document/')
 			self._scannedDomains.add('https://docs.google.com/spreadsheets/')
@@ -204,23 +186,30 @@ class HtmlPageProcessor():
 			self._scannedDomains.add('https://drive.google.com/open')
 
 
+
+		appends = [
+			(kwargs["decompose"],       self._decompose),
+			(kwargs["decomposeBefore"], self._decomposeBefore),
+		]
+		adds = [
+			(kwargs["badwords"],        self._badwords),
+			(kwargs["fileDomains"],     self._fileDomains),
+
+
+			# You need to install the TLDs before the baseUrls, because the baseUrls
+			# are permuted driven by the TLDs, to some extent.
+			(kwargs["tld"],             self._tld),
+		]
+
 		# Move the plugin-defined decompose calls into the control lists
-		for item in self.decompose:
-			self._decompose.append(item)
+		for src, dst in appends:
+			for item in src:
+				dst.append(item)
 
-		for item in self.decomposeBefore:
-			self._decomposeBefore.append(item)
 
-		for item in self.badwords:
-			self._badwords.add(item)
-
-		for item in self.fileDomains:
-			self._fileDomains.add(item)
-
-		# You need to install the TLDs before the baseUrls, because the baseUrls
-		# are permuted driven by the TLDs, to some extent.
-		for item in self.tld:
-			self._tld.add(item)
+		for src, dst in adds:
+			for item in src:
+				dst.add(item)
 
 		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
 		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
@@ -233,23 +222,6 @@ class HtmlPageProcessor():
 		# for url in tmp:
 		# 	self.log.info("Scanned domain:		%s", url)
 
-	# More hackiness to make sessions intrinsically thread-safe.
-	def __getattribute__(self, name):
-
-		threadName = threading.current_thread().name
-		if name == "log":
-			if "Thread-" in threadName:
-				if threadName not in self.loggers:
-					self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
-					self.lastLoggerIndex += 1
-
-			# If we're not called in the context of a thread, just return the base log-path
-			else:
-				self.loggers[threadName] = logging.getLogger("%s" % (self.loggerPath,))
-			return self.loggers[threadName]
-
-		else:
-			return object.__getattribute__(self, name)
 
 	def installBaseUrl(self, url):
 		netloc = urllib.parse.urlsplit(url.lower()).netloc
@@ -288,7 +260,7 @@ class HtmlPageProcessor():
 			self._tld.add(tld)
 			for tld in self._tld:
 				self._scannedDomains.add("{main}.{tld}".format(main=base, tld=tld))
-				print(self._scannedDomains)
+				# print(self._scannedDomains)
 
 
 
@@ -305,52 +277,13 @@ class HtmlPageProcessor():
 	########################################################################################################################
 
 
-
-	def urlClean(self, url):
-		# Google docs can be accessed with or without the '/preview' postfix
-		# We want to remove this if it's present, so we don't duplicate content.
-		url = gdp.trimGDocUrl(url)
-
-		while True:
-			url2 = urllib.parse.unquote(url)
-			url2 = url2.split("#")[0]
-			if url2 == url:
-				break
-			url = url2
-
-		# Clean off whitespace.
-		url = url.strip()
-
-		return url
-
-	def getItem(self, itemUrl):
-
-		content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
-		if not content or not handle:
-			raise ValueError("Failed to retreive file from page '%s'!" % itemUrl)
-
-		fileN = urllib.parse.unquote(urllib.parse.urlparse(handle.geturl())[2].split("/")[-1])
-		fileN = bs4.UnicodeDammit(fileN).unicode_markup
-		mType = handle.info()['Content-Type']
-
-		# If there is an encoding in the content-type (or any other info), strip it out.
-		# We don't care about the encoding, since WebFunctions will already have handled that,
-		# and returned a decoded unicode object.
-
-		if mType and ";" in mType:
-			mType = mType.split(";")[0].strip()
-
-
-		self.log.info("Retreived file of type '%s', name of '%s' with a size of %0.3f K", mType, fileN, len(content)/1000.0)
-		return content, fileN, mType
-
 	# Hook so plugins can modify the internal URLs as part of the relinking process
 	def preprocessReaderUrl(self, inUrl):
 		return inUrl
 
 
 	def convertToReaderUrl(self, inUrl):
-		inUrl = self.urlClean(inUrl)
+		inUrl = TextScrape.urlFuncs.urlClean(inUrl)
 		inUrl = self.preprocessReaderUrl(inUrl)
 		# The link will have been canonized at this point
 		url = '/books/render?url=%s' % urllib.parse.quote(inUrl)
@@ -418,7 +351,7 @@ class HtmlPageProcessor():
 		if not self.checkFollowGoogleUrl(url):
 			return
 
-		url = self.urlClean(url)
+		url = TextScrape.urlFuncs.urlClean(url)
 
 		if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
 			url = gdp.trimGDocUrl(url)
@@ -443,9 +376,6 @@ class HtmlPageProcessor():
 
 	def processImageLink(self, url, baseUrl):
 
-
-		print("Image tag search", url)
-
 		# Skip tags with `img src=""`.
 		# No idea why they're there, but they are
 		if not url:
@@ -462,11 +392,9 @@ class HtmlPageProcessor():
 				hadbad = True
 		if hadbad:
 			return
-		print("Image tag search", url)
 
 
-		# upsert for `url`. Do not reset dlstate to avoid re-transferring binary files.
-		url = self.urlClean(url)
+		url = TextScrape.urlFuncs.urlClean(url)
 
 		return self.processNewUrl(url, baseUrl=baseUrl, istext=False)
 
@@ -510,7 +438,7 @@ class HtmlPageProcessor():
 
 
 	def convertToReaderImage(self, inStr):
-		inStr = self.urlClean(inStr)
+		inStr = TextScrape.urlFuncs.urlClean(inStr)
 		return self.convertToReaderUrl(inStr)
 
 	def relink(self, soup, imRelink=None):
@@ -657,7 +585,7 @@ class HtmlPageProcessor():
 				# self.log.info("Had to add scheme (%s) to URL: '%s'", scheme, url)
 				url = urllib.parse.urlunsplit(params)
 
-			elif self.IGNORE_MALFORMED_URLS:
+			elif self.ignoreBadLinks:
 				self.log.error("Skipping a malformed URL!")
 				self.log.error("Bad URL: '%s'", url)
 				return
@@ -724,10 +652,17 @@ class HtmlPageProcessor():
 		self.log.info("Page with title '%s' retreived.", pgTitle)
 
 		ret = {}
-		ret['fLinks']   = plainLinks
-		ret['iLinks']   = imageLinks
-		ret['title']    = pgTitle
-		ret['contents'] = pgBody
+
+		# If an item has both a plain-link and an image link, prefer the
+		# image link, and delete it from the plain link list
+		for link in imageLinks:
+			if link in plainLinks:
+				plainLinks.remove(link)
+
+		ret['plainLinks'] = plainLinks
+		ret['rsrcLinks']  = imageLinks
+		ret['title']      = pgTitle
+		ret['contents']   = pgBody
 
 
 		return ret
@@ -736,10 +671,7 @@ class HtmlPageProcessor():
 
 
 
-
-
-
-if __name__ == "__main__":
+def test():
 	print("Test mode!")
 	import webFunctions
 	import logSetup
@@ -750,6 +682,16 @@ if __name__ == "__main__":
 	scraper = HtmlPageProcessor(['http://www.arstechnica.com', "http://cdn.arstechnica.com/"], 'http://www.arstechnica.com', content, 'Main.Test', tld=['com', 'net'])
 	print(scraper)
 	extr = scraper.extractContent()
-	print(extr['iLinks'])
+	for link in extr['fLinks']:
+		print(link)
+	print()
+	print()
+	print()
+	for link in extr['iLinks']:
+		print(link)
 	# print(extr['fLinks'])
+
+
+if __name__ == "__main__":
+	test()
 

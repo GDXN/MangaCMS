@@ -4,14 +4,12 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
-
+import TextScrape.SiteArchiver
 import readability.readability
 import bs4
 import webFunctions
 import urllib.error
-
-class Scrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'sekaigagame'
 	loggerPath = 'Main.SekaiGaGame.Scrape'
 	pluginName = 'SekaiGaGameScrape'
@@ -90,7 +88,8 @@ class Scrape(TextScrape.TextScrapeBase.TextScraper):
 
 def test():
 	scrp = Scrape()
-	scrp.crawl()
+	# scrp.crawl()
+	# scrp.loadFilters()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 	# new = gdp.GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B-x_RxmzDHegRk5iblp4alZmSkU&usp=sharing')
 

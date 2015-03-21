@@ -1,7 +1,10 @@
 
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
 
- 
+ netloc in book search table
+ ## home swap bold amd red
+
+Check WebtoonLoader plugin
 
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
@@ -69,7 +72,7 @@ http://www.wuxiaworld.com/
 
 ## TO ADD: 
 =======
-
+https://trippingoverwn.wordpress.com/
 
 http://aquarilasscenario.blogspot.com/
 http://arzengi.blogspot.com/

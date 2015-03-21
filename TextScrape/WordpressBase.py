@@ -1,17 +1,10 @@
 
-import logSetup
-if __name__ == "__main__":
-	print("Initializing logging")
-	logSetup.initLogging()
+import TextScrape.SiteArchiver
 
-import TextScrape.TextScrapeBase
-
-
-
-class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
+class WordpressScrape(TextScrape.SiteArchiver.SiteArchiver):
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
-	_badwords = set([
+	badwords = set([
 				"r-login.wordpress.com",
 				"/manga/",
 				"/recruitment/",
@@ -33,9 +26,15 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 				'public-api.wordpress.com',
 				'xmlrpc.php',
 
+				'.gravatar.com',
+				'?openidserver=1',
+				'/osd.xml',
+				'pixel.wp.com',
+
+
 				])
 
-	_decompose = [
+	decompose = [
 		{'id'    : 'header'},
 		{'class' : 'widget-area'},
 		{'id'    : 'footer'},
@@ -66,7 +65,7 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 
 	fileDomains = ['wp.com']
 
-	_decomposeBefore = [
+	decomposeBefore = [
 		{'class' : 'comments'},
 		{'class' : 'wpcnt'},
 		{'id'    : 'comments'},
@@ -78,20 +77,11 @@ class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
 		{'class' : 'bit'},
 		{'id'    : 'bit'},
 		{'id'    : 'infinite-footer'},
-		{'name'  : "likes-master"}
+		{'name'  : "likes-master"},
+		{'id'    : "wpstats"},
 	]
 
 
-
-
-def test():
-	scrp = Scrape()
-	scrp.crawl()
-	# scrp.retreiveItemFromUrl(scrp.startUrl)
-
-
-if __name__ == "__main__":
-	test()
 
 
 

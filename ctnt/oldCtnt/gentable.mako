@@ -486,22 +486,22 @@ colours = {
 				<strike>
 			% endif
 
-			% if shouldBold:
+			% if ratingNum >= 2:
 				<b>
 			% endif
 
-			% if ratingNum >= 2:
+			% if shouldBold:
 				<span style="color: red;">
 			% endif
 
 			${originName}
 
 
-			% if ratingNum >= 2:
+			% if shouldBold:
 				</span>
 			% endif
 
-			% if shouldBold:
+			% if ratingNum >= 2:
 				</b>
 			% endif
 

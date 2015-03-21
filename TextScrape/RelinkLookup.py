@@ -74,13 +74,16 @@ def loadPlugins():
 	ret = {}
 
 	for fPath, modName in modules:
-		loader = SourceFileLoader(modName, fPath)
-		mod = loader.load_module()
-		plugClasses = findPluginClass(mod, 'Scrape')
-		for key, pClass in plugClasses:
-			if key in ret:
-				raise ValueError("Two plugins providing an interface with the same name? Name: '%s'" % key)
-			ret[key] = pClass
+		try:
+			loader = SourceFileLoader(modName, fPath)
+			mod = loader.load_module()
+			plugClasses = findPluginClass(mod, 'Scrape')
+			for key, pClass in plugClasses:
+				if key in ret:
+					raise ValueError("Two plugins providing an interface with the same name? Name: '%s'" % key)
+				ret[key] = pClass
+		except AttributeError:
+			pass
 	return ret
 
 

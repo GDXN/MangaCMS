@@ -6,7 +6,8 @@ runStatus.preloadDicts = False
 
 # import Levenshtein as lv
 
-import markdown
+
+import sql.conditionals as sqlc
 import logging
 import settings
 import abc
@@ -168,6 +169,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 												fhash     CITEXT,
 												mimetype  CITEXT,
 												fspath    text DEFAULT '',
+												distance  INTEGER DEFAULT -1,
 												netloc    CITEXT);'''.format(tableName=self.tableName))
 
 
@@ -240,7 +242,8 @@ class TextDbBase(metaclass=abc.ABCMeta):
 				self.table.istext,
 				self.table.fhash,
 				self.table.mimetype,
-				self.table.fspath
+				self.table.fspath,
+				self.table.distance,
 			)
 
 
@@ -249,14 +252,15 @@ class TextDbBase(metaclass=abc.ABCMeta):
 				"src"        : self.table.src,
 				"dlstate"    : self.table.dlstate,
 				"url"        : self.table.url,
-				"netloc"        : self.table.netloc,
+				"netloc"     : self.table.netloc,
 				"title"      : self.table.title,
 				"series"     : self.table.series,
 				"contents"   : self.table.contents,
 				"istext"     : self.table.istext,
 				"fhash"      : self.table.fhash,
 				"mimetype"   : self.table.mimetype,
-				"fspath"     : self.table.fspath
+				"fspath"     : self.table.fspath,
+				"distance"   : self.table.distance,
 			}
 
 
@@ -384,13 +388,39 @@ class TextDbBase(metaclass=abc.ABCMeta):
 
 		return query, params
 
+	def updateDistance(self, cur, distance, **kwargs):
 
+		if "dbid" in kwargs:
+			where = (self.table.dbid == kwargs.pop('dbid'))
+		elif "url" in kwargs:
+			where = (self.table.url == kwargs.pop('url'))
+		else:
+			raise ValueError("GenerateUpdateQuery must be passed a single unique column identifier (either dbId or url)")
+
+		cols = [self.table.distance]
+		vals = [sqlc.Least(distance, self.table.distance)]
+
+		query = self.table.update(columns=cols, values=vals, where=where)
+		query, params = tuple(query)
+
+		if self.QUERY_DEBUG:
+			print("Query = ", query)
+			print("Args = ", queryArguments)
+		cur.execute(query, params)
 
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, commit=True, **kwargs):
 
+		distance = None
+		if 'distance' in kwargs:
+			distance = kwargs.pop('distance')
 
+
+		# Apparently passing a dict as ** does (at least) a shallow copy
+		# Therefore, we can ignore the fact that generateUpdateQuery
+		# will then permute it's copy of the kwargs, and just use it again
+		# for the call to updateDistance
 		query, queryArguments = self.generateUpdateQuery(**kwargs)
 
 		if self.QUERY_DEBUG:
@@ -399,6 +429,8 @@ class TextDbBase(metaclass=abc.ABCMeta):
 
 		with self.conn.cursor() as cur:
 			with transaction(cur, commit=commit):
+				if distance != None:
+					self.updateDistance(cur, distance, **kwargs)
 				cur.execute(query, queryArguments)
 
 		self.insertDelta(**kwargs)
@@ -548,28 +580,27 @@ class TextDbBase(metaclass=abc.ABCMeta):
 					self.updateDbEntry(url=url, commit=False, **newRowDict)
 
 
-	def getToDo(self):
+	def getToDo(self, distance):
 		cur = self.conn.cursor()
 
 		# Retreiving todo items must be atomic, so we lock for that.
 		with self.dbLock:
 			with transaction(cur):
 
-				cur.execute('''SELECT dbid, url FROM {tableName} WHERE dlstate=%s AND src=%s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey))
+				cur.execute('''SELECT dbid, url, distance FROM {tableName} WHERE dlstate=%s AND src=%s AND distance < %s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey, distance))
 				row = cur.fetchone()
 
 				# print(row)
 
-
 				if not row:
 					return False
 				else:
-					dbid, url = row
+					dbid, url, itemDistance = row
 					cur.execute('UPDATE {tableName} SET dlstate=%s WHERE dbid=%s;'.format(tableName=self.tableName), (1, dbid))
 
 		if not url.startswith("http"):
 			raise ValueError("Non HTTP URL in database: '%s'!" % url)
-		return url
+		return url, itemDistance
 
 
 	def getTodoCount(self):
