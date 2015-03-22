@@ -6,8 +6,6 @@ table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2F
 Move scheduling system to a persistent jobstore.
 Add update time tracking to textscrape.
 
-Check WebtoonLoader plugin
-
 New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
 https://manga0205.files.wordpress.com/2014/10/101.jpg
 https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
@@ -20,6 +18,10 @@ http://aho-updates.com/groups
 
 mu archive release info
 mangaeden api
+
+custom list page ad search for existing item
+
+wp/blogspot use labels for posts
 
 still missing sites from aho
 
@@ -75,6 +77,7 @@ http://www.wuxiaworld.com/
 ## TO ADD: 
 =======
 https://trippingoverwn.wordpress.com/
+http://panofitrans.blogspot.com/
 
 http://aquarilasscenario.blogspot.com/
 http://arzengi.blogspot.com/

@@ -188,9 +188,9 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 
 def test():
 
-	Scrape.buildScannedDomainSet()
-	# scrp = Scrape()
-	# scrp.crawl()
+	# Scrape.buildScannedDomainSet()
+	scrp = Scrape()
+	scrp.crawl()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 
 

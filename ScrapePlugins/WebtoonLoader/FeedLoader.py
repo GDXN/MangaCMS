@@ -52,7 +52,8 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		ret = {}
 
-		titleH = soup.find("h3", class_='subj')
+		titleH = soup.find("h1", class_='subj')
+		# print(titleH)
 		titleH.div.decompose()
 		# titleDiv = soup.find("h1", class_="ttl")
 		ret["title"] = titleH.get_text().strip()

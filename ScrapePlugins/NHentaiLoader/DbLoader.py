@@ -49,7 +49,8 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# 'Origin'       : '',  (Category)
 		for chunk in tagChunks:
 			for rawTag in chunk.find_all("a", class_='tagbutton'):
-				rawTag.span.decompose()
+				if rawTag.span:
+					rawTag.span.decompose()
 				tag = rawTag.get_text().strip()
 
 				if "Artist" in chunk.contents[0]:

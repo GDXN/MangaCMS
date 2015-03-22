@@ -144,6 +144,12 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# Extract upload date
 		dateStr = containerDiv.find("a", class_='content-time').get_text()
+
+		if 'Pre-Order Book' in dateStr:
+			return None
+		if 'Now Available' in dateStr:
+			return None
+
 		addDate = self.parseDateStr(dateStr)
 		ret["date"] = time.mktime(addDate.timetuple())
 
@@ -158,7 +164,9 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		series = containerDiv["class"]
 		if 'content-row' in series:
 			series.remove('content-row')
-		if len(series) != 1:
+		if len(series) != 2:
+			print(ret["dlName"])
+			print(series)
 			raise ValueError("Too many div classes!")
 
 		ret['seriesName'] = series[0].title()
@@ -199,6 +207,10 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = []
 		for linkLi in doujinDiv:
 			item = self.parseDoujinDiv(linkLi)
+
+			if not item:
+				self.log.info("Skipping item, because it's pay-content.")
+				continue
 
 			for skipTag in settings.skipTags:
 				if skipTag in item['tags']:
@@ -246,9 +258,11 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dat = self.getItems()
 		self.processLinksIntoDB(dat)
 
-		# for x in range(10):
-		# 	dat = self.getItems(pageOverride=x)
-		# 	self.processLinksIntoDB(dat)
+	def goHistory(self):
+
+		for x in range(20, 125):
+			dat = self.getItems(pageOverride=x)
+			self.processLinksIntoDB(dat)
 
 
 if __name__ == "__main__":
@@ -259,3 +273,4 @@ if __name__ == "__main__":
 		run = FakkuFeedLoader()
 		# run.getFeed()
 		run.go()
+		run.goHistory()

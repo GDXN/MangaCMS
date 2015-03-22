@@ -125,8 +125,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info("Saving to archive = %s", fqFName)
 
 			images = []
+
+			imgCnt = 1
 			for imgUrl, referrerUrl in imageUrls.items():
 				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
+				imageName = "{num:03.0f} - {srcName}".format(num=imgCnt, srcName=imageName)
+				imgCnt += 1
 				images.append([imageName, imageContent])
 
 				if not runStatus.run:

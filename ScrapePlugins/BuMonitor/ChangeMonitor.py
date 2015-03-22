@@ -29,6 +29,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"
 	changedTableName = "muItemChanged"
+	itemReleases     = "muReleases"
 
 	baseURL          = "http://www.mangaupdates.com/"
 	itemURL          = 'http://www.mangaupdates.com/series.html?id={buId}'
