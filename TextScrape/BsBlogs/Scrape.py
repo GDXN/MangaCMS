@@ -4,12 +4,12 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.BLogspotBase
+import TextScrape.BlogspotBase
 
 import webFunctions
 
 
-class Scrape(TextScrape.BLogspotBase.BlogspotScrape):
+class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 	tableKey = 'bs'
 	loggerPath = 'Main.Bs.Scrape'
 	pluginName = 'BsScrape'
@@ -187,8 +187,10 @@ class Scrape(TextScrape.BLogspotBase.BlogspotScrape):
 	# 	print(self.checkDomain('https://gekkahimethetranslation.wordpress.com/volume-2/chapter-2-little-one-eyed-princess/chapter-2-11/'))
 
 def test():
-	scrp = Scrape()
-	scrp.crawl()
+
+	Scrape.buildScannedDomainSet()
+	# scrp = Scrape()
+	# scrp.crawl()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 
 

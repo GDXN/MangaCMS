@@ -114,27 +114,21 @@ def fetchRelinkableDomains():
 	for plugin in pluginDict:
 		plg = pluginDict[plugin]
 
-		if isinstance(plg.baseUrl, (set, list)):
-			for url in plg.baseUrl:
-				url = urllib.parse.urlsplit(url.lower()).netloc
-				domains.add(url)
+		items = plg.buildScannedDomainSet()
+		# if isinstance(plg.baseUrl, (set, list)):
+		# 	for url in plg.baseUrl:
+		# 		url = urllib.parse.urlsplit(url.lower()).netloc
+		# 		domains.add(url)
 
-				if url.startswith("www."):
-					domains.add(url[4:])
+		# 		if url.startswith("www."):
+		# 			domains.add(url[4:])
 
-		else:
-			url = urllib.parse.urlsplit(plg.baseUrl.lower()).netloc
+		# else:
+		# 	url = urllib.parse.urlsplit(plg.baseUrl.lower()).netloc
 
-		domains.add(url)
-		if url.startswith("www."):
-			domains.add(url[4:])
-		if hasattr(plg, 'scannedDomains'):
-			for domain in plg.scannedDomains:
-				url = urllib.parse.urlsplit(domain.lower()).netloc
 
-				domains.add(url)
-				if url.startswith("www."):
-					domains.add(url[4:])
+		domains.update(items)
+
 
 	# print("List:")
 	domains = list(domains)
@@ -144,11 +138,12 @@ def fetchRelinkableDomains():
 	return domains
 
 
-RELINKABLE = fetchRelinkableDomains()
+RELINKABLE = set()
+RELINKABLE.update(fetchRelinkableDomains())
 
 if __name__ == '__main__':
 	# print("Relinked domains:")
-	# domains = list(RELINKABLE)
-	# domains.sort()
-	# for domain in domains:
+	domains = list(RELINKABLE)
+	domains.sort()
+	for domain in domains:
 		print('	', domain)

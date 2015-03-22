@@ -159,6 +159,85 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 							else:
 								raise ValueError("Invalid variable type for collapse operation: '%s', '%s'" % (type(item), name))
 
+	########################################################################################################################
+
+	@classmethod
+	def buildScannedDomainSet(cls, followGoogleLinks=True):
+
+		inUrls = cls.baseUrl
+		inTlds = cls.tld
+
+		inList = set()
+
+
+		if isinstance(inUrls, (set, list)):
+			for url in inUrls:
+				inList.add(url)
+		else:
+			inList.add(inUrls)
+
+		scannedDomains = set()
+		fileDomains = set()
+
+		if followGoogleLinks:
+			# Tell the path filtering mechanism that we can fetch google doc files
+			scannedDomains.add('https://docs.google.com/document/')
+			scannedDomains.add('https://docs.google.com/spreadsheets/')
+			scannedDomains.add('https://drive.google.com/folderview')
+			scannedDomains.add('https://drive.google.com/open')
+
+		TLDs = set([urllib.parse.urlsplit(url.lower()).netloc.rsplit(".")[-1] for url in inList])
+
+
+
+		def genBaseUrlPermutations(url):
+			netloc = urllib.parse.urlsplit(url.lower()).netloc
+			if not netloc:
+				raise ValueError("One of the scanned domains collapsed down to an empty string: '%s'!" % url)
+			ret = set()
+			# Generate the possible wordpress netloc values.
+			if 'wordpress.com' in netloc:
+				subdomain, mainDomain, tld = netloc.rsplit(".")[-3:]
+
+				ret.add("www.{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+				ret.add("{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+				ret.add("www.{sub}.files.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+				ret.add("{sub}.files.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+
+			# Blogspot is annoying and sometimes a single site is spread over several tlds. *.com, *.sg, etc...
+			if 'blogspot.' in netloc:
+				subdomain, mainDomain, dummy_tld = netloc.rsplit(".")[-3:]
+				for tld in TLDs:
+					ret.add("www.{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+					ret.add("{sub}.{main}.{tld}".format(sub=subdomain, main=mainDomain, tld=tld))
+
+
+			if 'sites.google.com/site/' in url:
+				ret.add(url)
+
+			elif 'google.' in netloc:
+				pass
+
+			else:
+
+				base, dummy_tld = netloc.rsplit(".", 1)
+				for tld in TLDs:
+					ret.add("{main}.{tld}".format(main=base, tld=tld))
+					# print(ret)
+			return ret
+
+		retSet = set()
+		for url in inList:
+			items = genBaseUrlPermutations(url)
+			retSet.update(items)
+
+		# Filter out spurious 'blogspot.com.{TLD}' entries that are getting in somehow
+		ret = [item for item in retSet if not item.startswith('blogspot.com')]
+
+
+		return ret
+
+
 
 	########################################################################################################################
 	#

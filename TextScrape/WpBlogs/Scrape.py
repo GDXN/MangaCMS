@@ -17,7 +17,7 @@ class Scrape(WordpressScrape):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	IGNORE_MALFORMED_URLS = True
-	threads = 1
+	threads = 10
 
 	baseUrl = [
 		'https://bluesilvertranslations.wordpress.com',
