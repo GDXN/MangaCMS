@@ -24,6 +24,7 @@ class BlogspotScrape(TextScrape.SiteArchiver.SiteArchiver):
 				# Who the fuck shares shit like this anyways?
 				"?share=",
 				'wp-login.php',
+				'/feeds/'
 
 				])
 

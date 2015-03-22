@@ -405,7 +405,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 
 		if self.QUERY_DEBUG:
 			print("Query = ", query)
-			print("Args = ", queryArguments)
+			print("Args = ", params)
 		cur.execute(query, params)
 
 	# Update entry with key sourceUrl with values **kwargs
@@ -522,6 +522,25 @@ class TextDbBase(metaclass=abc.ABCMeta):
 
 
 
+	def getFilenameFromIdName(self, rowid, filename):
+		if not os.path.exists(settings.bookCachePath):
+			self.log.warn("Cache directory for book items did not exist. Creating")
+			self.log.warn("Directory at path '%s'", settings.bookCachePath)
+			os.makedirs(settings.bookCachePath)
+
+		# one new directory per 1000 items.
+		dirName = '%s' % (rowid // 1000)
+		dirPath = os.path.join(settings.bookCachePath, dirName)
+		if not os.path.exists(dirPath):
+			os.mkdir(dirPath)
+
+		filename = 'ID%s - %s' % (rowid, filename)
+		filename = nameTools.makeFilenameSafe(filename)
+		fqpath = os.path.join(dirPath, filename)
+
+		return fqpath
+
+
 
 	def saveFile(self, url, mimetype, fileName, content):
 
@@ -590,6 +609,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 				cur.execute('''SELECT dbid, url, distance FROM {tableName} WHERE dlstate=%s AND src=%s AND distance < %s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey, distance))
 				row = cur.fetchone()
 
+				# print(('''SELECT dbid, url, distance FROM {tableName} WHERE dlstate=%s AND src=%s AND distance < %s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName) % (0, self.tableKey, distance)))
 				# print(row)
 
 				if not row:
@@ -717,7 +737,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 
 		lChange = abs(len(oldStr) - len(newStr))
 		lTotal = max((len(oldStr), len(newStr)))
-		self.log.info("Coarse length change: '%s'", lChange)
+		self.log.info("Coarse length change: %s (mean: %s)", lChange, int(sum((len(oldStr), len(newStr)))/2 ))
 		# distance = lv.distance(oldStr, newStr)
 		# distance = 0
 		# self.log.info("Done")

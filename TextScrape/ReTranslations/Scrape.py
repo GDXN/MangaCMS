@@ -4,13 +4,13 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
 
 import webFunctions
+import TextScrape.SiteArchiver
 
 # import TextScrape.ReTranslations.gDocParse as gdp
 
-class Scrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'retrans'
 	loggerPath = 'Main.ReTrans.Scrape'
 	pluginName = 'ReTransScrape'

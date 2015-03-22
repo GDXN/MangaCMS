@@ -2,7 +2,9 @@
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
 
  netloc in book search table
- ## home swap bold amd red
+ ## home swap bold and red
+Move scheduling system to a persistent jobstore.
+Add update time tracking to textscrape.
 
 Check WebtoonLoader plugin
 

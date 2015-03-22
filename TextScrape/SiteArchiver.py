@@ -24,6 +24,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import TextScrape.TextDbBase
 import TextScrape.HtmlProcessor
+import TextScrape.GDriveDirProcessor
+import TextScrape.GDocProcessor
 
 import os.path
 import os
@@ -95,7 +97,9 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	def badwords(self):
 		pass
 
-	procClass = TextScrape.HtmlProcessor.HtmlPageProcessor
+	htmlProcClass = TextScrape.HtmlProcessor.HtmlPageProcessor
+	gdriveClass   = TextScrape.GDriveDirProcessor.GDriveDirProcessor
+	gDocClass     = TextScrape.GDocProcessor.GdocPageProcessor
 
 	tld             = []
 	decomposeBefore = []
@@ -148,18 +152,18 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 										raise ValueError("Don't know how to append to item: '%s', type '%s'" % (moveto, type(moveto)))
 
 							else:
-								print(item)
+								raise ValueError("Invalid variable type for collapse operation: '%s', '%s'" % (type(item), name))
 
 
 	########################################################################################################################
 	#
-	#	########  ####  ######  ########     ###    ########  ######  ##     ##    ##     ## ######## ######## ##     ##  #######  ########   ######
-	#	##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ##    ###   ### ##          ##    ##     ## ##     ## ##     ## ##    ##
-	#	##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ##    #### #### ##          ##    ##     ## ##     ## ##     ## ##
-	#	##     ##  ##   ######  ########  ##     ##    ##    ##       #########    ## ### ## ######      ##    ######### ##     ## ##     ##  ######
-	#	##     ##  ##        ## ##        #########    ##    ##       ##     ##    ##     ## ##          ##    ##     ## ##     ## ##     ##       ##
-	#	##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ##    ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ##
-	#	########  ####  ######  ##        ##     ##    ##     ######  ##     ##    ##     ## ########    ##    ##     ##  #######  ########   ######
+	#	########  ####  ######  ########     ###    ########  ######  ##     ##      ##     ## ######## ######## ##     ##  #######  ########   ######
+	#	##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ##      ###   ### ##          ##    ##     ## ##     ## ##     ## ##    ##
+	#	##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ##      #### #### ##          ##    ##     ## ##     ## ##     ## ##
+	#	##     ##  ##   ######  ########  ##     ##    ##    ##       #########      ## ### ## ######      ##    ######### ##     ## ##     ##  ######
+	#	##     ##  ##        ## ##        #########    ##    ##       ##     ##      ##     ## ##          ##    ##     ## ##     ## ##     ##       ##
+	#	##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ##      ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ##
+	#	########  ####  ######  ##        ##     ##    ##     ######  ##     ##      ##     ## ########    ##    ##     ##  #######  ########   ######
 	#
 	########################################################################################################################
 
@@ -167,9 +171,42 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		return {'plainLinks' : [], 'rsrcLinks' : []}
 
 
+	def processReturnedFileResources(self, resources):
+
+		# fMap = {}
+
+
+		for fName, mimeType, content, fHash in resources:
+			# m = hashlib.md5()
+			# m.update(content)
+			# fHash = m.hexdigest()
+
+			hashName = self.tableKey+fHash
+
+			# fMap[fName] = fHash
+
+			fName = os.path.split(fName)[-1]
+
+			self.log.info("Resource = '%s', '%s', '%s'", fName, mimeType, hashName)
+			if mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
+				self.log.info("Processing resource '%s' as an image file. (mimetype: %s)", fName, mimeType)
+				self.upsert(hashName, istext=False)
+				self.saveFile(hashName, mimeType, fName, content)
+			elif mimeType in ["application/octet-stream"]:
+				self.log.info("Processing '%s' as an binary file.", fName)
+				self.upsert(hashName, istext=False)
+				self.saveFile(hashName, mimeType, fName, content)
+			else:
+				self.log.warn("Unknown MIME Type? '%s', FileName: '%s'", mimeType, fName)
+
+		if len(resources) == 0:
+			self.log.info("File had no resource content!")
+
+
+
 
 	def processHtmlPage(self, url, content):
-		scraper = self.procClass(
+		scraper = self.htmlProcClass(
 									baseUrls        = self.baseUrl,
 									pageUrl         = url,
 									pgContent       = content,
@@ -188,12 +225,33 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 
 		return extracted
 
+
+	def extractGoogleDriveFolder(self, url):
+		scraper = self.gdriveClass(
+									pageUrl         = url,
+									loggerPath      = self.loggerPath
+								)
+		extracted = scraper.extractContent()
+
+		return extracted
+
+	def retreiveGoogleDoc(self, url):
+		# pageUrl, loggerPath, tableKey, scannedDomains=None, tlds=None
+
+		scraper = self.gDocClass(
+									pageUrl         = url,
+									loggerPath      = self.loggerPath,
+									tableKey        = self.tableKey,
+									scannedDomains  = self.baseUrl,
+									tlds            = self.tld
+								)
+		extracted, resources = scraper.extractContent()
+		self.processReturnedFileResources(resources)
+		return extracted
+
 	def processAsMarkdown(self, url, content):
 		raise NotImplementedError("TODO: FIX ME!")
-	def extractGoogleDriveFolder(self, url):
-		raise NotImplementedError("TODO: FIX ME!")
-	def retreiveGoogleDoc(self, url):
-		raise NotImplementedError("TODO: FIX ME!")
+
 	def retreiveGoogleFile(self, url):
 		raise NotImplementedError("TODO: FIX ME!")
 
@@ -267,22 +325,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 			return self.getEmptyRet()
 
 
-		self.updateDbEntry(url=url, title=ret['title'], contents=ret['contents'], mimetype='text/html', dlstate=2, istext=True)
-
 		return ret
 
-	def retreivePlainResource(self, url):
-		self.log.info("Fetching Simple Resource: '%s'", url)
-		try:
-			content, fName, mimeType = self.getItem(url)
-		except ValueError:
-
-			for line in traceback.format_exc().split("\n"):
-				self.log.critical(line)
-			self.upsert(url, dlstate=-1, contents='Error downloading!')
-			return self.getEmptyRet()
-
-		return self.dispatchContent(url, content, fName, mimeType)
 
 
 
@@ -308,36 +352,20 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		return content, fileN, mType
 
 
-	def processResponse(self, response, distance):
-		plain = set(response['plainLinks'])
-		resource = set(response['rsrcLinks'])
+	def retreivePlainResource(self, url):
+		self.log.info("Fetching Simple Resource: '%s'", url)
+		try:
+			content, fName, mimeType = self.getItem(url)
+		except ValueError:
 
-		for link in plain:
-			self.newLinkQueue.put((link, True, distance+1))
+			for line in traceback.format_exc().split("\n"):
+				self.log.critical(line)
+			self.upsert(url, dlstate=-1, contents='Error downloading!')
+			return self.getEmptyRet()
 
-		for link in resource:
-			self.newLinkQueue.put((link, False, distance+1))
+		return self.dispatchContent(url, content, fName, mimeType)
 
 
-
-
-	def getFilenameFromIdName(self, rowid, filename):
-		if not os.path.exists(settings.bookCachePath):
-			self.log.warn("Cache directory for book items did not exist. Creating")
-			self.log.warn("Directory at path '%s'", settings.bookCachePath)
-			os.makedirs(settings.bookCachePath)
-
-		# one new directory per 1000 items.
-		dirName = '%s' % (rowid // 1000)
-		dirPath = os.path.join(settings.bookCachePath, dirName)
-		if not os.path.exists(dirPath):
-			os.mkdir(dirPath)
-
-		filename = 'ID%s - %s' % (rowid, filename)
-		filename = nameTools.makeFilenameSafe(filename)
-		fqpath = os.path.join(dirPath, filename)
-
-		return fqpath
 
 
 
@@ -386,7 +414,23 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		else:
 			response = self.retreivePlainResource(url)
 
-		self.processResponse(response, pageDistance)
+		if 'title' in response and 'contents' in response:
+			self.updateDbEntry(url=url, title=response['title'], contents=response['contents'], mimetype='text/html', dlstate=2, istext=True)
+
+		# self.processResponse(response, pageDistance)
+
+
+	def processResponse(self, response, distance):
+		plain = set(response['plainLinks'])
+		resource = set(response['rsrcLinks'])
+
+		for link in plain:
+			self.newLinkQueue.put((link, True, distance+1))
+
+		for link in resource:
+			self.newLinkQueue.put((link, False, distance+1))
+
+
 
 	########################################################################################################################
 	#

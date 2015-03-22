@@ -16,13 +16,15 @@ import os.path
 import TextScrape.RelinkLookup
 import TextScrape.urlFuncs
 
-import traceback
+import TextScrape.urlFuncs
 
 import TextScrape.ProcessorBase
-import TextScrape.SiteArchiver
 
 
 import TextScrape.gDocParse as gdp
+
+class DownloadException(Exception):
+	pass
 
 
 
@@ -169,17 +171,14 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 
 	def cleanGdocPage(self, soup, url):
+
+
 		doc = readability.readability.Document(str(soup))
+
 		title = self.extractTitle(soup, doc, url)
 
 		for span in soup.find_all("span"):
-			span.unwrap()
-
-		for style in soup.find_all('style'):
-			style.decompose()
-
-		for tag in soup.find_all(attrs = {'class' : True}):
-			del tag['class']
+			span['style'] = ''
 
 		return title, soup
 
@@ -222,7 +221,7 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 		pgTitle, soup = self.cleanGdocPage(soup, url)
 
-		plainLinks = self.extractLinks(soup, url)
+		self.extractLinks(soup, url)
 		self.log.info("Page title = '%s'", pgTitle)
 		soup = self.relink(soup, imRelink=self.convertToGdocReaderImage)
 
@@ -234,10 +233,8 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		soup.body.unwrap()
 		pgBody = soup.prettify()
 
-		# No image links, since they're served as resource files in a google doc
-		imageLinks = []
-		return plainLinks, imageLinks, pgTitle, pgBody
-		# self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype='text/html', dlstate=2)
+		self.updateDbEntry(url=url, title=pgTitle, contents=pgBody, mimetype='text/html', dlstate=2)
+
 
 
 
@@ -250,7 +247,6 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 
 		attempts = 0
-
 
 		mainPage = None
 		while 1:
@@ -268,33 +264,125 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 					url = url+"/pub"
 				self.log.info("Attempting to access as plain content instead.")
 				url = TextScrape.urlFuncs.urlClean(url)
-				doc = gdp.GDocExtractor(url)
-
+				self.putNewUrl(url)
+				return
 			if mainPage:
 				break
 			if attempts > 3:
-				raise TextScrape.SiteArchiver.DownloadException
+				raise DownloadException
 
-		resources = self.processGdocResources(resources)
+		self.processGdocResources(resources)
 
-		return self.processGdocPage(url, mainPage) + (resources, )
+		self.processGdocPage(url, mainPage)
 
+	def retreiveGoogleFile(self, url):
+
+
+		self.log.info("Should fetch google file at '%s'", url)
+		doc = gdp.GFileExtractor(url)
+
+		attempts = 0
+
+		while 1:
+			attempts += 1
+			try:
+				content, fName, mType = doc.extract()
+			except TypeError:
+				self.log.critical('Extracting item failed!')
+				for line in traceback.format_exc().strip().split("\n"):
+					self.log.critical(line.strip())
+
+				if not url.endswith("/pub"):
+					url = url+"/pub"
+
+				self.log.info("Attempting to access as plain content instead.")
+				url = TextScrape.urlFuncs.urlClean(url)
+				url = gdp.trimGDocUrl(url)
+				self.putNewUrl(url)
+				return
+			if content:
+				break
+			if attempts > 3:
+				raise DownloadException
+
+
+			self.log.error("No content? Retrying!")
+
+		self.dispatchContent(url, content, fName, mType)
+
+
+	def extractGoogleDriveFolder(self, driveUrl):
+		'''
+		Extract all the relevant links from a google drive directory, and push them into
+		the queued URL queue.
+
+		'''
+
+		docReferences, pgTitle = gdp.GDocExtractor.getDriveFileUrls(driveUrl)
+		# print('docReferences', docReferences)
+		for dummy_title, url in docReferences:
+			url = gdp.trimGDocUrl(url)
+			self.putNewUrl(url)
+
+		self.log.info("Generating google drive disambiguation page!")
+		soup = gdp.makeDriveDisambiguation(docReferences, pgTitle)
+		# print(disamb)
+
+		soup = self.relink(soup)
+
+		disamb = soup.prettify()
+
+		self.updateDbEntry(url=driveUrl, title=pgTitle, contents=disamb, mimetype='text/html', dlstate=2)
+
+
+		self.log.info("Found %s items in google drive directory", len(docReferences))
+
+
+
+	def putNewUrl(self, url, baseUrl=None, istext=True):
+		if not url.lower().startswith("http"):
+			if baseUrl:
+				# If we have a base-url to extract the scheme from, we pull that out, concatenate
+				# it onto the rest of the url segments, and then unsplit that back into a full URL
+				scheme = urllib.parse.urlsplit(baseUrl.lower()).scheme
+				rest = urllib.parse.urlsplit(baseUrl.lower())[1:]
+				params = (scheme, ) + rest
+
+				# self.log.info("Had to add scheme (%s) to URL: '%s'", scheme, url)
+				url = urllib.parse.urlunsplit(params)
+
+			elif self.IGNORE_MALFORMED_URLS:
+				self.log.error("Skipping a malformed URL!")
+				self.log.error("Bad URL: '%s'", url)
+				return
+			else:
+				raise ValueError("Url isn't a url: '%s'" % url)
+		if gdp.isGdocUrl(url) or gdp.isGFileUrl(url):
+			if gdp.trimGDocUrl(url) != url:
+				raise ValueError("Invalid link crept through! Link: '%s'" % url)
+
+
+		if not url.lower().startswith('http'):
+			raise ValueError("Failure adding scheme to URL: '%s'" % url)
+
+		if not self.checkDomain(url) and istext:
+			raise ValueError("Invalid url somehow got through: '%s'" % url)
+
+		if '/view/export?format=zip' in url:
+			raise ValueError("Wat?")
+		self.newLinkQueue.put((url, istext))
 
 
 
 	# Process a Google-Doc resource page.
 	# This call does a set of operations to permute and clean a google doc page.
 	def extractContent(self):
-
-		plainLinks, imageLinks, pgTitle, pgBody, resources = self.retreiveGoogleDoc(self.pageUrl)
-
-		ret = {}
 		ret['plainLinks'] = plainLinks
 		ret['rsrcLinks']  = imageLinks
 		ret['title']      = pgTitle
 		ret['contents']   = pgBody
 
-		return ret, resources
+
 
 
 def test():
@@ -305,22 +393,17 @@ def test():
 
 	wg = webFunctions.WebGetRobust()
 	# content = wg.getpage('http://www.arstechnica.com')
-	scraper = GdocPageProcessor('https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0', 'Main.Test', 'testinating')
+	scraper = GdocPageProcessor('https://docs.google.com/document/d/1ZdweQdjIBqNsJW6opMhkkRcSlrbgUN5WHCcYrMY7oqI', 'Main.Test', 'testinating')
 	print(scraper)
-	extr, rsc = scraper.extractContent()
-	print('Plain Links:')
-	for link in extr['plainLinks']:
+	extr = scraper.extractContent()
+	for link in extr['fLinks']:
 		print(link)
 	print()
 	print()
-	print('Resource files:')
-	# for link in extr['rsrcLinks']:
-	# 	print(link)
-
-	for fName, mimeType, content, pseudoUrl in rsc:
-		print(fName, mimeType, pseudoUrl)
-	# print(extr['contents'])
-
+	print()
+	for link in extr['iLinks']:
+		print(link)
+	# print(extr['fLinks'])
 
 
 if __name__ == "__main__":

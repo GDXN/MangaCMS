@@ -4,12 +4,12 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.WordpressBase
+from TextScrape.WordpressBase import WordpressScrape
 
 import webFunctions
 
 
-class Scrape(TextScrape.WordpressBase.WordpressScrape):
+class Scrape(WordpressScrape):
 	tableKey = 'rtdtl'
 	loggerPath = 'Main.RaiseTheDead.Scrape'
 	pluginName = 'RaiseTheDeadScrape'

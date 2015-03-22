@@ -14,12 +14,12 @@ import readability.readability
 import webFunctions
 import TextScrape.RelinkLookup
 import TextScrape.urlFuncs
+import TextScrape.ProcessorBase
 
 import LogBase
 
 
 
-import TextScrape.gDocParse as gdp
 
 class DownloadException(Exception):
 	pass
@@ -38,56 +38,7 @@ class DownloadException(Exception):
 #
 ########################################################################################################################
 
-def rebaseUrl(url, base):
-	"""Rebase one url according to base"""
 
-	parsed = urllib.parse.urlparse(url)
-	if parsed.scheme == parsed.netloc == '':
-		return urllib.parse.urljoin(base, url)
-	else:
-		return url
-
-
-# All tags you need to look into to do link canonization
-# source: http://stackoverflow.com/q/2725156/414272
-# "These aren't necessarily simple URLs ..."
-urlContainingTargets = [
-	(False, 'a',          'href'),
-	(False, 'applet',     'codebase'),
-	(False, 'area',       'href'),
-	(False, 'base',       'href'),
-	(False, 'blockquote', 'cite'),
-	(False, 'body',       'background'),
-	(False, 'del',        'cite'),
-	(False, 'form',       'action'),
-	(False, 'frame',      'longdesc'),
-	(False, 'frame',      'src'),
-	(False, 'head',       'profile'),
-	(False, 'iframe',     'longdesc'),
-	(False, 'iframe',     'src'),
-	(False, 'input',      'src'),
-	(False, 'input',      'usemap'),
-	(False, 'ins',        'cite'),
-	(False, 'link',       'href'),
-	(False, 'object',     'classid'),
-	(False, 'object',     'codebase'),
-	(False, 'object',     'data'),
-	(False, 'object',     'usemap'),
-	(False, 'q',          'cite'),
-	(False, 'script',     'src'),
-	(False, 'audio',      'src'),
-	(False, 'button',     'formaction'),
-	(False, 'command',    'icon'),
-	(False, 'embed',      'src'),
-	(False, 'html',       'manifest'),
-	(False, 'input',      'formaction'),
-	(False, 'source',     'src'),
-	(False, 'video',      'poster'),
-	(False, 'video',      'src'),
-	(True,  'img',        'longdesc'),
-	(True,  'img',        'src'),
-	(True,  'img',        'usemap'),
-]
 
 
 GLOBAL_BAD = [
@@ -127,7 +78,7 @@ GLOBAL_DECOMPOSE_BEFORE = [
 
 GLOBAL_DECOMPOSE_AFTER = []
 
-class HtmlPageProcessor(LogBase.LoggerMixin):
+class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 	loggerPath = "Main.HtmlProc"
 
@@ -136,7 +87,6 @@ class HtmlPageProcessor(LogBase.LoggerMixin):
 
 		self._tld           = set()
 		self._fileDomains   = set()
-		self.scannedDomains = set()
 
 		self.content = pgContent
 		self.pageUrl = pageUrl
@@ -165,9 +115,18 @@ class HtmlPageProcessor(LogBase.LoggerMixin):
 		self._decomposeBefore = copy.copy(GLOBAL_DECOMPOSE_BEFORE)
 
 		self._relinkDomains = set()
+		print("Installing relinking urls")
+		print(TextScrape.RelinkLookup)
+		print(TextScrape.RelinkLookup.RELINKABLE)
 		for url in TextScrape.RelinkLookup.RELINKABLE:
+			print("inserting relinkable: ", url)
 			self._relinkDomains.add(url)
 
+		# A lot of this could probably be a lot more elegant.
+		# It's kind of crude and does a lot of unnecessary copying atm.
+		# Basically, it works, but it's evolved to it's current state, not
+		# been designed to it.
+		self.scannedDomains = set()
 		if isinstance(baseUrls, (set, list)):
 			for url in baseUrls:
 				self.scannedDomains.add(url)
@@ -277,101 +236,6 @@ class HtmlPageProcessor(LogBase.LoggerMixin):
 	########################################################################################################################
 
 
-	# Hook so plugins can modify the internal URLs as part of the relinking process
-	def preprocessReaderUrl(self, inUrl):
-		return inUrl
-
-
-	def convertToReaderUrl(self, inUrl):
-		inUrl = TextScrape.urlFuncs.urlClean(inUrl)
-		inUrl = self.preprocessReaderUrl(inUrl)
-		# The link will have been canonized at this point
-		url = '/books/render?url=%s' % urllib.parse.quote(inUrl)
-		return url
-
-	# check if domain `url` is a sub-domain of the scanned domains.
-	def checkDomain(self, url):
-		# if "drive" in url:
-		for rootUrl in self._scannedDomains:
-			if urllib.parse.urlsplit(url).netloc:
-				if urllib.parse.urlsplit(url).netloc == rootUrl:
-					return True
-
-			if url.lower().startswith(rootUrl):
-				return True
-
-		# print("CheckDomain False", url)
-		return False
-
-	def checkFollowGoogleUrl(self, url):
-		'''
-		I don't want to scrape outside of the google doc document context.
-
-		Therefore, if we have a URL that's on docs.google.com, and doesn't have
-		'/document/d/ in the URL, block it.
-		'''
-		# Short circuit for non docs domains
-		url = url.lower()
-		netloc = urllib.parse.urlsplit(url).netloc
-		if not "docs.google.com" in netloc:
-			return True
-
-		if '/document/d/' in url:
-			return True
-
-		return False
-
-
-	# check if domain `url` is a sub-domain of the domains we should relink.
-	def checkRelinkDomain(self, url):
-		# if "drive" in url:
-		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
-		return any([rootUrl in url.lower() for rootUrl in self._relinkDomains])
-
-
-	def processLinkItem(self, url, baseUrl):
-		url = gdp.clearOutboundProxy(url)
-		url = gdp.clearBitLy(url)
-
-		# Filter by domain
-		if not self.checkDomain(url):
-			# print("Filtering", self.checkDomain(url), url)
-			return
-
-
-		# and by blocked words
-		for badword in self._badwords:
-			if badword in url:
-				# print("hadbad", self.checkDomain(url), url)
-
-				return
-
-
-
-		if not self.checkFollowGoogleUrl(url):
-			return
-
-		url = TextScrape.urlFuncs.urlClean(url)
-
-		if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
-			url = gdp.trimGDocUrl(url)
-
-			if url.startswith('https://docs.google.com/document/d/images'):
-				return
-
-			# self.log.info("Resolved URL = '%s'", url)
-			return self.processNewUrl(url, baseUrl)
-			# self.log.info("New G link: '%s'", url)
-
-		else:
-			# Remove any URL fragments causing multiple retreival of the same resource.
-			if url != gdp.trimGDocUrl(url):
-				print('Old URL: "%s"' % url)
-				print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
-				raise ValueError("Wat? Url change? Url: '%s'" % url)
-			return self.processNewUrl(url, baseUrl)
-			# self.log.info("Newlink: '%s'", url)
-
 
 
 	def processImageLink(self, url, baseUrl):
@@ -399,27 +263,7 @@ class HtmlPageProcessor(LogBase.LoggerMixin):
 		return self.processNewUrl(url, baseUrl=baseUrl, istext=False)
 
 
-	def extractLinks(self, soup, baseUrl):
-		# All links have been resolved to fully-qualified paths at this point.
 
-		ret = []
-		for (dummy_isImg, tag, attr) in urlContainingTargets:
-
-			for link in soup.findAll(tag):
-
-
-				# Skip empty anchor tags
-				try:
-					url = link[attr]
-				except KeyError:
-					continue
-
-
-				item = self.processLinkItem(url, baseUrl)
-				if item:
-					ret.append(item)
-
-		return ret
 
 
 	def extractImages(self, soup, baseUrl):
@@ -435,68 +279,6 @@ class HtmlPageProcessor(LogBase.LoggerMixin):
 			if item:
 				ret.append(item)
 		return ret
-
-
-	def convertToReaderImage(self, inStr):
-		inStr = TextScrape.urlFuncs.urlClean(inStr)
-		return self.convertToReaderUrl(inStr)
-
-	def relink(self, soup, imRelink=None):
-		# The google doc reader relinking mechanisms requires overriding the
-		# image relinking mechanism. As such, allow that to be overridden
-		# if needed
-
-		if not imRelink:
-			imRelink = self.convertToReaderImage
-
-
-		for (isImg, tag, attr) in urlContainingTargets:
-
-			if not isImg:
-				for link in soup.findAll(tag):
-					try:
-						if self.checkRelinkDomain(link[attr]):
-							link[attr] = self.convertToReaderUrl(link[attr])
-					except KeyError:
-						continue
-
-			else:
-				for link in soup.findAll(tag):
-					try:
-						link[attr] = imRelink(link[attr])
-
-						if tag == 'img':
-							# Force images that are oversize to fit the window.
-							link["style"] = 'max-width: 95%;'
-
-							if 'width' in link.attrs:
-								del link.attrs['width']
-							if 'height' in link.attrs:
-								del link.attrs['height']
-
-					except KeyError:
-						continue
-
-		return soup
-
-
-
-
-
-	def canonizeUrls(self, soup, pageUrl):
-		self.log.info("Making all links on page absolute.")
-
-		for (dummy_isimg, tag, attr) in urlContainingTargets:
-			for link in soup.findAll(tag):
-				try:
-					url = link[attr]
-				except KeyError:
-					pass
-				else:
-					link[attr] = rebaseUrl(url, pageUrl)
-					if link[attr] != url:
-						self.log.debug("Changed URL from '%s' to '%s'", url, link[attr])
-		return soup
 
 
 	def decomposeItems(self, soup, toDecompose):
@@ -560,54 +342,6 @@ class HtmlPageProcessor(LogBase.LoggerMixin):
 		title = title.strip()
 		return title, contents
 
-	# Methods to allow the child-class to modify the content at various points.
-	def extractTitle(self, srcSoup, doc, url):
-		title = doc.title()
-		return title
-
-	def postprocessBody(self, soup):
-		return soup
-
-	def preprocessBody(self, soup):
-		return soup
-
-
-
-	def processNewUrl(self, url, baseUrl=None, istext=True):
-		if not url.lower().startswith("http"):
-			if baseUrl:
-				# If we have a base-url to extract the scheme from, we pull that out, concatenate
-				# it onto the rest of the url segments, and then unsplit that back into a full URL
-				scheme = urllib.parse.urlsplit(baseUrl.lower()).scheme
-				rest = urllib.parse.urlsplit(baseUrl.lower())[1:]
-				params = (scheme, ) + rest
-
-				# self.log.info("Had to add scheme (%s) to URL: '%s'", scheme, url)
-				url = urllib.parse.urlunsplit(params)
-
-			elif self.ignoreBadLinks:
-				self.log.error("Skipping a malformed URL!")
-				self.log.error("Bad URL: '%s'", url)
-				return
-			else:
-				raise ValueError("Url isn't a url: '%s'" % url)
-		if gdp.isGdocUrl(url) or gdp.isGFileUrl(url):
-			if gdp.trimGDocUrl(url) != url:
-				raise ValueError("Invalid link crept through! Link: '%s'" % url)
-
-
-		if not url.lower().startswith('http'):
-			raise ValueError("Failure adding scheme to URL: '%s'" % url)
-
-		if not self.checkDomain(url) and istext:
-			raise ValueError("Invalid url somehow got through: '%s'" % url)
-
-		if '/view/export?format=zip' in url:
-			raise ValueError("Wat?")
-		return url
-
-
-
 
 	# Process a plain HTML page.
 	# This call does a set of operations to permute and clean a HTML page.
@@ -628,7 +362,7 @@ class HtmlPageProcessor(LogBase.LoggerMixin):
 		soup = self.decomposeItems(soup, self._decomposeBefore)
 
 		# Make all the page URLs fully qualified, so they're unambiguous
-		soup = self.canonizeUrls(soup, self.pageUrl)
+		soup = TextScrape.urlFuncs.canonizeUrls(soup, self.pageUrl)
 
 		# Conditionally pull out the page content and enqueue it.
 		if self.checkDomain(self.pageUrl):

@@ -4,12 +4,12 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.WordpressScrape
+from TextScrape.WordpressBase import WordpressScrape
 
 import webFunctions
 
 
-class Scrape(TextScrape.WordpressScrape.WordpressScrape):
+class Scrape(WordpressScrape):
 	tableKey = 'wp'
 	loggerPath = 'Main.Wp.Scrape'
 	pluginName = 'WpScrape'
@@ -17,7 +17,7 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	IGNORE_MALFORMED_URLS = True
-	threads = 6
+	threads = 1
 
 	baseUrl = [
 		'https://bluesilvertranslations.wordpress.com',
@@ -295,7 +295,10 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 		'| Shin Sekai Yori &#8211; From the New World',
 		'| Shin Sekai Yori - From the New World',
 		'| Shin Sekai Yori – From the New World',
-		':: tappity tappity tap.'
+		':: tappity tappity tap.',
+		'Fanatical |',
+		'| Fanatical'
+
 	]
 
 
