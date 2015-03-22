@@ -4,11 +4,11 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+from TextScrape.SiteArchiver import SiteArchiver
 
 
 
-class WordpressScrape(TextScrape.TextScrapeBase.TextScraper):
+class WordpressScrape(SiteArchiver):
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	_badwords = set([

@@ -29,8 +29,9 @@ import TextScrape.GDocProcessor
 
 import os.path
 import os
-import settings
-import nameTools
+import TextScrape.RELINKABLE as RELINKABLE
+
+
 
 import TextScrape.gDocParse as gdp
 
@@ -114,6 +115,10 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		self.newLinkQueue = queue.Queue()
 
 		self.loadFilters()
+
+
+		import TextScrape.RelinkLookup
+		RELINKABLE.RELINKABLE = TextScrape.RelinkLookup.fetchRelinkableDomains()
 
 
 	def loadFilters(self):
@@ -417,7 +422,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		if 'title' in response and 'contents' in response:
 			self.updateDbEntry(url=url, title=response['title'], contents=response['contents'], mimetype='text/html', dlstate=2, istext=True)
 
-		# self.processResponse(response, pageDistance)
+		self.processResponse(response, pageDistance)
 
 
 	def processResponse(self, response, distance):

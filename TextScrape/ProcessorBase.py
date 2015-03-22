@@ -6,7 +6,7 @@ runStatus.preloadDicts = False
 
 # import Levenshtein as lv
 
-import TextScrape.RelinkLookup
+
 import TextScrape.urlFuncs
 import urllib.parse
 import LogBase
@@ -100,8 +100,8 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		# The google doc reader relinking mechanisms requires overriding the
 		# image relinking mechanism. As such, allow that to be overridden
 		# if needed
-		print("relink call!")
-		print(self._relinkDomains)
+		# print("relink call!")
+		# print(self._relinkDomains)
 		if not imRelink:
 			imRelink = self.convertToReaderImage
 

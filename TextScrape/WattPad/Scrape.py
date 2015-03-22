@@ -4,13 +4,13 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+from TextScrape.SiteArchiver import SiteArchiver
 
 import webFunctions
 import http.cookiejar
 import urllib.parse
 
-class Scrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(SiteArchiver):
 	tableKey = 'wattpad'
 	loggerPath = 'Main.WattPad.Scrape'
 	pluginName = 'WattPadScrape'

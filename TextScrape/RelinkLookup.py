@@ -72,19 +72,19 @@ def findPluginClass(module, prefix):
 
 
 
-loader = SourceFileLoader('TextScrape.WpBlogs.Scrape', '/media/Storage/Scripts/MangaCMS/TextScrape/WpBlogs/Scrape.py')
+
 
 
 def loadPlugins():
 	modules = getPythonScriptModules()
-	print("Modules:")
-	modules.sort()
-	for module in modules:
-		print('	', module)
+	# print("Modules:")
+	# modules.sort()
+	# for module in modules:
+	# 	print('	', module)
 	ret = {}
 
 	for fPath, modName in modules:
-		print("Loading", fPath, modName)
+		# print("Loading", fPath, modName)
 		try:
 			loader = SourceFileLoader(modName, fPath)
 			mod = loader.load_module()
@@ -94,23 +94,23 @@ def loadPlugins():
 					raise ValueError("Two plugins providing an interface with the same name? Name: '%s'" % key)
 				ret[key] = pClass
 		except AttributeError:
-			print("Attribute error!", modName)
-			traceback.print_exc()
+			# print("Attribute error!", modName)
+			# traceback.print_exc()
 			pass
 		except ImportError:
-			print("Import error!", modName)
-			traceback.print_exc()
+			# print("Import error!", modName)
+			# traceback.print_exc()
 			pass
 	return ret
 
 
 def fetchRelinkableDomains():
-	print("Building relinkable domain list by class introspection.")
+	# print("Building relinkable domain list by class introspection.")
 	domains = set()
 	pluginDict = loadPlugins()
-	print("Plugins")
-	for plugin in pluginDict:
-		print(plugin)
+	# print("Plugins")
+	# for plugin in pluginDict:
+	# 	print(plugin)
 	for plugin in pluginDict:
 		plg = pluginDict[plugin]
 
@@ -136,19 +136,19 @@ def fetchRelinkableDomains():
 				if url.startswith("www."):
 					domains.add(url[4:])
 
-	print("List:")
+	# print("List:")
 	domains = list(domains)
 	domains.sort()
-	for domain in domains:
-		print('	', domain)
+	# for domain in domains:
+	# 	print('	', domain)
 	return domains
 
 
 RELINKABLE = fetchRelinkableDomains()
 
 if __name__ == '__main__':
-	print("Relinked domains:")
+	# print("Relinked domains:")
 	# domains = list(RELINKABLE)
 	# domains.sort()
 	# for domain in domains:
-	# 	print('	', domain)
+		print('	', domain)

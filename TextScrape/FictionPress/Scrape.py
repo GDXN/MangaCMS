@@ -4,11 +4,11 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+from TextScrape.SiteArchiver import SiteArchiver
 
 import webFunctions
 
-class Scrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(SiteArchiver):
 	tableKey = 'fictionpress'
 	loggerPath = 'Main.FictionPress.Scrape'
 	pluginName = 'FictionPressScrape'

@@ -17,7 +17,7 @@ import TextScrape.urlFuncs
 import TextScrape.ProcessorBase
 
 import LogBase
-
+import TextScrape.RELINKABLE as RELINKABLE
 
 
 
@@ -115,11 +115,8 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		self._decomposeBefore = copy.copy(GLOBAL_DECOMPOSE_BEFORE)
 
 		self._relinkDomains = set()
-		print("Installing relinking urls")
-		print(TextScrape.RelinkLookup)
-		print(TextScrape.RelinkLookup.RELINKABLE)
-		for url in TextScrape.RelinkLookup.RELINKABLE:
-			print("inserting relinkable: ", url)
+		for url in RELINKABLE.RELINKABLE:
+			# print("inserting relinkable: ", url)
 			self._relinkDomains.add(url)
 
 		# A lot of this could probably be a lot more elegant.

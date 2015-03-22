@@ -53,8 +53,8 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		self.tableKey = tableKey
 
 		self._relinkDomains = set()
-		for url in TextScrape.RelinkLookup.RELINKABLE:
-			self._relinkDomains.add(url)
+		# for url in TextScrape.RelinkLookup.RELINKABLE:
+		# 	self._relinkDomains.add(url)
 
 
 		self._tld            = set()

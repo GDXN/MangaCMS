@@ -4,14 +4,14 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+from TextScrape.SiteArchiver import SiteArchiver
 
 import readability.readability
 import bs4
 import webFunctions
 import urllib.error
 
-class Scrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(SiteArchiver):
 	tableKey = 'royalroad'
 	loggerPath = 'Main.RoyalRoad.Scrape'
 	pluginName = 'RoyalRoadScrape'

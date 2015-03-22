@@ -24,6 +24,8 @@ import TextScrape.SiteArchiver
 
 import TextScrape.gDocParse as gdp
 
+import TextScrape.RELINKABLE as RELINKABLE
+
 
 
 ########################################################################################################################
@@ -51,7 +53,7 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		self.tableKey = tableKey
 
 		self._relinkDomains = set()
-		for url in TextScrape.RelinkLookup.RELINKABLE:
+		for url in RELINKABLE.RELINKABLE:
 			self._relinkDomains.add(url)
 
 

@@ -4,13 +4,13 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+from TextScrape.SiteArchiver import SiteArchiver
 
 import urllib
 import webFunctions
 
 
-class BlogspotScrape(TextScrape.TextScrapeBase.TextScraper):
+class BlogspotScrape(SiteArchiver):
 
 
 

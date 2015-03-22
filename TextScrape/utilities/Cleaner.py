@@ -4,7 +4,7 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+from TextScrape.SiteArchiver import SiteArchiver
 import os.path
 import os
 import signal
@@ -14,7 +14,7 @@ import runStatus
 import hashlib
 import settings
 
-class DbFix(TextScrape.TextScrapeBase.TextScraper):
+class DbFix(SiteArchiver):
 
 	tableKey   = 'none'
 	loggerPath = 'Main.Util'

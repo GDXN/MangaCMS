@@ -4,12 +4,12 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.BlogspotScrape
+import TextScrape.BLogspotBase
 
 import webFunctions
 
 
-class Scrape(TextScrape.BlogspotScrape.BlogspotScrape):
+class Scrape(TextScrape.BLogspotBase.BlogspotScrape):
 	tableKey = 'bs'
 	loggerPath = 'Main.Bs.Scrape'
 	pluginName = 'BsScrape'

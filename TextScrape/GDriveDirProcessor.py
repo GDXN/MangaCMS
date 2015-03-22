@@ -19,7 +19,7 @@ import TextScrape.urlFuncs
 import TextScrape.urlFuncs
 
 import TextScrape.ProcessorBase
-
+import TextScrape.RELINKABLE as RELINKABLE
 
 import TextScrape.gDocParse as gdp
 
@@ -94,7 +94,7 @@ class GDriveDirProcessor(TextScrape.ProcessorBase.PageProcessor):
 		# As such, the extensive relinking system isn't warranted.
 
 		self._relinkDomains = set()
-		for url in TextScrape.RelinkLookup.RELINKABLE:
+		for url in RELINKABLE.RELINKABLE:
 			self._relinkDomains.add(url)
 
 

@@ -4,13 +4,13 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.TextScrapeBase
+from TextScrape.SiteArchiver import SiteArchiver
 
 import urllib.parse
 import webFunctions
 
 
-class Scrape(TextScrape.TextScrapeBase.TextScraper):
+class Scrape(SiteArchiver):
 	tableKey = 'tlwiki'
 	loggerPath = 'Main.TlWiki.Scrape'
 	pluginName = 'TlWikiScrape'
