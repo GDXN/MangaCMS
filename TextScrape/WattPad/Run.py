@@ -8,7 +8,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.WattPad.Run"
+	loggerPath = "Main.Text.WattPad.Run"
 
 	pluginName = "WattPadScrape"
 

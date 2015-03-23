@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.HaruParty.Run"
+	loggerPath = "Main.Text.HaruParty.Run"
 
 	pluginName = "HaruPartyScrape"
 

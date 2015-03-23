@@ -11,7 +11,7 @@ import webFunctions
 import urllib.error
 class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'sekaigagame'
-	loggerPath = 'Main.SekaiGaGame.Scrape'
+	loggerPath = 'Main.Text.SekaiGaGame.Scrape'
 	pluginName = 'SekaiGaGameScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

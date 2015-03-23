@@ -12,7 +12,7 @@ import urllib.parse
 
 class Scrape(SiteArchiver):
 	tableKey = 'storiesonline'
-	loggerPath = 'Main.StoriesOnline.Scrape'
+	loggerPath = 'Main.Text.StoriesOnline.Scrape'
 	pluginName = 'StoriesOnlineScrape'
 
 	tableName       = "book_western_items"

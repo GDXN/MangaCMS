@@ -32,7 +32,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Mh.Cl"
+	loggerPath = "Main.Manga.Mh.Cl"
 	pluginName = "MangaHere Content Retreiver"
 	tableKey = "mh"
 	tableName = "MangaItems"

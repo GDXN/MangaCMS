@@ -26,7 +26,7 @@ class LmContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Lm.Cl"
+	loggerPath = "Main.Manga.Lm.Cl"
 	pluginName = "RedHawk Scans Content Retreiver"
 	tableKey = "lm"
 	dbName = settings.DATABASE_DB_NAME

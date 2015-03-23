@@ -11,7 +11,7 @@ import ScrapePlugins.RunBase
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
-	loggerPath = "Main.DjM.Run"
+	loggerPath = "Main.Manga.DjM.Run"
 	pluginName = "DjMoe"
 
 	def _go(self):

@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Kry.Run"
+	loggerPath = "Main.Text.Kry.Run"
 
 	pluginName = "KrytykScrape"
 

@@ -6,7 +6,7 @@ from .Scrape import Scrape
 import ScrapePlugins.RunBase
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.DawnGlare.Run"
+	loggerPath = "Main.Text.DawnGlare.Run"
 
 	pluginName = "DawnGlareScrape"
 

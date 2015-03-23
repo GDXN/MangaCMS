@@ -10,7 +10,7 @@ class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 
 
 
-	loggerPath = "Main.Rh.Fl"
+	loggerPath = "Main.Manga.Rh.Fl"
 	pluginName = "RedHawk Scans Link Retreiver"
 	tableKey = "rh"
 	dbName = settings.DATABASE_DB_NAME

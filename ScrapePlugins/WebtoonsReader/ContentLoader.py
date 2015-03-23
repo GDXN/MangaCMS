@@ -23,7 +23,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Wr.Cl"
+	loggerPath = "Main.Manga.Wr.Cl"
 	pluginName = "Webtoons Reader Content Retreiver"
 	tableKey = "wr"
 	dbName = settings.DATABASE_DB_NAME

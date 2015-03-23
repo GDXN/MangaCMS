@@ -11,7 +11,7 @@ import webFunctions
 
 class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 	tableKey = 'bs'
-	loggerPath = 'Main.Bs.Scrape'
+	loggerPath = 'Main.Text.Bs.Scrape'
 	pluginName = 'BsScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

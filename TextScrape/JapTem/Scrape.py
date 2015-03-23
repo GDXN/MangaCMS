@@ -13,7 +13,7 @@ import urllib.error
 
 class Scrape(SiteArchiver):
 	tableKey = 'japtem'
-	loggerPath = 'Main.JapTem.Scrape'
+	loggerPath = 'Main.Text.JapTem.Scrape'
 	pluginName = 'JapTemScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

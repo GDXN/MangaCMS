@@ -19,7 +19,7 @@ class LmFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Lm.Fl"
+	loggerPath = "Main.Manga.Lm.Fl"
 	pluginName = "LoneManga Scans Link Retreiver"
 	tableKey = "lm"
 	dbName = settings.DATABASE_DB_NAME

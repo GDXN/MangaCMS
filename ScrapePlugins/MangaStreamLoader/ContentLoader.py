@@ -23,7 +23,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Ms.Cl"
+	loggerPath = "Main.Manga.Ms.Cl"
 	pluginName = "MangaStream.com Content Retreiver"
 	tableKey = "ms"
 	dbName = settings.DATABASE_DB_NAME

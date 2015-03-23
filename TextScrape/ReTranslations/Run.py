@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.ReTrans.Run"
+	loggerPath = "Main.Text.ReTrans.Run"
 
 	pluginName = "ReScrape"
 

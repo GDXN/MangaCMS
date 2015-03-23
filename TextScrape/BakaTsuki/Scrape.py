@@ -12,7 +12,7 @@ import webFunctions
 
 class Scrape(SiteArchiver):
 	tableKey = 'tsuki'
-	loggerPath = 'Main.Tsuki.Scrape'
+	loggerPath = 'Main.Text.Tsuki.Scrape'
 	pluginName = 'TsukiScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

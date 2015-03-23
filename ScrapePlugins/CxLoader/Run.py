@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Cx.Run"
+	loggerPath = "Main.Manga.Cx.Run"
 
 	pluginName = "CxLoader"
 

@@ -22,7 +22,7 @@ import ScrapePlugins.FoolSlide.FoolSlideDownloadBase
 class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.Casanova.Cl"
+	loggerPath = "Main.Manga.Casanova.Cl"
 	pluginName = "Casanova Scans Content Retreiver"
 	tableKey    = "cs"
 	urlBase = "http://casanovascans.com/"

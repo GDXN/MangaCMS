@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Mp.Run"
+	loggerPath = "Main.Manga.Mp.Run"
 
 	pluginName = "MpLoader"
 

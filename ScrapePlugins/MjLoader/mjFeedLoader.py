@@ -17,7 +17,7 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Mj.Fl"
+	loggerPath = "Main.Manga.Mj.Fl"
 	pluginName = "MangaJoy Link Retreiver"
 	tableKey = "mj"
 	dbName = settings.DATABASE_DB_NAME

@@ -22,7 +22,7 @@ class IMSTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.IMS.Fl"
+	loggerPath = "Main.Manga.IMS.Fl"
 	pluginName = "IMangaScans Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.DATABASE_DB_NAME

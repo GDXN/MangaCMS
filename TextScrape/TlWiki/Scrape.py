@@ -12,7 +12,7 @@ import webFunctions
 
 class Scrape(SiteArchiver):
 	tableKey = 'tlwiki'
-	loggerPath = 'Main.TlWiki.Scrape'
+	loggerPath = 'Main.Text.TlWiki.Scrape'
 	pluginName = 'TlWikiScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

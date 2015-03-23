@@ -6,7 +6,7 @@ import ScrapePlugins.BtSeriesFetcher.Run
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
-	loggerPath = "Main.Bt.Base"
+	loggerPath = "Main.Manga.Bt.Base"
 	pluginName = "BtBase"
 
 

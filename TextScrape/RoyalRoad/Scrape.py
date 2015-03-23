@@ -13,7 +13,7 @@ import urllib.error
 
 class Scrape(SiteArchiver):
 	tableKey = 'royalroad'
-	loggerPath = 'Main.RoyalRoad.Scrape'
+	loggerPath = 'Main.Text.RoyalRoad.Scrape'
 	pluginName = 'RoyalRoadScrape'
 
 	tableName       = "book_western_items"

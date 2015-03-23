@@ -21,7 +21,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Kw.Fl"
+	loggerPath = "Main.Manga.Kw.Fl"
 	pluginName = "Kawaii-Scans Link Retreiver"
 	tableKey = "kw"
 	dbName = settings.DATABASE_DB_NAME

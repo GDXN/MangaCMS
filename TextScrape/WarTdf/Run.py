@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.RaiseTheDead.Run"
+	loggerPath = "Main.Text.RaiseTheDead.Run"
 
 	pluginName = "RaiseTheDeadScrape"
 

@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Kw.Run"
+	loggerPath = "Main.Manga.Kw.Run"
 
 	pluginName = "kawaii"
 

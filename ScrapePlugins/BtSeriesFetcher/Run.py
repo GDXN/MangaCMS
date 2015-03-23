@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.BtS.Run"
+	loggerPath = "Main.Manga.BtS.Run"
 
 	pluginName = "BtEnqueue"
 

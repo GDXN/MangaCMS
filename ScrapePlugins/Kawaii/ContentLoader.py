@@ -21,7 +21,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Kw.Cl"
+	loggerPath = "Main.Manga.Kw.Cl"
 	pluginName = "Kawaii-Scans Content Retreiver"
 	tableKey = "kw"
 	dbName = settings.DATABASE_DB_NAME

@@ -18,7 +18,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.Im.Fl"
+	loggerPath = "Main.Manga.Im.Fl"
 	pluginName = "Illuminati-Manga Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.DATABASE_DB_NAME

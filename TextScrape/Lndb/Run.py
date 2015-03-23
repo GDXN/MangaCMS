@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.LNDB.Run"
+	loggerPath = "Main.Text.LNDB.Run"
 
 	pluginName = "LNDBScrape"
 

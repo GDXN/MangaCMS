@@ -13,7 +13,7 @@ import webFunctions
 
 class Scrape(SiteArchiver):
 	tableKey = 'prev'
-	loggerPath = 'Main.PrRev.Scrape'
+	loggerPath = 'Main.Text.PrRev.Scrape'
 	pluginName = 'PRevScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

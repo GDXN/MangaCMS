@@ -33,7 +33,7 @@ HTTPS_CREDS = [
 class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
-	loggerPath = "Main.Mk.Fl"
+	loggerPath = "Main.Manga.Mk.Fl"
 	pluginName = "Manga.Madokami Link Retreiver"
 	tableKey = "mk"
 	dbName = settings.DATABASE_DB_NAME
@@ -330,7 +330,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.MkL.Run"
+	loggerPath = "Main.Manga.MkL.Run"
 
 	pluginName = "MkFLoader"
 

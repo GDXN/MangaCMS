@@ -45,7 +45,7 @@ import TextScrape.RELINKABLE as RELINKABLE
 
 class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
-	loggerPath = "Main.GdocPageProcessor"
+	loggerPath = "Main.Text.GdocPageProcessor"
 
 	def __init__(self, pageUrl, loggerPath, tableKey, scannedDomains=None, tlds=None):
 		self.loggerPath = loggerPath+".GDocExtract"

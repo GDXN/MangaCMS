@@ -32,7 +32,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Ki.Cl"
+	loggerPath = "Main.Manga.Ki.Cl"
 	pluginName = "Kiss Manga Content Retreiver"
 	tableKey = "ki"
 	dbName = settings.DATABASE_DB_NAME

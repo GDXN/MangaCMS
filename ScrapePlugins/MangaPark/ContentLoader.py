@@ -25,7 +25,7 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Mp.Cl"
+	loggerPath = "Main.Manga.Mp.Cl"
 	pluginName = "MangaPark Content Retreiver"
 	tableKey = "mp"
 	dbName = settings.dbName

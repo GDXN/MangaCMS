@@ -10,7 +10,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.Tadanohito.Run"
+	loggerPath = "Main.Manga.Tadanohito.Run"
 	pluginName = "Tadanohito"
 
 

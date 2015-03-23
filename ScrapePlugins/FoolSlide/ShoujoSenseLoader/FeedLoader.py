@@ -9,7 +9,7 @@ import ScrapePlugins.FoolSlide.FoolSlideFetchBase
 class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 
 
-	loggerPath = "Main.Sj.Fl"
+	loggerPath = "Main.Manga.Sj.Fl"
 	pluginName = "Shoujo Sense Scans Link Retreiver"
 	tableKey = "sj"
 	dbName = settings.DATABASE_DB_NAME

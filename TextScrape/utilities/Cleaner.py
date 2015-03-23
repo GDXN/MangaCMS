@@ -17,7 +17,7 @@ import settings
 class DbFix(SiteArchiver):
 
 	tableKey   = 'none'
-	loggerPath = 'Main.Util'
+	loggerPath = 'Main.Text.Util'
 	pluginName = 'DbFixer'
 	badwords   = None
 	baseUrl    = None

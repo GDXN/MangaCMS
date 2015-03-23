@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.WpBlogs.Run"
+	loggerPath = "Main.Text.WpBlogs.Run"
 
 	pluginName = "WordpressBlogScrape"
 

@@ -23,7 +23,7 @@ import processDownload
 
 class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
-	loggerPath = "Main.Mj.Cl"
+	loggerPath = "Main.Manga.Mj.Cl"
 	pluginName = "MangaJoy Content Retreiver"
 	tableKey = "mj"
 	dbName = settings.DATABASE_DB_NAME

@@ -12,7 +12,7 @@ import urllib.parse
 
 class Scrape(SiteArchiver):
 	tableKey = 'wattpad'
-	loggerPath = 'Main.WattPad.Scrape'
+	loggerPath = 'Main.Text.WattPad.Scrape'
 	pluginName = 'WattPadScrape'
 
 	tableName       = "book_western_items"

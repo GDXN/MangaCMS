@@ -12,7 +12,7 @@ import TextScrape.SiteArchiver
 
 class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'retrans'
-	loggerPath = 'Main.ReTrans.Scrape'
+	loggerPath = 'Main.Text.ReTrans.Scrape'
 	pluginName = 'ReTransScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

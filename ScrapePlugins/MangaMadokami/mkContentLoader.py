@@ -34,7 +34,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
-	loggerPath = "Main.Mk.Cl"
+	loggerPath = "Main.Manga.Mk.Cl"
 	pluginName = "Manga.Madokami Content Retreiver"
 	tableKey = "mk"
 	dbName = settings.DATABASE_DB_NAME
@@ -262,7 +262,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.MkC.Run"
+	loggerPath = "Main.Manga.MkC.Run"
 
 	pluginName = "MkCLoader"
 

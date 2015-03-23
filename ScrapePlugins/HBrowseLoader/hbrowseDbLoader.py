@@ -18,7 +18,7 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.HBrowse.Fl"
+	loggerPath = "Main.Manga.HBrowse.Fl"
 	pluginName = "H-Browse Link Retreiver"
 	tableKey    = "hb"
 	urlBase = "http://www.hbrowse.com/"

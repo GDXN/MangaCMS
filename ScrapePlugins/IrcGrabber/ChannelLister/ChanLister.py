@@ -91,7 +91,7 @@ class ChannelTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.Chan.Fl"
+	loggerPath = "Main.Manga.Chan.Fl"
 	pluginName = "Channel trigger Retreiver"
 	tableKey = "irc-trg"
 	dbName = settings.DATABASE_DB_NAME

@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Vx.Run"
+	loggerPath = "Main.Manga.Vx.Run"
 
 	pluginName = "VortexLoader"
 

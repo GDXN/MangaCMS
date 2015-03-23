@@ -23,7 +23,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Ms.Fl"
+	loggerPath = "Main.Manga.Ms.Fl"
 	pluginName = "Mangastream.com Scans Link Retreiver"
 	tableKey = "ms"
 	dbName = settings.DATABASE_DB_NAME

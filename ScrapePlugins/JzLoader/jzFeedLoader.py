@@ -18,7 +18,7 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Jz.Fl"
+	loggerPath = "Main.Manga.Jz.Fl"
 	pluginName = "Japanzai Link Retreiver"
 	tableKey = "jz"
 	dbName = settings.DATABASE_DB_NAME

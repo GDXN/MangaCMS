@@ -145,7 +145,7 @@ def clearBitLy(url):
 
 class GDocExtractor(object):
 
-	log = logging.getLogger("Main.GDoc")
+	log = logging.getLogger("Main.Text.GDoc")
 	wg = webFunctions.WebGetRobust(logPath="Main.GDoc.Web")
 
 	def __init__(self, targetUrl):
@@ -267,7 +267,7 @@ class GDocExtractor(object):
 
 class GFileExtractor(object):
 
-	log = logging.getLogger("Main.GFile")
+	log = logging.getLogger("Main.Text.GFile")
 	wg = webFunctions.WebGetRobust(logPath="Main.GFile.Web")
 
 	def __init__(self, targetUrl):

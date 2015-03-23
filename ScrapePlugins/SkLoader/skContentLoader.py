@@ -21,7 +21,7 @@ import processDownload
 
 class SkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-	loggerPath = "Main.Sk.Cl"
+	loggerPath = "Main.Manga.Sk.Cl"
 	pluginName = "Starkana Content Retreiver"
 	tableKey = "sk"
 	dbName = settings.DATABASE_DB_NAME

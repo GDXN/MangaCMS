@@ -6,7 +6,7 @@ from .Scrape import Scrape
 import ScrapePlugins.RunBase
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.SekaiGaGame.Run"
+	loggerPath = "Main.Text.SekaiGaGame.Run"
 
 	pluginName = "SekaiGaGameScrape"
 

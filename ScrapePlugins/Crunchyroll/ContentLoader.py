@@ -22,7 +22,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.CrunchyRoll.Cl"
+	loggerPath = "Main.Manga.CrunchyRoll.Cl"
 	pluginName = "CrunchyRoll Content Retreiver"
 	tableKey   = "cr"
 	urlBase    = "http://www.crunchyroll.com/"

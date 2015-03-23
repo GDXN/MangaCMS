@@ -28,7 +28,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.HBrowse.Cl"
+	loggerPath = "Main.Manga.HBrowse.Cl"
 	pluginName = "H-Browse Content Retreiver"
 	tableKey   = "hb"
 	urlBase = "http://www.hbrowse.com/"
@@ -290,7 +290,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 class HBrowseRetagger(HBrowseContentLoader):
 
-	loggerPath = "Main.HBrowse.Tag"
+	loggerPath = "Main.Manga.HBrowse.Tag"
 	pluginName = "H-Browse Content Re-Tagger"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

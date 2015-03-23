@@ -18,7 +18,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.Txt.Fl"
+	loggerPath = "Main.Manga.Txt.Fl"
 	pluginName = "Text-Packlist Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.DATABASE_DB_NAME

@@ -22,7 +22,7 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	pluginName = "IrcDb Wrapper"
 
-	loggerPath = "Main.IRC.db"
+	loggerPath = "Main.Manga.IRC.db"
 
 	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"

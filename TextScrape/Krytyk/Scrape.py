@@ -13,7 +13,7 @@ import webFunctions
 
 class Scrape(SiteArchiver):
 	tableKey = 'kryt'
-	loggerPath = 'Main.Kry.Scrape'
+	loggerPath = 'Main.Text.Kry.Scrape'
 	pluginName = 'KrytykScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

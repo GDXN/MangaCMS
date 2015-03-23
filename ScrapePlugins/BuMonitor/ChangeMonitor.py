@@ -24,7 +24,7 @@ def toInt(inStr):
 
 class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
-	loggerPath       = "Main.Bu.DateUpdater"
+	loggerPath       = "Main.Manga.Bu.DateUpdater"
 	pluginName       = "BakaUpdates Update Date Monitor"
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"

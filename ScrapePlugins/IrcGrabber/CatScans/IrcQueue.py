@@ -18,7 +18,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.Cat.Fl"
+	loggerPath = "Main.Manga.Cat.Fl"
 	pluginName = "Cat-Chans Trigger Retreiver"
 	tableKey = "irc-trg"
 	dbName = settings.DATABASE_DB_NAME

@@ -9,7 +9,7 @@ import time
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Ki.Run"
+	loggerPath = "Main.Manga.Ki.Run"
 
 	pluginName = "KissLoader"
 

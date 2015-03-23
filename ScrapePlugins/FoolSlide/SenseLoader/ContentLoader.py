@@ -9,7 +9,7 @@ import ScrapePlugins.FoolSlide.FoolSlideDownloadBase
 class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 
 
-	loggerPath = "Main.Se.Cl"
+	loggerPath = "Main.Manga.Se.Cl"
 	pluginName = "Sense Scans Content Retreiver"
 	tableKey = "se"
 	dbName = settings.DATABASE_DB_NAME

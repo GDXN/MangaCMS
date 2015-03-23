@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.TlWiki.Run"
+	loggerPath = "Main.Text.TlWiki.Run"
 
 	pluginName = "TlWikiScrape"
 

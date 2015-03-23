@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Unf.Run"
+	loggerPath = "Main.Text.Unf.Run"
 
 	pluginName = "UnlimitedNovelFailuresScrape"
 

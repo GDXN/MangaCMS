@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Se.Run"
+	loggerPath = "Main.Manga.Se.Run"
 
 	pluginName = "SenseLoader"
 

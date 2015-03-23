@@ -20,7 +20,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.Vi.Fl"
+	loggerPath = "Main.Manga.Vi.Fl"
 	pluginName = "Recent XdccParser Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.DATABASE_DB_NAME

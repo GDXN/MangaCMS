@@ -82,7 +82,7 @@ GLOBAL_DECOMPOSE_AFTER = []
 
 class GDriveDirProcessor(TextScrape.ProcessorBase.PageProcessor):
 
-	loggerPath = "Main.GDriveDirProcessor"
+	loggerPath = "Main.Text.GDriveDirProcessor"
 
 	def __init__(self, pageUrl, loggerPath):
 		self.loggerPath = loggerPath+".GDrvDirExtract"

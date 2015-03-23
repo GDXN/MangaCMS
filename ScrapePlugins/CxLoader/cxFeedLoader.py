@@ -18,7 +18,7 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Cx.Fl"
+	loggerPath = "Main.Manga.Cx.Fl"
 	pluginName = "CXC Scans Link Retreiver"
 	tableKey = "cx"
 	dbName = settings.DATABASE_DB_NAME

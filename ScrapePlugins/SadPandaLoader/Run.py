@@ -10,7 +10,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.SadPanda.Run"
+	loggerPath = "Main.Manga.SadPanda.Run"
 	pluginName = "SadPanda"
 
 

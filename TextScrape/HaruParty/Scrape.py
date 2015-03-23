@@ -10,7 +10,7 @@ import webFunctions
 
 class Scrape(SiteArchiver):
 	tableKey = 'hptytl'
-	loggerPath = 'Main.HaruParty.Scrape'
+	loggerPath = 'Main.Text.HaruParty.Scrape'
 	pluginName = 'HaruPartyScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

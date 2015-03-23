@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.RoyalRoad.Run"
+	loggerPath = "Main.Text.RoyalRoad.Run"
 
 	pluginName = "RoyalRoadScrape"
 

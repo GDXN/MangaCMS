@@ -7,7 +7,7 @@ import ScrapePlugins.SkLoader.Run
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
-	loggerPath = "Main.Sk.Base"
+	loggerPath = "Main.Manga.Sk.Base"
 	pluginName = "SkBase"
 
 

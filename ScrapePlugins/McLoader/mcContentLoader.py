@@ -23,7 +23,7 @@ class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Mc.Cl"
+	loggerPath = "Main.Manga.Mc.Cl"
 	pluginName = "MangaCow Content Retreiver"
 	tableKey = "mc"
 	dbName = settings.DATABASE_DB_NAME

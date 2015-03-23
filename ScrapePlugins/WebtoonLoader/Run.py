@@ -9,7 +9,7 @@ import time
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Wt.Run"
+	loggerPath = "Main.Manga.Wt.Run"
 
 	pluginName = "WtLoader"
 

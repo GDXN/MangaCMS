@@ -17,7 +17,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.SadPanda.Fl"
+	loggerPath = "Main.Manga.SadPanda.Fl"
 	pluginName = "SadPanda Link Retreiver"
 	tableKey    = "sp"
 	urlBase = "http://exhentai.org/"

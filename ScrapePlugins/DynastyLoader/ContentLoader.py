@@ -32,7 +32,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	loggerPath = "Main.Dy.Cl"
+	loggerPath = "Main.Manga.Dy.Cl"
 	pluginName = "Dynasty Scans Content Retreiver"
 	tableKey = "dy"
 	dbName = settings.DATABASE_DB_NAME

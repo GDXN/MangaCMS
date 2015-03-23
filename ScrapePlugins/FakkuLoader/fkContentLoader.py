@@ -32,7 +32,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	shouldCanonize = False
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.Fakku.Cl"
+	loggerPath = "Main.Manga.Fakku.Cl"
 	pluginName = "Fakku Content Retreiver"
 	tableKey   = "fk"
 	urlBase = "http://www.fakku.net/"

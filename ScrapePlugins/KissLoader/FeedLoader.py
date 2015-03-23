@@ -20,7 +20,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Ki.Fl"
+	loggerPath = "Main.Manga.Ki.Fl"
 	pluginName = "Kiss Manga Link Retreiver"
 	tableKey = "ki"
 	dbName = settings.DATABASE_DB_NAME

@@ -10,7 +10,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.TwistedHel.Run"
+	loggerPath = "Main.Manga.TwistedHel.Run"
 	pluginName = "TwistedHel"
 
 

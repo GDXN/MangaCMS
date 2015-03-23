@@ -23,7 +23,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.SadPanda.Cl"
+	loggerPath = "Main.Manga.SadPanda.Cl"
 	pluginName = "SadPanda Content Retreiver"
 	tableKey   = "sp"
 	urlBase = "http://exhentai.org/"

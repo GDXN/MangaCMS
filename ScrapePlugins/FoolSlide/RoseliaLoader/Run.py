@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Rs.Run"
+	loggerPath = "Main.Manga.Rs.Run"
 
 	pluginName = "RoseliaLoader"
 

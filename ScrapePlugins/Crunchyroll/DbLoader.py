@@ -34,7 +34,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.CrunchyRoll.Fl"
+	loggerPath = "Main.Manga.CrunchyRoll.Fl"
 	pluginName = "CrunchyRoll Link Retreiver"
 	tableKey    = "cr"
 	urlBase = "http://www.crunchyroll.com/"

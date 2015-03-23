@@ -9,7 +9,7 @@ import ScrapePlugins.FoolSlide.FoolSlideDownloadBase
 class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 
 
-	loggerPath = "Main.Rs.Cl"
+	loggerPath = "Main.Manga.Rs.Cl"
 	pluginName = "Roselia Scans Content Retreiver"
 	tableKey = "rs"
 	dbName = settings.DATABASE_DB_NAME

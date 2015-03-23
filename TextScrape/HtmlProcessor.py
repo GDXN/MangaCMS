@@ -79,7 +79,7 @@ GLOBAL_DECOMPOSE_AFTER = []
 
 class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
-	loggerPath = "Main.HtmlProc"
+	loggerPath = "Main.Text.HtmlProc"
 
 	def __init__(self, baseUrls, pageUrl, pgContent, loggerPath, **kwargs):
 		self.loggerPath = loggerPath+".HtmlExtract"

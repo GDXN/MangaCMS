@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.FictionPress.Run"
+	loggerPath = "Main.Text.FictionPress.Run"
 
 	pluginName = "FictionPressScrape"
 

@@ -23,7 +23,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.Tadanohito.Cl"
+	loggerPath = "Main.Manga.Tadanohito.Cl"
 	pluginName = "Tadanohito Content Retreiver"
 	tableKey   = "ta"
 	urlBase = "http://www.tadanohito.net/"

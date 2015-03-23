@@ -16,7 +16,7 @@ class Scrape(SiteArchiver):
 
 
 	tableKey = 'fanfiction'
-	loggerPath = 'Main.FanFiction.Scrape'
+	loggerPath = 'Main.Text.FanFiction.Scrape'
 	pluginName = 'FanFictionScrape'
 
 	tableName       = "book_western_items"

@@ -26,7 +26,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Bt.Cl"
+	loggerPath = "Main.Manga.Bt.Cl"
 	pluginName = "Batoto Content Retreiver"
 	tableKey = "bt"
 	dbName = settings.DATABASE_DB_NAME

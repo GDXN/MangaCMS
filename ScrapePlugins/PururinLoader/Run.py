@@ -12,7 +12,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.Pururin.Run"
+	loggerPath = "Main.Manga.Pururin.Run"
 	pluginName = "Pururin"
 
 

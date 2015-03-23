@@ -10,7 +10,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.CrunchyRoll.Run"
+	loggerPath = "Main.Manga.CrunchyRoll.Run"
 	pluginName = "CrunchyRoll"
 
 

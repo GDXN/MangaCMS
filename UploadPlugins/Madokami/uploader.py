@@ -77,7 +77,7 @@ class TolerantFTP(ftplib.FTP):
 class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	log = logging.getLogger("Main.Mk.Uploader")
 
-	loggerPath = "Main.Mk.Up"
+	loggerPath = "Main.Manga.Mk.Up"
 	pluginName = "Manga.Madokami Content Retreiver"
 	tableKey = "mk"
 	dbName = settings.DATABASE_DB_NAME

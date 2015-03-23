@@ -12,7 +12,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.Casanova.Fl"
+	loggerPath = "Main.Manga.Casanova.Fl"
 	pluginName = "CasanovaScans Link Retreiver"
 	tableKey    = "cs"
 	urlBase = "http://casanovascans.com/"

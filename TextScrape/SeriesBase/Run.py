@@ -8,7 +8,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.SeriesDbBase.Run"
+	loggerPath = "Main.Text.SeriesDbBase.Run"
 
 	pluginName = "BookSeriesTableGen"
 

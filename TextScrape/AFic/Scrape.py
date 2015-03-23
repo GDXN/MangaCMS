@@ -12,7 +12,7 @@ import urllib.parse
 
 class Scrape(SiteArchiver):
 	tableKey = 'adfic'
-	loggerPath = 'Main.AdFic.Scrape'
+	loggerPath = 'Main.Text.AdFic.Scrape'
 	pluginName = 'AdFicScrape'
 
 	tableName       = "book_western_items"

@@ -8,7 +8,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.AdFic.Run"
+	loggerPath = "Main.Text.AdFic.Run"
 
 	pluginName = "AdFicScrape"
 

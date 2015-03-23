@@ -9,7 +9,7 @@ import TextScrape.NovelMixin
 
 class CustomMonitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBase):
 	tableName = 'books_custom'
-	loggerPath = 'Main.Custom.Monitor'
+	loggerPath = 'Main.Text.Custom.Monitor'
 	pluginName = 'CustomMonitor'
 	plugin_type = 'SeriesMonitor'
 

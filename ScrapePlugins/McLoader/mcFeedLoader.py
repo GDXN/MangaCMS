@@ -21,7 +21,7 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Mc.Fl"
+	loggerPath = "Main.Manga.Mc.Fl"
 	pluginName = "MangaCow Link Retreiver"
 	tableKey = "mc"
 	dbName = settings.DATABASE_DB_NAME

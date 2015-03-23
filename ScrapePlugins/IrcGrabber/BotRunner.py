@@ -12,7 +12,7 @@ import time
 # The IRC bot run class is slightly special.
 # It never returns. The parent class prevents more then one bot from being run.
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.IRC.Bot"
+	loggerPath = "Main.Manga.IRC.Bot"
 
 	pluginName = "IrcBot"
 

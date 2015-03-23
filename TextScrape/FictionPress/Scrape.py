@@ -10,7 +10,7 @@ import webFunctions
 
 class Scrape(SiteArchiver):
 	tableKey = 'fictionpress'
-	loggerPath = 'Main.FictionPress.Scrape'
+	loggerPath = 'Main.Text.FictionPress.Scrape'
 	pluginName = 'FictionPressScrape'
 
 	tableName       = "book_western_items"

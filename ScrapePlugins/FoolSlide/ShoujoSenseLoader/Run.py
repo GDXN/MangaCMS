@@ -11,7 +11,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Sj.Run"
+	loggerPath = "Main.Manga.Sj.Run"
 
 	pluginName = "ShoujoSense"
 

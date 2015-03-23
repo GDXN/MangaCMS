@@ -21,7 +21,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Wr.Fl"
+	loggerPath = "Main.Manga.Wr.Fl"
 	pluginName = "Webtoons Reader Scans Link Retreiver"
 	tableKey = "wr"
 	dbName = settings.DATABASE_DB_NAME

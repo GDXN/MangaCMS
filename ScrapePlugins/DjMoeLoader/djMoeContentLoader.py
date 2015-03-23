@@ -25,11 +25,11 @@ from ScrapePlugins.DjMoeLoader import tagsLUT
 import ScrapePlugins.RetreivalDbBase
 
 class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
-	log = logging.getLogger("Main.DjM.Cl")
+	log = logging.getLogger("Main.Manga.DjM.Cl")
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.DjM.Cl"
+	loggerPath = "Main.Manga.DjM.Cl"
 	pluginName = "DjMoe Content Retreiver"
 	tableKey   = "djm"
 	urlBase = "http://www.doujin-moe.us/"

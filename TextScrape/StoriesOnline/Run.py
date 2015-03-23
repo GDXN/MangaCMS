@@ -8,7 +8,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.StoriesOnline.Run"
+	loggerPath = "Main.Text.StoriesOnline.Run"
 
 	pluginName = "StoriesOnlineScrape"
 

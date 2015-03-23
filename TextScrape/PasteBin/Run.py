@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.PasteBin.Run"
+	loggerPath = "Main.Text.PasteBin.Run"
 
 	pluginName = "PasteBinScrape"
 

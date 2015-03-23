@@ -27,7 +27,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Dy.Fl"
+	loggerPath = "Main.Manga.Dy.Fl"
 	pluginName = "Dynasty Scans Link Retreiver"
 	tableKey = "dy"
 	dbName = settings.DATABASE_DB_NAME

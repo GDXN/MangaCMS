@@ -9,7 +9,7 @@ import time
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Mh.Run"
+	loggerPath = "Main.Manga.Mh.Run"
 
 	pluginName = "MangaHereLoader"
 

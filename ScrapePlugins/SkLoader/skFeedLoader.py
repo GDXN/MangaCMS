@@ -17,7 +17,7 @@ class SkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Sk.Fl"
+	loggerPath = "Main.Manga.Sk.Fl"
 	pluginName = "Starkana Link Retreiver"
 	tableKey = "sk"
 	dbName = settings.DATABASE_DB_NAME

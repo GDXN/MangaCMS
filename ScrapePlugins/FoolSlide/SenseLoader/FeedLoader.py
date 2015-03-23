@@ -9,7 +9,7 @@ import ScrapePlugins.FoolSlide.FoolSlideFetchBase
 class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 
 
-	loggerPath = "Main.Se.Fl"
+	loggerPath = "Main.Manga.Se.Fl"
 	pluginName = "Sense Scans Link Retreiver"
 	tableKey = "se"
 	dbName = settings.DATABASE_DB_NAME

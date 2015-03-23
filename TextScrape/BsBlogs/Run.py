@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.BsBlogs.Run"
+	loggerPath = "Main.Text.BsBlogs.Run"
 
 	pluginName = "BlogspotBlogScrape"
 

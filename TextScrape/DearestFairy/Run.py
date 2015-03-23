@@ -6,7 +6,7 @@ from .Scrape import Scrape
 import ScrapePlugins.RunBase
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.DearestFairy.Run"
+	loggerPath = "Main.Text.DearestFairy.Run"
 
 	pluginName = "DearestFairyScrape"
 

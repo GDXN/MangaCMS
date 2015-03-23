@@ -11,7 +11,7 @@ import webFunctions
 
 class Scrape(WordpressScrape):
 	tableKey = 'rtdtl'
-	loggerPath = 'Main.RaiseTheDead.Scrape'
+	loggerPath = 'Main.Text.RaiseTheDead.Scrape'
 	pluginName = 'RaiseTheDeadScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

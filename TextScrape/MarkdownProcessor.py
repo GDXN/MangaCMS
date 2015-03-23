@@ -34,7 +34,7 @@ import markdown
 
 class MarkdownProcessor(TextScrape.ProcessorBase.PageProcessor):
 
-	loggerPath = "Main.MarkdownProcessor"
+	loggerPath = "Main.Text.MarkdownProcessor"
 
 	def __init__(self, pageUrl, loggerPath, content, pbLut):
 		'''

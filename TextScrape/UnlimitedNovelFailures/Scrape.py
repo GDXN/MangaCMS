@@ -13,7 +13,7 @@ import webFunctions
 
 class Scrape(SiteArchiver):
 	tableKey = 'unf'
-	loggerPath = 'Main.Unf.Scrape'
+	loggerPath = 'Main.Text.Unf.Scrape'
 	pluginName = 'UnlimitedNovelFailuresScrape'
 
 

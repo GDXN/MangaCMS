@@ -15,7 +15,7 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.Fakku.Fl"
+	loggerPath = "Main.Manga.Fakku.Fl"
 	pluginName = "Fakku Link Retreiver"
 	tableKey    = "fk"
 	urlBase = "http://www.fakku.net/"

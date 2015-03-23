@@ -11,7 +11,7 @@ import webFunctions
 
 class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'pb'
-	loggerPath = 'Main.PasteBin.Scrape'
+	loggerPath = 'Main.Text.PasteBin.Scrape'
 	pluginName = 'PasteBinScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

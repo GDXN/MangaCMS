@@ -18,7 +18,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Mp.Fl"
+	loggerPath = "Main.Manga.Mp.Fl"
 	pluginName = "MangaPark Link Retreiver"
 	tableKey = "mp"
 	dbName = settings.dbName

@@ -9,7 +9,7 @@ import urllib.error
 
 class Monitor(TextScrape.SystemSeriesBase.SeriesBase):
 
-	loggerPath = 'Main.Series.Base'
+	loggerPath = 'Main.Text.Series.Base'
 	pluginName = 'SeriesBase'
 	plugin_type = 'SeriesBase'
 

@@ -64,7 +64,7 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
 		irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, realname, connect_factory=ssl_factory)
 
-		self.log = logging.getLogger("Main.IRC")
+		self.log = logging.getLogger("Main.Manga.IRC")
 		self.received_bytes = 0
 
 		self.welcomed = False

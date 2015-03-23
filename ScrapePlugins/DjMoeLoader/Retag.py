@@ -7,7 +7,7 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.DjM.Retagger"
+	loggerPath = "Main.Manga.DjM.Retagger"
 	pluginName = "Doujin Moe Retagger"
 
 

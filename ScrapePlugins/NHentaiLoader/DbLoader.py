@@ -14,7 +14,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.NHentai.Fl"
+	loggerPath = "Main.Manga.NHentai.Fl"
 	pluginName = "NHentai Link Retreiver"
 	tableKey    = "nh"
 	urlBase = "http://nhentai.net/"

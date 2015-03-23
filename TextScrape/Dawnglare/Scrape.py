@@ -13,7 +13,7 @@ import urllib.error
 
 class Scrape(SiteArchiver):
 	tableKey = 'dawn'
-	loggerPath = 'Main.DawnGlare.Scrape'
+	loggerPath = 'Main.Text.DawnGlare.Scrape'
 	pluginName = 'DawnGlareScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")

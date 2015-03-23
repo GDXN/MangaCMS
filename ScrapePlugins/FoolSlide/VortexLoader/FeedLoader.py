@@ -10,7 +10,7 @@ class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 
 
 
-	loggerPath = "Main.Vx.Fl"
+	loggerPath = "Main.Manga.Vx.Fl"
 	pluginName = "Vortex Scans Link Retreiver"
 	tableKey = "vx"
 	dbName = settings.DATABASE_DB_NAME

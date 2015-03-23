@@ -20,7 +20,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Mh.Fl"
+	loggerPath = "Main.Manga.Mh.Fl"
 	pluginName = "MangaHere Link Retreiver"
 	tableKey = "mh"
 

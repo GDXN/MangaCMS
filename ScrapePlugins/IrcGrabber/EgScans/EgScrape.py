@@ -20,7 +20,7 @@ class EgTriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 
 
-	loggerPath = "Main.Eg.Fl"
+	loggerPath = "Main.Manga.Eg.Fl"
 	pluginName = "Eg-Scans Link Retreiver"
 	tableKey = "irc-irh"
 	dbName = settings.DATABASE_DB_NAME

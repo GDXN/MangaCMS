@@ -12,7 +12,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.TwistedHel.Fl"
+	loggerPath = "Main.Manga.TwistedHel.Fl"
 	pluginName = "TwistedHel Link Retreiver"
 	tableKey    = "th"
 	urlBase = "http://www.twistedhelscans.com/"

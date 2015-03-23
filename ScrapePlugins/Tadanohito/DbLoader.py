@@ -17,7 +17,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
-	loggerPath = "Main.Tadanohito.Fl"
+	loggerPath = "Main.Manga.Tadanohito.Fl"
 	pluginName = "Tadanohito Link Retreiver"
 	tableKey    = "ta"
 	urlBase = "http://www.tadanohito.net"

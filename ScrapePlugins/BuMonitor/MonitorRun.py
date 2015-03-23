@@ -21,7 +21,7 @@ def toInt(inStr):
 # This only retreives the watched item list. ChangeMonitor.py actually fetches the metadata.
 class BuWatchMonitor(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
-	loggerPath       = "Main.Bu.Watcher"
+	loggerPath       = "Main.Manga.Bu.Watcher"
 	pluginName       = "BakaUpdates List Monitor"
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"

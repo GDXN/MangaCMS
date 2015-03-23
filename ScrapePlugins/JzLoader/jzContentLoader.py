@@ -24,7 +24,7 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Jz.Cl"
+	loggerPath = "Main.Manga.Jz.Cl"
 	pluginName = "Japanzai Content Retreiver"
 	tableKey = "jz"
 	dbName = settings.DATABASE_DB_NAME

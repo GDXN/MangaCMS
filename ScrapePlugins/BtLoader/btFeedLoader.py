@@ -24,7 +24,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Bt.Fl"
+	loggerPath = "Main.Manga.Bt.Fl"
 	pluginName = "Batoto Link Retreiver"
 	tableKey = "bt"
 	dbName = settings.DATABASE_DB_NAME

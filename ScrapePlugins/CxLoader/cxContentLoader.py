@@ -25,7 +25,7 @@ class CxContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	loggerPath = "Main.Cx.Cl"
+	loggerPath = "Main.Manga.Cx.Cl"
 	pluginName = "CXC Scans Content Retreiver"
 	tableKey = "cx"
 	dbName = settings.DATABASE_DB_NAME

@@ -24,7 +24,7 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.IRC.Q.Run"
+	loggerPath = "Main.Manga.IRC.Q.Run"
 
 	pluginName = "IrcEnqueue"
 

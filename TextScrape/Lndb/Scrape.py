@@ -16,7 +16,7 @@ import TextScrape.NovelMixin
 
 class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBase):
 	tableName = 'books_lndb'
-	loggerPath = 'Main.LNDB.Monitor'
+	loggerPath = 'Main.Text.LNDB.Monitor'
 	pluginName = 'LNDBMonitor'
 	plugin_type = 'SeriesMonitor'
 

@@ -11,7 +11,7 @@ import webFunctions
 
 class Scrape(WordpressScrape):
 	tableKey = 'wp'
-	loggerPath = 'Main.Wp.Scrape'
+	loggerPath = 'Main.Text.Wp.Scrape'
 	pluginName = 'WpScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
