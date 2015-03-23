@@ -166,7 +166,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	def buildScannedDomainSet(cls, followGoogleLinks=True):
 
 		inUrls = cls.baseUrl
-		inTlds = cls.tld
+		inTlds = set(cls.tld)
 
 		inList = set()
 
@@ -178,7 +178,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 			inList.add(inUrls)
 
 		scannedDomains = set()
-		fileDomains = set()
+		# fileDomains = set()
 
 		if followGoogleLinks:
 			# Tell the path filtering mechanism that we can fetch google doc files
@@ -188,7 +188,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 			scannedDomains.add('https://drive.google.com/open')
 
 		TLDs = set([urllib.parse.urlsplit(url.lower()).netloc.rsplit(".")[-1] for url in inList])
-
+		TLDs = TLDs + inTlds
 
 
 		def genBaseUrlPermutations(url):
@@ -346,6 +346,50 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		raise NotImplementedError("TODO: FIX ME!")
 
 	def retreiveGoogleFile(self, url):
+
+
+		self.log.info("Should fetch google file at '%s'", url)
+		doc = gdp.GFileExtractor(url)
+
+		attempts = 0
+
+		while 1:
+			attempts += 1
+			try:
+				content, fName, mType = doc.extract()
+			except TypeError:
+				self.log.critical('Extracting item failed!')
+				for line in traceback.format_exc().strip().split("\n"):
+					self.log.critical(line.strip())
+				return self.getEmptyRet()
+			if content:
+				break
+			if attempts > 3:
+				raise DownloadException
+
+
+			self.log.error("No content? Retrying!")
+
+		scraper = self.htmlProcClass(
+									baseUrls        = self.baseUrl,
+									pageUrl         = url,
+									pgContent       = content,
+									loggerPath      = self.loggerPath,
+									badwords        = self.badwords,
+									decompose       = self.decompose,
+									decomposeBefore = self.decomposeBefore,
+									fileDomains     = self.fileDomains,
+									allImages       = self.allImages,
+									followGLinks    = self.FOLLOW_GOOGLE_LINKS,
+									ignoreBadLinks  = self.IGNORE_MALFORMED_URLS,
+									tld             = self.tld,
+									stripTitle      = self.stripTitle
+								)
+		extracted = scraper.extractContent()
+
+		return extracted
+
+
 		raise NotImplementedError("TODO: FIX ME!")
 
 
