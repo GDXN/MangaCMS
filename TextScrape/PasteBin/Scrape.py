@@ -4,12 +4,12 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-import TextScrape.WordpressScrape
+import TextScrape.SiteArchiver
 
 import webFunctions
 
 
-class Scrape(TextScrape.WordpressScrape.WordpressScrape):
+class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'pb'
 	loggerPath = 'Main.PasteBin.Scrape'
 	pluginName = 'PasteBinScrape'
@@ -19,28 +19,22 @@ class Scrape(TextScrape.WordpressScrape.WordpressScrape):
 	threads = 1
 
 	baseUrl = [
-			'https://www.example.org'
 		]
+
 	pasteBinLut = {
-		          'http://pastebin.com/C8cU0ZPq' : 'Slave harem in the labyrinth of the other world - Chapter 1 - ',
 		'http://pastebin.com/raw.php?i=C8cU0ZPq' : 'Slave harem in the labyrinth of the other world - Chapter 1 - ',
-		          'http://pastebin.com/Gm4xYe35' : 'Slave harem in the labyrinth of the other world - Chapter 2 - ',
 		'http://pastebin.com/raw.php?i=Gm4xYe35' : 'Slave harem in the labyrinth of the other world - Chapter 2 - ',
-		          'http://pastebin.com/iGjtwjVR' : 'Slave harem in the labyrinth of the other world - Chapter 3 - ',
 		'http://pastebin.com/raw.php?i=iGjtwjVR' : 'Slave harem in the labyrinth of the other world - Chapter 3 - ',
-		          'http://pastebin.com/VyPC3Kdn' : 'Slave harem in the labyrinth of the other world - Chapter 4 - ',
 		'http://pastebin.com/raw.php?i=VyPC3Kdn' : 'Slave harem in the labyrinth of the other world - Chapter 4 - ',
-		          'http://pastebin.com/NS6kwFvL' : 'Slave harem in the labyrinth of the other world - Chapter 5 - ',
 		'http://pastebin.com/raw.php?i=NS6kwFvL' : 'Slave harem in the labyrinth of the other world - Chapter 5 - ',
 
-		          'http://pastebin.com/6Ar4iu9P' : 'Konjiki no Wordmaster - Chapter 41 - ',
 		'http://pastebin.com/raw.php?i=6Ar4iu9P' : 'Konjiki no Wordmaster - Chapter 41 - ',
 		}
 
 	# startUrl = list(pasteBinLut.keys()) + baseUrl
 	startUrl = list(pasteBinLut.keys())
 
-	fileDomains = set(['files.wordpress.com'])
+	fileDomains = set([])
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

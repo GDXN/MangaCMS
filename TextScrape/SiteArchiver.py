@@ -26,6 +26,7 @@ import TextScrape.TextDbBase
 import TextScrape.HtmlProcessor
 import TextScrape.GDriveDirProcessor
 import TextScrape.GDocProcessor
+import TextScrape.MarkdownProcessor
 import TextScrape.gDocParse
 
 import os.path
@@ -102,6 +103,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	htmlProcClass = TextScrape.HtmlProcessor.HtmlPageProcessor
 	gdriveClass   = TextScrape.GDriveDirProcessor.GDriveDirProcessor
 	gDocClass     = TextScrape.GDocProcessor.GdocPageProcessor
+	markdownClass = TextScrape.MarkdownProcessor.MarkdownProcessor
 
 	tld             = []
 	decomposeBefore = []
@@ -188,7 +190,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 			scannedDomains.add('https://drive.google.com/open')
 
 		TLDs = set([urllib.parse.urlsplit(url.lower()).netloc.rsplit(".")[-1] for url in inList])
-		TLDs = TLDs + inTlds
+		TLDs = TLDs | inTlds
 
 
 		def genBaseUrlPermutations(url):
@@ -343,7 +345,17 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		return extracted
 
 	def processAsMarkdown(self, url, content):
-		raise NotImplementedError("TODO: FIX ME!")
+		pbLut = getattr(self, 'pasteBinLut', {})
+
+		scraper = self.markdownClass(
+									pageUrl         = url,
+									loggerPath      = self.loggerPath,
+									content         = content,
+									pbLut           = pbLut
+								)
+		extracted = scraper.extractContent()
+
+		return extracted
 
 	def retreiveGoogleFile(self, url):
 

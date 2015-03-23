@@ -11,7 +11,6 @@ import urllib.parse
 import bs4
 import copy
 import readability.readability
-import webFunctions
 import TextScrape.RelinkLookup
 import TextScrape.urlFuncs
 import TextScrape.ProcessorBase
