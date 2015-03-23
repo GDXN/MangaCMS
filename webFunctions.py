@@ -242,45 +242,34 @@ class WebGetRobust:
 
 	def decodeHtml(self, pageContent, cType):
 
-		if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
+		# this *should* probably be done using a parser.
+		# However, it seems to be grossly overkill to shove the whole page (which can be quite large) through a parser just to pull out a tag that
+		# should be right near the page beginning anyways.
+		# As such, it's a regular expression for the moment
 
-			# Some wierdos put two charsets in their headers:
-			# `text/html;Charset=UTF-8;charset=UTF-8`
-			# Split, and take the first two entries.
-			dummy_docType, charset = cType.split(";")[:2]
-			charset = charset.split("=")[-1]
+		# Regex is of bytes type, since we can't convert a string to unicode until we know the encoding the
+		# bytes string is using, and we need the regex to get that encoding
+		coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pageContent, flags=re.IGNORECASE)
 
+		cType = b""
+		charset = None
+		try:
+			if coding:
+				cType = coding.group(1)
+				codecs.lookup(cType.decode("ascii"))
+				charset = cType.decode("ascii")
 
-		else:		# The server is not reporting an encoding in the headers.
+		except LookupError:
 
-			# this *should* probably be done using a parser.
-			# However, it seems to be grossly overkill to shove the whole page (which can be quite large) through a parser just to pull out a tag that
-			# should be right near the page beginning anyways.
-			# As such, it's a regular expression for the moment
+			# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
+			if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
 
-			# Regex is of bytes type, since we can't convert a string to unicode until we know the encoding the
-			# bytes string is using, and we need the regex to get that encoding
-			coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pageContent, flags=re.IGNORECASE)
+				dummy_docType, charset = cType.split(b";")
+				charset = charset.split(b"=")[-1]
 
-			cType = b""
-			charset = None
-			try:
-				if coding:
-					cType = coding.group(1)
-					codecs.lookup(cType.decode("ascii"))
-					charset = cType.decode("ascii")
-
-			except LookupError:
-
-				# I'm actually not sure what I was thinking when I wrote this if statement. I don't think it'll ever trigger.
-				if (b";" in cType) and (b"=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
-
-					dummy_docType, charset = cType.split(b";")
-					charset = charset.split(b"=")[-1]
-
-			if not charset:
-				self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
-				charset = "iso-8859-1"
+		if not charset:
+			self.log.warning("Could not find encoding information on page - Using default charset. Shit may break!")
+			charset = "iso-8859-1"
 
 		try:
 			pageContent = str(pageContent, charset)
@@ -316,22 +305,42 @@ class WebGetRobust:
 	def decodeTextContent(self, pgctnt, cType):
 
 		if cType:
-			if "text/html" in cType or \
-				'text/javascript' in cType or    \
-				'application/atom+xml' in cType:				# If this is a html/text page, we want to decode it using the local encoding
+			if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
 
-				pgctnt = self.decodeHtml(pgctnt, cType)
+				# Some wierdos put two charsets in their headers:
+				# `text/html;Charset=UTF-8;charset=UTF-8`
+				# Split, and take the first two entries.
+				dummy_docType, charset = cType.split(";")[:2]
+				charset = charset.split("=")[-1]
 
-			elif "text/plain" in cType or "text/xml" in cType:
-				pgctnt = bs4.UnicodeDammit(pgctnt).unicode_markup
+				try:
+					pgctnt = str(pgctnt, charset)
 
-			# Assume JSON is utf-8. Probably a bad idea?
-			elif "application/json" in cType:
-				pgctnt = pgctnt.decode('utf-8')
+				except UnicodeDecodeError:
+					self.log.error("Encoding Error! Stripping invalid chars.")
+					pgctnt = pgctnt.decode('utf-8', errors='ignore')
 
-			elif "text" in cType:
-				self.log.critical("Unknown content type!")
-				self.log.critical(cType)
+			else:
+				# The server is not reporting an encoding in the headers.
+				# Use content-aware mechanisms for determing the content encoding.
+
+
+				if "text/html" in cType or \
+					'text/javascript' in cType or    \
+					'application/atom+xml' in cType:				# If this is a html/text page, we want to decode it using the local encoding
+
+					pgctnt = self.decodeHtml(pgctnt, cType)
+
+				elif "text/plain" in cType or "text/xml" in cType:
+					pgctnt = bs4.UnicodeDammit(pgctnt).unicode_markup
+
+				# Assume JSON is utf-8. Probably a bad idea?
+				elif "application/json" in cType:
+					pgctnt = pgctnt.decode('utf-8')
+
+				elif "text" in cType:
+					self.log.critical("Unknown content type!")
+					self.log.critical(cType)
 
 		else:
 			self.log.critical("No content disposition header!")
@@ -550,23 +559,23 @@ class WebGetRobust:
 		'''
 		# print cookieDict
 		cookie = http.cookiejar.Cookie(
-				version=0
-				, name=cookieDict['name']
-				, value=cookieDict['value']
-				, port=None
-				, port_specified=False
-				, domain=cookieDict['domain']
-				, domain_specified=True
-				, domain_initial_dot=False
-				, path=cookieDict['path']
-				, path_specified=False
-				, secure=cookieDict['secure']
-				, expires=cookieDict['expiry']
-				, discard=False
-				, comment=None
-				, comment_url=None
-				, rest={"httponly":"%s" % cookieDict['httponly']}
-				, rfc2109=False
+				version=0,
+				name=cookieDict['name'],
+				value=cookieDict['value'],
+				port=None,
+				port_specified=False,
+				domain=cookieDict['domain'],
+				domain_specified=True,
+				domain_initial_dot=False,
+				path=cookieDict['path'],
+				path_specified=False,
+				secure=cookieDict['secure'],
+				expires=cookieDict['expiry'],
+				discard=False,
+				comment=None,
+				comment_url=None,
+				rest={"httponly":"%s" % cookieDict['httponly']},
+				rfc2109=False
 			)
 
 		self.cj.set_cookie(cookie)
