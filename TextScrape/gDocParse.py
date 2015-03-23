@@ -15,6 +15,8 @@ import json
 
 import TextScrape.jsLiteralParse
 
+class CannotAccessGDocException(Exception):
+	pass
 
 def trimGDocUrl(rawUrl):
 
@@ -428,7 +430,7 @@ def test():
 	# base, resc = parse.extract()
 	# # parse.getTitle()
 
-	print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
+	# print(GDocExtractor.getDriveFileUrls('https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'))
 
 
 	# for fUrl in fUrls:
@@ -438,6 +440,12 @@ def test():
 
 	# with open("test.html", "wb") as fp:
 	# 	fp.write(ret.encode("utf-8"))
+
+
+	# parse = GDocExtractor('https://docs.google.com/document/d/19CLYtylsoFYEQSpp4tJ5trzkiAS0G3w_0ay7l62qy44/pub')
+
+	parse = GDocExtractor('https://docs.google.com/document/d/1atXMtCutHRpcHwSRS5UyMAC58_gQjMPR2dDVn1LCD3E')
+	parse.extract()
 
 if __name__ == "__main__":
 	import logSetup

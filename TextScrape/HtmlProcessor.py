@@ -169,8 +169,12 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 		# Lower case all the domains, since they're not case sensitive, and it case mismatches can break matching.
 		# We also extract /just/ the netloc, so http/https differences don't cause a problem.
-		for url in self.scannedDomains:
-			self.installBaseUrl(url)
+		if isinstance(self.scannedDomains, (set, list)):
+			for url in self.scannedDomains:
+				self.installBaseUrl(url)
+		else:
+			self.installBaseUrl(self.scannedDomains)
+
 
 
 		tmp = list(self._scannedDomains)

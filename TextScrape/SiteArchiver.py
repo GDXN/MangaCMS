@@ -26,6 +26,7 @@ import TextScrape.TextDbBase
 import TextScrape.HtmlProcessor
 import TextScrape.GDriveDirProcessor
 import TextScrape.GDocProcessor
+import TextScrape.gDocParse
 
 import os.path
 import os
@@ -322,15 +323,23 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	def retreiveGoogleDoc(self, url):
 		# pageUrl, loggerPath, tableKey, scannedDomains=None, tlds=None
 
-		scraper = self.gDocClass(
-									pageUrl         = url,
-									loggerPath      = self.loggerPath,
-									tableKey        = self.tableKey,
-									scannedDomains  = self.baseUrl,
-									tlds            = self.tld
-								)
-		extracted, resources = scraper.extractContent()
-		self.processReturnedFileResources(resources)
+		try:
+			scraper = self.gDocClass(
+										pageUrl         = url,
+										loggerPath      = self.loggerPath,
+										tableKey        = self.tableKey,
+										scannedDomains  = self.baseUrl,
+										tlds            = self.tld
+									)
+			extracted, resources = scraper.extractContent()
+			self.processReturnedFileResources(resources)
+		except TextScrape.gDocParse.CannotAccessGDocException:
+			self.log.warning("Cannot access google doc content. Attempting to access as a plain HTML resource via /pub interface")
+			url = url + "/pub"
+			ret = self.retreivePlainResource(url)
+			if "We're sorry. This document is not published." in ret['contents']:
+				raise ValueError("Could not extract google document!")
+
 		return extracted
 
 	def processAsMarkdown(self, url, content):

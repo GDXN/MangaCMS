@@ -77,13 +77,18 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		for tld in tlds:
 			self._tld.add(tld)
 
-		for domain in scannedDomains:
-			self.installBaseUrl(domain)
+
+		if isinstance(scannedDomains, (set, list)):
+			for url in scannedDomains:
+				self.installBaseUrl(url)
+		else:
+			self.installBaseUrl(scannedDomains)
 
 		# File mapping LUT
 		self.fMap = {}
 
 	def installBaseUrl(self, url):
+		# print("Inserting ", url)
 		netloc = urllib.parse.urlsplit(url.lower()).netloc
 		if not netloc:
 			raise ValueError("One of the scanned domains collapsed down to an empty string: '%s'!" % url)
@@ -265,12 +270,7 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 					self.log.critical(line.strip())
 
 
-				url = gdp.trimGDocUrl(url)
-				if not url.endswith("/pub"):
-					url = url+"/pub"
-				self.log.info("Attempting to access as plain content instead.")
-				url = TextScrape.urlFuncs.urlClean(url)
-				doc = gdp.GDocExtractor(url)
+					raise gdp.CannotAccessGDocException("Cannot access google doc! Is it protected?")
 
 			if mainPage:
 				break
@@ -307,7 +307,7 @@ def test():
 
 	wg = webFunctions.WebGetRobust()
 	# content = wg.getpage('http://www.arstechnica.com')
-	scraper = GdocPageProcessor('https://docs.google.com/document/d/1t4_7X1QuhiH9m3M8sHUlblKsHDAGpEOwymLPTyCfHH0', 'Main.Test', 'testinating')
+	scraper = GdocPageProcessor('https://docs.google.com/document/d/1atXMtCutHRpcHwSRS5UyMAC58_gQjMPR2dDVn1LCD3E', 'Main.Test', 'testinating')
 	print(scraper)
 	extr, rsc = scraper.extractContent()
 	print('Plain Links:')

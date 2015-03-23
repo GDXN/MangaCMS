@@ -305,20 +305,24 @@ class WebGetRobust:
 	def decodeTextContent(self, pgctnt, cType):
 
 		if cType:
-			if (";" in cType) and ("=" in cType): 		# the server is reporting an encoding. Now we use it to decode the
-
+			if (";" in cType) and ("=" in cType):
+				# the server is reporting an encoding. Now we use it to decode the content
 				# Some wierdos put two charsets in their headers:
 				# `text/html;Charset=UTF-8;charset=UTF-8`
 				# Split, and take the first two entries.
-				dummy_docType, charset = cType.split(";")[:2]
+				docType, charset = cType.split(";")[:2]
 				charset = charset.split("=")[-1]
 
-				try:
-					pgctnt = str(pgctnt, charset)
-
-				except UnicodeDecodeError:
-					self.log.error("Encoding Error! Stripping invalid chars.")
-					pgctnt = pgctnt.decode('utf-8', errors='ignore')
+				# Only decode content marked as text (yeah, google is serving zip files
+				# with the content-disposition charset header specifying "UTF-8") or
+				# specifically allowed other content types I know are really text.
+				decode = ['application/atom+xml', "application/json", 'text']
+				if any([item in docType for item in decode]):
+					try:
+						pgctnt = str(pgctnt, charset)
+					except UnicodeDecodeError:
+						self.log.error("Encoding Error! Stripping invalid chars.")
+						pgctnt = pgctnt.decode('utf-8', errors='ignore')
 
 			else:
 				# The server is not reporting an encoding in the headers.
@@ -1065,21 +1069,24 @@ if __name__ == "__main__":
 
 
 
-	content, handle = wg.getpage("http://japtem.com/wp-content/uploads/2014/07/Arifureta.png", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
-	print(len(content))
-	content, handle = wg.getpage("http://japtem.com/wp-content/uploads/2014/03/knm.png", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
-	content, handle = wg.getpage("https://www.google.com/images/srpr/logo11w.png", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
-	content, handle = wg.getpage("http://www.doujin-moe.us/ajax/newest.php", returnMultiple = True)
-	print((handle.headers.get('Content-Encoding')))
+	# content, handle = wg.getpage("http://japtem.com/wp-content/uploads/2014/07/Arifureta.png", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))
+	# print(len(content))
+	# content, handle = wg.getpage("http://japtem.com/wp-content/uploads/2014/03/knm.png", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))
+	# content, handle = wg.getpage("https://www.google.com/images/srpr/logo11w.png", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))
+	# content, handle = wg.getpage("http://www.doujin-moe.us/ajax/newest.php", returnMultiple = True)
+	# print((handle.headers.get('Content-Encoding')))
 
-	print("SoupGet")
-	content_1 = wg.getpage("http://www.lighttpd.net", soup = True)
+	# print("SoupGet")
+	# content_1 = wg.getpage("http://www.lighttpd.net", soup = True)
 
-	content_2 = wg.getSoup("http://www.lighttpd.net")
-	assert(content_1 == content_2)
+	# content_2 = wg.getSoup("http://www.lighttpd.net")
+	# assert(content_1 == content_2)
+
+	gTest = wg.getpage('https://drive.google.com/folderview?id=0B2lnOX3NF2LOeW55WlpYQWIxYnM')
+	print(type(gTest))
 
 
 
