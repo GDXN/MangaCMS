@@ -39,7 +39,7 @@ job_defaults = {
 jobstores = {
 
 	'transient_jobstore' : MemoryJobStore(),
-	'main_jobstore': SQLAlchemyJobStore(url='sqlite:///jobs.sqlite')
+	'main_jobstore'      : SQLAlchemyJobStore(url='sqlite:///jobs.sqlite')
 }
 
 
@@ -62,9 +62,11 @@ def scheduleJobs(sched, timeToStart):
 		baseModule, interval = value
 		jobs.append((key, baseModule, interval, timeToStart+datetime.timedelta(seconds=60*key)))
 
+	activeJobs = []
+
 	for jobId, callee, interval, startWhen in jobs:
 		jId = callee.__name__
-
+		activeJobs.append(jId)
 		if not sched.get_job(jId):
 			sched.add_job(callMod,
 						args=(callee.__name__, ),
@@ -78,6 +80,11 @@ def scheduleJobs(sched, timeToStart):
 
 
 	# hook in the items in nametools things that require periodic update checks:
+
+	for job in sched.get_jobs('main_jobstore'):
+		if not job.id in activeJobs:
+			sched.remove_job(job.id, 'main_jobstore')
+
 	x = 60
 	for name, classInstance in nt.__dict__.items():
 
@@ -116,21 +123,13 @@ def go():
 
 	sched = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
 
-	print()
-	print(sched.get_jobs())
-	print()
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*60)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*15)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*5)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=20)
 	startTime = datetime.datetime.now()+datetime.timedelta(seconds=10)
-
 	scheduleJobs(sched, startTime)
-
-	print(sched.get_jobs())
 	sched.start()
-
-
 
 	# spinwait for ctrl+c, and exit when it's received.
 	while runStatus.run:
