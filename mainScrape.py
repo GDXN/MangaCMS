@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
 
 import logSetup
-
+import sys
 import schemaUpdater.schemaRevisioner
 
 import statusManager
@@ -23,38 +23,58 @@ import activePlugins
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor
-
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.jobstores.memory import MemoryJobStore
 
 import datetime
 
 executors = {
-	'default': ThreadPoolExecutor(8)
+	'main_jobstore': ThreadPoolExecutor(10),
 }
 job_defaults = {
 	'coalesce': True,
 	'max_instances': 1
 }
 
-def scheduleJobs(sched, timeToStart):
+jobstores = {
 
-	print("Scheduling jobs!")
+	'transient_jobstore' : MemoryJobStore(),
+	'main_jobstore': SQLAlchemyJobStore(url='sqlite:///jobs.sqlite')
+}
+
+
+# Should probably be a lambda? Laaaazy.
+def callMod(passMod):
+	lut = {}
+	for item, dummy_interval in activePlugins.scrapePlugins.values():
+		lut[item.__name__] = item
+	if not passMod in lut:
+		raise ValueError("Callable '%s' is not in the class lookup table: '%s'!" % (passMod, lut))
+	module = lut[passMod]
+	instance = module.Runner()
+	instance.go()
+
+
+def scheduleJobs(sched, timeToStart):
 
 	jobs = []
 	for key, value  in activePlugins.scrapePlugins.items():
 		baseModule, interval = value
-		jobs.append((baseModule, interval, timeToStart+datetime.timedelta(seconds=60*key)))
+		jobs.append((key, baseModule, interval, timeToStart+datetime.timedelta(seconds=60*key)))
 
-	print("Jobs= ")
-	for job in jobs:
-		print("	", job)
+	for jobId, callee, interval, startWhen in jobs:
+		jId = callee.__name__
 
-	# Should probably be a lambda? Laaaazy.
-	def callGoOnClass(passedModule):
-		instance = passedModule.Runner()
-		instance.go()
-
-	for callee, interval, startWhen in jobs:
-		sched.add_job(callGoOnClass, args=(callee, ), trigger='interval', seconds=interval, start_date=startWhen)
+		if not sched.get_job(jId):
+			sched.add_job(callMod,
+						args=(callee.__name__, ),
+						trigger='interval',
+						seconds=interval,
+						start_date=startWhen,
+						id=jId,
+						replace_existing=True,
+						jobstore='main_jobstore',
+						misfire_grace_time=2**30)
 
 
 	# hook in the items in nametools things that require periodic update checks:
@@ -70,8 +90,13 @@ def scheduleJobs(sched, timeToStart):
 		#
 		if  isinstance(classInstance, type) or not hasattr(classInstance, "NEEDS_REFRESHING"):
 			continue
-		print("Have item to schedule - ", name, classInstance, "every", classInstance.REFRESH_INTERVAL, "seconds.")
-		sched.add_job(classInstance.refresh, trigger='interval', seconds=classInstance.REFRESH_INTERVAL, start_date=datetime.datetime.now()+datetime.timedelta(seconds=20+x))
+
+		sched.add_job(classInstance.refresh,
+					trigger='interval',
+					seconds=classInstance.REFRESH_INTERVAL,
+					start_date=datetime.datetime.now()+datetime.timedelta(seconds=20+x),
+					jobstore='transient_jobstore')
+
 		x += 60*2.5
 
 
@@ -83,22 +108,28 @@ def preflight():
 	schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 	statusManager.resetAllRunningFlags()
 
-	nt.dirNameProxy.startDirObservers()
+	# nt.dirNameProxy.startDirObservers()
 
 
 def go():
 	preflight()
 
-	sched = BackgroundScheduler(executors=executors, job_defaults=job_defaults)
+	sched = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
 
+	print()
+	print(sched.get_jobs())
+	print()
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*60)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*15)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*5)
-	startTime = datetime.datetime.now()+datetime.timedelta(seconds=20)
+	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=20)
+	startTime = datetime.datetime.now()+datetime.timedelta(seconds=10)
 
 	scheduleJobs(sched, startTime)
 
+	print(sched.get_jobs())
 	sched.start()
+
 
 
 	# spinwait for ctrl+c, and exit when it's received.

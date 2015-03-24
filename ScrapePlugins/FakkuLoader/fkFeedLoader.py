@@ -143,7 +143,12 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret["dlName"] = titleLink.get_text()
 
 		# Extract upload date
-		dateStr = containerDiv.find("a", class_='content-time').get_text()
+		dateDiv = containerDiv.find("a", class_='content-time')
+
+		intraTag = dateDiv.find('span', class_='show-mobile')
+		if intraTag:
+			intraTag.decompose()
+		dateStr = dateDiv.get_text()
 
 		if 'Pre-Order Book' in dateStr:
 			return None
