@@ -115,7 +115,7 @@ def preflight():
 	schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 	statusManager.resetAllRunningFlags()
 
-	# nt.dirNameProxy.startDirObservers()
+	nt.dirNameProxy.startDirObservers()
 
 
 def go():

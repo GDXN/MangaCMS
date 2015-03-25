@@ -574,10 +574,24 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		resource = set(response['rsrcLinks'])
 
 		for link in plain:
-			self.newLinkQueue.put((link, True, distance+1))
+			self.newLinkQueue.put(
+					{
+						'url'          : link,
+						'isText'       : True,
+						'distance'     : distance+1,
+						'shouldUpsert' : True
+					}
+				)
 
 		for link in resource:
-			self.newLinkQueue.put((link, False, distance+1))
+			self.newLinkQueue.put(
+					{
+						'url'          : link,
+						'isText'       : False,
+						'distance'     : distance+1,
+						'shouldUpsert' : True
+					}
+				)
 
 
 
@@ -608,6 +622,16 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 				newTodo = self.getToDo(self.FETCH_DISTANCE)
 				if newTodo:
 					url, distance = newTodo
+
+					self.newLinkQueue.put(
+							{
+								'url'          : url,
+								'isText'       : None,
+								'distance'     : None,
+								'shouldUpsert' : False
+							}
+						)
+
 					try:
 						self.dispatchUrlRequest(url, distance)
 					except urllib.error.URLError:
@@ -670,24 +694,23 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 					got = self.newLinkQueue.get_nowait()
 					if not got:
 						continue
-					if len(got) == 3:
-						url, istext, distance = got
-						if not url in haveUrls:
+					if len(got) == 4:
+						if not got['url'] in haveUrls:
 
-							if url.lower().startswith('http'):
-								self.log.info("New URL: '%s', distance: %s", url, distance)
-
+							if got['url'].lower().startswith('http'):
+								self.log.info("New URL: '%s', distance: %s", got['url'], got['distance'])
 								# Only reset the downloadstate for content, not
 								# resources
-								if istext:
-									self.upsert(url, istext=istext, dlstate=0, distance=distance)
-								else:
-									self.upsert(url, istext=istext, distance=distance)
-								haveUrls.add(url)
+								if got['shouldUpsert']:
+									if got['isText']:
+										self.upsert(got['url'], istext=got['isText'], dlstate=0, distance=got['distance'])
+									else:
+										self.upsert(got['url'], istext=got['isText'], distance=got['distance'])
+								haveUrls.add(got['url'])
 							else:
 								raise ValueError("Invalid URL added: '%s'", got)
 					else:
-						raise ValueError("Data from queue is not a 2-tuple? '%s'" % got)
+						raise ValueError("Data from queue is not a 4-dict? '%s'" % got)
 
 				except queue.Empty:
 					time.sleep(0.01)
