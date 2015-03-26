@@ -1,5 +1,9 @@
 chapter and volume columns
  netloc in book search table
+ volume/chapter tracking, rather then just c
+ fix last crawl time
+ 
+ http://reader.s2smanga.com/ fooslide based add scraper
 
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1NjsYhS3_PQvA3xSjOV0IubpNmyJk98eBu19ak2NMaIQ%2Fpub
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
