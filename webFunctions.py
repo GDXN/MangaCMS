@@ -316,7 +316,7 @@ class WebGetRobust:
 				# Only decode content marked as text (yeah, google is serving zip files
 				# with the content-disposition charset header specifying "UTF-8") or
 				# specifically allowed other content types I know are really text.
-				decode = ['application/atom+xml', "application/json", 'text']
+				decode = ['application/atom+xml', 'application/xml', "application/json", 'text']
 				if any([item in docType for item in decode]):
 					try:
 						pgctnt = str(pgctnt, charset)
@@ -331,6 +331,7 @@ class WebGetRobust:
 
 				if "text/html" in cType or \
 					'text/javascript' in cType or    \
+					'application/xml' in cType or    \
 					'application/atom+xml' in cType:				# If this is a html/text page, we want to decode it using the local encoding
 
 					pgctnt = self.decodeHtml(pgctnt, cType)

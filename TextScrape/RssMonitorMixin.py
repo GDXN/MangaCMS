@@ -1,9 +1,15 @@
 
+#!/usr/bin/python
+from profilehooks import profile
+
 import abc
 import feedparser
 import time
 import json
 import bs4
+import sql
+
+# pylint: disable=W0201
 
 class RssFetchMixin(metaclass=abc.ABCMeta):
 	__metaclass__ = abc.ABCMeta
@@ -94,6 +100,9 @@ class RssFetchMixin(metaclass=abc.ABCMeta):
 			'published'   : self.feedTable.published,
 		}
 
+	@profile
+	def parseFeed(self, rawFeed):
+		return feedparser.parse(rawFeed)
 
 	def loadFeeds(self):
 
@@ -110,7 +119,7 @@ class RssFetchMixin(metaclass=abc.ABCMeta):
 			# Therefore, use webGet instead, because it can handle
 			# encoding properly
 			rawFeed = self.wg.getpage(feedUrl)
-			feed = feedparser.parse(rawFeed)
+			feed = self.parseFeed(rawFeed)
 
 			rawRet.append(self.processFeed(feed))
 
