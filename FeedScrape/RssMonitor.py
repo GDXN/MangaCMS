@@ -9,7 +9,7 @@ import time
 import json
 import bs4
 import TextScrape.RelinkLookup
-import TextScrape.RELINKABLE as RELINKABLE
+# import TextScrape.RELINKABLE as RELINKABLE
 
 # pylint: disable=W0201
 
@@ -17,6 +17,11 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 	__metaclass__ = abc.ABCMeta
 
 	loggerPath = 'Main.Rss'
+
+	def __init__(self):
+		super().__init__()
+		relink = TextScrape.RelinkLookup.getRelinkable()
+		# print(relink)
 
 	@abc.abstractproperty
 	def feedUrls(self):
@@ -164,10 +169,9 @@ class RssTest(RssMonitor):
 
 
 def test():
-	# fetch = RssTest()
+	fetch = RssTest()
 	# fetch.loadFeeds()
 
-	print(RELINKABLE.RELINKABLE)
 
 if __name__ == "__main__":
 	import logSetup

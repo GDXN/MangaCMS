@@ -8,7 +8,6 @@ runStatus.preloadDicts = False
 
 import abc
 import urllib.parse
-import TextScrape.RelinkLookup
 import LogBase
 
 # import sql.operators as sqlo
@@ -31,7 +30,8 @@ import TextScrape.gDocParse
 
 import os.path
 import os
-import TextScrape.RELINKABLE as RELINKABLE
+
+# import TextScrape.RELINKABLE as RELINKABLE
 
 
 
@@ -119,9 +119,10 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 
 		self.loadFilters()
 
-
+		# This import HAS to be local, or we'll get a recursive import that
+		# breaks the dynamic lookup system
 		import TextScrape.RelinkLookup
-		RELINKABLE.RELINKABLE = TextScrape.RelinkLookup.fetchRelinkableDomains()
+		self.relinkable = TextScrape.RelinkLookup.getRelinkable()
 
 
 	def loadFilters(self):
@@ -306,7 +307,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 									followGLinks    = self.FOLLOW_GOOGLE_LINKS,
 									ignoreBadLinks  = self.IGNORE_MALFORMED_URLS,
 									tld             = self.tld,
-									stripTitle      = self.stripTitle
+									stripTitle      = self.stripTitle,
+									relinkable      = []
 								)
 		extracted = scraper.extractContent()
 
@@ -316,7 +318,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	def extractGoogleDriveFolder(self, url):
 		scraper = self.gdriveClass(
 									pageUrl         = url,
-									loggerPath      = self.loggerPath
+									loggerPath      = self.loggerPath,
+									relinkable      = []
 								)
 		extracted = scraper.extractContent()
 
@@ -331,7 +334,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 										loggerPath      = self.loggerPath,
 										tableKey        = self.tableKey,
 										scannedDomains  = self.baseUrl,
-										tlds            = self.tld
+										tlds            = self.tld,
+										relinkable      = []
 									)
 			extracted, resources = scraper.extractContent()
 			self.processReturnedFileResources(resources)
@@ -726,11 +730,4 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 
 		self.log.info("Crawler scanned a total of '%s' pages", len(haveUrls))
 		self.log.info("Queue Feeder thread exiting!")
-
-
-if __name__ == "__main__":
-	print("Test mode!")
-	domains = TextScrape.RelinkLookup.fetchRelinkableDomains()
-	print(domains)
-	print(SiteArchiver)
 

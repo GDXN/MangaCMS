@@ -4,13 +4,13 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-from TextScrape.SiteArchiver import SiteArchiver
+import TextScrape.SiteArchiver
 
 import urllib.parse
 import webFunctions
 
 
-class Scrape(SiteArchiver):
+class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'tsuki'
 	loggerPath = 'Main.Text.Tsuki.Scrape'
 	pluginName = 'TsukiScrape'

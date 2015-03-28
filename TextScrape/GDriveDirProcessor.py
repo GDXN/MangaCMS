@@ -13,15 +13,17 @@ import copy
 import readability.readability
 import hashlib
 import os.path
-import TextScrape.RelinkLookup
 import TextScrape.urlFuncs
 
 import TextScrape.urlFuncs
 
 import TextScrape.ProcessorBase
-import TextScrape.RELINKABLE as RELINKABLE
 
 import TextScrape.gDocParse as gdp
+
+# import TextScrape.RELINKABLE as RELINKABLE
+# import TextScrape.RelinkLookup
+
 
 class DownloadException(Exception):
 	pass
@@ -84,7 +86,7 @@ class GDriveDirProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 	loggerPath = "Main.Text.GDriveDirProcessor"
 
-	def __init__(self, pageUrl, loggerPath):
+	def __init__(self, pageUrl, loggerPath, relinkable):
 		self.loggerPath = loggerPath+".GDrvDirExtract"
 
 		self.pageUrl  = pageUrl
@@ -94,7 +96,7 @@ class GDriveDirProcessor(TextScrape.ProcessorBase.PageProcessor):
 		# As such, the extensive relinking system isn't warranted.
 
 		self._relinkDomains = set()
-		for url in RELINKABLE.RELINKABLE:
+		for url in relinkable:
 			self._relinkDomains.add(url)
 
 

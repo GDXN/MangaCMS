@@ -4,13 +4,13 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-from TextScrape.SiteArchiver import SiteArchiver
+import TextScrape.SiteArchiver
 
 import webFunctions
 import http.cookiejar
 import urllib.parse
 
-class Scrape(SiteArchiver):
+class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'storiesonline'
 	loggerPath = 'Main.Text.StoriesOnline.Scrape'
 	pluginName = 'StoriesOnlineScrape'

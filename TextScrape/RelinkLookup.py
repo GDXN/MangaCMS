@@ -6,11 +6,10 @@ runStatus.preloadDicts = False
 
 # import Levenshtein as lv
 import traceback
-import urllib.parse
 import os
 import os.path
 from importlib.machinery import SourceFileLoader
-
+import copy
 
 
 ########################################################################################################################
@@ -51,6 +50,9 @@ def getPythonScriptModules():
 
 				ret.append((fPath, fqModuleName))
 
+	# ret.sort()
+	# for module in ret:
+	# 	print(module)
 	return ret
 
 def findPluginClass(module, prefix):
@@ -77,6 +79,7 @@ def findPluginClass(module, prefix):
 
 def loadPlugins():
 	modules = getPythonScriptModules()
+	print("Found python modules to scan for relink lookup %s" % len(modules))
 	# print("Modules:")
 	# modules.sort()
 	# for module in modules:
@@ -94,12 +97,12 @@ def loadPlugins():
 					raise ValueError("Two plugins providing an interface with the same name? Name: '%s'" % key)
 				ret[key] = pClass
 		except AttributeError:
-			# print("Attribute error!", modName)
-			# traceback.print_exc()
+			print("Attribute error!", modName)
+			traceback.print_exc()
 			pass
 		except ImportError:
-			# print("Import error!", modName)
-			# traceback.print_exc()
+			print("Import error!", modName)
+			traceback.print_exc()
 			pass
 	return ret
 
@@ -108,6 +111,7 @@ def fetchRelinkableDomains():
 	# print("Building relinkable domain list by class introspection.")
 	domains = set()
 	pluginDict = loadPlugins()
+	print("Found %s plugins to check" % len(pluginDict))
 	# print("Plugins")
 	# for plugin in pluginDict:
 	# 	print(plugin)
@@ -126,7 +130,7 @@ def fetchRelinkableDomains():
 		# else:
 		# 	url = urllib.parse.urlsplit(plg.baseUrl.lower()).netloc
 
-
+		print(plg.tableKey, plg.tableName)
 		domains.update(items)
 
 
@@ -138,9 +142,20 @@ def fetchRelinkableDomains():
 	print("Found %s relinkable domains." % len(domains))
 	return domains
 
+try:
+	len(RELINKABLE)
+except NameError:
+	print("Instantiating RELINKABLE")
+	RELINKABLE = set()
 
-RELINKABLE = set()
-RELINKABLE.update(fetchRelinkableDomains())
+if len(RELINKABLE) == 0:
+	RELINKABLE.update(fetchRelinkableDomains())
+
+if len(RELINKABLE) == 0:
+	raise ValueError("No relinkable items found?")
+
+def getRelinkable():
+	return copy.copy(RELINKABLE)
 
 if __name__ == '__main__':
 	# print("Relinked domains:")

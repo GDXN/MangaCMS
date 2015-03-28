@@ -4,14 +4,14 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-from TextScrape.SiteArchiver import SiteArchiver
+import TextScrape.SiteArchiver
 
 import readability.readability
 import bs4
 import webFunctions
 
 
-class Scrape(SiteArchiver):
+class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	tableKey = 'unf'
 	loggerPath = 'Main.Text.Unf.Scrape'
 	pluginName = 'UnlimitedNovelFailuresScrape'

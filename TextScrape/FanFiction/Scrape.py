@@ -4,11 +4,11 @@ if __name__ == "__main__":
 	print("Initializing logging")
 	logSetup.initLogging()
 
-from TextScrape.SiteArchiver import SiteArchiver
+import TextScrape.SiteArchiver
 
 import webFunctions
 
-class Scrape(SiteArchiver):
+class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	'''
 	This appears to be hosted by the same people as FictionPress.
 	The website sure looks to be the same codebase, in any event.

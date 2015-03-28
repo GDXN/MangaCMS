@@ -6,13 +6,13 @@ runStatus.preloadDicts = False
 
 # import Levenshtein as lv
 
-import TextScrape.RelinkLookup
 import TextScrape.urlFuncs
 import TextScrape.ProcessorBase
 import TextScrape.SiteArchiver
 
 import markdown
 
+# import TextScrape.RelinkLookup
 # import TextScrape.RELINKABLE as RELINKABLE
 
 

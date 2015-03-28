@@ -79,7 +79,7 @@ class WebGetRobust:
 	# it is structured [(top_level_url1, username1, password1), (top_level_url2, username2, password2)]
 	def __init__(self, test=False, creds=None, logPath="Main.Web"):
 		self.log = logging.getLogger(logPath)
-		print("Webget init! Logpath = ", logPath)
+		# print("Webget init! Logpath = ", logPath)
 		if creds:
 			print("Have creds for a domain")
 		if test:
@@ -128,7 +128,7 @@ class WebGetRobust:
 					print("Have cred handler. Building opener using it")
 					self.opener = urllib.request.build_opener(cookieHandler, self.credHandler)
 				else:
-					print("No cred handler")
+					# print("No cred handler")
 					self.opener = urllib.request.build_opener(cookieHandler)
 				#self.opener.addheaders = [('User-Agent', 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)')]
 				self.opener.addheaders = self.browserHeaders

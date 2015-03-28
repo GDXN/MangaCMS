@@ -11,12 +11,12 @@ import urllib.parse
 import bs4
 import copy
 import readability.readability
-import TextScrape.RelinkLookup
+import LogBase
 import TextScrape.urlFuncs
 import TextScrape.ProcessorBase
 
-import LogBase
-import TextScrape.RELINKABLE as RELINKABLE
+# import TextScrape.RelinkLookup
+# import TextScrape.RELINKABLE as RELINKABLE
 
 
 
@@ -81,7 +81,7 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 	loggerPath = "Main.Text.HtmlProc"
 
-	def __init__(self, baseUrls, pageUrl, pgContent, loggerPath, **kwargs):
+	def __init__(self, baseUrls, pageUrl, pgContent, loggerPath, relinkable, **kwargs):
 		self.loggerPath = loggerPath+".HtmlExtract"
 
 		self._tld           = set()
@@ -114,7 +114,7 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		self._decomposeBefore = copy.copy(GLOBAL_DECOMPOSE_BEFORE)
 
 		self._relinkDomains = set()
-		for url in RELINKABLE.RELINKABLE:
+		for url in relinkable:
 			# print("inserting relinkable: ", url)
 			self._relinkDomains.add(url)
 

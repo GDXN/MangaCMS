@@ -1,7 +1,7 @@
 
-from TextScrape.SiteArchiver import SiteArchiver
+import TextScrape.SiteArchiver
 
-class WordpressScrape(SiteArchiver):
+class WordpressScrape(TextScrape.SiteArchiver.SiteArchiver):
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = set([

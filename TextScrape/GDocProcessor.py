@@ -13,7 +13,6 @@ import copy
 import readability.readability
 import hashlib
 import os.path
-import TextScrape.RelinkLookup
 import TextScrape.urlFuncs
 
 import traceback
@@ -24,7 +23,8 @@ import TextScrape.SiteArchiver
 
 import TextScrape.gDocParse as gdp
 
-import TextScrape.RELINKABLE as RELINKABLE
+# import TextScrape.RelinkLookup
+# import TextScrape.RELINKABLE as RELINKABLE
 
 
 
@@ -47,13 +47,13 @@ class GdocPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 	loggerPath = "Main.Text.GdocPageProcessor"
 
-	def __init__(self, pageUrl, loggerPath, tableKey, scannedDomains=None, tlds=None):
+	def __init__(self, pageUrl, loggerPath, tableKey, relinkable, scannedDomains=None, tlds=None):
 		self.loggerPath = loggerPath+".GDocExtract"
 		self.pageUrl    = pageUrl
 		self.tableKey = tableKey
 
 		self._relinkDomains = set()
-		for url in RELINKABLE.RELINKABLE:
+		for url in relinkable:
 			self._relinkDomains.add(url)
 
 
