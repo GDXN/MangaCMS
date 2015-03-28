@@ -42,6 +42,8 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 
 	]
 
+	feeds = [item+"/feeds/posts/default" for item in baseUrl]
+
 	startUrl = [
 		'https://drive.google.com/folderview?id=0B8UYgI2TD_nmMjE2ZnFodjZ1Y3c&usp=drive_web',
 		'https://docs.google.com/document/d/1LKdA3x0k3I3Hbemmp5tc_xu0IMGyhwjV7y6UV5bUhXU',

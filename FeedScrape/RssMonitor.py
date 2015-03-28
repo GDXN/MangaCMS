@@ -1,10 +1,11 @@
 
 #!/usr/bin/python
-from profilehooks import profile
+# from profilehooks import profile
 
 import abc
 import feedparser
 import FeedScrape.RssMonitorDbBase
+import TextScrape.utilities.Proxy
 import time
 import json
 import bs4
@@ -20,27 +21,31 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 
 	def __init__(self):
 		super().__init__()
-		relink = TextScrape.RelinkLookup.getRelinkable()
-		# print(relink)
+		self.relink = TextScrape.RelinkLookup.getRelinkable()
+		pdata = TextScrape.RelinkLookup.getPluginData()
 
-	@abc.abstractproperty
-	def feedUrls(self):
-		pass
+		self.scan = []
+		for plugin in pdata:
+			for feed in plugin['feeds']:
+				self.scan.append((feed, plugin['pluginName'], plugin['tableName'], plugin['key']))
+
+		self.scan.sort()
 
 
-	@profile
+
+	# @profile
 	def parseFeed(self, rawFeed):
 		return feedparser.parse(rawFeed)
 
 	def loadFeeds(self):
 
-		rawRet = []
+		ret = []
 
 		if not hasattr(self, 'wg'):
 			import webFunctions
 			self.wg = webFunctions.WebGetRobust(logPath='Main.Text.Feed.Web')
 
-		for feedUrl in self.feedUrls:
+		for feedUrl, pluginName, tableName, tableKey in self.scan:
 			# So.... Feedparser shits itself on the feed content,
 			# because it's character detection mechanism is apparently
 			# total crap.
@@ -49,13 +54,9 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			rawFeed = self.wg.getpage(feedUrl)
 			feed = self.parseFeed(rawFeed)
 
-			rawRet.append(self.processFeed(feed))
+			data = self.processFeed(feed)
+			self.insertFeed(tableName, tableKey, pluginName, feedUrl, data)
 
-		ret = self.consolidateReturn(rawRet)
-		print(ret)
-
-	def consolidateReturn(self, returnData):
-		print(returnData)
 
 	def extractContents(self, contentDat):
 		# TODO: Add more content type parsing!
@@ -98,7 +99,6 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 		entries = feed['entries']
 		print(meta['title'])
 		print(meta['subtitle'])
-		print(meta['subtitle'])
 		print(len(entries))
 
 		ret = []
@@ -108,6 +108,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			item = {}
 
 			item['title'] = entry['title']
+			item['guid'] = entry['guid']
 
 			if 'tags' in entry:
 				tags = []
@@ -145,9 +146,16 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 					item['updated'] = item['published']
 
 			ret.append(item)
+		return ret
 
+	def insertFeed(self, tableName, tableKey, pluginName, feedUrl, feedContent):
 
-		print()
+		dbFunc = TextScrape.utilities.Proxy.EmptyProxy(tableKey=tableKey, tableName=tableName, scanned=[feedUrl])
+		print(dbFunc)
+		for item in feedContent:
+			ret = dbFunc.processHtmlPage(feedUrl, item['contents'])
+
+			print(ret)
 
 
 class RssTest(RssMonitor):
@@ -169,8 +177,10 @@ class RssTest(RssMonitor):
 
 
 def test():
+	import logSetup
+	logSetup.initLogging()
 	fetch = RssTest()
-	# fetch.loadFeeds()
+	fetch.loadFeeds()
 
 
 if __name__ == "__main__":

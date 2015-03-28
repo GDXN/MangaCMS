@@ -20,6 +20,10 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 
 	threads = 4
 
+	feeds = [
+		'http://japtem.com/feed/'
+	]
+
 
 	baseUrl = [
 			"http://japtem.com/",

@@ -111,6 +111,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	fileDomains     = []
 	allImages       = True
 
+	feeds           = []
+
 	stripTitle = ''
 
 	def __init__(self):
@@ -308,7 +310,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 									ignoreBadLinks  = self.IGNORE_MALFORMED_URLS,
 									tld             = self.tld,
 									stripTitle      = self.stripTitle,
-									relinkable      = []
+									relinkable      = self.relinkable
 								)
 		extracted = scraper.extractContent()
 
@@ -319,7 +321,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		scraper = self.gdriveClass(
 									pageUrl         = url,
 									loggerPath      = self.loggerPath,
-									relinkable      = []
+									relinkable      = self.relinkable
 								)
 		extracted = scraper.extractContent()
 
@@ -335,7 +337,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 										tableKey        = self.tableKey,
 										scannedDomains  = self.baseUrl,
 										tlds            = self.tld,
-										relinkable      = []
+										relinkable      = self.relinkable
 									)
 			extracted, resources = scraper.extractContent()
 			self.processReturnedFileResources(resources)

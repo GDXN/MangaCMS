@@ -111,8 +111,11 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 			if not isImg:
 				for link in soup.findAll(tag):
 					try:
+						# print("Link!", self.checkRelinkDomain(link[attr]), link[attr])
 						if self.checkRelinkDomain(link[attr]):
 							link[attr] = self.convertToReaderUrl(link[attr])
+
+							# print("Relinked", link[attr])
 					except KeyError:
 						continue
 
@@ -140,7 +143,10 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 	# check if domain `url` is a sub-domain of the domains we should relink.
 	def checkRelinkDomain(self, url):
 		# if "drive" in url:
-		# 	print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._scannedDomains]), url)
+
+		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._relinkDomains]), url)
+		# print(self._relinkDomains)
+
 		return any([rootUrl in url.lower() for rootUrl in self._relinkDomains])
 
 
@@ -272,8 +278,10 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 	def extractTitle(self, srcSoup, doc, url):
 		title = doc.title()
 		if not title:
-			title = srcSoup.title.get_text().strip()
-		return title
+			if srcSoup.title:
+				return srcSoup.title.get_text().strip()
+
+		return "'%s' has no title!" % url
 
 
 

@@ -23,6 +23,12 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	baseUrl = "http://www.princerevolution.org/"
 	startUrl = baseUrl
 
+
+	feeds = [
+		'http://www.princerevolution.org/feed/'
+	]
+
+
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = ["/blog/",
 				"/about/credits/",

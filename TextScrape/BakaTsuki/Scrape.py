@@ -24,6 +24,11 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	baseUrl = "http://www.baka-tsuki.org/"
 	startUrl = baseUrl
 
+	feeds = [
+		# All changes feed (HIGH VOLUME)
+		'http://www.baka-tsuki.org/project/index.php?title=Special:RecentChanges&feed=atom'
+	]
+
 	badwords = [
 				"/blog/",
 				"/forums/",

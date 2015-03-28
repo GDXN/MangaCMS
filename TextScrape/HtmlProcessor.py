@@ -114,8 +114,8 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		self._decomposeBefore = copy.copy(GLOBAL_DECOMPOSE_BEFORE)
 
 		self._relinkDomains = set()
+
 		for url in relinkable:
-			# print("inserting relinkable: ", url)
 			self._relinkDomains.add(url)
 
 		# A lot of this could probably be a lot more elegant.

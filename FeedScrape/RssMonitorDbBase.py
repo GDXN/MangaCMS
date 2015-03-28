@@ -97,12 +97,14 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 
 			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 												dbid        SERIAL PRIMARY KEY,
-												src         TEXT NOT NULL,
+												srcname     TEXT NOT NULL,
+												feedurl     TEXT NOT NULL,
 
-												linkUrl     TEXT NOT NULL UNIQUE,
+												contenturl  TEXT NOT NULL,
+												contentid   TEXT NOT NULL UNIQUE,
 												title       TEXT,
 												contents    TEXT,
-												contentHash TEXT NOT NULL,
+												contenthash TEXT NOT NULL,
 												author      TEXT,
 
 												tags        JSON,
@@ -119,11 +121,12 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			haveIndexes = [index[0] for index in haveIndexes]
 
 			indexes = [
-				("%s_source_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (src     );'''  ),
-				("%s_linkUrl_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (linkUrl );'''  ),
-				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext  );'''  ),
-				("%s_linkUrl_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (linkUrl );'''  ),
-				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title   );'''  ),
+				("%s_source_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (src        );'''  ),
+				("%s_contenturl_index" % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (contenturl );'''  ),
+				("%s_contentid_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (contentid  );'''  ),
+				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext     );'''  ),
+				("%s_linkUrl_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (linkUrl    );'''  ),
+				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title      );'''  ),
 				("%s_title_trigram"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin (title gin_trgm_ops);'''  ),
 			]
 
@@ -138,7 +141,8 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			self.table = sql.Table(self.tableName.lower())
 			self.cols = (
 				self.table.dbid,
-				self.table.src,
+				self.table.srcname,
+				self.table.feedurl,
 				self.table.guid,
 				self.table.title,
 				self.table.contents,
@@ -151,16 +155,17 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			)
 
 
-			self.validKwargs = ['dbid', 'src', 'guid', 'title', 'contents', 'contentHash', 'author', 'linkUrl', 'tags', 'updated', 'published']
+			self.validKwargs = ['dbid', 'srcname', 'feedurl', 'guid', 'title', 'contents', 'contentHash', 'author', 'linkUrl', 'tags', 'updated', 'published']
 
 
 			self.colMap = {
 				'dbid'        : self.table.dbid,
-				'src'         : self.table.src,
+				'srcname'     : self.table.srcname,
+				'feedurl'     : self.table.feedurl,
 				'guid'        : self.table.guid,
 				'title'       : self.table.title,
 				'contents'    : self.table.contents,
-				'contentHash' : self.table.contentHash,
+				'contenthash' : self.table.contentHash,
 				'author'      : self.table.author,
 				'linkUrl'     : self.table.linkUrl,
 				'tags'        : self.table.tags,

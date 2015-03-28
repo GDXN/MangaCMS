@@ -115,6 +115,8 @@ def fetchRelinkableDomains():
 	# print("Plugins")
 	# for plugin in pluginDict:
 	# 	print(plugin)
+
+	plugins = []
 	for plugin in pluginDict:
 		plg = pluginDict[plugin]
 
@@ -130,7 +132,17 @@ def fetchRelinkableDomains():
 		# else:
 		# 	url = urllib.parse.urlsplit(plg.baseUrl.lower()).netloc
 
-		print(plg.tableKey, plg.tableName)
+		tmp = {
+			'key'        : plg.tableKey,
+			'tableName'  : plg.tableName,
+			'pluginName' : plg.pluginName,
+			'scanned'    : items,
+			'feeds'      : plg.feeds
+			}
+
+		plugins.append(tmp)
+
+
 		domains.update(items)
 
 
@@ -139,8 +151,8 @@ def fetchRelinkableDomains():
 	domains.sort()
 	# for domain in domains:
 	# 	print('	', domain)
-	print("Found %s relinkable domains." % len(domains))
-	return domains
+	print("Found %s relinkable domains from %s plugins." % (len(domains), len(plugins)))
+	return domains, plugins
 
 try:
 	len(RELINKABLE)
@@ -148,14 +160,26 @@ except NameError:
 	print("Instantiating RELINKABLE")
 	RELINKABLE = set()
 
+
+try:
+	len(PLUGINS)
+except NameError:
+	print("Instantiating PLUGINS")
+	PLUGINS = set()
+
+
 if len(RELINKABLE) == 0:
-	RELINKABLE.update(fetchRelinkableDomains())
+	relink, params = fetchRelinkableDomains()
+	RELINKABLE.update(relink)
+	PLUGINS = params
 
 if len(RELINKABLE) == 0:
 	raise ValueError("No relinkable items found?")
 
 def getRelinkable():
 	return copy.copy(RELINKABLE)
+def getPluginData():
+	return copy.copy(PLUGINS)
 
 if __name__ == '__main__':
 	# print("Relinked domains:")

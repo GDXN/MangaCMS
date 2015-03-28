@@ -26,6 +26,10 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 
 	startUrl = baseUrl
 
+	feeds = [
+		'http://unlimitednovelfailures.mangamatters.com/feed/atom/'
+	]
+
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
 					'/disclaimer/',

@@ -22,6 +22,9 @@ class Scrape(WordpressScrape):
 			"https://wartdf.wordpress.com/"
 		]
 
+	feeds = [
+		'https://wartdf.wordpress.com/feed/'
+	]
 
 	startUrl = baseUrl
 

@@ -26,6 +26,9 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	startUrl = 'https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'
 	# startUrl = baseUrl
 
+	feeds = [
+		'http://lasolistia.com/haruparty/?feed=rss2'
+	]
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

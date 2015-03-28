@@ -24,6 +24,10 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 	baseUrl = "http://earlandfairy.weebly.com/"
 	startUrl = baseUrl
 
+	feeds = [
+		'http://guhehe.net/feed/'
+	]
+
 	badwords = [
 				"pages/reportAbuse",
 
