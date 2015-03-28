@@ -4,101 +4,24 @@ from profilehooks import profile
 
 import abc
 import feedparser
+import FeedScrape.RssMonitorDbBase
 import time
 import json
 import bs4
-import sql
+import TextScrape.RelinkLookup
+import TextScrape.RELINKABLE as RELINKABLE
 
 # pylint: disable=W0201
 
-class RssFetchMixin(metaclass=abc.ABCMeta):
+class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 	__metaclass__ = abc.ABCMeta
 
-
-
-	@abc.abstractproperty
-	def feedTableName(self):
-		pass
+	loggerPath = 'Main.Rss'
 
 	@abc.abstractproperty
 	def feedUrls(self):
 		pass
 
-
-	def checkInitRssDb(self):
-		with self.conn.cursor() as cur:
-
-			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
-												dbid        SERIAL PRIMARY KEY,
-												src         TEXT NOT NULL,
-
-												linkUrl     TEXT NOT NULL UNIQUE,
-												title       TEXT,
-												contents    TEXT,
-												contentHash TEXT NOT NULL,
-												author      TEXT,
-
-												tags        JSON,
-
-												updated     DOUBLE PRECISION DEFAULT -1,
-												published   DOUBLE PRECISION NOT NULL,
-
-												);'''.format(tableName=self.feedTableName))
-
-			# 'entryHash' is going to be the feed URL + entry title hashed?
-
-			cur.execute("SELECT relname FROM pg_class;")
-			haveIndexes = cur.fetchall()
-			haveIndexes = [index[0] for index in haveIndexes]
-
-			indexes = [
-				("%s_source_index"     % self.feedTableName, self.feedTableName, '''CREATE INDEX %s ON %s (src     );'''  ),
-				("%s_linkUrl_index"    % self.feedTableName, self.feedTableName, '''CREATE INDEX %s ON %s (linkUrl );'''  ),
-				("%s_istext_index"     % self.feedTableName, self.feedTableName, '''CREATE INDEX %s ON %s (istext  );'''  ),
-				("%s_linkUrl_index"    % self.feedTableName, self.feedTableName, '''CREATE INDEX %s ON %s (linkUrl );'''  ),
-				("%s_title_index"      % self.feedTableName, self.feedTableName, '''CREATE INDEX %s ON %s (title   );'''  ),
-				("%s_title_trigram"    % self.feedTableName, self.feedTableName, '''CREATE INDEX %s ON %s USING gin (title gin_trgm_ops);'''  ),
-			]
-
-			for name, table, nameFormat in indexes:
-				if not name.lower() in haveIndexes:
-					cur.execute(nameFormat % (name, table))
-
-		self.conn.commit()
-		self.log.info("Retreived page database created")
-
-		self.feedTable = sql.Table(self.feedTableName.lower())
-		self.feedCols = (
-			self.feedTable.dbid,
-			self.feedTable.src,
-			self.feedTable.guid,
-			self.feedTable.title,
-			self.feedTable.contents,
-			self.feedTable.contentHash,
-			self.feedTable.author,
-			self.feedTable.linkUrl,
-			self.feedTable.tags,
-			self.feedTable.updated,
-			self.feedTable.published,
-		)
-
-
-		self.validFeedKwargs = ['dbid', 'src', 'guid', 'title', 'contents', 'contentHash', 'author', 'linkUrl', 'tags', 'updated', 'published']
-
-
-		self.feedColMap = {
-			'dbid'        : self.feedTable.dbid,
-			'src'         : self.feedTable.src,
-			'guid'        : self.feedTable.guid,
-			'title'       : self.feedTable.title,
-			'contents'    : self.feedTable.contents,
-			'contentHash' : self.feedTable.contentHash,
-			'author'      : self.feedTable.author,
-			'linkUrl'     : self.feedTable.linkUrl,
-			'tags'        : self.feedTable.tags,
-			'updated'     : self.feedTable.updated,
-			'published'   : self.feedTable.published,
-		}
 
 	@profile
 	def parseFeed(self, rawFeed):
@@ -222,9 +145,8 @@ class RssFetchMixin(metaclass=abc.ABCMeta):
 		print()
 
 
-class RssTest(RssFetchMixin):
+class RssTest(RssMonitor):
 
-	feedTableName = 'book_feed_items'
 	tableKey = 'test'
 
 	feedUrls = [
@@ -242,8 +164,10 @@ class RssTest(RssFetchMixin):
 
 
 def test():
-	fetch = RssTest()
-	fetch.loadFeeds()
+	# fetch = RssTest()
+	# fetch.loadFeeds()
+
+	print(RELINKABLE.RELINKABLE)
 
 if __name__ == "__main__":
 	import logSetup

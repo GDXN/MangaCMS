@@ -135,6 +135,7 @@ def fetchRelinkableDomains():
 	domains.sort()
 	# for domain in domains:
 	# 	print('	', domain)
+	print("Found %s relinkable domains." % len(domains))
 	return domains
 
 

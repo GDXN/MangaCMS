@@ -4,7 +4,14 @@ chapter and volume columns
  fix last crawl time
  
  http://reader.s2smanga.com/ fooslide based add scraper
-
+ http://www.surasplace.com/index.php/projects.html
+ 
+ http://thenakedsol.blogspot.com.au/
+ http://avertranslation.com/
+ 
+ 
+rss separate from ln scrape
+ 
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1NjsYhS3_PQvA3xSjOV0IubpNmyJk98eBu19ak2NMaIQ%2Fpub
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
 
