@@ -195,6 +195,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			self.processLinksIntoDB(dat)
 
+			time.sleep(5)
 
 # def getHistory():
 
