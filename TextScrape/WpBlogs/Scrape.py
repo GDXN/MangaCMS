@@ -125,7 +125,8 @@ class Scrape(WordpressScrape):
 		'https://hui3r.wordpress.com',
 		'https://thatguywhosthere.wordpress.com',
 
-
+		'http://hellping.org/',
+		'http://www.wuxiaworld.com/',
 
 	]
 
