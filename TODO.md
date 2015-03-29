@@ -1,18 +1,22 @@
 chapter and volume columns
- netloc in book search table
- volume/chapter tracking, rather then just c
- fix last crawl time
- 
- http://reader.s2smanga.com/ fooslide based add scraper
- http://www.surasplace.com/index.php/projects.html
- 
- http://thenakedsol.blogspot.com.au/
- http://avertranslation.com/
- 
- tadanohito shutting down  scrape everything
- https://teamkoinaka.wordpress.com/
- 
-rss separate from ln scrape
+netloc in book search table
+volume/chapter tracking, rather then just c
+fix last crawl time
+
+request priority sorting
+sort trigram search results by similarity
+also expose similarity value
+
+http://reader.s2smanga.com/ fooslide based add scraper
+http://www.surasplace.com/index.php/projects.html
+
+
+tadanohito shutting down  scrape everything
+use jdownloader api tomscrape other h blogs
+
+Blogger blog: http://www.pegasusfarts.com/
+
+separate plugin status page
  
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1NjsYhS3_PQvA3xSjOV0IubpNmyJk98eBu19ak2NMaIQ%2Fpub
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
@@ -20,28 +24,21 @@ table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2F
 duplicate h tags of different case
 
  ## home swap bold and red
-Move scheduling system to a persistent jobstore.
+## Move scheduling system to a persistent jobstore.
 Add update time tracking to textscrape.
-
-New scrape system broke Baka-Tsuke and Japtem AND ALL THE THINGS
-https://manga0205.files.wordpress.com/2014/10/101.jpg
-https://grimgalthetranslation.files.wordpress.com/2014/05/img_0014.jpg not relinking images
-https images still fucked
 
 lower request priority for trigram searches
 
-rss+timeouts for change monitoring
-http://aho-updates.com/groups
 
 mu archive release info
 mangaeden api
 
-custom list page ad search for existing item
+custom list page add search for existing item
 
-wp/blogspot use labels for posts
-
-still missing sites from aho
-
+## rss separate from ln scrape
+## wp/blogspot use labels for posts
+## still missing sites from aho
+## rss+timeouts for change monitoring http://aho-updates.com/groups
 ## avail chapters color code in book list
 ## rework books page, defer loading moar
 ## pastebin stuff override title
@@ -65,17 +62,16 @@ Western:
  
  LNDB / MU covers
  
-
-
-
 ~~book search link all parameter~~
 
-Add: http://hotchocolatescans.mokkori.fr
+Add: 
+http://hotchocolatescans.mokkori.fr
 http://ckmscans.halofight.com/
+http://heaven.neo-romance.net/manga/ch00.php
 
 autocleaner thing?
 
-pg pool!
+## pg pool!
 
 ## Not consolidating:
 http://10.1.1.8:8081/books/book-item?dbid=172
@@ -85,27 +81,10 @@ basename in book changes not workimg
 
 Hachinantte, Sore wa Naideshou!
 
-http://heaven.neo-romance.net/manga/ch00.php
-http://arkmachinetranslations.com/
-http://www.pegasusfarts.com/
-http://worldofwatermelons.com/
-http://www.wuxiaworld.com/
 
 ## TO ADD: 
 =======
-https://trippingoverwn.wordpress.com/
-http://panofitrans.blogspot.com/
 
-http://aquarilasscenario.blogspot.com/
-http://arzengi.blogspot.com/
-http://hikuosan.blogspot.com/
-http://nakulas.blogspot.com/
-http://royalroadweed.blogspot.co.il/
-http://swordandgame.blogspot.ca/
-http://the-last-skull.blogspot.com/
-http://thenakedsol.blogspot.com.
-http://thezombieknight.blogspot.co.uk/
-http://xhawk77x.blogspot.com/
 
 
 http://pokkoo-shuu.tumblr.com/thelunacyofdukevenomania
@@ -117,6 +96,14 @@ Use http://lndb.info/ as BU-like?
 Also: http://aho-updates.com/
 
 
+## http://avertranslation.com/
+## https://madospicy.wordpress.com/
+## https://teamkoinaka.wordpress.com/
+## https://trippingoverwn.wordpress.com/
+## http://arkmachinetranslations.com/
+## http://www.pegasusfarts.com/
+## http://worldofwatermelons.com/
+## http://www.wuxiaworld.com/
 ## http://avertranslation.com/
 ## http://avertranslation.blogspot.sg/
 ## http://a0132.blogspot.ca/
@@ -132,9 +119,7 @@ Also: http://aho-updates.com/
 ## http://skythewood.blogspot.sg/
 ## http://sousetsuka.blogspot.com/
 ## http://ecwebnovel.blogspot.ca/
-
 ## https://sites.google.com/site/sekaigameoredake/
-
 ## https://hui3r.wordpress.com/
 ## https://thatguywhosthere.wordpress.com/
 ## https://reantoanna.wordpress.com

@@ -168,11 +168,13 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 		dbFunc = TextScrape.utilities.Proxy.EmptyProxy(tableKey=tableKey, tableName=tableName, scanned=[feedUrl])
 
 		for item in feedContent:
-			if item['title'].startwith('User:') and tableKey == 'tsuki':
+			if item['title'].startswith('User:') and tableKey == 'tsuki':
 				# The tsuki feed includes changes to user pages. Fuck that noise. Ignore that shit.
 				continue
 
 			if not self.itemInDB(contentid=item['guid']):
+
+				self.log.info("New article in feed!")
 
 				try:
 					ret = dbFunc.processHtmlPage(feedUrl, item['contents'])
