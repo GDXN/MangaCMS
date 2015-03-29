@@ -8,6 +8,7 @@ runStatus.preloadDicts = False
 
 
 import sql.conditionals as sqlc
+import sql.aggregate as sqla
 import settings
 import abc
 import urllib.parse
@@ -77,6 +78,8 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 		# Most of the time is spent in processing pages anyways
 		self.dbLock = threading.Lock()
 
+		self.checkInitRssDb()
+
 	##############################################################################################################################################
 	#
 	#
@@ -104,13 +107,12 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 												contentid   TEXT NOT NULL UNIQUE,
 												title       TEXT,
 												contents    TEXT,
-												contenthash TEXT NOT NULL,
 												author      TEXT,
 
 												tags        JSON,
 
 												updated     DOUBLE PRECISION DEFAULT -1,
-												published   DOUBLE PRECISION NOT NULL,
+												published   DOUBLE PRECISION NOT NULL
 
 												);'''.format(tableName=self.tableName))
 
@@ -121,11 +123,10 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			haveIndexes = [index[0] for index in haveIndexes]
 
 			indexes = [
-				("%s_source_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (src        );'''  ),
+				("%s_srcname_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (srcname    );'''  ),
+				("%s_feedurl_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (feedurl    );'''  ),
 				("%s_contenturl_index" % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (contenturl );'''  ),
 				("%s_contentid_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (contentid  );'''  ),
-				("%s_istext_index"     % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (istext     );'''  ),
-				("%s_linkUrl_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (linkUrl    );'''  ),
 				("%s_title_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (title      );'''  ),
 				("%s_title_trigram"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin (title gin_trgm_ops);'''  ),
 			]
@@ -134,44 +135,55 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 				if not name.lower() in haveIndexes:
 					cur.execute(nameFormat % (name, table))
 
+			print("Instantiation complete")
+
 		self.log.info("Retreived page database created")
-		with self.transaction() as cur:
 
 
-			self.table = sql.Table(self.tableName.lower())
-			self.cols = (
-				self.table.dbid,
-				self.table.srcname,
-				self.table.feedurl,
-				self.table.guid,
-				self.table.title,
-				self.table.contents,
-				self.table.contentHash,
-				self.table.author,
-				self.table.linkUrl,
-				self.table.tags,
-				self.table.updated,
-				self.table.published,
-			)
+		self.table = sql.Table(self.tableName.lower())
+		self.cols = (
+			self.table.dbid,
+			self.table.srcname,
+			self.table.feedurl,
+			self.table.contenturl,
+			self.table.contentid,
+			self.table.title,
+			self.table.contents,
+			self.table.author,
+			self.table.tags,
+			self.table.updated,
+			self.table.published,
+		)
 
 
-			self.validKwargs = ['dbid', 'srcname', 'feedurl', 'guid', 'title', 'contents', 'contentHash', 'author', 'linkUrl', 'tags', 'updated', 'published']
+		self.validKwargs = [
+					'dbid',
+					'srcname',
+					'feedurl',
+					'contenturl',
+					'contentid',
+					'title',
+					'contents',
+					'author',
+					'tags',
+					'updated',
+					'published'
+				]
 
 
-			self.colMap = {
-				'dbid'        : self.table.dbid,
-				'srcname'     : self.table.srcname,
-				'feedurl'     : self.table.feedurl,
-				'guid'        : self.table.guid,
-				'title'       : self.table.title,
-				'contents'    : self.table.contents,
-				'contenthash' : self.table.contentHash,
-				'author'      : self.table.author,
-				'linkUrl'     : self.table.linkUrl,
-				'tags'        : self.table.tags,
-				'updated'     : self.table.updated,
-				'published'   : self.table.published,
-			}
+		self.colMap = {
+			'dbid'        : self.table.dbid,
+			'srcname'     : self.table.srcname,
+			'feedurl'     : self.table.feedurl,
+			'contenturl'  : self.table.contenturl,
+			'contentid'   : self.table.contentid,
+			'title'       : self.table.title,
+			'contents'    : self.table.contents,
+			'author'      : self.table.author,
+			'tags'        : self.table.tags,
+			'updated'     : self.table.updated,
+			'published'   : self.table.published,
+		}
 
 
 
@@ -215,8 +227,8 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 
 	def sqlBuildInsertArgs(self, returning=None, **kwargs):
 
-		cols = [self.table.src]
-		vals = [self.tableKey]
+		cols = []
+		vals = []
 
 		for key, val in kwargs.items():
 			key = key.lower()
@@ -422,80 +434,6 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 
 
 
-	def getFilenameFromIdName(self, rowid, filename):
-		if not os.path.exists(settings.bookCachePath):
-			self.log.warn("Cache directory for book items did not exist. Creating")
-			self.log.warn("Directory at path '%s'", settings.bookCachePath)
-			os.makedirs(settings.bookCachePath)
-
-		# one new directory per 1000 items.
-		dirName = '%s' % (rowid // 1000)
-		dirPath = os.path.join(settings.bookCachePath, dirName)
-		if not os.path.exists(dirPath):
-			os.mkdir(dirPath)
-
-		filename = 'ID%s - %s' % (rowid, filename)
-		filename = nameTools.makeFilenameSafe(filename)
-		fqpath = os.path.join(dirPath, filename)
-
-		return fqpath
-
-
-
-	def saveFile(self, url, mimetype, fileName, content):
-
-
-		hadFile = False
-		# Yeah, I'm hashing twice in lots of cases. Bite me
-		fHash = self.getHash(content)
-
-		with self.transaction() as cur:
-
-			# Look for existing files with the same MD5sum. If there are any, just point the new file at the
-			# fsPath of the existing one, rather then creating a new file on-disk.
-			cur.execute("SELECT fspath  FROM {tableName} WHERE fhash=%s;".format(tableName=self.tableName), (fHash, ))
-			row = cur.fetchone()
-			if row:
-				self.log.info("Already downloaded file. Not creating duplicates.")
-				hadFile = True
-				fqPath = row[0]
-
-
-			cur.execute("SELECT dbid, fspath, contents, mimetype  FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (url, ))
-			row = cur.fetchone()
-			if not row:
-				self.log.critical("Failure when saving file for URL '%s'", url)
-				self.log.critical("File name: '%s'", fileName)
-				return
-
-			dbid = row[0]
-			# self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
-
-			if not hadFile:
-				fqPath = self.getFilenameFromIdName(dbid, fileName)
-
-			newRowDict = {  "dlstate" : 2,
-							"series"  : None,
-							"contents": len(content),
-							"istext"  : False,
-							"mimetype": mimetype,
-							"fspath"  : fqPath,
-							"fhash"   : fHash}
-
-
-		self.updateDbEntry(url=url, commit=False, **newRowDict)
-
-
-		if not hadFile:
-			try:
-				with open(fqPath, "wb") as fp:
-					fp.write(content)
-			except OSError:
-				self.log.error("Error when attempting to save file. ")
-
-				newRowDict = {"dlstate" : -1}
-				self.updateDbEntry(url=url, commit=False, **newRowDict)
-
 
 	def getToDo(self, distance):
 
@@ -554,6 +492,28 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 				self.updateDbEntry(commit=commit, url=pgUrl, **kwargs)
 
 
+	def itemInDB(self, **kwargs):
+		return bool(self.getNumberOfRows(**kwargs))
+
+
+	def getNumberOfRows(self, where=None, **kwargs):
+		if not where:
+			where = self.sqlBuildConditional(**kwargs)
+
+		query = self.table.select(sqla.Count(sql.Literal(1)), where=where)
+
+		query, params = tuple(query)
+
+		if self.QUERY_DEBUG:
+			self.log.info("Query = '%s'", query)
+			self.log.info("Args = '%s'", params)
+
+
+		with self.transaction() as cur:
+			cur.execute(query, params)
+			ret = cur.fetchone()
+
+		return ret[0]
 
 	def getHash(self, fCont):
 

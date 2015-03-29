@@ -277,9 +277,11 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 	# Methods to allow the child-class to modify the content at various points.
 	def extractTitle(self, srcSoup, doc, url):
 		title = doc.title()
-		if not title:
-			if srcSoup.title:
-				return srcSoup.title.get_text().strip()
+		if title:
+			return title
+		if srcSoup.title:
+			return srcSoup.title.get_text().strip()
+
 
 		return "'%s' has no title!" % url
 

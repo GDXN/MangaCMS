@@ -655,7 +655,7 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 				else:
 					timeouts += 1
 					time.sleep(1)
-					self.log.info("Fetch task waiting.")
+					self.log.info("Fetch task waiting for any potential items to flush to the DB.")
 
 				if timeouts > 5:
 					break
@@ -664,20 +664,28 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 				traceback.print_exc()
 		self.log.info("Fetch thread exiting!")
 
-	def crawl(self):
+	def crawl(self, shallow=False, checkOnly=False):
 
 		self.resetStuckItems()
 
 		if hasattr(self, 'preFlight'):
 			self.preFlight()
 
+
+		# Reset the dlstate on the starting URLs, so thing start up.
 		haveUrls = set()
-		if isinstance(self.startUrl, (list, set)):
-			for url in self.startUrl:
-				self.log.info("Start URL: '%s'", url)
-				self.upsert(url, dlstate=0, distance=0)
-		else:
-			self.upsert(self.startUrl, dlstate=0, distance=0)
+
+		if not checkOnly:
+			if isinstance(self.startUrl, (list, set)):
+				for url in self.startUrl:
+					self.log.info("Start URL: '%s'", url)
+					self.upsert(url, dlstate=0, distance=0, walklimit=-1)
+			else:
+				self.upsert(self.startUrl, dlstate=0, distance=0, walklimit=-1)
+
+		if shallow:
+			self.FETCH_DISTANCE = 1
+
 
 		with ThreadPoolExecutor(max_workers=self.threads) as executor:
 

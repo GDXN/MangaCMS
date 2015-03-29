@@ -30,6 +30,7 @@ class DbBase(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		__getCursor and __freeConn rely on "magic" thread ID cookies to associate
 		threads with their correct db pool interfaces
 		'''
+
 		tid = threading.get_ident()
 
 		if tid in self.connections:
@@ -39,7 +40,7 @@ class DbBase(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		return self.connections[tid].cursor()
 
 	def __freeConn(self):
-		conn = self.connections.popitem(threading.get_ident())
+		conn = self.connections.pop(threading.get_ident())
 		dbPool.pool.putconn(conn)
 
 

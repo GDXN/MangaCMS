@@ -57,6 +57,31 @@ import TextScrape.Guhehe.Run
 import TextScrape.DearestFairy.Run
 import TextScrape.HaruParty.Run
 
+import TextScrape.BakaTsuki.RunUpdate
+import TextScrape.BsBlogs.RunUpdate
+import TextScrape.Dawnglare.RunUpdate
+import TextScrape.DearestFairy.RunUpdate
+import TextScrape.Guhehe.RunUpdate
+import TextScrape.HaruParty.RunUpdate
+import TextScrape.JapTem.RunUpdate
+import TextScrape.Krytyk.RunUpdate
+import TextScrape.PrinceRevolution.RunUpdate
+import TextScrape.ReTranslations.RunUpdate
+import TextScrape.SekaiGaGame.RunUpdate
+import TextScrape.UnlimitedNovelFailures.RunUpdate
+import TextScrape.WarTdf.RunUpdate
+import TextScrape.WpBlogs.RunUpdate
+import TextScrape.PasteBin.RunUpdate
+import TextScrape.AFic.RunUpdate
+import TextScrape.FanFiction.RunUpdate
+import TextScrape.FictionPress.RunUpdate
+import TextScrape.RoyalRoad.RunUpdate
+import TextScrape.StoriesOnline.RunUpdate
+import TextScrape.WattPad.RunUpdate
+
+
+import TextScrape.RssRun
+
 
 
 import ScrapePlugins.MangaMadokami.mkContentLoader
@@ -86,7 +111,7 @@ scrapePlugins = {
 	10 : (ScrapePlugins.FakkuLoader.Run,                     hours(1)),
 	11 : (ScrapePlugins.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
 	# 12 : (ScrapePlugins.MjLoader.Run,                        hours(1)),
-	13 : (ScrapePlugins.IrcGrabber.BotRunner,                hours(1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
+	13 : (ScrapePlugins.IrcGrabber.BotRunner,                days(1000)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
 	14 : (ScrapePlugins.FoolSlide.RhLoader.Run,              hours(12)),
 	15 : (ScrapePlugins.LoneMangaLoader.Run,                 hours(12)),
 	16 : (ScrapePlugins.WebtoonLoader.Run,                   hours(8)),
@@ -118,20 +143,44 @@ scrapePlugins = {
 	150 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       days(4)),  # every 4 days, because I have to iterate over the ENTIRE site.
 
 
+	# Update the feeds hourly (if they have new updateable content only)
+	# Feed updaters and complete updaters have the same run-name, so
+	# there /shouldn't/ be concurrency issues (one will just block)
+	200 : (TextScrape.RssRun,                                  hours(1)),
+	201 : (TextScrape.BakaTsuki.RunUpdate,                     hours(1)),
+	202 : (TextScrape.BsBlogs.RunUpdate,                       hours(1)),
+	203 : (TextScrape.Dawnglare.RunUpdate,                     hours(1)),
+	204 : (TextScrape.DearestFairy.RunUpdate,                  hours(1)),
+	205 : (TextScrape.Guhehe.RunUpdate,                        hours(1)),
+	206 : (TextScrape.HaruParty.RunUpdate,                     hours(1)),
+	207 : (TextScrape.JapTem.RunUpdate,                        hours(1)),
+	208 : (TextScrape.Krytyk.RunUpdate,                        hours(1)),
+	209 : (TextScrape.PrinceRevolution.RunUpdate,              hours(1)),
+	210 : (TextScrape.ReTranslations.RunUpdate,                hours(1)),
+	211 : (TextScrape.SekaiGaGame.RunUpdate,                   hours(1)),
+	212 : (TextScrape.UnlimitedNovelFailures.RunUpdate,        hours(1)),
+	213 : (TextScrape.WarTdf.RunUpdate,                        hours(1)),
+	214 : (TextScrape.WpBlogs.RunUpdate,                       hours(1)),
+	215 : (TextScrape.PasteBin.RunUpdate,                      hours(1)),
+	216 : (TextScrape.AFic.RunUpdate,                          hours(1)),
+	217 : (TextScrape.FanFiction.RunUpdate,                    hours(1)),
+	218 : (TextScrape.FictionPress.RunUpdate,                  hours(1)),
+	219 : (TextScrape.RoyalRoad.RunUpdate,                     hours(1)),
+	220 : (TextScrape.StoriesOnline.RunUpdate,                 hours(1)),
+	221 : (TextScrape.WattPad.RunUpdate,                       hours(1)),
 
-	# 80  : (TextScrape.BakaTsuki.Run,                       days(3)),  # Every 3 days, because books is slow to update
-	# 81  : (TextScrape.JapTem.Run,                          days(3)),
-	# 82  : (TextScrape.Guhehe.Run,                          days(3)),
 
-	# 83  : (TextScrape.WpBlogs.Run,                         days(1)),
-	# 84  : (TextScrape.BsBlogs.Run,                         days(1)),
-
-	# 85  : (TextScrape.PrinceRevolution.Run,                days(5)),
-	# 86  : (TextScrape.Krytyk.Run,                          days(5)),
-	# 87  : (TextScrape.UnlimitedNovelFailures.Run,          days(2)),
-	# 90  : (TextScrape.ReTranslations.Run,                  days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
-	# 98  : (TextScrape.WarTdf.Run,                          days(1)),
-	# 108 : (TextScrape.HaruParty.Run,                       days(2)),
+	300 : (TextScrape.BakaTsuki.Run,                           days(7)),  # Every 3 days, because books is slow to update
+	301 : (TextScrape.JapTem.Run,                              days(3)),
+	302 : (TextScrape.Guhehe.Run,                              days(3)),
+	303 : (TextScrape.WpBlogs.Run,                             days(1)),
+	304 : (TextScrape.BsBlogs.Run,                             days(1)),
+	305 : (TextScrape.PrinceRevolution.Run,                    days(5)),
+	306 : (TextScrape.Krytyk.Run,                              days(5)),
+	307 : (TextScrape.UnlimitedNovelFailures.Run,              days(2)),
+	308 : (TextScrape.ReTranslations.Run,                      days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+	309 : (TextScrape.WarTdf.Run,                              days(1)),
+	310 : (TextScrape.HaruParty.Run,                           days(2)),
 
 }
 

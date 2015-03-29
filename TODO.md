@@ -9,6 +9,8 @@ chapter and volume columns
  http://thenakedsol.blogspot.com.au/
  http://avertranslation.com/
  
+ tadanohito shutting down  scrape everything
+ https://teamkoinaka.wordpress.com/
  
 rss separate from ln scrape
  

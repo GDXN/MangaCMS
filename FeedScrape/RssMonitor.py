@@ -67,7 +67,10 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 		assert contentDat['type'] == 'text/html'
 
 		content = contentDat['value']
-		soup = bs4.BeautifulSoup(content)
+
+		# Use a parser that doesn't try to generate a well-formed output (and therefore doesn't insert
+		# <html> or <body> into content that will be only a part of the rendered page)
+		soup = bs4.BeautifulSoup(content, "html.parser")
 
 		links = []
 		for link in soup.find_all('a'):
@@ -76,7 +79,20 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			except KeyError:
 				pass
 
-		return content, links
+		if soup.html:
+			soup.html.unwrap()
+		if soup.body:
+			soup.body.unwrap()
+
+		try:
+			cont = soup.prettify()
+		except RuntimeError:
+			try:
+				cont = str(soup)
+			except RuntimeError:
+				cont = '<H2>WARNING - Failure when cleaning and extracting content!</H2><br><br>'
+				cont += content
+		return cont, links
 
 	def extractSummary(self, contentDat):
 		# TODO: Some stats to try to guess is the content is HTML or not (and then whack it with markdown!)
@@ -97,25 +113,22 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 
 		meta = feed['feed']
 		entries = feed['entries']
-		print(meta['title'])
-		print(meta['subtitle'])
-		print(len(entries))
 
 		ret = []
 
 		for entry in entries:
-
 			item = {}
 
 			item['title'] = entry['title']
 			item['guid'] = entry['guid']
 
+			tags = []
 			if 'tags' in entry:
-				tags = []
 				for tag in entry['tags']:
 					tags.append(tag['term'])
 
-				item['tags'] = json.dumps(tags)
+			item['tags'] = json.dumps(tags)
+
 
 			item['linkUrl'] = entry['link']
 
@@ -127,7 +140,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			else:
 				raise ValueError("No contents in item?")
 
-
+			item['authors'] = entry['authors']
 			# guid
 			# contents
 			# contentHash
@@ -142,8 +155,10 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			if 'published_parsed' in entry:
 				item['published'] = time.mktime(entry['published_parsed'])
 
-				if not 'updated' in item or ('updated' in item and item['updated'] < item['published']):
-					item['updated'] = item['published']
+			if not 'published' in item or ('updated' in item and item['published'] > item['updated']):
+				item['published'] = item['updated']
+			if not 'updated' in item:
+				item['updated'] = -1
 
 			ret.append(item)
 		return ret
@@ -151,11 +166,46 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 	def insertFeed(self, tableName, tableKey, pluginName, feedUrl, feedContent):
 
 		dbFunc = TextScrape.utilities.Proxy.EmptyProxy(tableKey=tableKey, tableName=tableName, scanned=[feedUrl])
-		print(dbFunc)
-		for item in feedContent:
-			ret = dbFunc.processHtmlPage(feedUrl, item['contents'])
 
-			print(ret)
+		for item in feedContent:
+
+
+			if not self.itemInDB(contentid=item['guid']):
+
+				try:
+					ret = dbFunc.processHtmlPage(feedUrl, item['contents'])
+				except RuntimeError:
+					ret = {}
+					ret['contents'] = '<H2>WARNING - Failure when cleaning and extracting content!</H2><br><br>'
+					ret['contents'] += item['contents']
+
+					ret['rsrcLinks'] = []
+					ret['plainLinks'] = []
+
+				row = {
+					'srcname'    : tableKey,
+					'feedurl'    : feedUrl,
+					'contenturl' : item['linkUrl'],
+					'contentid'  : item['guid'],
+					'title'      : item['title'],
+					'contents'   : ret['contents'],
+					'author'     : '',
+					'tags'       : item['tags'],
+					'updated'    : item['updated'],
+					'published'  : item['published'],
+				}
+
+				self.insertIntoDb(**row)
+
+
+				dbFunc.upsert(item['linkUrl'], dlstate=0, distance=0, walkLimit=1)
+				for link in ret['plainLinks']:
+					dbFunc.upsert(link, dlstate=0, distance=0, walkLimit=1)
+				for link in ret['rsrcLinks']:
+					dbFunc.upsert(link, distance=0, walkLimit=1, istext=False)
+
+
+
 
 
 class RssTest(RssMonitor):

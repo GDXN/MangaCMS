@@ -161,7 +161,6 @@ class TextDbBase(metaclass=abc.ABCMeta):
 												src       TEXT NOT NULL,
 												dlstate   INTEGER DEFAULT 0,
 												url       CITEXT UNIQUE NOT NULL,
-
 												title     text,
 												series    CITEXT,
 												contents  text,
@@ -169,9 +168,10 @@ class TextDbBase(metaclass=abc.ABCMeta):
 												fhash     CITEXT,
 												mimetype  CITEXT,
 												fspath    text DEFAULT '',
-												distance  INTEGER DEFAULT -1,
-												netloc    CITEXT);'''.format(tableName=self.tableName))
-
+												distance  INTEGER DEFAULT 2147483648,
+												walklimit INTEGER DEFAULT -1,
+												netloc    CITEXT
+												);'''.format(tableName=self.tableName))
 
 
 			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
@@ -182,6 +182,8 @@ class TextDbBase(metaclass=abc.ABCMeta):
 												title      text,
 												changeDate double precision NOT NULL
 												);'''.format(tableName=self.changeTableName))
+
+
 
 
 			cur.execute("SELECT relname FROM pg_class;")
@@ -225,7 +227,24 @@ class TextDbBase(metaclass=abc.ABCMeta):
 		self.conn.commit()
 		self.log.info("Retreived page database created")
 
-		self.validKwargs = ['dbid', 'src', 'dlstate', 'url', 'title', 'series', 'contents', 'istext', 'fhash', 'mimetype', 'fspath']
+
+
+		self.validKwargs = [
+						'dbid',
+						'src',
+						'dlstate',
+						'url',
+						'title',
+						'netloc',
+						'series',
+						'contents',
+						'istext',
+						'fhash',
+						'mimetype',
+						'fspath',
+						'distance',
+						'walklimit'
+					]
 
 
 		self.table = sql.Table(self.tableName.lower())
@@ -235,8 +254,8 @@ class TextDbBase(metaclass=abc.ABCMeta):
 				self.table.src,
 				self.table.dlstate,
 				self.table.url,
-				self.table.netloc,
 				self.table.title,
+				self.table.netloc,
 				self.table.series,
 				self.table.contents,
 				self.table.istext,
@@ -244,6 +263,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 				self.table.mimetype,
 				self.table.fspath,
 				self.table.distance,
+				self.table.walklimit,
 			)
 
 
@@ -261,6 +281,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 				"mimetype"   : self.table.mimetype,
 				"fspath"     : self.table.fspath,
 				"distance"   : self.table.distance,
+				"walklimit"  : self.table.walklimit,
 			}
 
 

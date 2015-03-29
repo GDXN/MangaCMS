@@ -11,7 +11,7 @@ import urllib.parse
 import bs4
 import copy
 import readability.readability
-import LogBase
+
 import TextScrape.urlFuncs
 import TextScrape.ProcessorBase
 
@@ -19,6 +19,13 @@ import TextScrape.ProcessorBase
 # import TextScrape.RELINKABLE as RELINKABLE
 
 
+# # Yes, I was actually having issue blowing the stack on deeply nested HTML content.
+# # Apparently tag nesting > 500 is a (somewhat) common thing.
+# # BS4 recurses twice per inner-tag
+# import sys
+# sys.setrecursionlimit(2500)
+# Never mind, it wound up being triggered by the fact that I changed parsers.
+# Switched back to lxml, and shit is fine.
 
 class DownloadException(Exception):
 	pass
@@ -64,6 +71,7 @@ GLOBAL_BAD = [
 			'reddit.com',
 			'newsgator.com',
 			'technorati.com',
+			'pixel.wp.com',
 	]
 
 GLOBAL_DECOMPOSE_BEFORE = [
@@ -325,13 +333,9 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 
 
-		# Since the content we're extracting will be embedded into another page, we want to
-		# strip out the <body> and <html> tags. `unwrap()`  replaces the soup with the contents of the
-		# tag it's called on. We end up with just the contents of the <body> tag.
-		soup.body.unwrap()
-		contents = soup.prettify()
 
 		title = self.extractTitle(soup, doc, url)
+
 
 		if isinstance(self.stripTitle, (list, set)):
 			for stripTitle in self.stripTitle:
@@ -340,6 +344,13 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 			title = title.replace(self.stripTitle, "")
 
 		title = title.strip()
+
+		# Since the content we're extracting will be embedded into another page, we want to
+		# strip out the <body> and <html> tags. `unwrap()`  replaces the soup with the contents of the
+		# tag it's called on. We end up with just the contents of the <body> tag.
+		soup.body.unwrap()
+		contents = soup.prettify()
+
 		return title, contents
 
 
@@ -383,7 +394,10 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 		# Process page with readability, extract title.
 		pgTitle, pgBody = self.cleanHtmlPage(soup, url=self.pageUrl)
-		self.log.info("Page with title '%s' retreived.", pgTitle)
+		if 'has no title!' in pgTitle:
+			self.log.warn("Page has no title: '%s'", pgTitle)
+		else:
+			self.log.info("Page with title '%s' retreived.", pgTitle)
 
 		ret = {}
 
@@ -411,18 +425,27 @@ def test():
 	import logSetup
 	logSetup.initLogging()
 
+	import TextScrape.RelinkLookup
+
+	relinkable = TextScrape.RelinkLookup.getRelinkable()
+
 	wg = webFunctions.WebGetRobust()
-	content = wg.getpage('http://www.arstechnica.com')
-	scraper = HtmlPageProcessor(['http://www.arstechnica.com', "http://cdn.arstechnica.com/"], 'http://www.arstechnica.com', content, 'Main.Test', tld=['com', 'net'])
-	print(scraper)
-	extr = scraper.extractContent()
-	for link in extr['fLinks']:
-		print(link)
+
+	tests = [
+		('http://jawztranslations.blogspot.com/2015/03/LMS-V22-C07.html', 'http://jawztranslations.blogspot.com/'),
+		('http://skythewood.blogspot.sg/2015/03/G26.html', 'http://skythewood.blogspot.sg/'),
+	]
+
+	for testurl, context in tests:
+		content = wg.getpage(testurl)
+		scraper = HtmlPageProcessor([context], testurl, content, 'Main.Test', tld=['com', 'net', 'sg'], relinkable=relinkable)
+		extr = scraper.extractContent()
+		# print(scraper)
+
 	print()
 	print()
 	print()
-	for link in extr['iLinks']:
-		print(link)
+	print(extr)
 	# print(extr['fLinks'])
 
 
