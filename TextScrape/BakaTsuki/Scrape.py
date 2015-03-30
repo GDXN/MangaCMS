@@ -114,6 +114,8 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"action=submit",
 
 				"~Russian_Version~",
+				"~Russian",
+				"~Brazilian",
 
 				]
 

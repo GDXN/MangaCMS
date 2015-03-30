@@ -4,7 +4,7 @@
 import time
 import datetime
 import os.path
-
+import calendar
 
 import re
 import urllib.parse
@@ -40,14 +40,28 @@ from ipaddress import IPv4Address, IPv4Network
 
 </%def>
 
+<%def name="errorDiv(errStr=None)">
+	<br>
+
+	<div class="errorPattern">
+		<h2>Error!</h2>
+		<p>${errStr}</p>
+
+	</div>
+
+</%def>
+
 
 
 <%def name="timeAgo(inTimeStamp)">
 	<%
 	if inTimeStamp == None:
 		return "NaN"
+
 	delta = int(time.time() - inTimeStamp)
-	if delta < 60:
+	if delta < 0:
+		return "Future?"
+	elif delta < 60:
 		return "{delta} s".format(delta=delta)
 	delta = delta // 60
 	if delta < 60:
@@ -64,6 +78,11 @@ from ipaddress import IPv4Address, IPv4Network
 
 
 	%>
+</%def>
+
+<%def name="makeBookReaderLinkFromUrl(url, linkText)">
+
+	<a href='/books/render?url=${url | u}'>${linkText}</a>
 </%def>
 
 <%def name="makeLndbItemLink(dbid, linkText)">

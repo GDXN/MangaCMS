@@ -2,10 +2,30 @@
 <!DOCTYPE html>
 <%!
 import time
+import urllib.parse
 %>
 
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
 <%namespace name="ut"              file="/utilities.mako"/>
+
+<%def name="getBaseDomainUrl(url)">
+	<%
+	parsedUrl = urllib.parse.urlsplit(url)
+	feedurl = parsedUrl.netloc
+	tup = (parsedUrl.scheme, parsedUrl.netloc, '', '', '')
+	itemHome = urllib.parse.urlunsplit(tup)
+
+
+	## Clean up blogspot/wordpress URLS so they print a little bit nicer.
+	if 'blogspot' in feedurl or 'wordpress' in feedurl:
+		feedurl = feedurl.split('.')[0]
+
+
+	return feedurl, itemHome
+	%>
+
+</%def>
+
 
 <%def name="fetchEntries(offset, quantity)">
 	<%
@@ -24,9 +44,16 @@ import time
 				published
 			FROM
 				rss_monitor
+			WHERE
+				srcname != 'tsuki'
 			ORDER BY published desc
 			LIMIT %s
 			OFFSET %s''', (quantity, offset))
+
+	## Baka-Tsuki's RSS feed is too full of crap
+	## to be worth rendering (though it's still nice for
+	## change monitoring)
+
 	ret = cur.fetchall()
 
 	keys = [
@@ -53,29 +80,29 @@ import time
 <%def name="renderRow(rowDat)">
 	<%
 	title = rowDat['title']
-
+	feedurl, itemHome = getBaseDomainUrl(rowDat['feedurl'])
 
 	source = rowDat['srcname'].title()
-	date = addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(rowDat['published']))
+	date = ut.timeAgo(rowDat['published'])
 	tags = rowDat['tags']
 	tags = ", ".join(tags)
 
 	%>
 	<tr>
-		<td>${title}</td>
-		<td>${source}</td>
+		<td><a href='/feeds/item?entry=${rowDat['dbid']}'>${title}</a></td>
+		<td><a href='${itemHome}'>${feedurl}</a><span style='float:right'><a href='${rowDat['contenturl']}'>src</a></span></td>
 		<td>${tags}</td>
 		<td>${date}</td>
 	</tr>
 </%def>
 
 <%def name="renderTable(data)">
-	<table>
+	<table border="1px" style="width: 100%;">
 		<tr>
-			<th style="width: 450px; min-width: 450px;">Title</th>
-			<th style="width: 60px; min-width: 60px;">Source</th>
-			<th>Tags</th>
-			<th style="width: 105px; min-width: 105px;">Date</th>
+			<th style="width: 400px; min-width: 400px;"  class="uncoloured">Title</th>
+			<th style="width: 200px; min-width: 200px;"  class="uncoloured">Source</th>
+			<th  class="uncoloured">Tags</th>
+			<th style="width: 60px; min-width: 60px;"  class="uncoloured">Date</th>
 		</tr>
 		%for entry in data:
 			<%
@@ -94,6 +121,101 @@ import time
 	renderTable(dat)
 
 	%>
+
+</%def>
+
+
+<%def name="itemId(itemId)">
+	<%
+	cur = sqlCon.cursor()
+	cur.execute('''SELECT
+				dbid,
+				srcname,
+				feedurl,
+				contenturl,
+				contentid,
+				title,
+				contents,
+				author,
+				tags,
+				updated,
+				published
+			FROM
+				rss_monitor
+			WHERE
+				dbid= %s''', (itemId, ))
+	data = cur.fetchone()
+
+
+	keys = ['dbid', 'srcname', 'feedurl', 'contenturl', 'contentid', 'title', 'contents', 'author', 'tags', 'updated', 'published']
+
+	data = dict(zip(keys, data))
+
+
+	itemHomeName, baseUrl = getBaseDomainUrl(data['contenturl'])
+
+
+	%>
+	<hr>
+	<h2>
+		${data['title']}
+	</h2>
+
+	<div>
+		<table>
+
+			<col width="200px">
+			<col width="400px">
+			<tr>
+				<td>
+					Source:
+				</td>
+				<td>
+					<a href='${baseUrl}'>${itemHomeName}</a>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					Tags:
+				</td>
+				<td>
+					${', '.join(data['tags'])}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Author:
+				</td>
+				<td>
+					${data['author'] if data['author'] else 'Not Present!'}
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					Full Local Content:
+				</td>
+				<td>
+					<%
+						ut.makeBookReaderLinkFromUrl(data['contenturl'], data['title'])
+					%>
+				</td>
+			</tr>
+
+		</table>
+	</div>
+	<div class="contentdiv bookcontent">
+		${data['contents']}
+	</div>
+
+
+	## <%
+
+	## dat = fetchEntries(offset, quantity)
+	## renderTable(dat)
+
+	## %>
 
 </%def>
 
