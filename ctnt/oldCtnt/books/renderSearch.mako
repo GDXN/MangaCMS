@@ -13,7 +13,7 @@ import sql
 import sql.operators as sqlo
 import functools
 import operator as opclass
-
+import urllib.parse
 import settings
 
 from natsort import natsorted
@@ -67,14 +67,10 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 <%def name="renderBookRow(row)">
 	<%
-	if row['src'] in srcLookup:
-		source = srcLookup[row['src']]
-	else:
-		source = row['src']
-
+	netloc = urllib.parse.urlsplit(row['url']).netloc
 	%>
 	<tr>
-		<td>${source}</td>
+		<td>${netloc}</td>
 		<td><a href='/books/render?url=${row['url'] | u}'>${row['title']}</a></td>
 		<td><a href='${row['url']}'>src</a></td>
 	</tr>
@@ -114,9 +110,9 @@ def buildQuery(srcTbl, cols, **kwargs):
 		<table border="1px" class='fullwidth'>
 			<tr>
 
-				<th class="uncoloured" width="15%">Source</th>
+				<th class="uncoloured" width="30%">Source</th>
 				<th class="uncoloured">Title</th>
-				<th class="uncoloured" width="8%">OrigLnk</th>
+				<th class="uncoloured" width="7%">OrigLnk</th>
 
 
 			</tr>

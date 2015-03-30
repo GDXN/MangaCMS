@@ -1,11 +1,11 @@
 chapter and volume columns
-netloc in book search table
+## netloc in book search table
 volume/chapter tracking, rather then just c
 fix last crawl time
 
 request priority sorting
-sort trigram search results by similarity
-also expose similarity value
+## sort trigram search results by similarity
+## also expose similarity value
 
 http://reader.s2smanga.com/ fooslide based add scraper
 http://www.surasplace.com/index.php/projects.html
@@ -16,7 +16,7 @@ use jdownloader api tomscrape other h blogs
 
 Blogger blog: http://www.pegasusfarts.com/
 
-separate plugin status page
+## separate plugin status page
  
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1NjsYhS3_PQvA3xSjOV0IubpNmyJk98eBu19ak2NMaIQ%2Fpub
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
