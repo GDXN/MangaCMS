@@ -150,10 +150,14 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 		andOperators.append((srcTbl.seriesname == kwargs['seriesName']))
 
+
+
+
 	# Trigram similarity search uses the '%' symbol. It's only exposed by the python-sql library as the
 	# "mod" operator, but the syntax is compatible.
 	if 'originTrigram' in kwargs and kwargs['originTrigram']:
 		andOperators.append(sqlo.Mod(srcTbl.originname, kwargs['originTrigram']))
+
 
 
 	if orOperators:
@@ -164,7 +168,13 @@ def buildQuery(srcTbl, cols, **kwargs):
 	else:
 		where=None
 
-	query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime), where=where)
+	if 'originTrigram' in kwargs:
+
+		# If we're doing a trigram search, we want to order by trigram similarity
+		query = srcTbl.select(*cols, order_by = sqlo.Similarity(srcTbl.originname, kwargs['originTrigram']).asc, where=where)
+		# query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime), where=where)
+	else:
+		query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime), where=where)
 
 
 	if "offset" in kwargs and kwargs['offset']:
@@ -598,33 +608,20 @@ colours = {
 <%def name="renderHentaiRow(row)">
 	<%
 
-	dbId,          \
-	dlState,       \
-	sourceSite,    \
-	sourceUrl,     \
-	retreivalTime, \
-	sourceId,      \
-	seriesName,    \
-	fileName,      \
-	originName,    \
-	downloadPath,  \
-	flags,         \
-	tags,          \
-	note = row
+	## print(row)
+	dlState = int(row['dlState'])
 
-	dlState = int(dlState)
+	# % for rowid, addDate, working, downloaded, dlName, dlLink, itemrow['Tags'], dlPath, fName in tblCtntArr:
 
-	# % for rowid, addDate, working, downloaded, dlName, dlLink, itemTags, dlPath, fName in tblCtntArr:
+	addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(row['retreivalTime']))
 
-	addDate = time.strftime('%y-%m-%d %H:%M', time.localtime(retreivalTime))
-
-	if not downloadPath and not fileName:
+	if not row['downloadPath'] and not row['fileName']:
 		fSize = -2
 		filePath = "NA"
 
 	else:
 		try:
-			filePath = os.path.join(downloadPath, fileName)
+			filePath = os.path.join(row['downloadPath'], row['fileName'])
 			if os.path.exists(filePath):
 				fSize = os.path.getsize(filePath)
 			else:
@@ -652,58 +649,63 @@ colours = {
 		fSizeStr = ut.fSizeToStr(fSize)
 
 
-	if not tags:
-		tags = ""
+	if not row['tags']:
+		row['tags'] = ""
 
-	if seriesName and "»" in seriesName:
-		seriesNames = seriesName.split("»")
+	if row['seriesName'] and "»" in row['seriesName']:
+		seriesNames = row['seriesName'].split("»")
 	else:
-		seriesNames = [str(seriesName)]
+		seriesNames = [str(row['seriesName'])]
 
 
 
 	%>
-	<tr class="${sourceSite}_row">
+	<tr class="${row['sourceSite']}_row">
 
-		<td>${ut.timeAgo(retreivalTime)}</td>
-		<td bgcolor=${statusColour} class="showHT" mouseovertext="${sourceSite}, ${dbId}, ${filePath}"></td>
+		<td>${ut.timeAgo(row['retreivalTime'])}</td>
+		<td bgcolor=${statusColour} class="showHT" mouseovertext="${row['sourceSite']}, ${row['dbId']}, ${filePath}"></td>
 		<td>
-		## Messy hack that prevents the "»" from being drawn anywhere but *inbetween* tags in the path
+		## Messy hack that prevents the "»" from being drawn anywhere but *inbetween* row['tags'] in the path
 			% for i, seriesName in enumerate(seriesNames):
 				${'»'*bool(i)}
 				<a href="/itemsPron?bySeries=${seriesName.strip()|u}">${seriesName}</a>
 			% endfor
 		</td>
 
+		%if 'similarity' in row:
+			<td>
+				${row['similarity']}
+			</td>
+		%endif
 
 		<td>
-			% if "phash-duplicate" in tags:
+			% if "phash-duplicate" in row['tags']:
 				<span style="text-decoration: line-through; color: red;">
 					<span style="color: #000;">
-			% elif "deleted" in tags:
+			% elif "deleted" in row['tags']:
 				<strike>
 			% endif
 
 			% if fSize <= 0:
-				${originName}
+				${row['originName']}
 			% else:
-				<a href="/pron/read/${dbId}">${originName}</a>
+				<a href="/pron/read/${row['dbId']}">${row['originName']}</a>
 			% endif
 
-			% if "phash-duplicate" in tags:
+			% if "phash-duplicate" in row['tags']:
 					</span>
 				</span>
-			% elif "deleted" in tags:
+			% elif "deleted" in row['tags']:
 				</strike>
 			% endif
 		</td>
 
 
 
-		% if tags != None:
+		% if row['tags'] != None:
 			<td>
 
-			% for tag in tags.split():
+			% for tag in row['tags'].split():
 				<%
 				tagname = tag.lower().replace("artist-", "") \
 							.replace("authors-", "") \
@@ -756,14 +758,39 @@ colours = {
 
 </%def>
 
+<%def name="unpackHQueryRet(data)">
+	<%
+
+
+	key13 = ['dbId', 'dlState', 'sourceSite', 'sourceUrl', 'retreivalTime', 'sourceId', 'seriesName', 'fileName', 'originName', 'downloadPath', 'flags', 'tags', 'note']
+	key14 = ['dbId', 'dlState', 'sourceSite', 'sourceUrl', 'retreivalTime', 'sourceId', 'seriesName', 'fileName', 'originName', 'downloadPath', 'flags', 'tags', 'note', 'similarity']
+
+	ret = []
+	for item in data:
+		if len(item) == 13:
+			ret.append(dict(zip(key13, item)))
+		elif len(item) == 14:
+			ret.append(dict(zip(key14, item)))
+		else:
+			raise ValueError("Invalid number of items in query return: '%s'" % len(item))
+
+	return ret
+
+	%>
+</%def>
+
 <%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False, originTrigram=None)">
 
 	<%
 
 	offset = offset * limit
 
+	cols = hentaiCols
+	if originTrigram:
+		cols = cols + (sqlo.Similarity(hentaiTable.originname, originTrigram), )
+
 	query = buildQuery(hentaiTable,
-		hentaiCols,
+		cols,
 		tableKey      = siteSource,
 		tagsFilter    = tagsFilter,
 		seriesFilter  = seriesFilter,
@@ -788,15 +815,20 @@ colours = {
 		cur.execute(query, params)
 		tblCtntArr = cur.fetchall()
 
-
+	data = unpackHQueryRet(tblCtntArr)
+	## print(data)
 	%>
-	% if tblCtntArr:
+	% if data:
 		<table border="1px">
 			<tr>
 
 				<th class="uncoloured" width="5%">Date</th>
 				<th class="uncoloured" width="3%">St</th>
 				<th class="uncoloured" width="18%">Path</th>
+				%if originTrigram:
+					<th class="uncoloured" width="6%">Distance</th>
+
+				%endif
 				<th class="uncoloured" width="25%">FileName</th>
 				<th class="uncoloured" width="30%">Tags</th>
 				<th class="uncoloured" width="8%">Size</th>
@@ -805,7 +837,7 @@ colours = {
 
 			</tr>
 
-			% for row in tblCtntArr:
+			% for row in data:
 				${renderHentaiRow(row)}
 			% endfor
 
