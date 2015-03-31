@@ -241,6 +241,22 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			self.log.info("Base container directory exists.")
 
+
+
+	def checkInitDoujinDirs(self):
+		try:
+			dirs = list(self.ftp.mlsd(os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"])))
+		except ftplib.error_perm:
+			self.log.critical("Container dir for uploads ('%s') does not exist!", settings.mkSettings["uploadContainerDir"])
+			raise
+
+		fullPath = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], "_Doujinshi")
+		if settings.mkSettings["uploadDir"] not in [item[0] for item in dirs]:
+			self.log.info("Need to create base container path")
+			self.ftp.mkd(fullPath)
+		else:
+			self.log.info("Base container directory exists.")
+
 		# self.mainDirs     = self.loadMainDirs()
 		self.unsortedDirs = self.loadRemoteDirectory(fullPath, aggregate=True)
 
@@ -313,9 +329,38 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ulDir
 
+	def getDoujinshiUploadDirectory(self, seriesName):
+		ulDir = self.getExistingDir(seriesName)
+
+		if not ulDir:
+			seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
+			safeFilename = nt.makeFilenameSafe(seriesName)
+			matchName = nt.prepFilenameForMatching(seriesName)
+			matchName = matchName.encode('latin-1', 'ignore').decode('latin-1')
+
+			self.checkInitDirs()
+			if matchName in self.unsortedDirs:
+				ulDir = self.unsortedDirs[matchName]
+			else:
+
+				self.log.info("Need to create container directory for %s", seriesName)
+				ulDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
+				try:
+					self.ftp.mkd(ulDir)
+				except ftplib.error_perm:
+					self.log.warn("Directory exists?")
+					self.log.warn(traceback.format_exc())
+
+
+		return ulDir
+
 	def uploadFile(self, seriesName, filePath):
 
-		ulDir = self.getUploadDirectory(seriesName)
+		if '(Doujinshi)' in filePath or 'Doujin}' in filePath:
+			self.checkInitDoujinDirs()
+			ulDir = self.getDoujinshiUploadDirectory(seriesName)
+		else:
+			ulDir = self.getUploadDirectory(seriesName)
 
 
 		dummy_path, filename = os.path.split(filePath)
