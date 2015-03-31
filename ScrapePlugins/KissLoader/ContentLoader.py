@@ -60,7 +60,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	def getImageUrls(self, baseUrl):
 
 		pgctnt = self.wg.getpage(baseUrl)
-		pages = {}
 
 
 		linkRe = re.compile(r'lstImages\.push\("(.+?)"\);')
@@ -68,8 +67,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		links = linkRe.findall(pgctnt)
 
 
+		pages = []
 		for item in links:
-			pages[item] = baseUrl
+			pages.append(item)
 
 		self.log.info("Found %s pages", len(pages))
 
@@ -125,8 +125,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			images = []
 			imgCnt = 1
-			for imgUrl, referrerUrl in imageUrls.items():
-				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
+			for imgUrl in imageUrls:
+				imageName, imageContent = self.getImage(imgUrl, sourceUrl)
 				imageName = "{num:03.0f} - {srcName}".format(num=imgCnt, srcName=imageName)
 				imgCnt += 1
 				images.append([imageName, imageContent])
@@ -178,13 +178,14 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup(startObservers=False):
 		cl = ContentLoader()
 
 		# pg = 'http://dynasty-scans.com/chapters/qualia_the_purple_ch16'
 		# inMarkup = cl.wg.getpage(pg)
 		# cl.getImageUrls(inMarkup, pg)
-		cl.go()
+		# cl.go()
 		# cl.getLink('http://www.webtoons.com/viewer?titleNo=281&episodeNo=3')
+		cl.getImageUrls('http://kissmanga.com/Manga/Hanza-Sky/Ch-031-Read-Online?id=225102')
 
 

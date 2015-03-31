@@ -92,6 +92,8 @@ def days(num):
 	return 60*60*24*num
 def hours(num):
 	return 60*60*num
+def minutes(num):
+	return 60*num
 
 # Plugins in this dictionary are the active plugins. Comment out a plugin to disable it.
 # plugin keys specify when plugins will start, and cannot be duplicates.
@@ -146,7 +148,8 @@ scrapePlugins = {
 	# Update the feeds hourly (if they have new updateable content only)
 	# Feed updaters and complete updaters have the same run-name, so
 	# there /shouldn't/ be concurrency issues (one will just block)
-	200 : (TextScrape.RssRun,                                  hours(1)),
+	200 : (TextScrape.RssRun,                                  minutes(15)),
+
 	201 : (TextScrape.BakaTsuki.RunUpdate,                     hours(1)),
 	202 : (TextScrape.BsBlogs.RunUpdate,                       hours(1)),
 	203 : (TextScrape.Dawnglare.RunUpdate,                     hours(1)),

@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
 
 import logSetup
-import sys
+import settings
 import schemaUpdater.schemaRevisioner
 
 import statusManager
@@ -39,7 +39,9 @@ job_defaults = {
 jobstores = {
 
 	'transient_jobstore' : MemoryJobStore(),
-	'main_jobstore'      : SQLAlchemyJobStore(url='sqlite:///jobs.sqlite')
+	'main_jobstore'      : SQLAlchemyJobStore(url='postgresql://{username}:{password}@localhost:5432/{dbname}'.format(username=settings.DATABASE_USER,
+				password=settings.DATABASE_PASS,
+				dbname=settings.DATABASE_DB_NAME))
 }
 
 
