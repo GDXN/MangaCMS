@@ -60,9 +60,11 @@ def callMod(passMod):
 def scheduleJobs(sched, timeToStart):
 
 	jobs = []
-	for key, value  in activePlugins.scrapePlugins.items():
+	offset = 0
+	for key, value in activePlugins.scrapePlugins.items():
 		baseModule, interval = value
-		jobs.append((key, baseModule, interval, timeToStart+datetime.timedelta(seconds=60*key)))
+		jobs.append((key, baseModule, interval, timeToStart+datetime.timedelta(seconds=60*offset)))
+		offset += 1
 
 	activeJobs = []
 

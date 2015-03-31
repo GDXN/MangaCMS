@@ -60,6 +60,31 @@ from ipaddress import IPv4Address, IPv4Network
 
 	delta = int(time.time() - inTimeStamp)
 	if delta < 0:
+		return "Past?"
+	elif delta < 60:
+		return "{delta} s".format(delta=delta)
+	delta = delta // 60
+	if delta < 60:
+		return "{delta} m".format(delta=delta)
+	delta = delta // 60
+	if delta < 24:
+		return "{delta} h".format(delta=delta)
+	delta = delta // 24
+	if delta < 999:
+		return "{delta} d".format(delta=delta)
+	delta = delta // 365
+	return "{delta} y".format(delta=delta)
+	%>
+</%def>
+
+
+<%def name="timeAhead(inTimeStamp)">
+	<%
+	if inTimeStamp == None:
+		return "NaN"
+
+	delta = int(inTimeStamp - time.time())
+	if delta < 0:
 		return "Future?"
 	elif delta < 60:
 		return "{delta} s".format(delta=delta)
@@ -74,9 +99,6 @@ from ipaddress import IPv4Address, IPv4Network
 		return "{delta} d".format(delta=delta)
 	delta = delta // 365
 	return "{delta} y".format(delta=delta)
-
-
-
 	%>
 </%def>
 

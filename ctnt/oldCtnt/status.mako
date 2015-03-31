@@ -49,74 +49,92 @@ DNLDED = 2
 	except ValueError:
 		randomLink = "Not Available"
 
+
+
+	# Counting crap is now driven by commit/update/delete hooks
+	ret = cur.execute('SELECT id, next_run_time, job_state FROM apscheduler_jobs ORDER BY id DESC;')
+	sched = cur.fetchall()
+
 	%>
+	<div class='contentdiv'>
+		<h1>Status:</h1>
 
-	<div class="statediv">
-		<strong>Status:</strong>
-	</div>
+		% for item in ap.attr.sidebarItemList:
+			<%
 
-	% for item in ap.attr.sidebarItemList:
-		<%
+			if not ut.ip_in_whitelist():
+				if item['type'] == "Porn":
+					continue
 
-		if not ut.ip_in_whitelist():
-			if item['type'] == "Porn":
+			if not item["renderSideBar"]:
 				continue
+			if not item["dbKey"]:
+				continue
+			vals = sm.getStatus(cur, item["dbKey"])
+			if vals:
+				running, runStart, lastRunDuration, lastErr = vals[0]
+				runStart = ut.timeAgo(runStart)
+			else:
+				running, runStart, lastRunDuration, lastErr = False, "Never!", None, time.time()
 
-		if not item["renderSideBar"]:
-			continue
-		if not item["dbKey"]:
-			continue
-		vals = sm.getStatus(cur, item["dbKey"])
-		if vals:
-			running, runStart, lastRunDuration, lastErr = vals[0]
-			runStart = ut.timeAgo(runStart)
-		else:
-			running, runStart, lastRunDuration, lastErr = False, "Never!", None, time.time()
+			if running:
+				runState = "<b>Running</b>"
+			else:
+				runState = "Not Running"
 
-		if running:
-			runState = "<b>Running</b>"
-		else:
-			runState = "Not Running"
-
-		errored = False
-		if lastErr > (time.time() - 60*60*24): # If the last error was within the last 24 hours
-			errored = True
+			errored = False
+			if lastErr > (time.time() - 60*60*24): # If the last error was within the last 24 hours
+				errored = True
 
 
-		%>
-		<div class="statediv ${item['cssClass']}">
-			<strong>
-				${item["name"]}
-			</strong><br />
-			% if errored:
-				<a href="/errorLog">Had Error!</a><br />
-			% endif
-			${runStart}<br />
-			${runState}
-
-			% if item["dictKey"] != None:
-				% if item["dictKey"] in statusDict:
-					<%
-					keys = [DNLDED, DLING, QUEUED, FAILED]
-					pres = [key in statusDict[item["dictKey"]] for key in keys]
-
-					%>
-					% if all(pres):
-						<ul>
-							<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
-							<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
-							<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
-							<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
-						</ul>
-					% endif
-				% else:
-					<b>WARN: No lookup dict built yet!</b>
+			%>
+			<div class="statediv ${item['cssClass']}" style='display: inline-block; width: 100px; height: 141px; vertical-align: top;'>
+				<strong>
+					${item["name"]}
+				</strong><br />
+				% if errored:
+					<a href="/errorLog">Had Error!</a><br />
 				% endif
-			% endif
+				${runStart}<br />
+				${runState}
 
-		</div>
-	% endfor
+				% if item["dictKey"] != None:
+					% if item["dictKey"] in statusDict:
+						<%
+						keys = [DNLDED, DLING, QUEUED, FAILED]
+						pres = [key in statusDict[item["dictKey"]] for key in keys]
 
+						%>
+						% if all(pres):
+							<ul>
+								<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
+								<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
+								<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
+								<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
+							</ul>
+						% endif
+					% else:
+						<b>WARN: No lookup dict built yet!</b>
+					% endif
+				% endif
+
+			</div>
+		% endfor
+
+		<h2>Schedule:</h2>
+		<table>
+			<col width="400px">
+			<col width="200px">
+			<col width="100px">
+			% for jId, nextRun, state in sched:
+				<tr>
+					<td>${jId}</td>
+					<td>${ut.timeAhead(nextRun)}</td>
+					<td>${len(state)}</td>
+				</tr>
+			% endfor
+		</table>
+	</div>
 
 
 </%def>
