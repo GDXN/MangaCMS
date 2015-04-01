@@ -5,7 +5,7 @@
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="ap"              file="/activePlugins.mako"/>
 <%namespace name="treeRender"      file="/books/render.mako"/>
-
+<%namespace name="bookitem"        file="/books/book-item.mako"/>
 
 <%!
 import time
@@ -129,8 +129,13 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 <%
 
-	sName = ut.getUrlParam('searchTitle')
+	tName = ut.getUrlParam('searchTitle')
+	if tName:
+		tName = tName.strip()
+		genBookSearch(originTrigram=tName)
+
+	sName = ut.getUrlParam('searchSeries')
 	if sName:
 		sName = sName.strip()
-		genBookSearch(originTrigram=sName)
+		bookitem.getBestMatchingSeries(sName)
 %>

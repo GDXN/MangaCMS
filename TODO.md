@@ -1,11 +1,13 @@
 chapter and volume columns
-## netloc in book search table
 volume/chapter tracking, rather then just c
 fix last crawl time
-
 request priority sorting
+
+## netloc in book search table
 ## sort trigram search results by similarity
 ## also expose similarity value
+## new spirit migration chapters missing from search? (Just hadn't updated?)
+## rss item - book series search
 
 http://reader.s2smanga.com/ fooslide based add scraper
 http://www.surasplace.com/index.php/projects.html

@@ -676,7 +676,7 @@ startTime = time.time()
 
 
 
-<%def name="lookupCrosslink(title)">
+<%def name="lookupCrosslink(title, warn=True)">
 	<%
 	cursor = sqlCon.cursor()
 	cursor.execute("SELECT dbid, itemname FROM book_series WHERE (itemname %% %s) ORDER BY dbid ASC;", (title, ))
@@ -685,9 +685,8 @@ startTime = time.time()
 
 
 	<h2>Title Search: ${title}</h2>
-	<div>
-		<strong>Warning: No id link, cannot modify reading status.</strong>
-	</div>
+
+
 	% if rows:
 		<div>
 			Candidate cross-links
@@ -697,10 +696,41 @@ startTime = time.time()
 					</ul>
 			% endfor
 		</div>
+	%else:
+		No Search results!
 	% endif
 	<br>
 
 </%def>
+
+
+<%def name="getBestMatchingSeries(title)">
+	<%
+	cursor = sqlCon.cursor()
+	cursor.execute("SELECT dbid, itemname, itemname <-> %s AS dist FROM book_series ORDER BY dist ASC limit 4;", (title, ))
+	rows = cursor.fetchall()
+	%>
+
+
+	<strong>Title Search: ${title}</strong>
+
+
+	% if rows:
+		<div>
+			Candidate cross-links
+			% for dbId, name, dist in rows:
+					<ul>
+						<li>${'%0.3f' % dist} - <a href='/books/book-item?dbid=${dbId}'>${dbId} - ${name}</a>
+					</ul>
+			% endfor
+		</div>
+	%else:
+		No Search results!
+	% endif
+	<br>
+
+</%def>
+
 
 
 

@@ -168,6 +168,16 @@ import urllib.parse
 			<col width="400px">
 			<tr>
 				<td>
+					Title:
+				</td>
+				<td>
+					<%
+					ut.createBookSearchPlain(data['title'], data['title'])
+					%>
+				</td>
+			</tr>
+			<tr>
+				<td>
 					Source:
 				</td>
 				<td>
@@ -205,8 +215,56 @@ import urllib.parse
 
 		</table>
 	</div>
-	<div class="contentdiv bookcontent">
-		${data['contents']}
+	<div class='subdiv' style='padding:5px'>
+
+		<script type="text/javascript">
+
+			function asyncRequest(targetUrl, replaceId)
+			{
+				$.get(targetUrl,
+					function( response, status, xhr )
+					{
+						if ( status == "error" )
+						{
+							var msg = "Sorry but there was an error: ";
+							$( "#error" ).html( msg + xhr.status + " " + xhr.statusText );
+						}
+						else
+						{
+							console.log('Output: ', replaceId)
+							$('#'+replaceId).html(response);
+						}
+					}
+				);
+			};
+
+		</script>
+
+
+		<div id='delLoad-${id(data['title'])}'>
+
+			<strong>Search results for item</strong> '${data['title']}':
+			<script>
+
+				$(document).ready(function() {
+					asyncRequest('/books/renderSearch?searchSeries=${data['title']|u}', 'delLoad-${id(data['title'])}');
+
+				});
+
+			</script>
+			<center><img src='/js/loading.gif' /></center>
+
+		</div>
+
+
+	</div>
+
+
+	<div class='bookdiv'>
+		<div class="contentdiv bookcontent">
+
+			${data['contents']}
+		</div>
 	</div>
 
 

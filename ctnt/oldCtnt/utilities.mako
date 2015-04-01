@@ -160,6 +160,11 @@ from ipaddress import IPv4Address, IPv4Network
 	createTrigramSearchSearch(linkText, itemNameStr, 'trigram-query-hentai-str', 'trigram-query-linktext')
 	%>
 </%def>
+<%def name="createBookTitleSearch(linkText, itemNameStr, )">
+	<a href="/books/book-item?title=${itemNameStr | u}">${linkText}</a>
+
+
+</%def>
 <%def name="createBookSearch(linkText, itemNameStr, )">
 	<%
 	createTrigramSearchSearch(linkText, itemNameStr, 'trigram-query-book-str', 'trigram-query-linktext')
