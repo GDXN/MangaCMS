@@ -172,7 +172,7 @@ import urllib.parse
 				</td>
 				<td>
 					<%
-					ut.createBookSearchPlain(data['title'], data['title'])
+					ut.createBookTitleSearch(data['title'], data['title'])
 					%>
 				</td>
 			</tr>

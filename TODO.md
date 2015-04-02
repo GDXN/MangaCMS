@@ -3,6 +3,13 @@ volume/chapter tracking, rather then just c
 fix last crawl time
 request priority sorting
 
+http://tototrans.com/
+
+custom book synonyms
+## pron ordering fucked up?
+
+http://pastebin.com/Jjj7tCLA
+
 ## netloc in book search table
 ## sort trigram search results by similarity
 ## also expose similarity value

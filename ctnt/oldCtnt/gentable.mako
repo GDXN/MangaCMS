@@ -168,7 +168,7 @@ def buildQuery(srcTbl, cols, **kwargs):
 	else:
 		where=None
 
-	if 'originTrigram' in kwargs:
+	if 'originTrigram' in kwargs and kwargs['originTrigram']:
 
 		# If we're doing a trigram search, we want to order by trigram similarity
 		query = srcTbl.select(*cols, order_by = sqlo.Similarity(srcTbl.originname, kwargs['originTrigram']).asc, where=where)
@@ -805,7 +805,6 @@ colours = {
 			query.where &= hentaiTable.dlstate <= 0
 		else:
 			query.where  = hentaiTable.dlstate <= 0
-
 
 	with sqlCon.cursor() as cur:
 
