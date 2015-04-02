@@ -6,17 +6,16 @@ request priority sorting
 http://tototrans.com/
 
 custom book synonyms
-## pron ordering fucked up?
 
 http://pastebin.com/Jjj7tCLA
 
+## pron ordering fucked up?
 ## netloc in book search table
 ## sort trigram search results by similarity
 ## also expose similarity value
 ## new spirit migration chapters missing from search? (Just hadn't updated?)
 ## rss item - book series search
 
-http://reader.s2smanga.com/ fooslide based add scraper
 http://www.surasplace.com/index.php/projects.html
 
 
@@ -70,6 +69,7 @@ Western:
  - ## ~~http://storiesonline.net/ s~~ (Login bullshit)
  
  LNDB / MU covers
+
  
 ~~book search link all parameter~~
 
@@ -450,7 +450,8 @@ Partial series:
 
 
 <b>Complete:</b>
-- ~~http://10.1.1.8:8081/books/render?url=https%3A//yoraikun.wordpress.com/2015/02/09/konjiki-no-wordmaster-chapter-32/ prev not relinked~~ Fixt
+- ~~http://reader.s2smanga.com/ fooslide based add scraper~~
+ - ~~http://10.1.1.8:8081/books/render?url=https%3A//yoraikun.wordpress.com/2015/02/09/konjiki-no-wordmaster-chapter-32/ prev not relinked~~ Fixt
  - ~~Name synonyms in bu table for books.~~
  - ~~book availability not updating (different components)~~
  - ~~sync read to as well~~
