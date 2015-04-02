@@ -203,7 +203,11 @@ class GDocExtractor(object):
 
 		items = []
 		for page in pages:
-			assert len(page) == 18
+			if len(page) != 18 and len(page) != 22:
+				cls.log.error("json entry in page with an invalid length:")
+				cls.log.error("%s", page)
+				continue
+
 
 			# Item 2 is the title, item 17 is the doc URL
 			# The doc URL is unicode escaped, annoyingly

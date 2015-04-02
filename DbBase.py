@@ -5,6 +5,7 @@ from contextlib import contextmanager
 import LogBase
 import threading
 import dbPool
+import traceback
 
 # Minimal class to handle opening a DB interface.
 class DbBase(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
@@ -17,12 +18,12 @@ class DbBase(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		return None
 
 	def __init__(self):
-		self.log.info("Base DB Interface Starting!")
 		self.connections = {}
 
 	def __del__(self):
-		for conn in self.connections:
-			dbPool.pool.putconn(conn)
+		if hasattr(self, 'connections'):
+			for conn in self.connections:
+				dbPool.pool.putconn(conn)
 
 	@property
 	def __thread_cursor(self):
@@ -34,7 +35,13 @@ class DbBase(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		tid = threading.get_ident()
 
 		if tid in self.connections:
-			raise ValueError("Double-instantiating thread interface?")
+			self.log.critical('Recursive access to singleton thread-specific resource!')
+			self.log.critical("Calling thread ID: '%s'", tid)
+			self.log.critical("Allocated handles")
+			for key, value in self.connections.items():
+				self.log.critical("	'%s', '%s'", key, value)
+
+			raise ValueError("Recursive cursor retreival! What's going on?")
 
 		self.connections[tid] = dbPool.pool.getconn()
 		return self.connections[tid].cursor()
@@ -64,5 +71,5 @@ class DbBase(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		finally:
 			if commit:
 				cursor.execute("COMMIT;")
+			self.__freeConn()
 
-		self.__freeConn()

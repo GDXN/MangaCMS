@@ -22,5 +22,5 @@ class EmptyProxy(TextScrape.SiteArchiver.SiteArchiver):
 		self.tableName      = tableName
 		self.baseUrl        = scanned
 
-
 		super().__init__()
+

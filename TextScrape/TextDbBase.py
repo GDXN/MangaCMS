@@ -1,5 +1,6 @@
 
 
+#pylint: disable=W0201, W0142
 
 import runStatus
 runStatus.preloadDicts = False
@@ -24,38 +25,10 @@ import hashlib
 import psycopg2
 import os
 import traceback
-import bs4
-import readability.readability
 import os.path
-import os
-from importlib.machinery import SourceFileLoader
 import time
-import queue
-from concurrent.futures import ThreadPoolExecutor
-
 import nameTools
-
-from contextlib import contextmanager
-
-
-
-
-@contextmanager
-def transaction(cursor, commit=True):
-	if commit:
-		cursor.execute("BEGIN;")
-
-	try:
-		yield
-
-	except Exception as e:
-		if commit:
-			cursor.execute("ROLLBACK;")
-		raise e
-
-	finally:
-		if commit:
-			cursor.execute("COMMIT;")
+import DbBase
 
 
 class RowExistsException(Exception):
@@ -77,11 +50,24 @@ class RowExistsException(Exception):
 ########################################################################################################################
 
 
-class TextDbBase(metaclass=abc.ABCMeta):
+class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
 
+	@abc.abstractproperty
+	def tableName(self):
+		pass
+
+	@abc.abstractproperty
+	def changeTableName(self):
+		pass
+
+	@abc.abstractproperty
+	def tableKey(self):
+		pass
+
+	QUERY_DEBUG = False
 
 	def __init__(self):
 		# These two lines HAVE to be before ANY logging statements, or the automagic thread
@@ -89,6 +75,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 		self.loggers = {}
 		self.lastLoggerIndex = 1
 
+		super().__init__()
 
 		# I have to wrap the DB in locks, since two pages may return
 		# identical links at the same time.
@@ -96,46 +83,26 @@ class TextDbBase(metaclass=abc.ABCMeta):
 		# Most of the time is spent in processing pages anyways
 		self.dbLock = threading.Lock()
 
-		self.dbConnections = {}
-
 		self.checkInitPrimaryDb()
 
+
+
 	# More hackiness to make sessions intrinsically thread-safe.
-	def __getattribute__(self, name):
+	@property
+	def log(self):
 
 		threadName = threading.current_thread().name
-		if name == "log":
-			if "Thread-" in threadName:
-				if threadName not in self.loggers:
-					self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
-					self.lastLoggerIndex += 1
+		if "Thread-" in threadName:
+			if threadName not in self.loggers:
+				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
+				self.lastLoggerIndex += 1
 
-			# If we're not called in the context of a thread, just return the base log-path
-			else:
-				self.loggers[threadName] = logging.getLogger("%s" % (self.loggerPath,))
-
-
-			return self.loggers[threadName]
-
-
-		elif name == "conn":
-			if threadName not in self.dbConnections:
-
-				# First try local socket connection, fall back to a IP-based connection.
-				# That way, if the server is local, we get the better performance of a local socket.
-				try:
-					self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-				except psycopg2.OperationalError:
-					self.dbConnections[threadName] = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-
-				# self.dbConnections[threadName].autocommit = True
-			return self.dbConnections[threadName]
-
-
-
+		# If we're not called in the context of a thread, just return the base log-path
 		else:
-			return object.__getattribute__(self, name)
+			self.loggers[threadName] = logging.getLogger("%s" % (self.loggerPath,))
 
+
+		return self.loggers[threadName]
 
 
 
@@ -154,7 +121,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 	##############################################################################################################################################
 
 	def checkInitPrimaryDb(self):
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
 
 			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 												dbid      SERIAL PRIMARY KEY,
@@ -224,7 +191,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 				if not name.lower() in haveIndexes:
 					cur.execute(nameFormat % (name, table))
 
-		self.conn.commit()
+
 		self.log.info("Retreived page database created")
 
 
@@ -350,15 +317,19 @@ class TextDbBase(metaclass=abc.ABCMeta):
 	# Insert new item into DB.
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
-	def insertIntoDb(self, commit=True, **kwargs):
+	def insertIntoDb(self, commit=True, cursor=None, **kwargs):
 		query, queryArguments = self.sqlBuildInsertArgs(returning=[self.table.dbid], **kwargs)
 
 		if self.QUERY_DEBUG:
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		with self.conn.cursor() as cur:
-			with transaction(cur, commit=commit):
+
+		if cursor:
+			cursor.execute(query, queryArguments)
+			ret = cursor.fetchone()
+		else:
+			with self.transaction(commit=commit) as cur:
 				cur.execute(query, queryArguments)
 				ret = cur.fetchone()
 
@@ -431,7 +402,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
-	def updateDbEntry(self, commit=True, **kwargs):
+	def updateDbEntry(self, commit=True, cursor=None, **kwargs):
 
 		distance = None
 		if 'distance' in kwargs:
@@ -448,13 +419,24 @@ class TextDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		with self.conn.cursor() as cur:
-			with transaction(cur, commit=commit):
+		if cursor:
+			if distance != None:
+				self.updateDistance(cursor, distance, **kwargs)
+			cursor.execute(query, queryArguments)
+			try:
+				self.insertDelta(cursor=cursor, **kwargs)
+			except ValueError:
+				pass
+
+		else:
+			with self.transaction(commit=commit) as cur:
 				if distance != None:
 					self.updateDistance(cur, distance, **kwargs)
 				cur.execute(query, queryArguments)
-
-		self.insertDelta(**kwargs)
+				try:
+					self.insertDelta(cursor=cur, **kwargs)
+				except ValueError:
+					pass
 
 
 	def deleteDbEntry(self, commit=True, **kwargs):
@@ -479,15 +461,14 @@ class TextDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("Args = ", args)
 
-		with self.conn.cursor() as cur:
-			with transaction(cur, commit=commit):
-				cur.execute(query, args)
+		with self.transaction(commit=commit) as cur:
+			cur.execute(query, args)
 
 
 
 
 
-	def getRowsByValue(self, limitByKey=True, **kwargs):
+	def getRowsByValue(self, limitByKey=True, cursor=None, **kwargs):
 		if limitByKey and self.tableKey:
 			kwargs["src"] = self.tableKey
 
@@ -516,13 +497,15 @@ class TextDbBase(metaclass=abc.ABCMeta):
 			print("Query = ", query)
 			print("args = ", quargs)
 
-		with self.conn.cursor() as cur:
+		if cursor:
 
-			#wrap queryies in transactions so we don't have hanging db handles.
-			with transaction(cur):
+			cursor.execute(query, quargs)
+			rets = cursor.fetchall()
+		else:
+			with self.transaction() as cur:
+				#wrap queryies in transactions so we don't have hanging db handles.
 				cur.execute(query, quargs)
 				rets = cur.fetchall()
-
 
 
 		retL = []
@@ -532,8 +515,8 @@ class TextDbBase(metaclass=abc.ABCMeta):
 			retL.append(dict(zip(keys, row)))
 		return retL
 
-	def getRowByValue(self, **kwargs):
-		rows = self.getRowsByValue(**kwargs)
+	def getRowByValue(self, cursor=None, **kwargs):
+		rows = self.getRowsByValue(cursor=cursor, **kwargs)
 		if len(rows) == 1:
 			return rows.pop()
 		if len(rows) == 0:
@@ -570,43 +553,42 @@ class TextDbBase(metaclass=abc.ABCMeta):
 		# Yeah, I'm hashing twice in lots of cases. Bite me
 		fHash = self.getHash(content)
 
-		with self.conn.cursor() as cur:
 
-			# Look for existing files with the same MD5sum. If there are any, just point the new file at the
-			# fsPath of the existing one, rather then creating a new file on-disk.
-			with transaction(cur):
-				cur.execute("SELECT fspath  FROM {tableName} WHERE fhash=%s;".format(tableName=self.tableName), (fHash, ))
-				row = cur.fetchone()
-				if row:
-					self.log.info("Already downloaded file. Not creating duplicates.")
-					hadFile = True
-					fqPath = row[0]
+		# Look for existing files with the same MD5sum. If there are any, just point the new file at the
+		# fsPath of the existing one, rather then creating a new file on-disk.
+		with self.transaction() as cur:
+			cur.execute("SELECT fspath  FROM {tableName} WHERE fhash=%s;".format(tableName=self.tableName), (fHash, ))
+			row = cur.fetchone()
+			if row:
+				self.log.info("Already downloaded file. Not creating duplicates.")
+				hadFile = True
+				fqPath = row[0]
 
-			with transaction(cur):
+		with self.transaction() as cur:
 
-				cur.execute("SELECT dbid, fspath, contents, mimetype  FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (url, ))
-				row = cur.fetchone()
-				if not row:
-					self.log.critical("Failure when saving file for URL '%s'", url)
-					self.log.critical("File name: '%s'", fileName)
-					return
+			cur.execute("SELECT dbid, fspath, contents, mimetype  FROM {tableName} WHERE url=%s;".format(tableName=self.tableName), (url, ))
+			row = cur.fetchone()
+			if not row:
+				self.log.critical("Failure when saving file for URL '%s'", url)
+				self.log.critical("File name: '%s'", fileName)
+				return
 
-				dbid, havePath, haveCtnt, haveMime = row
-				# self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
+			dbid, dummy_havePath, dummy_haveCtnt, dummy_haveMime = row
+			# self.log.info('havePath, haveCtnt, haveMime - %s, %s, %s', havePath, haveCtnt, haveMime)
 
-				if not hadFile:
-					fqPath = self.getFilenameFromIdName(dbid, fileName)
+			if not hadFile:
+				fqPath = self.getFilenameFromIdName(dbid, fileName)
 
-				newRowDict = {  "dlstate" : 2,
-								"series"  : None,
-								"contents": len(content),
-								"istext"  : False,
-								"mimetype": mimetype,
-								"fspath"  : fqPath,
-								"fhash"   : fHash}
+			newRowDict = {  "dlstate" : 2,
+							"series"  : None,
+							"contents": len(content),
+							"istext"  : False,
+							"mimetype": mimetype,
+							"fspath"  : fqPath,
+							"fhash"   : fHash}
 
 
-				self.updateDbEntry(url=url, commit=False, **newRowDict)
+		self.updateDbEntry(url=url, commit=False, **newRowDict)
 
 
 		if not hadFile:
@@ -615,17 +597,16 @@ class TextDbBase(metaclass=abc.ABCMeta):
 					fp.write(content)
 			except OSError:
 				self.log.error("Error when attempting to save file. ")
-				with transaction(cur):
+				with self.transaction() as cur:
 					newRowDict = {"dlstate" : -1}
 					self.updateDbEntry(url=url, commit=False, **newRowDict)
 
 
 	def getToDo(self, distance):
-		cur = self.conn.cursor()
 
 		# Retreiving todo items must be atomic, so we lock for that.
 		with self.dbLock:
-			with transaction(cur):
+			with self.transaction() as cur:
 
 				cur.execute('''SELECT dbid, url, distance FROM {tableName} WHERE dlstate=%s AND src=%s AND distance < %s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey, distance))
 				row = cur.fetchone()
@@ -645,39 +626,40 @@ class TextDbBase(metaclass=abc.ABCMeta):
 
 
 	def getTodoCount(self):
-		cur = self.conn.cursor()
+		with self.dbLock:
+			with self.transaction() as cur:
 
-		with transaction(cur):
+				cur.execute('''SELECT COUNT(*) FROM {tableName} WHERE dlstate=%s AND src=%s;'''.format(tableName=self.tableName), (0, self.tableKey))
+				row = cur.fetchone()
 
-			cur.execute('''SELECT COUNT(*) FROM {tableName} WHERE dlstate=%s AND src=%s;'''.format(tableName=self.tableName), (0, self.tableKey))
-			row = cur.fetchone()
-
-			return row[0]
+				return row[0]
 
 
 
 
 	def resetStuckItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
 			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND src=%s'''.format(tableName=self.tableName), (self.tableKey, ))
-		self.conn.commit()
 		self.log.info("Download reset complete")
 
 	# Override to filter items that get
 	def changeFilter(self, url, title, changePercentage):
 		return False
 
-	def insertChangeStats(self, url, changePercentage, title):
+	def insertChangeStats(self, url, changePercentage, title, cursor=None):
 
 		# Skip title cruft on baka-tsuki
 		if self.changeFilter(url, title, changePercentage):
 			return
 
-		with self.conn.cursor() as cur:
-			query = '''INSERT INTO {changeTable} (src, url, change, title, changeDate) VALUES (%s, %s, %s, %s, %s)'''.format(changeTable=self.changeTableName)
-			values = (self.tableKey, url, changePercentage, title, time.time())
-			cur.execute(query, values)
+		query = '''INSERT INTO {changeTable} (src, url, change, title, changeDate) VALUES (%s, %s, %s, %s, %s)'''.format(changeTable=self.changeTableName)
+		values = (self.tableKey, url, changePercentage, title, time.time())
+		if cursor:
+			cursor.execute(query, values)
+		else:
+			with self.transaction() as cur:
+				cur.execute(query, values)
 
 
 	##############################################################################################################################################
@@ -704,21 +686,22 @@ class TextDbBase(metaclass=abc.ABCMeta):
 			self.log.error('')
 
 
-		cur = self.conn.cursor()
-
 		# print("Upserting!")
 
-		try:
-			with transaction(cur, commit=commit):
-				self.insertIntoDb(commit=False, url=pgUrl, **kwargs)
+		with self.transaction(commit=commit) as cur:
+			# Do everything in one transaction
 
-		except psycopg2.IntegrityError:
-			if kwargs:
-				with transaction(cur, commit=commit):
-					self.updateDbEntry(url=pgUrl, **kwargs)
+			try:
+				self.insertIntoDb(url=pgUrl, cursor=cur, **kwargs)
+
+			except psycopg2.IntegrityError:
+				if kwargs:
+					cur.execute("ROLLBACK")
+					cur.execute("BEGIN")
+					self.updateDbEntry(url=pgUrl, cursor=cur, **kwargs)
 		# print("Upserted")
 
-	def insertDelta(self, **kwargs):
+	def insertDelta(self, cursor=None, **kwargs):
 
 		if 'istext' in kwargs and not kwargs['istext']:
 			return
@@ -727,9 +710,9 @@ class TextDbBase(metaclass=abc.ABCMeta):
 			return
 
 		if 'url' in kwargs:
-			old = self.getRowByValue(url=kwargs['url'])
+			old = self.getRowByValue(url=kwargs['url'], cursor=cursor)
 		elif 'dbid' in kwargs:
-			old = self.getRowByValue(dbid=kwargs['dbid'])
+			old = self.getRowByValue(dbid=kwargs['dbid'], cursor=cursor)
 		else:
 			raise ValueError("No identifying info in insertDelta call!")
 
@@ -771,7 +754,7 @@ class TextDbBase(metaclass=abc.ABCMeta):
 		change = min((change, 100))
 		self.log.info("Percent change in page contents: %s", change)
 
-		self.insertChangeStats(old['url'], change, title)
+		self.insertChangeStats(old['url'], change, title, cursor=cursor)
 
 
 	def getHash(self, fCont):
@@ -779,3 +762,4 @@ class TextDbBase(metaclass=abc.ABCMeta):
 		m = hashlib.md5()
 		m.update(fCont)
 		return m.hexdigest()
+

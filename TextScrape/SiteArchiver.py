@@ -683,6 +683,9 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 			else:
 				self.upsert(self.startUrl, dlstate=0, distance=0, walklimit=-1)
 
+		with self.transaction():
+			print('transaction test!')
+
 		if shallow:
 			self.FETCH_DISTANCE = 1
 
