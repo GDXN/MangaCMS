@@ -106,7 +106,7 @@ DNLDED = 2
 
 
 	# Counting crap is now driven by commit/update/delete hooks
-	cur.execute('SELECT id, next_run_time, job_state FROM apscheduler_jobs ORDER BY id DESC;')
+	cur.execute('SELECT id, next_run_time, job_state FROM apscheduler_jobs ORDER BY next_run_time ASC;')
 	sched = cur.fetchall()
 
 

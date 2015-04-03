@@ -31,6 +31,7 @@ import nameTools as nt
 			<strong>Navigation:</strong><br />
 			<ul>
 				<li><a href="/">Index</a>
+				<li><a href="/status">Status</a>
 				<hr>
 				<hr>
 				<li><a href="/reader2/browse/">Reader</a>
@@ -77,7 +78,6 @@ import nameTools as nt
 				<hr>
 				<li><a href="/dbg/">Debug Tools</a>
 				<li><a href="/errorLog">Scraper Logs</a>
-				<li><a href="/status">Status</a>
 
 
 			</ul>
