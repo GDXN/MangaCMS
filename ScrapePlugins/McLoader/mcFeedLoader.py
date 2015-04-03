@@ -74,7 +74,7 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 	def getItemPages(self, url):
-		print("Should get item for ", url)
+		# print("Should get item for ", url)
 		page = self.wg.getpage(url)
 
 

@@ -9,7 +9,6 @@ import logging
 import os
 import nameTools as nt
 import base64
-import Levenshtein as lv
 import json
 import time
 import webFunctions
@@ -43,7 +42,7 @@ class TolerantFTP(ftplib.FTP):
 		"""
 		if callback is None:
 			callback = ftplib.print_line
-		resp = self.sendcmd('TYPE A')
+		self.sendcmd('TYPE A')
 		with self.transfercmd(cmd) as conn, conn.makefile('rb', encoding=None) as fp:
 			while 1:
 				line = fp.readline(self.maxline + 1)
@@ -244,14 +243,16 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def checkInitDoujinDirs(self):
+		doujinDir = "_Doujinshi"
+		fullPath = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], doujinDir)
 		try:
-			dirs = list(self.ftp.mlsd(os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"])))
+			dirs = list(self.ftp.mlsd(fullPath))
 		except ftplib.error_perm:
 			self.log.critical("Container dir for uploads ('%s') does not exist!", settings.mkSettings["uploadContainerDir"])
 			raise
 
-		fullPath = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], "_Doujinshi")
-		if settings.mkSettings["uploadDir"] not in [item[0] for item in dirs]:
+
+		if os.path.join(settings.mkSettings["uploadDir"], doujinDir) not in [item[0] for item in dirs]:
 			self.log.info("Need to create base container path")
 			self.ftp.mkd(fullPath)
 		else:

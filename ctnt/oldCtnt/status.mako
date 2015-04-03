@@ -25,6 +25,60 @@ DNLDED = 2
 %>
 
 
+<%def name="renderStatus(name, cssClass, statusDict, dictKey, vals)">
+	<%
+
+	if vals:
+		running, runStart, lastRunDuration, lastErr = vals
+		runStart = ut.timeAgo(runStart)
+	else:
+		running, runStart, lastRunDuration, lastErr = False, "Never!", None, 0
+
+	if running:
+		runState = "<b>Running</b>"
+	else:
+		runState = "Not Running"
+
+	errored = False
+	if lastErr > (time.time() - 60*60*24): # If the last error was within the last 24 hours
+		errored = ut.timeAgo(lastErr)
+
+
+	%>
+	<div class="${cssClass}" >
+		<strong>
+			${name}
+		</strong><br />
+		% if errored:
+			<a href="/errorLog">Error ${errored} ago!</a><br />
+		% endif
+		${runStart}<br />
+		${runState}
+
+		% if dictKey != None:
+			% if dictKey in statusDict:
+				<%
+				keys = [DNLDED, DLING, QUEUED, FAILED]
+				pres = [key in statusDict[dictKey] for key in keys]
+
+				%>
+				% if all(pres):
+					<ul>
+						<li>Have: ${statusDict[dictKey][DNLDED]}</li>
+						<li>DLing: ${statusDict[dictKey][DLING]}</li>
+						<li>Want: ${statusDict[dictKey][QUEUED]}</li>
+						<li>Failed: ${statusDict[dictKey][FAILED]}</li>
+					</ul>
+				% endif
+			## % else:
+				## <b>WARN: No lookup dict built yet!</b>
+			% endif
+		% endif
+
+	</div>
+
+</%def>
+
 <%def name="genStatus(sqlConnection)">
 
 	<%
@@ -33,7 +87,7 @@ DNLDED = 2
 	cur.execute("ROLLBACK;")
 
 	# Counting crap is now driven by commit/update/delete hooks
-	ret = cur.execute('SELECT sourceSite, dlState, quantity FROM MangaItemCounts;')
+	cur.execute('SELECT sourceSite, dlState, quantity FROM MangaItemCounts;')
 	rets = cur.fetchall()
 
 	statusDict = {}
@@ -52,8 +106,19 @@ DNLDED = 2
 
 
 	# Counting crap is now driven by commit/update/delete hooks
-	ret = cur.execute('SELECT id, next_run_time, job_state FROM apscheduler_jobs ORDER BY id DESC;')
+	cur.execute('SELECT id, next_run_time, job_state FROM apscheduler_jobs ORDER BY id DESC;')
 	sched = cur.fetchall()
+
+
+	# Counting crap is now driven by commit/update/delete hooks
+	cur.execute('SELECT name,running,lastRun,lastRunTime,lastError FROM pluginstatus ORDER BY name;')
+	pluginList = cur.fetchall()
+
+	allPlugins = {}
+	for item in pluginList:
+		allPlugins[item[0]] = item[1:]
+
+
 
 	%>
 	<div class='contentdiv'>
@@ -61,7 +126,6 @@ DNLDED = 2
 
 		% for item in ap.attr.sidebarItemList:
 			<%
-
 			if not ut.ip_in_whitelist():
 				if item['type'] == "Porn":
 					continue
@@ -70,56 +134,26 @@ DNLDED = 2
 				continue
 			if not item["dbKey"]:
 				continue
-			vals = sm.getStatus(cur, item["dbKey"])
-			if vals:
-				running, runStart, lastRunDuration, lastErr = vals[0]
-				runStart = ut.timeAgo(runStart)
-			else:
-				running, runStart, lastRunDuration, lastErr = False, "Never!", None, time.time()
 
-			if running:
-				runState = "<b>Running</b>"
-			else:
-				runState = "Not Running"
 
-			errored = False
-			if lastErr > (time.time() - 60*60*24): # If the last error was within the last 24 hours
-				errored = True
+			vals = allPlugins.pop(item["dbKey"], False)
+			print(vals)
+			## vals = sm.getStatus(cur, item["dbKey"])
 
+			renderStatus(item["name"], item['cssClass']+" statediv", statusDict, item["dictKey"], vals)
 
 			%>
-			<div class="statediv ${item['cssClass']}" style='display: inline-block; width: 100px; height: 141px; vertical-align: top;'>
-				<strong>
-					${item["name"]}
-				</strong><br />
-				% if errored:
-					<a href="/errorLog">Had Error!</a><br />
-				% endif
-				${runStart}<br />
-				${runState}
-
-				% if item["dictKey"] != None:
-					% if item["dictKey"] in statusDict:
-						<%
-						keys = [DNLDED, DLING, QUEUED, FAILED]
-						pres = [key in statusDict[item["dictKey"]] for key in keys]
-
-						%>
-						% if all(pres):
-							<ul>
-								<li>Have: ${statusDict[item["dictKey"]][DNLDED]}</li>
-								<li>DLing: ${statusDict[item["dictKey"]][DLING]}</li>
-								<li>Want: ${statusDict[item["dictKey"]][QUEUED]}</li>
-								<li>Failed: ${statusDict[item["dictKey"]][FAILED]}</li>
-							</ul>
-						% endif
-					% else:
-						<b>WARN: No lookup dict built yet!</b>
-					% endif
-				% endif
-
-			</div>
 		% endfor
+		<hr>
+		% for key, value in allPlugins.items():
+			<%
+			if key.endswith("Scrape"):
+				key = key[:-6]
+			renderStatus(key, 'extrastatediv', statusDict, 'Nope', value)
+
+			%>
+		% endfor
+
 
 		<h2>Schedule:</h2>
 		<table>
@@ -135,7 +169,6 @@ DNLDED = 2
 			% endfor
 		</table>
 	</div>
-
 
 </%def>
 

@@ -157,7 +157,33 @@ div.statediv
 	padding-top:3px;
 	padding-bottom:3px;
 	font-size: 14;
+
+	display: inline-block;
+	width: 100px;
+	min-height: 141px;
+	vertical-align: top;
+
 }
+
+div.extrastatediv
+{
+	border:2px solid;
+	/*border-radius:25px;*/
+	padding-left:5px;
+	padding-right:5px;
+	padding-top:3px;
+	padding-bottom:3px;
+	font-size: 14;
+	word-wrap: break-word;
+
+
+	display: inline-block;
+	width: 150px;
+	height: 70px;
+	vertical-align: top;
+	background-color:#FFF;
+}
+
 div.contentdiv
 {
 	padding-top:    0px;

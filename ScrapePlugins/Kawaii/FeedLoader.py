@@ -42,7 +42,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def getItemPages(self, url, title):
-		print("Should get item for ", url)
+		# print("Should get item for ", url)
 
 		soup = self.wg.getSoup(url)
 		ret = []
