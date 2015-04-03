@@ -3,11 +3,11 @@ volume/chapter tracking, rather then just c
 fix last crawl time
 request priority sorting
 
-http://tototrans.com/
+
+not yet retrieved link to sauce
 
 custom book synonyms
 
-http://pastebin.com/Jjj7tCLA
 
 ## pron ordering fucked up?
 ## netloc in book search table
@@ -31,17 +31,17 @@ table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2F
 
 duplicate h tags of different case
 
- ## home swap bold and red
+## home swap bold and red
 ## Move scheduling system to a persistent jobstore.
+
 Add update time tracking to textscrape.
-
 lower request priority for trigram searches
-
 
 mu archive release info
 mangaeden api
 
 custom list page add search for existing item
+
 
 ## rss separate from ln scrape
 ## wp/blogspot use labels for posts
@@ -74,7 +74,7 @@ Western:
 ~~book search link all parameter~~
 
 Add: 
-http://hotchocolatescans.mokkori.fr
+http://hotchocolatescans.mokkori.fr (Not LN?)
 http://ckmscans.halofight.com/
 http://heaven.neo-romance.net/manga/ch00.php
 
@@ -104,7 +104,7 @@ General Resource: http://englishlightnovels.com/
 Use http://lndb.info/ as BU-like?
 Also: http://aho-updates.com/
 
-
+## http://tototrans.com/
 ## http://avertranslation.com/
 ## https://madospicy.wordpress.com/
 ## https://teamkoinaka.wordpress.com/

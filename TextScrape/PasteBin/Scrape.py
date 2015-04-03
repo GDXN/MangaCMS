@@ -29,6 +29,8 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 		'http://pastebin.com/raw.php?i=NS6kwFvL' : 'Slave harem in the labyrinth of the other world - Chapter 5 - ',
 
 		'http://pastebin.com/raw.php?i=6Ar4iu9P' : 'Konjiki no Wordmaster - Chapter 41 - ',
+
+		'http://pastebin.com/raw.php?i=Jjj7tCLA' : 'Ryuugoroshi no Sugosu Hibi',
 		}
 
 	# startUrl = list(pasteBinLut.keys()) + baseUrl

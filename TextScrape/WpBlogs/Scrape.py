@@ -93,6 +93,7 @@ class Scrape(WordpressScrape):
 		'https://pirateyoshi.wordpress.com',
 		'https://putttytranslations.wordpress.com',
 		'https://reantoanna.wordpress.com',
+		'https://rhinabolla.wordpress.com',
 		'https://rokkathetranslation.wordpress.com',
 		'https://sakurahonyaku.wordpress.com',
 		'https://sasamisanthetranslation.wordpress.com',
@@ -135,6 +136,7 @@ class Scrape(WordpressScrape):
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',
+		'http://tototrans.com',
 
 	]
 

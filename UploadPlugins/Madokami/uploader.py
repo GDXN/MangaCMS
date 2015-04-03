@@ -317,6 +317,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.checkInitDirs()
 			if matchName in self.unsortedDirs:
 				ulDir = self.unsortedDirs[matchName]
+			elif safeFilename in self.unsortedDirs:
+				ulDir = self.unsortedDirs[safeFilename]
 			else:
 
 				self.log.info("Need to create container directory for %s", seriesName)
@@ -342,6 +344,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.checkInitDirs()
 			if matchName in self.unsortedDirs:
 				ulDir = self.unsortedDirs[matchName]
+			elif safeFilename in self.unsortedDirs:
+				ulDir = self.unsortedDirs[safeFilename]
 			else:
 
 				self.log.info("Need to create container directory for %s", seriesName)
