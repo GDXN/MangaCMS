@@ -529,7 +529,7 @@ class WebGetRobust:
 
 			if lastErr and nativeError:
 				raise lastErr
-			raise urllib.error.URLError("Failed to retreive page!")
+			raise urllib.error.URLError("Failed to retreive page '%s'!" % (requestedUrl, ))
 
 		if returnMultiple:
 			return pgctnt, pghandle
