@@ -7,7 +7,9 @@ request priority sorting
 not yet retrieved link to sauce
 
 custom book synonyms
-
+sync reading progress both directions
+store manga progress locally
+new books view still fucked  
 
 ## pron ordering fucked up?
 ## netloc in book search table

@@ -10,6 +10,7 @@ import time
 import json
 import bs4
 import TextScrape.RelinkLookup
+import urllib.error
 # import TextScrape.RELINKABLE as RELINKABLE
 
 # pylint: disable=W0201
@@ -51,12 +52,15 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			# total crap.
 			# Therefore, use webGet instead, because it can handle
 			# encoding properly
-			rawFeed = self.wg.getpage(feedUrl)
-			feed = self.parseFeed(rawFeed)
+			
+			try:
+				rawFeed = self.wg.getpage(feedUrl)
+				feed = self.parseFeed(rawFeed)
 
-			data = self.processFeed(feed)
-			self.insertFeed(tableName, tableKey, pluginName, feedUrl, data)
-
+				data = self.processFeed(feed)
+				self.insertFeed(tableName, tableKey, pluginName, feedUrl, data)
+			except urllib.error.URLError:
+				self.log.error('Failure retrieving feed at url "%s"!', feedUrl)
 
 	def extractContents(self, contentDat):
 		# TODO: Add more content type parsing!
