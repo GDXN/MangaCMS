@@ -122,6 +122,9 @@ def printHelp():
 	print("	fix-book-link-sources")
 	print("		.")
 	print("	")
+	print("	fix-h-tags-case")
+	print("		")
+	print("	")
 
 	print("*********************************************************")
 	print("Remote deduper interface")
@@ -172,6 +175,9 @@ def parseOneArgCall(cmd):
 		utilities.bookClean.truncateTrailingNovel()
 	elif mainArg.lower() == "fix-book-link-sources":
 		utilities.bookClean.fixBookLinkSources()
+	elif mainArg.lower() == "fix-h-tags-case":
+		cleaner = utilities.cleanDb.HCleaner('None')
+		cleaner.cleanTags()
 
 	else:
 		print("Unknown arg!")

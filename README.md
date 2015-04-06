@@ -80,7 +80,7 @@ Plugin scrapers for:
 	 - Re:Translations
 	 - Solitary Translations
 	 - Krytykal.org
-	 - ...more...
+	 - ...50+ more other TL blogs...
 
  - Metadata:
 	 - MangaUpdates (metadata only).

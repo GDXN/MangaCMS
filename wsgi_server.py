@@ -439,7 +439,7 @@ class PageResource(object):
 				# self.conn
 				cur = self.conn.cursor()
 				cur.execute('BEGIN')
-				cur.execute("SELECT mimetype, fsPath FROM book_items WHERE url=%s;", (itemUrl, ))
+				cur.execute("SELECT mimetype, fsPath, url FROM book_items WHERE url=%s;", (itemUrl, ))
 
 				ret = cur.fetchall()
 
@@ -470,7 +470,7 @@ class PageResource(object):
 				# self.conn
 				cur = self.conn.cursor()
 				cur.execute('BEGIN')
-				cur.execute("SELECT mimetype, fsPath FROM book_items WHERE fhash=%s;", (itemHash, ))
+				cur.execute("SELECT mimetype, fsPath, url FROM book_items WHERE fhash=%s;", (itemHash, ))
 
 				ret = cur.fetchall()
 				print(ret)
@@ -495,7 +495,7 @@ class PageResource(object):
 					return Response(status_int=404, body=responseBody)
 
 
-			mimetype, fsPath = ret.pop()
+			mimetype, fsPath, itemUrl = ret.pop()
 
 			if not mimetype:
 				self.log.warn("Request for book content '%s' failed because the file has not been retreived yet.", request.params)
@@ -513,17 +513,20 @@ class PageResource(object):
 
 						</div>
 						<div>
+							<a href='{url}'>Try to retreive from original source</a>
+						</div>
+						<div>
 							Request Parameters: {params}
 					</body>
 				</html>
 
 
 
-				'''.format(params=request.params)
+				'''.format(params=request.params, url=itemUrl)
 				responseBody += reasons
 
 
-				return Response(status_int=404, body=responseBody	)
+				return Response(status_int=404, body=responseBody)
 
 			elif not 'text' in mimetype:
 				if not os.path.exists(fsPath):

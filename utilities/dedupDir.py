@@ -68,7 +68,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				tags = ''
 			tags = set(tags.split())
 			for tag in newTags.split():
-				tags.add(tag)
+				tags.add(tag.lower())
 
 			cur.execute('''UPDATE {tableName} SET tags=%s WHERE dbId=%s;'''.format(tableName=self.tableName), (" ".join(tags), rowId))
 			cur.execute("COMMIT;")

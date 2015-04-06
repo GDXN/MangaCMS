@@ -554,6 +554,29 @@ class HCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				match.append(downloadPath)
 
+
+
+	def cleanTags(self):
+		'''
+		So I've accidentally been introducing duplicate tags into the h-tag database. Not totally sure where
+		(I added some protective {str}.lower() calls in a few places to see if it helps), but it's annoying.
+		Anyways, this extracts all the tags, consolidates and lower-cases them, and then reinserts the
+		fixed values.
+		'''
+		print("Fixing tags with case issues.")
+
+		with self.transaction() as cur:
+			cur.execute("""SELECT dbId, tags FROM {tableName} WHERE tags IS NOT NULL and tags != %s""".format(tableName=self.tableName), ('', ))
+			items = cur.fetchall()
+
+			for dbId, tags in items:
+				lcSet = set(tags.lower().split(" "))
+				if lcSet != set(tags.split(" ")):
+					fTags = " ".join(lcSet)
+					cur.execute("UPDATE {tableName} SET tags=%s WHERE dbid=%s".format(tableName=self.tableName), (fTags, dbId))
+					print(dbId, tags, set(tags.split(" ")))
+			print(len(items))
+
 	# STFU, abstract base class
 	def go(self):
 		pass

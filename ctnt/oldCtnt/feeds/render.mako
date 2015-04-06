@@ -239,23 +239,26 @@ import urllib.parse
 			};
 
 		</script>
+		<%
+		searches = [data['title']]
+		for tag in data['tags']:
+			searches.append(tag)
+		%>
+		% for entry in searches:
 
+			<div id='delLoad-${id(entry)}'>
+				<strong>Search results for item</strong> '${entry}':
+				<script>
 
-		<div id='delLoad-${id(data['title'])}'>
+					$(document).ready(function() {
+						asyncRequest('/books/renderSearch?searchSeries=${entry|u}', 'delLoad-${id(entry)}');
 
-			<strong>Search results for item</strong> '${data['title']}':
-			<script>
+					});
 
-				$(document).ready(function() {
-					asyncRequest('/books/renderSearch?searchSeries=${data['title']|u}', 'delLoad-${id(data['title'])}');
-
-				});
-
-			</script>
-			<center><img src='/js/loading.gif' /></center>
-
-		</div>
-
+				</script>
+				<center><img src='/js/loading.gif' /></center>
+			</div>
+		%endfor
 
 	</div>
 

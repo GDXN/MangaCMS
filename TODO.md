@@ -3,6 +3,9 @@ volume/chapter tracking, rather then just c
 fix last crawl time
 request priority sorting
 
+https://teamkoinaka.wordpress.com/ not ln  
+
+feed link to trieview
 
 not yet retrieved link to sauce
 
@@ -11,30 +14,18 @@ sync reading progress both directions
 store manga progress locally
 new books view still fucked  
 
-## pron ordering fucked up?
-## netloc in book search table
-## sort trigram search results by similarity
-## also expose similarity value
-## new spirit migration chapters missing from search? (Just hadn't updated?)
-## rss item - book series search
 
 http://www.surasplace.com/index.php/projects.html
 
 
 tadanohito shutting down  scrape everything
-use jdownloader api tomscrape other h blogs
+use jdownloader api to scrape other h blogs
 
-Blogger blog: http://www.pegasusfarts.com/
-
-## separate plugin status page
- 
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1NjsYhS3_PQvA3xSjOV0IubpNmyJk98eBu19ak2NMaIQ%2Fpub
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
 
-duplicate h tags of different case
+ - ~~duplicate h tags of different case~~
 
-## home swap bold and red
-## Move scheduling system to a persistent jobstore.
 
 Add update time tracking to textscrape.
 lower request priority for trigram searches
@@ -45,14 +36,7 @@ mangaeden api
 custom list page add search for existing item
 
 
-## rss separate from ln scrape
-## wp/blogspot use labels for posts
-## still missing sites from aho
-## rss+timeouts for change monitoring http://aho-updates.com/groups
-## avail chapters color code in book list
-## rework books page, defer loading moar
-## pastebin stuff override title
-## generalized title injection would be useful, actually
+
 
 serve compressed HTML
 
@@ -75,10 +59,6 @@ Western:
  
 ~~book search link all parameter~~
 
-Add: 
-http://hotchocolatescans.mokkori.fr (Not LN?)
-http://ckmscans.halofight.com/
-http://heaven.neo-romance.net/manga/ch00.php
 
 autocleaner thing?
 
@@ -96,7 +76,11 @@ Hachinantte, Sore wa Naideshou!
 ## TO ADD: 
 =======
 
+Blogger blog: http://www.pegasusfarts.com/
 
+http://hotchocolatescans.mokkori.fr (Not LN?)
+http://ckmscans.halofight.com/
+http://heaven.neo-romance.net/manga/ch00.php
 
 http://pokkoo-shuu.tumblr.com/thelunacyofdukevenomania
 http://sayasamax3.tumblr.com/post/56013645417/high-speed-translations-and-summaries
@@ -452,7 +436,24 @@ Partial series:
 
 
 <b>Complete:</b>
-- ~~http://reader.s2smanga.com/ fooslide based add scraper~~
+ - ~~rss separate from ln scrape~~
+ - ~~wp/blogspot use labels for posts~~
+ - ~~still missing sites from aho~~
+ - ~~rss+timeouts for change monitoring http://aho-updates.com/groups~~
+ - ~~avail chapters color code in book list~~
+ - ~~rework books page, defer loading moar~~
+ - ~~pastebin stuff override title~~
+ - ~~generalized title injection would be useful, actually~~
+ - ~~separate plugin status page~~
+ - ~~pron ordering fucked up?~~
+ - ~~netloc in book search table~~
+ - ~~sort trigram search results by similarity~~
+ - ~~also expose similarity value~~
+ - ~~new spirit migration chapters missing from search? (Just hadn't updated?)~~
+ - ~~rss item - book series search~~
+ - ~~home swap bold and red~~
+ - ~~Move scheduling system to a persistent jobstore.~~
+ - ~~http://reader.s2smanga.com/ fooslide based add scraper~~
  - ~~http://10.1.1.8:8081/books/render?url=https%3A//yoraikun.wordpress.com/2015/02/09/konjiki-no-wordmaster-chapter-32/ prev not relinked~~ Fixt
  - ~~Name synonyms in bu table for books.~~
  - ~~book availability not updating (different components)~~

@@ -485,7 +485,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			# colon literals (":") break the `tsvector` index. Remove them (they're kinda pointless anyways)
 			tagTemp = tagTemp.replace("&", "_")   \
 							.replace(":", "_")    \
-							.strip(".")
+							.strip(".")           \
+							.lower()
 			newTags.add(tagTemp)
 
 
