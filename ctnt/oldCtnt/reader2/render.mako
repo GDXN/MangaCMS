@@ -84,8 +84,13 @@ import re
 	for item in dirContents:
 		chap, vol = nt.extractChapterVol(item)
 
-		sz = os.path.getsize(os.path.join(dirPath, item))
-		szStr = ut.fSizeToStr(sz)
+		itemPath = os.path.join(dirPath, item)
+		if not os.path.isdir(itemPath):
+			sz = os.path.getsize(itemPath)
+			szStr = ut.fSizeToStr(sz)
+		else:
+			szStr = ''
+
 
 		tmp.append((vol, chap, item, szStr))
 

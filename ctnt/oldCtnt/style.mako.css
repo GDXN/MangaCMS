@@ -117,6 +117,8 @@ div.bookdiv
 	width: 700px;
 	display: inline-block;
 	overflow:hidden;
+	padding-left:8px;
+	padding-right:8px;
 }
 
 

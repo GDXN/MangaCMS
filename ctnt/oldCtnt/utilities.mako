@@ -29,6 +29,9 @@ from ipaddress import IPv4Address, IPv4Network
 
 <%def name="fSizeToStr(fSize)">
 	<%
+	if fSize == 0:
+		return ''
+
 	fStr = fSize/1.0e6
 	if fStr < 100:
 		fStr = "%0.2f M" % fStr

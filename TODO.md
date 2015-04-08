@@ -1,13 +1,19 @@
 chapter and volume columns
 volume/chapter tracking, rather then just c
-fix last crawl time
 request priority sorting
 
-https://teamkoinaka.wordpress.com/ not ln  
 
+http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl
+
+
+search also include full text search
 feed link to trieview
 
-not yet retrieved link to sauce
+
+## fix last crawl time
+## hide size for directories
+## pad inside book content div
+## not yet retrieved link to sauce
 
 custom book synonyms
 sync reading progress both directions
@@ -101,6 +107,7 @@ Also: http://aho-updates.com/
 ## http://www.wuxiaworld.com/
 ## http://avertranslation.com/
 ## http://avertranslation.blogspot.sg/
+## https://shokyuutranslations.wordpress.com/
 ## http://a0132.blogspot.ca/
 ## http://hereticlnt.blogspot.com/
 ## http://hereticlnt.blogspot.sg/
@@ -223,6 +230,8 @@ everyone at http://www.mangaupdates.com/releases.html?search=116177&stype=series
 http://deusexscans.blogspot.com/
 http://deusexscans.blogspot.com/2014/08/one-turn-kill-of-dark-partisan-vol-1_29.html
 
+H source:
+https://teamkoinaka.wordpress.com/
 
  - Scrape "Type" entry from mangaupdates
  - tagging system
