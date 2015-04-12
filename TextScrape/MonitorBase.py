@@ -215,7 +215,6 @@ class MonitorBase(ScrapePlugins.DbBase.DbBase):
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, dbId, commit=True, **kwargs):
-		print("FIXME?")
 		# traceback.print_stack()
 		# # lowercase the tags/genre
 		# if "srcGenre" in kwargs:

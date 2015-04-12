@@ -39,8 +39,8 @@ class NovelMixin(metaclass=abc.ABCMeta):
 					srcId              INTEGER,
 
 					filename           TEXT,
-					vol                INTEGER,
-					chapter            INTEGER,
+					vol                FLOAT,
+					chapter            FLOAT,
 					description        TEXT,
 
 					relPath            TEXT NOT NULL,

@@ -13,6 +13,36 @@ import time
 import urllib.error
 import settings
 import TextScrape.NovelMixin
+import roman
+
+import bs4
+import bs4.element
+
+def isnumeric(value):
+	return str(value).replace(".", "").replace("-", "").isdigit()
+
+def parseDigit(inStr, curValue):
+	'''
+	Try to parse a value as either a integer, or if that
+	fails, a roman numeral value.
+	Returns the new value if it parsed successfully, the original if
+	not.
+	'''
+
+	value = inStr.split()[-1]
+	if isnumeric(value):
+		curValue = float(value)
+	else:
+		try:
+			print("Parsing as roman numeral", value)
+			curValue = roman.fromRoman(value.upper())
+		except roman.InvalidRomanNumeralError:
+			print("Roman numeral error?", value.upper())
+			import traceback
+			traceback.print_exc()
+			pass
+	return curValue
+
 
 class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBase):
 	tableName = 'books_lndb'
@@ -145,7 +175,7 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 			if have and have['lastChanged'] >= item['date']:
 				continue
 			elif have:
-				self.log.info("Item changed: '%s', '%s'", have['lastChanged'], item['date'])
+				self.log.info("Item changed: '%s', '%s'", have['lastChanged'], have['lastChanged'] - item['date'])
 				self.updateDbEntry(have['dbId'], changeState=0, lastChanged=have['lastChanged'])
 			else:
 				self.insertIntoDb(cTitle=item['title'], lastChanged=item['date'], firstSeen=time.time(), seriesEntry=True)
@@ -256,11 +286,63 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 
 		return kwargs
 
+	def extractCovers(self, soup, dbId):
+		coverDiv = soup.find('div', class_='view-covers')
+		if not coverDiv:
+			self.log.info("No covers!")
+			return
+
+		for child in coverDiv.find_all('div', recursive=False):
+			# print("------------------------")
+			self.processCoverDiv(child, dbId)
+			# print("------------------------")
+
+	def processCoverDiv(self, divContent, dbId):
+
+		image = divContent.find('a', class_='highslide')
+		desc = divContent.find('div', class_='highslide-caption')
+
+		imgUrl = urllib.parse.urljoin(self.baseurl, image['href'])
+
+		title = desc.find('div', class_='cover-title')
+		if title.span:
+			title.span.decompose()
+		title = title.get_text().strip()
+
+		volume = None
+		chapter = None
+		# Iterate over only the child items that are strings.
+		itemStrings = [item for item in desc.children if isinstance(item, bs4.element.NavigableString)]
+		for child in itemStrings:
+
+			if child.startswith("Volume:"):
+				volume = parseDigit(child, volume)
+
+			# I haven't seen chapter covers in LNDB, but what the hell.
+			if child.startswith("Chapter:"):
+				chapter = parseDigit(child, volume)
+
+
+		if self.checkHaveCover(dbId, volume, chapter):
+			return
+
+		imgCont = self.wg.getpage(imgUrl)
+		fName = urllib.parse.urlsplit(imgUrl).path.split("/")[-1]
+
+		# print(fName)
+		# print("Chapter", chapter, "Volume", volume)
+
+		self.upsertCover(fName, imgCont, dbId, volume, chapter, title)
+
+
+
+
 	def updateSeriesItem(self, item):
 		# print(item)
 		soup = self.getSoupForSeriesItem(item['cTitle'])
 		data = self.extractSeriesInfo(soup)
 
+		self.extractCovers(soup, item['dbId'])
 
 		self.updateDbEntry(item['dbId'], changeState=2, **data)
 
@@ -283,6 +365,7 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 		todo = self.getRowsByValue(changeState=0)
 		for item in todo:
 			if item['seriesEntry']:
+				# print(item)
 				self.updateSeriesItem(item)
 			else:
 				raise ValueError("How did a non-series-entry item get created?")
@@ -299,7 +382,7 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 		self.updateOutdated()
 
 	def scanAllSeries(self):
-		offset = 45
+		offset = 0
 		while True:
 			x = self.upsertChanges(page_offset=offset)
 			if x == 0:
@@ -308,11 +391,34 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 
 			offset += 1
 
+	def testRun(self):
+
+
+		tests = [
+			'Shizuru-san_series',
+			# 'Ane_Ane_Suiei_Club',
+			# 'Shokugeki_no_Souma_~a_la_carte~',
+			# 'Steamheavens_Freaks',
+			# 'Tenjou_Ugatsu_Shinma_no_Ken',
+			# 'saiyaku sensen no overlord',
+			# 'Boku_to_Majoshiki_Apocalypse',
+			# 'Hagane_no_Shirousagi_Kishidan',
+			# 'Vamp!',
+			# 'Shiritsu!_Sanjyuusan_Gendou_Gakuin',
+			# 'Magical_Warfare',
+		]
+		for test in tests:
+			soup = self.getSoupForSeriesItem(test)
+			data = self.extractSeriesInfo(soup)
+			self.extractCovers(soup, -1)
+
+			print(data)
 
 def test():
 	scrp = Monitor()
 	scrp.scanAllSeries()
 	# scrp.updateOutdated()
+	# scrp.testRun()
 	scrp.go()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 
