@@ -291,7 +291,7 @@ class SeriesBase(ScrapePlugins.DbBase.DbBase):
 												dbId            SERIAL PRIMARY KEY,
 
 
-												itemName         CITEXT UNIQUE,
+												itemName         CITEXT,
 												itemTable        integer references {tableName}_table_links(dbid),
 
 												readingProgress  int DEFAULT -1,
