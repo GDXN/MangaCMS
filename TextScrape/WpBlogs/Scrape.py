@@ -51,6 +51,7 @@ class Scrape(WordpressScrape):
 		'https://farmerbob1.wordpress.com',
 		'https://fateapocryphathetranslation.wordpress.com',
 		'https://flickerhero.wordpress.com',
+		'https://flowerbridgetoo.wordpress.com',
 		'https://fromwhencecamethenamed.wordpress.com',
 		'https://fuyuugakuenthetranslation.wordpress.com',
 		'https://gargoyleserial.wordpress.com',
@@ -60,11 +61,11 @@ class Scrape(WordpressScrape):
 		'https://hajiko.wordpress.com',
 		'https://heartcrusadescans.wordpress.com',
 		'https://hellotranslations.wordpress.com',
+		'https://hendricksensama.wordpress.com/',
 		'https://hennekothetranslation.wordpress.com',
 		'https://hokagetranslations.wordpress.com',
 		'https://hui3r.wordpress.com',
 		'https://itranslateln.wordpress.com',
-		'https://shokyuutranslations.wordpress.com',
 		'https://kamitranslation.wordpress.com',
 		'https://kobatochandaisuki.wordpress.com',
 		'https://korezombiethetranslation.wordpress.com',
@@ -102,6 +103,7 @@ class Scrape(WordpressScrape):
 		'https://setsuna86blog.wordpress.com',
 		'https://shincodezeroblog.wordpress.com',
 		'https://shintranslations.wordpress.com',
+		'https://shokyuutranslations.wordpress.com',
 		'https://skyworldthetranslation.wordpress.com',
 		'https://solitarytranslation.wordpress.com',
 		'https://stcon.wordpress.com',
@@ -120,8 +122,6 @@ class Scrape(WordpressScrape):
 		'https://xantbos.wordpress.com',
 		'https://yoraikun.wordpress.com',
 		'https://zmunjali.wordpress.com',
-		'https://flowerbridgetoo.wordpress.com',
-		'https://hui3r.wordpress.com',
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)

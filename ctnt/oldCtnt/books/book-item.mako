@@ -506,8 +506,13 @@ startTime = time.time()
 			No covers found!
 		% else:
 			% for cid, vol, chapter, description in covers:
+				<%
+					print(description)
+					if not description:
+						description = ''
+				%>
 				<div style='display: inline-block;'>
-					<a href='/books/cover/${cid}'><img src='/books/cover/${cid}' style='max-width: 100px;'></a>
+					<a href='/books/cover/${cid}'><img src='/books/cover/${cid}' style='max-width: 100px;' alt='${description}'></a>
 					## ${cover}
 				</div>
 			% endfor
