@@ -9,6 +9,7 @@ http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOI
 search also include full text search
 feed link to trieview
 
+dupscan just kiss
 
 ## fix last crawl time
 ## hide size for directories

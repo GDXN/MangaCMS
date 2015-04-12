@@ -33,6 +33,8 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				for row in rows:
 
 					tagsTmp = row[1]
+					if tagsTmp == None:
+						tagsTmp = ''
 					if not "deleted" in tagsTmp and not "missing" in tagsTmp and not "duplicate" in tagsTmp:
 						exists += 1
 						rowId = row[0]
@@ -115,6 +117,36 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				# if not deduplicator.archChecker.ArchChecker.isArchive(basePath):
 				# 	print("Not archive!", basePath)
 				# 	continue
+
+				self.log.info("Scanning '%s'", basePath)
+
+				proc = processDownload.MangaProcessor()
+				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathFilter=pathFilter)
+				self.addTag(basePath, tags)
+
+			except KeyboardInterrupt:
+				raise
+
+	def cleanBySourceKey(self, sourceKey, delDir, includePhash=True, pathFilter=['']):
+
+
+		with self.conn.cursor() as cur:
+			cur.execute('''SELECT dbid, filename, downloadpath FROM mangaitems WHERE sourcesite=%s;''', (sourceKey, ))
+			ret = cur.fetchall()
+
+		# print(ret)
+
+		parsedItems = []
+		for dbId, fName, fPath in ret:
+			if not fName or not fPath:
+				continue
+			fqpath = os.path.join(fPath, fName)
+			if not os.path.exists(fqpath):
+				continue
+			parsedItems.append((dbId, fqpath))
+
+		for dummy_num, basePath in parsedItems:
+			try:
 
 				self.log.info("Scanning '%s'", basePath)
 
@@ -367,6 +399,16 @@ def runDeduper(basePath, deletePath):
 	dd.setupDbApi()
 
 	dd.cleanDirectory(basePath, deletePath)
+
+	dd.closeDB()
+
+def runSrcDeduper(sourceKey, deletePath):
+
+	dd = DirDeduper()
+	dd.openDB()
+	dd.setupDbApi()
+
+	dd.cleanBySourceKey(sourceKey, deletePath)
 
 	dd.closeDB()
 

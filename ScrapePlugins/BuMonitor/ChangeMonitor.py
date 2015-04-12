@@ -1,7 +1,7 @@
 
 import webFunctions
 import runStatus
-import sys
+import urllib.parse
 import re
 import bs4
 import traceback
@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 import time
 import settings
 import TextScrape.NovelMixin
-
+import os.path
 import ScrapePlugins.MonitorDbBase
 
 # Check items on user's watched list for changes every day
@@ -46,6 +46,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 
 
 	goBigThreads = 16
+	# goBigThreads = 1
 
 
 	# -----------------------------------------------------------------------------------
@@ -172,7 +173,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		return rets
 
 
-	def getItemInfo(self, mId):
+	def getItemInfo(self, dbId, mId):
 
 		pageCtnt  = self.wgH.getpage(self.itemURL.format(buId=mId))
 
@@ -187,19 +188,20 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		availProg = self.getAvailProgress(soup)
 		tags      = self.fetchTags(mId, soup)
 		genres    = self.extractGenres(soup)
-		type      = self.getType(soup)
+		mngType   = self.getType(soup)
 
 		author    = self.getAuthor(soup)
 		artist    = self.getArtist(soup)
 		desc      = self.getDescription(soup)
 		relState  = self.getReleaseState(soup)
 
+		self.saveCover(dbId, mId, soup)
 
 		baseName, altNames = self.getNames(soup)
 		# print("Basename = ", baseName)
 		self.log.info("Basename = %s, AltNames = %s", baseName, altNames)
 		self.log.info("Author = %s, Artist = %s", author, artist)
-		self.log.info("ReleaseState %s, desc len = %s, type = %s", relState, len(desc), type)
+		self.log.info("ReleaseState %s, desc len = %s, type = %s", relState, len(desc), mngType)
 		kwds = {
 			"lastChecked"   : time.time(),
 			"buName"        : baseName,
@@ -207,7 +209,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 			"buAuthor"      : author,
 			"buDescription" : desc,
 			"buRelState"    : relState,
-			"buType"        : type
+			"buType"        : mngType
 		}
 		if release:
 			kwds["lastChanged"] = release
@@ -226,7 +228,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		# Retreive page for mId, extract relevant information, and update the DB with the scraped info
 	def updateItem(self, dbId, mId):
 
-		kwds, altNames = self.getItemInfo(mId)
+		kwds, altNames = self.getItemInfo(dbId, mId)
 		if not kwds:
 			return
 
@@ -502,6 +504,33 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 
 		return " ".join(container.strings).strip().strip(" ,")
 
+
+	def saveCover(self, mId, buId, soup):
+
+		haveCover = self.checkHaveCover(mId)
+		if haveCover:
+			return
+		else:
+			self.log.info("Need to fetch cover: %s", haveCover)
+		header = soup.find("b", text="Image")
+		if not header:
+			return ""
+
+		container = header.parent.find_next_sibling("div", class_="sContent")
+
+		if not container:
+			return
+		if not container.img:
+			return
+		if not container.img['src']:
+			return
+
+
+		ctnt, name = self.wgH.getFileAndName(container.img['src'])
+		if not name:
+			name = os.path.split(urllib.parse.urlsplit(container.img['src']).path)[-1]
+
+		self.upsertCover(name, ctnt, mId, sourceId=buId)
 
 
 if __name__ == "__main__":

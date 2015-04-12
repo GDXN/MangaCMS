@@ -26,3 +26,4 @@ __pycache__
 /waterStripper/cvtest/tests
 /ScrapePlugins/SadPandaLoader/deploy.shim
 *.pyc
+/covers

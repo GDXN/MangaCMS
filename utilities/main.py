@@ -74,6 +74,10 @@ def printHelp():
 	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
 	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
 	print("	")
+	print("	src-clean {source-key} {del-dir}")
+	print("		Find duplicates for all the items downloaded under the key {source-key}, and remove them.")
+	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
+	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
 
 	print("*********************************************************")
 	print("Miscellaneous Tools")
@@ -120,10 +124,10 @@ def printHelp():
 	print("		Clean out the trailing '(Novel)' from mangaupdates novel items.")
 	print("	")
 	print("	fix-book-link-sources")
-	print("		.")
+	print("		")
 	print("	")
 	print("	fix-h-tags-case")
-	print("		")
+	print("		Fix issues where mixed-case H tags were being duplicated.")
 	print("	")
 
 	print("*********************************************************")
@@ -267,6 +271,12 @@ def parseThreeArgCall(cmd, arg1, arg2):
 			print("Passed path '%s' does not exist!" % arg2)
 			return
 		utilities.dedupDir.runDeduper(arg1, arg2)
+		return
+	elif cmd == "src-clean":
+		if not os.path.exists(arg2):
+			print("Passed path '%s' does not exist!" % arg2)
+			return
+		utilities.dedupDir.runSrcDeduper(arg1, arg2)
 		return
 	elif cmd == "dir-clean":
 		if not os.path.exists(arg1):
