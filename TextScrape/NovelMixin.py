@@ -35,7 +35,7 @@ class NovelMixin(metaclass=abc.ABCMeta):
 					series_covers
 				(
 					id                 SERIAL PRIMARY KEY,
-					srcTable           TEXT NOT NULL,
+					srcTable           CITEXT NOT NULL,
 					srcId              INTEGER,
 
 					filename           TEXT,

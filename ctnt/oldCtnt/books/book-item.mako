@@ -408,12 +408,12 @@ startTime = time.time()
 	<%
 		cursor = sqlCon.cursor()
 
-		cursor.execute("""SELECT buid, availprogress, readingprogress, buname, bulist, butags, bugenre, budescription
+		cursor.execute("""SELECT dbid, buid, availprogress, readingprogress, buname, bulist, butags, bugenre, budescription
 						FROM mangaseries
 						WHERE buid=%s;""", (muId, ))
 		item = cursor.fetchone()
 
-		keys = ("muId", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre', 'description')
+		keys = ("dbId", "muId", "currentChapter", "readChapter", "seriesName", "listName", 'tags', 'genre', 'description')
 		ret = dict(zip(keys, item))
 
 
@@ -474,6 +474,48 @@ startTime = time.time()
 	% endfor
 </%def>
 
+
+<%def name="getCovers(srcTable, srcId)">
+
+	<%
+
+	cur = sqlCon.cursor()
+
+	cur.execute("""
+		SELECT
+			id, vol, chapter, description
+		FROM
+			series_covers
+		WHERE
+				srctable=%s
+			AND
+				srcid=%s
+		ORDER BY
+			vol, chapter, filename
+		;
+		""", (srcTable, srcId))
+
+	covers = cur.fetchall()
+
+
+	%>
+
+	<div>Covers!</div>
+	<div>
+		% if not covers:
+			No covers found!
+		% else:
+			% for cid, vol, chapter, description in covers:
+				<div style='display: inline-block;'>
+					<a href='/books/cover/${cid}'><img src='/books/cover/${cid}' style='max-width: 100px;'></a>
+					## ${cover}
+				</div>
+			% endfor
+		%endif
+	<div>
+
+</%def>
+
 <%def name="renderLndbInfo(itemName)">
 	<div>
 		<%
@@ -528,6 +570,11 @@ startTime = time.time()
 					</tr>
 				</table>
 			</div>
+
+			<%
+				getCovers('books_lndb', data['dbid'])
+			%>
+
 		% endif
 	</div>
 	<br>
@@ -663,6 +710,11 @@ startTime = time.time()
 					</td>
 				</tr>
 			</table>
+
+			<%
+				getCovers('mangaseries', muData['dbId'])
+			%>
+
 
 		% else:
 			<div>No MangaUpdates Entry!</div>

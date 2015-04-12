@@ -11,6 +11,8 @@ feed link to trieview
 
 dupscan just kiss
 
+search in rss tags too
+
 ## fix last crawl time
 ## hide size for directories
 ## pad inside book content div
@@ -21,7 +23,7 @@ sync reading progress both directions
 store manga progress locally
 new books view still fucked  
 
-
+http://pastebin.com/rnibn4W3
 http://www.surasplace.com/index.php/projects.html
 
 

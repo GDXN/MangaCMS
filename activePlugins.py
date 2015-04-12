@@ -79,6 +79,7 @@ import TextScrape.RoyalRoad.RunUpdate
 import TextScrape.StoriesOnline.RunUpdate
 import TextScrape.WattPad.RunUpdate
 
+import TextScrape.Lndb.Run
 
 import TextScrape.RssRun
 
@@ -184,6 +185,9 @@ scrapePlugins = {
 	308 : (TextScrape.ReTranslations.Run,                      days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 	309 : (TextScrape.WarTdf.Run,                              days(1)),
 	310 : (TextScrape.HaruParty.Run,                           days(2)),
+
+
+	400 : (TextScrape.Lndb.Run,                                hours(2)),
 
 }
 

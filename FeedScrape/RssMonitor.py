@@ -52,7 +52,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			# total crap.
 			# Therefore, use webGet instead, because it can handle
 			# encoding properly
-			
+
 			try:
 				rawFeed = self.wg.getpage(feedUrl)
 				feed = self.parseFeed(rawFeed)
@@ -220,23 +220,23 @@ class RssTest(RssMonitor):
 
 	tableKey = 'test'
 
-	feedUrls = [
-		'http://krytykal.org/feed/',
-		'https://oniichanyamete.wordpress.com/feed/',
-		'http://skythewood.blogspot.com/feeds/posts/default',
-		'http://www.baka-tsuki.org/project/index.php?title=Special:RecentChanges&feed=atom',
-		'http://www.taptaptaptaptap.net/feed/',
-		'http://guhehe.net/feed/',
-		'http://japtem.com/feed/',
-		'http://giraffecorps.liamak.net/feed/',
-	]
+	# feedUrls = [
+	# 	'http://krytykal.org/feed/',
+	# 	'https://oniichanyamete.wordpress.com/feed/',
+	# 	'http://skythewood.blogspot.com/feeds/posts/default',
+	# 	'http://www.baka-tsuki.org/project/index.php?title=Special:RecentChanges&feed=atom',
+	# 	'http://www.taptaptaptaptap.net/feed/',
+	# 	'http://guhehe.net/feed/',
+	# 	'http://japtem.com/feed/',
+	# 	'http://giraffecorps.liamak.net/feed/',
+	# ]
 
 
 
 
 def test():
-	import logSetup
-	logSetup.initLogging()
+	# import logSetup
+	# logSetup.initLogging()
 	fetch = RssTest()
 	fetch.loadFeeds()
 

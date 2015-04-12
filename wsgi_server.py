@@ -105,6 +105,35 @@ def fix_matchdict(request):
 				request.matchdict[key] = tuple(value.encode("latin-1").decode("utf-8") for value in values)
 
 
+def errorPage(errorStr, moreInfo=False):
+
+	if moreInfo:
+		moreInfo = '''
+		<div>
+			{moreInfo}
+		</div>
+		'''.format(moreInfo=moreInfo)
+	else:
+		moreInfo = ''
+
+	responseBody = '''
+	<html>
+		<head>
+			<title>Error!</title>
+		</head>
+		<body>
+			<div>
+				<h3>{errorStr}</h3>
+			</div>
+			{moreInfo}
+		</body>
+	</html>
+
+	'''.format(errorStr=errorStr, moreInfo=moreInfo)
+
+	responseBody += reasons
+	return Response(status_int=404, body=responseBody)
+
 
 class PageResource(object):
 
@@ -356,6 +385,38 @@ class PageResource(object):
 	def getApi(self, request):
 		return self.apiInterface.handleApiCall(request)
 
+	def getBookCover(self, request):
+		try:
+			seqId = int(request.matchdict["coverid"])
+		except ValueError:
+			return errorPage("That's not a integer ID!", moreInfo='Are you trying something bad?')
+
+
+		cur = self.conn.cursor()
+		cur.execute("BEGIN")
+		cur.execute("""SELECT
+					filename, relPath
+				FROM
+					series_covers
+				WHERE
+					id=%s;""", (seqId, ))
+		item = cur.fetchone()
+		if not item:
+			self.log.warn("Request for cover with ID '%s' failed because it's not in the database.", seqId)
+			return errorPage("Cover not found in cover item database!")
+
+		fileName, fPath = item
+		coverPath = os.path.join(settings.coverDirectory, fPath)
+		if not os.path.exists(coverPath):
+			self.log.error("Request for cover with ID '%s' failed because the file is missing!", seqId)
+			return errorPage("Cover found, but the file is missing!")
+
+		print(coverPath, os.path.exists(coverPath))
+		ftype, dummy_coding = mimetypes.guess_type(fileName)
+
+		if ftype:
+			return FileResponse(path=coverPath, content_type=ftype)
+		return FileResponse(path=coverPath)
 
 	# New reader!
 
@@ -570,6 +631,8 @@ def buildApp():
 	# config.add_route(name='auth',                    pattern='/login')
 
 
+	config.add_route(name='book-cover',             pattern='/books/cover/{coverid}')
+
 	config.add_route(name='book-render',             pattern='/books/render')
 
 
@@ -588,6 +651,8 @@ def buildApp():
 	config.add_route(name='mvc_style',             pattern='/m/*page')
 
 	config.add_route(name='leaf',                  pattern='/*page')
+
+	config.add_view(resource.getBookCover,                            route_name='book-cover')
 
 	config.add_view(resource.readerTwoPages,         http_cache=0, route_name='reader-redux-container')
 	config.add_view(resource.readerTwoPorn,          http_cache=0, route_name='porn-get-arch')
