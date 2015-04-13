@@ -15,6 +15,8 @@ import settings
 import TextScrape.NovelMixin
 import roman
 
+
+from concurrent.futures import ThreadPoolExecutor
 import bs4
 import bs4.element
 
@@ -29,12 +31,29 @@ def parseDigit(inStr, curValue):
 	not.
 	'''
 
+	# 下 and 上 mean last and first volume in a set respectively.
+	# Anyways, clear that out so the parsing actually works.
+	inStr = inStr.replace("上", "")
+	inStr = inStr.replace("下", "")
+
+	# And the second of a set
+	inStr = inStr.replace("中", "")
+
+	# And just "a volume"
+	inStr = inStr.replace("巻", "")
+
+	# "Gaiden", or side-story
+	# Inject a giant offset
+	inStr = inStr.replace("外伝 ", "1000")
+	inStr = inStr.replace("外伝", "1000")
+
+
 	value = inStr.split()[-1]
 	if isnumeric(value):
 		curValue = float(value)
 	else:
 		try:
-			print("Parsing as roman numeral", value)
+			# print("Parsing as roman numeral", value)
 			curValue = roman.fromRoman(value.upper())
 		except roman.InvalidRomanNumeralError:
 			print("Roman numeral error?", value.upper())
@@ -57,6 +76,8 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 	'''
 	No login is needed for the LNDB scraper, because they don't have lists or anything.
 	'''
+
+	THREADS = 8
 
 	def extractCookie(self):
 		csrf_test_name = None
@@ -360,9 +381,8 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 	#
 	###########################################################################################################################################
 
-	def updateOutdated(self):
 
-		todo = self.getRowsByValue(changeState=0)
+	def fetchThread(self, todo):
 		for item in todo:
 			if item['seriesEntry']:
 				# print(item)
@@ -370,6 +390,31 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 			else:
 				raise ValueError("How did a non-series-entry item get created?")
 			time.sleep(1)
+
+	def updateOutdated(self):
+		todo = self.getRowsByValue(changeState=0)
+
+		if todo:
+
+			def iter_baskets_from(items, maxbaskets=self.THREADS):
+				'''generates evenly balanced baskets from indexable iterable'''
+				item_count = len(items)
+				baskets = min(item_count, maxbaskets)
+				for x_i in range(baskets):
+					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
+
+			linkLists = iter_baskets_from(todo, maxbaskets=self.THREADS)
+
+			with ThreadPoolExecutor(max_workers=self.THREADS) as executor:
+
+				for linkList in linkLists:
+					executor.submit(self.fetchThread, linkList)
+
+				executor.shutdown(wait=True)
+
+
+
+
 
 	def go(self):
 		# # Login if needed:
@@ -416,7 +461,7 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 
 def test():
 	scrp = Monitor()
-	scrp.scanAllSeries()
+	# scrp.scanAllSeries()
 	# scrp.updateOutdated()
 	# scrp.testRun()
 	scrp.go()

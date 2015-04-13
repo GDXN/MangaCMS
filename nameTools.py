@@ -214,24 +214,6 @@ def floatToRatingStr(newRating):
 	return ratingStr
 
 
-
-def getCleanedName(inStr):
-	inStr = re.sub(r"\d+\-\d+",                " ", inStr)				#Scrub interdigit hyphens
-	inStr = re.sub(r"([\[\]_\+0-9()=,\?])",    " ", inStr)				#clean brackets, symbols, and numbers: (Removed "-")
-	inStr = re.sub(r"\W(ch|vol)[0-9]+?",       " ", inStr)				#Clean 'ch01' or similar
-	inStr = re.sub(r"\W[vc][0-9]*?\W",         " ", inStr)				#Clean 'v01' and 'c01' or similar
-	inStr = re.sub(r"\W[a-zA-z0-9]\W",         " ", inStr)				#Remove all single letters
-	inStr = re.sub(r"\W[lL][Qq]\W",            " ", inStr)				#Remove "[LQ]"
-	inStr = re.sub(r" +",                      " ", inStr)				#Collapse spaces
-
-	inStr = inStr.rstrip().lstrip()
-	return inStr
-
-
-
-
-
-
 def isProbablyImage(fileName):
 	imageExtensions = [".jpeg", ".jpg", ".gif", ".png", ".apng", ".svg", ".bmp"]
 	fileName = fileName.lower()
@@ -240,9 +222,6 @@ def isProbablyImage(fileName):
 			return True
 
 	return False
-
-
-
 
 def extractChapterVol(inStr):
 
