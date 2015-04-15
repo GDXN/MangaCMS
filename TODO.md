@@ -2,7 +2,7 @@ chapter and volume columns
 volume/chapter tracking, rather then just c
 request priority sorting
 
-
+https://sites.google.com/site/englishfantranslations/home
 http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl
 
 
