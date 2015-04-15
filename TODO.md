@@ -8,8 +8,11 @@ http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOI
 
 search also include full text search
 feed link to trieview
-
 dupscan just kiss
+
+
+
+internal links in http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1DL6dpctSl_DME-4cnnZ8mkfCIb9nIMlu8P8JhDU-it8%2Fpub brpken
 
 search in rss tags too
 
@@ -23,8 +26,7 @@ sync reading progress both directions
 store manga progress locally
 new books view still fucked  
 
-http://pastebin.com/rnibn4W3
-http://www.surasplace.com/index.php/projects.html
+
 
 
 tadanohito shutting down  scrape everything
@@ -86,11 +88,15 @@ Hachinantte, Sore wa Naideshou!
 =======
 
 Blogger blog: http://www.pegasusfarts.com/
-
+http://nightbreezetranslations.com
+http://tototr.com
+http://worldofwatermelons.com
 http://hotchocolatescans.mokkori.fr (Not LN?)
 http://ckmscans.halofight.com/
 http://heaven.neo-romance.net/manga/ch00.php
 
+http://ckmscans.halofight.com/forum
+http://www.surasplace.com/index.php/projects.html
 http://pokkoo-shuu.tumblr.com/thelunacyofdukevenomania
 http://sayasamax3.tumblr.com/post/56013645417/high-speed-translations-and-summaries
 http://toshosen-tsl.livejournal.com/

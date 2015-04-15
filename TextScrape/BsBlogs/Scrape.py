@@ -20,7 +20,6 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 
 	baseUrl = [
 
-
 		'http://a0132.blogspot.ca',
 		'http://ahoujicha.blogspot.ca',
 		'http://aquarilasscenario.blogspot.com',
@@ -36,6 +35,7 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://imoutoliciouslnt.blogspot.com.au',
 		'http://jawztranslations.blogspot.ca',
 		'http://jawztranslations.blogspot.com',
+		'http://kaezartranslations.blogspot.com',
 		'http://kurotsuki-novel.blogspot.ca',
 		'http://kurotsuki-novel.blogspot.com',
 		'http://nakulas.blogspot.com',
@@ -53,9 +53,11 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://thezombieknight.blogspot.co.uk',
 		'http://untuned-strings.blogspot.ca',
 		'http://untuned-strings.blogspot.com',
+		'http://xcrossj.blogspot.com.au',
 		'http://xhawk77x.blogspot.com',
 		'https://sousetsuka.blogspot.com',
-		'http://xcrossj.blogspot.com.au',
+		'http://mahoukoukoku.blogspot.com.au',
+
 
 
 	]

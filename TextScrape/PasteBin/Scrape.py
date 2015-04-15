@@ -31,6 +31,7 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 		'http://pastebin.com/raw.php?i=6Ar4iu9P' : 'Konjiki no Wordmaster - Chapter 41 - ',
 
 		'http://pastebin.com/raw.php?i=Jjj7tCLA' : 'Ryuugoroshi no Sugosu Hibi',
+		'http://pastebin.com/raw.php?i=rnibn4W3' : 'Konjiki no Moji Tsukai - Chapter 21',
 		}
 
 	# startUrl = list(pasteBinLut.keys()) + baseUrl
