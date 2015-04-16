@@ -1,57 +1,19 @@
-chapter and volume columns
-volume/chapter tracking, rather then just c
-request priority sorting
 
 
 http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl
-
-
-search also include full text search
-feed link to trieview
-dupscan just kiss
-
-
-
-internal links in http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1DL6dpctSl_DME-4cnnZ8mkfCIb9nIMlu8P8JhDU-it8%2Fpub brpken
-
-search in rss tags too
 
 ## fix last crawl time
 ## hide size for directories
 ## pad inside book content div
 ## not yet retrieved link to sauce
 
-custom book synonyms
-sync reading progress both directions
-store manga progress locally
-new books view still fucked  
-
-
-
-
-tadanohito shutting down  scrape everything
-use jdownloader api to scrape other h blogs
-
+internal links in http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1DL6dpctSl_DME-4cnnZ8mkfCIb9nIMlu8P8JhDU-it8%2Fpub broken
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1NjsYhS3_PQvA3xSjOV0IubpNmyJk98eBu19ak2NMaIQ%2Fpub
 table on http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fsites.google.com%2Fsite%2Fsekaigameoredake%2Fchapter-5%3Fmobile%3Dtrue
 
- - ~~duplicate h tags of different case~~
 
-
-Add update time tracking to textscrape.
-lower request priority for trigram searches
-
-mu archive release info
-mangaeden api
-
-custom list page add search for existing item
-
-
-
-
-serve compressed HTML
-
-Fetch covers from LNDB/MangaUpdates. Hook them into the web-content system.
+## Fetch covers from LNDB/MangaUpdates. Hook them into the web-content system.
+Covers in manga pages too!
 
 sources from http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
@@ -87,100 +49,26 @@ Hachinantte, Sore wa Naideshou!
 ## TO ADD: 
 =======
 
-Blogger blog: http://www.pegasusfarts.com/
-http://nightbreezetranslations.com
-http://tototr.com
-http://worldofwatermelons.com
 http://hotchocolatescans.mokkori.fr (Not LN?)
 http://ckmscans.halofight.com/
 http://heaven.neo-romance.net/manga/ch00.php
-
-http://ckmscans.halofight.com/forum
 http://www.surasplace.com/index.php/projects.html
-http://pokkoo-shuu.tumblr.com/thelunacyofdukevenomania
-http://sayasamax3.tumblr.com/post/56013645417/high-speed-translations-and-summaries
-http://toshosen-tsl.livejournal.com/
+
+Livejournal:
+	http://toshosen-tsl.livejournal.com/
+
+Blogger:
+	http://www.pegasusfarts.com/
+
+Tumblr:
+	http://pokkoo-shuu.tumblr.com/thelunacyofdukevenomania
+	http://sayasamax3.tumblr.com/post/56013645417/high-speed-translations-and-summaries
 
 General Resource: http://englishlightnovels.com/
-Use http://lndb.info/ as BU-like?
+## Use http://lndb.info/ as BU-like?
 Also: http://aho-updates.com/
 
-## http://tototrans.com/
-## http://avertranslation.com/
-## https://madospicy.wordpress.com/
-## https://teamkoinaka.wordpress.com/
-## https://trippingoverwn.wordpress.com/
-## http://arkmachinetranslations.com/
-## http://www.pegasusfarts.com/
-## http://worldofwatermelons.com/
-## http://www.wuxiaworld.com/
-## http://avertranslation.com/
-## http://avertranslation.blogspot.sg/
-## https://shokyuutranslations.wordpress.com/
-## http://a0132.blogspot.ca/
-## http://hereticlnt.blogspot.com/
-## http://hereticlnt.blogspot.sg/
-## http://kurotsuki-novel.blogspot.com/
-## http://jawztranslations.blogspot.com/
-## http://panofitrans.blogspot.com/
-## http://untuned-strings.blogspot.com/
-## http://imoutoliciouslnt.blogspot.ca/
-## http://imoutoliciouslnt.blogspot.com/
-## http://skythewood.blogspot.com.
-## http://skythewood.blogspot.sg/
-## http://sousetsuka.blogspot.com/
-## http://ecwebnovel.blogspot.ca/
-## https://sites.google.com/site/sekaigameoredake/
-## https://hui3r.wordpress.com/
-## https://thatguywhosthere.wordpress.com/
-## https://reantoanna.wordpress.com
-## https://kobatochandaisuki.wordpress.com/
-## https://shintranslations.wordpress.com/
-## https://tensaitranslations.wordpress.com/
-## https://hellotranslations.wordpress.com/
-## https://heartcrusadescans.wordpress.com/
-## https://durandaru.wordpress.com/
-## https://natsutl.wordpress.com/
-## http://hikuosan.blogspot.com
-## https://lygartranslations.wordpress.com/
-## http://earlandfairy.weebly.com/
-## http://shinsekai.cadet-nine.org/
-## http://giraffecorps.liamak.net/
-## http://gravitytranslations.com/
-## http://novel.dawnglare.com/
-## http://hikuosan.blogspot.com
-## http://kurotsuki-novel.blogspot.com
-## http://swordandgame.blogspot.ca
-## http://kobatochandaisuki.wordpress.com
-## https://hokagetranslations.wordpress.com
-## https://metalhaguremt.wordpress.com
-## http://tsaltranslation.wordpress.com
-## https://bluesilvertranslations.wordpress.com
-## http://9ethtranslations.wordpress.com
-## http://panofitrans.blogspot.com
-## http://zmunjali.wordpress.com
-## https://tomorolls.wordpress.com
-## https://binhjamin.wordpress.com
 
-https://docs.google.com/document/d/1P8975xchjaZNw7gEiQkrV1w01akcJhUjlcd4fo4uWNU/edit?usp=sharing
-
-
-## http://sousetsuka.blogspot.com
-## http://skythewood.blogspot.sg/
-
-## http://manga0205.wordpress.com
-## http://oniichanyamete.wordpress.com
-## http://pirateyoshi.wordpress.com
-## http://tsuigeki.wordpress.com
-## http://wartdf.wordpress.com
-## http://yoraikun.wordpress.com
-## https://defiring.wordpress.com
-## https://gravitytranslations.wordpress.com
-## https://oniichanyamete.wordpress.com
-
-## http://japtem.com/
-## http://krytykal.org/
-## http://unlimitednovelfailures.mangamatters.com/
 
 Non-Catalog Novels:
 ## http://10.1.1.8:8081/search-b/b?q=kansustoppu
@@ -189,7 +77,7 @@ Non-Catalog Novels:
 LN TODO:
 	Add transparent scraping into GDoc content
 	Scrape external <a> links that look like images
-	Make link converter aware of all the other LN scrapers, so inter-site links work.
+	~~Make link converter aware of all the other LN scrapers, so inter-site links work.~~
 
 
 Check LN Scrapers after changes:
@@ -201,30 +89,6 @@ Check LN Scrapers after changes:
 
 	## SolitaryTranslation - Password bullshit
 
-	~~BakaTsuki~~
-
-	~~NanoDesuTranslation~~
-	~~PrinceRevolution~~
-	~~Setsuna86Translation~~
-	~~KyakkaTranslation~~
-	~~Krytyk~~
-	~~UnbreakableMachineDollTran~~
-	~~Sousetsuka~~
-	~~SakuraHonyakuTranslation~~
-	~~JapTem~~
-	~~SkyTheWood~~
-	~~UnlimitedNovelFailures~~
-	~~Manga0205~~
-	~~Imoutolicious~~
-	~~Guhehe~~
-	~~CETranslation~~
-	~~UntunedTranslation~~
-	~~WarTdf~~
-	~~HereticTranslation~~
-	~~Yoraikun~~
-	~~Defiring~~
-	~~OniiChanYamete~~
-	~~GravityTranslations~~
 
 
 
@@ -256,6 +120,30 @@ New LN Trans groups:
  - lookup page: http://bato.to/forums/topic/19625-where-can-i-find-recommendations/
 
 Todo:
+
+ - chapter and volume columns
+ - volume/chapter tracking, rather then just c
+ - request priority sorting
+
+ - custom book synonyms
+ - sync reading progress both directions
+ - store manga progress locally
+ - new books view still fucked  
+ - search also include full text search
+ - feed link to trieview
+ - dupscan just kiss
+ - Add update time tracking to textscrape.
+ - lower request priority for trigram searches
+
+ - mu archive release info
+ - mangaeden api
+
+ - custom list page add search for existing item
+ - serve compressed HTML
+ - tadanohito shutting down  scrape everything
+ - use jdownloader api to scrape other h blogs
+
+ - search in rss tags too
 
  - filter rating view by crosslink status
  - h rating system
@@ -454,6 +342,7 @@ Partial series:
 
 
 <b>Complete:</b>
+ - ~~duplicate h tags of different case~~
  - ~~rss separate from ln scrape~~
  - ~~wp/blogspot use labels for posts~~
  - ~~still missing sites from aho~~
@@ -673,3 +562,104 @@ Partial series:
  - ~~Scrape perveden.com~~ Fuck them, they watermark their shit. Never mind.
  - ~~automover~~
 
+
+LN:
+
+ - ~~http://nightbreezetranslations.com~~
+ - ~~http://tototr.com~~
+ - ~~http://totobro.com/~~
+ - ~~https://kerambitnosakki.wordpress.com/~~
+ - ~~http://tototrans.com/~~
+ - ~~http://avertranslation.com/~~
+ - ~~https://madospicy.wordpress.com/~~
+ - ~~https://teamkoinaka.wordpress.com/~~
+ - ~~https://trippingoverwn.wordpress.com/~~
+ - ~~http://arkmachinetranslations.com/~~
+ - ~~http://www.pegasusfarts.com/~~
+ - ~~http://worldofwatermelons.com/~~
+ - ~~http://www.wuxiaworld.com/~~
+ - ~~http://avertranslation.com/~~
+ - ~~http://avertranslation.blogspot.sg/~~
+ - ~~https://shokyuutranslations.wordpress.com/~~
+ - ~~http://a0132.blogspot.ca/~~
+ - ~~http://hereticlnt.blogspot.com/~~
+ - ~~http://hereticlnt.blogspot.sg/~~
+ - ~~http://kurotsuki-novel.blogspot.com/~~
+ - ~~http://jawztranslations.blogspot.com/~~
+ - ~~http://panofitrans.blogspot.com/~~
+ - ~~http://untuned-strings.blogspot.com/~~
+ - ~~http://imoutoliciouslnt.blogspot.ca/~~
+ - ~~http://imoutoliciouslnt.blogspot.com/~~
+ - ~~http://skythewood.blogspot.com.~~
+ - ~~http://skythewood.blogspot.sg/~~
+ - ~~http://sousetsuka.blogspot.com/~~
+ - ~~http://ecwebnovel.blogspot.ca/~~
+ - ~~https://sites.google.com/site/sekaigameoredake/~~
+ - ~~https://hui3r.wordpress.com/~~
+ - ~~https://thatguywhosthere.wordpress.com/~~
+ - ~~https://reantoanna.wordpress.com~~
+ - ~~https://kobatochandaisuki.wordpress.com/~~
+ - ~~https://shintranslations.wordpress.com/~~
+ - ~~https://tensaitranslations.wordpress.com/~~
+ - ~~https://hellotranslations.wordpress.com/~~
+ - ~~https://heartcrusadescans.wordpress.com/~~
+ - ~~https://durandaru.wordpress.com/~~
+ - ~~https://natsutl.wordpress.com/~~
+ - ~~http://hikuosan.blogspot.com~~
+ - ~~https://lygartranslations.wordpress.com/~~
+ - ~~http://earlandfairy.weebly.com/~~
+ - ~~http://shinsekai.cadet-nine.org/~~
+ - ~~http://giraffecorps.liamak.net/~~
+ - ~~http://gravitytranslations.com/~~
+ - ~~http://novel.dawnglare.com/~~
+ - ~~http://hikuosan.blogspot.com~~
+ - ~~http://kurotsuki-novel.blogspot.com~~
+ - ~~http://swordandgame.blogspot.ca~~
+ - ~~http://kobatochandaisuki.wordpress.com~~
+ - ~~https://hokagetranslations.wordpress.com~~
+ - ~~https://metalhaguremt.wordpress.com~~
+ - ~~http://tsaltranslation.wordpress.com~~
+ - ~~https://bluesilvertranslations.wordpress.com~~
+ - ~~http://9ethtranslations.wordpress.com~~
+ - ~~http://panofitrans.blogspot.com~~
+ - ~~http://zmunjali.wordpress.com~~
+ - ~~https://tomorolls.wordpress.com~~
+ - ~~https://binhjamin.wordpress.com~~
+ - ~~https://docs.google.com/document/d/1P8975xchjaZNw7gEiQkrV1w01akcJhUjlcd4fo4uWNU/edit?usp=sharing~~
+ - ~~http://sousetsuka.blogspot.com~~
+ - ~~http://skythewood.blogspot.sg/~~
+ - ~~http://manga0205.wordpress.com~~
+ - ~~http://oniichanyamete.wordpress.com~~
+ - ~~http://pirateyoshi.wordpress.com~~
+ - ~~http://tsuigeki.wordpress.com~~
+ - ~~http://wartdf.wordpress.com~~
+ - ~~http://yoraikun.wordpress.com~~
+ - ~~https://defiring.wordpress.com~~
+ - ~~https://gravitytranslations.wordpress.com~~
+ - ~~https://oniichanyamete.wordpress.com~~
+ - ~~http://japtem.com/~~
+ - ~~http://krytykal.org/~~
+ - ~~http://unlimitednovelfailures.mangamatters.com/~~
+ - ~~BakaTsuki~~
+ - ~~NanoDesuTranslation~~
+ - ~~PrinceRevolution~~
+ - ~~Setsuna86Translation~~
+ - ~~KyakkaTranslation~~
+ - ~~Krytyk~~
+ - ~~UnbreakableMachineDollTran~~
+ - ~~Sousetsuka~~
+ - ~~SakuraHonyakuTranslation~~
+ - ~~JapTem~~
+ - ~~SkyTheWood~~
+ - ~~UnlimitedNovelFailures~~
+ - ~~Manga0205~~
+ - ~~Imoutolicious~~
+ - ~~Guhehe~~
+ - ~~CETranslation~~
+ - ~~UntunedTranslation~~
+ - ~~WarTdf~~
+ - ~~HereticTranslation~~
+ - ~~Yoraikun~~
+ - ~~Defiring~~
+ - ~~OniiChanYamete~~
+ - ~~GravityTranslations~~

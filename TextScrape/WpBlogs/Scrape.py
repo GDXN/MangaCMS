@@ -132,6 +132,8 @@ class Scrape(WordpressScrape):
 		'https://xantbos.wordpress.com',
 		'https://yoraikun.wordpress.com',
 		'https://zmunjali.wordpress.com',
+		'https://kerambitnosakki.wordpress.com',
+
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
@@ -144,11 +146,15 @@ class Scrape(WordpressScrape):
 		'http://www.taptaptaptaptap.net',
 		'http://www.wuxiaworld.com',
 		'http://wuxiaworld.com',
+		'http://nightbreezetranslations.com',
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',
-		'http://tototr.com/',
+
+		# Seriously bro, you can change your A record:
+		'http://tototr.com',
 		'http://tototrans.com',
+		'http://totobro.com',
 
 	]
 

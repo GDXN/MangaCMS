@@ -653,6 +653,15 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 		if self.changeFilter(url, title, changePercentage):
 			return
 
+		# If we weren't passed a title, look it up from the DB.
+		if not title:
+			row = self.getRowByValue(url=url, cursor=cursor)
+			if not row:
+				title = url
+			else:
+				title = row['title']
+
+
 		query = '''INSERT INTO {changeTable} (src, url, change, title, changeDate) VALUES (%s, %s, %s, %s, %s)'''.format(changeTable=self.changeTableName)
 		values = (self.tableKey, url, changePercentage, title, time.time())
 		if cursor:
