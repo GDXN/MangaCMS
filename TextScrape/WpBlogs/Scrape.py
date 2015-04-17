@@ -147,6 +147,7 @@ class Scrape(WordpressScrape):
 		'http://www.wuxiaworld.com',
 		'http://wuxiaworld.com',
 		'http://nightbreezetranslations.com',
+		'http://www.lingson.com/',
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',
