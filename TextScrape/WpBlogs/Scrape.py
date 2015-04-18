@@ -133,6 +133,7 @@ class Scrape(WordpressScrape):
 		'https://yoraikun.wordpress.com',
 		'https://zmunjali.wordpress.com',
 		'https://kerambitnosakki.wordpress.com',
+		'https://aflappyteddybird.wordpress.com',
 
 
 

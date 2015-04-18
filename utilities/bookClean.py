@@ -130,6 +130,37 @@ class BookCleaner(ScrapePlugins.DbBase.DbBase):
 				cur.execute("""UPDATE  books_lndb SET cleanedTitle=%s WHERE dbid=%s;""", (cleaned, dbId))
 				print(dbId, cleaned, cTitle)
 
+	def cleanMangaUpdatesAuthors(self):
+		self.openDB()
+		self.log.info("Cleaning up bad author names")
+		with self.transaction() as cur:
+			cur.execute("""SELECT dbid, buauthor, buartist FROM mangaseries ORDER BY dbid;""")
+			ret = cur.fetchall()
+			for dbId, auth, illust in ret:
+				oldA, oldI = auth, illust
+				if auth and " " in auth:
+					auth = auth.replace(" ", ' ')
+				if illust and " " in illust:
+					illust = illust.replace(" ", ' ')
+
+				if auth and auth.replace(" [, Add, ]", "") != auth:
+					auth = auth.replace(" [, Add, ]", "").strip()
+				elif auth and "[" in auth:
+					print("'%s', '%s', '%s'" % (dbId, auth, auth.replace(" [, Add, ]", "")))
+
+				if illust and illust.replace(" [, Add, ]", "") != illust:
+					illust = illust.replace(" [, Add, ]", "").strip()
+				elif illust and "[" in illust:
+					print("'%s', '%s', '%s'" % (dbId, illust, illust.replace(" [, Add, ]", "")))
+
+				if auth != oldA or illust != oldI:
+					print("Updating!")
+					cur.execute("""UPDATE mangaseries SET buauthor=%s, buartist=%s WHERE dbid=%s;""", (auth, illust, dbId))
+				# cleaned = nt.prepFilenameForMatching(cTitle)
+				# cur.execute("""UPDATE  books_lndb SET cleanedTitle=%s WHERE dbid=%s;""", (cleaned, dbId))
+				# print(dbId, cleaned, cTitle)
+
+
 	def cleanBookLinkSources(self):
 		self.openDB()
 		self.log.info("Wat?")
@@ -223,6 +254,10 @@ def regenLndbCleanedNames():
 def fixBookLinkSources():
 	bc = BookCleaner()
 	bc.cleanBookLinkSources()
+
+def fixMangaUpdatesAuthors():
+	bc = BookCleaner()
+	bc.cleanMangaUpdatesAuthors()
 
 
 

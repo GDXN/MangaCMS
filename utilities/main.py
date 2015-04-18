@@ -126,6 +126,9 @@ def printHelp():
 	print("	fix-book-link-sources")
 	print("		")
 	print("	")
+	print("	fix-bu-authors")
+	print("		Fix authors from mangaupdates table where '[, Add, ]' got into the data due to incomplete parsing of the webpage")
+	print("	")
 	print("	fix-h-tags-case")
 	print("		Fix issues where mixed-case H tags were being duplicated.")
 	print("	")
@@ -179,6 +182,8 @@ def parseOneArgCall(cmd):
 		utilities.bookClean.truncateTrailingNovel()
 	elif mainArg.lower() == "fix-book-link-sources":
 		utilities.bookClean.fixBookLinkSources()
+	elif mainArg.lower() == "fix-bu-authors":
+		utilities.bookClean.fixMangaUpdatesAuthors()
 	elif mainArg.lower() == "fix-h-tags-case":
 		cleaner = utilities.cleanDb.HCleaner('None')
 		cleaner.cleanTags()

@@ -8,7 +8,6 @@ if __name__ == "__main__":
 import ScrapePlugins.BuMonitor.Run
 import ScrapePlugins.DjMoeLoader.Run
 import ScrapePlugins.DjMoeLoader.Retag
-import ScrapePlugins.SkBaseManager.Run
 import ScrapePlugins.BtBaseManager.Run
 import ScrapePlugins.PururinLoader.Run
 import ScrapePlugins.Tadanohito.Run
@@ -108,7 +107,6 @@ scrapePlugins = {
 	4  : (ScrapePlugins.DjMoeLoader.Run,                     hours(1)),
 	5  : (ScrapePlugins.DjMoeLoader.Retag,                   hours(1)),
 	6  : (ScrapePlugins.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	7  : (ScrapePlugins.SkBaseManager.Run,                   hours(1)),
 	8  : (ScrapePlugins.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
 	9  : (ScrapePlugins.PururinLoader.Run,                   hours(1)),
 	10 : (ScrapePlugins.FakkuLoader.Run,                     hours(1)),
