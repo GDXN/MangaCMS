@@ -134,6 +134,7 @@ class Scrape(WordpressScrape):
 		'https://zmunjali.wordpress.com',
 		'https://kerambitnosakki.wordpress.com',
 		'https://aflappyteddybird.wordpress.com',
+		'https://alyschu.wordpress.com',
 
 
 
@@ -148,7 +149,7 @@ class Scrape(WordpressScrape):
 		'http://www.wuxiaworld.com',
 		'http://wuxiaworld.com',
 		'http://nightbreezetranslations.com',
-		'http://www.lingson.com/',
+		'http://www.lingson.com',
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',

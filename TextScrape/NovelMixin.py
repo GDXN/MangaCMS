@@ -128,8 +128,8 @@ class NovelMixin(metaclass=abc.ABCMeta):
 						chapter  {chp} %s
 				;
 				""".format(
-						vol= "is" if not vol else "=",
-						chp= "is" if not chp else "=",
+						vol= "is" if (vol == None or vol == False) else "=",
+						chp= "is" if (chp == None or chp == False) else "=",
 					),
 				(self.tableName, seriesId, vol, chp))
 
