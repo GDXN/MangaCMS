@@ -31,6 +31,19 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 
+
+class title_not_contains(object):
+	""" An expectation for checking that the title *does not* contain a case-sensitive
+	substring. title is the fragment of title expected
+	returns True when the title matches, False otherwise
+	"""
+	def __init__(self, title):
+		self.title = title
+
+
+	def __call__(self, driver):
+		return self.title not in driver.title
+
 #pylint: disable-msg=E1101, C0325, R0201, W0702, W0703
 
 # A urllib2 wrapper that provides error handling and logging, as well as cookie management. It's a bit crude, but it works.
@@ -642,7 +655,7 @@ class WebGetRobust:
 
 
 
-	def stepThroughCloudFlare(self, url, titleContains):
+	def stepThroughCloudFlare(self, url, titleContains='', titleNotContains=''):
 		'''
 		Use Selenium+PhantomJS to access a resource behind cloudflare protection.
 
@@ -661,6 +674,14 @@ class WebGetRobust:
 		instance, so it can continue to use the cloudflare auth in normal requests.
 
 		'''
+
+		if (not titleContains) and (not titleNotContains):
+			raise ValueError("You must pass either a string the title should contain, or a string the title shouldn't contain!")
+
+		if titleContains and titleNotContains:
+			raise ValueError("You can only pass a single conditional statement!")
+
+
 		self.log.info("Attempting to access page through cloudflare browser verification.")
 
 		dcap = dict(DesiredCapabilities.PHANTOMJS)
@@ -676,8 +697,16 @@ class WebGetRobust:
 
 		driver.get(url)
 
+		if titleContains:
+			condition = EC.title_contains(titleContains)
+		elif titleNotContains:
+			condition = title_not_contains(titleNotContains)
+		else:
+			raise ValueError("Wat?")
+
+
 		try:
-			WebDriverWait(driver, 20).until(EC.title_contains((titleContains)))
+			WebDriverWait(driver, 20).until(condition)
 			success = True
 			self.log.info("Successfully accessed main page!")
 		except TimeoutException:

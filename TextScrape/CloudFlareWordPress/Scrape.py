@@ -10,153 +10,20 @@ import webFunctions
 
 
 class Scrape(WordpressScrape):
-	tableKey = 'wp'
-	loggerPath = 'Main.Text.Wp.Scrape'
-	pluginName = 'WpScrape'
+	tableKey = 'cfwp'
+	loggerPath = 'Main.Text.CfWp.Scrape'
+	pluginName = 'CloudFlareWordpressScrape'
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	IGNORE_MALFORMED_URLS = True
-	threads = 10
+	threads = 2
+
+	cloudflare = "Chinese fantasy novels and light novels"
 
 	baseUrl = [
-
-		'http://fuzionlife.wordpress.com',
-		'http://gekkahimethetranslation.wordpress.com',
-		'http://gravitytranslations.wordpress.com',
-		'http://kobatochandaisuki.wordpress.com',
-		'http://lastexorcist.wordpress.com',
-		'http://magelifeblog.wordpress.com',
-		'http://nanodesutranslations.wordpress.com',
-		'http://nightofthehuntingparty.wordpress.com',
-		'http://pactwebserial.wordpress.com',
-		'http://parahumans.wordpress.com',
-		'http://rejecthero.wordpress.com',
-		'http://rumorblock.wordpress.com',
-		'http://sakurahonyaku.wordpress.com',
-		'http://setsuna86blog.wordpress.com',
-		'http://shinynewjustice.wordpress.com',
-		'http://stcon.wordpress.com',
-		'http://stoneburners.wordpress.com',
-		'http://taulsn.wordpress.com',
-		'http://tieshaunn.wordpress.com',
-		'http://tmbrakta.wordpress.com',
-		'http://tusjecht.wordpress.com',
-		'http://twistedcogs.wordpress.com',
-		'http://yoraikun.wordpress.com',
-		'https://9ethtranslations.wordpress.com',
-		'https://agreyworld.wordpress.com',
-		'https://amaburithetranslation.wordpress.com',
-		'https://anathemaserial.wordpress.com',
-		'https://binhjamin.wordpress.com',
-		'https://bluesilvertranslations.wordpress.com',
-		'https://choukun.wordpress.com',
-		'https://defiring.wordpress.com',
-		'https://dlingson.wordpress.com',
-		'https://durandaru.wordpress.com',
-		'https://endonline.wordpress.com',
-		'https://farmerbob1.wordpress.com',
-		'https://fateapocryphathetranslation.wordpress.com',
-		'https://flickerhero.wordpress.com',
-		'https://flowerbridgetoo.wordpress.com',
-		'https://fromwhencecamethenamed.wordpress.com',
-		'https://fuyuugakuenthetranslation.wordpress.com',
-		'https://gargoyleserial.wordpress.com',
-		'https://gekkahimethetranslation.wordpress.com',
-		'https://gjbuthetranslation.wordpress.com',
-		'https://grimgalthetranslation.wordpress.com',
-		'https://hajiko.wordpress.com',
-		'https://heartcrusadescans.wordpress.com',
-		'https://hellotranslations.wordpress.com',
-		'https://hendricksensama.wordpress.com/',
-		'https://hennekothetranslation.wordpress.com',
-		'https://hokagetranslations.wordpress.com',
-		'https://hui3r.wordpress.com',
-		'https://itranslateln.wordpress.com',
-		'https://kamitranslation.wordpress.com',
-		'https://kobatochandaisuki.wordpress.com',
-		'https://korezombiethetranslation.wordpress.com',
-		'https://kurenaithetranslation.wordpress.com',
-		'https://kyakka.wordpress.com',
-		'https://lorcromwell.wordpress.com',
-		'https://loveyouthetranslation.wordpress.com',
-		'https://lygartranslations.wordpress.com',
-		'https://madospicy.wordpress.com',
-		'https://mahoutsuki.wordpress.com',
-		'https://manga0205.wordpress.com',
-		'https://maoyuuthetranslation.wordpress.com',
-		'https://mayochikithetranslation.wordpress.com',
-		'https://metalhaguremt.wordpress.com',
-		'https://nanodesutranslations.wordpress.com',
-		'https://natsutl.wordpress.com',
-		'https://neettranslations.wordpress.com',
-		'https://netblazer.wordpress.com',
-		'https://nightraccoon.wordpress.com',
-		'https://ohanashimi.wordpress.com',
-		'https://ojamajothetranslation.wordpress.com',
-		'https://oniichanyamete.wordpress.com',
-		'https://oregairuthetranslation.wordpress.com',
-		'https://oreimothetranslation.wordpress.com',
-		'https://otterspacetranslation.wordpress.com',
-		'https://paztok.wordpress.com',
-		'https://pirateyoshi.wordpress.com',
-		'https://putttytranslations.wordpress.com',
-		'https://reantoanna.wordpress.com',
-		'https://rhinabolla.wordpress.com',
-		'https://rokkathetranslation.wordpress.com',
-		'https://sakurahonyaku.wordpress.com',
-		'https://sasamisanthetranslation.wordpress.com',
-		'https://scryatranslations.wordpress.com',
-		'https://seizonthetranslation.wordpress.com',
-		'https://selkinnovel.wordpress.com',
-		'https://setsuna86blog.wordpress.com',
-		'https://shincodezeroblog.wordpress.com',
-		'https://shintranslations.wordpress.com',
-		'https://shokyuutranslations.wordpress.com',
-		'https://skyworldthetranslation.wordpress.com',
-		'https://solitarytranslation.wordpress.com',
-		'https://stcon.wordpress.com',
-		'https://tensaitranslations.wordpress.com',
-		'https://thatguywhosthere.wordpress.com',
-		'https://thecatscans.wordpress.com',
-		'https://theworsttranslation.wordpress.com',
-		'https://tomorolls.wordpress.com',
-		'https://tototrans.wordpress.com',
-		'https://trippingoverwn.wordpress.com',
-		'https://tsaltranslation.wordpress.com',
-		'https://tsuigeki.wordpress.com',
-		'https://unbreakablemachinedoll.wordpress.com',
-		'https://vaancruze.wordpress.com',
-		'https://voidtranslations.wordpress.com',
-		'https://wartdf.wordpress.com',
-		'https://xantbos.wordpress.com',
-		'https://yoraikun.wordpress.com',
-		'https://zmunjali.wordpress.com',
-		'https://kerambitnosakki.wordpress.com',
-		'https://aflappyteddybird.wordpress.com',
-		'https://alyschu.wordpress.com',
-
-
-
-		# Non explicitly wordpress blogs (that use wordpress internally)
-		'http://avertranslation.com',
-		'http://giraffecorps.liamak.net',
-		'http://gravitytranslations.com',             # The wordpress address redirects to the plain URL
-		'http://hellping.org',
-		'http://shinsekai.cadet-nine.org',
-		'http://worldofwatermelons.com',
-		'http://www.taptaptaptaptap.net',
-		'http://nightbreezetranslations.com',
-		'http://www.lingson.com',
-
-		# This is WP, but it uses an custom theme I haven't tested against.
-		'http://arkmachinetranslations.com',
-
-		# Seriously bro, you can change your A record:
-		'http://tototr.com',
-		'http://tototrans.com',
-		'http://totobro.com',
-
+		'http://www.wuxiaworld.com',
+		'http://wuxiaworld.com',
 	]
 
 
@@ -164,10 +31,6 @@ class Scrape(WordpressScrape):
 
 
 	startUrl = baseUrl
-	# startUrl = ['https://bluesilvertranslations.wordpress.com',]
-	# startUrl = 'https://docs.google.com/document/d/1RfQP2Hj5JLtzFWy9d1F8kWVfLkjFuVFlTq87yQrOmmI'
-	# startUrl = 'https://drive.google.com/folderview?id=0B_mXfd95yvDfQWQ1ajNWZTJFRkk&usp=drive_web'
-	# startUrl = 'https://docs.google.com/document/d/1ZdweQdjIBqNsJW6opMhkkRcSlrbgUN5WHCcYrMY7oqI'
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [
@@ -377,14 +240,6 @@ class Scrape(WordpressScrape):
 				title = tweakDict['add'] + title
 
 		return title
-
-# SELECT title FROM book_items WHERE contents LIKE '%tang san%';
-
-# SELECT title FROM book_items WHERE contents LIKE '%yuusha party no kawaii ko ga ita no de, kokuhaku shite mita%';
-
-
-	# def checkDomain(self, url):
-	# 	return False
 
 	def postprocessBody(self, soup):
 		for style_tag in soup.find_all('style'):

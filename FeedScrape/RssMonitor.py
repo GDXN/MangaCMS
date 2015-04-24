@@ -15,6 +15,9 @@ import urllib.error
 
 # pylint: disable=W0201
 
+class EmptyFeedError(Exception):
+	pass
+
 class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 	__metaclass__ = abc.ABCMeta
 
@@ -54,13 +57,16 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			# encoding properly
 
 			try:
+				self.log.info("Checking feed '%s'.", feedUrl)
 				rawFeed = self.wg.getpage(feedUrl)
 				feed = self.parseFeed(rawFeed)
 
-				data = self.processFeed(feed)
+				data = self.processFeed(feed, feedUrl)
 				self.insertFeed(tableName, tableKey, pluginName, feedUrl, data)
+				
 			except urllib.error.URLError:
 				self.log.error('Failure retrieving feed at url "%s"!', feedUrl)
+			 
 
 	def extractContents(self, contentDat):
 		# TODO: Add more content type parsing!
@@ -112,7 +118,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 
 		return contentDat, links
 
-	def processFeed(self, feed):
+	def processFeed(self, feed, feedUrl):
 
 
 		meta = feed['feed']
@@ -142,8 +148,10 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			elif 'summary' in entry:
 				item['contents'], links = self.extractSummary(entry['summary'])
 			else:
-				raise ValueError("No contents in item?")
-
+				self.log.error('Empty item in feed?')
+				self.log.error('Feed url: %s', feedUrl)
+				continue
+				
 			item['authors'] = entry['authors']
 			# guid
 			# contents

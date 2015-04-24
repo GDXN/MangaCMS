@@ -78,6 +78,9 @@ import TextScrape.RoyalRoad.RunUpdate
 import TextScrape.StoriesOnline.RunUpdate
 import TextScrape.WattPad.RunUpdate
 
+import TextScrape.CloudFlareWordPress.Run
+import TextScrape.CloudFlareWordPress.RunUpdate
+
 import TextScrape.Lndb.Run
 
 import TextScrape.RssRun
@@ -170,6 +173,7 @@ scrapePlugins = {
 	219 : (TextScrape.RoyalRoad.RunUpdate,                     minutes(30)),
 	220 : (TextScrape.StoriesOnline.RunUpdate,                 minutes(30)),
 	221 : (TextScrape.WattPad.RunUpdate,                       minutes(30)),
+	222 : (TextScrape.CloudFlareWordPress.RunUpdate,           minutes(30)),
 
 
 	300 : (TextScrape.BakaTsuki.Run,                           days(7)),  # Every 3 days, because books is slow to update
@@ -183,6 +187,7 @@ scrapePlugins = {
 	308 : (TextScrape.ReTranslations.Run,                      days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 	309 : (TextScrape.WarTdf.Run,                              days(1)),
 	310 : (TextScrape.HaruParty.Run,                           days(2)),
+	311 : (TextScrape.CloudFlareWordPress.Run,                 days(2)),
 
 
 	400 : (TextScrape.Lndb.Run,                                hours(2)),

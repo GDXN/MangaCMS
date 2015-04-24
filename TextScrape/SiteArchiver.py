@@ -100,6 +100,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	def badwords(self):
 		pass
 
+	cloudflare = False
+
 	htmlProcClass = TextScrape.HtmlProcessor.HtmlPageProcessor
 	gdriveClass   = TextScrape.GDriveDirProcessor.GDriveDirProcessor
 	gDocClass     = TextScrape.GDocProcessor.GdocPageProcessor
@@ -487,7 +489,19 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 
 	def getItem(self, itemUrl):
 
-		content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
+		try:
+			content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
+		except:
+			if self.cloudflare:
+				if not self.wg.stepThroughCloudFlare(itemUrl, titleNotContains='Just a moment...'):
+					raise ValueError("Could not step through cloudflare!")
+				# Cloudflare cookie set, retrieve again
+				content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
+			else:
+				raise
+
+
+
 		if not content or not handle:
 			raise ValueError("Failed to retreive file from page '%s'!" % itemUrl)
 
@@ -645,11 +659,13 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 						content += "<br>"
 						content += traceback.format_exc()
 						self.upsert(url, dlstate=-1, contents=content, distance=distance)
+						self.log.error("`urllib.error.URLError` Exception when downloading.")
 					except DownloadException:
 						content = "DOWNLOAD FAILED"
 						content += "<br>"
 						content += traceback.format_exc()
 						self.upsert(url, dlstate=-1, contents=content, distance=distance)
+						self.log.error("`DownloadException` Exception when downloading.")
 
 
 				else:
