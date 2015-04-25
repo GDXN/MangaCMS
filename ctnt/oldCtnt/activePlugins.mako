@@ -338,6 +338,19 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 
+
+		{
+			"num"           : 37,
+			'dbKey'         : "sura",
+			'name'          : "Sura's Place",
+			'dictKey'       : "sura",
+			'cssClass'      : "sura",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
+
 		{
 			"num"           : 7,
 			'dbKey'         : "MkLoader",
