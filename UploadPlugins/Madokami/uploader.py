@@ -325,9 +325,13 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				ulDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
 				try:
 					self.ftp.mkd(ulDir)
-				except ftplib.error_perm:
-					self.log.warn("Directory exists?")
-					self.log.warn(traceback.format_exc())
+				except ftplib.error_perm as e:
+					# If the error is just a "directory exists" warning, ignore it silently
+					if str(e).startswith("550") and str(e).endswith('File exists'):
+						pass
+					else:
+						self.log.warn("Error creating directory?")
+						self.log.warn(traceback.format_exc())
 
 
 		return ulDir

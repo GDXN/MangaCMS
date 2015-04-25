@@ -45,6 +45,17 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				itemUrl  = header.h3.a['href']
 				itemName = header.h3.a.span.get_text()
 				fullUrl = urllib.parse.urljoin(self.urlBase, itemUrl)
+
+				# Apparently content is added manually, leading to some broken URLs.
+				# anyways, fix those as they crop up.
+				if fullUrl.endswith("htmll"):
+					fullUrl = fullUrl[:-1]
+
+				for x in range(len(fullUrl)):
+					if fullUrl[x:] == fullUrl[:x]:
+						fullUrl = fullUrl[x:]
+						break
+
 				if not fullUrl in links:
 					links.add(fullUrl)
 					hadNew |= True
@@ -79,8 +90,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 	def getItemPages(self, url):
-		# print("Should get item for ", url)
-		soup = self.wg.getSoup(url)
+		soup = self.wg.getSoup(url.strip(), addlHeaders={'Referer': 'http://www.surasplace.com/index.php/projects.html'})
 
 		baseInfo = self.extractItemInfo(soup)
 
@@ -96,7 +106,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# print(link)
 			item = {}
 
-			item["sourceUrl"]      = link.a["href"]
+			item["sourceUrl"]      = link.a["href"].strip()
 			item["seriesName"]     = baseInfo["title"]
 			item["tags"]           = baseInfo["tags"]
 			item["retreivalTime"]  = time.time()

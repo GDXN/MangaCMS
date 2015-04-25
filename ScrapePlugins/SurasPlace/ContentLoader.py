@@ -48,8 +48,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	def getImageUrls(self, baseUrl):
-
-		soup = self.wg.getSoup(baseUrl)
+		soup = self.wg.getSoup(baseUrl, addlHeaders={'Referer': 'http://www.surasplace.com/index.php/projects.html'})
 
 		# The item title isn't available in a nice format on the
 		# hub page. Therefore, we scrape it here.
@@ -59,10 +58,22 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		imageUrls = []
 
 		content = soup.find('div', itemprop='articleBody')
-		for td in content.find_all('td'):
-			print(td.img['src'])
 
-			imageUrls.append((td.img['src'], baseUrl))
+
+		# So, for contexts where there is only a single image, it's just in a <p> tag, rather
+		# then in a proper <td>
+		tds = content.find_all('td')
+		imgs = content.find_all('img')
+		if tds:
+			for td in tds:
+				# print(td.img['src'])
+				imageUrls.append((td.img['src'], baseUrl))
+		elif imgs:
+			for img in imgs:
+				# print(img['src'])
+				imageUrls.append((img['src'], baseUrl))
+		else:
+			self.log.error("Cannot find any images! Wat?")
 
 
 		return itemTitle, imageUrls
@@ -75,7 +86,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		seriesName = link["seriesName"]
 		chapterVol = link["originName"]
 
-		print("Item:", link)
+		sourceUrl = sourceUrl.encode("ascii").decode('ascii')
+
+		# print("Item:", link)
 		try:
 			self.log.info( "Should retreive url - %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=1)
@@ -83,7 +96,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			chapterVol, imageUrls = self.getImageUrls(sourceUrl)
 			if not imageUrls:
 				self.log.critical("Failure on retreiving content at %s", sourceUrl)
-				self.log.critical("Page not found - 404")
+				self.log.critical("No images found on page!")
 				self.updateDbEntry(sourceUrl, dlState=-1)
 				return
 
@@ -157,9 +170,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	# with tb.testSetup(startObservers=True):
+	with tb.testSetup(startObservers=False):
 		get = ContentLoader()
 		# get.getSeriesPages()
 		# get.getAllItems()
 		get.go()
+
+
+
 
