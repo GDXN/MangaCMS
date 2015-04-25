@@ -13,8 +13,8 @@ import zipfile
 import runStatus
 import traceback
 import bs4
-import sys
 import ScrapePlugins.RetreivalBase
+import settings
 
 
 import processDownload
@@ -32,6 +32,39 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	retreivalThreads = 1
+
+	def checkLogin(self):
+		pg = self.wg.getpage('http://www.surasplace.com/index.php/login.html')
+		expect = 'Hi {name},'.format(name=settings.suraSettings['login'])
+		if expect in pg:
+			self.log.info("Still logged in!")
+		soup = bs4.BeautifulSoup(pg)
+		logindiv = soup.find('div', class_='login')
+
+		params = logindiv.find_all("input")
+
+		loginDict = {}
+		for item in params:
+			loginDict[item['name']] = item['value']
+
+		loginDict['username'] = settings.suraSettings['login']
+		loginDict['password'] = settings.suraSettings['passWd']
+
+		target = logindiv.find("form")['action']
+		target = urllib.parse.urljoin('http://www.surasplace.com/', target)
+
+		page = self.wg.getpage(target, postData=loginDict)
+
+		if not expect in page:
+			self.log.error("Login failed?")
+			raise ValueError("Login failed!")
+		else:
+			self.log.info("Logged in!")
+
+		self.wg.syncCookiesFromFile()
+
+	def setup(self):
+		self.checkLogin()
 
 
 	def getImage(self, imageUrl, referrer):
@@ -176,6 +209,7 @@ if __name__ == "__main__":
 		# get.getSeriesPages()
 		# get.getAllItems()
 		get.go()
+		# get.setup()
 
 
 

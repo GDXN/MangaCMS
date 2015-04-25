@@ -135,6 +135,8 @@ class Scrape(WordpressScrape):
 		'https://kerambitnosakki.wordpress.com',
 		'https://aflappyteddybird.wordpress.com',
 		'https://alyschu.wordpress.com',
+		'https://pandafuqtranslations.wordpress.com',
+		'https://bureidanworks.wordpress.com',
 
 
 

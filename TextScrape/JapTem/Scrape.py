@@ -84,6 +84,14 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 		{'id' : 'disqus_thread'},
 		{'id' : 'sharedaddy'},
 		{'id' : 'scrollUp'},
+
+		{'class' : 'sticky-header'},
+		{'class' : 'header-wrapper'},
+		{'class' : 'footer-area'},
+		{'class' : 'share-box'},
+		{'id'    : 'slidingbar-area'},
+		{'id'    : 'footer'},
+		{'id'    : 'sliders-container'},
 	]
 
 
