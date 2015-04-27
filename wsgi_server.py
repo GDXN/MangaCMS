@@ -489,6 +489,12 @@ class PageResource(object):
 
 
 	def renderBook(self, request):
+		return self.renderBookFromTable('book_items', request)
+
+	def renderBookWestern(self, request):
+		return self.renderBookFromTable('book_western_items', request)
+
+	def renderBookFromTable(self, table, request):
 		fix_matchdict(request)
 		self.log.info("Request for book content. Matchdict = '%s'", request.params)
 
@@ -500,7 +506,7 @@ class PageResource(object):
 				# self.conn
 				cur = self.conn.cursor()
 				cur.execute('BEGIN')
-				cur.execute("SELECT mimetype, fsPath, url FROM book_items WHERE url=%s;", (itemUrl, ))
+				cur.execute("SELECT mimetype, fsPath, url FROM {tableName} WHERE url=%s;".format(tableName=table), (itemUrl, ))
 
 				ret = cur.fetchall()
 
@@ -531,7 +537,7 @@ class PageResource(object):
 				# self.conn
 				cur = self.conn.cursor()
 				cur.execute('BEGIN')
-				cur.execute("SELECT mimetype, fsPath, url FROM book_items WHERE fhash=%s;", (itemHash, ))
+				cur.execute("SELECT mimetype, fsPath, url FROM {tableName} WHERE fhash=%s;".format(tableName=table), (itemHash, ))
 
 				ret = cur.fetchall()
 				print(ret)
@@ -634,6 +640,7 @@ def buildApp():
 	config.add_route(name='book-cover',             pattern='/books/cover/{coverid}')
 
 	config.add_route(name='book-render',             pattern='/books/render')
+	config.add_route(name='book-render-western',     pattern='/books/render-w')
 
 
 	config.add_route(name='reader-redux-container', pattern='/reader2/browse/*page')
@@ -662,6 +669,7 @@ def buildApp():
 
 	config.add_view(resource.getPage,                              route_name='static-file')
 	config.add_view(resource.renderBook,             http_cache=0, route_name='book-render')
+	config.add_view(resource.renderBookWestern,      http_cache=0, route_name='book-render-western')
 	config.add_view(resource.getPage,                http_cache=0, route_name='root')
 	config.add_view(resource.getPage,                http_cache=0, route_name='leaf')
 	config.add_view(resource.getPage,                http_cache=0, context=NotFound)

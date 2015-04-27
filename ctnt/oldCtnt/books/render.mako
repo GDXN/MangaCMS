@@ -272,8 +272,16 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 <%def name="renderId(itemUrl)">
 	<%
+	if request.matched_route.name == 'book-render-western':
+		table = 'book_western_items'
+	elif request.matched_route.name == 'book-render':
+		table = 'book_items'
+	else:
+		badId()
+		return
+
 	cur = sqlCon.cursor()
-	cur.execute("SELECT src, title, series, mimetype, fsPath, contents, distance FROM book_items WHERE url=%s;", (itemUrl, ))
+	cur.execute("SELECT src, title, series, mimetype, fsPath, contents, distance FROM {table} WHERE url=%s;".format(table=table), (itemUrl, ))
 	page = cur.fetchall()
 	if len(page) != 1:
 		print("Bad URL", itemUrl)

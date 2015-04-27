@@ -173,7 +173,7 @@ startTime = time.time()
 			}
 
 		};
-		function changeRating(delta)
+		function changeReading(delta)
 		{
 			$('#reading-status').html("❍");
 
@@ -188,12 +188,15 @@ startTime = time.time()
 	<div class="lightRect itemInfoBox">
 		<div>
 			Read to: <span id='readto'>${readingprogress}</span><br>
-			<a href="javascript:void(0)" onclick='changeRating(+10);'>+10</a>
-			<a href="javascript:void(0)" onclick='changeRating(+5);'>+5</a>
-			<a href="javascript:void(0)" onclick='changeRating(+1);'>+1</a>
-			<a href="javascript:void(0)" onclick='changeRating(-1);'>-1</a>
-			<a href="javascript:void(0)" onclick='changeRating(-5);'>-5</a>
-			<a href="javascript:void(0)" onclick='changeRating(-10);'>-10</a>
+
+			<div style='display: flex; justify-content: space-between;'>
+				<a href="javascript:void(0)" onclick='changeReading(+10);'>+10</a>
+				<a href="javascript:void(0)" onclick='changeReading(+5);'>+5</a>
+				<a href="javascript:void(0)" onclick='changeReading(+1);'>+1</a>
+				<a href="javascript:void(0)" onclick='changeReading(-1);'>-1</a>
+				<a href="javascript:void(0)" onclick='changeReading(-5);'>-5</a>
+				<a href="javascript:void(0)" onclick='changeReading(-10);'>-10</a>
+			</div>
 
 		</div>
 		<div>

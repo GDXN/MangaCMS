@@ -34,6 +34,20 @@ bookCols = (
 	)
 
 
+bookWesternTable = sql.Table("book_western_items")
+bookWesternCols = (
+		bookWesternTable.dbid,
+		bookWesternTable.src,
+		bookWesternTable.dlstate,
+		bookWesternTable.url,
+		bookWesternTable.title,
+		bookWesternTable.series,
+		bookWesternTable.istext,
+		bookWesternTable.fhash,
+		bookWesternTable.mimetype
+	)
+
+
 srcLookup = dict(settings.bookSources)
 
 
@@ -68,20 +82,40 @@ def buildQuery(srcTbl, cols, **kwargs):
 <%def name="renderBookRow(row)">
 	<%
 	netloc = urllib.parse.urlsplit(row['url']).netloc
+	rowMeta = request.matchdict['page']
+	if rowMeta[-1] == 'w':
+		render = 'render-w'
+	else:
+		render = 'render'
+
 	%>
 	<tr>
 		<td>${netloc}</td>
-		<td><a href='/books/render?url=${row['url'] | u}'>${row['title']}</a></td>
+		<td><a href='/books/${render}?url=${row['url'] | u}'>${row['title']}</a></td>
 		<td><a href='${row['url']}'>src</a></td>
 	</tr>
 </%def>
 
 <%def name="genBookSearch(originTrigram=None)">
+	<%
+	genBookSearchOnTable(bookTable, bookCols, originTrigram)
+	%>
+</%def>
+
+<%def name="genBookWesternSearch(originTrigram=None)">
+	<%
+	genBookSearchOnTable(bookWesternTable, bookWesternCols, originTrigram)
+
+	%>
+
+</%def>
+
+<%def name="genBookSearchOnTable(table, cols, originTrigram=None)">
 
 	<%
 
-	query = buildQuery(bookTable,
-		bookCols,
+	query = buildQuery(table,
+		cols,
 		originTrigram = originTrigram)
 
 

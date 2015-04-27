@@ -44,12 +44,19 @@ import nameTools as nt
 				<li><a href="/books/book-sources">Book Titles</a>
 				<li><a href="/feeds/">Book RSS</a>
 				<hr>
+				<li><strong>Eastern</strong></a>
 				<li><a href="/books/">Books!</a>
 				<li><a href="/books/changeView">New Books</a>
 				<li><a href="/books/search">Book Search</a>
 				<li><a href="/books/book-sources?src=books_lndb">LNDB</a>
 				<li><a href="/books/book-sources?src=books_custom">Custom</a>
 				<li><a href="/books/book-sources?src=MangaSeries">MU Books</a>
+				<hr>
+				<li><strong>Western</strong></a>
+				<li><a href="/books-w/">Books!</a>
+				<li><a href="/books-w/changeView">New Books</a>
+				<li><a href="/books-w/search">Book Search</a>
+				<li><a href="/books-w/book-sources?src=books_custom">Custom</a>
 				<hr>
 				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>
 				<li><a href="/tags/tags">M Tags</a>

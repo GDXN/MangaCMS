@@ -31,7 +31,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 1
+	retreivalThreads = 2
 
 	def checkLogin(self):
 		pg = self.wg.getpage('http://www.surasplace.com/index.php/login.html')
@@ -204,7 +204,7 @@ if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	# with tb.testSetup(startObservers=True):
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup(startObservers=True):
 		get = ContentLoader()
 		# get.getSeriesPages()
 		# get.getAllItems()

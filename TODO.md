@@ -1,7 +1,8 @@
 
-delay kiss manga scrape dl 12 hours
+
 https://sites.google.com/site/englishfantranslations/home
 http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl
+
 
 ## fix last crawl time
 ## hide size for directories
@@ -30,7 +31,7 @@ Western:
  
  LNDB / MU covers
 
- 
+~~delay kiss manga scrape dl 12 hours~~
 ~~book search link all parameter~~
 
 

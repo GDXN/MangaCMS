@@ -13,7 +13,8 @@ import nameTools as nt
 validTables = [
 	'mangaitems',
 	'hentaiitems',
-	'book_items'
+	'book_items',
+	'book_western_items'
 	]
 
 %>
@@ -39,6 +40,11 @@ validTables = [
 	${bookSearch.genBookSearch(originTrigram=search)}
 
 </%def>
+<%def name="genBookWesternSearch(search)">
+	${search}
+	${bookSearch.genBookWesternSearch(originTrigram=search)}
+
+</%def>
 
 <%def name="genSearchBody(search, tablename)">
 	<%
@@ -60,8 +66,12 @@ validTables = [
 							${genHentaiSearch(search)}
 						% elif tablename == 'book_items':
 							${genBookSearch(search)}
+						% elif tablename == 'book_western_items':
+							${genBookWesternSearch(search)}
 						% elif tablename == 'mangaitems':
 							Manga search not currently functional!
+						% else:
+							Wat?
 						% endif
 
 					</div>

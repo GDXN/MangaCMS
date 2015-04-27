@@ -38,6 +38,7 @@ import ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run
 import ScrapePlugins.FoolSlide.TwistedHel.Run
 import ScrapePlugins.FoolSlide.CasanovaScans.Run
 import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
+import ScrapePlugins.SurasPlace.Run
 
 
 import TextScrape.PrinceRevolution.Run
@@ -137,6 +138,7 @@ scrapePlugins = {
 	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            hours(12)),
 	35 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         hours(12)),
 	36 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      hours(12)),
+	37 : (ScrapePlugins.SurasPlace.Run,                      days(1)),
 
 
 

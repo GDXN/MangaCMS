@@ -655,11 +655,12 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 
 		# If we weren't passed a title, look it up from the DB.
 		if not title:
+			self.log.warning("ChangeStat call without title parameter passed!")
 			row = self.getRowByValue(url=url, cursor=cursor)
-			if not row:
-				title = url
-			else:
+			if row and row['title']:
 				title = row['title']
+			else:
+				title = url
 
 
 		query = '''INSERT INTO {changeTable} (src, url, change, title, changeDate) VALUES (%s, %s, %s, %s, %s)'''.format(changeTable=self.changeTableName)
@@ -725,7 +726,8 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 		else:
 			raise ValueError("No identifying info in insertDelta call!")
 
-		if 'title' in kwargs:
+
+		if 'title' in kwargs and kwargs['title']:
 			title = kwargs['title']
 		else:
 			title = old['title']

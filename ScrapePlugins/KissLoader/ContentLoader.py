@@ -75,6 +75,11 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		return pages
 
+	# Don't download items for 12 hours after relase,
+	# so that other, (better) sources can potentially host
+	# the items first.
+	def checkDelay(self, inTime):
+		return inTime < (time.time() - 60*60*12)
 
 
 
