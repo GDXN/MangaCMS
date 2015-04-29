@@ -426,7 +426,9 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			try:
 				self.insertDelta(cursor=cursor, **kwargs)
 			except ValueError:
-				pass
+				self.log.error("Error when updating change stats:")
+				for line in traceback.format_exc().split("\n"):
+					self.log.error(line)
 
 		else:
 			with self.transaction(commit=commit) as cur:
@@ -436,7 +438,10 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 				try:
 					self.insertDelta(cursor=cur, **kwargs)
 				except ValueError:
-					pass
+					self.log.error("Error when updating change stats:")
+					for line in traceback.format_exc().split("\n"):
+						self.log.error(line)
+
 
 
 	def deleteDbEntry(self, commit=True, **kwargs):
@@ -727,12 +732,18 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			raise ValueError("No identifying info in insertDelta call!")
 
 
+		if not old['mimetype'] in ['text/html', 'text/plain']:
+			self.log.warn("Skipping change stats for item because of mimetype of '%s'", old['mimetype'])
+			return
+
 		if 'title' in kwargs and kwargs['title']:
 			title = kwargs['title']
 		else:
 			title = old['title']
 
 		if not title:
+			self.log.error("No title found for item at url:")
+			self.log.error(old['url'])
 			title = ''
 
 
@@ -765,7 +776,7 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 		change = min((change, 100))
 		self.log.info("Percent change in page contents: %s", change)
 
-		self.insertChangeStats(old['url'], change, title, cursor=cursor)
+		self.insertChangeStats(old['url'], change, title=title, cursor=cursor)
 
 
 	def getHash(self, fCont):

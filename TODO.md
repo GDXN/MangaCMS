@@ -4,6 +4,11 @@ https://sites.google.com/site/englishfantranslations/home
 http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl
 
 
+http://istlovesu.blogspot.com/2015/04/raid-i-hiiragi-seiichi-is-facing.html
+
+http://10.1.1.8:8081/books/render?url=http%3A%2F%2Ftotobro.com%2F%3Fp%3D1220 has comments
+https://docs.google.com/document/d/1xeivM_JKYlpxN7gZrjBkk6_Z79AZ9PFzZbLvoeSWoV4/preview?pli=1 not scraped
+
 ## fix last crawl time
 ## hide size for directories
 ## pad inside book content div
