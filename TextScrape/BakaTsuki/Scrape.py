@@ -110,6 +110,7 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"Special:UserLogin",
 				"action=edit",
 				"diff=",
+				"diff%3D",
 				"feed=atom",
 				"action=submit",
 

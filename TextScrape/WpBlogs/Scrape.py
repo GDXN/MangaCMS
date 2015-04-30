@@ -68,7 +68,7 @@ class Scrape(WordpressScrape):
 		'https://hajiko.wordpress.com',
 		'https://heartcrusadescans.wordpress.com',
 		'https://hellotranslations.wordpress.com',
-		'https://hendricksensama.wordpress.com/',
+		'https://hendricksensama.wordpress.com',
 		'https://hennekothetranslation.wordpress.com',
 		'https://hokagetranslations.wordpress.com',
 		'https://hui3r.wordpress.com',
@@ -138,6 +138,7 @@ class Scrape(WordpressScrape):
 		'https://pandafuqtranslations.wordpress.com',
 		'https://bureidanworks.wordpress.com',
 		'https://loliquent.wordpress.com',
+		'https://pummels.wordpress.com',
 
 
 

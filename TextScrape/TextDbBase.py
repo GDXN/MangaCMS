@@ -328,10 +328,22 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 		if cursor:
 			cursor.execute(query, queryArguments)
 			ret = cursor.fetchone()
+			try:
+				self.insertDelta(cursor=cursor, **kwargs)
+			except ValueError:
+				self.log.error("Error when updating change stats:")
+				for line in traceback.format_exc().split("\n"):
+					self.log.error(line)
 		else:
 			with self.transaction(commit=commit) as cur:
 				cur.execute(query, queryArguments)
 				ret = cur.fetchone()
+				try:
+					self.insertDelta(cursor=cur, **kwargs)
+				except ValueError:
+					self.log.error("Error when updating change stats:")
+					for line in traceback.format_exc().split("\n"):
+						self.log.error(line)
 
 		if self.QUERY_DEBUG:
 			print("Query ret = ", ret)
@@ -732,13 +744,21 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			raise ValueError("No identifying info in insertDelta call!")
 
 
-		if not old['mimetype'] in ['text/html', 'text/plain']:
-			self.log.warn("Skipping change stats for item because of mimetype of '%s'", old['mimetype'])
-			return
+
 
 		if 'title' in kwargs and kwargs['title']:
 			title = kwargs['title']
 		else:
+			if not old:
+				self.log.error("empty reference in changestat? kwargs: %s", kwargs)
+				return
+			if not old['mimetype']:
+				self.log.warn("Skipping change stats for item because of mimetype of '%s'", old['mimetype'])
+				return
+			if not old['mimetype'] in ['text/html', 'text/plain']:
+				self.log.warn("Skipping change stats for item because of mimetype of '%s'", old['mimetype'])
+				return
+
 			title = old['title']
 
 		if not title:
@@ -749,7 +769,14 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 
 		item = kwargs['url'] if 'url' in kwargs else kwargs['dbid']
 		if not old:
-			raise ValueError("Couldn't find original db entry for item '%s'?" % item)
+			self.log.error("Couldn't find old version of item '%s'", item)
+			old = {}
+			old['contents'] = ''
+			if 'url' in kwargs:
+				old['url'] = kwargs['url']
+			else:
+				raise ValueError('The initial ChangeStat value must be inserted by URL!')
+
 
 
 		if old['contents'] == None:

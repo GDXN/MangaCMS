@@ -173,8 +173,29 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		filePath, fileName = os.path.split(fqFName)
 
 		try:
-			with open(fqFName, "wb") as fp:
-				fp.write(content)
+			chop = len(fileName)-4
+
+			wholePath = "ERROR"
+			while 1:
+
+				try:
+					fileName = fileName[:chop]+fileName[-4:]
+					# self.log.info("geturl with processing", fileName)
+					wholePath = os.path.join(filePath, fileName)
+					self.log.info("Complete filepath: %s", wholePath)
+
+					#Write all downloaded files to the archive.
+					with open(wholePath, "wb") as fp:
+						fp.write(content)
+					self.log.info("Successfully Saved to path: %s", wholePath)
+					break
+				except IOError:
+					chop = chop - 1
+					self.log.warn("Truncating file length to %s characters.", chop)
+
+
+
+
 		except TypeError:
 			self.log.error("Failure trying to retreive content from source %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=-4, downloadPath=filePath, fileName=fileName)

@@ -439,6 +439,12 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 	def dispatchContent(self, url, content, fName, mimeType):
 		self.log.info("Dispatching file '%s' with mime-type '%s'", fName, mimeType)
 
+		# *sigh*. So minus.com is fucking up their http headers, and apparently urlencoding the
+		# mime type, because apparently they're shit at things.
+		# Anyways, fix that.
+		if '%2F' in  mimeType:
+			mimeType = mimeType.replace('%2F', '/')
+
 		if mimeType in ['text/xml', 'text/atom+xml', 'application/xml']:
 			self.log.info("XML File?")
 			self.log.info("URL: '%s'", url)

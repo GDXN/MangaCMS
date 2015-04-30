@@ -260,7 +260,7 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		# and by blocked words
 		hadbad = False
 		for badword in self._badwords:
-			if badword in url:
+			if badword.lower() in url.lower():
 				hadbad = True
 		if hadbad:
 			return
