@@ -65,25 +65,15 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return category, tags
 
 	def getUploadTime(self, soup):
-		descriptionDiv = soup.find("div", id='info')
-		for child in descriptionDiv.children:
-			if child.string and "Uploaded" in child.string:
-				dateStr = child.string.replace("Uploaded", "").strip()
+		timeTag = soup.find("time")
+		if not timeTag:
+			raise ValueError("No time tag found!")
 
-				# Short circuit for "an hour ago" dates, because
-				# parsedatetime fails to parse them.
-				if "an hour ago" in dateStr:
-					return time.time() - 60*60
+		cal = parsedatetime.Calendar()
+		ulDate, status = cal.parse(timeTag['datetime'])
+		# print(ulDate)
+		return time.mktime(ulDate)
 
-				# print(dateStr)
-				cal = parsedatetime.Calendar()
-				ulDate, status = cal.parse(dateStr)
-				# print(dateStr, ulDate, status)
-				if status == 0:
-					raise ValueError("Invalid date! = '%s'. Return status = '%s'" % (dateStr, status))
-				return time.mktime(ulDate)
-
-		raise ValueError("No date found!")
 
 	def getInfo(self, itemUrl):
 		ret = {}
@@ -156,7 +146,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 def getHistory():
 
 	run = DbLoader()
-	for x in range(1, 1150):
+	for x in range(95, 1000):
 		dat = run.getFeed(pageOverride=x)
 		run.processLinksIntoDB(dat)
 
