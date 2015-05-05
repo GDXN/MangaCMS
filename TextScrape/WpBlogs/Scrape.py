@@ -140,6 +140,8 @@ class Scrape(WordpressScrape):
 		'https://xantbos.wordpress.com',
 		'https://yoraikun.wordpress.com',
 		'https://zmunjali.wordpress.com',
+		'https://wcctranslation.wordpress.com',
+		'https://isekaimahou.wordpress.com',
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
