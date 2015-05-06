@@ -58,6 +58,7 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'https://sousetsuka.blogspot.com',
 		'http://mahoukoukoku.blogspot.com.au',
 		'http://istlovesu.blogspot.com',
+		'http://azureskytls.blogspot.com.au',
 
 
 

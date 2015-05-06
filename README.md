@@ -101,6 +101,12 @@ Under consideration:
  - ~~MangaHere~~ - converts to JPEG? Seems like they recompress 
  - ~~MangaSky~~  - converts to JPEG?
 
+This is a "firehose-style" scraper, in that it doesn't really provide any 
+built in facilities for filtering the scraped content. It basically just 
+scrapes everything, all the time. This is because my own interests are more 
+along the lines of archiving everything, rather then just selective downloading 
+(there are other tools for that).
+
 I prefer to focus on scraping sites that offer archive downloads, but those are 
 fairly rare, so image-hosting sites are also scraped. Scraped images are 
 automatically packed into per-chapter archives. My only absolute criteria for 
