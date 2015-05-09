@@ -1,4 +1,6 @@
 
+search for foolslide sites
+http://demonicscans.com/FoOlSlide/read/shen_yin_wang_zuo/en/0/13/page/2
 
 https://sites.google.com/site/englishfantranslations/home
 http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl

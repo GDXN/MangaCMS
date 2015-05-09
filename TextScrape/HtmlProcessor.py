@@ -72,6 +72,8 @@ GLOBAL_BAD = [
 			'newsgator.com',
 			'technorati.com',
 			'pixel.wp.com',
+			'a.wikia-beacon.com',
+			'b.scorecardresearch.com',
 	]
 
 GLOBAL_DECOMPOSE_BEFORE = [
@@ -395,7 +397,7 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		# Process page with readability, extract title.
 		pgTitle, pgBody = self.cleanHtmlPage(soup, url=self.pageUrl)
 		if 'has no title!' in pgTitle:
-			self.log.warn("Page has no title: '%s'", pgTitle)
+			self.log.warn("Page has no title: '%s' (len %s)", pgTitle, len(pgBody))
 		else:
 			self.log.info("Page with title '%s' retreived.", pgTitle)
 

@@ -137,7 +137,8 @@ def fetchRelinkableDomains():
 			'tableName'  : plg.tableName,
 			'pluginName' : plg.pluginName,
 			'scanned'    : items,
-			'feeds'      : plg.feeds
+			'feeds'      : plg.feeds,
+			'badwords'   : plg.badwords
 			}
 
 		plugins.append(tmp)
@@ -185,5 +186,12 @@ if __name__ == '__main__':
 	# print("Relinked domains:")
 	domains = list(RELINKABLE)
 	domains.sort()
+	print("Domains")
 	for domain in domains:
 		print('	', domain)
+
+	plgs = list(PLUGINS)
+	# plgs.sort()
+	print("Plugins")
+	for plg in plgs:
+		print('	', plg)
