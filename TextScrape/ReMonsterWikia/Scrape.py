@@ -55,8 +55,11 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"title=Help:",
 				"title=User_talk:",
 				"&oldid=",
+				"?oldid=",
 				"title=Baka-Tsuki:",
 				"title=Special:Book",
+				"Message_Wall:",
+				"Special:Search",
 
 				"Special:WhatLinksHere",
 				"Special:UserLogin",
@@ -70,15 +73,13 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"Special:Forum",
 				"/__load/-/",
 				"__load/",
+				"@comment",
 
 				# Block user pages
 				"title=User:",
 				"=Talk:",
 				"=talk:",
 				"Special:ListUsers",
-
-				# Links within page
-				"http://www.baka-tsuki.org/#",
 
 				# misc
 				"viewforum.php",
