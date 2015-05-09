@@ -60,8 +60,11 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"title=Special:Book",
 				"Message_Wall:",
 				"Special:Search",
+				"action=purge",
 
 				"Special:WhatLinksHere",
+				"Special:Editcount",
+				"Special:Chat",
 				"Special:UserLogin",
 				"action=edit",
 				"diff=",
@@ -69,6 +72,15 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"feed=atom",
 				"action=submit",
 				"MediaWiki:Sandbox",
+				"Special:Contributions",
+
+				"/Template:",
+				"/Thread:",
+				"/Forum:",
+				"/Help:",
+				"/User_blog:",
+
+				"Special:RecentChangesLinked",
 				"/wiki/Sandbox",
 				"Special:Forum",
 				"/__load/-/",
@@ -138,7 +150,8 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 		{'class' : 'printfooter'},
 		{'class' : 'portal-section'},
 		{'class' : 'main-page-tag-rcs'},
-		{'class' : 'clear-right-after-ad-in-content'},
+		# This is used for some relevant tables. Arrrgh.
+		# {'class' : 'clear-right-after-ad-in-content'},
 
 	]
 

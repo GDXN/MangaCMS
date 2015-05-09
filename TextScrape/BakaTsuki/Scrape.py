@@ -71,6 +71,7 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"(Norwegian)",
 				"(Lithuanian)",
 				"(Greek)",
+				"~Brazilian_Portuguese~",
 				"(Filipino)",
 				"(Esperanto)",
 				"(Spanish)",
@@ -86,6 +87,7 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"title=User:",
 				"=Talk:",
 				"=talk:",
+
 
 				# Links within page
 				"http://www.baka-tsuki.org/#",
@@ -110,7 +112,9 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"Special:UserLogin",
 				"action=edit",
 				"diff=",
+				"oldid=",
 				"diff%3D",
+				"oldid%3D",
 				"feed=atom",
 				"action=submit",
 
