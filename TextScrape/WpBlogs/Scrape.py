@@ -42,7 +42,7 @@ class Scrape(WordpressScrape):
 		'https://korezombiethetranslation.wordpress.com',
 		'https://tensaitranslations.wordpress.com',
 		'http://rumorblock.wordpress.com',
-		'http://twistedcogs.wordpress.com',
+		# 'http://twistedcogs.wordpress.com',
 		'https://kamitranslation.wordpress.com',
 		'http://setsuna86blog.wordpress.com',
 		'https://heartcrusadescans.wordpress.com',
@@ -66,7 +66,7 @@ class Scrape(WordpressScrape):
 		'https://tototrans.wordpress.com',
 		'http://nanodesutranslations.wordpress.com',
 		'https://pikatranslations.wordpress.com',
-		'http://shinynewjustice.wordpress.com',
+		# 'http://shinynewjustice.wordpress.com',
 		'https://hendricksensama.wordpress.com',
 		'https://oniichanyamete.wordpress.com',
 		'https://hennekothetranslation.wordpress.com',
@@ -114,7 +114,7 @@ class Scrape(WordpressScrape):
 		'https://isekaimahou.wordpress.com',
 		'https://nightraccoon.wordpress.com',
 		'https://selkinnovel.wordpress.com',
-		'https://endonline.wordpress.com',
+		# 'https://endonline.wordpress.com',
 		'https://thecatscans.wordpress.com',
 		'https://rokkathetranslation.wordpress.com',
 		'http://parahumans.wordpress.com',
@@ -146,6 +146,11 @@ class Scrape(WordpressScrape):
 		'https://thundertranslations.wordpress.com',
 		'https://risingdragons.wordpress.com',
 		'https://lordofscrubs.wordpress.com',
+		'https://youtsubasilver.wordpress.com',
+		'https://aldnoahextrathetranslation.wordpress.com',
+		'https://saekanothetranslation.wordpress.com',
+		'https://sekaigamethetranslation.wordpress.com',
+		'https://henoujikun.wordpress.com',
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
@@ -162,6 +167,7 @@ class Scrape(WordpressScrape):
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',
+		'http://flowerbridgetoo.com',
 
 		# Seriously bro, you can change your A record:
 		'http://tototr.com',
@@ -199,6 +205,7 @@ class Scrape(WordpressScrape):
 				# Who the fuck shares shit like this anyways?
 				"?share=",
 
+				"//page/",
 
 				"giraffecorps.liamak.net/pdf/",
 				"giraffecorps.liamak.net/contact/",

@@ -105,11 +105,13 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"title=Help:",
 				"title=User_talk:",
 				"&oldid=",
+				"oldid=",
 				"title=Baka-Tsuki:",
 				"title=Special:Book",
 
 				"Special:WhatLinksHere",
 				"Special:UserLogin",
+				"Special:",
 				"action=edit",
 				"diff=",
 				"oldid=",

@@ -45,7 +45,8 @@ import urllib.parse
 			FROM
 				rss_monitor
 			WHERE
-				srcname != 'tsuki'
+				srcname != 'tsuki' AND
+				srcname != 'remonwiki'
 			ORDER BY published desc
 			LIMIT %s
 			OFFSET %s''', (quantity, offset))

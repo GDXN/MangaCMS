@@ -1,12 +1,11 @@
+http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdrive.google.com%2Ffolderview%3Fid%3D0B7PIRwu9hTEFODllMFFRemljMGc links broken
+http://pacem.wikia.com/wiki/Pacem_Community_Translations_Wiki
 
 search for foolslide sites
 http://demonicscans.com/FoOlSlide/read/shen_yin_wang_zuo/en/0/13/page/2
 
 https://sites.google.com/site/englishfantranslations/home
 http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl
-
-
-http://istlovesu.blogspot.com/2015/04/raid-i-hiiragi-seiichi-is-facing.html
 
 http://10.1.1.8:8081/books/render?url=http%3A%2F%2Ftotobro.com%2F%3Fp%3D1220 has comments
 https://docs.google.com/document/d/1xeivM_JKYlpxN7gZrjBkk6_Z79AZ9PFzZbLvoeSWoV4/preview?pli=1 not scraped

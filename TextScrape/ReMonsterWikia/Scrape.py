@@ -60,12 +60,15 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"title=Special:Book",
 				"Message_Wall:",
 				"Special:Search",
+				"Special:Log",
 				"action=purge",
 
 				"Special:WhatLinksHere",
 				"Special:Editcount",
 				"Special:Chat",
 				"Special:UserLogin",
+				"Special:RecentChanges",
+				"Special:",
 				"action=edit",
 				"diff=",
 				"diff%3D",
@@ -86,6 +89,7 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"/__load/-/",
 				"__load/",
 				"@comment",
+				'action=purge',
 
 				# Block user pages
 				"title=User:",

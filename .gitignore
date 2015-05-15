@@ -27,3 +27,4 @@ __pycache__
 /ScrapePlugins/SadPandaLoader/deploy.shim
 *.pyc
 /covers
+/FeedScrape/cert
