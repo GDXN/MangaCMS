@@ -26,14 +26,18 @@ class RabbitQueueHandler(object):
 
 		sslopts = self.getSslOpts()
 
-		self.connector = AmqpConnector.Connector(userid      = settings["RABBIT_LOGIN"],
-												password     = settings["RABBIT_PASWD"],
-												host         = settings["RABBIT_SRVER"],
-												virtual_host = settings["RABBIT_VHOST"],
-												ssl          = sslopts,
-												master       = True,
-												synchronous  = False,
-												flush_queues = False)
+		self.connector = AmqpConnector.Connector(userid            = settings["RABBIT_LOGIN"],
+												password           = settings["RABBIT_PASWD"],
+												host               = settings["RABBIT_SRVER"],
+												virtual_host       = settings["RABBIT_VHOST"],
+												ssl                = sslopts,
+												master             = True,
+												synchronous        = False,
+												flush_queues       = False,
+												task_exchange_type = "fanout",
+												consumer_queue     = 'task.master.q',
+												response_queue     = 'response.master.q',
+												)
 
 
 

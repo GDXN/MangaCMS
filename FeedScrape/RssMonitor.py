@@ -11,8 +11,9 @@ import json
 import bs4
 import TextScrape.RelinkLookup
 import urllib.error
+import FeedScrape.AmqpInterface
 # import TextScrape.RELINKABLE as RELINKABLE
-
+import settings
 # pylint: disable=W0201
 
 class EmptyFeedError(Exception):
@@ -34,7 +35,13 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 				self.scan.append((feed, plugin['pluginName'], plugin['tableName'], plugin['key'], plugin['badwords']))
 
 		self.scan.sort()
-
+		amqp_settings = {}
+		amqp_settings["RABBIT_CLIENT_NAME"] = settings.RABBIT_CLIENT_NAME
+		amqp_settings["RABBIT_LOGIN"]       = settings.RABBIT_LOGIN
+		amqp_settings["RABBIT_PASWD"]       = settings.RABBIT_PASWD
+		amqp_settings["RABBIT_SRVER"]       = settings.RABBIT_SRVER
+		amqp_settings["RABBIT_VHOST"]       = settings.RABBIT_VHOST
+		self.amqpint = FeedScrape.AmqpInterface.RabbitQueueHandler(settings=amqp_settings)
 
 
 	# @profile
@@ -171,6 +178,9 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 				item['published'] = item['updated']
 			if not 'updated' in item:
 				item['updated'] = -1
+
+
+			self.amqpint.put_item(json.dumps(item))
 
 			ret.append(item)
 		return ret
