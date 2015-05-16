@@ -35,7 +35,7 @@ class RabbitQueueHandler(object):
 												synchronous        = False,
 												flush_queues       = False,
 												task_exchange_type = "fanout",
-												consumer_queue     = 'task.master.q',
+												task_queue         = 'task.master.q',
 												response_queue     = 'response.master.q',
 												)
 

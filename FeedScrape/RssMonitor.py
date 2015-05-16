@@ -6,7 +6,7 @@ import abc
 import feedparser
 import FeedScrape.RssMonitorDbBase
 import TextScrape.utilities.Proxy
-import time
+import FeedScrape.FeedDataParser
 import calendar
 import json
 import bs4
@@ -20,7 +20,7 @@ import settings
 class EmptyFeedError(Exception):
 	pass
 
-class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
+class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParser.DataParser, metaclass=abc.ABCMeta):
 	__metaclass__ = abc.ABCMeta
 
 	loggerPath = 'Main.Rss'
@@ -140,12 +140,10 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			item['title'] = entry['title']
 			item['guid'] = entry['guid']
 
-			tags = []
+			item['tags'] = []
 			if 'tags' in entry:
 				for tag in entry['tags']:
-					tags.append(tag['term'])
-
-			item['tags'] = json.dumps(tags)
+					item['tags'].append(tag['term'])
 
 
 			item['linkUrl'] = entry['link']
@@ -183,7 +181,9 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 			item['feedtype'] = feedtype
 
 
-			self.amqpint.put_item(json.dumps(item))
+			self.processFeedData(item)
+
+			item['tags'] = json.dumps(item['tags'])
 
 			ret.append(item)
 		return ret

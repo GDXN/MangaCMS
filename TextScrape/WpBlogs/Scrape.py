@@ -152,6 +152,7 @@ class Scrape(WordpressScrape):
 		'https://sekaigamethetranslation.wordpress.com',
 		'https://henoujikun.wordpress.com',
 		'https://calicoxtabby.wordpress.com',
+		'https://izra709.wordpress.com',
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
