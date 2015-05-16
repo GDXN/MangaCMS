@@ -12,6 +12,7 @@ import settings
 from dateutil import parser
 import urllib.parse
 import time
+import calendar
 
 import ScrapePlugins.RetreivalDbBase
 class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
@@ -59,7 +60,7 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def extractDate(self, row):
 		text = row.get_text()
 		date = parser.parse(text)
-		timestamp = time.mktime(date.timetuple())
+		timestamp = calendar.timegm(date.timetuple())
 		return timestamp
 
 	def getFeed(self, pageOverride=None):

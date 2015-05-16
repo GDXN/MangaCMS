@@ -11,6 +11,7 @@ import webFunctions
 
 import urllib.parse
 import time
+import calendar
 import dateutil.parser
 import runStatus
 import settings
@@ -86,7 +87,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["originName"]    = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
 			item["sourceUrl"]     = url
 			item["seriesName"]    = baseInfo["title"]
-			item["retreivalTime"] = time.mktime(date.timetuple())
+			item["retreivalTime"] = calendar.timegm(date.timetuple())
 
 			if not item in ret:
 				ret.append(item)

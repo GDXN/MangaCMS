@@ -5,6 +5,7 @@ import re
 
 import urllib.parse
 import time
+import calendar
 import dateutil.parser
 import runStatus
 import settings
@@ -60,7 +61,7 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			item["series"]   = series
 			item["chapName"] = '{series} - {chapter}'.format(series=series, chapter=chpName)
-			item["date"]     = time.mktime(ulDate.timetuple())
+			item["date"]     = calendar.timegm(ulDate.timetuple())
 			item["dlLink"]   = url
 			dlItems.append(item)
 		return dlItems

@@ -10,6 +10,7 @@ import urllib.parse
 import webFunctions
 import json
 import time
+import calendar
 import urllib.error
 import settings
 import TextScrape.NovelMixin
@@ -173,7 +174,7 @@ class Monitor(TextScrape.NovelMixin.NovelMixin, TextScrape.MonitorBase.MonitorBa
 			if item['light_novel_title']:
 
 				date     = dateutil.parser.parse(item['revision_date'])
-				date     = time.mktime(date.timetuple())
+				date     = calendar.timegm(date.timetuple())
 
 				title    = item['light_novel_title'].strip()
 

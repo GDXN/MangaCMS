@@ -11,6 +11,7 @@ import dateutil.parser
 import copy
 import urllib.parse
 import time
+import calendar
 
 import ScrapePlugins.RetreivalDbBase
 class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
@@ -73,12 +74,12 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# ParseDatetime COMPLETELY falls over on "YYYY-MM-DD HH:MM" formatted strings. Not sure why.
 		# Anyways, dateutil.parser.parse seems to work ok, so use that.
 		updateDate = dateutil.parser.parse(dateStr)
-		ret = time.mktime(updateDate.timetuple())
+		ret = calendar.timegm(updateDate.timetuple())
 
 		# Patch times for the local-GMT offset.
-		# using `time.mktime(time.gmtime()) - time.time()` is NOT ideal, but it's accurate
+		# using `calendar.timegm(time.gmtime()) - time.time()` is NOT ideal, but it's accurate
 		# to a second or two, and that's all I care about.
-		gmTimeOffset = time.mktime(time.gmtime()) - time.time()
+		gmTimeOffset = calendar.timegm(time.gmtime()) - time.time()
 		ret = ret - gmTimeOffset
 		return ret
 

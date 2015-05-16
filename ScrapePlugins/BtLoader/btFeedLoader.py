@@ -8,6 +8,7 @@ import bs4
 import re
 
 import time
+import calendar
 import dateutil.parser
 
 import settings
@@ -119,7 +120,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		item = {}
 
-		item["retreivalTime"] = time.mktime(addDate.timetuple())
+		item["retreivalTime"] = calendar.timegm(addDate.timetuple())
 		item["sourceUrl"] = chapter.a["href"]
 
 

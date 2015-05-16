@@ -5,6 +5,7 @@ import re
 
 import urllib.parse
 import time
+import calendar
 import dateutil.parser
 import runStatus
 import settings
@@ -98,7 +99,7 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["seriesName"]     = baseInfo["title"]
 			item["tags"]           = baseInfo["tags"]
 			item["note"]           = baseInfo["note"]
-			item["retreivalTime"]  = time.mktime(date.timetuple())
+			item["retreivalTime"]  = calendar.timegm(date.timetuple())
 
 
 			ret.append(item)

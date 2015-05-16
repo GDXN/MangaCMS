@@ -14,6 +14,7 @@ from ScrapePlugins.MjLoader.mjContentLoader import MjContentLoader
 import signal
 
 import time
+import calendar
 
 import nameTools as nt
 
@@ -50,7 +51,7 @@ def test():
 	# 	 'fileName': None,
 	# 	 'lastUpdate': 0.0,
 	# 	 'originName': '---TEST----',
-	# 	 'retreivalTime': time.mktime((2014, 9, 2, 7, 0, 0, 1, 245, 0)),
+	# 	 'retreivalTime': calendar.timegm((2014, 9, 2, 7, 0, 0, 1, 245, 0)),
 	# 	 'seriesName': '00000000000000Test-------',
 	# 	 'sourceId': None,
 	# 	 'sourceUrl': 'http://mangajoy.com/Saito-kun-wa-Chounouryokusha-Rashii/24',

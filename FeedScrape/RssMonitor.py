@@ -7,6 +7,7 @@ import feedparser
 import FeedScrape.RssMonitorDbBase
 import TextScrape.utilities.Proxy
 import time
+import calendar
 import json
 import bs4
 import TextScrape.RelinkLookup
@@ -125,7 +126,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 
 		return contentDat, links
 
-	def processFeed(self, feed, feedUrl):
+	def processFeed(self, feed, feedUrl, feedtype='eastern'):
 
 
 		meta = feed['feed']
@@ -169,15 +170,17 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, metaclass=abc.ABCMeta):
 
 
 			if 'updated_parsed' in entry:
-				item['updated'] = time.mktime(entry['updated_parsed'])
+				item['updated'] = calendar.timegm(entry['updated_parsed'])
 
 			if 'published_parsed' in entry:
-				item['published'] = time.mktime(entry['published_parsed'])
+				item['published'] = calendar.timegm(entry['published_parsed'])
 
 			if not 'published' in item or ('updated' in item and item['published'] > item['updated']):
 				item['published'] = item['updated']
 			if not 'updated' in item:
 				item['updated'] = -1
+
+			item['feedtype'] = feedtype
 
 
 			self.amqpint.put_item(json.dumps(item))

@@ -9,6 +9,7 @@ import dateutil.parser
 import datetime
 import urllib.parse
 import time
+import calendar
 
 import ScrapePlugins.RetreivalDbBase
 class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
@@ -156,7 +157,7 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return None
 
 		addDate = self.parseDateStr(dateStr)
-		ret["date"] = time.mktime(addDate.timetuple())
+		ret["date"] = calendar.timegm(addDate.timetuple())
 
 		# URL
 		ret["pageUrl"] = urllib.parse.urljoin(self.urlBase, titleLink["href"])

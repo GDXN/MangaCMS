@@ -7,6 +7,7 @@ import os.path
 
 
 import time
+import calendar
 import datetime
 import dateutil.parser
 
@@ -117,7 +118,7 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 		item = {}
 
-		item["date"] = time.mktime(addDate.timetuple())
+		item["date"] = calendar.timegm(addDate.timetuple())
 		item["dlLink"] = chapter.a["href"]
 
 		return item

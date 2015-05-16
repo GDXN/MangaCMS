@@ -8,6 +8,7 @@ import settings
 import parsedatetime
 import urllib.parse
 import time
+import calendar
 
 import ScrapePlugins.RetreivalDbBase
 class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
@@ -72,7 +73,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		cal = parsedatetime.Calendar()
 		ulDate, status = cal.parse(timeTag['datetime'])
 		# print(ulDate)
-		return time.mktime(ulDate)
+		return calendar.timegm(ulDate)
 
 
 	def getInfo(self, itemUrl):

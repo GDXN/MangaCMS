@@ -7,6 +7,7 @@ import webFunctions
 
 import urllib.parse
 import time
+import calendar
 import parsedatetime
 import settings
 
@@ -119,7 +120,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			dateStr = date.get_text().strip()
 			itemDate, status = parsedatetime.Calendar().parse(dateStr)
 
-			item['retreivalTime'] = time.mktime(itemDate)
+			item['retreivalTime'] = calendar.timegm(itemDate)
 			items.append(item)
 
 		ret = []

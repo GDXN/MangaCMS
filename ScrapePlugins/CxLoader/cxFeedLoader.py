@@ -5,6 +5,7 @@ import re
 
 import urllib.parse
 import time
+import calendar
 import dateutil.parser
 import runStatus
 import settings
@@ -83,7 +84,7 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				item["originName"] = "{series} - {file}".format(series=seriesName, file=dlTitle)
 				item["sourceUrl"]  = dlLink
 				item["seriesName"] = seriesName
-				item["retreivalTime"]       = time.mktime(date.timetuple())
+				item["retreivalTime"]       = calendar.timegm(date.timetuple())
 
 				# print("Item", item)
 				ret.append(item)

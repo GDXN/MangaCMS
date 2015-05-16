@@ -11,6 +11,7 @@ import webFunctions
 
 import urllib.parse
 import time
+import calendar
 import dateutil.parser
 import runStatus
 import settings
@@ -84,7 +85,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				item = {}
 
 				item["sourceUrl"] = urllib.parse.urljoin(self.urlBase, child['href'])
-				item["retreivalTime"] = time.mktime(curDate.timetuple())
+				item["retreivalTime"] = calendar.timegm(curDate.timetuple())
 
 				titleDiv = child.find("div", class_='title')
 

@@ -5,6 +5,7 @@ import webFunctions
 import os
 import os.path
 import time
+import calendar
 import nameTools as nt
 import runStatus
 import dateutil.parser
@@ -85,7 +86,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		# ParseDatetime COMPLETELY falls over on "YYYY-MM-DD HH:MM" formatted strings. Not sure why.
 		# Anyways, dateutil.parser.parse seems to work ok, so use that.
 		updateDate = dateutil.parser.parse(dateStr)
-		ret = time.mktime(updateDate.timetuple())
+		ret = calendar.timegm(updateDate.timetuple())
 
 		return ret
 

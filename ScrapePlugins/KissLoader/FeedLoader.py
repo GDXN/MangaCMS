@@ -7,6 +7,7 @@ import webFunctions
 
 import urllib.parse
 import time
+import calendar
 import dateutil.parser
 import settings
 
@@ -152,7 +153,7 @@ Not found
 			item["originName"] = chapter.get_text().strip()
 			item["sourceUrl"]  = urllib.parse.urljoin(self.urlBase, chapter.a['href'])
 			itemDate = dateutil.parser.parse(date.get_text().strip())
-			item['retreivalTime'] = time.mktime(itemDate.timetuple())
+			item['retreivalTime'] = calendar.timegm(itemDate.timetuple())
 
 			items.append(item)
 

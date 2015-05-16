@@ -2,6 +2,7 @@
 import bs4
 
 import time
+import calendar
 import dateutil.parser
 import runStatus
 
@@ -77,7 +78,7 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["originName"] = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
 			item["sourceUrl"]  = url
 			item["seriesName"] = baseInfo["title"]
-			item["retreivalTime"]       = time.mktime(date.timetuple())
+			item["retreivalTime"]       = calendar.timegm(date.timetuple())
 
 			item = self.filterItem(item)
 			if item:
