@@ -1,6 +1,24 @@
 http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdrive.google.com%2Ffolderview%3Fid%3D0B7PIRwu9hTEFODllMFFRemljMGc links broken
 http://pacem.wikia.com/wiki/Pacem_Community_Translations_Wiki
 
+https://darkfishoftherevolution.wordpress.com/she-professed-herself-the-pupil-of-the-wiseman/
+https://aflappyteddybird.wordpress.com/2015/04/17/black-knight-table-of-contents/
+http://avertranslation.com/
+https://binhjamin.wordpress.com/
+https://hajiko.wordpress.com/strike-the-blood/
+http://hotchocolatescans.mokkori.fr/
+https://ichisora.wordpress.com
+https://kyakka.wordpress.com/
+http://manga0205.wordpress.com
+https://natsutl.wordpress.com/
+https://rhinabolla.wordpress.com/hachi-nan-2/
+http://saekanothetranslation.wordpress.com/
+https://scryatranslations.wordpress.com/
+https://tensaitranslations.wordpress.com/
+https://alyschu.wordpress.com/about/
+https://9ethtranslations.wordpress.com/
+https://parahumans.wordpress.com/table-of-contents/
+
 search for foolslide sites
 http://demonicscans.com/FoOlSlide/read/shen_yin_wang_zuo/en/0/13/page/2
 
