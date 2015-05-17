@@ -6,6 +6,8 @@ import re
 import json
 import logging
 from FeedScrape.feedNameLut import getNiceName
+import settings
+import FeedScrape.AmqpInterface
 # pylint: disable=W0201
 
 
@@ -44,6 +46,13 @@ class DataParser():
 	def __init__(self):
 		logPath = 'Main.Feeds.Parser'
 		self.log = logging.getLogger(logPath)
+		amqp_settings = {}
+		amqp_settings["RABBIT_CLIENT_NAME"] = settings.RABBIT_CLIENT_NAME
+		amqp_settings["RABBIT_LOGIN"]       = settings.RABBIT_LOGIN
+		amqp_settings["RABBIT_PASWD"]       = settings.RABBIT_PASWD
+		amqp_settings["RABBIT_SRVER"]       = settings.RABBIT_SRVER
+		amqp_settings["RABBIT_VHOST"]       = settings.RABBIT_VHOST
+		self.amqpint = FeedScrape.AmqpInterface.RabbitQueueHandler(settings=amqp_settings)
 
 	####################################################################################################################################################
 	# Sousetsuka
@@ -192,8 +201,8 @@ class DataParser():
 		release = self.dispatchRelease(feedDat)
 		if release:
 			ret = {
-				'type' : 'release-feed',
-				'data' : feedDat
+				'type' : 'parsed-release',
+				'data' : release
 			}
 			return json.dumps(ret)
 		return False
@@ -207,7 +216,7 @@ class DataParser():
 		}
 		return json.dumps(ret)
 
-	def processFeedData(self, feedDat):
+	def processFeedData(self, feedDat, tx_raw=True, tx_parse=True):
 
 		if any([item in feedDat['linkUrl'] for item in skip_filter]):
 			return
@@ -219,10 +228,10 @@ class DataParser():
 
 
 		raw = self.getRawFeedMessage(feedDat)
-		if raw:
+		if raw and tx_raw:
 			self.amqpint.put_item(raw)
 
 		new = self.getProcessedReleaseInfo(feedDat)
-		if new:
+		if new and tx_parse:
 			self.amqpint.put_item(new)
 

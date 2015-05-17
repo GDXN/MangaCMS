@@ -40,6 +40,7 @@ def convertItems(items):
 		tmp['tags']      = item['tags']
 		tmp['published'] = item['published']
 		tmp['feedurl']   = item['feedurl']
+		tmp['contents']  = item['contents']
 		ret.append(tmp)
 	return ret
 
@@ -56,7 +57,7 @@ def test():
 	parser = FeedScrape.FeedDataParser.DataParser()
 
 	for item in testdat:
-		ret = parser.getProcessedReleaseInfo(item)
+		ret = parser.processFeedData(item, tx_raw=False)
 		# if ret:
 		# 	print(ret)
 
