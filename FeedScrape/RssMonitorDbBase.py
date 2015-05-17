@@ -378,27 +378,25 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 
 
 
-
-
 	def getRowsByValue(self, limitByKey=True, **kwargs):
 		if limitByKey and self.tableKey:
-			kwargs["src"] = self.tableKey
+			kwargs["srcname"] = self.tableKey
 
 
 		where = self.sqlBuildConditional(**kwargs)
 
 		wantCols = (
 				self.table.dbid,
-				self.table.src,
-				self.table.dlstate,
-				self.table.url,
+				self.table.srcname,
+				self.table.feedurl,
+				self.table.contenturl,
+				self.table.contentid,
 				self.table.title,
-				self.table.series,
 				self.table.contents,
-				self.table.istext,
-				self.table.fhash,
-				self.table.mimetype,
-				self.table.fspath
+				self.table.author,
+				self.table.tags,
+				self.table.updated,
+				self.table.published,
 			)
 
 		query = self.table.select(*wantCols, order_by=sql.Desc(self.table.dbid), where=where)
@@ -410,16 +408,17 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 			print("args = ", quargs)
 
 
-		with self.transaction(commit=commit) as cur:
+		with self.transaction() as cur:
 			cur.execute(query, quargs)
 			rets = cur.fetchall()
+
 
 
 
 		retL = []
 		for row in rets:
 
-			keys = ['dbid', 'src', 'dlstate', 'url', 'title', 'series', 'contents', 'istext', 'fhash', 'mimetype', 'fspath']
+			keys = ['dbid', 'srcname', 'feedurl', 'contenturl', 'contentid', 'title', 'contents', 'author', 'tags', 'updated', 'published']
 			retL.append(dict(zip(keys, row)))
 		return retL
 

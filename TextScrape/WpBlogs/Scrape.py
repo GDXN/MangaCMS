@@ -93,7 +93,7 @@ class Scrape(WordpressScrape):
 		# 'https://gargoyleserial.wordpress.com',
 		'https://otterspacetranslation.wordpress.com',
 		'https://shincodezeroblog.wordpress.com',
-		'https://solitarytranslation.wordpress.com',
+		# 'https://solitarytranslation.wordpress.com',  # Taken down?
 		'https://maoyuuthetranslation.wordpress.com',
 		# 'https://farmerbob1.wordpress.com',
 		'https://lygartranslations.wordpress.com',

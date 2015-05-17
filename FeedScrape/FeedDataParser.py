@@ -2,8 +2,10 @@
 #!/usr/bin/python
 # from profilehooks import profile
 import urllib.parse
-import abc
+import re
 import json
+import logging
+from FeedScrape.feedNameLut import getNiceName
 # pylint: disable=W0201
 
 
@@ -12,164 +14,192 @@ skip_filter = [
 	"re-monster.wikia.com",
 ]
 
-def getNiceName(srcnetloc):
-	mapper = {
-		'9ethtranslations.wordpress.com'            : 'TheLazy9',
-		'a0132.blogspot.com'                        : 'A0132',
-		'aflappyteddybird.wordpress.com'            : 'AFlappyTeddyBird',
-		'ahoujicha.blogspot.com'                    : 'Roasted Tea',
-		'aldnoahextrathetranslation.wordpress.com'  : '(NanoDesu) - Aldnoah Zero',
-		'alyschu.wordpress.com'                     : 'Alyschu & Co',
-		'amaburithetranslation.wordpress.com'       : '(NanoDesu) - Amagi Brilliant Park ',
-		'arkmachinetranslations.com'                : 'Ark Machine Translations',
-		'avertranslation.org'                       : 'Avert Translations',
-		'azureskytls.blogspot.com'                  : 'Azure Sky Translation',
-		'binhjamin.wordpress.com'                   : 'Binhjamin',
-		'blazingtranslations.com'                   : 'Blazing Translations',
-		'bluesilvertranslations.wordpress.com'      : 'Blue Silver Translations',
-		'bureidanworks.wordpress.com'               : 'Burei Dan Works',
-		'calicoxtabby.wordpress.com'                : 'Calico x Tabby',
-		'cetranslation.blogspot.com'                : 'C.E. Light Novel Translations',
-		'choukun.wordpress.com'                     : 'ELYSION Translation',
-		'defiring.wordpress.com'                    : 'Defiring',
-		'dlingson.wordpress.com'                    : 'Lingson\'s Translations',
-		'durandaru.wordpress.com'                   : 'Duran Daru Translation',
-		'fateapocryphathetranslation.wordpress.com' : '(NanoDesu) - Fate/Apocrypha',
-		'flowerbridgetoo.com'                       : 'Flower Bridge Too',
-		'fuyuugakuenthetranslation.wordpress.com'   : '(NanoDesu) - Fuyuu Gakuen no Alice and Shirley',
-		'gekkahimethetranslation.wordpress.com'     : '(NanoDesu) - Gekka no Utahime to Magi no Ou',
-		'giraffecorps.liamak.net'                   : 'Giraffe Corps',
-		'gjbuthetranslation.wordpress.com'          : '(NanoDesu) - GJ-Bu',
-		'gravitytranslations.com'                   : 'Gravity Translation',
-		'grimgalthetranslation.wordpress.com'       : '(NanoDesu) - Hai to Gensou no Grimgal',
-		'guhehe.net'                                : 'guhehe.TRANSLATIONS',
-		'hajiko.wordpress.com'                      : 'Hajiko translation',
-		'heartcrusadescans.wordpress.com'           : 'Heart Crusade Scans',
-		'hellotranslations.wordpress.com'           : 'Hello Translations',
-		'hellping.org'                              : 'Hellping',
-		'hendricksensama.wordpress.com'             : 'Hendricksen-sama',
-		'hennekothetranslation.wordpress.com'       : '(NanoDesu) - Hentai Ouji to Warawanai Neko',
-		'henoujikun.wordpress.com'                  : 'Henouji Translation',
-		'hikuosan.blogspot.com'                     : 'ヾ(。￣□￣)ﾂ',   # I can haz UTF-8 source code?
-		'hokagetranslations.wordpress.com'          : 'Hokage Translations',
-		'hui3r.wordpress.com'                       : 'Fanatical',
-		'imoutoliciouslnt.blogspot.com'             : 'Imoutolicious Light Novel Translations',
-		'isekaimahou.wordpress.com'                 : 'Isekai Mahou Translations!',
-		'istlovesu.blogspot.com'                    : 'Istian\'s Workshop',
-		'itranslateln.wordpress.com'                : 'itranslateln',
-		'izra709.wordpress.com'                     : 'izra709 | B Group no Shounen Translations',
-		'japtem.com'                                : 'Japtem',
-		'jawztranslations.blogspot.com'             : 'JawzTranslations',
-		'kaezartranslations.blogspot.com'           : 'Kaezar Translations',
-		'kamitranslation.wordpress.com'             : 'Kami Translation',
-		'kerambitnosakki.wordpress.com'             : 'Kerambit\'s Incisions',
-		'kobatochandaisuki.wordpress.com'           : 'KobatoChanDaiSukiScan',
-		'korezombiethetranslation.wordpress.com'    : '(NanoDesu) - Kore wa Zombie Desu ka?',
-		'krytykal.org'                              : 'Krytyk\'s Translations',
-		'kurenaithetranslation.wordpress.com'       : '(NanoDesu) - Kurenai',
-		'kurotsuki-novel.blogspot.com'              : 'Kurotsuki Novel',
-		'kyakka.wordpress.com'                      : 'Kyakka',
-		'lasolistia.com'                            : 'HaruPARTY',
-		'loliquent.wordpress.com'                   : 'Loliquent',
-		'lorcromwell.wordpress.com'                 : 'LorCromwell',
-		'lordofscrubs.wordpress.com'                : 'LordofScrubs',
-		'loveyouthetranslation.wordpress.com'       : '(NanoDesu) - Love★You',
-		'lygartranslations.wordpress.com'           : 'LygarTranslations',
-		'madospicy.wordpress.com'                   : 'MadoSpicy TL',
-		'mahoukoukoku.blogspot.com'                 : 'Mahou Koukoku',
-		'mahoutsuki.wordpress.com'                  : 'Mahoutsuki Translation',
-		'manga0205.wordpress.com'                   : 'Manga0205 Translations',
-		'maoyuuthetranslation.wordpress.com'        : '(NanoDesu) - Maoyuu Maou Yuusha',
-		'mayochikithetranslation.wordpress.com'     : '(NanoDesu) - Mayo Chiki',
-		'metalhaguremt.wordpress.com'               : '1HP',
-		'nakulas.blogspot.com'                      : '[nakulas]',
-		'nanodesutranslations.wordpress.com'        : 'NanoDesu Light Novel Translations',
-		'natsutl.wordpress.com'                     : 'Natsu TL',
-		'neettranslations.wordpress.com'            : 'NEET Translations',
-		'nightbreezetranslations.com'               : 'Nightbreeze Translations',
-		'nightraccoon.wordpress.com'                : 'Konjiki no Wordmaster',
-		'noitl.blogspot.com'                        : 'Translation Treasure Box',
-		'ohanashimi.wordpress.com'                  : 'Ohanashimi',
-		'ojamajothetranslation.wordpress.com'       : '(NanoDesu) - Ojamajo Doremi',
-		'omegaharem.wordpress.com'                  : 'Omega Harem Translations',
-		'oniichanyamete.wordpress.com'              : 'お兄ちゃん、やめてぇ！',
-		'oregairuthetranslation.wordpress.com'      : '(NanoDesu) - Yahari Ore no Seishun Love Come wa Machigatteiru',
-		'oreimothetranslation.wordpress.com'        : '(NanoDesu) - Oreimo',
-		'otterspacetranslation.wordpress.com'       : 'otterspacetranslation',
-		'pandafuqtranslations.wordpress.com'        : 'pandafuqtranslations',
-		'panofitrans.blogspot.com'                  : 'Translations From Outer Space',
-		'pikatranslations.com'                      : 'Pika Translations',
-		'pirateyoshi.wordpress.com'                 : 'Ziru\'s Musings | Translations~',
-		'pummels.wordpress.com'                     : 'Pummels',
-		'putttytranslations.wordpress.com'          : 'putttytranslations',
-		'reantoanna.wordpress.com'                  : 'ℝeanとann@',
-		'rhinabolla.wordpress.com'                  : 'Rhinabolla',
-		'rokkathetranslation.wordpress.com'         : '(NanoDesu) - Rokka no Yuusha',
-		'saekanothetranslation.wordpress.com'       : '(NanoDesu) - Saenai Heroine no Sodatekata',
-		'sakurahonyaku.wordpress.com'               : '桜翻訳! | Light novel translations',
-		'sasamisanthetranslation.wordpress.com'     : '(NanoDesu) - Sasami-San@Ganbaranai',
-		'scryatranslations.wordpress.com'           : 'Scrya Translations',
-		'seizonthetranslation.wordpress.com'        : '(NanoDesu) - Seitokai no Ichizon',
-		'sekaigamethetranslation.wordpress.com'     : '(NanoDesu) - Kono Sekai ga Game Dato Ore Dake ga Shitteiru',
-		'setsuna86blog.wordpress.com'               : 'SETSUNA86BLOG',
-		'shincodezeroblog.wordpress.com'            : 'Code-Zero\'s Blog',
-		'shinsekai.cadet-nine.org'                  : 'Shin Sekai Yori – From the New World',
-		'shintranslations.com'                      : 'Shin Translations',
-		'shokyuutranslations.wordpress.com'         : 'Shokyuu Translations',
-		'skythewood.blogspot.com'                   : 'Skythewood translations',
-		'skyworldthetranslation.wordpress.com'      : '(NanoDesu) - Sky World',
-		'stcon.wordpress.com'                       : 'Stellar Transformation Con.',
-		'swordandgame.blogspot.com'                 : 'Sword and Game',
-		'tensaitranslations.wordpress.com'          : 'Tensai Translations',
-		'thatguywhosthere.wordpress.com'            : 'ThatGuyOverThere',
-		'thenakedsol.blogspot.com'                  : 'Iterations within a Thought-Eclipse',
-		'theworsttranslation.wordpress.com'         : 'Bad Translation',
-		'thundertranslations.com'                   : 'Thunder Translation',
-		'tomorolls.wordpress.com'                   : 'Tomorolls',
-		'totobro.com'                               : 'Totokk\'s Translations',
-		'tototrans.com'                             : 'Totokk\'s Translations',
-		'trippingoverwn.wordpress.com'              : 'Tripp Translations',
-		'tsaltranslation.wordpress.com'             : 'Light Novel translations',
-		'tsuigeki.wordpress.com'                    : 'Tsuigeki Translations',
-		'tu-shu-guan.blogspot.com'                  : '中翻英圖書館 Translations',
-		'tusjecht.wordpress.com'                    : 'Tus-Trans',
-		'unbreakablemachinedoll.wordpress.com'      : 'Unbreakable Machine Doll',
-		'undecentlnt.wordpress.com'                 : 'Undecent Translations',
-		'unlimitednovelfailures.mangamatters.com'   : 'Unlimited Novel Failures',
-		'untuned-strings.blogspot.com'              : 'Untuned Translation Blog',
-		'vaancruze.wordpress.com'                   : 'Maou the Yuusha',
-		'voidtranslations.wordpress.com'            : 'Void Translations',
-		'wartdf.wordpress.com'                      : 'Raising the Dead',
-		'wcctranslation.wordpress.com'              : 'wcctranslation',
-		'worldofwatermelons.com'                    : 'World of Watermelons',
-		'www.lingson.com'                           : 'Lingson Translations',
-		'www.princerevolution.org'                  : 'Prince Revolution!',
-		'www.risingdragonstranslation.com'          : 'Rising Dragons Translation',
-		'www.sousetsuka.com'                        : 'Sousetsuka',
-		'www.taptaptaptaptap.net'                   : 'tap-trans » tappity tappity tap.',
-		'www.wuxiaworld.com'                        : 'Wuxiaworld',
-		'xcrossj.blogspot.com'                      : 'XCrossJ',
-		'yoraikun.wordpress.com'                    : 'Yoraikun Translation',
-		'youtsubasilver.wordpress.com'              : 'youtsubasilver\'s Blog',
-		'zmunjali.wordpress.com'                    : 'Roxism HQ',
-
+def buildReleaseMessage(raw_item, series, vol, chap, postfix=''):
+	'''
+	Special case behaviour:
+		If vol or chapter is None, the
+		item in question will sort to the end of
+		the relevant sort segment.
+	'''
+	return {
+		'srcname'   : raw_item['srcname'],
+		'series'    : series,
+		'vol'       : vol,
+		'chp'       : chap,
+		'published' : raw_item['published'],
+		'itemurl'   : raw_item['linkUrl'],
+		'postfix'   : postfix,
 	}
 
-	if srcnetloc in mapper:
-		return mapper[srcnetloc]
-	return False
+def packChapterFragments(chapStr, fragStr):
+	chap = float(chapStr)
+	frag = float(fragStr)
+	return '%0.2f' % (chap + (frag / 100.0))
 
 
 class DataParser():
 
 	amqpint = None
 
-	def getRawFeedMessage(self, feedDat):
+	def __init__(self):
+		logPath = 'Main.Feeds.Parser'
+		self.log = logging.getLogger(logPath)
 
-		netloc = getNiceName(feedDat['linkUrl'])
-		if not netloc:
-			netloc = urllib.parse.urlparse(feedDat['linkUrl']).netloc
-		feedDat['srcname'] = netloc
+	####################################################################################################################################################
+	# Sousetsuka
+	####################################################################################################################################################
+
+
+	def extractSousetsuka(self, item):
+
+		# check that 'Desumachi' is in the tags? It seems to work well enough now....
+
+		desumachi_norm  = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(\d+)$', item['title'])
+		desumachi_extra = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(Intermission.*?)$', item['title'])
+		if desumachi_norm:
+			series = desumachi_norm.group(1)
+			vol    = desumachi_norm.group(2)
+			chp    = desumachi_norm.group(3)
+			return buildReleaseMessage(item, series, vol, chp)
+		elif desumachi_extra:
+			series  = desumachi_extra.group(1)
+			vol     = desumachi_extra.group(2)
+			postfix = desumachi_extra.group(3)
+			return buildReleaseMessage(item, series, vol, None, postfix=postfix)
+
+		# else:
+		# 	self.log.warning("Cannot decode item:")
+		# 	self.log.warning("%s", item)
+		return False
+
+	####################################################################################################################################################
+	# お兄ちゃん、やめてぇ！ / Onii-chan Yamete
+	####################################################################################################################################################
+
+	def extractOniichanyamete(self, item):
+		# print('"{}" "{}"'.format(item['title'], item['tags']))
+
+		tilea_norm       = re.search(r'^(Tilea’s Worries) – Chapter (\d+)$',               item['title'])
+		tilea_extra      = re.search(r'^(Tilea’s Worries) – ([^0-9]*?)$',                  item['title'])
+		other_world_norm = re.search(r'^(I’m Back in the Other World\?) – Chapter (\d+)$', item['title'])
+		jashin_norm      = re.search(r'^(Jashin Average) – (\d+)$',                        item['title'])
+
+
+		if tilea_norm:
+			series  = tilea_norm.group(1)
+			vol     = None
+			chp     = tilea_norm.group(2)
+			return buildReleaseMessage(item, series, vol, chp)
+		elif tilea_extra:
+			series  = tilea_extra.group(1)
+			vol     = None
+			chp     = None
+			postfix = tilea_extra.group(2)
+			return buildReleaseMessage(item, series, vol, chp, postfix=postfix)
+		elif other_world_norm:
+			series  = other_world_norm.group(1)
+			vol     = None
+			chp     = other_world_norm.group(2)
+			return buildReleaseMessage(item, series, vol, chp)
+		elif jashin_norm:
+			series  = jashin_norm.group(1)
+			vol     = None
+			chp     = jashin_norm.group(2)
+			return buildReleaseMessage(item, series, vol, chp)
+		elif 'otoburi' in item['tags']:
+			# Arrrgh, the volume/chapter structure for this series is a disaster!
+			pass
+		# else:
+		# 	# self.log.warning("Cannot decode item:")
+		# 	# self.log.warning("%s", item['title'])
+		# 	# self.log.warning("Cannot decode item: '%s'", item['title'])
+		# 	# print(item['tags'])
+		return False
+
+
+	####################################################################################################################################################
+	# Natsu TL
+	####################################################################################################################################################
+
+
+	def extractNatsuTl(self, item):
+		meister  = re.search(r'^(Magi Craft Meister) Volume (\d+) Chapter (\d+)$', item['title'])
+		if meister:
+			series = meister.group(1)
+			vol    = meister.group(2)
+			chp    = meister.group(3)
+			return buildReleaseMessage(item, series, vol, chp)
+		return False
+
+
+
+	####################################################################################################################################################
+	# TheLazy9
+	####################################################################################################################################################
+
+
+	def extractTheLazy9(self, item):
+		kansutoppu  = re.search(r'^(Kansutoppu!) Chapter (\d+)$', item['title'])
+		garudeina  = re.search(r'^(Garudeina Oukoku Koukoku Ki) Chapter (\d+): Part (\d+)$', item['title'])
+		# meister  = re.search(r'^(Magi Craft Meister) Volume (\d+) Chapter (\d+)$', item['title'])
+
+		if kansutoppu:
+			series = kansutoppu.group(1)
+			vol    = None
+			chp    = kansutoppu.group(2)
+			return buildReleaseMessage(item, series, vol, chp)
+		if garudeina:
+			series = garudeina.group(1)
+			vol    = None
+			chp    = packChapterFragments(garudeina.group(2), garudeina.group(3))
+
+			return buildReleaseMessage(item, series, vol, chp)
+
+		# print(item['title'])
+		return False
+
+
+	####################################################################################################################################################
+	####################################################################################################################################################
+	##
+	##  Dispatcher
+	##
+	####################################################################################################################################################
+	####################################################################################################################################################
+
+
+	def dispatchRelease(self, item):
+
+		if item['srcname'] == 'Sousetsuka':
+			return self.extractSousetsuka(item)
+		if item['srcname'] == 'お兄ちゃん、やめてぇ！':
+			return self.extractOniichanyamete(item)
+		if item['srcname'] == 'Natsu TL':
+			return self.extractNatsuTl(item)
+		if item['srcname'] == 'TheLazy9':
+			return self.extractTheLazy9(item)
+		# else:
+		# 	print(item)
+
+		return False
+
+
+	def getProcessedReleaseInfo(self, feedDat):
+
+		if any([item in feedDat['linkUrl'] for item in skip_filter]):
+			return
+
+		release = self.dispatchRelease(feedDat)
+		if release:
+			ret = {
+				'type' : 'release-feed',
+				'data' : feedDat
+			}
+			return json.dumps(ret)
+		return False
+
+
+	def getRawFeedMessage(self, feedDat):
 
 		ret = {
 			'type' : 'raw-feed',
@@ -182,5 +212,17 @@ class DataParser():
 		if any([item in feedDat['linkUrl'] for item in skip_filter]):
 			return
 
+		nicename = getNiceName(feedDat['linkUrl'])
+		if not nicename:
+			nicename = urllib.parse.urlparse(feedDat['linkUrl']).netloc
+		feedDat['srcname'] = nicename
+
+
 		raw = self.getRawFeedMessage(feedDat)
-		self.amqpint.put_item(raw)
+		if raw:
+			self.amqpint.put_item(raw)
+
+		new = self.getProcessedReleaseInfo(feedDat)
+		if new:
+			self.amqpint.put_item(new)
+
