@@ -181,7 +181,7 @@ scrapePlugins = {
 	223 : (TextScrape.ReMonsterWikia.Run,                      minutes(30)),
 
 
-	300 : (TextScrape.BakaTsuki.Run,                           days(7)),  # Every 3 days, because books is slow to update
+	300 : (TextScrape.BakaTsuki.Run,                           days(7)),
 	301 : (TextScrape.JapTem.Run,                              days(3)),
 	302 : (TextScrape.Guhehe.Run,                              days(3)),
 	303 : (TextScrape.WpBlogs.Run,                             days(1)),
@@ -189,11 +189,11 @@ scrapePlugins = {
 	305 : (TextScrape.PrinceRevolution.Run,                    days(5)),
 	306 : (TextScrape.Krytyk.Run,                              days(5)),
 	307 : (TextScrape.UnlimitedNovelFailures.Run,              days(2)),
-	308 : (TextScrape.ReTranslations.Run,                      days(1)),   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
+	308 : (TextScrape.ReTranslations.Run,                      days(1)),
 	309 : (TextScrape.WarTdf.Run,                              days(1)),
 	310 : (TextScrape.HaruParty.Run,                           days(2)),
 	311 : (TextScrape.CloudFlareWordPress.Run,                 days(2)),
-	312 : (TextScrape.ReMonsterWikia.RunUpdate,                days(3)),
+	312 : (TextScrape.ReMonsterWikia.RunUpdate,                days(7)),
 
 
 	400 : (TextScrape.Lndb.Run,                                hours(2)),

@@ -76,6 +76,7 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"action=submit",
 				"MediaWiki:Sandbox",
 				"Special:Contributions",
+				"controller=JSMessages",
 
 				"/Template:",
 				"/Thread:",

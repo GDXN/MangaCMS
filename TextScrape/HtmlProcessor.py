@@ -74,6 +74,7 @@ GLOBAL_BAD = [
 			'pixel.wp.com',
 			'a.wikia-beacon.com',
 			'b.scorecardresearch.com',
+			'//mail.google.com',
 	]
 
 GLOBAL_DECOMPOSE_BEFORE = [

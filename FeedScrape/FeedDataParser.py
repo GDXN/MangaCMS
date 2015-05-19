@@ -235,3 +235,4 @@ class DataParser():
 		if new and tx_parse:
 			self.amqpint.put_item(new)
 
+
