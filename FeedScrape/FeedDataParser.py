@@ -24,7 +24,7 @@ def extractChapterVol(inStr):
 	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
 	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |ch|c)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	chpRe2 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?: |_)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
-	volRe  = re.compile(r"(?: |_|\-)(?:volume|vol|vol\.|v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+	volRe  = re.compile(r"(?: |_|\-|^)(?:book|volume|vol|vol ?\.|vol?\. |v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 
 	chap = None
 	for chRe in [chpRe1, chpRe2]:
@@ -56,7 +56,7 @@ def extractChapterVolFragment(inStr):
 	return chp, vol, frag_val
 
 
-def buildReleaseMessage(raw_item, series, vol, chap, frag=0, postfix=''):
+def buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix=''):
 	'''
 	Special case behaviour:
 		If vol or chapter is None, the
@@ -74,6 +74,10 @@ def buildReleaseMessage(raw_item, series, vol, chap, frag=0, postfix=''):
 	}
 
 def packChapterFragments(chapStr, fragStr):
+	if not chapStr and not fragStr:
+		return None
+	if not fragStr:
+		return chapStr
 	chap = float(chapStr)
 	frag = float(fragStr)
 	return '%0.2f' % (chap + (frag / 100.0))
@@ -116,7 +120,7 @@ class DataParser():
 			series  = desumachi_extra.group(1)
 			vol     = desumachi_extra.group(2)
 			postfix = desumachi_extra.group(3)
-			return buildReleaseMessage(item, series, vol, None, postfix=postfix)
+			return buildReleaseMessage(item, series, vol, postfix=postfix)
 
 		# else:
 		# 	self.log.warning("Cannot decode item:")
@@ -344,8 +348,6 @@ class DataParser():
 		chp, vol = extractChapterVol(item['title'])
 		# print(item['title'], item['tags'])
 
-		# if 'Against the Gods' in item['tags'] or 'Ni Tian Xie Shen (Against the Gods)' in item['title']:
-		# 	return buildReleaseMessage(item, 'Against the Gods', vol, chp)
 
 		return False
 
@@ -356,14 +358,185 @@ class DataParser():
 
 
 	def extractShinTranslations(self, item):
-		# fffuuuu "last part" is not a helpful title!
 		chp, vol, frag = extractChapterVolFragment(item['title'])
 		if 'THE NEW GATE' in item['tags'] and not 'Status Update' in item['tags']:
 			if chp and vol and frag:
 				return buildReleaseMessage(item, 'The New Gate', vol, chp, frag=frag)
 
-		# if 'Against the Gods' in item['tags'] or 'Ni Tian Xie Shen (Against the Gods)' in item['title']:
-		# 	return buildReleaseMessage(item, 'Against the Gods', vol, chp)
+
+		return False
+
+	####################################################################################################################################################
+	# Scrya Translations
+	####################################################################################################################################################
+
+
+	def extractScryaTranslations(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+		if "So What if It's an RPG World!?" in item['tags']:
+			return buildReleaseMessage(item, "So What if It's an RPG World!?", vol, chp, frag=frag)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Japtem
+	####################################################################################################################################################
+
+
+	def extractJaptem(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+
+		if '[Chinese] Shadow Rogue' in item['tags']:
+			return buildReleaseMessage(item, "Shadow Rogue", vol, chp, frag=frag)
+
+		if '[Japanese] Magi\'s Grandson' in item['tags']:
+			return buildReleaseMessage(item, "Magi's Grandson", vol, chp, frag=frag)
+
+		if '[Japanese / Hosted] Arifureta' in item['tags']:
+			return buildReleaseMessage(item, "Arifureta", vol, chp, frag=frag)
+
+
+		return False
+
+
+
+	####################################################################################################################################################
+	# Wuxiaworld
+	####################################################################################################################################################
+
+
+	def extractWuxiaworld(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+
+		if 'CD Chapter Release' in item['tags']:
+			return buildReleaseMessage(item, "Coiling Dragon", vol, chp, frag=frag)
+		if 'dragon king with seven stars' in item['tags']:
+			return buildReleaseMessage(item, "Dragon King with Seven Stars", vol, chp, frag=frag)
+		if 'ISSTH Chapter Release' in item['tags']:
+			return buildReleaseMessage(item, "I Shall Seal the Heavens", vol, chp, frag=frag)
+		if 'BTTH Chapter Release' in item['tags']:
+			return buildReleaseMessage(item, "Battle Through the Heavens", vol, chp, frag=frag)
+		if 'SL Chapter Release' in item['tags']:
+			return buildReleaseMessage(item, "Skyfire Avenue", vol, chp, frag=frag)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Ziru's Musings | Translations~
+	####################################################################################################################################################
+
+
+	def extractZiruTranslations(self, item):
+
+
+		if 'Dragon Bloodline' in item['tags'] or 'Dragon’s Bloodline — Chapter ' in item['title']:
+			chp, vol, frag = extractChapterVolFragment(item['title'])
+			return buildReleaseMessage(item, 'Dragon Bloodline', vol, chp, frag=frag)
+
+		# Wow, the tags must be hand typed. soooo many typos
+		if 'Suterareta Yuusha no Eiyuutan' in item['tags'] or \
+			'Suterareta Yuusha no Eyuutan' in item['tags'] or \
+			'Suterurareta Yuusha no Eiyuutan' in item['tags']:
+
+			extract = re.search(r'Suterareta Yuusha no Ei?yuutan \((\d+)\-(.+?)\)', item['title'])
+			if extract:
+				vol = int(extract.group(1))
+				try:
+					chp = int(extract.group(2))
+					postfix = ''
+				except ValueError:
+					chp = None
+					postfix = extract.group(2)
+				return buildReleaseMessage(item, 'Suterareta Yuusha no Eiyuutan', vol, chp, postfix=postfix)
+
+
+		return False
+
+
+	####################################################################################################################################################
+	# Void Translations
+	####################################################################################################################################################
+
+
+	def extractVoidTranslations(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+
+		match = re.search(r'^Xian Ni Chapter \d+ ?[\-–]? ?(.*)$', item['title'])
+		if match:
+			return buildReleaseMessage(item, 'Xian Ni', vol, chp, postfix=match.group(1))
+
+
+
+		return False
+
+
+	####################################################################################################################################################
+	# Calico x Tabby
+	####################################################################################################################################################
+
+
+	def extractCalicoxTabby(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+
+		if 'Meow Meow Meow' in item['tags']:
+			return buildReleaseMessage(item, 'Meow Meow Meow', vol, chp, frag=frag)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Skythewood translations
+	####################################################################################################################################################
+
+
+	def extractSkythewood(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+		if 'Altina the Sword Princess' in item['tags']:
+			return buildReleaseMessage(item, 'Haken no Kouki Altina', vol, chp, frag=frag)
+		if 'Overlord' in item['tags']:
+			# Lots of idiot-checking here, because there are a
+			# bunch of annoying edge-cases I want to work around.
+			# This will PROBABLY BREAK IN THE FUTURE!
+			if "Drama CD" in item['title']:
+				return False
+			if "Track" in item['title']:
+				return False
+			if not "Volume" in item['title']:
+				return False
+
+			postfix = ''
+			if 'Prologue'  in item['title']:
+				postfix = 'Prologue'
+			if 'Afterword' in item['title']:
+				postfix = 'Afterword'
+			if 'Epilogue'  in item['title']:
+				postfix = 'Epilogue'
+			if 'Interlude'  in item['title']:
+				postfix = 'Interlude'
+
+			return buildReleaseMessage(item, 'Overlord', vol, chp, frag=frag, postfix=postfix)
+		if 'Gifting the wonderful world' in item['tags']:
+			return buildReleaseMessage(item, 'Gifting the Wonderful World with Blessings!', vol, chp, frag=frag)
+		if "Knight's & Magic" in item['tags']:
+			return buildReleaseMessage(item, 'Knight\'s & Magic', vol, chp, frag=frag)
+
+		return False
+
+	####################################################################################################################################################
+	# Lygar Translations
+	####################################################################################################################################################
+
+
+	def extractLygarTranslations(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+
+		# print(item['title'])
+		# print(item['tags'])
+		# print(vol, chp, frag)
+		# if 'Meow Meow Meow' in item['tags']:
+		# 	return buildReleaseMessage(item, 'Meow Meow Meow', vol, chp, frag=frag)
 
 		return False
 
@@ -401,13 +574,29 @@ class DataParser():
 			return self.extractAlyschuCo(item)
 		if item['srcname'] == 'Henouji Translation':
 			return self.extractHenoujiTranslation(item)
-		if item['srcname'] == 'Krytyk\'s Translations':
-			# No parseable content here
-			pass
 		if item['srcname'] == 'Shin Translations':
 			return self.extractShinTranslations(item)
+		if item['srcname'] == 'Scrya Translations':
+			return self.extractScryaTranslations(item)
+		if item['srcname'] == 'Japtem':
+			return self.extractJaptem(item)
+		if item['srcname'] == 'Wuxiaworld':
+			return self.extractWuxiaworld(item)
+		if item['srcname'] == 'Ziru\'s Musings | Translations~':
+			return self.extractZiruTranslations(item)
+		if item['srcname'] == 'Void Translations':
+			return self.extractVoidTranslations(item)
+		if item['srcname'] == 'Calico x Tabby':
+			return self.extractCalicoxTabby(item)
+		if item['srcname'] == 'Skythewood translations':
+			return self.extractSkythewood(item)
+		if item['srcname'] == 'LygarTranslations':
+			return self.extractLygarTranslations(item)
 
 
+		# if item['srcname'] == 'Krytyk\'s Translations':
+		# 	# No parseable content here
+		# 	pass
 		# if item['srcname'] == 'Flower Bridge Too':
 		# 	return self.extractYoraikun(item)
 		# else:
