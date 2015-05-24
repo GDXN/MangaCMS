@@ -20,24 +20,32 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 
 	baseUrl = [
 
-		'http://a0132.blogspot.ca',
-		'http://ahoujicha.blogspot.ca',
 		# 'http://aquarilasscenario.blogspot.com',
 		# 'http://arzengi.blogspot.com',
+		# 'http://ecwebnovel.blogspot.ca',
+		# 'http://the-last-skull.blogspot.com',
+		# 'http://thezombieknight.blogspot.co.uk',
+		# 'http://xhawk77x.blogspot.com',
+
+		'http://clickyclicktranslation.blogspot.co.uk',
+		'http://a0132.blogspot.ca',
+		'http://ahoujicha.blogspot.ca',
+		'http://azureskytls.blogspot.com.au',
 		'http://cetranslation.blogspot.ca',
 		'http://cetranslation.blogspot.com',
 		'http://cetranslation.blogspot.sg',
-		# 'http://ecwebnovel.blogspot.ca',
 		'http://hereticlnt.blogspot.ca',
 		'http://hereticlnt.blogspot.com',
 		'http://hikuosan.blogspot.com',
 		'http://imoutoliciouslnt.blogspot.ca',
 		'http://imoutoliciouslnt.blogspot.com.au',
+		'http://istlovesu.blogspot.com',
 		'http://jawztranslations.blogspot.ca',
 		'http://jawztranslations.blogspot.com',
 		'http://kaezartranslations.blogspot.com',
 		'http://kurotsuki-novel.blogspot.ca',
 		'http://kurotsuki-novel.blogspot.com',
+		'http://mahoukoukoku.blogspot.com.au',
 		'http://nakulas.blogspot.com',
 		'http://noitl.blogspot.com',
 		'http://panofitrans.blogspot.com',
@@ -47,19 +55,13 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://sousetsuka.blogspot.ca',
 		'http://swordandgame.blogspot.ca',
 		'http://swordandgame.blogspot.it',
-		# 'http://the-last-skull.blogspot.com',
 		'http://thenakedsol.blogspot.com',
 		'http://thenakedsol.blogspot.com.au',
-		# 'http://thezombieknight.blogspot.co.uk',
+		'http://tu-shu-guan.blogspot.com',
 		'http://untuned-strings.blogspot.ca',
 		'http://untuned-strings.blogspot.com',
 		'http://xcrossj.blogspot.com.au',
-		# 'http://xhawk77x.blogspot.com',
 		'https://sousetsuka.blogspot.com',
-		'http://mahoukoukoku.blogspot.com.au',
-		'http://istlovesu.blogspot.com',
-		'http://azureskytls.blogspot.com.au',
-		'http://tu-shu-guan.blogspot.com',
 
 
 
@@ -76,7 +78,7 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		] + baseUrl
 
 
-	tld = set(['com', 'ca', 'fr', 'sg', 'it'])
+	tld = set(['com', 'ca', 'fr', 'sg', 'it', 'co.uk'])
 
 	# Any url containing any of the words in the `badwords` list will be ignored.
 	badwords = [

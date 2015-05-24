@@ -17,8 +17,6 @@ skip_filter = [
 ]
 
 
-
-
 def extractChapterVol(inStr):
 
 	# Becuase some series have numbers in their title, we need to preferrentially
@@ -26,7 +24,7 @@ def extractChapterVol(inStr):
 	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
 	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |ch|c)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	chpRe2 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?: |_)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
-	volRe  = re.compile(r"(?: |_|\-)(?:volume|vol|v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+	volRe  = re.compile(r"(?: |_|\-)(?:volume|vol|vol\.|v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 
 	chap = None
 	for chRe in [chpRe1, chpRe2]:
@@ -47,7 +45,18 @@ def extractChapterVol(inStr):
 	return chap, vol
 
 
-def buildReleaseMessage(raw_item, series, vol, chap, postfix=''):
+def extractChapterVolFragment(inStr):
+	chp, vol = extractChapterVol(inStr)
+
+	frag = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!chapter)(?<!ch)(?<!c) ?(?:part |pt|p)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+
+	fragKey   = frag.findall(inStr)
+	frag_val  = float(fragKey.pop(0))  if fragKey    else None
+
+	return chp, vol, frag_val
+
+
+def buildReleaseMessage(raw_item, series, vol, chap, frag=0, postfix=''):
 	'''
 	Special case behaviour:
 		If vol or chapter is None, the
@@ -58,7 +67,7 @@ def buildReleaseMessage(raw_item, series, vol, chap, postfix=''):
 		'srcname'   : raw_item['srcname'],
 		'series'    : series,
 		'vol'       : vol,
-		'chp'       : chap,
+		'chp'       : packChapterFragments(chap, frag),
 		'published' : raw_item['published'],
 		'itemurl'   : raw_item['linkUrl'],
 		'postfix'   : postfix,
@@ -84,6 +93,8 @@ class DataParser():
 		amqp_settings["RABBIT_SRVER"]       = settings.RABBIT_SRVER
 		amqp_settings["RABBIT_VHOST"]       = settings.RABBIT_VHOST
 		self.amqpint = FeedScrape.AmqpInterface.RabbitQueueHandler(settings=amqp_settings)
+
+		self.names = set()
 
 	####################################################################################################################################################
 	# Sousetsuka
@@ -128,22 +139,26 @@ class DataParser():
 			vol     = None
 			chp     = tilea_norm.group(2)
 			return buildReleaseMessage(item, series, vol, chp)
+
 		elif tilea_extra:
 			series  = tilea_extra.group(1)
 			vol     = None
 			chp     = None
 			postfix = tilea_extra.group(2)
 			return buildReleaseMessage(item, series, vol, chp, postfix=postfix)
+
 		elif other_world_norm:
 			series  = other_world_norm.group(1)
 			vol     = None
 			chp     = other_world_norm.group(2)
 			return buildReleaseMessage(item, series, vol, chp)
+
 		elif jashin_norm:
 			series  = jashin_norm.group(1)
 			vol     = None
 			chp     = jashin_norm.group(2)
 			return buildReleaseMessage(item, series, vol, chp)
+
 		elif 'otoburi' in item['tags']:
 			# Arrrgh, the volume/chapter structure for this series is a disaster!
 			pass
@@ -189,9 +204,10 @@ class DataParser():
 		if garudeina:
 			series = garudeina.group(1)
 			vol    = None
-			chp    = packChapterFragments(garudeina.group(2), garudeina.group(3))
+			chp    = garudeina.group(2)
+			frag   = garudeina.group(3)
 
-			return buildReleaseMessage(item, series, vol, chp)
+			return buildReleaseMessage(item, series, vol, chp, frag=frag)
 
 		return False
 
@@ -335,6 +351,24 @@ class DataParser():
 
 
 	####################################################################################################################################################
+	# Shin Translations
+	####################################################################################################################################################
+
+
+	def extractShinTranslations(self, item):
+		# fffuuuu "last part" is not a helpful title!
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+		if 'THE NEW GATE' in item['tags'] and not 'Status Update' in item['tags']:
+			if chp and vol and frag:
+				return buildReleaseMessage(item, 'The New Gate', vol, chp, frag=frag)
+
+		# if 'Against the Gods' in item['tags'] or 'Ni Tian Xie Shen (Against the Gods)' in item['title']:
+		# 	return buildReleaseMessage(item, 'Against the Gods', vol, chp)
+
+		return False
+
+
+	####################################################################################################################################################
 	####################################################################################################################################################
 	##
 	##  Dispatcher
@@ -346,38 +380,33 @@ class DataParser():
 	def dispatchRelease(self, item):
 
 		if item['srcname'] == 'Sousetsuka':
-			# return None
 			return self.extractSousetsuka(item)
 		if item['srcname'] == 'お兄ちゃん、やめてぇ！':
-			# return None
 			return self.extractOniichanyamete(item)
 		if item['srcname'] == 'Natsu TL':
-			# return None
 			return self.extractNatsuTl(item)
 		if item['srcname'] == 'TheLazy9':
-			# return None
 			return self.extractTheLazy9(item)
 		if item['srcname'] == 'Yoraikun Translation':
-			# return None
 			return self.extractYoraikun(item)
 		if item['srcname'] == 'Flower Bridge Too':
-			# return None
 			return self.extractFlowerBridgeToo(item)
 		if item['srcname'] == 'Gravity Translation':
-			# return None
 			return self.extractGravityTranslation(item)
 		if item['srcname'] == 'Pika Translations':
-			# return None
 			return self.extractPikaTranslations(item)
 		if item['srcname'] == 'Blue Silver Translations':
-			# return None
 			return self.extractBlueSilverTranslations(item)
 		if item['srcname'] == 'Alyschu & Co':
-			# return None
 			return self.extractAlyschuCo(item)
 		if item['srcname'] == 'Henouji Translation':
 			return self.extractHenoujiTranslation(item)
-			# return None
+		if item['srcname'] == 'Krytyk\'s Translations':
+			# No parseable content here
+			pass
+		if item['srcname'] == 'Shin Translations':
+			return self.extractShinTranslations(item)
+
 
 		# if item['srcname'] == 'Flower Bridge Too':
 		# 	return self.extractYoraikun(item)
@@ -391,6 +420,7 @@ class DataParser():
 
 		if any([item in feedDat['linkUrl'] for item in skip_filter]):
 			return
+
 
 		release = self.dispatchRelease(feedDat)
 		if release:
@@ -418,6 +448,11 @@ class DataParser():
 		nicename = getNiceName(feedDat['linkUrl'])
 		if not nicename:
 			nicename = urllib.parse.urlparse(feedDat['linkUrl']).netloc
+
+		# if not nicename in self.names:
+		# 	self.names.add(nicename)
+		# 	# print(nicename)
+
 		feedDat['srcname'] = nicename
 
 
