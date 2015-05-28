@@ -60,6 +60,7 @@ GLOBAL_BAD = [
 			'reddit.com',
 			'newsgator.com',
 			'technorati.com',
+			'feeds.wordpress.com',
 	]
 
 GLOBAL_DECOMPOSE_BEFORE = [
@@ -115,6 +116,8 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 						if self.checkRelinkDomain(link[attr]):
 							link[attr] = self.convertToReaderUrl(link[attr])
 
+						if "google.com" in urllib.parse.urlsplit(link[attr].lower()).netloc:
+							link[attr] = gdp.trimGDocUrl(link[attr])
 							# print("Relinked", link[attr])
 					except KeyError:
 						continue
@@ -146,6 +149,10 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 
 		# print("CheckDomain", any([rootUrl in url.lower() for rootUrl in self._relinkDomains]), url)
 		# print(self._relinkDomains)
+		# dom = list(self._relinkDomains)
+		# dom.sort()
+		# for rootUrl in dom:
+		# 	print(rootUrl in url.lower(), rootUrl)
 
 		return any([rootUrl in url.lower() for rootUrl in self._relinkDomains])
 

@@ -57,7 +57,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		if not "." in fileN:
 			info = handle.info()
 			if 'Content-Type' in info:
-				ext = guess_extension(info['Content-Type'])
+				tp = info['Content-Type']
+				if ";" in tp:
+					tp = tp.split(";")[0]
+				ext = guess_extension(tp)
+				if ext == None:
+					ext = "unknown_ftype"
+				print(info['Content-Type'], ext)
 				fileN += "." + ext
 			else:
 				fileN += ".jpg"
@@ -199,8 +205,8 @@ if __name__ == '__main__':
 		# pg = 'http://dynasty-scans.com/chapters/qualia_the_purple_ch16'
 		# inMarkup = cl.wg.getpage(pg)
 		# cl.getImageUrls(inMarkup, pg)
-		# cl.go()
+		cl.go()
 		# cl.getLink('http://www.webtoons.com/viewer?titleNo=281&episodeNo=3')
-		cl.getImageUrls('http://kissmanga.com/Manga/Hanza-Sky/Ch-031-Read-Online?id=225102')
+		# cl.getImageUrls('http://kissmanga.com/Manga/Hanza-Sky/Ch-031-Read-Online?id=225102')
 
 

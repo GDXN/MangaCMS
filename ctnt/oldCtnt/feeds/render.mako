@@ -12,14 +12,12 @@ import urllib.parse
 	<%
 	parsedUrl = urllib.parse.urlsplit(url)
 	feedurl = parsedUrl.netloc
-	tup = (parsedUrl.scheme, parsedUrl.netloc, '', '', '')
-	itemHome = urllib.parse.urlunsplit(tup)
+	itemHome = '/books/?loc='+parsedUrl.netloc
+	#tup = (parsedUrl.scheme, parsedUrl.netloc, '', '', '')
+	#itemHome = urllib.parse.urlunsplit(tup)
 
 
-	## Clean up blogspot/wordpress URLS so they print a little bit nicer.
-	if 'blogspot' in feedurl or 'wordpress' in feedurl:
-		feedurl = feedurl.split('.')[0]
-
+	
 
 	return feedurl, itemHome
 	%>

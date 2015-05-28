@@ -41,11 +41,14 @@ import urllib.parse
 
 <%
 
-cur = sqlCon.cursor()
-cur.execute("""SELECT DISTINCT(netloc) FROM book_items WHERE istext=TRUE ORDER BY netloc;""")
-ret = cur.fetchall()
-print("Dictinct = ", ret)
-
+netloc = ut.getUrlParam('loc')
+if not netloc:
+	cur = sqlCon.cursor()
+	cur.execute("""SELECT DISTINCT(netloc) FROM book_items WHERE istext=TRUE ORDER BY netloc;""")
+	ret = cur.fetchall()
+	print("Dictinct = ", ret)
+else:
+	ret = [(netloc,)]
 
 
 %>

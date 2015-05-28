@@ -16,6 +16,7 @@ import bs4
 import re
 import gzip
 import io
+import socket
 
 import base64
 
@@ -91,6 +92,10 @@ class WebGetRobust:
 	# creds is a list of 3-tuples that gets inserted into the password manager.
 	# it is structured [(top_level_url1, username1, password1), (top_level_url2, username2, password2)]
 	def __init__(self, test=False, creds=None, logPath="Main.Web"):
+
+		# Override the global default socket timeout, so hung connections will actually time out properly.
+		socket.setdefaulttimeout(30)
+
 		self.log = logging.getLogger(logPath)
 		# print("Webget init! Logpath = ", logPath)
 		if creds:
@@ -478,7 +483,7 @@ class WebGetRobust:
 				#print "execution", retryCount
 				try:
 					# print("Getpage!", requestedUrl, kwargs)
-					pghandle = self.opener.open(pgreq)					# Get Webpage
+					pghandle = self.opener.open(pgreq, timeout=30)					# Get Webpage
 					# print("Gotpage")
 
 				except urllib.error.HTTPError as e:								# Lotta logging

@@ -47,6 +47,8 @@ class Scrape(WordpressScrape):
 		# 'https://solitarytranslation.wordpress.com',  # Taken down?
 		# 'https://thecatscans.wordpress.com',
 
+		'http://www.wuxiatranslations.com',
+		'https://sylver135.wordpress.com',
 		'https://bingnovels.wordpress.com',
 		'https://ruzetranslations.wordpress.com',
 		'http://gekkahimethetranslation.wordpress.com',

@@ -1,3 +1,44 @@
+http://10.1.1.8:8081/feeds/item?entry=13772 not relinked
+
+
+INFO - Have additional GET parameters!
+Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Failure on retreiving content at http://kissmanga.com/Manga/Kuro-Hakushaku-wa-Hoshi-o-Mederu/Vol-001-Ch-005-Read-Online?id=230291
+Main.Feeds.RPC - INFO - Outgoing data size: 942 bytes.
+Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Traceback = Traceback (most recent call last):
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 144, in getLink
+    imageName, imageContent = self.getImage(imgUrl, sourceUrl)
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 61, in getImage
+    fileN += "." + ext
+TypeError: Can't convert 'NoneType' object to str implicitly
+
+Main.Feeds.RPC - INFO - Outgoing data size: 927 bytes.
+Main.Connector - INFO - Retreived 0 items!
+Main.Feeds.RPC - INFO - Outgoing data size: 907 bytes.
+Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Exception!
+Traceback (most recent call last):
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/RetreivalBase.py", line 61, in fetchLinkList
+    self.getLink(link)
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 144, in getLink
+    imageName, imageContent = self.getImage(imgUrl, sourceUrl)
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 61, in getImage
+    fileN += "." + ext
+TypeError: Can't convert 'NoneType' object to str implicitly
+Main.Connector - INFO - Publishing message of len '0.971'K to exchange 'tasks.e'
+Main.Feeds.RPC - INFO - Outgoing data size: 930 bytes.
+Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Traceback (most recent call last):
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/RetreivalBase.py", line 61, in fetchLinkList
+    self.getLink(link)
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 144, in getLink
+    imageName, imageContent = self.getImage(imgUrl, sourceUrl)
+  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 61, in getImage
+    fileN += "." + ext
+TypeError: Can't convert 'NoneType' object to str implicitly
+
+Main.Connector - INFO - Publishing message of len '0.977'K to exchange 'tasks.e'
+Main.Manga.Wt.Cl.Web - INFO - Request for URL: http://webtoon.phinf.naver.net/20150526_95/1432608345987j78FC_JPEG/143260834592396526.jpg?type=q90 succeeded at Wed May 27 13:42:36 2015 On Attempt 1. Recieving...
+
+
+
 http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdrive.google.com%2Ffolderview%3Fid%3D0B7PIRwu9hTEFODllMFFRemljMGc links broken
 http://pacem.wikia.com/wiki/Pacem_Community_Translations_Wiki
 
@@ -52,7 +93,7 @@ Western:
  - ## https://www.fictionpress.com/
  - ## http://www.royalroadl.com/
  - ## ~~http://storiesonline.net/ s~~ (Login bullshit)
- 
+
  LNDB / MU covers
 
 ~~delay kiss manga scrape dl 12 hours~~
@@ -72,7 +113,7 @@ basename in book changes not workimg
 Hachinantte, Sore wa Naideshou!
 
 
-## TO ADD: 
+## TO ADD:
 =======
 
 http://hotchocolatescans.mokkori.fr (Not LN?)
@@ -154,7 +195,7 @@ Todo:
  - custom book synonyms
  - sync reading progress both directions
  - store manga progress locally
- - new books view still fucked  
+ - new books view still fucked
  - search also include full text search
  - feed link to trieview
  - dupscan just kiss

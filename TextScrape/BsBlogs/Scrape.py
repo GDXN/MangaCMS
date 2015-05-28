@@ -62,6 +62,7 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://untuned-strings.blogspot.com',
 		'http://xcrossj.blogspot.com.au',
 		'https://sousetsuka.blogspot.com',
+		'http://tony-yon-ka.blogspot.com.au',
 
 
 
