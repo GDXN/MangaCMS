@@ -1,11 +1,4 @@
-http://10.1.1.8:8081/feeds/item?entry=13772 not relinked
-https://insigniapierce.wordpress.com/2015/05/12/chapter-103-humas-evila-alliance-conference/
-https://typemoondb.wordpress.com/2015/05/23/beginning-of-betrayal/
-https://pummels.wordpress.com/2015/05/27/konjiki-no-word-master-chapter-106-beginning-of-war/
-https://kirikotranslations.wordpress.com/2015/05/20/knw-chapter-107-the-heroes-who-came-to-know-of-reality/
 
-https://translationnations.com/
-https://darktranslations.wordpress.com/
 
 INFO - Have additional GET parameters!
 Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Failure on retreiving content at http://kissmanga.com/Manga/Kuro-Hakushaku-wa-Hoshi-o-Mederu/Vol-001-Ch-005-Read-Online?id=230291

@@ -150,6 +150,12 @@ def getNiceName(srcurl):
 		'yoraikun.wordpress.com'                    : 'Yoraikun Translation',
 		'youtsubasilver.wordpress.com'              : 'youtsubasilver\'s Blog',
 		'zmunjali.wordpress.com'                    : 'Roxism HQ',
+		'kirikotranslations.wordpress.com'          : 'Kiriko Translations',
+		'pummels.wordpress.com'                     : 'Pummels Translations',
+		'typemoondb.wordpress.com'                  : 'CapsUsingShift Tl',
+		'darktranslations.wordpress.com'            : 'Dark Translations',
+		'www.translationnations.com'                : 'Translation Nations',
+
 
 	}
 
