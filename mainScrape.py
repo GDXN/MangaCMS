@@ -3,6 +3,7 @@ if sys.version_info < ( 3, 4):
 	# python too old, kill the script
 	sys.exit("This script requires Python 3.4 or newer!")
 
+import logging_tree
 
 if __name__ == "__main__":
 	import runStatus
@@ -136,8 +137,13 @@ def go():
 	sched.start()
 
 	# spinwait for ctrl+c, and exit when it's received.
+	loops = 0
 	while runStatus.run:
 		time.sleep(0.1)
+		# loops += 1
+		# if loops > 100:
+		# 	logging_tree.printout()
+		# 	loops = 0
 
 	print("Scraper stopping scheduler")
 	sched.shutdown()

@@ -24,15 +24,20 @@ import urllib.parse
 class EmptyFeedError(Exception):
 	pass
 
-class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParser.DataParser, metaclass=abc.ABCMeta):
+class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParser.DataParser):
 	__metaclass__ = abc.ABCMeta
 
 	loggerPath = 'Main.Rss'
 
+	# Has to be explicitly overridden, or the inheritnace will
+	# asplode.
+	log = None
+
 	htmlProcClass = TextScrape.HtmlProcessor.HtmlPageProcessor
 
 	def __init__(self):
-		super().__init__()
+
+
 		self.relink = TextScrape.RelinkLookup.getRelinkable()
 		pdata = TextScrape.RelinkLookup.getPluginData()
 
@@ -42,14 +47,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 				self.scan.append((feed, plugin['pluginName'], plugin['tableName'], plugin['key'], plugin['badwords']))
 
 		self.scan.sort()
-		amqp_settings = {}
-		amqp_settings["RABBIT_CLIENT_NAME"] = settings.RABBIT_CLIENT_NAME
-		amqp_settings["RABBIT_LOGIN"]       = settings.RABBIT_LOGIN
-		amqp_settings["RABBIT_PASWD"]       = settings.RABBIT_PASWD
-		amqp_settings["RABBIT_SRVER"]       = settings.RABBIT_SRVER
-		amqp_settings["RABBIT_VHOST"]       = settings.RABBIT_VHOST
-		self.amqpint = FeedScrape.AmqpInterface.RabbitQueueHandler(settings=amqp_settings)
-
+		super().__init__()
 
 	# @profile
 	def parseFeed(self, rawFeed):
@@ -84,7 +82,18 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 
 	def extractContents(self, feedUrl, contentDat):
 		# TODO: Add more content type parsing!
+
+		# So the complete fruitcakes at http://gravitytales.com/feed/ are apparently
+		# embedding their RSS entries in a CDATA field in their feed, somehow.
+		# Anyways, I think they probably broke wordpress. However, they're then breaking
+		# /my/ stuff, so work around their fucked up feed format.
+		if isinstance(contentDat, str):
+			contentDat = [{
+				'value' : contentDat,
+				'type'  : 'text/html'
+			}]
 		if len(contentDat) != 1:
+			print(contentDat)
 			raise ValueError("How can one post have multiple contents?")
 
 		contentDat = contentDat[0]

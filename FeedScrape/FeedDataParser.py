@@ -22,7 +22,7 @@ def extractChapterVol(inStr):
 	# Becuase some series have numbers in their title, we need to preferrentially
 	# chose numbers preceeded by known "chapter" strings when we're looking for chapter numbers
 	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
-	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |ch|c)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |chapter\-|ch|c)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	chpRe2 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?: |_)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	volRe  = re.compile(r"(?: |_|\-|^)(?:book|volume|vol|vol ?\.|vol?\. |v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 
@@ -49,6 +49,17 @@ def extractChapterVolFragment(inStr):
 	chp, vol = extractChapterVol(inStr)
 
 	frag = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!chapter)(?<!ch)(?<!c) ?(?:part |pt|p)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+
+	fragKey   = frag.findall(inStr)
+	frag_val  = float(fragKey.pop(0))  if fragKey    else None
+
+	return chp, vol, frag_val
+
+
+def extractChapterVolEpisode(inStr):
+	chp, vol = extractChapterVol(inStr)
+
+	frag = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!chapter)(?<!ch)(?<!c) ?(?:episode |pt|p)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 
 	fragKey   = frag.findall(inStr)
 	frag_val  = float(fragKey.pop(0))  if fragKey    else None
@@ -88,6 +99,8 @@ class DataParser():
 	amqpint = None
 
 	def __init__(self):
+		super().__init__()
+
 		logPath = 'Main.Feeds.Parser'
 		self.log = logging.getLogger(logPath)
 		amqp_settings = {}
@@ -419,6 +432,8 @@ class DataParser():
 			return buildReleaseMessage(item, "Battle Through the Heavens", vol, chp, frag=frag)
 		if 'SL Chapter Release' in item['tags']:
 			return buildReleaseMessage(item, "Skyfire Avenue", vol, chp, frag=frag)
+		if 'MGA Chapter Release' in item['tags']:
+			return buildReleaseMessage(item, "Martial God Asura", vol, chp, frag=frag)
 
 		return False
 
@@ -532,11 +547,74 @@ class DataParser():
 	def extractLygarTranslations(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
 
-		# print(item['title'])
-		# print(item['tags'])
-		# print(vol, chp, frag)
-		# if 'Meow Meow Meow' in item['tags']:
-		# 	return buildReleaseMessage(item, 'Meow Meow Meow', vol, chp, frag=frag)
+		if 'elf tensei' in item['tags'] and not 'news' in item['tags']:
+			return buildReleaseMessage(item, 'Elf Tensei Kara no Cheat Kenkoku-ki', vol, chp, frag=frag)
+
+		return False
+
+	####################################################################################################################################################
+	# That Guy Over There
+	####################################################################################################################################################
+
+
+	def extractThatGuyOverThere(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+
+		if 'wushenkongjian' in item['tags']:
+			return buildReleaseMessage(item, 'Wu Shen Kong Jian', vol, chp, frag=frag)
+
+		match = re.search(r'^Le Festin de Vampire – Chapter (\d+)\-(\d+)', item['title'])
+		if match:
+			chp  = match.group(1)
+			frag = match.group(2)
+			return buildReleaseMessage(item, 'Le Festin de Vampire', vol, chp, frag=frag)
+		return False
+
+	####################################################################################################################################################
+	# Otterspace Translation
+	####################################################################################################################################################
+
+
+	def extractOtterspaceTranslation(self, item):
+		chp, vol, frag = extractChapterVolFragment(item['title'])
+		if 'Elqueeness’' in item['title']:
+			return buildReleaseMessage(item, 'Spirit King Elqueeness', vol, chp, frag=frag)
+		if '[Dark Mage]' in item['title']:
+			return buildReleaseMessage(item, 'Dark Mage', vol, chp, frag=frag)
+
+		return False
+
+	####################################################################################################################################################
+	# MadoSpicy TL
+	####################################################################################################################################################
+
+
+	def extractMadoSpicy(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+
+		if 'Kyuuketsu Hime' in item['title']:
+			# Hardcode ALL THE THINGS
+			postfix = ''
+			if "interlude" in item['title'].lower():
+				postfix = "Interlude {num}".format(num=chp)
+				chp = None
+			if "prologue" in item['title'].lower():
+				postfix = "Prologue {num}".format(num=chp)
+				chp = None
+			return buildReleaseMessage(item, 'Kyuuketsu Hime wa Barairo no Yume o Miru', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Tripp Translations
+	####################################################################################################################################################
+
+
+	def extractTrippTl(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+
+		if 'Majin Tenseiki' in item['title']:
+			return buildReleaseMessage(item, 'Majin Tenseiki', vol, chp, frag=frag)
 
 		return False
 
@@ -552,9 +630,10 @@ class DataParser():
 
 	def dispatchRelease(self, item):
 
+
 		if item['srcname'] == 'Sousetsuka':
 			return self.extractSousetsuka(item)
-		if item['srcname'] == 'お兄ちゃん、やめてぇ！':
+		if item['srcname'] == 'お兄ちゃん、やめてぇ！':  # I got utf-8 in my code-sauce, bizzickle
 			return self.extractOniichanyamete(item)
 		if item['srcname'] == 'Natsu TL':
 			return self.extractNatsuTl(item)
@@ -592,6 +671,14 @@ class DataParser():
 			return self.extractSkythewood(item)
 		if item['srcname'] == 'LygarTranslations':
 			return self.extractLygarTranslations(item)
+		if item['srcname'] == 'ThatGuyOverThere':
+			return self.extractThatGuyOverThere(item)
+		if item['srcname'] == 'otterspacetranslation':
+			return self.extractOtterspaceTranslation(item)
+		if item['srcname'] == 'MadoSpicy TL':
+			return self.extractMadoSpicy(item)
+		if item['srcname'] == 'Tripp Translations':
+			return self.extractTrippTl(item)
 
 
 		# if item['srcname'] == 'Krytyk\'s Translations':
@@ -623,6 +710,11 @@ class DataParser():
 
 	def getRawFeedMessage(self, feedDat):
 
+		feedDat = feedDat.copy()
+
+		# remove the contents item, since it can be
+		# quite large, and is not used.
+		feedDat.pop('contents')
 		ret = {
 			'type' : 'raw-feed',
 			'data' : feedDat

@@ -525,8 +525,7 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		if not container.img['src']:
 			return
 
-
-		ctnt, name = self.wgH.getFileAndName(container.img['src'])
+		ctnt, name = self.wgH.getFileAndName(container.img['src'], addlHeaders={'Referer': self.itemURL.format(buId=mId)})
 		if not name:
 			name = os.path.split(urllib.parse.urlsplit(container.img['src']).path)[-1]
 

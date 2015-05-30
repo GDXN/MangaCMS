@@ -201,6 +201,9 @@ def initLogging(logLevel=logging.INFO, logToDb=True):
 	mainLogger = logging.getLogger("Main")			# Main logger
 	mainLogger.setLevel(logLevel)
 
+	# Do not propigate up to any parent loggers other things install
+	mainLogger.propagate = False
+
 	# You have to add the dbLogger first, because the colorHandler logger
 	# modifies the internal values of the record.name attribute,
 	# and if the dbLogger is added after it, the modified values

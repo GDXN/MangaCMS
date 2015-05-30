@@ -18,6 +18,7 @@ class DbBase(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		return None
 
 	def __init__(self):
+		super().__init__()
 		self.connections = {}
 
 	def __del__(self):
