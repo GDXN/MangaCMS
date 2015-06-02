@@ -1,4 +1,6 @@
+http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/open%3Fid%3D0B_mXfd95yvDfQWQ1ajNWZTJFRkk
 
+https://gilatranslationmonster.wordpress.com/2015/04/28/tensei-shitara-slime-datta-ken-episode-5/
 
 INFO - Have additional GET parameters!
 Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Failure on retreiving content at http://kissmanga.com/Manga/Kuro-Hakushaku-wa-Hoshi-o-Mederu/Vol-001-Ch-005-Read-Online?id=230291

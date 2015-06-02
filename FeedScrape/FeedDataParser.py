@@ -22,7 +22,7 @@ def extractChapterVol(inStr):
 	# Becuase some series have numbers in their title, we need to preferrentially
 	# chose numbers preceeded by known "chapter" strings when we're looking for chapter numbers
 	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
-	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |chapter\-|ch|c)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?:chapter |chapter\-|\Wch|\Wc)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	chpRe2 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season) ?(?: |_)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	volRe  = re.compile(r"(?: |_|\-|^)(?:book|volume|vol|vol ?\.|vol?\. |v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 
@@ -145,40 +145,37 @@ class DataParser():
 	####################################################################################################################################################
 
 	def extractOniichanyamete(self, item):
-		tilea_norm       = re.search(r'^(Tilea’s Worries) – Chapter (\d+)$',               item['title'])
-		tilea_extra      = re.search(r'^(Tilea’s Worries) – ([^0-9]*?)$',                  item['title'])
 		other_world_norm = re.search(r'^(I’m Back in the Other World\?) – Chapter (\d+)$', item['title'])
-		jashin_norm      = re.search(r'^(Jashin Average) – (\d+)$',                        item['title'])
 
 
-		if tilea_norm:
-			series  = tilea_norm.group(1)
-			vol     = None
-			chp     = tilea_norm.group(2)
-			return buildReleaseMessage(item, series, vol, chp)
 
-		elif tilea_extra:
-			series  = tilea_extra.group(1)
-			vol     = None
-			chp     = None
-			postfix = tilea_extra.group(2)
-			return buildReleaseMessage(item, series, vol, chp, postfix=postfix)
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+		if       'Jashin Average'   in item['title'] \
+				or 'Cthulhu Average'  in item['title'] \
+				or 'Evil God Average' in item['tags']  \
+				or 'jashin'           in item['tags']:
 
-		elif other_world_norm:
-			series  = other_world_norm.group(1)
-			vol     = None
-			chp     = other_world_norm.group(2)
-			return buildReleaseMessage(item, series, vol, chp)
+			if "Side Story" in item['title']:
+				return False
+			return buildReleaseMessage(item, 'Evil God Average', vol, chp, frag=frag)
 
-		elif jashin_norm:
-			series  = jashin_norm.group(1)
-			vol     = None
-			chp     = jashin_norm.group(2)
-			return buildReleaseMessage(item, series, vol, chp)
+		if 'Tilea’s Worries' in item['title']:
+			postfix = ''
+			if 'Prologue' in item['title']:
+				postfix = 'Prologue'
+
+			return buildReleaseMessage(item, 'Tilea’s Worries', vol, chp, postfix=postfix)
+
+
+		if 'I’m Back in the Other World' in item['title']:
+			return buildReleaseMessage(item, 'I’m Back in the Other World', vol, chp)
+
+		if 'Kazuha Axeplant’s Third Adventure:' in item['title']:
+			return buildReleaseMessage(item, 'Kazuha Axeplant’s Third Adventure', vol, chp)
 
 		elif 'otoburi' in item['tags']:
 			# Arrrgh, the volume/chapter structure for this series is a disaster!
-			pass
+			return False
 		# else:
 		# 	# self.log.warning("Cannot decode item:")
 		# 	# self.log.warning("%s", item['title'])
@@ -212,6 +209,8 @@ class DataParser():
 		kansutoppu  = re.search(r'^(Kansutoppu!) Chapter (\d+)$', item['title'])
 		garudeina  = re.search(r'^(Garudeina Oukoku Koukoku Ki) Chapter (\d+): Part (\d+)$', item['title'])
 		# meister  = re.search(r'^(Magi Craft Meister) Volume (\d+) Chapter (\d+)$', item['title'])
+
+		chp, vol, frag = extractChapterVolFragment(item['title'])
 
 		if kansutoppu:
 			series = kansutoppu.group(1)
@@ -263,9 +262,12 @@ class DataParser():
 			chp, vol = extractChapterVol(item['title'])
 			# Also called "Martial God Asura"
 			return buildReleaseMessage(item, 'Xiuluo Wushen', vol, chp)
-		elif 'Xian Ni' in item['tags']:
+		elif 'Xian Ni' in item['tags'] or 'Xian Ni Translation' in item['tags']:
 			chp, vol = extractChapterVol(item['title'])
 			return buildReleaseMessage(item, 'Xian Ni', vol, chp)
+		elif 'JMG Translation' in item['tags']:  # Series was dropped, have lots of old releases
+			chp, vol = extractChapterVol(item['title'])
+			return buildReleaseMessage(item, 'Shaonian Yixian', vol, chp)
 
 		return False
 
@@ -402,6 +404,8 @@ class DataParser():
 
 		if '[Chinese] Shadow Rogue' in item['tags']:
 			return buildReleaseMessage(item, "Shadow Rogue", vol, chp, frag=frag)
+		if '[Chinese] Unique Legend' in item['tags']:
+			return buildReleaseMessage(item, "Unique Legend", vol, chp, frag=frag)
 
 		if '[Japanese] Magi\'s Grandson' in item['tags']:
 			return buildReleaseMessage(item, "Magi's Grandson", vol, chp, frag=frag)
@@ -618,6 +622,154 @@ class DataParser():
 
 		return False
 
+	####################################################################################################################################################
+	# DarkFish Translations
+	####################################################################################################################################################
+
+
+	def extractDarkFish(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+
+		if 'She Professed Herself The Pupil Of The Wise Man'.lower() in item['title'].lower():
+			return buildReleaseMessage(item, 'Kenja no Deshi wo Nanoru Kenja', vol, chp, frag=frag)
+		# if 'Majin Tenseiki' in item['title']:
+		return False
+
+	####################################################################################################################################################
+	# Manga0205 Translations
+	####################################################################################################################################################
+
+
+	def extractManga0205Translations(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+
+		if 'Sendai Yuusha wa Inkyou Shitai'.lower() in item['title'].lower():
+			postfix = ''
+			if 'Side Story'.lower() in item['title'].lower():
+				postfix = "Side Story {num}".format(num=chp)
+				chp = None
+			return buildReleaseMessage(item, 'Sendai Yuusha wa Inkyou Shitai', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# extractAzureSky
+	####################################################################################################################################################
+
+
+	def extractAzureSky(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+
+		if 'Shinde Hajimaru'.lower() in item['title'].lower():
+			postfix = ''
+			if "prologue" in item['title'].lower():
+				postfix = 'Prologue'
+
+			return buildReleaseMessage(item, 'Shinde Hajimaru Isekai Tensei', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# extractRaisingTheDead
+	####################################################################################################################################################
+
+
+	def extractRaisingTheDead(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+
+
+		if 'Isekai meikyuu de dorei harem wo' in item['tags'] \
+			or 'Slave harem in the labyrinth of the other world' in item['tags']:
+			return buildReleaseMessage(item, 'Isekai Meikyuu De Dorei Harem wo', vol, chp, frag=frag)
+
+		if 'Shinka no Mi' in item['tags']:
+			return buildReleaseMessage(item, 'Shinka no Mi', vol, chp, frag=frag)
+
+
+		return False
+
+	####################################################################################################################################################
+	# Todo:
+	####################################################################################################################################################
+
+	def extractWAT(self, item):
+		return False
+
+	def extractAssholeTranslations(self, item):
+		return False
+
+	####################################################################################################################################################
+	# Tensai Translations
+	####################################################################################################################################################
+
+
+	def extractTensaiTranslations(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+		if 'Spirit Migration' in item['tags']:
+			return buildReleaseMessage(item, 'Spirit Migration', vol, chp, frag=frag)
+
+		if 'Tsuyokute New Saga' in item['tags']:
+			return buildReleaseMessage(item, 'Tsuyokute New Saga', vol, chp, frag=frag)
+
+
+		return False
+
+	####################################################################################################################################################
+	# Groups involved in KnW:
+	# 	Blazing Translations
+	# 	CapsUsingShift Tl
+	# 	Insignia Pierce
+	# 	Kiriko Translations
+	# 	Konjiki no Wordmaster
+	# 	Loliquent
+	# 	Blazing Translations
+	# 	Pummels Translations
+	# 	XCrossJ
+	# 	Probably another dozen randos per week.
+	# Really. Fuck you people. Tag your shit, and start a group blog.
+	####################################################################################################################################################
+
+
+	def extractKnW(self, item):
+		chp, vol, frag = extractChapterVolEpisode(item['title'])
+
+		tags = item['tags']
+		title = item['title']
+		src = item['srcname']
+
+		postfix = ''
+		ret = None
+		if ('Chapters' in tags and 'Konjiki no Wordmaster' in tags) \
+			or 'Konjiki no Wordmaster Web Novel Chapters' in tags   \
+			or 'Konjiki' in tags                                    \
+			or (src == 'Loliquent' and 'Konjiki no Wordmaster' in title):
+			postfix = title.split("–", 1)[-1].strip()
+			ret = buildReleaseMessage(item, 'Konjiki no Wordmaster', vol, chp, frag=frag, postfix=postfix)
+
+		elif 'Konjiki no Wordmaster Chapters' in tags                                        \
+			or 'Konjiki no Moji Tsukai' in tags                                              \
+			or (src == 'Kiriko Translations' and ('KnW' in tags or 'KnW Chapter' in title))  \
+			or (src == 'CapsUsingShift Tl' and 'Konjiki no Wordmaster' in title)             \
+			or (src == 'Pummels Translations' and 'Konjiki no Word Master Chapter' in title) \
+			or (src == 'XCrossJ' and 'Konjiki no Moji Tsukai' in title)                      \
+			or (src == 'Insignia Pierce' and 'Konjiki no Word Master Chapter' in title):
+			postfix = title.split(":", 1)[-1].strip()
+			ret = buildReleaseMessage(item, 'Konjiki no Wordmaster', vol, chp, frag=frag, postfix=postfix)
+			# elif 'Konjiki no Moji Tsukai' in tags:
+
+		else:
+			pass
+
+		# Only return a value if we've actually found a chapter/vol
+		if ret and (ret['vol'] or ret['chp']):
+			# print("'%s', '%s', '%s', '%s', '%s'" % (item['title'], ret['vol'], ret['chp'], ret['postfix'], ret['srcname']))
+			return ret
+		# if chp or vol:
+		# 	print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (vol, chp, frag, item['srcname'], item['title'], item['tags'], postfix))
+
+		return False
+
 
 	####################################################################################################################################################
 	####################################################################################################################################################
@@ -630,67 +782,179 @@ class DataParser():
 
 	def dispatchRelease(self, item):
 
-
-		if item['srcname'] == 'Sousetsuka':
-			return self.extractSousetsuka(item)
+		ret = False
 		if item['srcname'] == 'お兄ちゃん、やめてぇ！':  # I got utf-8 in my code-sauce, bizzickle
-			return self.extractOniichanyamete(item)
-		if item['srcname'] == 'Natsu TL':
-			return self.extractNatsuTl(item)
-		if item['srcname'] == 'TheLazy9':
-			return self.extractTheLazy9(item)
-		if item['srcname'] == 'Yoraikun Translation':
-			return self.extractYoraikun(item)
-		if item['srcname'] == 'Flower Bridge Too':
-			return self.extractFlowerBridgeToo(item)
-		if item['srcname'] == 'Gravity Translation':
-			return self.extractGravityTranslation(item)
-		if item['srcname'] == 'Pika Translations':
-			return self.extractPikaTranslations(item)
-		if item['srcname'] == 'Blue Silver Translations':
-			return self.extractBlueSilverTranslations(item)
-		if item['srcname'] == 'Alyschu & Co':
-			return self.extractAlyschuCo(item)
-		if item['srcname'] == 'Henouji Translation':
-			return self.extractHenoujiTranslation(item)
-		if item['srcname'] == 'Shin Translations':
-			return self.extractShinTranslations(item)
-		if item['srcname'] == 'Scrya Translations':
-			return self.extractScryaTranslations(item)
-		if item['srcname'] == 'Japtem':
-			return self.extractJaptem(item)
-		if item['srcname'] == 'Wuxiaworld':
-			return self.extractWuxiaworld(item)
-		if item['srcname'] == 'Ziru\'s Musings | Translations~':
-			return self.extractZiruTranslations(item)
-		if item['srcname'] == 'Void Translations':
-			return self.extractVoidTranslations(item)
-		if item['srcname'] == 'Calico x Tabby':
-			return self.extractCalicoxTabby(item)
-		if item['srcname'] == 'Skythewood translations':
-			return self.extractSkythewood(item)
-		if item['srcname'] == 'LygarTranslations':
-			return self.extractLygarTranslations(item)
-		if item['srcname'] == 'ThatGuyOverThere':
-			return self.extractThatGuyOverThere(item)
-		if item['srcname'] == 'otterspacetranslation':
-			return self.extractOtterspaceTranslation(item)
-		if item['srcname'] == 'MadoSpicy TL':
-			return self.extractMadoSpicy(item)
-		if item['srcname'] == 'Tripp Translations':
-			return self.extractTrippTl(item)
+			ret = self.extractOniichanyamete(item)
+		elif item['srcname'] == 'Sousetsuka':
+			ret = self.extractSousetsuka(item)
+		elif item['srcname'] == 'Natsu TL':
+			ret = self.extractNatsuTl(item)
+		elif item['srcname'] == 'TheLazy9':
+			ret = self.extractTheLazy9(item)
+		elif item['srcname'] == 'Yoraikun Translation':
+			ret = self.extractYoraikun(item)
+		elif item['srcname'] == 'Flower Bridge Too':
+			ret = self.extractFlowerBridgeToo(item)
+		elif item['srcname'] == 'Gravity Translation':
+			ret = self.extractGravityTranslation(item)
+		elif item['srcname'] == 'Pika Translations':
+			ret = self.extractPikaTranslations(item)
+		elif item['srcname'] == 'Blue Silver Translations':
+			ret = self.extractBlueSilverTranslations(item)
+		elif item['srcname'] == 'Alyschu & Co':
+			ret = self.extractAlyschuCo(item)
+		elif item['srcname'] == 'Henouji Translation':
+			ret = self.extractHenoujiTranslation(item)
+		elif item['srcname'] == 'Shin Translations':
+			ret = self.extractShinTranslations(item)
+		elif item['srcname'] == 'Scrya Translations':
+			ret = self.extractScryaTranslations(item)
+		elif item['srcname'] == 'Japtem':
+			ret = self.extractJaptem(item)
+		elif item['srcname'] == 'Wuxiaworld':
+			ret = self.extractWuxiaworld(item)
+		elif item['srcname'] == 'Ziru\'s Musings | Translations~':
+			ret = self.extractZiruTranslations(item)
+		elif item['srcname'] == 'Void Translations':
+			ret = self.extractVoidTranslations(item)
+		elif item['srcname'] == 'Calico x Tabby':
+			ret = self.extractCalicoxTabby(item)
+		elif item['srcname'] == 'Skythewood translations':
+			ret = self.extractSkythewood(item)
+		elif item['srcname'] == 'LygarTranslations':
+			ret = self.extractLygarTranslations(item)
+		elif item['srcname'] == 'ThatGuyOverThere':
+			ret = self.extractThatGuyOverThere(item)
+		elif item['srcname'] == 'otterspacetranslation':
+			ret = self.extractOtterspaceTranslation(item)
+		elif item['srcname'] == 'MadoSpicy TL':
+			ret = self.extractMadoSpicy(item)
+		elif item['srcname'] == 'Tripp Translations':
+			ret = self.extractTrippTl(item)
+		elif item['srcname'] == 'A fish once said this to me':
+			ret = self.extractDarkFish(item)
+		elif item['srcname'] == 'Manga0205 Translations':
+			ret = self.extractManga0205Translations(item)
+		elif item['srcname'] == 'Azure Sky Translation':
+			ret = self.extractAzureSky(item)
+		elif item['srcname'] == 'Raising the Dead':
+			ret = self.extractRaisingTheDead(item)
+		elif item['srcname'] == 'Tensai Translations':
+			ret = self.extractTensaiTranslations(item)
+
+		# The number of people working on Konjiki no Wordmaster
+		# is TOO FUCKING HIGH
+		elif item['srcname'] == 'Blazing Translations' \
+			or item['srcname'] == 'CapsUsingShift Tl' \
+			or item['srcname'] == 'Insignia Pierce' \
+			or item['srcname'] == 'Kiriko Translations' \
+			or item['srcname'] == 'Konjiki no Wordmaster' \
+			or item['srcname'] == 'Loliquent' \
+			or item['srcname'] == 'Blazing Translations' \
+			or item['srcname'] == 'Pummels Translations' \
+			or item['srcname'] == 'XCrossJ':
+			ret = self.extractKnW(item)
 
 
+		# Todo:
+		elif item['srcname'] == 'Thunder Translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Kiri Leaves':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Gravity Tales':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == '中翻英圖書館 Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Lingson\'s Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Sword and Game':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'JawzTranslations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Bad Translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Clicky Click Translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Defiring':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'ELYSION Translation':
+			ret = self.extractAssholeTranslations(item)
+		elif item['srcname'] == 'Fanatical':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Giraffe Corps':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'guhehe.TRANSLATIONS':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Hajiko translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Imoutolicious Light Novel Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Isekai Mahou Translations!':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'izra709 | B Group no Shounen Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Kerambit\'s Incisions':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Kiri Leaves':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Lingson Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Mahoutsuki Translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Maou the Yuusha':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Nightbreeze Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Ohanashimi':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Omega Harem Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'pandafuqtranslations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Prince Revolution!':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'putttytranslations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Rising Dragons Translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Sword and Game':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Sylver Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Tomorolls':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Totokk\'s Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Translation Nations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Untuned Translation Blog':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Gila Translation Monster':
+			ret = self.extractWAT(item)
+
+		# else:
+		# 	print("'%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags']))
+
+		# ret = None
 		# if item['srcname'] == 'Krytyk\'s Translations':
 		# 	# No parseable content here
 		# 	pass
-		# if item['srcname'] == 'Flower Bridge Too':
-		# 	return self.extractYoraikun(item)
 		# else:
 		# print("'%s' '%s' '%s'" % (item['srcname'], item['title'], item['tags']))
 
-		return False
 
+
+		# Only return a value if we've actually found a chapter/vol
+		if ret and not (ret['vol'] or ret['chp']):
+			ret = False
+		return ret
+
+		# DELETE FROM releases WHERE series=2330;
+		# DELETE FROM releaseschanges WHERE series=2330;
+		# DELETE FROM alternatenames WHERE series=2330;
+		# DELETE FROM alternatenameschanges WHERE series=2330;
+		# DELETE FROM serieschanges WHERE id=2330;
+		# DELETE FROM series WHERE id=2330;
 
 	def getProcessedReleaseInfo(self, feedDat):
 
