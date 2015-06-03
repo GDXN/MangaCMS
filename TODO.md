@@ -1,3 +1,7 @@
+sotranslations.wordpress.com
+https://isekaicyborg.wordpress.com/
+http://istlovesu.blogspot.com/
+
 http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/open%3Fid%3D0B_mXfd95yvDfQWQ1ajNWZTJFRkk
 
 https://gilatranslationmonster.wordpress.com/2015/04/28/tensei-shitara-slime-datta-ken-episode-5/
