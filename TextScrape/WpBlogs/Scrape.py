@@ -104,6 +104,8 @@ class Scrape(WordpressScrape):
 		'https://korezombiethetranslation.wordpress.com',
 		'https://kurenaithetranslation.wordpress.com',
 		'https://kyakka.wordpress.com',
+		'https://isekaicyborg.wordpress.com',
+		'https://sotranslations.wordpress.com',
 		'https://loliquent.wordpress.com',
 		'https://lorcromwell.wordpress.com',
 		'https://lordofscrubs.wordpress.com',
@@ -367,7 +369,8 @@ class Scrape(WordpressScrape):
 		'| Shin Sekai Yori – From the New World',
 		':: tappity tappity tap.',
 		'Fanatical |',
-		'| Fanatical'
+		'| A fish once said this to me:',
+		'| Fanatical',
 
 	]
 

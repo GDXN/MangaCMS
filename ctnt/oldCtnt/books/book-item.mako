@@ -822,7 +822,13 @@ startTime = time.time()
 
 	renderControlDiv(cursor, dbid, readingprogress, availprogress, rating, srcTableId)
 	renderLndbInfo(itemname)
+
 	searchItems = renderMangaupdatesInfo(itemname)
+	%>
+	<a href="https://www.wlnupdates.com/search?title=${itemname.replace("(Novel)","") | u}">Search WLNUpdates</a>
+	
+	
+	<%
 	renderItemSearch(searchItems)
 	%>
 </%def>

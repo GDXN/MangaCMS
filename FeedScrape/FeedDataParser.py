@@ -1005,6 +1005,10 @@ class DataParser():
 	def dispatchRelease(self, item):
 
 		ret = False
+		
+		if 'preview' in item['title'].lower():
+			return ret
+		
 		if item['srcname'] == 'お兄ちゃん、やめてぇ！':  # I got utf-8 in my code-sauce, bizzickle
 			ret = self.extractOniichanyamete(item)
 		elif item['srcname'] == 'Sousetsuka':

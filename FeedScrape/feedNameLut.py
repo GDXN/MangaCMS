@@ -161,6 +161,9 @@ def getNiceName(srcurl):
 		'yoraikun.wordpress.com'                    : 'Yoraikun Translation',
 		'youtsubasilver.wordpress.com'              : 'youtsubasilver\'s Blog',
 		'zmunjali.wordpress.com'                    : 'Roxism HQ',
+		'webnoveltranslations.blogspot.se'          : 'Neo Translations',
+		'isekaicyborg.wordpress.com'                : 'Isekai Soul-Cyborg Translations',
+		'sotranslations.wordpress.com'              : 'Supreme Origin Translations',
 
 
 	}

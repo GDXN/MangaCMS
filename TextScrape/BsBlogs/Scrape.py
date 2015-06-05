@@ -63,6 +63,7 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://xcrossj.blogspot.com.au',
 		'https://sousetsuka.blogspot.com',
 		'http://tony-yon-ka.blogspot.com.au',
+		'http://webnoveltranslations.blogspot.se',
 
 
 
@@ -196,6 +197,8 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'Imoutolicious Light Novel Translations:',
 		"EC Webnovel:",
 		'C.E. Light Novel Translations:',
+		'There\'s a cockroach in your soul and a little homunculus in your brain:',
+		'Istian\'s Workshop:',
 
 	]
 
