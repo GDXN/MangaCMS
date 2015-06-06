@@ -93,7 +93,7 @@ def getNiceName(srcurl):
 		'noitl.blogspot.com'                        : 'Translation Treasure Box',
 		'ohanashimi.wordpress.com'                  : 'Ohanashimi',
 		'ojamajothetranslation.wordpress.com'       : '(NanoDesu) - Ojamajo Doremi',
-		'omegaharem.wordpress.com'                  : 'Omega Harem Translations',
+		'omegaharem.wordpress.com'                  : 'Omega Harem',
 		'oniichanyamete.wordpress.com'              : 'お兄ちゃん、やめてぇ！',
 		'oregairuthetranslation.wordpress.com'      : '(NanoDesu) - Yahari Ore no Seishun Love Come wa Machigatteiru',
 		'oreimothetranslation.wordpress.com'        : '(NanoDesu) - Oreimo',
