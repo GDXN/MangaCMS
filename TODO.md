@@ -1,53 +1,22 @@
-sotranslations.wordpress.com
-https://isekaicyborg.wordpress.com/
-http://istlovesu.blogspot.com/
+
+
+http://10.1.1.8:8081/books/book-item?dbid=1963
+
+
+
+http://10.1.1.8:8081/books/render?url=http%3A//tony-yon-ka.blogspot.com/2015/05/manowa-10.html
+title breaking search
 
 http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/open%3Fid%3D0B_mXfd95yvDfQWQ1ajNWZTJFRkk
 
 https://gilatranslationmonster.wordpress.com/2015/04/28/tensei-shitara-slime-datta-ken-episode-5/
-
-INFO - Have additional GET parameters!
-Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Failure on retreiving content at http://kissmanga.com/Manga/Kuro-Hakushaku-wa-Hoshi-o-Mederu/Vol-001-Ch-005-Read-Online?id=230291
-Main.Feeds.RPC - INFO - Outgoing data size: 942 bytes.
-Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Traceback = Traceback (most recent call last):
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 144, in getLink
-    imageName, imageContent = self.getImage(imgUrl, sourceUrl)
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 61, in getImage
-    fileN += "." + ext
-TypeError: Can't convert 'NoneType' object to str implicitly
-
-Main.Feeds.RPC - INFO - Outgoing data size: 927 bytes.
-Main.Connector - INFO - Retreived 0 items!
-Main.Feeds.RPC - INFO - Outgoing data size: 907 bytes.
-Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Exception!
-Traceback (most recent call last):
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/RetreivalBase.py", line 61, in fetchLinkList
-    self.getLink(link)
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 144, in getLink
-    imageName, imageContent = self.getImage(imgUrl, sourceUrl)
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 61, in getImage
-    fileN += "." + ext
-TypeError: Can't convert 'NoneType' object to str implicitly
-Main.Connector - INFO - Publishing message of len '0.971'K to exchange 'tasks.e'
-Main.Feeds.RPC - INFO - Outgoing data size: 930 bytes.
-Main.Manga.Ki.Cl.Thread-5 - CRITICAL - Traceback (most recent call last):
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/RetreivalBase.py", line 61, in fetchLinkList
-    self.getLink(link)
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 144, in getLink
-    imageName, imageContent = self.getImage(imgUrl, sourceUrl)
-  File "/media/Storage/Scripts/MangaCMS/ScrapePlugins/KissLoader/ContentLoader.py", line 61, in getImage
-    fileN += "." + ext
-TypeError: Can't convert 'NoneType' object to str implicitly
-
-Main.Connector - INFO - Publishing message of len '0.977'K to exchange 'tasks.e'
-Main.Manga.Wt.Cl.Web - INFO - Request for URL: http://webtoon.phinf.naver.net/20150526_95/1432608345987j78FC_JPEG/143260834592396526.jpg?type=q90 succeeded at Wed May 27 13:42:36 2015 On Attempt 1. Recieving...
 
 
 
 http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdrive.google.com%2Ffolderview%3Fid%3D0B7PIRwu9hTEFODllMFFRemljMGc links broken
 http://pacem.wikia.com/wiki/Pacem_Community_Translations_Wiki
 
-https://darkfishoftherevolution.wordpress.com/she-professed-herself-the-pupil-of-the-wiseman/
+
 https://aflappyteddybird.wordpress.com/2015/04/17/black-knight-table-of-contents/
 http://avertranslation.com/
 https://binhjamin.wordpress.com/

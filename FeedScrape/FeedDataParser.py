@@ -141,12 +141,8 @@ class DataParser():
 	####################################################################################################################################################
 	# Sousetsuka
 	####################################################################################################################################################
-
-
 	def extractSousetsuka(self, item):
-
 		# check that 'Desumachi' is in the tags? It seems to work well enough now....
-
 		desumachi_norm  = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(\d+)$', item['title'])
 		desumachi_extra = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(Intermission.*?)$', item['title'])
 		if desumachi_norm:
@@ -168,12 +164,8 @@ class DataParser():
 	####################################################################################################################################################
 	# お兄ちゃん、やめてぇ！ / Onii-chan Yamete
 	####################################################################################################################################################
-
 	def extractOniichanyamete(self, item):
 		other_world_norm = re.search(r'^(I’m Back in the Other World\?) – Chapter (\d+)$', item['title'])
-
-
-
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if       'Jashin Average'   in item['title'] \
 				or 'Cthulhu Average'  in item['title'] \
@@ -209,8 +201,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Natsu TL
 	####################################################################################################################################################
-
-
 	def extractNatsuTl(self, item):
 		meister  = re.search(r'^(Magi Craft Meister) Volume (\d+) Chapter (\d+)$', item['title'])
 		if meister:
@@ -225,15 +215,11 @@ class DataParser():
 	####################################################################################################################################################
 	# TheLazy9
 	####################################################################################################################################################
-
-
 	def extractTheLazy9(self, item):
 		kansutoppu  = re.search(r'^(Kansutoppu!) Chapter (\d+)$', item['title'])
 		garudeina  = re.search(r'^(Garudeina Oukoku Koukoku Ki) Chapter (\d+): Part (\d+)$', item['title'])
 		# meister  = re.search(r'^(Magi Craft Meister) Volume (\d+) Chapter (\d+)$', item['title'])
-
 		chp, vol, frag = extractChapterVolFragment(item['title'])
-
 		if kansutoppu:
 			series = kansutoppu.group(1)
 			vol    = None
@@ -252,31 +238,22 @@ class DataParser():
 	####################################################################################################################################################
 	# Yoraikun
 	####################################################################################################################################################
-
-
 	def extractYoraikun(self, item):
-
 		if 'The Rise of the Shield Hero' in item['tags']:
 			chp, vol = extractChapterVol(item['title'])
 			if vol == 0:
 				vol = None
-
 			return buildReleaseMessage(item, 'The Rise of the Shield Hero', vol, chp)
-
 		elif 'Konjiki no Wordmaster' in item['tags']:
 			chp, vol = extractChapterVol(item['title'])
 			if vol == 0:
 				vol = None
-
 			return buildReleaseMessage(item, 'Konjiki no Wordmaster', vol, chp)
-
 		return False
 
 	####################################################################################################################################################
 	# FlowerBridgeToo
 	####################################################################################################################################################
-
-
 	def extractFlowerBridgeToo(self, item):
 		# Seriously, you were too lazy to type out the *tags*?
 		# You only have to do it ONCE!
@@ -290,17 +267,12 @@ class DataParser():
 		elif 'JMG Translation' in item['tags']:  # Series was dropped, have lots of old releases
 			chp, vol = extractChapterVol(item['title'])
 			return buildReleaseMessage(item, 'Shaonian Yixian', vol, chp)
-
 		return False
-
 
 	####################################################################################################################################################
 	# Gravity Translation
 	####################################################################################################################################################
-
-
 	def extractGravityTranslation(self, item):
-
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Zhan Long' in item['tags']:
 			return buildReleaseMessage(item, 'Zhan Long', vol, chp)
@@ -310,15 +282,11 @@ class DataParser():
 			or "TAG Chapter" in item['title']                  \
 			or 'The Alchemist God: Chapter' in item['title']:
 			return buildReleaseMessage(item, 'Ascension of the Alchemist God', vol, chp)
-
 		return False
-
 
 	####################################################################################################################################################
 	# Pika Translations
 	####################################################################################################################################################
-
-
 	def extractPikaTranslations(self, item):
 		chp, vol = extractChapterVol(item['title'])
 		if 'Close Combat Mage' in item['tags']:
@@ -331,12 +299,8 @@ class DataParser():
 	####################################################################################################################################################
 	# Blue Silver Translations
 	####################################################################################################################################################
-
-
 	def extractBlueSilverTranslations(self, item):
-
 		if 'Douluo Dalu' in item['tags']:
-
 			# All the releases start with the chapter number.
 			# This check is only needed because there are a few releases of
 			# related things that are annoyingly tagged in as well.
@@ -355,15 +319,11 @@ class DataParser():
 	####################################################################################################################################################
 	# Alyschu & Co
 	####################################################################################################################################################
-
-
 	def extractAlyschuCo(self, item):
 		# Whyyyy would you do these bullshit preview things!
 		if "PREVIEW" in item['title'] or "preview" in item['title']:
 			return False
-
 		chp, vol = extractChapterVol(item['title'])
-
 		if 'Against the Gods' in item['tags'] or 'Ni Tian Xie Shen (Against the Gods)' in item['title']:
 			return buildReleaseMessage(item, 'Against the Gods', vol, chp)
 		elif 'The Simple Life of Killing Demons' in item['tags']:
@@ -372,44 +332,21 @@ class DataParser():
 			return buildReleaseMessage(item, 'Magic, Mechanics, Shuraba', vol, chp)
 		elif 'The Flower Offering' in item['tags']:
 			return buildReleaseMessage(item, 'The Flower Offering', vol, chp)
-
 		return False
-
-
-
-	####################################################################################################################################################
-	# Henouji Translation
-	####################################################################################################################################################
-
-
-	def extractHenoujiTranslation(self, item):
-		# fffuuuu "last part" is not a helpful title!
-		chp, vol = extractChapterVol(item['title'])
-		# print(item['title'], item['tags'])
-
-
-		return False
-
 
 	####################################################################################################################################################
 	# Shin Translations
 	####################################################################################################################################################
-
-
 	def extractShinTranslations(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
 		if 'THE NEW GATE' in item['tags'] and not 'Status Update' in item['tags']:
 			if chp and vol and frag:
 				return buildReleaseMessage(item, 'The New Gate', vol, chp, frag=frag)
-
-
 		return False
 
 	####################################################################################################################################################
 	# Scrya Translations
 	####################################################################################################################################################
-
-
 	def extractScryaTranslations(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
 		if "So What if It's an RPG World!?" in item['tags']:
@@ -417,30 +354,20 @@ class DataParser():
 
 		return False
 
-
 	####################################################################################################################################################
 	# Japtem
 	####################################################################################################################################################
-
-
 	def extractJaptem(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
-
 		if '[Chinese] Shadow Rogue' in item['tags']:
 			return buildReleaseMessage(item, "Shadow Rogue", vol, chp, frag=frag)
 		if '[Chinese] Unique Legend' in item['tags']:
 			return buildReleaseMessage(item, "Unique Legend", vol, chp, frag=frag)
-
 		if '[Japanese] Magi\'s Grandson' in item['tags']:
 			return buildReleaseMessage(item, "Magi's Grandson", vol, chp, frag=frag)
-
 		if '[Japanese / Hosted] Arifureta' in item['tags']:
 			return buildReleaseMessage(item, "Arifureta", vol, chp, frag=frag)
-
-
 		return False
-
-
 
 	####################################################################################################################################################
 	# Wuxiaworld
@@ -469,11 +396,7 @@ class DataParser():
 	####################################################################################################################################################
 	# Ziru's Musings | Translations~
 	####################################################################################################################################################
-
-
 	def extractZiruTranslations(self, item):
-
-
 		if 'Dragon Bloodline' in item['tags'] or 'Dragon’s Bloodline — Chapter ' in item['title']:
 			chp, vol, frag = extractChapterVolFragment(item['title'])
 			return buildReleaseMessage(item, 'Dragon Bloodline', vol, chp, frag=frag)
@@ -493,19 +416,14 @@ class DataParser():
 					chp = None
 					postfix = extract.group(2)
 				return buildReleaseMessage(item, 'Suterareta Yuusha no Eiyuutan', vol, chp, postfix=postfix)
-
-
 		return False
 
 
 	####################################################################################################################################################
 	# Void Translations
 	####################################################################################################################################################
-
-
 	def extractVoidTranslations(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
-
 		match = re.search(r'^Xian Ni Chapter \d+ ?[\-–]? ?(.*)$', item['title'])
 		if match:
 			return buildReleaseMessage(item, 'Xian Ni', vol, chp, postfix=match.group(1))
@@ -518,11 +436,8 @@ class DataParser():
 	####################################################################################################################################################
 	# Calico x Tabby
 	####################################################################################################################################################
-
-
 	def extractCalicoxTabby(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
-
 		if 'Meow Meow Meow' in item['tags']:
 			return buildReleaseMessage(item, 'Meow Meow Meow', vol, chp, frag=frag)
 
@@ -535,9 +450,7 @@ class DataParser():
 
 
 	def extractSkythewood(self, item):
-
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-
 		if 'Altina the Sword Princess' in item['tags']:
 			return buildReleaseMessage(item, 'Haken no Kouki Altina', vol, chp, frag=frag)
 		if 'Overlord' in item['tags']:
@@ -562,8 +475,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Lygar Translations
 	####################################################################################################################################################
-
-
 	def extractLygarTranslations(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
 
@@ -575,8 +486,6 @@ class DataParser():
 	####################################################################################################################################################
 	# That Guy Over There
 	####################################################################################################################################################
-
-
 	def extractThatGuyOverThere(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
 
@@ -593,8 +502,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Otterspace Translation
 	####################################################################################################################################################
-
-
 	def extractOtterspaceTranslation(self, item):
 		chp, vol, frag = extractChapterVolFragment(item['title'])
 		if 'Elqueeness’' in item['title']:
@@ -607,12 +514,8 @@ class DataParser():
 	####################################################################################################################################################
 	# MadoSpicy TL
 	####################################################################################################################################################
-
-
 	def extractMadoSpicy(self, item):
-
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-
 		if 'Kyuuketsu Hime' in item['title']:
 			# Hardcode ALL THE THINGS
 			postfix = ''
@@ -623,14 +526,11 @@ class DataParser():
 				postfix = "Prologue {num}".format(num=chp)
 				chp = None
 			return buildReleaseMessage(item, 'Kyuuketsu Hime wa Barairo no Yume o Miru', vol, chp, frag=frag, postfix=postfix)
-
 		return False
 
 	####################################################################################################################################################
 	# Tripp Translations
 	####################################################################################################################################################
-
-
 	def extractTrippTl(self, item):
 		chp, vol, frag = extractChapterVolEpisode(item['title'])
 
@@ -642,11 +542,8 @@ class DataParser():
 	####################################################################################################################################################
 	# DarkFish Translations
 	####################################################################################################################################################
-
-
 	def extractDarkFish(self, item):
 		chp, vol, frag = extractChapterVolEpisode(item['title'])
-
 		if 'She Professed Herself The Pupil Of The Wise Man'.lower() in item['title'].lower():
 			return buildReleaseMessage(item, 'Kenja no Deshi wo Nanoru Kenja', vol, chp, frag=frag)
 		# if 'Majin Tenseiki' in item['title']:
@@ -655,11 +552,8 @@ class DataParser():
 	####################################################################################################################################################
 	# Manga0205 Translations
 	####################################################################################################################################################
-
-
 	def extractManga0205Translations(self, item):
 		chp, vol, frag = extractChapterVolEpisode(item['title'])
-
 		if 'Sendai Yuusha wa Inkyou Shitai'.lower() in item['title'].lower():
 			postfix = ''
 			if 'Side Story'.lower() in item['title'].lower():
@@ -673,25 +567,18 @@ class DataParser():
 	####################################################################################################################################################
 	# extractAzureSky
 	####################################################################################################################################################
-
-
 	def extractAzureSky(self, item):
 		chp, vol, frag = extractChapterVolEpisode(item['title'])
-
 		if 'Shinde Hajimaru'.lower() in item['title'].lower():
 			postfix = ''
 			if "prologue" in item['title'].lower():
 				postfix = 'Prologue'
-
 			return buildReleaseMessage(item, 'Shinde Hajimaru Isekai Tensei', vol, chp, frag=frag, postfix=postfix)
-
 		return False
 
 	####################################################################################################################################################
 	# extractRaisingTheDead
 	####################################################################################################################################################
-
-
 	def extractRaisingTheDead(self, item):
 		chp, vol, frag = extractChapterVolEpisode(item['title'])
 
@@ -703,23 +590,12 @@ class DataParser():
 		if 'Shinka no Mi' in item['tags']:
 			return buildReleaseMessage(item, 'Shinka no Mi', vol, chp, frag=frag)
 
-
-		return False
-	####################################################################################################################################################
-	# Todo:
-	####################################################################################################################################################
-
-	def extractWAT(self, item):
 		return False
 
-	def extractAssholeTranslations(self, item):
-		return False
 
 	####################################################################################################################################################
 	# Tensai Translations
 	####################################################################################################################################################
-
-
 	def extractTensaiTranslations(self, item):
 		chp, vol, frag = extractChapterVolEpisode(item['title'])
 		if 'Spirit Migration' in item['tags']:
@@ -727,7 +603,6 @@ class DataParser():
 
 		if 'Tsuyokute New Saga' in item['tags']:
 			return buildReleaseMessage(item, 'Tsuyokute New Saga', vol, chp, frag=frag)
-
 
 		return False
 
@@ -745,8 +620,6 @@ class DataParser():
 	# 	Probably another dozen randos per week.
 	# Really. Fuck you people. Tag your shit, and start a group blog.
 	####################################################################################################################################################
-
-
 	def extractKnW(self, item):
 		chp, vol, frag = extractChapterVolEpisode(item['title'])
 
@@ -779,10 +652,7 @@ class DataParser():
 
 		# Only return a value if we've actually found a chapter/vol
 		if ret and (ret['vol'] or ret['chp']):
-			# print("'%s', '%s', '%s', '%s', '%s'" % (item['title'], ret['vol'], ret['chp'], ret['postfix'], ret['srcname']))
 			return ret
-		# if chp or vol:
-		# 	print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (vol, chp, frag, item['srcname'], item['title'], item['tags'], postfix))
 
 		return False
 
@@ -790,7 +660,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Thunder Translations:
 	####################################################################################################################################################
-
 	def extractThunder(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Stellar Transformations' in item['tags'] and (vol or chp):
@@ -801,7 +670,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Kiri Leaves:
 	####################################################################################################################################################
-
 	def extractKiri(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Tensei Oujo' in item['tags'] and (vol or chp):
@@ -813,7 +681,6 @@ class DataParser():
 	####################################################################################################################################################
 	# 中翻英圖書館 Translations
 	####################################################################################################################################################
-
 	def extractTuShuGuan(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'He Jing Kunlun' in item['tags'] and (vol or chp or postfix):
@@ -824,7 +691,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Lingson's Translations
 	####################################################################################################################################################
-
 	def extractLingson(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'The Legendary Thief' in item['tags'] and (vol or chp or postfix):
@@ -836,7 +702,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Sword And Game
 	####################################################################################################################################################
-
 	def extractSwordAndGame(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'The Rising of the Shield Hero' in item['tags'] and 'chapter' in item['tags']:
@@ -850,7 +715,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Clicky Click Translation
 	####################################################################################################################################################
-
 	def extractClicky(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Legendary Moonlight Sculptor' in item['tags'] and any(['Volume' in tag for tag in item['tags']]):
@@ -862,7 +726,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Defiring
 	####################################################################################################################################################
-
 	def extractDefiring(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'World teacher' in item['title']:
@@ -876,7 +739,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Fanatical Translations
 	####################################################################################################################################################
-
 	def extractFanatical(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'One Life One Incarnation Beautiful Bones' in item['tags']:
@@ -893,7 +755,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Giraffe Corps
 	####################################################################################################################################################
-
 	def extractGiraffe(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Ti Shen' in item['tags']:
@@ -910,7 +771,6 @@ class DataParser():
 	####################################################################################################################################################
 	# guhehe.TRANSLATIONS
 	####################################################################################################################################################
-
 	def extractGuhehe(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'ShominSample' in item['tags']:
@@ -925,7 +785,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Hajiko translation
 	####################################################################################################################################################
-
 	def extractHajiko(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Ryuugoroshi no Sugosuhibi' in item['title']:
@@ -936,7 +795,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Imoutolicious
 	####################################################################################################################################################
-
 	def extractImoutolicious(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'sekaimo' in item['tags']:
@@ -953,7 +811,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Isekai Mahou Translations!
 	####################################################################################################################################################
-
 	def extractIsekaiMahou(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Isekai Mahou Chapter' in item['title'] and 'Release' in item['title']:
@@ -961,19 +818,9 @@ class DataParser():
 
 		return False
 
-
-	####################################################################################################################################################
-	# izra709 | B Group no Shounen Translations
-	####################################################################################################################################################
-
-	def extractIzra709(self, item):
-		# No tags, no parseable stuff in the title. Fuuuuuuuuuu
-		return False
-
 	####################################################################################################################################################
 	# Kerambit's Incisions
 	####################################################################################################################################################
-
 	def extractKerambit(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 
@@ -990,6 +837,102 @@ class DataParser():
 		print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
 
 
+	####################################################################################################################################################
+	# Mahoutsuki Translation
+	####################################################################################################################################################
+	def extractMahoutsuki(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Maou the Yuusha
+	####################################################################################################################################################
+	def extractMaouTheYuusha(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Nightbreeze Translations
+	####################################################################################################################################################
+	def extractNightbreeze(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Ohanashimi
+	####################################################################################################################################################
+	def extractOhanashimi(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Omega Harem Translations
+	####################################################################################################################################################
+	def extractOmegaHarem(self, item):
+		pass
+
+	####################################################################################################################################################
+	# pandafuqtranslations
+	####################################################################################################################################################
+	def extractPandaFuq(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Prince Revolution!
+	####################################################################################################################################################
+	def extractPrinceRevolution(self, item):
+		pass
+
+	####################################################################################################################################################
+	# putttytranslations
+	####################################################################################################################################################
+	def extractPuttty(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Rising Dragons Translation
+	####################################################################################################################################################
+	def extractRisingDragons(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Sword and Game
+	####################################################################################################################################################
+	def extractSwordandGame(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Sylver Translations
+	####################################################################################################################################################
+	def extractSylver(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Tomorolls
+	####################################################################################################################################################
+	def extractTomorolls(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Totokk\'s Translations
+	####################################################################################################################################################
+	def extractTotokk(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Translation Nations
+	####################################################################################################################################################
+	def extractTranslationNations(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Untuned Translation Blog
+	####################################################################################################################################################
+	def extractUntunedTranslation(self, item):
+		pass
+
+	####################################################################################################################################################
+	# Gila Translation Monster
+	####################################################################################################################################################
+	def extractGilaTranslation(self, item):
+		pass
+
 
 
 
@@ -1005,10 +948,7 @@ class DataParser():
 	def dispatchRelease(self, item):
 
 		ret = False
-		
-		if 'preview' in item['title'].lower():
-			return ret
-		
+
 		if item['srcname'] == 'お兄ちゃん、やめてぇ！':  # I got utf-8 in my code-sauce, bizzickle
 			ret = self.extractOniichanyamete(item)
 		elif item['srcname'] == 'Sousetsuka':
@@ -1120,40 +1060,36 @@ class DataParser():
 		# ret = False
 		if False:
 			pass
-		elif item['srcname'] == 'Kiri Leaves':
-			ret = self.extractWAT(item)
 		elif item['srcname'] == 'Mahoutsuki Translation':
-			ret = self.extractWAT(item)
+			ret = self.extractMahoutsuki(item)
 		elif item['srcname'] == 'Maou the Yuusha':
-			ret = self.extractWAT(item)
+			ret = self.extractMaouTheYuusha(item)
 		elif item['srcname'] == 'Nightbreeze Translations':
-			ret = self.extractWAT(item)
+			ret = self.extractNightbreeze(item)
 		elif item['srcname'] == 'Ohanashimi':
-			ret = self.extractWAT(item)
+			ret = self.extractOhanashimi(item)
 		elif item['srcname'] == 'Omega Harem Translations':
-			ret = self.extractWAT(item)
+			ret = self.extractOmegaHarem(item)
 		elif item['srcname'] == 'pandafuqtranslations':
-			ret = self.extractWAT(item)
+			ret = self.extractPandaFuq(item)
 		elif item['srcname'] == 'Prince Revolution!':
-			ret = self.extractWAT(item)
+			ret = self.extractPrinceRevolution(item)
 		elif item['srcname'] == 'putttytranslations':
-			ret = self.extractWAT(item)
+			ret = self.extractPuttty(item)
 		elif item['srcname'] == 'Rising Dragons Translation':
-			ret = self.extractWAT(item)
-		elif item['srcname'] == 'Sword and Game':
-			ret = self.extractWAT(item)
+			ret = self.extractRisingDragons(item)
 		elif item['srcname'] == 'Sylver Translations':
-			ret = self.extractWAT(item)
+			ret = self.extractSylver(item)
 		elif item['srcname'] == 'Tomorolls':
-			ret = self.extractWAT(item)
+			ret = self.extractTomorolls(item)
 		elif item['srcname'] == 'Totokk\'s Translations':
-			ret = self.extractWAT(item)
+			ret = self.extractTotokk(item)
 		elif item['srcname'] == 'Translation Nations':
-			ret = self.extractWAT(item)
+			ret = self.extractTranslationNations(item)
 		elif item['srcname'] == 'Untuned Translation Blog':
-			ret = self.extractWAT(item)
+			ret = self.extractUntunedTranslation(item)
 		elif item['srcname'] == 'Gila Translation Monster':
-			ret = self.extractWAT(item)
+			ret = self.extractGilaTranslation(item)
 
 
 
@@ -1161,24 +1097,26 @@ class DataParser():
 		# 	print("'%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags']))
 
 		# OEL Junk
-		# elif item['srcname'] == 'JawzTranslations':
-		# 	ret = self.extracJawz(item)
+		# 'JawzTranslations'
 
 		# no tags OR title information
-		# elif item['srcname'] == 'Bad Translation':
-		# 	ret = self.extractBadTranslation(item)
+		# 'Bad Translation'
 
 		# No parseable content here
-		# if item['srcname'] == 'Krytyk\'s Translations':
-		# 	pass
+		# 'Krytyk\'s Translations'
 
 		# Releases are shit, and it's largely unparseable anyways
-		# elif item['srcname'] == 'ELYSION Translation':
-		# 	ret = self.extractAssholeTranslations(item)
+		# 'ELYSION Translation'
 
+
+		ret = False
 
 		# Only return a value if we've actually found a chapter/vol
 		if ret and not (ret['vol'] or ret['chp'] or ret['postfix']):
+			ret = False
+
+		# Do not trigger if there is "preview" in the title.
+		if 'preview' in item['title'].lower():
 			ret = False
 
 		return ret
@@ -1243,4 +1181,48 @@ class DataParser():
 		if new and tx_parse:
 			self.amqpint.put_item(new)
 
+
+
+	####################################################################################################################################################
+	# Todo:
+	####################################################################################################################################################
+
+	def extractWAT(self, item):
+		return False
+
+	def extractAssholeTranslations(self, item):
+		return False
+
+	####################################################################################################################################################
+	#
+	#  ##     ## ##    ## ########     ###    ########   ######  ########    ###    ########  ##       ########
+	#  ##     ## ###   ## ##     ##   ## ##   ##     ## ##    ## ##         ## ##   ##     ## ##       ##
+	#  ##     ## ####  ## ##     ##  ##   ##  ##     ## ##       ##        ##   ##  ##     ## ##       ##
+	#  ##     ## ## ## ## ########  ##     ## ########   ######  ######   ##     ## ########  ##       ######
+	#  ##     ## ##  #### ##        ######### ##   ##         ## ##       ######### ##     ## ##       ##
+	#  ##     ## ##   ### ##        ##     ## ##    ##  ##    ## ##       ##     ## ##     ## ##       ##
+	#   #######  ##    ## ##        ##     ## ##     ##  ######  ######## ##     ## ########  ######## ########
+	#
+	####################################################################################################################################################
+
+	####################################################################################################################################################
+	# Henouji Translation
+	####################################################################################################################################################
+
+
+	def extractHenoujiTranslation(self, item):
+		# fffuuuu "last part" is not a helpful title!
+		chp, vol = extractChapterVol(item['title'])
+		# print(item['title'], item['tags'])
+
+
+		return False
+
+	####################################################################################################################################################
+	# izra709 | B Group no Shounen Translations
+	####################################################################################################################################################
+
+	def extractIzra709(self, item):
+		# No tags, no parseable stuff in the title. Fuuuuuuuuuu
+		return False
 
