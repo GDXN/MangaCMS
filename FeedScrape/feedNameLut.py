@@ -99,6 +99,7 @@ def getNiceName(srcurl):
 		'oreimothetranslation.wordpress.com'        : '(NanoDesu) - Oreimo',
 		'otterspacetranslation.wordpress.com'       : 'otterspacetranslation',
 		'pandafuqtranslations.wordpress.com'        : 'pandafuqtranslations',
+		'pandatranslations.net'                     : 'pandafuqtranslations',
 		'panofitrans.blogspot.com'                  : 'Translations From Outer Space',
 		'pikatranslations.com'                      : 'Pika Translations',
 		'pikatranslations.wordpress.com'            : 'Pika Translations',

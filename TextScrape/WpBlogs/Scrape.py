@@ -183,8 +183,9 @@ class Scrape(WordpressScrape):
 		'http://www.lingson.com',
 		'http://shintranslations.com',
 		'http://risingdragons.co',
-		'http://www.translationnations.com/',
+		'http://www.translationnations.com',
 		'http://www.wuxiatranslations.com',
+		'http://pandatranslations.net',
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',

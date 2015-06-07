@@ -2,7 +2,9 @@
 
 http://10.1.1.8:8081/books/book-item?dbid=1963
 
-
+https://rebirthonlinelightnovel.wordpress.com/to-deprive-a-deprived-person/
+https://lnaddiction.wordpress.com/
+https://bingnovels.wordpress.com/chapter-20-the-first-page/
 
 http://10.1.1.8:8081/books/render?url=http%3A//tony-yon-ka.blogspot.com/2015/05/manowa-10.html
 title breaking search

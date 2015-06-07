@@ -68,6 +68,9 @@ def extractVolChapterFragmentPostfix(inStr):
 		postfix = 'Foreword'
 	if 'appendix' in inStr.lower():
 		postfix = 'Appendix'
+	if 'side story' in inStr.lower():
+		postfix = 'Side Story'
+
 
 	return vol, chp, frag_val, postfix
 
@@ -614,6 +617,10 @@ class DataParser():
 
 		postfix = ''
 		ret = None
+
+		if 'Character Analysis' in item['title']:
+			return ret
+
 		if ('Chapters' in tags and 'Konjiki no Wordmaster' in tags) \
 			or 'Konjiki no Wordmaster Web Novel Chapters' in tags   \
 			or 'Konjiki' in tags                                    \
@@ -967,8 +974,6 @@ class DataParser():
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		# Lawl, title typo
 		if '[SYWZ] Chapter' in item['title'] or '[SWYZ] Chapter' in item['title'] or 'Shen Yin Wang Zuo, Chapter' in item['title']:
-			if ":" in item['title']:
-				postfix = item['title'].split(":", 1)[-1]
 			return buildReleaseMessage(item, 'Shen Yin Wang Zuo', vol, chp, frag=frag, postfix=postfix)
 		return False
 
@@ -1074,7 +1079,6 @@ class DataParser():
 			ret = self.extractRaisingTheDead(item)
 		elif item['srcname'] == 'Tensai Translations':
 			ret = self.extractTensaiTranslations(item)
-
 		# The number of people working on Konjiki no Wordmaster
 		# is TOO FUCKING HIGH
 		elif item['srcname'] == 'Blazing Translations' \
@@ -1087,7 +1091,6 @@ class DataParser():
 			or item['srcname'] == 'Pummels Translations' \
 			or item['srcname'] == 'XCrossJ':
 			ret = self.extractKnW(item)
-
 		elif item['srcname'] == 'Thunder Translation':
 			ret = self.extractThunder(item)
 		elif item['srcname'] == 'Kiri Leaves':
@@ -1099,8 +1102,6 @@ class DataParser():
 			ret = self.extractTuShuGuan(item)
 		elif item['srcname'] == 'Lingson\'s Translations':
 			ret = self.extractLingson(item)
-
-
 		elif item['srcname'] == 'Sword and Game':
 			ret = self.extractSwordAndGame(item)
 		elif item['srcname'] == 'Clicky Click Translation':
@@ -1121,10 +1122,8 @@ class DataParser():
 			ret = self.extractIsekaiMahou(item)
 		elif item['srcname'] == 'izra709 | B Group no Shounen Translations':
 			ret = self.extractIzra709(item)
-
 		elif item['srcname'] == 'Kerambit\'s Incisions':
 			ret = self.extractKerambit(item)
-
 		elif item['srcname'] == 'Mahoutsuki Translation':
 			ret = self.extractMahoutsuki(item)
 		elif item['srcname'] == 'Maou the Yuusha':

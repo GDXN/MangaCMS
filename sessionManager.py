@@ -127,7 +127,13 @@ class SessionPoolManager(object):
 		for key in list(self.sessions.keys()):
 			if self.sessions[key].shouldPrune():
 				self.log.info("Pruning stale session with ID %s", key)
-				self.sessions.pop(key)
+				try:
+					self.sessions.pop(key)
+				except KeyError:
+					self.log.error("Failed to prune session?")
+					self.log.error("Current sessions:")
+					for key, session in self.sessions.items():
+						self.log.error("	'{key}' -> '{sess}'".format(key=key, sess=session))
 		if len(self.sessions) > self.max_sessions:
 			self.log.info("Need to prune sessions due to session limits")
 			sessionList = list(self.sessions.keys())
