@@ -346,8 +346,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		except TextScrape.gDocParse.CannotAccessGDocException:
 			self.log.warning("Cannot access google doc content. Attempting to access as a plain HTML resource via /pub interface")
 			url = url + "/pub"
-			ret = self.retreivePlainResource(url)
-			if "We're sorry. This document is not published." in ret['contents']:
+			extracted = self.retreivePlainResource(url)
+			if "This document is not published." in extracted['contents']:
 				raise ValueError("Could not extract google document!")
 
 		return extracted

@@ -11,7 +11,7 @@ import urllib.parse
 import bs4
 import copy
 import readability.readability
-
+import lxml.etree
 import TextScrape.urlFuncs
 import TextScrape.ProcessorBase
 
@@ -333,8 +333,11 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 
 		ctnt = srcSoup.prettify()
 		doc = readability.readability.Document(ctnt)
-		doc.parse()
-		content = doc.content()
+		try:
+			doc.parse()
+			content = doc.content()
+		except lxml.etree.ParserError:
+			content = "Page failed to load!"
 
 		soup = bs4.BeautifulSoup(content)
 		soup = self.relink(soup)

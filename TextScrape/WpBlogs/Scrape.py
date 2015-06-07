@@ -170,6 +170,10 @@ class Scrape(WordpressScrape):
 		'https://youtsubasilver.wordpress.com',
 		'https://zmunjali.wordpress.com',
 
+		'https://rebirthonlinelightnovel.wordpress.com',
+		'https://lnaddiction.wordpress.com',
+		'https://bingnovels.wordpress.com',
+
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		'http://avertranslation.com',
@@ -192,7 +196,7 @@ class Scrape(WordpressScrape):
 		'http://flowerbridgetoo.com',
 
 		# Seriously bro, you can change your A record:
-		'http://tototr.com',
+		# 'http://tototr.com',
 		'http://tototrans.com',
 		'http://totobro.com',
 

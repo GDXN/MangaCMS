@@ -167,6 +167,13 @@ def getNiceName(srcurl):
 		'sotranslations.wordpress.com'              : 'Supreme Origin Translations',
 
 
+		'rebirthonlinelightnovel.wordpress.com'     : 'Rebirth Online',
+		'lnaddiction.wordpress.com'                 : 'Ln Addiction',
+		'bingnovels.wordpress.com'                  : 'Binggo&Corp',
+		'tony-yon-ka.blogspot.com'                  : 'Tony Yon Ka',
+		'tony-yon-ka.blogspot.com.au'               : 'Tony Yon Ka',
+
+
 	}
 
 	srcnetloc = urllib.parse.urlparse(srcurl).netloc

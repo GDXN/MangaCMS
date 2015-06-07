@@ -15,15 +15,15 @@ skip_filter = [
 	"www.baka-tsuki.org",
 	"re-monster.wikia.com",
 ]
-
+r"(?<!volume|season|book|part|of|vol|pt|volume |season |book |part |of |vol |pt |v)(?<!p)(?: |_|\.|)((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))"
 
 def extractChapterVol(inStr):
 
 	# Becuase some series have numbers in their title, we need to preferrentially
 	# chose numbers preceeded by known "chapter" strings when we're looking for chapter numbers
 	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
-	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!book) ?(?:chapter[ \-_]|episode[ \-_]|\Wch|\Wc)(?: |_|\.)?((?:\d+\.\d+)|(?:\.\d+)|(?:\d+\.)|(?:\d+))", re.IGNORECASE)
-	chpRe2 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!book) ?(?: |_)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!book)(?<!part )(?<!pt)(?<!p) ?(?:chapter[ \-_]|episode[ \-_]|\Wch|\Wc)(?: |_|\.)?((?:\d+\.\d+)|(?:\.\d+)|(?:\d+\.)|(?:\d+))", re.IGNORECASE)
+	chpRe2 = re.compile(r"(?<!volume)(?<!season)(?<!book)(?<!part)(?<!of)(?<!vol)(?<!pt)(?<!volume )(?<!season )(?<!book )(?<!part )(?<!of )(?<!vol )(?<!pt )(?<!v)(?<!p)(?: |_|\.|)((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	volRe  = re.compile(r"(?: |_|\-|^)(?:book|volume|vol|vol ?\.|vol?\. |v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 
 	chap = None
@@ -43,6 +43,8 @@ def extractChapterVol(inStr):
 	if vol == 0:
 		vol = None
 	return chap, vol
+
+
 
 
 
@@ -71,6 +73,8 @@ def extractVolChapterFragmentPostfix(inStr):
 	if 'side story' in inStr.lower():
 		postfix = 'Side Story'
 
+	if chp == frag_val and ("episode" in inStr.lower() or " ep " in inStr.lower()) and not "chapter" in inStr.lower():
+		frag_val = None
 
 	return vol, chp, frag_val, postfix
 
@@ -987,6 +991,47 @@ class DataParser():
 		return False
 
 	####################################################################################################################################################
+	# Ln Addiction
+	####################################################################################################################################################
+	def extractLnAddiction(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if ('Hissou Dungeon Unei Houhou' in item['tags'] or 'Hisshou Dungeon Unei Houhou' in item['tags']) and (chp or frag):
+			return buildReleaseMessage(item, 'Hisshou Dungeon Unei Houhou', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+	####################################################################################################################################################
+	# Binggo & Corp Translations
+	####################################################################################################################################################
+	def extractBinggoCorp(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if 'Jiang Ye' in item['title'] and "Chapter" in item['title']:
+			return buildReleaseMessage(item, 'Jiang Ye', vol, chp, frag=frag, postfix=postfix)
+		if 'Ze Tian Ji' in item['title'] and "Chapter" in item['title']:
+			return buildReleaseMessage(item, 'Ze Tian Ji', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+	####################################################################################################################################################
+	# tony-yon-ka.blogspot.com (the blog title is stupidly long)
+	####################################################################################################################################################
+	def extractTonyYonKa(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if 'Manowa' in item['title'] and chp:
+			return buildReleaseMessage(item, 'Manowa Mamono Taosu Nouryoku Ubau Watashi Tsuyokunaru', vol, chp, frag=frag, postfix=postfix)
+		if 'Vampire Princess' in item['title'] and chp:
+			return buildReleaseMessage(item, 'Kyuuketsu Hime wa Barairo no Yume o Miru', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+	####################################################################################################################################################
+	# Rebirth Online
+	####################################################################################################################################################
+	# No releases atm.
+	def extractRebirthOnline(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if "TDADP" in item['title'] or 'To deprive a deprived person episode'.lower() in item['title'].lower():
+			return buildReleaseMessage(item, 'To Deprive a Deprived Person', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+	####################################################################################################################################################
 	# Untuned Translation Blog
 	####################################################################################################################################################
 	def extractUntunedTranslation(self, item):
@@ -1156,11 +1201,28 @@ class DataParser():
 			ret = self.extractGilaTranslation(item)
 		elif item['srcname'] == 'AFlappyTeddyBird':
 			ret = self.extractAFlappyTeddyBird(item)
+		elif item['srcname'] == 'Binggo&Corp':
+			ret = self.extractBinggoCorp(item)
+		elif item['srcname'] == 'Tony Yon Ka':
+			ret = self.extractTonyYonKa(item)
 
+		elif item['srcname'] == 'Rebirth Online':
+			ret = self.extractRebirthOnline(item)
+		elif item['srcname'] == 'Ln Addiction':
+			ret = self.extractLnAddiction(item)
 
 
 		# else:
 		# 	print("'%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags']))
+
+		# if ret:
+		# 	print(item['title'])
+		# 	print(ret["vol"], ret["chp"])
+		# 	print()
+		# ret = False
+
+
+
 
 		# OEL Junk
 		# 'JawzTranslations'

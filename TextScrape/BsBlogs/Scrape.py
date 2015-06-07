@@ -34,8 +34,6 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://cetranslation.blogspot.ca',
 		'http://cetranslation.blogspot.com',
 		'http://cetranslation.blogspot.sg',
-		'http://hereticlnt.blogspot.ca',
-		'http://hereticlnt.blogspot.com',
 		'http://hikuosan.blogspot.com',
 		'http://imoutoliciouslnt.blogspot.ca',
 		'http://imoutoliciouslnt.blogspot.com.au',
@@ -52,7 +50,6 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://royalroadweed.blogspot.co.il',
 		'http://skythewood.blogspot.com',
 		'http://skythewood.blogspot.sg',
-		'http://sousetsuka.blogspot.ca',
 		'http://swordandgame.blogspot.ca',
 		'http://swordandgame.blogspot.it',
 		'http://thenakedsol.blogspot.com',
@@ -61,11 +58,12 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://untuned-strings.blogspot.ca',
 		'http://untuned-strings.blogspot.com',
 		'http://xcrossj.blogspot.com.au',
-		'https://sousetsuka.blogspot.com',
 		'http://tony-yon-ka.blogspot.com.au',
 		'http://webnoveltranslations.blogspot.se',
 
-
+		# Dead:
+		# 'http://hereticlnt.blogspot.ca',
+		# 'http://hereticlnt.blogspot.com',
 
 	]
 
