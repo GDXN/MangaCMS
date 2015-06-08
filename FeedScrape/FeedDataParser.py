@@ -41,10 +41,9 @@ def extractChapterVol(inStr):
 
 	if vol == 0:
 		vol = None
+
+
 	return chap, vol
-
-
-
 
 
 def extractVolChapterFragmentPostfix(inStr):
@@ -75,7 +74,9 @@ def extractVolChapterFragmentPostfix(inStr):
 	if chp == frag_val and ("episode" in inStr.lower() or " ep " in inStr.lower()) and not "chapter" in inStr.lower():
 		frag_val = None
 
+
 	return vol, chp, frag_val, postfix
+
 
 
 def extractChapterVolFragment(inStr):
@@ -1367,6 +1368,8 @@ class DataParser():
 		# 'ELYSION Translation'
 
 
+
+		ret = False
 
 		# Only return a value if we've actually found a chapter/vol
 		if ret and not (ret['vol'] or ret['chp'] or ret['postfix']):
