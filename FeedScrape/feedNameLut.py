@@ -13,6 +13,7 @@ def getNiceName(srcurl):
 		'amaburithetranslation.wordpress.com'       : '(NanoDesu) - Amagi Brilliant Park ',
 		'arkmachinetranslations.com'                : 'Ark Machine Translations',
 		'avertranslation.org'                       : 'Avert Translations',
+		'avertranslation.com'                       : 'Avert Translations',
 		'azureskytls.blogspot.com'                  : 'Azure Sky Translation',
 		'binhjamin.wordpress.com'                   : 'Binhjamin',
 		'blazingtranslations.com'                   : 'Blazing Translations',
@@ -105,7 +106,6 @@ def getNiceName(srcurl):
 		'pikatranslations.wordpress.com'            : 'Pika Translations',
 		'pirateyoshi.wordpress.com'                 : 'Ziru\'s Musings | Translations~',
 		'pummels.wordpress.com'                     : 'Pummels Translations',
-		'pummels.wordpress.com'                     : 'Pummels',
 		'putttytranslations.wordpress.com'          : 'putttytranslations',
 		'reantoanna.wordpress.com'                  : 'ℝeanとann@',
 		'rhinabolla.wordpress.com'                  : 'Rhinabolla',
@@ -149,7 +149,7 @@ def getNiceName(srcurl):
 		'vaancruze.wordpress.com'                   : 'Maou the Yuusha',
 		'voidtranslations.wordpress.com'            : 'Void Translations',
 		'wartdf.wordpress.com'                      : 'Raising the Dead',
-		'wcctranslation.wordpress.com'              : 'wcctranslation',
+		'wcctranslation.wordpress.com'              : 'WCC Translation',
 		'worldofwatermelons.com'                    : 'World of Watermelons',
 		'www.princerevolution.org'                  : 'Prince Revolution!',
 		'www.risingdragonstranslation.com'          : 'Rising Dragons Translation',
@@ -163,6 +163,7 @@ def getNiceName(srcurl):
 		'youtsubasilver.wordpress.com'              : 'youtsubasilver\'s Blog',
 		'zmunjali.wordpress.com'                    : 'Roxism HQ',
 		'webnoveltranslations.blogspot.se'          : 'Neo Translations',
+		'webnoveltranslations.blogspot.com'         : 'Neo Translations',
 		'isekaicyborg.wordpress.com'                : 'Isekai Soul-Cyborg Translations',
 		'sotranslations.wordpress.com'              : 'Supreme Origin Translations',
 
@@ -172,6 +173,7 @@ def getNiceName(srcurl):
 		'bingnovels.wordpress.com'                  : 'Binggo&Corp',
 		'tony-yon-ka.blogspot.com'                  : 'Tony Yon Ka',
 		'tony-yon-ka.blogspot.com.au'               : 'Tony Yon Ka',
+		'ruzetranslations.wordpress.com'            : 'Ruze Translations',
 
 
 	}

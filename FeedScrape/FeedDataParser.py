@@ -15,15 +15,14 @@ skip_filter = [
 	"www.baka-tsuki.org",
 	"re-monster.wikia.com",
 ]
-r"(?<!volume|season|book|part|of|vol|pt|volume |season |book |part |of |vol |pt |v)(?<!p)(?: |_|\.|)((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))"
 
 def extractChapterVol(inStr):
 
 	# Becuase some series have numbers in their title, we need to preferrentially
 	# chose numbers preceeded by known "chapter" strings when we're looking for chapter numbers
 	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
-	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!book)(?<!part )(?<!pt)(?<!p) ?(?:chapter[ \-_]|episode[ \-_]|\Wch|\Wc)(?: |_|\.)?((?:\d+\.\d+)|(?:\.\d+)|(?:\d+\.)|(?:\d+))", re.IGNORECASE)
-	chpRe2 = re.compile(r"(?<!volume)(?<!season)(?<!book)(?<!part)(?<!of)(?<!vol)(?<!pt)(?<!volume )(?<!season )(?<!book )(?<!part )(?<!of )(?<!vol )(?<!pt )(?<!v)(?<!p)(?: |_|\.|)((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
+	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!book)(?<!part )(?<!pt)(?<!p)(?<!\d) ?(?:chapter[ \-_]|episode[ \-_]|\Wch|\Wc)(?: |_|\.)?((?:\d+\.\d+)|(?:\.\d+)|(?:\d+\.)|(?:\d+))", re.IGNORECASE)
+	chpRe2 = re.compile(r"(?<!volume)(?<!season)(?<!book)(?<!part)(?<!of)(?<!vol)(?<!pt)(?<!volume )(?<!season )(?<!book )(?<!part )(?<!of )(?<!vol )(?<!pt )(?<!v)(?<!p)(?<!\d)(?: |_|\.|)((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 	volRe  = re.compile(r"(?: |_|\-|^)(?:book|volume|vol|vol ?\.|vol?\. |v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
 
 	chap = None
@@ -286,8 +285,6 @@ class DataParser():
 
 		return False
 
-
-
 	####################################################################################################################################################
 	# Blue Silver Translations
 	####################################################################################################################################################
@@ -304,6 +301,7 @@ class DataParser():
 			chp, vol = extractChapterVol(proc_str)
 
 			return buildReleaseMessage(item, 'Douluo Dalu', vol, chp)
+
 		return False
 
 
@@ -1024,7 +1022,6 @@ class DataParser():
 	####################################################################################################################################################
 	# Rebirth Online
 	####################################################################################################################################################
-	# No releases atm.
 	def extractRebirthOnline(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if "TDADP" in item['title'] or 'To deprive a deprived person episode'.lower() in item['title'].lower():
@@ -1032,26 +1029,82 @@ class DataParser():
 		return False
 
 	####################################################################################################################################################
-	# Untuned Translation Blog
+	# Ark Machine Translations
 	####################################################################################################################################################
-	def extractUntunedTranslation(self, item):
-		# Arrrgh, volume and book parts in the same title. Fffuuuuuuuuu
-		# vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-		# print(item['title'])
-		# print(item['tags'])
-		# print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+	def extractArkMachineTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if 'Ark volume' in item['title']:
+			return buildReleaseMessage(item, 'Ark', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Avert Translations
+	####################################################################################################################################################
+	def extractAvert(self, item):
+		if not "release" in item['title'].lower():
+			return False
+
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if not vol or chp or frag:
+			return False
+		if 'rokujouma' in item['title'].lower():
+			return buildReleaseMessage(item, 'Rokujouma no Shinryakusha!', vol, chp, frag=frag, postfix=postfix)
+		elif   'fuyo shoukan mahou' in item['title'].lower() \
+			or 'fuyou shoukan mahou' in item['title'].lower():
+			return buildReleaseMessage(item, 'Boku wa Isekai de Fuyo Mahou to Shoukan Mahou wo Tenbin ni Kakeru', vol, chp, frag=frag, postfix=postfix)
+		elif 'regarding reincarnated to slime chapter' in item['title'].lower():
+			return buildReleaseMessage(item, 'Tensei Shitara Slime Datta Ken', vol, chp, frag=frag, postfix=postfix)
+
 		return False
 
 	####################################################################################################################################################
-	# Prince Revolution!
+	# Binhjamin
 	####################################################################################################################################################
-	def extractPrinceRevolution(self, item):
-		# Has annoying volume format ("V8C5"), will have to revisit.
-		# vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-		# print(item['title'])
-		# print(item['tags'])
-		# print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+	def extractBinhjamin(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if not vol or chp or frag or postfix:
+			return False
+
+		if "SRKJ" in item['title']:
+			return buildReleaseMessage(item, 'Sayonara Ryuusei Konnichiwa Jinsei', vol, chp, frag=frag, postfix=postfix)
+		if "Unborn" in item['title']:
+			return buildReleaseMessage(item, 'Unborn', vol, chp, frag=frag, postfix=postfix)
+		if "Bu ni Mi" in item['title'] \
+			or '100 Years Of Martial Arts' in item['title']:
+			return buildReleaseMessage(item, 'Sayonara Ryuusei Konnichiwa Jinsei', vol, chp, frag=frag, postfix=postfix)
 		return False
+
+
+
+	####################################################################################################################################################
+	# Burei Dan Works
+	####################################################################################################################################################
+	def extractBureiDan(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if 'Isekai Canceller' in item['tags'] and (chp or vol or frag or postfix):
+			return buildReleaseMessage(item, 'Isekai Canceller', vol, chp, frag=frag, postfix=postfix)
+		if 'Kenja ni Natta' in item['tags'] and (chp or vol or frag or postfix):
+			return buildReleaseMessage(item, 'Kenja ni Natta', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+	####################################################################################################################################################
+	# Burei Dan Works
+	####################################################################################################################################################
+	def extractCeLn(self, item):
+		# vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		# if 'Mushi Uta' in item['tags']:
+		# 	print(item['title'])
+		# 	print(item['tags'])
+		# 	print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+		#
+		# if 'Isekai Canceller' in item['tags'] and (chp or vol or frag or postfix):
+		# 	return buildReleaseMessage(item, 'Isekai Canceller', vol, chp, frag=frag, postfix=postfix)
+		# if 'Kenja ni Natta' in item['tags'] and (chp or vol or frag or postfix):
+		# 	return buildReleaseMessage(item, 'Kenja ni Natta', vol, chp, frag=frag, postfix=postfix)
+		return False
+
 
 
 
@@ -1210,10 +1263,87 @@ class DataParser():
 			ret = self.extractRebirthOnline(item)
 		elif item['srcname'] == 'Ln Addiction':
 			ret = self.extractLnAddiction(item)
+		elif item['srcname'] == 'Ark Machine Translations':
+			ret = self.extractArkMachineTranslations(item)
+		elif item['srcname'] == 'Avert Translations':
+			ret = self.extractAvert(item)
+
+		elif item['srcname'] == 'Binhjamin':
+			ret = self.extractBinhjamin(item)
+		elif item['srcname'] == 'Burei Dan Works':
+			ret = self.extractBureiDan(item)
+		elif item['srcname'] == "C.E. Light Novel Translations":
+			ret = self.extractCeLn(item)
+
+
+		# To Add:
+		elif item['srcname'] == "HaruPARTY":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Hello Translations":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Hokage Translations":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Iterations within a Thought-Eclips":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "itranslateln":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "JawzTranslations":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Kaezar Translations":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Kami Translation":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "KobatoChanDaiSukiScan":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Kyakka":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Mahou Koukoku":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Roasted Tea":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == "Ruze Translations":
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Supreme Origin Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Tsuigeki Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Undecent Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Undecent Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'WCC Translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Neo Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'World of Watermelons':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Wuxia Translations':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'ℝeanとann@':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == '1HP':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Bad Translation':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'LordofScrubs':
+			ret = self.extractWAT(item)
+		elif item['srcname'] == 'Roxism HQ':
+			ret = self.extractWAT(item)
+
+
+		# Will be challenging, uses pages instead of chapters
+		elif item['srcname'] == "Shin Sekai Yori – From the New World":
+			ret = self.extractWAT(item)
+
+		# More annoying crap. Volumes are in the tags, chapters are "chapter {chp}-{part}"
+		elif item['srcname'] == "A0132":
+			ret = self.extractWAT(item)
 
 
 		# else:
 		# 	print("'%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags']))
+
+		# ret = False
 
 		# if ret:
 		# 	print(item['title'])
@@ -1362,3 +1492,25 @@ class DataParser():
 		# More "third part of translation" or "last part of chapter nnn" crap
 		pass
 
+
+	####################################################################################################################################################
+	# Prince Revolution!
+	####################################################################################################################################################
+	def extractPrinceRevolution(self, item):
+		# Has annoying volume format ("V8C5"), will have to revisit.
+		# vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		# print(item['title'])
+		# print(item['tags'])
+		# print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+		return False
+
+	####################################################################################################################################################
+	# Untuned Translation Blog
+	####################################################################################################################################################
+	def extractUntunedTranslation(self, item):
+		# Arrrgh, volume and book parts in the same title. Fffuuuuuuuuu
+		# vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		# print(item['title'])
+		# print(item['tags'])
+		# print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+		return False
