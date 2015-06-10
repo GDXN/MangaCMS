@@ -2,7 +2,6 @@
 http://10.1.1.8:8081/books/render?url=http%3A%2F%2Ftotobro.com%2F%3Fp%3D65
 comments
 
-ex 'comfycushion'
 
 http://10.1.1.8:8081/books/book-item?dbid=1963
 
@@ -10,12 +9,8 @@ https://rebirthonlinelightnovel.wordpress.com/to-deprive-a-deprived-person/
 https://lnaddiction.wordpress.com/
 https://bingnovels.wordpress.com/chapter-20-the-first-page/
 
-http://10.1.1.8:8081/books/render?url=http%3A//tony-yon-ka.blogspot.com/2015/05/manowa-10.html
-title breaking search
 
 http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/open%3Fid%3D0B_mXfd95yvDfQWQ1ajNWZTJFRkk
-
-https://gilatranslationmonster.wordpress.com/2015/04/28/tensei-shitara-slime-datta-ken-episode-5/
 
 
 

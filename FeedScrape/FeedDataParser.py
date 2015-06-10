@@ -8,6 +8,8 @@ import logging
 from FeedScrape.feedNameLut import getNiceName
 import settings
 import FeedScrape.AmqpInterface
+from titleParse import TitleParser
+
 # pylint: disable=W0201
 
 
@@ -16,71 +18,24 @@ skip_filter = [
 	"re-monster.wikia.com",
 ]
 
+def extractTitle(inStr):
+	p    = TitleParser(inStr)
+	vol  = p.getVolume()
+	chp  = p.getChapter()
+	frag = p.getFragment()
+	post = p.getPostfix()
+	return vol, chp, frag, post
+
 def extractChapterVol(inStr):
-
-	# Becuase some series have numbers in their title, we need to preferrentially
-	# chose numbers preceeded by known "chapter" strings when we're looking for chapter numbers
-	# and only fall back to any numbers (chpRe2) if the search-by-prefix has failed.
-	chpRe1 = re.compile(r"(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!book)(?<!part )(?<!pt)(?<!p)(?<!\d) ?(?:chapter[ \-_]|episode[ \-_]|\Wch|\Wc)(?: |_|\.)?((?:\d+\.\d+)|(?:\.\d+)|(?:\d+\.)|(?:\d+))", re.IGNORECASE)
-	chpRe2 = re.compile(r"(?<!volume)(?<!season)(?<!book)(?<!part)(?<!of)(?<!vol)(?<!pt)(?<!volume )(?<!season )(?<!book )(?<!part )(?<!of )(?<!vol )(?<!pt )(?<!v)(?<!p)(?<!\d)(?: |_|\.|)((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
-	volRe  = re.compile(r"(?: |_|\-|^)(?:book|volume|vol|vol ?\.|vol?\. |v|season)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
-
-	chap = None
-	for chRe in [chpRe1, chpRe2]:
-		chapF = chRe.findall(inStr)
-		if chapF:
-			chap  = float(chapF.pop(0)) if chapF else None
-		if chap != None:
-			break
-
-	volKey = volRe.findall(inStr)
-	vol    = float(volKey.pop(0))  if volKey    else None
-
-	chap   = chap if chap != None else 0.0
-	vol    = vol  if vol  != None else 0.0
-
-	if vol == 0:
-		vol = None
-
-
-	return chap, vol
-
+	vol, chp, dummy_frag, dummy_post = extractTitle(inStr)
+	return chp, vol
 
 def extractVolChapterFragmentPostfix(inStr):
-	chp, vol = extractChapterVol(inStr)
-
-	frag = re.compile(r"(?<!book)(?<!volume)(?<!vol)(?<!v)(?<!of)(?<!season)(?<!chapter)(?<!ch)(?<!c) ?(?:episode |part |pt|p)(?: |_|\.)?((?:\d+)|(?:\d+\.)|(?:\.\d+)|(?:\d+\.\d+))", re.IGNORECASE)
-
-	fragKey   = frag.findall(inStr)
-	frag_val  = float(fragKey.pop(0))  if fragKey    else None
-
-
-	postfix = ''
-	if 'prologue'  in inStr.lower():
-		postfix = 'Prologue'
-	if 'afterword' in inStr.lower():
-		postfix = 'Afterword'
-	if 'epilogue'  in inStr.lower():
-		postfix = 'Epilogue'
-	if 'interlude' in inStr.lower():
-		postfix = 'Interlude'
-	if 'foreword' in inStr.lower():
-		postfix = 'Foreword'
-	if 'appendix' in inStr.lower():
-		postfix = 'Appendix'
-	if 'side story' in inStr.lower():
-		postfix = 'Side Story'
-
-	if chp == frag_val and ("episode" in inStr.lower() or " ep " in inStr.lower()) and not "chapter" in inStr.lower():
-		frag_val = None
-
-
-	return vol, chp, frag_val, postfix
-
-
+	vol, chp, frag, post = extractTitle(inStr)
+	return vol, chp, frag, post
 
 def extractChapterVolFragment(inStr):
-	vol, chp, frag, dummy_postfix = extractVolChapterFragmentPostfix(inStr)
+	vol, chp, frag, dummy_post = extractTitle(inStr)
 	return chp, vol, frag
 
 
@@ -107,6 +62,12 @@ def packChapterFragments(chapStr, fragStr):
 		return None
 	if not fragStr:
 		return chapStr
+
+	# Handle cases where the fragment is present,
+	# but the chapStr is None
+	if chapStr == None:
+		chapStr = 0
+
 	chap = float(chapStr)
 	frag = float(fragStr)
 	return '%0.2f' % (chap + (frag / 100.0))
