@@ -1369,7 +1369,7 @@ class DataParser():
 
 
 
-		ret = False
+		# ret = False
 
 		# Only return a value if we've actually found a chapter/vol
 		if ret and not (ret['vol'] or ret['chp'] or ret['postfix']):
