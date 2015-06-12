@@ -445,13 +445,11 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 		if '%2F' in  mimeType:
 			mimeType = mimeType.replace('%2F', '/')
 
-		if mimeType in ['text/xml', 'text/atom+xml', 'application/xml']:
+		if mimeType in ['text/xml', 'text/atom+xml', 'application/atom+xml', 'application/xml']:
 			self.log.info("XML File?")
 			self.log.info("URL: '%s'", url)
 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
 			return self.getEmptyRet()
-
-
 
 		elif mimeType in ['text/css']:
 			self.log.info("CSS!")
@@ -705,8 +703,8 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 			else:
 				self.upsert(self.startUrl, dlstate=0, distance=0, walklimit=-1)
 
-		with self.transaction():
-			print('transaction test!')
+		# with self.transaction():
+		# 	print('transaction test!')
 
 		if shallow:
 			self.FETCH_DISTANCE = 1

@@ -46,6 +46,7 @@ POSTFIX_KEYS = [
 		['interlude'],
 		['foreword'],
 		['appendix'],
+		['intermission'],
 		['sidestory'],
 		['side', 'story'],
 		['extra'],

@@ -222,7 +222,8 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 				return
 
 			# self.log.info("Resolved URL = '%s'", url)
-			return self.processNewUrl(url, baseUrl)
+			ret = self.processNewUrl(url, baseUrl)
+			return ret
 			# self.log.info("New G link: '%s'", url)
 
 		else:
@@ -231,18 +232,18 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 				print('Old URL: "%s"' % url)
 				print('Trimmed: "%s"' % gdp.trimGDocUrl(url))
 				raise ValueError("Wat? Url change? Url: '%s'" % url)
-			return self.processNewUrl(url, baseUrl)
+			ret = self.processNewUrl(url, baseUrl)
+			# print("Returning:", ret)
+			return ret
 			# self.log.info("Newlink: '%s'", url)
 
 
 	def extractLinks(self, soup, baseUrl):
 		# All links have been resolved to fully-qualified paths at this point.
-
 		ret = []
 		for (dummy_isImg, tag, attr) in TextScrape.urlFuncs.urlContainingTargets:
 
 			for link in soup.findAll(tag):
-
 
 				# Skip empty anchor tags
 				try:

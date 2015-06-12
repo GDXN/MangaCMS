@@ -366,6 +366,25 @@ class ApiInterface(object):
 		return Response(body=json.dumps(ret))
 
 
+	def resetCrawlDist(self, request):
+
+		assert request.params['reset-book-crawl-dist']
+		assert request.params['western'] == 'false'
+		rowid = int(request.params['reset-book-crawl-dist'])
+
+
+
+		cur = self.conn.cursor()
+		cur.execute("""UPDATE book_items SET distance=0 WHERE dbid=%s;""", (rowid, ))
+		cur.execute('COMMIT')
+
+		ret = {
+			"Status": "Success",
+			"contents": 'Reset crawl distance for item: %s!' % rowid,
+			}
+		return Response(body=json.dumps(ret))
+
+
 	def deleteCustomBook(self, request):
 
 
@@ -503,6 +522,8 @@ class ApiInterface(object):
 			return self.newCustomBook(request)
 		elif "delete-custom-book" in request.params:
 			return self.deleteCustomBook(request)
+		elif 'reset-book-crawl-dist' in request.params:
+			return self.resetCrawlDist(request)
 
 
 		else:

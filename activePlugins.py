@@ -57,6 +57,7 @@ import TextScrape.Guhehe.Run
 import TextScrape.DearestFairy.Run
 import TextScrape.HaruParty.Run
 import TextScrape.ReMonsterWikia.Run
+import TextScrape.Sousetsuka.Run
 
 import TextScrape.BakaTsuki.RunUpdate
 import TextScrape.BsBlogs.RunUpdate
@@ -80,6 +81,7 @@ import TextScrape.RoyalRoad.RunUpdate
 import TextScrape.StoriesOnline.RunUpdate
 import TextScrape.WattPad.RunUpdate
 import TextScrape.ReMonsterWikia.RunUpdate
+import TextScrape.Sousetsuka.RunUpdate
 
 import TextScrape.CloudFlareWordPress.Run
 import TextScrape.CloudFlareWordPress.RunUpdate
@@ -179,6 +181,7 @@ scrapePlugins = {
 	221 : (TextScrape.WattPad.RunUpdate,                       minutes(30)),
 	222 : (TextScrape.CloudFlareWordPress.RunUpdate,           minutes(30)),
 	223 : (TextScrape.ReMonsterWikia.Run,                      minutes(30)),
+	224 : (TextScrape.Sousetsuka.Run,                          minutes(30)),
 
 
 	300 : (TextScrape.BakaTsuki.Run,                           days(7)),
@@ -194,6 +197,7 @@ scrapePlugins = {
 	310 : (TextScrape.HaruParty.Run,                           days(2)),
 	311 : (TextScrape.CloudFlareWordPress.Run,                 days(2)),
 	312 : (TextScrape.ReMonsterWikia.RunUpdate,                days(7)),
+	313 : (TextScrape.Sousetsuka.RunUpdate,                    days(7)),
 
 
 	400 : (TextScrape.Lndb.Run,                                hours(2)),

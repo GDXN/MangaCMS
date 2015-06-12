@@ -146,7 +146,7 @@ def getNiceName(srcurl):
 		'undecentlnt.wordpress.com'                 : 'Undecent Translations',
 		'unlimitednovelfailures.mangamatters.com'   : 'Unlimited Novel Failures',
 		'untuned-strings.blogspot.com'              : 'Untuned Translation Blog',
-		'vaancruze.wordpress.com'                   : 'Maou the Yuusha',
+		'vaancruze.wordpress.com'                   : 'VaanCruze',
 		'voidtranslations.wordpress.com'            : 'Void Translations',
 		'wartdf.wordpress.com'                      : 'Raising the Dead',
 		'wcctranslation.wordpress.com'              : 'WCC Translation',

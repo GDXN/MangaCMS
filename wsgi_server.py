@@ -506,7 +506,7 @@ class PageResource(object):
 				# self.conn
 				cur = self.conn.cursor()
 				cur.execute('BEGIN')
-				cur.execute("SELECT mimetype, fsPath, url FROM {tableName} WHERE url=%s;".format(tableName=table), (itemUrl, ))
+				cur.execute("SELECT mimetype, fsPath, url, distance, dbid FROM {tableName} WHERE url=%s;".format(tableName=table), (itemUrl, ))
 
 				ret = cur.fetchall()
 
@@ -561,39 +561,17 @@ class PageResource(object):
 					responseBody += reasons
 					return Response(status_int=404, body=responseBody)
 
-
-			mimetype, fsPath, itemUrl = ret.pop()
+			requestData = ret.pop()
+			mimetype, fsPath, itemUrl, distance, dbid = requestData
 
 			if not mimetype:
 				self.log.warn("Request for book content '%s' failed because the file has not been retreived yet.", request.params)
 
 
-				responseBody = '''
-				<html>
-					<head>
-						<title>Item not yet retreived!</title>
-					</head>
-					<body>
-						<div>
-							<h3>Item was found in the book item database, but it seems to have no
-							mime-type, which means it has probably not been retreived yet.</h3>
-
-						</div>
-						<div>
-							<a href='{url}'>Try to retreive from original source</a>
-						</div>
-						<div>
-							Request Parameters: {params}
-					</body>
-				</html>
-
-
-
-				'''.format(params=request.params, url=itemUrl)
-				responseBody += reasons
-
-
-				return Response(status_int=404, body=responseBody)
+				pgTemplate = self.lookupEngine_base.get_template('books/access_error.mako')
+				pageContent = pgTemplate.render_unicode(request=request, sqlCon=self.conn, extradat=requestData)
+				pageContent += reasons
+				return Response(status_int=404, body=pageContent)
 
 			elif not 'text' in mimetype:
 				if not os.path.exists(fsPath):

@@ -99,6 +99,7 @@ class DataParser():
 		# check that 'Desumachi' is in the tags? It seems to work well enough now....
 		desumachi_norm  = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(\d+)$', item['title'])
 		desumachi_extra = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(Intermission.*?)$', item['title'])
+
 		if desumachi_norm:
 			series = desumachi_norm.group(1)
 			vol    = desumachi_norm.group(2)

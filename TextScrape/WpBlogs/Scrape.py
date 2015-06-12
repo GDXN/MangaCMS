@@ -404,8 +404,8 @@ class Scrape(WordpressScrape):
 
 	# Methods to allow the child-class to modify the content at various points.
 	def extractTitle(self, srcSoup, doc, url):
-
 		title = doc.title()
+
 		if not title:
 			title = srcSoup.title.get_text().strip()
 
@@ -429,9 +429,9 @@ class Scrape(WordpressScrape):
 
 		return title
 
-# SELECT title FROM book_items WHERE contents LIKE '%tang san%';
+	# SELECT title FROM book_items WHERE contents LIKE '%tang san%';
 
-# SELECT title FROM book_items WHERE contents LIKE '%yuusha party no kawaii ko ga ita no de, kokuhaku shite mita%';
+	# SELECT title FROM book_items WHERE contents LIKE '%yuusha party no kawaii ko ga ita no de, kokuhaku shite mita%';
 
 
 	# def checkDomain(self, url):
@@ -446,7 +446,12 @@ class Scrape(WordpressScrape):
 
 def test():
 	scrp = Scrape()
-	scrp.crawl()
+
+	ret = scrp.retreivePlainResource('https://natsutl.wordpress.com/2015/06/12/magi-craft-meister-volume-2-chapter-7-8-9/')
+	print(ret)
+	scrp.processResponse(ret, 1)
+	scrp.crawl(shallow=True)
+	# scrp.crawl()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)
 
 

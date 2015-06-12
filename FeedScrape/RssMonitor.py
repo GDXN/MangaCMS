@@ -32,7 +32,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 	# Has to be explicitly overridden, or the inheritnace will
 	# asplode.
 	log = None
-
+	test_override = []
 	htmlProcClass = TextScrape.HtmlProcessor.HtmlPageProcessor
 
 	def __init__(self):
@@ -42,12 +42,22 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 		pdata = TextScrape.RelinkLookup.getPluginData()
 
 		self.scan = []
+
 		for plugin in pdata:
 			for feed in plugin['feeds']:
 				self.scan.append((feed, plugin['pluginName'], plugin['tableName'], plugin['key'], plugin['badwords']))
 
 		self.scan.sort()
 		super().__init__()
+
+		if self.test_override:
+			self.log.warning("In testing mode, overriding normal feed list mechanism!")
+			for item in self.scan[:]:
+				if not any([nonblock in item[0] for nonblock in self.test_override]):
+					self.scan.remove(item)
+
+			for item in self.scan:
+				self.log.warning("Test target: '%s'", item[0])
 
 	# @profile
 	def parseFeed(self, rawFeed):
@@ -117,25 +127,15 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 		except readability.readability.Unparseable:
 			self.log.error("Parsing error in content!")
 			return contentDat, []
-		# if extracted['plainLinks']:
-		# 	for key, value in extracted.items():
-		# 		print("'{key}' - '{val}'".format(key=key, val=value))
-
 
 		assert contentDat['type'] == 'text/html'
-
 		content = extracted['contents']
 
 		# Use a parser that doesn't try to generate a well-formed output (and therefore doesn't insert
 		# <html> or <body> into content that will be only a part of the rendered page)
 		soup = bs4.BeautifulSoup(content, "html.parser")
 
-		links = []
-		for link in soup.find_all('a'):
-			try:
-				links.append(link['href'])
-			except KeyError:
-				pass
+
 
 		if soup.html:
 			soup.html.unwrap()
@@ -231,7 +231,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 		return ret
 
 	def insertFeed(self, tableName, tableKey, pluginName, feedUrl, feedContent, badwords):
-
+		print("InsertFeed!")
 		dbFunc = TextScrape.utilities.Proxy.EmptyProxy(tableKey=tableKey, tableName=tableName, scanned=[feedUrl])
 
 		for item in feedContent:
@@ -247,9 +247,11 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 				ret = {}
 				ret['contents'] = '<H2>WARNING - Failure when cleaning and extracting content!</H2><br><br>'
 				ret['contents'] += item['contents']
-
 				ret['rsrcLinks'] = []
 				ret['plainLinks'] = []
+				self.log.error("Wat? Error when extracting contents!")
+
+
 
 			if not self.itemInDB(contentid=item['guid']):
 
@@ -271,16 +273,16 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 
 				self.insertIntoDb(**row)
 
-
-				dbFunc.upsert(item['linkUrl'], dlstate=0, distance=0, walkLimit=1)
-				for link in ret['plainLinks']:
-					if not any([badword in link for badword in badwords]):
-						dbFunc.upsert(link, dlstate=0, distance=0, walkLimit=1)
-					else:
-						print("Filtered link!", link)
-				for link in ret['rsrcLinks']:
-					if not any([badword in link for badword in badwords]):
-						dbFunc.upsert(link, distance=0, walkLimit=1, istext=False)
+			dbFunc.upsert(item['linkUrl'], dlstate=0, distance=0, walkLimit=1)
+			for link in ret['plainLinks']:
+				print("Adding link '%s' to the queue" % link)
+				if not any([badword in link for badword in badwords]):
+					dbFunc.upsert(link, dlstate=0, distance=0, walkLimit=1)
+				else:
+					print("Filtered link!", link)
+			for link in ret['rsrcLinks']:
+				if not any([badword in link for badword in badwords]):
+					dbFunc.upsert(link, distance=0, walkLimit=1, istext=False)
 
 
 
@@ -290,8 +292,9 @@ class RssTest(RssMonitor):
 
 	tableKey = 'wp'
 
-	feedUrls = [
-		'https://bluesilvertranslations.wordpress.com/feed/',
+	test_override = [
+		# 'https://bluesilvertranslations.wordpress.com/feed/',
+		'https://natsutl.wordpress.com/feed/',
 	# 	'http://krytykal.org/feed/',
 	# 	'https://oniichanyamete.wordpress.com/feed/',
 	# 	'http://skythewood.blogspot.com/feeds/posts/default',
