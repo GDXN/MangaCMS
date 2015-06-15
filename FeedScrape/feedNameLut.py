@@ -174,6 +174,7 @@ def getNiceName(srcurl):
 		'tony-yon-ka.blogspot.com'                  : 'Tony Yon Ka',
 		'tony-yon-ka.blogspot.com.au'               : 'Tony Yon Ka',
 		'ruzetranslations.wordpress.com'            : 'Ruze Translations',
+		'lazyneet.wordpress.com'                    : 'Lazy NEET Translations',
 
 
 	}

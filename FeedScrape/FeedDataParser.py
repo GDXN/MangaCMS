@@ -40,7 +40,7 @@ def extractChapterVolFragment(inStr):
 
 
 
-def buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix=''):
+def buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix='', author=None, tl_type='translated'):
 	'''
 	Special case behaviour:
 		If vol or chapter is None, the
@@ -55,6 +55,8 @@ def buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix='')
 		'published' : raw_item['published'],
 		'itemurl'   : raw_item['linkUrl'],
 		'postfix'   : postfix,
+		'author'    : author,
+		'tl_type'   : tl_type,
 	}
 
 def packChapterFragments(chapStr, fragStr):
@@ -100,21 +102,19 @@ class DataParser():
 		desumachi_norm  = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(\d+)$', item['title'])
 		desumachi_extra = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(Intermission.*?)$', item['title'])
 
+		ret = False
 		if desumachi_norm:
 			series = desumachi_norm.group(1)
 			vol    = desumachi_norm.group(2)
 			chp    = desumachi_norm.group(3)
-			return buildReleaseMessage(item, series, vol, chp)
+			ret = buildReleaseMessage(item, series, vol, chp)
 		elif desumachi_extra:
 			series  = desumachi_extra.group(1)
 			vol     = desumachi_extra.group(2)
 			postfix = desumachi_extra.group(3)
-			return buildReleaseMessage(item, series, vol, postfix=postfix)
+			ret = buildReleaseMessage(item, series, vol, postfix=postfix)
 
-		# else:
-		# 	self.log.warning("Cannot decode item:")
-		# 	self.log.warning("%s", item)
-		return False
+		return ret
 
 	####################################################################################################################################################
 	# お兄ちゃん、やめてぇ！ / Onii-chan Yamete
@@ -1052,6 +1052,50 @@ class DataParser():
 			return buildReleaseMessage(item, 'Kenja ni Natta', vol, chp, frag=frag, postfix=postfix)
 		return False
 
+
+	####################################################################################################################################################
+	# Lazy NEET Translations
+	####################################################################################################################################################
+	def extractNEET(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'NEET dakedo Hello Work ni Ittara Isekai ni Tsuretekareta' in item['tags']:
+			return buildReleaseMessage(item, 'NEET dakedo Hello Work ni Ittara Isekai ni Tsuretekareta', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+
+	####################################################################################################################################################
+	# Hokage Translations
+	####################################################################################################################################################
+	def extractHokageTrans(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if any(['Aim the Deepest Part of the Different World Labyrinth'.lower() in tag.lower() for tag in item['tags']]):
+			if re.match(r"\d+\.", item['title']):
+				postfix = item['title'].split(".", 1)[-1]
+			return buildReleaseMessage(item, 'Aim the Deepest Part of the Different World Labyrinth', vol, chp, frag=frag, postfix=postfix)
+
+		if any(['Divine Protection of Many Gods'.lower() in tag.lower() for tag in item['tags']+[item['title']]]):
+			return buildReleaseMessage(item, 'Divine Protection of Many Gods', vol, chp, frag=frag, postfix=postfix)
+
+		if any(['Because Janitor-san is Not a Hero'.lower() in tag.lower() for tag in item['tags']+[item['title']]]):
+			return buildReleaseMessage(item, 'Because Janitor-san is Not a Hero', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	#
+	####################################################################################################################################################
+	def extractStub(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		print(item['title'])
+		print(item['tags'])
+		print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+
+		return False
+
 	####################################################################################################################################################
 	# Burei Dan Works
 	####################################################################################################################################################
@@ -1237,20 +1281,16 @@ class DataParser():
 			ret = self.extractBureiDan(item)
 		elif item['srcname'] == "C.E. Light Novel Translations":
 			ret = self.extractCeLn(item)
+		elif item['srcname'] == "Lazy NEET Translations":
+			ret = self.extractNEET(item)
+		elif item['srcname'] == "Hokage Translations":
+			ret = self.extractHokageTrans(item)
+
+
 
 
 		# To Add:
-		elif item['srcname'] == "HaruPARTY":
-			ret = self.extractWAT(item)
-		elif item['srcname'] == "Hello Translations":
-			ret = self.extractWAT(item)
-		elif item['srcname'] == "Hokage Translations":
-			ret = self.extractWAT(item)
-		elif item['srcname'] == "Iterations within a Thought-Eclips":
-			ret = self.extractWAT(item)
-		elif item['srcname'] == "itranslateln":
-			ret = self.extractWAT(item)
-		elif item['srcname'] == "JawzTranslations":
+		elif item['srcname'] == "Iterations within a Thought-Eclipse":
 			ret = self.extractWAT(item)
 		elif item['srcname'] == "Kaezar Translations":
 			ret = self.extractWAT(item)
@@ -1294,6 +1334,9 @@ class DataParser():
 			ret = self.extractWAT(item)
 
 
+
+
+
 		# Will be challenging, uses pages instead of chapters
 		elif item['srcname'] == "Shin Sekai Yori – From the New World":
 			ret = self.extractWAT(item)
@@ -1306,7 +1349,6 @@ class DataParser():
 		# else:
 		# 	print("'%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags']))
 
-		# ret = False
 
 		# if ret:
 		# 	print(item['title'])
@@ -1316,6 +1358,17 @@ class DataParser():
 
 
 
+		# One of the series is being re-numbered
+		# also, uses lots of sequences, e.g. 5-10, etc...
+		# elif item['srcname'] == "HaruPARTY":
+		# 	ret = self.extractWAT(item)
+
+		# Dead?
+		# elif item['srcname'] == "Hello Translations":
+		# 	ret = self.extractWAT(item)
+		# elif item['srcname'] == "itranslateln":
+		# 	ret = self.extractITranslateln(item)
+		#
 
 		# OEL Junk
 		# 'JawzTranslations'
@@ -1331,8 +1384,6 @@ class DataParser():
 
 
 
-		# ret = False
-
 		# Only return a value if we've actually found a chapter/vol
 		if ret and not (ret['vol'] or ret['chp'] or ret['postfix']):
 			ret = False
@@ -1340,6 +1391,8 @@ class DataParser():
 		# Do not trigger if there is "preview" in the title.
 		if 'preview' in item['title'].lower():
 			ret = False
+		if ret:
+			assert 'tl_type' in ret
 
 		return ret
 

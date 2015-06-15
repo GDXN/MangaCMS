@@ -58,7 +58,9 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 
 			for item in self.scan:
 				self.log.warning("Test target: '%s'", item[0])
-
+		# self.log.info("Scanning: ")
+		# for item in self.scan:
+		# 	self.log.info("	%s", item)
 	# @profile
 	def parseFeed(self, rawFeed):
 		return feedparser.parse(rawFeed)
@@ -126,7 +128,18 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 			extracted = scraper.extractContent()
 		except readability.readability.Unparseable:
 			self.log.error("Parsing error in content!")
-			return contentDat, []
+
+			cont = '<H2>WARNING - Failure when cleaning and extracting content!</H2><br><br>'
+			cont += contentDat['value']
+
+			err_ret = {}
+			err_ret['plainLinks'] = []
+			err_ret['rsrcLinks']  = []
+			err_ret['title']      = 'ERROR!'
+			err_ret['contents']   = cont
+
+
+			return err_ret
 
 		assert contentDat['type'] == 'text/html'
 		content = extracted['contents']
@@ -292,9 +305,10 @@ class RssTest(RssMonitor):
 
 	tableKey = 'wp'
 
-	test_override = [
-		# 'https://bluesilvertranslations.wordpress.com/feed/',
-		'https://natsutl.wordpress.com/feed/',
+	# test_override = [
+	# 'http://www.sousetsuka.com/feeds/posts/default',
+	# 	'https://bluesilvertranslations.wordpress.com/feed/',
+	# 	'https://natsutl.wordpress.com/feed/',
 	# 	'http://krytykal.org/feed/',
 	# 	'https://oniichanyamete.wordpress.com/feed/',
 	# 	'http://skythewood.blogspot.com/feeds/posts/default',
@@ -303,7 +317,7 @@ class RssTest(RssMonitor):
 	# 	'http://guhehe.net/feed/',
 	# 	'http://japtem.com/feed/',
 	# 	'http://giraffecorps.liamak.net/feed/',
-	]
+	# ]
 
 
 

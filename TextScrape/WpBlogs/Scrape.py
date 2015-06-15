@@ -173,6 +173,7 @@ class Scrape(WordpressScrape):
 		'https://rebirthonlinelightnovel.wordpress.com',
 		'https://lnaddiction.wordpress.com',
 		'https://bingnovels.wordpress.com',
+		'https://lazyneet.wordpress.com',
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
