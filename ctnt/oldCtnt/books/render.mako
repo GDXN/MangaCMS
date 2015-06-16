@@ -234,7 +234,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 
 
-<%def name="renderPage(title, contents, itemUrl, src, distance, lastChecked=0)">
+<%def name="renderPage(dbid, dlstate, title, contents, itemUrl, src, distance, lastChecked=0)">
 	<!DOCTYPE html>
 	<html>
 		<head>
@@ -259,8 +259,10 @@ def build_trie(iterItem, getKey=lambda x: x):
 							srcStr = "Source Key: '%s'" % src
 						%>
 						Src: ${srcStr} <br>
+						<a href='/api?reset-book-download-state=${dbid}'>Retrigger download and reset distance ${dbid}</a><br>
 						Crawl Distance: ${distance}<br>
 						Last crawl time: ${lastChecked}<br>
+						Download State: ${dlstate}<br>
 						<a href='${itemUrl}'>Original source: ${itemUrl}</a>
 					</div>
 				</div>
@@ -281,15 +283,15 @@ def build_trie(iterItem, getKey=lambda x: x):
 		return
 
 	cur = sqlCon.cursor()
-	cur.execute("SELECT src, title, series, mimetype, fsPath, contents, distance FROM {table} WHERE url=%s;".format(table=table), (itemUrl, ))
+	cur.execute("SELECT dbid, dlstate, src, title, series, mimetype, fsPath, contents, distance FROM {table} WHERE url=%s;".format(table=table), (itemUrl, ))
 	page = cur.fetchall()
 	if len(page) != 1:
 		print("Bad URL", itemUrl)
 		badId()
 	else:
-		src, title, series, mimetype, fsPath, contents, distance = page.pop()
+		dbid, dlstate, src, title, series, mimetype, fsPath, contents, distance = page.pop()
 		print("title: '%s'" % title)
-		renderPage(title, contents, itemUrl, src, distance)
+		renderPage(dbid, dlstate, title, contents, itemUrl, src, distance)
 	%>
 
 </%def>

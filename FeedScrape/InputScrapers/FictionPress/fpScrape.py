@@ -108,10 +108,17 @@ class FictionPressMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.Feed
 			return False
 		if not "Published" in tups:
 			return False
+		if not "Words" in tups:
+			return False
 
 		chapters = int(tups['Chapters'])
+		wordcount = int(tups['Words'].replace(",", ""))
 
 		if chapters < 3:
+			return False
+
+		# Filter some really frivilous fluff bullshit.
+		if wordcount < 2500:
 			return False
 
 		url = self.patchUrl(url, chapters)

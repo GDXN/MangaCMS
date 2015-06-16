@@ -1,36 +1,15 @@
-http://www.sousetsuka.com/2015/06/death-march-kara-hajimaru-isekai_10.html missing
+
+
 
 http://10.1.1.8:8081/books/book-item?dbid=1963
-
-https://rebirthonlinelightnovel.wordpress.com/to-deprive-a-deprived-person/
-https://lnaddiction.wordpress.com/
-https://bingnovels.wordpress.com/chapter-20-the-first-page/
-
-
-http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/open%3Fid%3D0B_mXfd95yvDfQWQ1ajNWZTJFRkk
-
-
+http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/open%3Fid%3D0B_mXfd95yvDfQWQ1ajNWZTJFRkk not extracting drive
 
 http://10.1.1.8:8081/books/render?url=https%3A%2F%2Fdrive.google.com%2Ffolderview%3Fid%3D0B7PIRwu9hTEFODllMFFRemljMGc links broken
 http://pacem.wikia.com/wiki/Pacem_Community_Translations_Wiki
 
-
-https://aflappyteddybird.wordpress.com/2015/04/17/black-knight-table-of-contents/
-http://avertranslation.com/
-https://binhjamin.wordpress.com/
-https://hajiko.wordpress.com/strike-the-blood/
 http://hotchocolatescans.mokkori.fr/
-https://ichisora.wordpress.com
-https://kyakka.wordpress.com/
-http://manga0205.wordpress.com
-https://natsutl.wordpress.com/
-https://rhinabolla.wordpress.com/hachi-nan-2/
-http://saekanothetranslation.wordpress.com/
-https://scryatranslations.wordpress.com/
-https://tensaitranslations.wordpress.com/
-https://alyschu.wordpress.com/about/
-https://9ethtranslations.wordpress.com/
-https://parahumans.wordpress.com/table-of-contents/
+
+
 
 search for foolslide sites
 http://demonicscans.com/FoOlSlide/read/shen_yin_wang_zuo/en/0/13/page/2
@@ -38,7 +17,7 @@ http://demonicscans.com/FoOlSlide/read/shen_yin_wang_zuo/en/0/13/page/2
 https://sites.google.com/site/englishfantranslations/home
 http://www.spcnet.tv/forums/showthread.php/37833-Stellar-Transformations-NO-SPOILERS-ALLOWED#.VSNS9pUtBdl
 
-http://10.1.1.8:8081/books/render?url=http%3A%2F%2Ftotobro.com%2F%3Fp%3D1220 has comments
+
 https://docs.google.com/document/d/1xeivM_JKYlpxN7gZrjBkk6_Z79AZ9PFzZbLvoeSWoV4/preview?pli=1 not scraped
 
 ## fix last crawl time
@@ -702,3 +681,7 @@ LN:
  - ~~Defiring~~
  - ~~OniiChanYamete~~
  - ~~GravityTranslations~~
+
+
+
+~~https://ichisora.wordpress.com~~ (Songs)

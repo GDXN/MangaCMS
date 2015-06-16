@@ -385,6 +385,22 @@ class ApiInterface(object):
 		return Response(body=json.dumps(ret))
 
 
+	def resetDownloadState(self, request):
+
+		assert request.params['reset-book-download-state']
+		rowid = int(request.params['reset-book-download-state'])
+
+		cur = self.conn.cursor()
+		cur.execute("""UPDATE book_items SET distance=0, dlState=0 WHERE dbid=%s;""", (rowid, ))
+		cur.execute('COMMIT')
+
+		ret = {
+			"Status": "Success",
+			"contents": 'Reset crawl distance for item: %s!' % rowid,
+			}
+		return Response(body=json.dumps(ret))
+
+
 	def deleteCustomBook(self, request):
 
 
@@ -524,7 +540,8 @@ class ApiInterface(object):
 			return self.deleteCustomBook(request)
 		elif 'reset-book-crawl-dist' in request.params:
 			return self.resetCrawlDist(request)
-
+		elif 'reset-book-download-state' in request.params:
+			return self.resetDownloadState(request)
 
 		else:
 			self.log.warning("Unknown API call")
