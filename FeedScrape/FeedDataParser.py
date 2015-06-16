@@ -1085,6 +1085,58 @@ class DataParser():
 
 
 	####################################################################################################################################################
+	# Neo Translations
+	####################################################################################################################################################
+	def extractNeoTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'The Man Picked up by the Gods' in item['title'] and (chp or vol):
+			return buildReleaseMessage(item, 'The Man Picked up by the Gods', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Ruze Translations
+	####################################################################################################################################################
+	def extractRuzeTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Guang Zhi Zi' in item['title'] and chp or vol:
+			return buildReleaseMessage(item, 'Guang Zhi Zi', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Wuxia Translations
+	####################################################################################################################################################
+	def extractWuxiaTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		releases = [
+			'A Martial Odyssey',
+			'Law of the Devil',
+			'Tensei Shitara Slime Datta Ken',
+			'The Nine Cauldrons',
+		]
+		for name in releases:
+			if name in item['title'] and chp or vol:
+				return buildReleaseMessage(item, name, vol, chp, frag=frag, postfix=postfix)
+		return False
+
+
+	####################################################################################################################################################
+	# 1HP
+	####################################################################################################################################################
+	def extract1HP(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Route to almightyness from 1HP' in item['title'] and chp or vol:
+			return buildReleaseMessage(item, 'HP1 kara Hajimeru Isekai Musou', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
 	#
 	####################################################################################################################################################
 	def extractStub(self, item):
@@ -1285,6 +1337,14 @@ class DataParser():
 			ret = self.extractNEET(item)
 		elif item['srcname'] == "Hokage Translations":
 			ret = self.extractHokageTrans(item)
+		elif item['srcname'] == 'Neo Translations':
+			ret = self.extractNeoTranslations(item)
+		elif item['srcname'] == "Ruze Translations":
+			ret = self.extractRuzeTranslations(item)
+		elif item['srcname'] == 'Wuxia Translations':
+			ret = self.extractWuxiaTranslations(item)
+		elif item['srcname'] == '1HP':
+			ret = self.extract1HP(item)
 
 
 
@@ -1304,8 +1364,6 @@ class DataParser():
 			ret = self.extractWAT(item)
 		elif item['srcname'] == "Roasted Tea":
 			ret = self.extractWAT(item)
-		elif item['srcname'] == "Ruze Translations":
-			ret = self.extractWAT(item)
 		elif item['srcname'] == 'Supreme Origin Translations':
 			ret = self.extractWAT(item)
 		elif item['srcname'] == 'Tsuigeki Translations':
@@ -1316,15 +1374,9 @@ class DataParser():
 			ret = self.extractWAT(item)
 		elif item['srcname'] == 'WCC Translation':
 			ret = self.extractWAT(item)
-		elif item['srcname'] == 'Neo Translations':
-			ret = self.extractWAT(item)
 		elif item['srcname'] == 'World of Watermelons':
 			ret = self.extractWAT(item)
-		elif item['srcname'] == 'Wuxia Translations':
-			ret = self.extractWAT(item)
 		elif item['srcname'] == 'ℝeanとann@':
-			ret = self.extractWAT(item)
-		elif item['srcname'] == '1HP':
 			ret = self.extractWAT(item)
 		elif item['srcname'] == 'Bad Translation':
 			ret = self.extractWAT(item)
@@ -1354,7 +1406,6 @@ class DataParser():
 		# 	print(item['title'])
 		# 	print(ret["vol"], ret["chp"])
 		# 	print()
-		# ret = False
 
 
 
@@ -1382,6 +1433,8 @@ class DataParser():
 		# Releases are shit, and it's largely unparseable anyways
 		# 'ELYSION Translation'
 
+
+		# ret = False
 
 
 		# Only return a value if we've actually found a chapter/vol
@@ -1471,6 +1524,7 @@ class DataParser():
 	####################################################################################################################################################
 
 	def extractWAT(self, item):
+		# print("'{}' '{}'".format(item['srcname'], item['title']))
 		return False
 
 	def extractAssholeTranslations(self, item):
