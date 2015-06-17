@@ -141,15 +141,62 @@ class DataParser():
 		if 'Kazuha Axeplant’s Third Adventure:' in item['title']:
 			return buildReleaseMessage(item, 'Kazuha Axeplant’s Third Adventure', vol, chp)
 
-		elif 'otoburi' in item['tags']:
+		elif 'otoburi' in item['tags'] or 'Otoburi' in item['tags']:
 			# Arrrgh, the volume/chapter structure for this series is a disaster!
-			return False
+			# I resent having to do this....
+			volume_lut = {
+				# Child Chapter
+				"3 years old"                  : 1,
+				"5 years old"                  : 1,
+				"6 years old"                  : 1,
+				"7 years old"                  : 1,
+				"12 years old"                 : 1,
+				"12 years old"                 : 1,
+				"14 years old"                 : 1,
+				"15 years old"                 : 1,
+				"16 years old"                 : 1,
+
+				# Academy Chapter (First Year First Semester)
+				"School Entrance Ceremony"     : 2,
+				"First Year First Semester"    : 2,
+				"1st Year 1st Semester"        : 2,
+
+				# Academy Chapter (Summer Vacation)
+				"Summer Vacation"              : 3,
+				"Summer Vacation 2nd Half"     : 3,
+				"Summer Vacation Last"         : 3,
+
+				# Academy Chapter (First Year Second Semester)
+				"First Year Second Semester"   : 4,
+
+				# Job Chapter
+				"Recuperating?"                : 5,
+				"Wedding Preparations?"        : 5,
+				"Newlywed Life"                : 5,
+
+				# Major Cleanup Chapter
+				"Cleanup"                      : 6,
+				"My Lord’s Engagement"         : 6,
+				"The Winter is Almost Here"    : 6,
+				"Experiments and Preparations" : 6,
+				"Engagement Party"             : 6,
+
+				# Dilemma Chapter
+				"In the Middle of a Fight?"    : 7,
+				"In the Middle of Reflecting"  : 7,
+			}
+
+			for chp_key in volume_lut.keys():
+				if chp_key.lower() in item['title'].lower():
+					return buildReleaseMessage(item, 'Otome Game no Burikko Akuyaku Onna wa Mahou Otaku ni Natta', volume_lut[chp_key], chp)
+
 		# else:
 		# 	# self.log.warning("Cannot decode item:")
 		# 	# self.log.warning("%s", item['title'])
 		# 	# self.log.warning("Cannot decode item: '%s'", item['title'])
 		# 	# print(item['tags'])
 		return False
+
 
 
 	####################################################################################################################################################
@@ -252,16 +299,13 @@ class DataParser():
 	# Blue Silver Translations
 	####################################################################################################################################################
 	def extractBlueSilverTranslations(self, item):
-		if 'Douluo Dalu' in item['tags']:
-			# All the releases start with the chapter number.
-			# This check is only needed because there are a few releases of
-			# related things that are annoyingly tagged in as well.
-			if not all([val in '0123456789' for val in item['title'].split()[0]]):
-				return False
 
+		if 'Douluo Dalu' in item['tags']:
 			proc_str = "%s %s" % (item['tags'], item['title'])
 			proc_str = proc_str.replace("'", " ")
 			chp, vol = extractChapterVol(proc_str)
+			if not (chp and vol):
+				return False
 
 			return buildReleaseMessage(item, 'Douluo Dalu', vol, chp)
 
@@ -332,13 +376,13 @@ class DataParser():
 
 		if 'CD Chapter Release' in item['tags']:
 			return buildReleaseMessage(item, "Coiling Dragon", vol, chp, frag=frag)
-		if 'dragon king with seven stars' in item['tags']:
+		if 'dragon king with seven stars' in item['tags'] or 'Dragon King with Seven Stars' in item['title']:
 			return buildReleaseMessage(item, "Dragon King with Seven Stars", vol, chp, frag=frag)
 		if 'ISSTH Chapter Release' in item['tags']:
 			return buildReleaseMessage(item, "I Shall Seal the Heavens", vol, chp, frag=frag)
-		if 'BTTH Chapter Release' in item['tags']:
+		if 'BTTH Chapter Release' in item['tags'] or 'BTTH Chapter' in item['title']:
 			return buildReleaseMessage(item, "Battle Through the Heavens", vol, chp, frag=frag)
-		if 'SL Chapter Release' in item['tags']:
+		if 'SL Chapter Release' in item['tags'] or 'SA Chapter Release' in item['tags']:
 			return buildReleaseMessage(item, "Skyfire Avenue", vol, chp, frag=frag)
 		if 'MGA Chapter Release' in item['tags']:
 			return buildReleaseMessage(item, "Martial God Asura", vol, chp, frag=frag)
@@ -989,6 +1033,9 @@ class DataParser():
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if "TDADP" in item['title'] or 'To deprive a deprived person episode'.lower() in item['title'].lower():
 			return buildReleaseMessage(item, 'To Deprive a Deprived Person', vol, chp, frag=frag, postfix=postfix)
+		if "Lazy Dragon".lower() in item['title'].lower() and chp:
+			return buildReleaseMessage(item, 'Taidana Doragon wa Hatarakimono', vol, chp, frag=frag, postfix=postfix)
+
 		return False
 
 	####################################################################################################################################################
@@ -1132,6 +1179,18 @@ class DataParser():
 
 		if 'Route to almightyness from 1HP' in item['title'] and chp or vol:
 			return buildReleaseMessage(item, 'HP1 kara Hajimeru Isekai Musou', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Tsuigeki Translations
+	####################################################################################################################################################
+	def extractTsuigeki(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Seiju no Kuni no Kinju Tsukai' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Seiju no Kuni no Kinju Tsukai', vol, chp, frag=frag, postfix=postfix)
 
 		return False
 
@@ -1345,6 +1404,8 @@ class DataParser():
 			ret = self.extractWuxiaTranslations(item)
 		elif item['srcname'] == '1HP':
 			ret = self.extract1HP(item)
+		elif item['srcname'] == 'Tsuigeki Translations':
+			ret = self.extractTsuigeki(item)
 
 
 
@@ -1365,8 +1426,6 @@ class DataParser():
 		elif item['srcname'] == "Roasted Tea":
 			ret = self.extractWAT(item)
 		elif item['srcname'] == 'Supreme Origin Translations':
-			ret = self.extractWAT(item)
-		elif item['srcname'] == 'Tsuigeki Translations':
 			ret = self.extractWAT(item)
 		elif item['srcname'] == 'Undecent Translations':
 			ret = self.extractWAT(item)
@@ -1398,8 +1457,9 @@ class DataParser():
 			ret = self.extractWAT(item)
 
 
-		# else:
-		# 	print("'%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags']))
+		# if not ret:
+		# 	vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		# 	print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags'], vol, chp, frag, postfix))
 
 
 		# if ret:

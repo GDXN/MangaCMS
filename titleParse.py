@@ -22,6 +22,7 @@ FRAGMENT_KEYS = [
 		'episode',
 		'pt',
 		'part',
+		'page',
 		'p',
 
 		# Handle chapter sequences /somewhat/ elegantly
