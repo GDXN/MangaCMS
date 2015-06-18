@@ -174,6 +174,7 @@ class Scrape(WordpressScrape):
 		'https://lnaddiction.wordpress.com',
 		'https://bingnovels.wordpress.com',
 		'https://lazyneet.wordpress.com',
+		'https://durasama.wordpress.com',
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
