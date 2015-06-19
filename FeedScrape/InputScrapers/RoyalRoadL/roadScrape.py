@@ -2,28 +2,27 @@
 #!/usr/bin/python
 # from profilehooks import profile
 
-import abc
-import feedparser
 import FeedScrape.RssMonitorDbBase
 import TextScrape.utilities.Proxy
 import FeedScrape.FeedDataParser
 import calendar
 import json
-import bs4
 import TextScrape.RelinkLookup
-import urllib.error
 import FeedScrape.AmqpInterface
-import readability.readability
 # import TextScrape.RELINKABLE as RELINKABLE
-import parsedatetime
+import time
 import datetime
 # pylint: disable=W0201
 #
 import TextScrape.HtmlProcessor
 import urllib.parse
 
+
+MIN_RATING = 5
+
 class EmptyFeedError(Exception):
 	pass
+
 
 # buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix='')
 
@@ -58,23 +57,6 @@ class RoyalRoadLMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDa
 			import webFunctions
 			self.wg = webFunctions.WebGetRobust(logPath='Main.Text.Feed.Web')
 
-	def getTime(self, tups, raw_soup):
-		spans = raw_soup.find_all('span')
-		for span in spans:
-			ts = span.get('data-xutime')
-			if ts:
-				val = int(ts)
-				return float(val)
-
-		pubtm = tups['Published'].strip()
-		if len(pubtm) <= 3:
-			pubtm += " ago"
-		cal = parsedatetime.Calendar()
-		ulDate, status = cal.parse(pubtm)
-		ulDate = datetime.datetime(*ulDate[:6])
-
-		return calendar.timegm(ulDate.timetuple())
-
 
 	def patchUrl(self, inurl, chapter):
 		url = inurl
@@ -89,56 +71,94 @@ class RoyalRoadLMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDa
 
 		return url
 
+	def extractSeriesReleases(self, seriesPageUrl):
+		soup = self.wg.getSoup(seriesPageUrl)
+
+		titletg  = soup.find("h1", class_='fiction-title')
+		authortg = soup.find("span", class_='author')
+		ratingtg = soup.find("span", class_='overall')
+
+		assert float(ratingtg['score']) >= MIN_RATING
+
+		if not titletg:
+			return []
+		if not authortg:
+			return []
+		if not ratingtg:
+			return []
+
+		title  = titletg.get_text()
+		author = authortg.get_text()
+		assert author.startswith("by ")
+		author = author[2:].strip()
+
+
+		descDiv = soup.find('div', class_='description')
+		paras = descDiv.find_all("p")
+		tags = []
+		for text in [para.get_text() for para in paras]:
+			if text.lower().startswith('categories:'):
+				tagstr = text.split(":", 1)[-1]
+				items = tagstr.split(",")
+				[tags.append(item.strip()) for item in items if item.strip()]
+		extra = {}
+		extra['tags'] = tags
+
+		# print(title, author)
+		# print(extra)
+
+		chapters = soup.find("div", class_='chapters')
+		releases = chapters.find_all('li', class_='chapter')
+
+		retval = []
+		for release in releases:
+			chp_title, reldatestr = release.find_all("span")
+			rel = datetime.datetime.strptime(reldatestr.get_text(), '%d/%m/%y')
+			if rel.date() == datetime.date.today():
+				reldate = time.time()
+			else:
+				reldate = calendar.timegm(rel.timetuple())
+
+			chp_title = chp_title.get_text()
+			# print("Chp title: '{}'".format(chp_title))
+			vol, chp, frag, post = FeedScrape.FeedDataParser.extractTitle(chp_title)
+
+			raw_item = {}
+			raw_item['srcname']   = "RoyalRoadL"
+			raw_item['published'] = reldate
+			raw_item['linkUrl']   = release.a['href']
+
+			msg = FeedScrape.FeedDataParser.buildReleaseMessage(raw_item, title, vol, chp, frag, author=author, postfix=chp_title, tl_type='oel', extraData=extra)
+			retval.append(msg)
+
+		return retval
+
+
+	def getSeriesPage(self, entry):
+		ratingtg = entry.find("span", class_='score')
+
+		if not ratingtg:
+			return False
+
+		# Filter poorly rated or unrated series.
+		if float(ratingtg['score']) < MIN_RATING:
+			return False
+
+		links = entry.find_all("a")
+		assert len(links) == 1
+
+		link = links[0]
+
+		assert link.get_text() == "Fiction Page"
+		return link['href']
+
 	def parseEntry(self, entry):
+		seriesPage = self.getSeriesPage(entry)
+		if not seriesPage:
+			return []
 
-		print(entry)
-
-		# titletg = entry.find("a", class_='stitle')
-		# metadiv = entry.find("div", class_='xgray')
-		# if not titletg:
-		# 	return False
-
-		# # Don't want to trigger on review items
-		# if entry.find("a", class_='reviews'):
-		# 	return False
-
-		# title = titletg.get_text().strip()
-		# url   = urllib.parse.urljoin(self.base, titletg['href'])
-
-		# metatxt = metadiv.get_text()
-		# meta = [item.strip() for item in metatxt.split("-")]
-		# tups = dict([item.split(":") for item in meta if ":" in item])
-
-		# if not "Fiction" in tups:
-		# 	return False
-		# if not "Chapters" in tups:
-		# 	return False
-		# if not "Published" in tups:
-		# 	return False
-		# if not "Words" in tups:
-		# 	return False
-
-		# chapters = int(tups['Chapters'])
-		# wordcount = int(tups['Words'].replace(",", ""))
-
-		# if chapters < 3:
-		# 	return False
-
-		# # Filter some really frivilous fluff bullshit.
-		# if wordcount < 2500:
-		# 	return False
-
-		# url = self.patchUrl(url, chapters)
-		# raw_item = {}
-		# raw_item['srcname']   = "FictionPress"
-		# raw_item['published'] = self.getTime(tups, entry)
-		# raw_item['linkUrl']   = url
-
-		# release = FeedScrape.FeedDataParser.buildReleaseMessage(raw_item, title, None, chapters, author=None, tl_type='oel')
-
-		release = False
-
-		return release
+		releases = self.extractSeriesReleases(seriesPage)
+		self.log.info("Found %s releases for series", len(releases))
 
 	def loadReleases(self, fromurl):
 		soup = self.wg.getSoup(fromurl)
@@ -190,6 +210,7 @@ def test():
 	# logSetup.initLogging()
 	fetch = RoyalRoadLTest()
 	fetch.getChanges()
+	# fetch.extractSeriesReleases('http://www.royalroadl.com/fiction/1615')
 
 
 if __name__ == "__main__":

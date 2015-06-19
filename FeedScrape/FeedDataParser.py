@@ -19,6 +19,7 @@ skip_filter = [
 ]
 
 def extractTitle(inStr):
+	# print("Parsing: '%s'" % inStr)
 	p    = TitleParser(inStr)
 	vol  = p.getVolume()
 	chp  = p.getChapter()
@@ -40,14 +41,14 @@ def extractChapterVolFragment(inStr):
 
 
 
-def buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix='', author=None, tl_type='translated'):
+def buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix='', author=None, tl_type='translated', extraData={}):
 	'''
 	Special case behaviour:
 		If vol or chapter is None, the
 		item in question will sort to the end of
 		the relevant sort segment.
 	'''
-	return {
+	ret = {
 		'srcname'   : raw_item['srcname'],
 		'series'    : series,
 		'vol'       : vol,
@@ -58,6 +59,11 @@ def buildReleaseMessage(raw_item, series, vol, chap=None, frag=None, postfix='',
 		'author'    : author,
 		'tl_type'   : tl_type,
 	}
+
+	for key, value in extraData.items():
+		assert key not in ret
+		ret[key] = value
+	return ret
 
 def packChapterFragments(chapStr, fragStr):
 	if not chapStr and not fragStr:

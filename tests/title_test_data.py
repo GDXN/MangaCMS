@@ -1,6 +1,10 @@
 
 
 data = [
+	('History of Archia', (None, None, None, '')),
+	('History of Archia', (None, None)),
+	('history of archia', (None, None, None, '')),
+	('history of archia', (None, None)),
 	('', (None, None)),
 	('', (None, None)),
 	('', (None, None)),
@@ -3250,8 +3254,6 @@ data = [
 	('News 06.04.15', (None, None)),
 	('News 06.04.15', (None, None, None, '')),
 	('News 06.04.15', (None, None, None, '')),
-	('News – 01.05.15 (2)', (None, None)),
-	('News – 01.05.15 (2)', (None, None, None, '')),
 	('News – 01.05.15', (None, None)),
 	('News – 01.05.15', (None, None, None, '')),
 	('News – 05.04.15', (None, None)),

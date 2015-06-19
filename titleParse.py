@@ -407,7 +407,10 @@ class TitleParser(object):
 						return self._splitPostfix(ret)
 				if len(p_key) == 2:
 					if p_key[1] in s_tmp:
-						last = self._preceeding(idx)[-1]
+						if idx > 0:
+							last = self._preceeding(idx)[-1]
+						else:
+							last = NullToken()
 						if p_key[0] in last.stringl():
 							ret = ''.join([chunk.string() for chunk in self.chunks[last.index():]])
 							return self._splitPostfix(ret)
