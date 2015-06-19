@@ -102,7 +102,8 @@ class RoyalRoadLMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDa
 				items = tagstr.split(",")
 				[tags.append(item.strip()) for item in items if item.strip()]
 		extra = {}
-		extra['tags'] = tags
+		extra['tags']     = tags
+		extra['homepage'] = seriesPageUrl
 
 		# print(title, author)
 		# print(extra)
@@ -159,6 +160,7 @@ class RoyalRoadLMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDa
 
 		releases = self.extractSeriesReleases(seriesPage)
 		self.log.info("Found %s releases for series", len(releases))
+		return releases
 
 	def loadReleases(self, fromurl):
 		soup = self.wg.getSoup(fromurl)
@@ -171,7 +173,8 @@ class RoyalRoadLMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDa
 
 			ret = self.parseEntry(entry)
 			if ret:
-				data.append(ret)
+				for item in ret:
+					data.append(item)
 
 		self.log.info("Found %s releases from fictionpress", len(data))
 		return data
@@ -181,11 +184,13 @@ class RoyalRoadLMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDa
 	def getChanges(self):
 		for releasePage in self.base:
 			releases = self.loadReleases(releasePage)
-
+			self.log.info("Total releases found from RoyalRoadL: %s", len(releases))
 			for release in releases:
-				print(release)
+				# print(release)
 				pkt = self.createPacket(release)
-				# self.amqpint.put_item(pkt)
+				self.amqpint.put_item(pkt)
+				# return
+				# print(pkt)
 
 
 
