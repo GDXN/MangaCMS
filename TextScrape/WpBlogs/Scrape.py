@@ -175,6 +175,7 @@ class Scrape(WordpressScrape):
 		'https://bingnovels.wordpress.com',
 		'https://lazyneet.wordpress.com',
 		'https://durasama.wordpress.com',
+		'https://larvyde.wordpress.com',
 
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
@@ -192,6 +193,7 @@ class Scrape(WordpressScrape):
 		'http://www.translationnations.com',
 		'http://www.wuxiatranslations.com',
 		'http://pandatranslations.net',
+		'http://shiroyukitranslations.com/',
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',

@@ -177,6 +177,10 @@ def getNiceName(srcurl):
 		'lazyneet.wordpress.com'                    : 'Lazy NEET Translations',
 
 
+		'larvyde.wordpress.com'                     : 'Larvyde',
+		'shiroyukitranslations.com'                 : 'Shiroyukineko Translations',
+
+
 	}
 
 	srcnetloc = urllib.parse.urlparse(srcurl).netloc

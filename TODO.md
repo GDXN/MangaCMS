@@ -1,6 +1,6 @@
 undecentlnt.wordpress.com source parser
-
-
+http://10.1.1.8:8081/books/render?url=https%3A//pummels.wordpress.com/2015/06/18/konjiki-no-word-master-chapter-128-how-to-deal-with-zombies
+http://10.1.1.8:8081/books/render?url=http%3A//www.wuxiaworld.com/atg-index/atg-chapter-77/#
 http://10.1.1.8:8081/books/book-item?dbid=1963
 http://10.1.1.8:8081/books/render?url=https%3A//drive.google.com/open%3Fid%3D0B_mXfd95yvDfQWQ1ajNWZTJFRkk not extracting drive
 
