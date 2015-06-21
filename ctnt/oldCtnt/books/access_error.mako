@@ -54,7 +54,7 @@ mimetype, fsPath, itemUrl, distance, dbid = extradat
 
 				</div>
 				<div>
-					<a href='{url}'>Try to retreive from original source</a>
+					<a href='${itemUrl}'>Try to retreive from original source</a>
 				</div>
 				<div>
 					Request Parameters: ${request.params}<br>

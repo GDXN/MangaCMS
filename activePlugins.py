@@ -92,6 +92,7 @@ import TextScrape.RssRun
 
 # Fictionpress triggers
 import FeedScrape.InputScrapers.FictionPress.Run
+import FeedScrape.InputScrapers.RoyalRoadL.Run
 
 
 import ScrapePlugins.MangaMadokami.mkContentLoader
@@ -204,6 +205,7 @@ scrapePlugins = {
 
 	400 : (TextScrape.Lndb.Run,                                hours(2)),
 	401 : (FeedScrape.InputScrapers.FictionPress.Run,          minutes(30)),
+	402 : (FeedScrape.InputScrapers.RoyalRoadL.Run,            hours(5)),
 
 }
 

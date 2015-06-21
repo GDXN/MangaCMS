@@ -14,7 +14,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 
 		self.log.info("Checking RoyalRoadL feeds for updates")
-		fetch = FeedScrape.InputScrapers.RoyalRoadL.roadScrape.FictionPressTest()
+		fetch = FeedScrape.InputScrapers.RoyalRoadL.roadScrape.RoyalRoadLTest()
 		fetch.getChanges()
 
 
