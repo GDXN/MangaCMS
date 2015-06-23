@@ -8,6 +8,8 @@ from .Run import Runner as RunnerBase
 
 class Runner(RunnerBase):
 
+	pluginName = "StoriesOnlineScrapeUpdate"
+
 	def _go(self):
 
 		self.log.info("Doing update scan.")

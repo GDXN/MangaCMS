@@ -180,6 +180,9 @@ def getNiceName(srcurl):
 		'larvyde.wordpress.com'                     : 'Larvyde',
 		'shiroyukitranslations.com'                 : 'Shiroyukineko Translations',
 
+		'archivitysite.wordpress.com'               : 'Archivity',
+		'infinitenoveltranslations.wordpress.com'   : 'Infinite Novel Translations',
+
 
 	}
 

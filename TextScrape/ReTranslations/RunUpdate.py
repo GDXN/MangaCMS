@@ -8,6 +8,7 @@ from .Run import Runner as RunnerBase
 
 class Runner(RunnerBase):
 
+	pluginName = "ReScrapeUpdate"
 	def _go(self):
 
 		self.log.info("Doing update scan.")
