@@ -27,13 +27,19 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		# 'http://thezombieknight.blogspot.co.uk',
 		# 'http://xhawk77x.blogspot.com',
 
-		'http://clickyclicktranslation.blogspot.co.uk',
+
+
+
 		'http://a0132.blogspot.ca',
 		'http://ahoujicha.blogspot.ca',
+		'http://azureskytls.blogspot.ca',
 		'http://azureskytls.blogspot.com.au',
 		'http://cetranslation.blogspot.ca',
 		'http://cetranslation.blogspot.com',
 		'http://cetranslation.blogspot.sg',
+		'http://clickyclicktranslation.blogspot.co.uk',
+		'http://erosworkshop.blogspot.com',
+		'http://hereticlnt.blogspot.ca',
 		'http://hikuosan.blogspot.com',
 		'http://imoutoliciouslnt.blogspot.ca',
 		'http://imoutoliciouslnt.blogspot.com.au',
@@ -50,16 +56,21 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://royalroadweed.blogspot.co.il',
 		'http://skythewood.blogspot.com',
 		'http://skythewood.blogspot.sg',
+		'http://sousetsuka.blogspot.ca',
 		'http://swordandgame.blogspot.ca',
 		'http://swordandgame.blogspot.it',
 		'http://thenakedsol.blogspot.com',
 		'http://thenakedsol.blogspot.com.au',
+		'http://tony-yon-ka.blogspot.com',
+		'http://tony-yon-ka.blogspot.com.au',
 		'http://tu-shu-guan.blogspot.com',
 		'http://untuned-strings.blogspot.ca',
 		'http://untuned-strings.blogspot.com',
-		'http://xcrossj.blogspot.com.au',
-		'http://tony-yon-ka.blogspot.com.au',
+		'http://webnoveltranslations.blogspot.in',
 		'http://webnoveltranslations.blogspot.se',
+		'http://xcrossj.blogspot.com.au',
+
+
 
 		# Dead:
 		# 'http://hereticlnt.blogspot.ca',
