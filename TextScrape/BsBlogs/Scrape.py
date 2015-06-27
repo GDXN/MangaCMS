@@ -16,7 +16,7 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	threads = 6
+	threads = 15
 
 	baseUrl = [
 

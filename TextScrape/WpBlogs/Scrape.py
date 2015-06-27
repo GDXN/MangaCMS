@@ -17,7 +17,7 @@ class Scrape(WordpressScrape):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	IGNORE_MALFORMED_URLS = True
-	threads = 10
+	threads = 20
 
 	baseUrl = [
 
@@ -207,7 +207,7 @@ class Scrape(WordpressScrape):
 		'http://shiroyukitranslations.com',
 		'http://wuxiaworld.com',
 		'http://thundertranslations.com',
-		'http://pikatranslations.com'
+		'http://pikatranslations.com',
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',

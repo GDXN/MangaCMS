@@ -24,13 +24,14 @@ import activePlugins
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor
+from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
 
 import datetime
 
 executors = {
-	'main_jobstore': ThreadPoolExecutor(10),
+	'main_jobstore': ProcessPoolExecutor(20),
 }
 job_defaults = {
 	'coalesce': True,

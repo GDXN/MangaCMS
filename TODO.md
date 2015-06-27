@@ -1,9 +1,6 @@
-http://shiroyukitranslations.com/dop/
+
 https://www.wlnupdates.com/series-id/2333/
 
-http://www.deadlylegends.com/translations
-http://www.pegasusfarts.com
-http://www.risingdragonstranslation.com
 
 undecentlnt.wordpress.com source parser
 http://10.1.1.8:8081/books/render?url=https%3A//pummels.wordpress.com/2015/06/18/konjiki-no-word-master-chapter-128-how-to-deal-with-zombies
