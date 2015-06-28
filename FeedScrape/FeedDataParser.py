@@ -1513,6 +1513,9 @@ class DataParser():
 		if ret:
 			assert 'tl_type' in ret
 
+
+		# ret = False
+
 		return ret
 
 		# DELETE FROM releases WHERE series=2346;
@@ -1567,6 +1570,7 @@ class DataParser():
 		nicename = getNiceName(feedDat['linkUrl'])
 		if not nicename:
 			nicename = urllib.parse.urlparse(feedDat['linkUrl']).netloc
+
 
 		# if not nicename in self.names:
 		# 	self.names.add(nicename)

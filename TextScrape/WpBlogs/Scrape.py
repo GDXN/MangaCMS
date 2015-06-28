@@ -343,6 +343,9 @@ class Scrape(WordpressScrape):
 		{'id'              : 'sidebar-wrapper'},
 		{'id'              : 'sidebar-wrapper1'}, # Yes, two `sidebar-wrapper` ids. Gah.
 		{'id'              : 'site-header'},
+		{'id'              : 'commentlist'},
+		{'id'              : 'comments'},
+		{'id'              : 'bitsubscribe'},
 		{'id'              : 'site-navigation'},
 		{'name'            : 'likes-master'},
 		{'style'           : 'display:none'},

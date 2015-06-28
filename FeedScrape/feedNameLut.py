@@ -57,6 +57,7 @@ def getNiceName(srcurl):
 		'istlovesu.blogspot.com'                    : 'Istian\'s Workshop',
 		'itranslateln.wordpress.com'                : 'itranslateln',
 		'izra709.wordpress.com'                     : 'izra709 | B Group no Shounen Translations',
+		"izra709.com"                               : "izra709 | B Group no Shounen Translations",
 		'japtem.com'                                : 'Japtem',
 		'jawztranslations.blogspot.com'             : 'JawzTranslations',
 		'kaezartranslations.blogspot.com'           : 'Kaezar Translations',
@@ -136,6 +137,8 @@ def getNiceName(srcurl):
 		'tomorolls.wordpress.com'                   : 'Tomorolls',
 		'totobro.com'                               : 'Totokk\'s Translations',
 		'tototrans.com'                             : 'Totokk\'s Translations',
+		"tototr.com"                                : "Totokk\'s Translations",
+		"tototrans.wordpress.com"                   : "Totokk\'s Translations",
 		'trippingoverwn.wordpress.com'              : 'Tripp Translations',
 		'tsaltranslation.wordpress.com'             : 'Light Novel translations',
 		'tsuigeki.wordpress.com'                    : 'Tsuigeki Translations',
@@ -154,6 +157,7 @@ def getNiceName(srcurl):
 		'www.princerevolution.org'                  : 'Prince Revolution!',
 		'www.risingdragonstranslation.com'          : 'Rising Dragons Translation',
 		'www.sousetsuka.com'                        : 'Sousetsuka',
+		"sousetsuka.blogspot.com"                   : "Sousetsuka",
 		'www.taptaptaptaptap.net'                   : 'tap-trans » tappity tappity tap.',
 		'www.translationnations.com'                : 'Translation Nations',
 		'www.wuxiatranslations.com'                 : 'Wuxia Translations',
@@ -184,6 +188,75 @@ def getNiceName(srcurl):
 		'infinitenoveltranslations.wordpress.com'   : 'Infinite Novel Translations',
 
 
+
+
+		"asherahbluenotebook.wordpress.com"         : "AsherahBlue's Notebook",
+		"durasama.wordpress.com"                    : "Durasama",
+		"ensjtrans.wordpress.com"                   : "Ensj Translations",
+		"erosworkshop.blogspot.com"                 : "Eros Workshop",
+		"forgetfuldreamer.wordpress.com"            : "Forgetful Dreamer",
+		"fudgetranslations.wordpress.com"           : "Fudge Translations",
+		"koongkoongtranslations.wordpress.com"      : "Koong Koong Translations",
+		"rebirthonlineworld.com"                    : "Rebirth Online World",
+		"zoengsaiwaa.wordpress.com"                 : "ZSW",
+		"translationraven.wordpress.com"            : "Translation Raven",
+		"unchainedtranslation.wordpress.com"        : "Unchained Translation",
+		"shikkakutranslations.wordpress.com"        : "Shikkaku Translations",
+
+
+
+
+
+
+
+
+
+
+
+		"feedproxy.google.com"                      : "FeedProxy",
+
+
+		# OEL bits and bobs:
+		# "xhawk77x.blogspot.com"                     : "wat",
+		# "tieshaunn.wordpress.com"                   : "wat",
+		# "the-last-skull.blogspot.com"               : "wat",
+		# "taulsn.wordpress.com"                      : "wat",
+		# "selkinnovel.wordpress.com"                 : "wat",
+		# "rumorblock.wordpress.com"                  : "wat",
+		# "paztok.wordpress.com"                      : "wat",
+		# "nightofthehuntingparty.wordpress.com"      : "wat",
+		# "lastexorcist.wordpress.com"                : "wat",
+		# "magelifeblog.wordpress.com"                : "wat",
+		# "fuzionlife.wordpress.com"                  : "wat",
+		# "gargoyleserial.wordpress.com"              : "wat",
+		# "farmerbob1.wordpress.com"                  : "wat",
+		# "endonline.wordpress.com"                   : "wat",
+		# "ecwebnovel.blogspot.com"                   : "wat",
+		# "fromwhencecamethenamed.wordpress.com"      : "wat",
+		# "twistedcogs.wordpress.com"                 : "wat",
+		# "tmbrakta.wordpress.com"                    : "wat",
+		# "xantbos.wordpress.com"                     : "wat",
+		# "thezombieknight.blogspot.com"              : "wat",
+		# "stoneburners.wordpress.com"                : "wat",
+		# "rejecthero.wordpress.com"                  : "wat",
+		# "shinynewjustice.wordpress.com"             : "wat",
+		# "pactwebserial.wordpress.com"               : "wat",
+		# "parahumans.wordpress.com"                  : "wat",
+		# "hereticlnt.blogspot.com"                   : "wat",
+		# "arzengi.blogspot.com"                      : "wat",
+		# "agreyworld.wordpress.com"                  : "wat",
+		# "flickerhero.wordpress.com"                 : "wat",
+		# "anathemaserial.wordpress.com"              : "wat",
+		# "aquarilasscenario.blogspot.com"            : "wat",
+
+		# Removed:
+		# "solitarytranslation.wordpress.com"         : "wat",
+
+		# Porn? How did that get in here?
+		# "teamkoinaka.wordpress.com"                 : "wat",
+
+		# Accidental manga blog:
+		# "thecatscans.wordpress.com"                 : "wat",
 	}
 
 	srcnetloc = urllib.parse.urlparse(srcurl).netloc
