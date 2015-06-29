@@ -54,8 +54,10 @@ def test():
 	testdat = convertItems(items)
 	print("Converted %s items. Processing" % len(testdat))
 
+	# parser = FeedScrape.FeedDataParser.DataParser(transfer=False)
 	parser = FeedScrape.FeedDataParser.DataParser()
 
+	print("Processing items")
 	for item in testdat:
 		ret = parser.processFeedData(item, tx_raw=False)
 		# if ret:

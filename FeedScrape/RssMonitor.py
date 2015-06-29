@@ -10,6 +10,7 @@ import FeedScrape.FeedDataParser
 import calendar
 import json
 import bs4
+import runStatus
 import TextScrape.RelinkLookup
 import urllib.error
 import FeedScrape.AmqpInterface
@@ -90,6 +91,10 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 
 			except urllib.error.URLError:
 				self.log.error('Failure retrieving feed at url "%s"!', feedUrl)
+
+			if not runStatus.run:
+				self.log.info( "Breaking due to exit flag being set")
+				break
 
 
 	def extractContents(self, feedUrl, contentDat):

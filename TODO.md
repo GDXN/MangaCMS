@@ -1,3 +1,5 @@
+Handle fractional parts (e.g. 1/6, 2/3, etc... ) of chapters.
+
 
 https://www.wlnupdates.com/series-id/2333/
 

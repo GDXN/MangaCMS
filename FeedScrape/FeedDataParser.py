@@ -85,8 +85,10 @@ class DataParser():
 
 	amqpint = None
 
-	def __init__(self):
+	def __init__(self, transfer=True):
 		super().__init__()
+
+		self.transfer = transfer
 
 		logPath = 'Main.Feeds.Parser'
 		self.log = logging.getLogger(logPath)
@@ -106,7 +108,7 @@ class DataParser():
 	def extractSousetsuka(self, item):
 		# check that 'Desumachi' is in the tags? It seems to work well enough now....
 		desumachi_norm  = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(\d+)$', item['title'])
-		desumachi_extra = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(Intermission.*?)$', item['title'])
+		desumachi_extra = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku)(?: Chapter)? (\d+)\W(Intermission.*?)$', item['title'])
 
 		ret = False
 		if desumachi_norm:
@@ -1049,7 +1051,7 @@ class DataParser():
 	####################################################################################################################################################
 	def extractArkMachineTranslations(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-		if 'Ark volume' in item['title']:
+		if 'ark volume' in item['title'].lower():
 			return buildReleaseMessage(item, 'Ark', vol, chp, frag=frag, postfix=postfix)
 
 		return False
@@ -1201,6 +1203,150 @@ class DataParser():
 		return False
 
 
+
+	####################################################################################################################################################
+	# Eros Workshop
+	####################################################################################################################################################
+	def extractErosWorkshop(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Young God Divine Armaments' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Young God Divine Armaments', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Forgetful Dreamer
+	####################################################################################################################################################
+	def extractForgetfulDreamer(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'ヤンデレ系乙女ゲーの世界に転生してしまったようです' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'It seems like I got reincarnated into the world of a Yandere Otome game', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Fudge Translations
+	####################################################################################################################################################
+	def extractFudgeTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'SoE' in item['title'] and chp or vol:
+			return buildReleaseMessage(item, 'The Sword of Emperor', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Henouji Translation
+	####################################################################################################################################################
+	def extractHenoujiTranslation(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Get Naked' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Kazuha Axeplant’s Third Adventure', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Infinite Novel Translations
+	####################################################################################################################################################
+	def extractInfiniteNovelTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Yomigaeri no Maou' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Yomigaeri no Maou', vol, chp, frag=frag, postfix=postfix)
+		if 'Kuro no Shoukan Samurai' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Kuro no Shoukan Samurai', vol, chp, frag=frag, postfix=postfix)
+		if 'Nidoume no Jinsei wo Isekai de' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Nidoume no Jinsei wo Isekai de', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Isekai Soul-Cyborg Translations
+	####################################################################################################################################################
+	def extractIsekaiTranslation(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Isekai Maou to Shoukan Shoujo Dorei Majutsu' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Isekai Maou to Shoukan Shoujo no Dorei Majutsu', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Iterations within a Thought-Eclipse
+	####################################################################################################################################################
+	def extractIterations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'SaeKano' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Saenai Heroine no Sodatekata', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+
+	####################################################################################################################################################
+	# Kaezar Translations
+	####################################################################################################################################################
+	def extractKaezar(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Mushoku Tensei' in item['tags'] and chp or vol:
+			if 'Redundancy Chapters' in item['tags']:
+				return buildReleaseMessage(item, 'Mushoku Tensei Redundancy', vol, chp, frag=frag, postfix=postfix)
+			else:
+				return buildReleaseMessage(item, 'Mushoku Tensei', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+
+	####################################################################################################################################################
+	# Kyakka Translation
+	####################################################################################################################################################
+	def extractKyakka(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Yahari Ore no Seishun Love Come wa Machigatteiru' in item['tags'] and 'Light Novel' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Yahari Ore no Seishun Rabukome wa Machigatte Iru.', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Larvyde Translation
+	####################################################################################################################################################
+	def extractLarvyde(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Ore no Osananajimi wa Joshikousei de Yuusha' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Ore no Osananajimi wa Joshikousei de Yuusha', vol, chp, frag=frag, postfix=postfix)
+		if 'Oukoku e Tsuzuku Michi' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Oukoku e Tsuzuku Michi', vol, chp, frag=frag, postfix=postfix)
+		if 'Takarakuji de 40-oku Atattandakedo' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Takarakuji de 40 Oku Atattandakedo Isekai ni Ijuu Suru', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# Shiroyukineko Translation
+	####################################################################################################################################################
+	def extractShiroyukineko(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'DOP' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Fenglin Tianxia - Wangfei Shisansui', vol, chp, frag=frag, postfix=postfix)
+		if 'LLS' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Zhaohuan Wansui', vol, chp, frag=frag, postfix=postfix)
+		if 'VW:UUTS' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Virtual World: Unparalleled under the Sky', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
 	####################################################################################################################################################
 	#
 	####################################################################################################################################################
@@ -1229,6 +1375,18 @@ class DataParser():
 		# 	return buildReleaseMessage(item, 'Kenja ni Natta', vol, chp, frag=frag, postfix=postfix)
 		return False
 
+
+
+	####################################################################################################################################################
+	# General feedproxy stuff
+	####################################################################################################################################################
+	def extractFeedProxy(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'The Man Picked up by the Gods' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Kamitachi ni Hirowareta Otoko', vol, chp, frag=frag, postfix=postfix)
+
+		return False
 
 
 
@@ -1413,14 +1571,32 @@ class DataParser():
 		elif item['srcname'] == 'Tsuigeki Translations':
 			ret = self.extractTsuigeki(item)
 
+		elif item['srcname'] == "Eros Workshop":
+			ret = self.extractErosWorkshop(item)
+		elif item['srcname'] == "FeedProxy":
+			ret = self.extractFeedProxy(item)
+		elif item['srcname'] == "Forgetful Dreamer":
+			ret = self.extractForgetfulDreamer(item)
+		elif item['srcname'] == "Fudge Translations":
+			ret = self.extractFudgeTranslations(item)
+		elif item['srcname'] == "Infinite Novel Translations":
+			ret = self.extractInfiniteNovelTranslations(item)
+		elif item['srcname'] == "Isekai Soul-Cyborg Translations":
+			ret = self.extractIsekaiTranslation(item)
+		elif item['srcname'] == "Iterations within a Thought-Eclipse":
+			ret = self.extractIterations(item)
+		elif item['srcname'] == "Kaezar Translations":
+			ret = self.extractKaezar(item)
+		elif item['srcname'] == "Kyakka":
+			ret = self.extractKyakka(item)
+		elif item['srcname'] == "Larvyde":
+			ret = self.extractLarvyde(item)
+		elif item['srcname'] == "Shiroyukineko Translations":
+			ret = self.extractShiroyukineko(item)
 
 
 
 		# To Add:
-		elif item['srcname'] == "Iterations within a Thought-Eclipse":
-			ret = self.extractWAT(item)
-		elif item['srcname'] == "Kaezar Translations":
-			ret = self.extractWAT(item)
 		elif item['srcname'] == "Kami Translation":
 			ret = self.extractWAT(item)
 		elif item['srcname'] == "KobatoChanDaiSukiScan":
@@ -1463,9 +1639,6 @@ class DataParser():
 			ret = self.extractWAT(item)
 
 
-		# if not ret:
-		# 	vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-		# 	print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags'], vol, chp, frag, postfix))
 
 
 		# if ret:
@@ -1501,6 +1674,12 @@ class DataParser():
 
 
 		# ret = False
+
+		if not self.transfer:
+			if not ret:
+				vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+				print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags'], vol, chp, frag, postfix))
+			ret = False
 
 
 		# Only return a value if we've actually found a chapter/vol
@@ -1612,13 +1791,7 @@ class DataParser():
 	#
 	####################################################################################################################################################
 
-	####################################################################################################################################################
-	# Henouji Translation
-	####################################################################################################################################################
-	def extractHenoujiTranslation(self, item):
-		# fffuuuu "last part" is not a helpful title!
-		chp, vol = extractChapterVol(item['title'])
-		return False
+
 
 	####################################################################################################################################################
 	# izra709 | B Group no Shounen Translations
