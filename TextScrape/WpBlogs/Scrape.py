@@ -188,6 +188,7 @@ class Scrape(WordpressScrape):
 
 		# 'https://archivitysite.wordpress.com',
 		'https://infinitenoveltranslations.wordpress.com',
+		'https://entruce.wordpress.com',
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		'http://avertranslation.com',

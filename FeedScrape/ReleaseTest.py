@@ -59,7 +59,7 @@ def test():
 
 	print("Processing items")
 	for item in testdat:
-		ret = parser.processFeedData(item, tx_raw=False)
+		ret = parser.processFeedData(item, tx_raw=False, tx_parse=True)
 		# if ret:
 		# 	print(ret)
 

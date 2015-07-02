@@ -21,7 +21,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 def test():
 	import logSetup
-	# logSetup.initLogging()
+	logSetup.initLogging()
 	scrp = Runner()
 	scrp.go()
 	# scrp.retreiveItemFromUrl(scrp.startUrl)

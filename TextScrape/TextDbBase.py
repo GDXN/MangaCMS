@@ -625,7 +625,7 @@ class TextDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 		with self.dbLock:
 			with self.transaction() as cur:
 
-				cur.execute('''SELECT dbid, url, distance FROM {tableName} WHERE dlstate=%s AND src=%s AND distance < %s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey, distance))
+				cur.execute('''SELECT dbid, url, distance FROM {tableName} WHERE dlstate=%s AND src=%s AND distance < %s ORDER BY distance ASC, istext ASC  LIMIT 1;'''.format(tableName=self.tableName), (0, self.tableKey, distance))
 				row = cur.fetchone()
 
 				# print(('''SELECT dbid, url, distance FROM {tableName} WHERE dlstate=%s AND src=%s AND distance < %s ORDER BY istext ASC LIMIT 1;'''.format(tableName=self.tableName) % (0, self.tableKey, distance)))

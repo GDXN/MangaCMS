@@ -110,6 +110,7 @@ class DataParser():
 		desumachi_norm  = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku) (\d+)\W(\d+)$', item['title'])
 		desumachi_extra = re.search(r'^(Death March kara Hajimaru Isekai Kyusoukyoku)(?: Chapter)? (\d+)\W(Intermission.*?)$', item['title'])
 
+
 		ret = False
 		if desumachi_norm:
 			series = desumachi_norm.group(1)
@@ -394,6 +395,10 @@ class DataParser():
 			return buildReleaseMessage(item, "Skyfire Avenue", vol, chp, frag=frag)
 		if 'MGA Chapter Release' in item['tags']:
 			return buildReleaseMessage(item, "Martial God Asura", vol, chp, frag=frag)
+		if 'ATG Chapter Release' in item['tags']:
+			return buildReleaseMessage(item, "Ni Tian Xie Shen", vol, chp, frag=frag)
+		if 'ST Chapter Release' in item['tags']:
+			return buildReleaseMessage(item, "Xingchenbian", vol, chp, frag=frag)
 
 		return False
 
@@ -1001,6 +1006,10 @@ class DataParser():
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if 'Stellar Transformation' in item['tags']:
 			return buildReleaseMessage(item, 'Stellar Transformations', vol, chp, frag=frag, postfix=postfix)
+		if 'The Legendary Thief' in item['tags']:
+			return buildReleaseMessage(item, 'Virtual World - The Legendary Thief', vol, chp, frag=frag, postfix=postfix)
+		if 'SwallowedStar' in item['tags']:
+			return buildReleaseMessage(item, 'Swallowed Star', vol, chp, frag=frag, postfix=postfix)
 		return False
 
 	####################################################################################################################################################
@@ -1347,6 +1356,50 @@ class DataParser():
 		return False
 
 
+
+	####################################################################################################################################################
+	# Unchained Translation
+	####################################################################################################################################################
+	def extractUnchainedTranslation(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'The Alchemist God' in item['tags'] and chp or vol:
+			return buildReleaseMessage(item, 'Ascension of the Alchemist God', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# World of Watermelons
+	####################################################################################################################################################
+	def extractWatermelons(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		matches = re.search(r'\bB(\d+)C(\d+)\b', item['title'])
+		if 'The Desolate Era' in item['tags'] and matches:
+			vol, chp = matches.groups()
+			postfix = ""
+			if "–" in item['title']:
+				postfix = item['title'].split("–", 1)[-1]
+
+			return buildReleaseMessage(item, 'Mang Huang Ji', vol, chp, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# WCC Translation
+	####################################################################################################################################################
+	def extractWCCTranslation(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if "chapter" in item['title'].lower():
+			if ":" in item['title']:
+				postfix = item['title'].split(":", 1)[-1]
+			return buildReleaseMessage(item, 'World Customize Creator', vol, chp, postfix=postfix)
+
+		return False
+
+
 	####################################################################################################################################################
 	#
 	####################################################################################################################################################
@@ -1399,7 +1452,7 @@ class DataParser():
 	####################################################################################################################################################
 
 
-	def dispatchRelease(self, item):
+	def dispatchRelease(self, item, debug = False):
 
 		ret = False
 
@@ -1593,6 +1646,13 @@ class DataParser():
 			ret = self.extractLarvyde(item)
 		elif item['srcname'] == "Shiroyukineko Translations":
 			ret = self.extractShiroyukineko(item)
+		elif item['srcname'] == "Unchained Translation":
+			ret = self.extractUnchainedTranslation(item)
+		elif item['srcname'] == 'World of Watermelons':
+			ret = self.extractWatermelons(item)
+
+		elif item['srcname'] == 'WCC Translation':
+			ret = self.extractWCCTranslation(item)
 
 
 
@@ -1614,8 +1674,6 @@ class DataParser():
 		elif item['srcname'] == 'Undecent Translations':
 			ret = self.extractWAT(item)
 		elif item['srcname'] == 'WCC Translation':
-			ret = self.extractWAT(item)
-		elif item['srcname'] == 'World of Watermelons':
 			ret = self.extractWAT(item)
 		elif item['srcname'] == 'ℝeanとann@':
 			ret = self.extractWAT(item)
@@ -1675,11 +1733,11 @@ class DataParser():
 
 		# ret = False
 
-		if not self.transfer:
-			if not ret:
-				vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-				print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags'], vol, chp, frag, postfix))
-			ret = False
+		# if debug:
+		# 	if not ret:
+		# 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		# 		print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags'], vol, chp, frag, postfix))
+		# 	ret = False
 
 
 		# Only return a value if we've actually found a chapter/vol
@@ -1712,13 +1770,13 @@ class DataParser():
 		# DELETE FROM translatorschanges WHERE id=58;
 
 
-	def getProcessedReleaseInfo(self, feedDat):
+	def getProcessedReleaseInfo(self, feedDat, debug):
 
 		if any([item in feedDat['linkUrl'] for item in skip_filter]):
 			return
 
 
-		release = self.dispatchRelease(feedDat)
+		release = self.dispatchRelease(feedDat, debug)
 		if release:
 			ret = {
 				'type' : 'parsed-release',
@@ -1762,7 +1820,11 @@ class DataParser():
 		if raw and tx_raw:
 			self.amqpint.put_item(raw)
 
-		new = self.getProcessedReleaseInfo(feedDat)
+		debug = False
+		if not tx_parse:
+			debug = True
+
+		new = self.getProcessedReleaseInfo(feedDat, debug)
 		if new and tx_parse:
 			self.amqpint.put_item(new)
 
