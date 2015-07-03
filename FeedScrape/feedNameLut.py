@@ -202,6 +202,7 @@ def getNiceName(srcurl):
 		"translationraven.wordpress.com"            : "Translation Raven",
 		"unchainedtranslation.wordpress.com"        : "Unchained Translation",
 		"shikkakutranslations.wordpress.com"        : "Shikkaku Translations",
+		"entruce.wordpress.com"                     : "EnTruce Translations",
 
 
 

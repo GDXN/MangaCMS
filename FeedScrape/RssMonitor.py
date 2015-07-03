@@ -293,7 +293,7 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 
 			dbFunc.upsert(item['linkUrl'], dlstate=0, distance=0, walkLimit=1)
 			for link in ret['plainLinks']:
-				print("Adding link '%s' to the queue" % link)
+				# print("Adding link '%s' to the queue" % link)
 				if not any([badword in link for badword in badwords]):
 					dbFunc.upsert(link, dlstate=0, distance=0, walkLimit=1)
 				else:
