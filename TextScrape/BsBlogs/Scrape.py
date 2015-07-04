@@ -28,17 +28,19 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		# 'http://xhawk77x.blogspot.com',
 
 
-
-
 		'http://a0132.blogspot.ca',
 		'http://ahoujicha.blogspot.ca',
 		'http://azureskytls.blogspot.ca',
 		'http://azureskytls.blogspot.com.au',
+		'http://bakadogeza.blogspot.com',
 		'http://cetranslation.blogspot.ca',
 		'http://cetranslation.blogspot.com',
 		'http://cetranslation.blogspot.sg',
 		'http://clickyclicktranslation.blogspot.co.uk',
+		'http://dreadfuldecoding.blogspot.com',
+		'http://ecwebnovel.blogspot.ca',
 		'http://erosworkshop.blogspot.com',
+		'http://gurotranslation.blogspot.com',
 		'http://hereticlnt.blogspot.ca',
 		'http://hikuosan.blogspot.com',
 		'http://imoutoliciouslnt.blogspot.ca',
@@ -64,11 +66,13 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		'http://tony-yon-ka.blogspot.com',
 		'http://tony-yon-ka.blogspot.com.au',
 		'http://tu-shu-guan.blogspot.com',
+		'http://turb0translation.blogspot.com',
 		'http://untuned-strings.blogspot.ca',
 		'http://untuned-strings.blogspot.com',
 		'http://webnoveltranslations.blogspot.in',
 		'http://webnoveltranslations.blogspot.se',
 		'http://xcrossj.blogspot.com.au',
+
 
 
 

@@ -49,7 +49,6 @@ class Scrape(WordpressScrape):
 
 
 
-
 		'http://gekkahimethetranslation.wordpress.com',
 		'http://gravitytranslations.wordpress.com',
 		'http://kobatochandaisuki.wordpress.com',
@@ -61,6 +60,7 @@ class Scrape(WordpressScrape):
 		'http://yoraikun.wordpress.com',
 		'https://9ethtranslations.wordpress.com',
 		'https://aflappyteddybird.wordpress.com',
+		'https://alcsel.wordpress.com',
 		'https://aldnoahextrathetranslation.wordpress.com',
 		'https://alyschu.wordpress.com',
 		'https://amaburithetranslation.wordpress.com',
@@ -71,6 +71,8 @@ class Scrape(WordpressScrape):
 		'https://bureidanworks.wordpress.com',
 		'https://calicoxtabby.wordpress.com',
 		'https://choukun.wordpress.com',
+		'https://clover7snook.wordpress.com',
+		'https://ctrlalcala.wordpress.com',
 		'https://darkfishoftherevolution.wordpress.com',
 		'https://darktranslations.wordpress.com',
 		'https://defiring.wordpress.com',
@@ -78,6 +80,7 @@ class Scrape(WordpressScrape):
 		'https://durandaru.wordpress.com',
 		'https://durasama.wordpress.com',
 		'https://ensjtrans.wordpress.com',
+		'https://eztranslations.wordpress.com',
 		'https://fateapocryphathetranslation.wordpress.com',
 		'https://flowerbridgetoo.wordpress.com',
 		'https://forgetfuldreamer.wordpress.com',
@@ -109,6 +112,7 @@ class Scrape(WordpressScrape):
 		'https://korezombiethetranslation.wordpress.com',
 		'https://kurenaithetranslation.wordpress.com',
 		'https://kyakka.wordpress.com',
+		'https://kyakka.wordpress.com',
 		'https://larvyde.wordpress.com',
 		'https://lazyneet.wordpress.com',
 		'https://lnaddiction.wordpress.com',
@@ -128,6 +132,8 @@ class Scrape(WordpressScrape):
 		'https://neettranslations.wordpress.com',
 		'https://netblazer.wordpress.com',
 		'https://nightraccoon.wordpress.com',
+		'https://nohohontranslations.wordpress.com',
+		'https://novicetranslator.wordpress.com',
 		'https://ohanashimi.wordpress.com',
 		'https://ojamajothetranslation.wordpress.com',
 		'https://omegaharem.wordpress.com',
@@ -142,6 +148,7 @@ class Scrape(WordpressScrape):
 		'https://putttytranslations.wordpress.com',
 		'https://reantoanna.wordpress.com',
 		'https://rebirthonlinelightnovel.wordpress.com',
+		'https://reddragontranslations.wordpress.com',
 		'https://rhinabolla.wordpress.com',
 		'https://risingdragons.wordpress.com',
 		'https://rokkathetranslation.wordpress.com',
@@ -161,6 +168,8 @@ class Scrape(WordpressScrape):
 		'https://skyworldthetranslation.wordpress.com',
 		'https://sotranslations.wordpress.com',
 		'https://stcon.wordpress.com',
+		'https://stltranslations.wordpress.com',
+		'https://superpotatotrans.wordpress.com',
 		'https://sylver135.wordpress.com',
 		'https://tensaitranslations.wordpress.com',
 		'https://thatguywhosthere.wordpress.com',
@@ -168,6 +177,7 @@ class Scrape(WordpressScrape):
 		'https://thundertranslations.wordpress.com',
 		'https://tomorolls.wordpress.com',
 		'https://tototrans.wordpress.com',
+		'https://translatedbyaclown.wordpress.com',
 		'https://translationraven.wordpress.com',
 		'https://trippingoverwn.wordpress.com',
 		'https://tsaltranslation.wordpress.com',
@@ -185,6 +195,7 @@ class Scrape(WordpressScrape):
 		'https://youtsubasilver.wordpress.com',
 		'https://zmunjali.wordpress.com',
 		'https://zoengsaiwaa.wordpress.com',
+
 
 		# 'https://archivitysite.wordpress.com',
 		'https://infinitenoveltranslations.wordpress.com',
@@ -209,6 +220,8 @@ class Scrape(WordpressScrape):
 		'http://wuxiaworld.com',
 		'http://thundertranslations.com',
 		'http://pikatranslations.com',
+
+		'http://www.deadlylegends.com/translations/',
 
 		# This is WP, but it uses an custom theme I haven't tested against.
 		'http://arkmachinetranslations.com',

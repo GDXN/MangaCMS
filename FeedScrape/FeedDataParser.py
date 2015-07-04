@@ -85,8 +85,10 @@ class DataParser():
 
 	amqpint = None
 
-	def __init__(self, transfer=True):
+	def __init__(self, transfer=True, debug_print=False):
 		super().__init__()
+
+		self.dbg_print = debug_print
 
 		self.transfer = transfer
 
@@ -229,7 +231,8 @@ class DataParser():
 		kansutoppu  = re.search(r'^(Kansutoppu!) Chapter (\d+)$', item['title'])
 		garudeina  = re.search(r'^(Garudeina Oukoku Koukoku Ki) Chapter (\d+): Part (\d+)$', item['title'])
 		# meister  = re.search(r'^(Magi Craft Meister) Volume (\d+) Chapter (\d+)$', item['title'])
-		chp, vol, frag = extractChapterVolFragment(item['title'])
+
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 		if kansutoppu:
 			series = kansutoppu.group(1)
 			vol    = None
@@ -242,6 +245,9 @@ class DataParser():
 			frag   = garudeina.group(3)
 
 			return buildReleaseMessage(item, series, vol, chp, frag=frag)
+
+		if "Astarte's Knight" in item['tags']:
+			return buildReleaseMessage(item, 'Astarte\'s Knight', vol, chp, frag=frag, postfix=postfix)
 
 		return False
 
@@ -292,6 +298,9 @@ class DataParser():
 			or "TAG Chapter" in item['title']                  \
 			or 'The Alchemist God: Chapter' in item['title']:
 			return buildReleaseMessage(item, 'Ascension of the Alchemist God', vol, chp)
+		elif 'Chaotic Sword God' in item['tags']:
+			return buildReleaseMessage(item, 'Chaotic Sword God', vol, chp)
+
 		return False
 
 	####################################################################################################################################################
@@ -1156,7 +1165,7 @@ class DataParser():
 	def extractNeoTranslations(self, item):
 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 
-		if 'The Man Picked up by the Gods' in item['title'] and (chp or vol):
+		if 'The Man Picked up by the Gods'.lower() in item['title'].lower() and (chp or vol):
 			return buildReleaseMessage(item, 'The Man Picked up by the Gods', vol, chp, frag=frag, postfix=postfix)
 
 		return False
@@ -1320,18 +1329,6 @@ class DataParser():
 
 
 	####################################################################################################################################################
-	# Kyakka Translation
-	####################################################################################################################################################
-	def extractKyakka(self, item):
-		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-
-		if 'Yahari Ore no Seishun Love Come wa Machigatteiru' in item['tags'] and 'Light Novel' in item['tags'] and chp or vol:
-			return buildReleaseMessage(item, 'Yahari Ore no Seishun Rabukome wa Machigatte Iru.', vol, chp, frag=frag, postfix=postfix)
-
-		return False
-
-
-	####################################################################################################################################################
 	# Larvyde Translation
 	####################################################################################################################################################
 	def extractLarvyde(self, item):
@@ -1472,6 +1469,95 @@ class DataParser():
 		return False
 
 	####################################################################################################################################################
+	# Turb0 Translation
+	####################################################################################################################################################
+	def extractTurb0(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'kumo desu ga, nani ka?' in item['title'].lower() \
+			or 'kumo desu ka, nani ga?' in item['title'].lower():
+			return buildReleaseMessage(item, 'Kumo Desu ga, Nani ka?', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# 'Translated by a Clown'
+	####################################################################################################################################################
+	def extractClownTrans(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Tensei Shitara Slime datta ken' in item['tags'] and chp:
+			return buildReleaseMessage(item, 'Tensei Shitara Slime Datta Ken', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# 'Nohohon Translation'
+	####################################################################################################################################################
+	def extractNohohon(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Monster Musume Harem wo Tsukurou!' in item['tags']:
+			return buildReleaseMessage(item, 'Monster Musume Harem o Tsukurou!', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# NEET Translations
+	####################################################################################################################################################
+	def extractNeetTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Marginal Operation' in item['tags']:
+			return buildReleaseMessage(item, 'Marginal Operation', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# Kyakka
+	####################################################################################################################################################
+	def extractKyakka(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'preview' in item['title'].lower():
+			return False
+
+		if 'Yahari Ore no Seishun Love Come wa Machigatteiru' in item['tags']  \
+			and 'Translation' in item['tags'] and (chp or vol):
+			return buildReleaseMessage(item, 'Yahari Ore no Seishun Rabukome wa Machigatte Iru.', vol, chp, frag=frag, postfix=postfix)
+
+
+		if 'Yahari Ore no Seishun Love Come wa Machigatteiru' in item['tags'] and 'Light Novel' in item['tags'] and (chp or vol):
+			return buildReleaseMessage(item, 'Yahari Ore no Seishun Rabukome wa Machigatte Iru.', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+	####################################################################################################################################################
+	# 'AsherahBlue's Notebook'
+	####################################################################################################################################################
+	def extractAsherahBlue(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Juvenile Medical God' in item['tags']:
+			return buildReleaseMessage(item, 'Shaonian Yixian', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+
+	####################################################################################################################################################
+	# 'Alcsel Translations'
+	####################################################################################################################################################
+	def extractAlcsel(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'AR Chapter' in item['title']:
+			return buildReleaseMessage(item, 'Assassin Reborn', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
 	#
 	####################################################################################################################################################
 	def extractStub(self, item):
@@ -1482,6 +1568,8 @@ class DataParser():
 		print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
 
 		return False
+
+
 
 	####################################################################################################################################################
 	# Burei Dan Works
@@ -1499,6 +1587,20 @@ class DataParser():
 		# 	return buildReleaseMessage(item, 'Kenja ni Natta', vol, chp, frag=frag, postfix=postfix)
 		return False
 
+
+	####################################################################################################################################################
+	# 'CtrlAlcalá'
+	####################################################################################################################################################
+	def extractCtrlA(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+
+		# Literal "three", "five" etc... for chapter numbering?
+		# print(item['title'])
+		# print(item['tags'])
+		# print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+
+		return False
 
 
 	####################################################################################################################################################
@@ -1731,6 +1833,20 @@ class DataParser():
 			ret = self.extractRhinabolla(item)
 		elif item['srcname'] == 'Supreme Origin Translations':
 			ret = self.extractSotranslations(item)
+		elif item['srcname'] == 'Turb0 Translation':
+			ret = self.extractTurb0(item)
+		elif item['srcname'] == 'Translated by a Clown':
+			ret = self.extractClownTrans(item)
+		elif item['srcname'] == 'Nohohon Translation':
+			ret = self.extractNohohon(item)
+		elif item['srcname'] == 'NEET Translations':
+			ret = self.extractNeetTranslations(item)
+		elif item['srcname'] == 'CtrlAlcalá':
+			ret = self.extractCtrlA(item)
+		elif item['srcname'] == 'AsherahBlue\'s Notebook':
+			ret = self.extractAsherahBlue(item)
+		elif item['srcname'] == 'Alcsel Translations':
+			ret = self.extractAlcsel(item)
 
 
 
@@ -1773,6 +1889,17 @@ class DataParser():
 
 		# Boku wa Isekai de Fuyo Mahou to Shoukan Mahou wo Tenbin ni Kakeru (Novel)
 
+
+		# Handle "three" rather then "3"?
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Chapter Eight: Sieger (Winner) – It’s okay if they don’t catch you', '['Fiction']', 'None', 'None', 'None', ''
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Chapter Five: Beziehung (Connection) – My strenght is not your strenght', '['Fiction']', 'None', 'None', 'None', ''
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Chapter Nine: Glas (Glass) – Nothing is for certain', '['Fiction']', 'None', 'None', 'None', ''
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Chapter Seven: Gëfuhle (Feelings) – The one who wouldn’t back down.', '['Fiction']', 'None', 'None', 'None', ''
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Chapter Six: Entwicklung (Evolution) – Just one more step', '['Fiction']', 'None', 'None', 'None', ''
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Fifth Intermission: Monde (World) – Boredom of the [Demon Empress].', '['Fiction']', 'None', 'None', 'None', 'Intermission: Monde (World) – Boredom of the [Demon Empress].'
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Sixth Intermission: Ciel (Sky) – [Babel’s Ruin] Ascension.', '['Fiction']', 'None', 'None', 'None', 'Intermission: Ciel (Sky) – [Babel’s Ruin] Ascension.'
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Special Transmission: Character Index [Cinco]', '['Fiction']', 'None', 'None', 'None', ''
+		# 'CtrlAlcalá', 'Magical Tournament Volume Three Special Transmission: Character Index [Seis]', '['Fiction']', 'None', 'None', 'None', ''
 
 		# Will be challenging, uses pages instead of chapters
 		elif item['srcname'] == "Shin Sekai Yori – From the New World":
@@ -1817,11 +1944,11 @@ class DataParser():
 
 		# ret = False
 
-		# if debug:
-		# 	if not ret:
-		# 		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-		# 		print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags'], vol, chp, frag, postfix))
-		# 	ret = False
+		if self.dbg_print:
+			if not ret:
+				vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+				print("'%s', '%s', '%s', '%s', '%s', '%s', '%s'" % (item['srcname'], item['title'], item['tags'], vol, chp, frag, postfix))
+			ret = False
 
 
 		# Only return a value if we've actually found a chapter/vol

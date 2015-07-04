@@ -2,19 +2,11 @@
 #!/usr/bin/python
 # from profilehooks import profile
 
-import abc
-import feedparser
 import FeedScrape.RssMonitorDbBase
-import TextScrape.utilities.Proxy
 import FeedScrape.FeedDataParser
-import calendar
-import json
-import bs4
-import TextScrape.RelinkLookup
-import urllib.error
 import FeedScrape.AmqpInterface
 # import TextScrape.RELINKABLE as RELINKABLE
-import settings
+
 
 
 
@@ -45,6 +37,7 @@ def convertItems(items):
 	return ret
 
 def test():
+	import sys
 	# import logSetup
 	# logSetup.initLogging()
 	fetch = RssTest()
@@ -54,12 +47,21 @@ def test():
 	testdat = convertItems(items)
 	print("Converted %s items. Processing" % len(testdat))
 
+	debug_print = False
+	if "print" in sys.argv:
+		debug_print = True
+
+	transmit = True
+	if "no_tx" in sys.argv:
+		transmit = False
+
+
 	# parser = FeedScrape.FeedDataParser.DataParser(transfer=False)
-	parser = FeedScrape.FeedDataParser.DataParser()
+	parser = FeedScrape.FeedDataParser.DataParser(debug_print=debug_print)
 
 	print("Processing items")
 	for item in testdat:
-		ret = parser.processFeedData(item, tx_raw=False, tx_parse=True)
+		ret = parser.processFeedData(item, tx_raw=False, tx_parse=transmit)
 		# if ret:
 		# 	print(ret)
 

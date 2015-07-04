@@ -48,6 +48,7 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				"viewforum.php",
 				"/search?",
 				"/feeds/comments/",
+				"/comments/",
 				"/wp-login.php",
 				"/#comments",      # Ignore in-page anchor tags
 				"/staff/"]
