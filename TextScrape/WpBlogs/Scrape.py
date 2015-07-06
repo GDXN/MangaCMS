@@ -195,11 +195,11 @@ class Scrape(WordpressScrape):
 		'https://youtsubasilver.wordpress.com',
 		'https://zmunjali.wordpress.com',
 		'https://zoengsaiwaa.wordpress.com',
-
-
-		# 'https://archivitysite.wordpress.com',
 		'https://infinitenoveltranslations.wordpress.com',
 		'https://entruce.wordpress.com',
+		'https://hotcocoatranslations.wordpress.com',
+
+
 
 		# Non explicitly wordpress blogs (that use wordpress internally)
 		'http://avertranslation.com',
@@ -220,6 +220,7 @@ class Scrape(WordpressScrape):
 		'http://wuxiaworld.com',
 		'http://thundertranslations.com',
 		'http://pikatranslations.com',
+		'http://ruzetranslations.org'
 
 		'http://www.deadlylegends.com/translations/',
 

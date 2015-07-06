@@ -17,7 +17,7 @@ import urllib.parse
 	#itemHome = urllib.parse.urlunsplit(tup)
 
 
-	
+
 
 	return feedurl, itemHome
 	%>

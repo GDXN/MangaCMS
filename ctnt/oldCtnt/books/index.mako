@@ -43,11 +43,14 @@ import urllib.parse
 
 netloc = ut.getUrlParam('loc')
 if not netloc:
+
+	preload = False
 	cur = sqlCon.cursor()
 	cur.execute("""SELECT DISTINCT(netloc) FROM book_items WHERE istext=TRUE ORDER BY netloc;""")
 	ret = cur.fetchall()
 	print("Dictinct = ", ret)
 else:
+	preload = True
 	ret = [(netloc,)]
 
 
@@ -68,7 +71,7 @@ else:
 					<%
 					if not srcDomain:
 						srcDomain = ''
-					treeRender.renderTree(srcDomain)
+					treeRender.renderTree(srcDomain, preload=preload)
 					%>
 				% endfor
 

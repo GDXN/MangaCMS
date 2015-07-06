@@ -26,8 +26,8 @@ import nameTools as nt
 		randomLink = "Not Available"
 	%>
 
-	<div class="statusdiv">
-		<div class="statediv navId">
+	<div class="statediv navId">
+		<div class="statusdiv">
 			<strong>Navigation:</strong><br />
 			<ul>
 				<li><a href="/">Index</a>

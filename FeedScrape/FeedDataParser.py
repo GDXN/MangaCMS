@@ -1558,6 +1558,33 @@ class DataParser():
 
 
 	####################################################################################################################################################
+	# 'GuroTranslation'
+	####################################################################################################################################################
+	def extractGuroTranslation(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Tensei shitara slime datta ken' in item['tags']:
+			return buildReleaseMessage(item, 'Tensei Shitara Slime Datta Ken', vol, chp, frag=frag, postfix=postfix)
+
+		return False
+
+
+	####################################################################################################################################################
+	# 'A0132'
+	####################################################################################################################################################
+	def extractA0132(self, item):
+		agg_title = "{tags} {title}".format(tags=" ".join(item['tags']), title=item['title'])
+
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(agg_title)
+
+		print(item['title'])
+		print(item['tags'])
+		print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+
+		return False
+
+
+	####################################################################################################################################################
 	#
 	####################################################################################################################################################
 	def extractStub(self, item):
@@ -1847,6 +1874,10 @@ class DataParser():
 			ret = self.extractAsherahBlue(item)
 		elif item['srcname'] == 'Alcsel Translations':
 			ret = self.extractAlcsel(item)
+		elif item['srcname'] == 'Guro Translation':
+			ret = self.extractGuroTranslation(item)
+		elif item['srcname'] == 'A0132':
+			ret = self.extractA0132(item)
 
 
 

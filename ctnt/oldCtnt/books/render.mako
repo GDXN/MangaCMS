@@ -3,6 +3,7 @@
 
 <%namespace name="ut"              file="/utilities.mako"/>
 <%namespace name="sideBar"         file="/gensidebar.mako"/>
+<%namespace name="feed_ut"         file="/feeds/render.mako"/>
 
 <%!
 import urllib.parse
@@ -119,7 +120,7 @@ def build_trie(iterItem, getKey=lambda x: x):
 </%def>
 
 
-<%def name="renderTree(srcDomain)">
+<%def name="renderTree(srcDomain, preload=False)">
 
 	<%
 	itemId = abs(hash(srcDomain))
@@ -127,7 +128,6 @@ def build_trie(iterItem, getKey=lambda x: x):
 
 	<div class="css-treeview">
 		<ul>
-
 			<li><input type="checkbox" id="id${itemId}" loaded=0 /><label for="id${itemId}">${srcDomain.title()}</label>
 				<ul>
 					<li id="id${itemId}"><img src='/js/loading.gif' /></li>
@@ -149,12 +149,22 @@ def build_trie(iterItem, getKey=lambda x: x):
 			$('#id${itemId}').on('change', checkboxEvent);
 
 			console.log("Item checked: ", $('input#id${itemId}').is(':checked'));
+
+			% if preload:
+
+				$('input#id${itemId}').trigger('click');
+
+
+			% endif
+
 		</script>
 
 
 
 	</div>
-	<hr>
+	% if not preload:
+		<hr>
+	% endif
 
 </%def>
 
@@ -263,6 +273,10 @@ def build_trie(iterItem, getKey=lambda x: x):
 						Crawl Distance: ${distance}<br>
 						Last crawl time: ${lastChecked}<br>
 						Download State: ${dlstate}<br>
+						<%
+							feedurl, itemHome = feed_ut.getBaseDomainUrl(itemUrl)
+						%>
+						<a href='${itemHome}'>${feedurl} content</a><br>
 						<a href='${itemUrl}'>Original source: ${itemUrl}</a>
 					</div>
 				</div>
