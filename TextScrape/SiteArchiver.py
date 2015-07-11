@@ -239,6 +239,9 @@ class SiteArchiver(TextScrape.TextDbBase.TextDbBase, LogBase.LoggerMixin, metacl
 			items = genBaseUrlPermutations(url)
 			retSet.update(items)
 
+		for url in scannedDomains:
+			retSet.add(url)
+
 		# Filter out spurious 'blogspot.com.{TLD}' entries that are getting in somehow
 		ret = [item for item in retSet if not item.startswith('blogspot.com')]
 

@@ -18,6 +18,7 @@ import nameTools as nt
 import ScrapePlugins.DbBase
 
 import sql
+import time
 import sql.operators as sqlo
 
 from contextlib import contextmanager
@@ -331,6 +332,12 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		# Patch series name.
 		if "seriesName" in kwargs and kwargs["seriesName"] and self.shouldCanonize:
 			kwargs["seriesName"] = nt.getCanonicalMangaUpdatesName(kwargs["seriesName"])
+
+		# Clamp the retreivaltime to now, so parsing issues that result in invalid, future
+		# time-stamps don't cause posts to stick to the top of the post list.
+		if 'retreivalTime' in kwargs:
+			if kwargs['retreivalTime'] > time.time():
+				kwargs['retreivalTime'] = time.time()
 
 		query, queryArguments = self.generateUpdateQuery(sourceUrl=sourceUrl, **kwargs)
 
