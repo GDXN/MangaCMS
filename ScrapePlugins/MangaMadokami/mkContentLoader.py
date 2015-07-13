@@ -191,6 +191,8 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					break
 				except IOError:
 					chop = chop - 1
+					if chop < 200:
+						raise RuntimeError("Don't know what's going on, but a file truncated too far!")
 					self.log.warn("Truncating file length to %s characters.", chop)
 
 

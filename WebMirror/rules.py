@@ -64,6 +64,14 @@ def getDecomposeAfter(ruleset):
 		assert isinstance(item, dict)
 	return ruleset['decompose']
 
+def getFileDomains(ruleset):
+	if not 'fileDomains' in ruleset:
+		return []
+	assert isinstance(ruleset['fileDomains'], list)
+	for item in ruleset['fileDomains']:
+		assert isinstance(item, str)
+	return ruleset['fileDomains']
+
 
 def checkBadValues(ruleset):
 	assert 'wg' not in ruleset
@@ -143,7 +151,7 @@ def getAllImages(ruleset):
 		return False
 	return ruleset['allImages']
 
-def validate_rules(fname, dat):
+def load_validate_rules(fname, dat):
 
 	checkBadValues(dat)
 
@@ -158,6 +166,7 @@ def validate_rules(fname, dat):
 	rules['netlocs']          = getPossibleNetLocs(dat)
 
 	rules['allImages']        = getAllImages(dat)
+	rules['fileDomains']      = getFileDomains(dat)
 
 	# itemGenre
 	# allowQueryStr
@@ -182,14 +191,14 @@ def validate_rules(fname, dat):
 
 	return rules
 
-def get_rule_filenames():
+def get_rules():
 	cwd = os.path.split(__file__)[0]
 	rulepath = os.path.join(cwd, "rules")
 
 	items = os.listdir(rulepath)
 	items.sort()
 	ret = []
-	for item in [os.path.join(rulepath, item) for item in items if '.yaml' in item]:
+	for item in [os.path.join(rulepath, item) for item in items if item.endswith('.yaml')]:
 
 		with open(item, "r") as fp:
 			try:
@@ -199,7 +208,7 @@ def get_rule_filenames():
 				# YAML causes the whole file to load wrong.
 				text = text.replace("	", "    ")
 				dat = yaml.load(text)
-				rules = validate_rules(item, dat)
+				rules = load_validate_rules(item, dat)
 				if rules:
 					ret.append(rules)
 			except (yaml.scanner.ScannerError, yaml.parser.ParserError):
@@ -223,8 +232,9 @@ def get_rule_filenames():
 	# for ruleset in ret:
 	# 	print(ruleset)
 	# 	print()
-	return items
+	return ret
 
 
 def load_rules():
-	rulefns = get_rule_filenames()
+	rules = get_rules()
+	return rules

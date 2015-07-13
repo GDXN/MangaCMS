@@ -19,6 +19,10 @@ baseUrl: [
 
 
 
+fileDomains: [
+    'bp.blogspot.com'
+    ]
+
 tld: ['com', 'ca', 'fr', 'sg', 'it', 'co.uk']
 
 # Any url containing any of the words in the `badwords` list will be ignored.
@@ -57,6 +61,26 @@ badwords: [
 
             # I don't know why the scrape is walking over to taptaptap content, but it's fucking annoying.
             'www.taptaptaptaptap.net',
+
+            "/manga/",
+            "/recruitment/",
+            "wpmp_switcher=mobile",
+            "account/begin_password_reset",
+            "/comment-page-",
+
+            # Why do people think they need a fucking comment system?
+            '/?replytocom=',
+            '#comments',
+            '/comments/',
+
+            # Mask out the PDFs
+            "-online-pdf-viewer/",
+
+            # Who the fuck shares shit like this anyways?
+            "?share=",
+            'wp-login.php',
+            '/feeds/'
+
             ]
 
 decomposeBefore: [
@@ -123,6 +147,20 @@ decompose: [
     {'id'     : 'sidebar-wrapper'},
     {'id'     : 'sidebar-wrapper1'}, # Yes, two `sidebar-wrapper` ids. Gah.
     {'id'     : 'site-navigation'},
+
+    {'class' : 'widget-content'},
+    {'class' : 'titlewrapper'},
+    {'class' : 'title'},
+    {'class' : 'post-footer'},
+    {'class' : 'post-footer-line'},
+    {'class' : 'cap-bottom'},
+    {'class' : 'header-outer'},
+    {'class' : 'column-right-outer'},
+    {'class' : 'column-left-outer'},
+    {'class' : 'widget-item-control'},
+    {'class' : 'fauxcolumn-right-outer'},
+    {'class' : 'fauxcolumn-left-outer'},
+    {'id'    : 'LinkList1'},
 
 
 ]

@@ -39,8 +39,6 @@ class Scrape(TextScrape.SiteArchiver.SiteArchiver):
 				'&format=pdf',
 				'?format=pdf',
 				'?replytocom=',
-				"/forum/",
-				"/forum",
 				"/games/",
 				]
 

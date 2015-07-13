@@ -1,6 +1,13 @@
 
 # import rpc
 
+DB_REALTIME_PRIORITY =   1 * 1000
+DB_HIGH_PRIORITY     =  10 * 1000
+DB_MED_PRIORITY      =  50 * 1000
+DB_LOW_PRIORITY      = 100 * 1000
+
+DB_DEFAULT_DIST      =  10 * 1000
+
 # import task_exceptions
 # import deps.ExContentLoader
 # import deps.ContentLoader
@@ -56,10 +63,11 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{passwd}@{host}:5432/{database}'.
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 Session = sessionmaker(bind=engine)
 session = Session()
+print("Creating database interface:", session)
 Base = declarative_base()
 
 dlstate_enum  = ENUM('new', 'fetching', 'processing', 'complete', name='dlstate_enum')
-itemtype_enum  = ENUM('western', 'eastern', 'unknown', name='dlstate_enum')
+itemtype_enum  = ENUM('western', 'eastern', 'unknown', name='itemtype_enum')
 
 class WebPages(Base):
 	__tablename__ = 'web_pages'
@@ -67,6 +75,7 @@ class WebPages(Base):
 	state        = Column(dlstate_enum, default='new', index=True)
 	url          = Column(Text, nullable = False, index = True)
 	starturl     = Column(Text, nullable = False)
+	netloc       = Column(Text, nullable = False)
 
 	# Foreign key to the files table if needed.
 	file         = Column(Integer, ForeignKey('web_files.id'))
@@ -86,6 +95,7 @@ class WebPages(Base):
 
 	scantime    = Column(DateTime)
 	addtime     = Column(DateTime, default=datetime.datetime.utcnow)
+
 
 
 # File table doesn't know anything about URLs, since they're kept in the

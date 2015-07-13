@@ -58,6 +58,7 @@ import TextScrape.DearestFairy.Run
 import TextScrape.HaruParty.Run
 import TextScrape.ReMonsterWikia.Run
 import TextScrape.Sousetsuka.Run
+import TextScrape.RoyalRoad.Run
 
 import TextScrape.BakaTsuki.RunUpdate
 import TextScrape.BsBlogs.RunUpdate
@@ -201,6 +202,7 @@ scrapePlugins = {
 	311 : (TextScrape.CloudFlareWordPress.Run,                 days(2)),
 	312 : (TextScrape.ReMonsterWikia.RunUpdate,                days(7)),
 	313 : (TextScrape.Sousetsuka.RunUpdate,                    days(7)),
+	314 : (TextScrape.RoyalRoad.Run,                           days(7)),
 
 
 	400 : (TextScrape.Lndb.Run,                                hours(2)),
