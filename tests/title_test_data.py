@@ -5206,4 +5206,16 @@ data = [
 	('“When I Returned” Chapter 1', (None, 1.0, None, '')),
 	('蘇りの魔王(Yomigaeri no Maou) – Chapter 21', (21.0, None)),
 	('蘇りの魔王(Yomigaeri no Maou) – Chapter 21', (None, 21.0, None, '')),
+
+
+	('B2 Prologue + Chapter 1',                   (2, 1.0, None, '')),
+	('B2 Chapter 2 - Homecoming',                 (2, 2.0, None, '')),
+	('B2 Chapter 3 - Annual Arms Competition II', (2, 3.0, None, '')),
+	('B2 Chapter 4 - Awakening',                  (2, 4.0, None, '')),
+	('B2 Chapter 5 - Courage',                    (2, 5.0, None, '')),
+	('B2 Chapter 6 - The 13th Ward',              (2, 6.0, None, '')),
+	('B2 Chapter 7 - The Silent One',             (2, 7.0, None, '')),
+	('B2 Chapter 8 - Uninvited Guest',            (2, 8.0, None, '')),
+
+
 ]

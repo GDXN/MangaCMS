@@ -10,6 +10,7 @@ VOLUME_KEYS   = [
 		'vol.',
 		'arc',
 		'v',
+		'b',
 
 		# Spot fixes: Make certain scanlators work:
 		'rokujouma',
