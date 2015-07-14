@@ -2,10 +2,6 @@ Broken volume number: Vol.1 part 2 chapter 8: level 2
 I think it's converting Vol.1 to Vol, 0.1, and then casting 0.1 to integer, and getting 
 0
 
-http://dreamsleeper87.blogspot.com/
-https://superpotatotrans.wordpress.com/potato-plant-1/
-https://rainbowtranslationsblog.wordpress.com/
-
 
 http://mirage-trans.dreamwidth.org/
 http://mirage-trans.dreamwidth.org/profile
@@ -17,7 +13,7 @@ http://mocopersonal.tumblr.com/post/25799016522
 http://mocopersonal.tumblr.com/tagged/kuroko-no-basuke-novel
 http://forums.mangafox.me/threads/379264-Kuroko-no-Basuke-Novel-Replace-I-and-II
 
-https://theadamantinedragon.wordpress.com/crystal/
+
 http://pokegirls.org/
 
 

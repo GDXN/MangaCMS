@@ -64,8 +64,6 @@ class RssDbBase(DbBase.DbBase, metaclass=abc.ABCMeta):
 	def __init__(self):
 		super().__init__()
 
-		print('wat')
-
 		self.table       = None
 		self.cols        = None
 		self.validKwargs = None

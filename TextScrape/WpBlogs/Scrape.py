@@ -48,6 +48,8 @@ class Scrape(WordpressScrape):
 		# 'https://thecatscans.wordpress.com',
 
 
+		'https://rainbowtranslationsblog.wordpress.com',
+		'https://superpotatotrans.wordpress.com',
 
 		'http://gekkahimethetranslation.wordpress.com',
 		'http://gravitytranslations.wordpress.com',

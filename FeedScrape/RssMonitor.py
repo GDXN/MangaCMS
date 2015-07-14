@@ -30,14 +30,13 @@ class RssMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDataParse
 
 	loggerPath = 'Main.Rss'
 
-	# Has to be explicitly overridden, or the inheritnace will
-	# asplode.
+	# Has to be explicitly overridden, or the inheritance will asplode.
 	log = None
 	test_override = []
 	htmlProcClass = TextScrape.HtmlProcessor.HtmlPageProcessor
 
-	def __init__(self):
 
+	def __init__(self):
 
 		self.relink = TextScrape.RelinkLookup.getRelinkable()
 		pdata = TextScrape.RelinkLookup.getPluginData()

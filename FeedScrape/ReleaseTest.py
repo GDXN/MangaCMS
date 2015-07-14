@@ -40,6 +40,12 @@ def test():
 	import sys
 	# import logSetup
 	# logSetup.initLogging()
+
+
+	if "no_tx" in sys.argv:
+		RssTest.amqp_connect = False
+		FeedScrape.FeedDataParser.DataParser.amqp_connect = False
+
 	fetch = RssTest()
 	print("Loading existing RSS Items")
 	items = fetch.getRowsByValue(limitByKey=False)
@@ -57,7 +63,10 @@ def test():
 
 
 	# parser = FeedScrape.FeedDataParser.DataParser(transfer=False)
-	parser = FeedScrape.FeedDataParser.DataParser(debug_print=debug_print)
+	print("transfer = ", transmit)
+
+	# return
+	parser = FeedScrape.FeedDataParser.DataParser(debug_print=debug_print, transfer=transmit)
 
 	print("Processing items")
 	for item in testdat:
@@ -70,5 +79,6 @@ def test():
 if __name__ == "__main__":
 	import logSetup
 	logSetup.initLogging()
+	# print("ReleaseTest")
 	test()
 

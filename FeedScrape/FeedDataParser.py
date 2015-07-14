@@ -84,6 +84,7 @@ def packChapterFragments(chapStr, fragStr):
 class DataParser():
 
 	amqpint = None
+	amqp_connect = True
 
 	def __init__(self, transfer=True, debug_print=False):
 		super().__init__()
@@ -100,8 +101,13 @@ class DataParser():
 		amqp_settings["RABBIT_PASWD"]       = settings.RABBIT_PASWD
 		amqp_settings["RABBIT_SRVER"]       = settings.RABBIT_SRVER
 		amqp_settings["RABBIT_VHOST"]       = settings.RABBIT_VHOST
-		self.amqpint = FeedScrape.AmqpInterface.RabbitQueueHandler(settings=amqp_settings)
 
+
+		print("Transfer state:", self.amqp_connect)
+		if self.amqp_connect:
+			self.amqpint = FeedScrape.AmqpInterface.RabbitQueueHandler(settings=amqp_settings)
+		else:
+			print("Not making rabbit connection.")
 		self.names = set()
 
 	####################################################################################################################################################
@@ -1344,22 +1350,6 @@ class DataParser():
 		return False
 
 
-	####################################################################################################################################################
-	# Shiroyukineko Translation
-	####################################################################################################################################################
-	def extractShiroyukineko(self, item):
-		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
-
-		if 'DOP' in item['tags'] and chp or vol:
-			return buildReleaseMessage(item, 'Fenglin Tianxia - Wangfei Shisansui', vol, chp, frag=frag, postfix=postfix)
-		if 'LLS' in item['tags'] and chp or vol:
-			return buildReleaseMessage(item, 'Zhaohuan Wansui', vol, chp, frag=frag, postfix=postfix)
-		if 'VW:UUTS' in item['tags'] and chp or vol:
-			return buildReleaseMessage(item, 'Virtual World: Unparalleled under the Sky', vol, chp, frag=frag, postfix=postfix)
-
-		return False
-
-
 
 	####################################################################################################################################################
 	# Unchained Translation
@@ -1570,19 +1560,52 @@ class DataParser():
 
 
 	####################################################################################################################################################
-	# 'A0132'
+	# 'Shiroyukineko Translations'
 	####################################################################################################################################################
-	def extractA0132(self, item):
-		agg_title = "{tags} {title}".format(tags=" ".join(item['tags']), title=item['title'])
+	def extractShiroyukineko(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
 
-		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(agg_title)
+		if not (vol or chp):
+			return False
 
-		print(item['title'])
-		print(item['tags'])
-		print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+		if 'DOP' in item['tags'] or 'Descent of the Phoenix: 13 Year Old Princess Consort' in item['tags']:
+			return buildReleaseMessage(item, 'Descent of the Phoenix: 13 Year Old Princess Consort', vol, chp, frag=frag, postfix=postfix)
+		if 'LLS' in item['tags'] or 'Long Live Summons!' in item['tags']:
+			return buildReleaseMessage(item, 'Long Live Summons!', vol, chp, frag=frag, postfix=postfix)
+		if 'VW:UUTS' in item['tags'] or 'Virtual World: Unparalled Under The Sky' in item['tags']:
+			return buildReleaseMessage(item, 'Virtual World: Unparalleled under the Sky', vol, chp, frag=frag, postfix=postfix)
 
 		return False
 
+	####################################################################################################################################################
+	# 'NoviceTranslator'
+	####################################################################################################################################################
+	def extractNoviceTranslator(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'Martial God Space Chapter' in item['title'] or 'Martial God Space' in item['tags']:
+			return buildReleaseMessage(item, 'Martial God Space', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+	####################################################################################################################################################
+	# MahouKoukoku
+	####################################################################################################################################################
+	def extractMahouKoukoku(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+		if 'Shiro no Koukoku Monogatari ' in item['title']:
+			return buildReleaseMessage(item, 'Shiro no Koukoku Monogatari', vol, chp, frag=frag, postfix=postfix)
+		return False
+
+	####################################################################################################################################################
+	# Ensj Translations
+	####################################################################################################################################################
+	def extractEnsjTranslations(self, item):
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(item['title'])
+
+		if 'King Shura' in item['tags']:
+			return buildReleaseMessage(item, 'King Shura', vol, chp, frag=frag, postfix=postfix)
+
+		return False
 
 	####################################################################################################################################################
 	#
@@ -1596,6 +1619,20 @@ class DataParser():
 
 		return False
 
+
+	####################################################################################################################################################
+	# 'A0132'
+	####################################################################################################################################################
+	def extractA0132(self, item):
+		agg_title = "{tags} {title}".format(tags=" ".join(item['tags']), title=item['title'])
+
+		vol, chp, frag, postfix = extractVolChapterFragmentPostfix(agg_title)
+
+		# print(item['title'])
+		# print(item['tags'])
+		# print("'{}', '{}', '{}', '{}'".format(vol, chp, frag, postfix))
+
+		return False
 
 
 	####################################################################################################################################################
@@ -1876,12 +1913,20 @@ class DataParser():
 			ret = self.extractAlcsel(item)
 		elif item['srcname'] == 'Guro Translation':
 			ret = self.extractGuroTranslation(item)
-		elif item['srcname'] == 'A0132':
-			ret = self.extractA0132(item)
+		elif item['srcname'] == 'NoviceTranslator':
+			ret = self.extractNoviceTranslator(item)
+		elif item['srcname'] == 'Mahou Koukoku':
+			ret = self.extractMahouKoukoku(item)
+		elif item['srcname'] == 'Ensj Translations':
+			ret = self.extractEnsjTranslations(item)
 
-
+		elif item['srcname'] == 'Dreadful Decoding':
+			ret = self.extractWAT(item)
 
 		# To Add:
+
+		elif item['srcname'] == 'A0132':
+			ret = self.extractA0132(item)
 		elif item['srcname'] == "Kami Translation":
 			ret = self.extractWAT(item)
 		elif item['srcname'] == "KobatoChanDaiSukiScan":

@@ -27,6 +27,7 @@ class Scrape(TextScrape.BlogspotBase.BlogspotScrape):
 		# 'http://thezombieknight.blogspot.co.uk',
 		# 'http://xhawk77x.blogspot.com',
 
+		'http://dreamsleeper87.blogspot.com',
 
 		'http://a0132.blogspot.ca',
 		'http://ahoujicha.blogspot.ca',

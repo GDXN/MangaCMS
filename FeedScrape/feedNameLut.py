@@ -210,6 +210,7 @@ def getNiceName(srcurl):
 		'yoraikun.wordpress.com'                    : 'Yoraikun Translation',
 		'youtsubasilver.wordpress.com'              : 'youtsubasilver\'s Blog',
 		'zmunjali.wordpress.com'                    : 'Roxism HQ',
+		'novicetranslator.wordpress.com'            : 'NoviceTranslator',
 
 
 
