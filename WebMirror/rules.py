@@ -141,6 +141,12 @@ def getPossibleNetLocs(ruleset):
 		items = genBaseUrlPermutations(url)
 		retSet.update(items)
 
+	if 'FOLLOW_GOOGLE_LINKS' in ruleset and ruleset['FOLLOW_GOOGLE_LINKS']:
+		retSet.add('https://docs.google.com/document/')
+		retSet.add('https://docs.google.com/spreadsheets/')
+		retSet.add('https://drive.google.com/folderview')
+		retSet.add('https://drive.google.com/open')
+
 	# Filter out spurious 'blogspot.com.{TLD}' entries that are getting in somehow
 	ret = [item for item in retSet if not item.startswith('blogspot.com')]
 
