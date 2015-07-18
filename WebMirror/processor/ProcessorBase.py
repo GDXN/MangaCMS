@@ -7,7 +7,8 @@ runStatus.preloadDicts = False
 # import Levenshtein as lv
 
 
-import TextScrape.urlFuncs
+
+import WebMirror.util.urlFuncs as urlFuncs
 import urllib.parse
 import LogBase
 import TextScrape.gDocParse as gdp
@@ -87,14 +88,14 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 
 
 	def convertToReaderUrl(self, inUrl):
-		inUrl = TextScrape.urlFuncs.urlClean(inUrl)
+		inUrl = urlFuncs.urlClean(inUrl)
 		inUrl = self.preprocessReaderUrl(inUrl)
 		# The link will have been canonized at this point
 		url = '/books/render?url=%s' % urllib.parse.quote(inUrl)
 		return url
 
 	def convertToReaderImage(self, inStr):
-		inStr = TextScrape.urlFuncs.urlClean(inStr)
+		inStr = urlFuncs.urlClean(inStr)
 		return self.convertToReaderUrl(inStr)
 
 	def relink(self, soup, imRelink=None):
@@ -107,7 +108,7 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 			imRelink = self.convertToReaderImage
 
 
-		for (isImg, tag, attr) in TextScrape.urlFuncs.urlContainingTargets:
+		for (isImg, tag, attr) in urlFuncs.urlContainingTargets:
 
 			if not isImg:
 				for link in soup.findAll(tag):
@@ -213,7 +214,7 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 		if not self.checkFollowGoogleUrl(url):
 			return
 
-		url = TextScrape.urlFuncs.urlClean(url)
+		url = urlFuncs.urlClean(url)
 
 		if "google.com" in urllib.parse.urlsplit(url.lower()).netloc:
 			url = gdp.trimGDocUrl(url)
@@ -241,7 +242,7 @@ class PageProcessor(LogBase.LoggerMixin, metaclass=abc.ABCMeta):
 	def extractLinks(self, soup, baseUrl):
 		# All links have been resolved to fully-qualified paths at this point.
 		ret = []
-		for (dummy_isImg, tag, attr) in TextScrape.urlFuncs.urlContainingTargets:
+		for (dummy_isImg, tag, attr) in urlFuncs.urlContainingTargets:
 
 			for link in soup.findAll(tag):
 

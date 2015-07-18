@@ -12,11 +12,16 @@ import time
 import multiprocessing
 from sqlalchemy import desc
 
+
+import WebMirror.processor.HtmlProcessor
+import WebMirror.processor.GDriveDirProcessor
+import WebMirror.processor.GDocProcessor
+
 import WebMirror.util.urlFuncs
 import urllib.parse
 import traceback
-import datetime
-import sqlalchemy.exc
+import webFunctions
+import bs4
 
 MAX_DISTANCE = 1000 * 1000
 
@@ -63,10 +68,12 @@ class ItemFetcher(LogBase.LoggerMixin):
 	# The db defaults to  (e.g. max signed integer value) anyways
 	FETCH_DISTANCE = 1000 * 1000
 
-	def __init__(self, rules):
+	def __init__(self, rules, job):
 		super().__init__()
 
+		self.wg = webFunctions.WebGetRobust()
 
+		rules.sort(key=lambda x:x['netlocs'])
 
 		self.ruleset = rules
 
@@ -75,6 +82,16 @@ class ItemFetcher(LogBase.LoggerMixin):
 			[self.relinkable.add(url) for url in item['fileDomains']]         #pylint: disable=W0106
 			[self.relinkable.add(url) for url in item['netlocs']]             #pylint: disable=W0106
 
+
+		netloc = urllib.parse.urlsplit(job.url).netloc
+
+		self.rules = None
+		for ruleset in self.ruleset:
+			if netloc in ruleset['netlocs']:
+				self.rules = ruleset
+		assert self.rules
+
+		self.job = job
 
 	########################################################################################################################
 
@@ -92,8 +109,8 @@ class ItemFetcher(LogBase.LoggerMixin):
 	#
 	########################################################################################################################
 
-# 	def getEmptyRet(self):
-# 		return {'plainLinks' : [], 'rsrcLinks' : []}
+	def getEmptyRet(self):
+		return {'plainLinks' : [], 'rsrcLinks' : []}
 
 
 # 	def processReturnedFileResources(self, resources):
@@ -130,37 +147,35 @@ class ItemFetcher(LogBase.LoggerMixin):
 
 
 
-# 	def processHtmlPage(self, url, content):
-# 		scraper = self.htmlProcClass(
-# 									baseUrls        = self.baseUrl,
-# 									pageUrl         = url,
-# 									pgContent       = content,
-# 									loggerPath      = self.loggerPath,
-# 									badwords        = self.badwords,
-# 									decompose       = self.decompose,
-# 									decomposeBefore = self.decomposeBefore,
-# 									fileDomains     = self.fileDomains,
-# 									allImages       = self.allImages,
-# 									followGLinks    = self.FOLLOW_GOOGLE_LINKS,
-# 									ignoreBadLinks  = self.IGNORE_MALFORMED_URLS,
-# 									tld             = self.tld,
-# 									stripTitle      = self.stripTitle,
-# 									relinkable      = self.relinkable
-# 								)
-# 		extracted = scraper.extractContent()
+	def processHtmlPage(self, url, content):
+		scraper = WebMirror.processor.HtmlProcessor.HtmlPageProcessor(
+									baseUrls        = self.job.starturl,
+									pageUrl         = url,
+									pgContent       = content,
+									loggerPath      = self.loggerPath,
+									badwords        = self.rules['badwords'],
+									decompose       = self.rules['decompose'],
+									decomposeBefore = self.rules['decomposeBefore'],
+									fileDomains     = self.rules['fileDomains'],
+									allImages       = self.rules['allImages'],
+									ignoreBadLinks  = self.rules['IGNORE_MALFORMED_URLS'],
+									stripTitle      = self.rules['stripTitle'],
+									relinkable      = self.relinkable
+								)
+		extracted = scraper.extractContent()
 
-# 		return extracted
+		return extracted
 
 
-# 	def extractGoogleDriveFolder(self, url):
-# 		scraper = self.gdriveClass(
-# 									pageUrl         = url,
-# 									loggerPath      = self.loggerPath,
-# 									relinkable      = self.relinkable
-# 								)
-# 		extracted = scraper.extractContent()
+	def extractGoogleDriveFolder(self, url):
+		scraper = self.gdriveClass(
+									pageUrl         = url,
+									loggerPath      = self.loggerPath,
+									relinkable      = self.relinkable
+								)
+		extracted = scraper.extractContent()
+		return extracted
 
-# 		return extracted
 
 # 	def retreiveGoogleDoc(self, url):
 # 		# pageUrl, loggerPath, tableKey, scannedDomains=None, tlds=None
@@ -269,57 +284,64 @@ class ItemFetcher(LogBase.LoggerMixin):
 
 
 
-# 	def dispatchContent(self, url, content, fName, mimeType):
-# 		self.log.info("Dispatching file '%s' with mime-type '%s'", fName, mimeType)
+	def dispatchContent(self, url, content, fName, mimeType):
+		self.log.info("Dispatching file '%s' with mime-type '%s'", fName, mimeType)
 
-# 		# *sigh*. So minus.com is fucking up their http headers, and apparently urlencoding the
-# 		# mime type, because apparently they're shit at things.
-# 		# Anyways, fix that.
-# 		if '%2F' in  mimeType:
-# 			mimeType = mimeType.replace('%2F', '/')
+		# *sigh*. So minus.com is fucking up their http headers, and apparently urlencoding the
+		# mime type, because apparently they're shit at things.
+		# Anyways, fix that.
+		if '%2F' in  mimeType:
+			mimeType = mimeType.replace('%2F', '/')
 
-# 		if mimeType in ['text/xml', 'text/atom+xml', 'application/atom+xml', 'application/xml']:
-# 			self.log.info("XML File?")
-# 			self.log.info("URL: '%s'", url)
-# 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
-# 			return self.getEmptyRet()
+		if mimeType in ['text/xml', 'text/atom+xml', 'application/atom+xml', 'application/xml', 'text/css', 'application/x-javascript', 'application/javascript']:
 
-# 		elif mimeType in ['text/css']:
-# 			self.log.info("CSS!")
-# 			self.log.info("URL: '%s'", url)
-# 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
-# 			return self.getEmptyRet()
+			if mimeType in ['text/xml', 'text/atom+xml', 'application/atom+xml', 'application/xml']:
+				self.log.info("XML File?")
+				self.log.info("URL: '%s'", url)
 
-# 		elif mimeType in ['application/x-javascript', 'application/javascript']:
-# 			self.log.info("Javascript Resource!")
-# 			self.log.info("URL: '%s'", url)
-# 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
-# 			return self.getEmptyRet()
+			elif mimeType in ['text/css']:
+				self.log.info("CSS!")
+				self.log.info("URL: '%s'", url)
 
-# 		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
-# 			self.log.info("Processing '%s' as an image file.", url)
-# 			self.saveFile(url, mimeType, fName, content)
-# 			return self.getEmptyRet()
+			elif mimeType in ['application/x-javascript', 'application/javascript']:
+				self.log.info("Javascript Resource!")
+				self.log.info("URL: '%s'", url)
 
-# 		elif mimeType in ["application/octet-stream", "application/x-mobipocket-ebook", "application/pdf", "application/zip"]:
-# 			self.log.info("Processing '%s' as an binary file.", url)
-# 			self.saveFile(url, mimeType, fName, content)
-# 			return self.getEmptyRet()
+			assert self.job.url == url
+			self.job.title    = ''
+			self.job.contents = content
+			self.job.mimetype = mimeType
+			self.job.state    = 'complete'
+			self.job.is_text  = True
+			return self.getEmptyRet()
 
 
-# 		elif mimeType == 'text/html':
-# 			ret = self.processHtmlPage(url, content)
-
-# 		elif mimeType in ['text/plain']:
-# 			ret = self.processAsMarkdown(url, content)
-
-# 		else:
-# 			self.log.error("Unknown MIME Type: '%s', Url: '%s'", mimeType, url)
-# 			self.log.error("Not saving file!")
-# 			return self.getEmptyRet()
 
 
-# 		return ret
+		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu",
+			"application/octet-stream", "application/x-mobipocket-ebook", "application/pdf", "application/zip"]:
+			if mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
+				self.log.info("Processing '%s' as an image file.", url)
+			elif mimeType in ["application/octet-stream", "application/x-mobipocket-ebook", "application/pdf", "application/zip"]:
+				self.log.info("Processing '%s' as an binary file.", url)
+
+			self.saveFile(url, mimeType, fName, content)
+			return self.getEmptyRet()
+
+
+		elif mimeType in ['text/html']:
+			ret = self.processHtmlPage(url, content)
+
+		elif mimeType in ['text/plain']:
+			ret = self.processAsMarkdown(url, content)
+
+		else:
+			self.log.error("Unknown MIME Type: '%s', Url: '%s'", mimeType, url)
+			self.log.error("Not saving file!")
+			return self.getEmptyRet()
+
+
+		return ret
 
 
 
@@ -329,7 +351,7 @@ class ItemFetcher(LogBase.LoggerMixin):
 		try:
 			content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
 		except:
-			if self.cloudflare:
+			if self.rules['cloudflare']:
 				if not self.wg.stepThroughCloudFlare(itemUrl, titleNotContains='Just a moment...'):
 					raise ValueError("Could not step through cloudflare!")
 				# Cloudflare cookie set, retrieve again
@@ -361,7 +383,7 @@ class ItemFetcher(LogBase.LoggerMixin):
 	def retreivePlainResource(self, job):
 		self.log.info("Fetching Simple Resource: '%s'", job.url)
 		try:
-			content, fName, mimeType = self.getItem(job.url)
+			content, fName, mimeType = self.getItem(self.job.url)
 		except ValueError:
 
 			for line in traceback.format_exc().split("\n"):
@@ -371,38 +393,10 @@ class ItemFetcher(LogBase.LoggerMixin):
 
 			return self.getEmptyRet()
 
-		return self.dispatchContent(url, content, fName, mimeType)
+		return self.dispatchContent(job.url, content, fName, mimeType)
 
 
 
-		# print('Dispatch URL', url)
-
-		netloc = urllib.parse.urlsplit(job.url.lower()).netloc
-
-		isGdoc,  realUrl = gdp.isGdocUrl(job.url)
-		isGfile, fileUrl = gdp.isGFileUrl(job.url)
-
-		print('Fetching: ', job.url, 'distance', job.distance)
-		print(isGdoc, isGfile)
-		if 'drive.google.com' in netloc:
-			self.log.info("Google Drive content!")
-			response = self.extractGoogleDriveFolder(job)
-		elif isGdoc:
-			self.log.info("Google Docs content!")
-			response = self.retreiveGoogleDoc(job, realUrl)
-		elif isGfile:
-			self.log.info("Google File content!")
-			response = self.retreiveGoogleFile(job, realUrl)
-
-		else:
-			response = self.retreivePlainResource(job)
-
-		if 'title' in response and 'contents' in response:
-			job.title    = response['title']
-			job.content  = response['contents']
-			job.mimetype = 'text/html'
-			job.is_text  = True
-			job.state    = 'complete'
 
 
 
@@ -423,39 +417,38 @@ class ItemFetcher(LogBase.LoggerMixin):
 	# This is the main function that's called by the task management system.
 	# Retreive remote content at `url`, call the appropriate handler for the
 	# transferred content (e.g. is it an image/html page/binary file)
-	def fetch(self, job):
-		job.url = WebMirror.util.urlFuncs.urlClean(job.url)
-
+	def fetch(self):
+		self.job.url = WebMirror.util.urlFuncs.urlClean(self.job.url)
 
 		# print('Dispatch URL', url)
 
-		netloc = urllib.parse.urlsplit(job.url.lower()).netloc
+		netloc = urllib.parse.urlsplit(self.job.url.lower()).netloc
 
-		isGdoc,  realUrl = gdp.isGdocUrl(job.url)
-		isGfile, fileUrl = gdp.isGFileUrl(job.url)
+		isGdoc,  realUrl = gdp.isGdocUrl(self.job.url)
+		isGfile, fileUrl = gdp.isGFileUrl(self.job.url)
 
-		print('Fetching: ', job.url, 'distance', job.distance)
-		print(isGdoc, isGfile)
+		# print('Fetching: ', self.job.url, 'distance', self.job.distance)
+		# print(isGdoc, isGfile)
 		if 'drive.google.com' in netloc:
 			self.log.info("Google Drive content!")
-			response = self.extractGoogleDriveFolder(job)
+			response = self.extractGoogleDriveFolder(self.job)
 		elif isGdoc:
 			self.log.info("Google Docs content!")
-			response = self.retreiveGoogleDoc(job, realUrl)
+			response = self.retreiveGoogleDoc(self.job, realUrl)
 		elif isGfile:
 			self.log.info("Google File content!")
-			response = self.retreiveGoogleFile(job, realUrl)
+			response = self.retreiveGoogleFile(self.job, realUrl)
 
 		else:
-			response = self.retreivePlainResource(job)
+			response = self.retreivePlainResource(self.job)
 
 		if 'title' in response and 'contents' in response:
-			job.title    = response['title']
-			job.content  = response['contents']
-			job.mimetype = 'text/html'
-			job.is_text  = True
-			job.state    = 'complete'
+			self.job.title    = response['title']
+			self.job.content  = response['contents']
+			self.job.mimetype = 'text/html'
+			self.job.is_text  = True
+			self.job.state    = 'complete'
 
 
-
-		self.upsertResponseLinks(job, response)
+		return response
+		# self.upsertResponseLinks(job, response)

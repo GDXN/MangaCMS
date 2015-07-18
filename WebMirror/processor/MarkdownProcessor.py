@@ -4,11 +4,8 @@
 import runStatus
 runStatus.preloadDicts = False
 
-# import Levenshtein as lv
+from . import ProcessorBase
 
-import TextScrape.urlFuncs
-import TextScrape.ProcessorBase
-import TextScrape.SiteArchiver
 
 import markdown
 
@@ -32,7 +29,7 @@ import markdown
 
 
 
-class MarkdownProcessor(TextScrape.ProcessorBase.PageProcessor):
+class MarkdownProcessor(ProcessorBase.PageProcessor):
 
 	loggerPath = "Main.Text.MarkdownProcessor"
 

@@ -21,7 +21,7 @@ def getStartURLs(ruleset):
 		if not isinstance(ruleset['extraStartUrls'], list):
 			raise ValidationError("'extraStartUrls' is not a list!")
 		ret += ruleset['extraStartUrls']
-
+	ret.sort()
 	return ret
 
 def getFeedUrls(ruleset):
@@ -157,22 +157,34 @@ def getAllImages(ruleset):
 		return False
 	return ruleset['allImages']
 
+def getCloudflare(ruleset):
+	if not 'cloudflare' in ruleset:
+		return False
+	return ruleset['cloudflare']
+
+def getIgnoreMalformed(ruleset):
+	if not 'IGNORE_MALFORMED_URLS' in ruleset:
+		return False
+	return ruleset['IGNORE_MALFORMED_URLS']
+
 def load_validate_rules(fname, dat):
 
 	checkBadValues(dat)
 
 	rules = {}
-	rules['starturls']        = getStartURLs(dat)
-	rules['feedurls']         = getFeedUrls(dat)
+	rules['starturls']             = getStartURLs(dat)
+	rules['feedurls']              = getFeedUrls(dat)
 
-	rules['badwords']         = getUrlBadWords(dat)
-	rules['stripTitle']       = getStripTitle(dat)
-	rules['decomposeBefore']  = getDecomposeBefore(dat)
-	rules['decomposeAfter']   = getDecomposeAfter(dat)
-	rules['netlocs']          = getPossibleNetLocs(dat)
+	rules['badwords']              = getUrlBadWords(dat)
+	rules['stripTitle']            = getStripTitle(dat)
+	rules['decomposeBefore']       = getDecomposeBefore(dat)
+	rules['decompose']             = getDecomposeAfter(dat)
+	rules['netlocs']               = getPossibleNetLocs(dat)
 
-	rules['allImages']        = getAllImages(dat)
-	rules['fileDomains']      = getFileDomains(dat)
+	rules['allImages']             = getAllImages(dat)
+	rules['fileDomains']           = getFileDomains(dat)
+	rules['cloudflare']            = getCloudflare(dat)
+	rules['IGNORE_MALFORMED_URLS'] = getIgnoreMalformed(dat)
 
 	# itemGenre
 	# allowQueryStr

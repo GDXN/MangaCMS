@@ -5,8 +5,9 @@ import bs4
 import copy
 import readability.readability
 import lxml.etree
-import TextScrape.urlFuncs
-import TextScrape.ProcessorBase
+
+import WebMirror.util.urlFuncs as urlFuncs
+from . import ProcessorBase
 
 class DownloadException(Exception):
 	pass
@@ -69,7 +70,7 @@ GLOBAL_DECOMPOSE_BEFORE = [
 
 GLOBAL_DECOMPOSE_AFTER = []
 
-class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
+class HtmlPageProcessor(ProcessorBase.PageProcessor):
 
 	loggerPath = "Main.Text.HtmlProc"
 
@@ -256,7 +257,7 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 			return
 
 
-		url = TextScrape.urlFuncs.urlClean(url)
+		url = urlFuncs.urlClean(url)
 
 		return self.processNewUrl(url, baseUrl=baseUrl, istext=False)
 
@@ -366,7 +367,7 @@ class HtmlPageProcessor(TextScrape.ProcessorBase.PageProcessor):
 		soup = self.decomposeItems(soup, self._decomposeBefore)
 
 		# Make all the page URLs fully qualified, so they're unambiguous
-		soup = TextScrape.urlFuncs.canonizeUrls(soup, self.pageUrl)
+		soup = urlFuncs.canonizeUrls(soup, self.pageUrl)
 
 		# Conditionally pull out the page content and enqueue it.
 		if self.checkDomain(self.pageUrl):

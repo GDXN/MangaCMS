@@ -73,7 +73,8 @@ class SiteArchiver(LogBase.LoggerMixin):
 		self.db = db
 
 		ruleset = WebMirror.rules.get_rules()
-		self.fetcher = WebMirror.Fetch.ItemFetcher(ruleset)
+		self.ruleset = ruleset
+		self.fetcher = WebMirror.Fetch.ItemFetcher
 
 		self.relinkable = set()
 		for item in ruleset:
@@ -98,7 +99,8 @@ class SiteArchiver(LogBase.LoggerMixin):
 	# Retreive remote content at `url`, call the appropriate handler for the
 	# transferred content (e.g. is it an image/html page/binary file)
 	def dispatchRequest(self, job):
-		response = self.fetcher.fetch(job)
+		fetcher = self.fetcher(self.ruleset, job)
+		response = fetcher.fetch()
 
 		self.upsertResponseLinks(job, response)
 
@@ -119,27 +121,33 @@ class SiteArchiver(LogBase.LoggerMixin):
 						.filter(self.db.WebPages.url == link)      \
 						.scalar()
 					if item:
-						if item.istext:
-							ago = datetime.timedelta(hours = 24)
+						if item.is_text:
+							ago = datetime.datetime.now() - datetime.timedelta(hours = 24)
 						else:
-							ago = datetime.timedelta(hours = 24*14)
-						if job.scantime < ago:
+							ago = datetime.datetime.now() - datetime.timedelta(hours = 24*14)
+						if job.fetchtime < ago:
+							print("retriggering download")
 							job.dlstate = "new"
+						else:
+							print("Download does not need to be retriggered")
+					else:
+						print("New download")
+						start = urllib.parse.urlsplit(link).netloc
+						assert start
+						new = self.db.WebPages(
+							url       = link,
+							starturl  = job.starturl,
+							netloc    = start,
+							distance  = job.distance+1,
+							is_text   = istext,
+							priority  = job.priority,
+							fetchtime = datetime.datetime.now(),
+							)
+						self.db.session.add(new)
+					break
 				except sqlalchemy.exc.IntegrityError:
-					start = urllib.parse.urlsplit(link).netloc
-					assert start
-
-					new = self.db.WebPages(
-						url      = link,
-						starturl = job.starturl,
-						netloc   = start,
-						distance = job.distance+1,
-						is_text  = istext,
-						priority = job.priority,
-						)
-					self.db.session.add(new)
-				self.db.session.rollback()
-
+					self.db.session.rollback()
+			self.db.session.commit()
 
 
 

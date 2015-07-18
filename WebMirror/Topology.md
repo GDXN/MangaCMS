@@ -56,6 +56,8 @@ Allowed directives:
  - baseUrl
  - FOLLOW_GOOGLE_LINKS
  - allImages
+ - cloudflare
+ - fileDomains
 
 Planned directives:
  - TagReplace
