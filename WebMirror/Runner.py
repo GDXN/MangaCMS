@@ -10,6 +10,7 @@ import time
 import multiprocessing
 import signal
 import logging
+import WebMirror.Engine
 # import rpc
 
 run_state = multiprocessing.Value('i', 1)
@@ -77,6 +78,8 @@ class Crawler(object):
 		self.log = logging.getLogger("Main.Text.Manager")
 		self.rules = WebMirror.rules.load_rules()
 		initializeStartUrls(self.rules)
+
+
 
 	def run(self):
 

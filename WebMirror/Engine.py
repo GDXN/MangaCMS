@@ -6,24 +6,35 @@ if __name__ == "__main__":
 
 import WebMirror.rules
 import LogBase
+import runStatus
+import time
 
-# import urllib.parse
+from sqlalchemy import desc
+
+import WebMirror.util.urlFuncs
+import urllib.parse
+import traceback
+import datetime
+import sqlalchemy.exc
+
+import WebMirror.Fetch
+
+MAX_DISTANCE = 1000 * 1000
+
 # import sql.operators as sqlo
 
+# import TextScrape.urlFuncs
 # import inspect
 # import collections
-# import traceback
-# import time
 # import queue
 # import bs4
-# import TextScrape.urlFuncs
 # from concurrent.futures import ThreadPoolExecutor
 
 
 # import os.path
 # import os
 
-# import TextScrape.gDocParse as gdp
+import TextScrape.gDocParse as gdp
 
 class DownloadException(Exception):
 	pass
@@ -56,387 +67,79 @@ class SiteArchiver(LogBase.LoggerMixin):
 	def __init__(self):
 		super().__init__()
 
-		self.ruleset = WebMirror.rules.get_rules()
+
+
+		import WebMirror.database as db
+		self.db = db
+
+		ruleset = WebMirror.rules.get_rules()
+		self.fetcher = WebMirror.Fetch.ItemFetcher(ruleset)
 
 		self.relinkable = set()
-		for item in self.ruleset:
-			[self.relinkable.add(url) for url in item['fileDomains']]
-			[self.relinkable.add(url) for url in item['netlocs']]
-
-
-	########################################################################################################################
+		for item in ruleset:
+			[self.relinkable.add(url) for url in item['fileDomains']]         #pylint: disable=W0106
+			[self.relinkable.add(url) for url in item['netlocs']]             #pylint: disable=W0106
 
 
 
 	########################################################################################################################
 	#
-	#	########  ####  ######  ########     ###    ########  ######  ##     ##      ##     ## ######## ######## ##     ##  #######  ########   ######
-	#	##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ##      ###   ### ##          ##    ##     ## ##     ## ##     ## ##    ##
-	#	##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ##      #### #### ##          ##    ##     ## ##     ## ##     ## ##
-	#	##     ##  ##   ######  ########  ##     ##    ##    ##       #########      ## ### ## ######      ##    ######### ##     ## ##     ##  ######
-	#	##     ##  ##        ## ##        #########    ##    ##       ##     ##      ##     ## ##          ##    ##     ## ##     ## ##     ##       ##
-	#	##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ##      ##     ## ##          ##    ##     ## ##     ## ##     ## ##    ##
-	#	########  ####  ######  ##        ##     ##    ##     ######  ##     ##      ##     ## ########    ##    ##     ##  #######  ########   ######
+	#	########    ###     ######  ##    ##    ########  ####  ######  ########     ###    ########  ######  ##     ## ######## ########
+	#	   ##      ## ##   ##    ## ##   ##     ##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ## ##       ##     ##
+	#	   ##     ##   ##  ##       ##  ##      ##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ## ##       ##     ##
+	#	   ##    ##     ##  ######  #####       ##     ##  ##   ######  ########  ##     ##    ##    ##       ######### ######   ########
+	#	   ##    #########       ## ##  ##      ##     ##  ##        ## ##        #########    ##    ##       ##     ## ##       ##   ##
+	#	   ##    ##     ## ##    ## ##   ##     ##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ## ##       ##    ##
+	#	   ##    ##     ##  ######  ##    ##    ########  ####  ######  ##        ##     ##    ##     ######  ##     ## ######## ##     ##
 	#
 	########################################################################################################################
 
-# 	def getEmptyRet(self):
-# 		return {'plainLinks' : [], 'rsrcLinks' : []}
+	# This is the main function that's called by the task management system.
+	# Retreive remote content at `url`, call the appropriate handler for the
+	# transferred content (e.g. is it an image/html page/binary file)
+	def dispatchRequest(self, job):
+		response = self.fetcher.fetch(job)
+
+		self.upsertResponseLinks(job, response)
+
+
+	def upsertResponseLinks(self, job, response):
+		plain = set(response['plainLinks'])
+		resource = set(response['rsrcLinks'])
+
+		items = []
+		[items.append((link, True))  for link in plain]
+		[items.append((link, False)) for link in resource]
+
+		for link, istext in items:
+			assert link.startswith("http")
+			while 1:
+				try:
+					item = self.db.session.query(self.db.WebPages) \
+						.filter(self.db.WebPages.url == link)      \
+						.scalar()
+					if item:
+						if item.istext:
+							ago = datetime.timedelta(hours = 24)
+						else:
+							ago = datetime.timedelta(hours = 24*14)
+						if job.scantime < ago:
+							job.dlstate = "new"
+				except sqlalchemy.exc.IntegrityError:
+					start = urllib.parse.urlsplit(link).netloc
+					assert start
+
+					new = self.db.WebPages(
+						url      = link,
+						starturl = job.starturl,
+						netloc   = start,
+						distance = job.distance+1,
+						is_text  = istext,
+						priority = job.priority,
+						)
+					self.db.session.add(new)
+				self.db.session.rollback()
 
-
-# 	def processReturnedFileResources(self, resources):
-
-# 		# fMap = {}
-
-
-# 		for fName, mimeType, content, fHash in resources:
-# 			# m = hashlib.md5()
-# 			# m.update(content)
-# 			# fHash = m.hexdigest()
-
-# 			hashName = self.tableKey+fHash
-
-# 			# fMap[fName] = fHash
-
-# 			fName = os.path.split(fName)[-1]
-
-# 			self.log.info("Resource = '%s', '%s', '%s'", fName, mimeType, hashName)
-# 			if mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
-# 				self.log.info("Processing resource '%s' as an image file. (mimetype: %s)", fName, mimeType)
-# 				self.upsert(hashName, istext=False)
-# 				self.saveFile(hashName, mimeType, fName, content)
-# 			elif mimeType in ["application/octet-stream"]:
-# 				self.log.info("Processing '%s' as an binary file.", fName)
-# 				self.upsert(hashName, istext=False)
-# 				self.saveFile(hashName, mimeType, fName, content)
-# 			else:
-# 				self.log.warn("Unknown MIME Type? '%s', FileName: '%s'", mimeType, fName)
-
-# 		if len(resources) == 0:
-# 			self.log.info("File had no resource content!")
-
-
-
-
-# 	def processHtmlPage(self, url, content):
-# 		scraper = self.htmlProcClass(
-# 									baseUrls        = self.baseUrl,
-# 									pageUrl         = url,
-# 									pgContent       = content,
-# 									loggerPath      = self.loggerPath,
-# 									badwords        = self.badwords,
-# 									decompose       = self.decompose,
-# 									decomposeBefore = self.decomposeBefore,
-# 									fileDomains     = self.fileDomains,
-# 									allImages       = self.allImages,
-# 									followGLinks    = self.FOLLOW_GOOGLE_LINKS,
-# 									ignoreBadLinks  = self.IGNORE_MALFORMED_URLS,
-# 									tld             = self.tld,
-# 									stripTitle      = self.stripTitle,
-# 									relinkable      = self.relinkable
-# 								)
-# 		extracted = scraper.extractContent()
-
-# 		return extracted
-
-
-# 	def extractGoogleDriveFolder(self, url):
-# 		scraper = self.gdriveClass(
-# 									pageUrl         = url,
-# 									loggerPath      = self.loggerPath,
-# 									relinkable      = self.relinkable
-# 								)
-# 		extracted = scraper.extractContent()
-
-# 		return extracted
-
-# 	def retreiveGoogleDoc(self, url):
-# 		# pageUrl, loggerPath, tableKey, scannedDomains=None, tlds=None
-
-# 		try:
-# 			scraper = self.gDocClass(
-# 										pageUrl         = url,
-# 										loggerPath      = self.loggerPath,
-# 										tableKey        = self.tableKey,
-# 										scannedDomains  = self.baseUrl,
-# 										tlds            = self.tld,
-# 										relinkable      = self.relinkable
-# 									)
-# 			extracted, resources = scraper.extractContent()
-# 			self.processReturnedFileResources(resources)
-# 		except TextScrape.gDocParse.CannotAccessGDocException:
-# 			self.log.warning("Cannot access google doc content. Attempting to access as a plain HTML resource via /pub interface")
-# 			url = url + "/pub"
-# 			extracted = self.retreivePlainResource(url)
-# 			if "This document is not published." in extracted['contents']:
-# 				raise ValueError("Could not extract google document!")
-
-# 		return extracted
-
-# 	def processAsMarkdown(self, url, content):
-# 		pbLut = getattr(self, 'pasteBinLut', {})
-
-# 		scraper = self.markdownClass(
-# 									pageUrl         = url,
-# 									loggerPath      = self.loggerPath,
-# 									content         = content,
-# 									pbLut           = pbLut
-# 								)
-# 		extracted = scraper.extractContent()
-
-# 		return extracted
-
-# 	def retreiveGoogleFile(self, url):
-
-
-# 		self.log.info("Should fetch google file at '%s'", url)
-# 		doc = gdp.GFileExtractor(url)
-
-# 		attempts = 0
-
-# 		while 1:
-# 			attempts += 1
-# 			try:
-# 				content, fName, mType = doc.extract()
-# 			except TypeError:
-# 				self.log.critical('Extracting item failed!')
-# 				for line in traceback.format_exc().strip().split("\n"):
-# 					self.log.critical(line.strip())
-# 				return self.getEmptyRet()
-# 			if content:
-# 				break
-# 			if attempts > 3:
-# 				raise DownloadException
-
-
-# 			self.log.error("No content? Retrying!")
-
-# 		scraper = self.htmlProcClass(
-# 									baseUrls        = self.baseUrl,
-# 									pageUrl         = url,
-# 									pgContent       = content,
-# 									loggerPath      = self.loggerPath,
-# 									badwords        = self.badwords,
-# 									decompose       = self.decompose,
-# 									decomposeBefore = self.decomposeBefore,
-# 									fileDomains     = self.fileDomains,
-# 									allImages       = self.allImages,
-# 									followGLinks    = self.FOLLOW_GOOGLE_LINKS,
-# 									ignoreBadLinks  = self.IGNORE_MALFORMED_URLS,
-# 									tld             = self.tld,
-# 									stripTitle      = self.stripTitle
-# 								)
-# 		extracted = scraper.extractContent()
-
-# 		return extracted
-
-
-# 		raise NotImplementedError("TODO: FIX ME!")
-
-
-
-# 	########################################################################################################################
-# 	#
-# 	#	##     ## #### ##     ## ########         ######## ##    ## ########  ########
-# 	#	###   ###  ##  ###   ### ##                  ##     ##  ##  ##     ## ##
-# 	#	#### ####  ##  #### #### ##                  ##      ####   ##     ## ##
-# 	#	## ### ##  ##  ## ### ## ######   #######    ##       ##    ########  ######
-# 	#	##     ##  ##  ##     ## ##                  ##       ##    ##        ##
-# 	#	##     ##  ##  ##     ## ##                  ##       ##    ##        ##
-# 	#	##     ## #### ##     ## ########            ##       ##    ##        ########
-# 	#
-# 	#	########  ####  ######  ########     ###    ########  ######  ##     ## ######## ########
-# 	#	##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ## ##       ##     ##
-# 	#	##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ## ##       ##     ##
-# 	#	##     ##  ##   ######  ########  ##     ##    ##    ##       ######### ######   ########
-# 	#	##     ##  ##        ## ##        #########    ##    ##       ##     ## ##       ##   ##
-# 	#	##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ## ##       ##    ##
-# 	#	########  ####  ######  ##        ##     ##    ##     ######  ##     ## ######## ##     ##
-# 	#
-# 	########################################################################################################################
-
-
-
-# 	def dispatchContent(self, url, content, fName, mimeType):
-# 		self.log.info("Dispatching file '%s' with mime-type '%s'", fName, mimeType)
-
-# 		# *sigh*. So minus.com is fucking up their http headers, and apparently urlencoding the
-# 		# mime type, because apparently they're shit at things.
-# 		# Anyways, fix that.
-# 		if '%2F' in  mimeType:
-# 			mimeType = mimeType.replace('%2F', '/')
-
-# 		if mimeType in ['text/xml', 'text/atom+xml', 'application/atom+xml', 'application/xml']:
-# 			self.log.info("XML File?")
-# 			self.log.info("URL: '%s'", url)
-# 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
-# 			return self.getEmptyRet()
-
-# 		elif mimeType in ['text/css']:
-# 			self.log.info("CSS!")
-# 			self.log.info("URL: '%s'", url)
-# 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
-# 			return self.getEmptyRet()
-
-# 		elif mimeType in ['application/x-javascript', 'application/javascript']:
-# 			self.log.info("Javascript Resource!")
-# 			self.log.info("URL: '%s'", url)
-# 			self.updateDbEntry(url=url, title='', contents=content, mimetype=mimeType, dlstate=2, istext=True)
-# 			return self.getEmptyRet()
-
-# 		elif mimeType in ["image/gif", "image/jpeg", "image/pjpeg", "image/png", "image/svg+xml", "image/vnd.djvu"]:
-# 			self.log.info("Processing '%s' as an image file.", url)
-# 			self.saveFile(url, mimeType, fName, content)
-# 			return self.getEmptyRet()
-
-# 		elif mimeType in ["application/octet-stream", "application/x-mobipocket-ebook", "application/pdf", "application/zip"]:
-# 			self.log.info("Processing '%s' as an binary file.", url)
-# 			self.saveFile(url, mimeType, fName, content)
-# 			return self.getEmptyRet()
-
-
-# 		elif mimeType == 'text/html':
-# 			ret = self.processHtmlPage(url, content)
-
-# 		elif mimeType in ['text/plain']:
-# 			ret = self.processAsMarkdown(url, content)
-
-# 		else:
-# 			self.log.error("Unknown MIME Type: '%s', Url: '%s'", mimeType, url)
-# 			self.log.error("Not saving file!")
-# 			return self.getEmptyRet()
-
-
-# 		return ret
-
-
-
-
-# 	def getItem(self, itemUrl):
-
-# 		try:
-# 			content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
-# 		except:
-# 			if self.cloudflare:
-# 				if not self.wg.stepThroughCloudFlare(itemUrl, titleNotContains='Just a moment...'):
-# 					raise ValueError("Could not step through cloudflare!")
-# 				# Cloudflare cookie set, retrieve again
-# 				content, handle = self.wg.getpage(itemUrl, returnMultiple=True)
-# 			else:
-# 				raise
-
-
-
-# 		if not content or not handle:
-# 			raise ValueError("Failed to retreive file from page '%s'!" % itemUrl)
-
-# 		fileN = urllib.parse.unquote(urllib.parse.urlparse(handle.geturl())[2].split("/")[-1])
-# 		fileN = bs4.UnicodeDammit(fileN).unicode_markup
-# 		mType = handle.info()['Content-Type']
-
-# 		# If there is an encoding in the content-type (or any other info), strip it out.
-# 		# We don't care about the encoding, since WebFunctions will already have handled that,
-# 		# and returned a decoded unicode object.
-
-# 		if mType and ";" in mType:
-# 			mType = mType.split(";")[0].strip()
-
-
-# 		self.log.info("Retreived file of type '%s', name of '%s' with a size of %0.3f K", mType, fileN, len(content)/1000.0)
-# 		return content, fileN, mType
-
-
-# 	def retreivePlainResource(self, url):
-# 		self.log.info("Fetching Simple Resource: '%s'", url)
-# 		try:
-# 			content, fName, mimeType = self.getItem(url)
-# 		except ValueError:
-
-# 			for line in traceback.format_exc().split("\n"):
-# 				self.log.critical(line)
-# 			self.upsert(url, dlstate=-1, contents='Error downloading!')
-# 			return self.getEmptyRet()
-
-# 		return self.dispatchContent(url, content, fName, mimeType)
-
-
-
-
-
-
-# 	########################################################################################################################
-# 	#
-# 	#	########    ###     ######  ##    ##    ########  ####  ######  ########     ###    ########  ######  ##     ## ######## ########
-# 	#	   ##      ## ##   ##    ## ##   ##     ##     ##  ##  ##    ## ##     ##   ## ##      ##    ##    ## ##     ## ##       ##     ##
-# 	#	   ##     ##   ##  ##       ##  ##      ##     ##  ##  ##       ##     ##  ##   ##     ##    ##       ##     ## ##       ##     ##
-# 	#	   ##    ##     ##  ######  #####       ##     ##  ##   ######  ########  ##     ##    ##    ##       ######### ######   ########
-# 	#	   ##    #########       ## ##  ##      ##     ##  ##        ## ##        #########    ##    ##       ##     ## ##       ##   ##
-# 	#	   ##    ##     ## ##    ## ##   ##     ##     ##  ##  ##    ## ##        ##     ##    ##    ##    ## ##     ## ##       ##    ##
-# 	#	   ##    ##     ##  ######  ##    ##    ########  ####  ######  ##        ##     ##    ##     ######  ##     ## ######## ##     ##
-# 	#
-# 	########################################################################################################################
-
-# 	# This is the main function that's called by the task management system.
-# 	# Retreive remote content at `url`, call the appropriate handler for the
-# 	# transferred content (e.g. is it an image/html page/binary file)
-# 	def dispatchUrlRequest(self, url, pageDistance):
-
-# 		url = TextScrape.urlFuncs.urlClean(url)
-# 		# Snip off leading slashes that have shown up a few times.
-# 		if url.startswith("//"):
-# 			url = 'http://'+url[2:]
-
-# 		# print('Dispatch URL', url)
-
-# 		netloc = urllib.parse.urlsplit(url.lower()).netloc
-
-# 		isGdoc, realUrl = gdp.isGdocUrl(url)
-# 		isGfile, fileUrl = gdp.isGFileUrl(url)
-
-# 			# print('Fetching: ', url, 'distance', pageDistance)
-# 			# print(isGdoc, isGfile)
-# 		if 'drive.google.com' in netloc:
-# 			self.log.info("Google Drive content!")
-# 			response = self.extractGoogleDriveFolder(url)
-# 		elif isGdoc:
-# 			self.log.info("Google Docs content!")
-# 			response = self.retreiveGoogleDoc(realUrl)
-# 		elif isGfile:
-# 			self.log.info("Google File content!")
-# 			response = self.retreiveGoogleFile(realUrl)
-
-# 		else:
-# 			response = self.retreivePlainResource(url)
-
-# 		if 'title' in response and 'contents' in response:
-# 			self.updateDbEntry(url=url, title=response['title'], contents=response['contents'], mimetype='text/html', dlstate=2, istext=True)
-
-# 		self.processResponse(response, pageDistance)
-
-
-# 	def processResponse(self, response, distance):
-# 		plain = set(response['plainLinks'])
-# 		resource = set(response['rsrcLinks'])
-
-# 		for link in plain:
-# 			self.newLinkQueue.put(
-# 					{
-# 						'url'          : link,
-# 						'isText'       : True,
-# 						'distance'     : distance+1,
-# 						'shouldUpsert' : True
-# 					}
-# 				)
-
-# 		for link in resource:
-# 			self.newLinkQueue.put(
-# 					{
-# 						'url'          : link,
-# 						'isText'       : False,
-# 						'distance'     : distance+1,
-# 						'shouldUpsert' : True
-# 					}
-# 				)
 
 
 
@@ -451,6 +154,71 @@ class SiteArchiver(LogBase.LoggerMixin):
 # 	#	##        ##     ##  #######   ######  ########  ######   ######      ######   #######  ##    ##    ##    ##     ##  #######  ########
 # 	#
 # 	########################################################################################################################
+
+	def resetDlstate(self):
+		self.db.session.query(self.db.WebPages) \
+			.filter((self.db.WebPages.state == "fetching") | (self.db.WebPages.state == "processing"))   \
+			.update({self.db.WebPages.state : "new"})
+		self.db.session.commit()
+
+	def getTask(self):
+		'''
+		Get a job row item from the database.
+
+		Also updates the row to be in the "fetching" state.
+		'''
+		job = self.db.session.query(self.db.WebPages)           \
+			.filter(self.db.WebPages.state == "new")            \
+			.filter(self.db.WebPages.distance < (MAX_DISTANCE)) \
+			.order_by(self.db.WebPages.priority)                \
+			.order_by(desc(self.db.WebPages.addtime))           \
+			.order_by(self.db.WebPages.distance)                \
+			.order_by(self.db.WebPages.url)                     \
+			.limit(1)                                           \
+			.scalar()
+		if not job:
+			return False
+
+		job.state = "fetching"
+		self.db.session.commit()
+
+		return job
+
+
+
+
+	def taskProcess(self):
+		while runStatus.run:
+			runStatus.run = False
+			job = self.getTask()
+			if job:
+
+					try:
+						self.dispatchRequest(job)
+					except urllib.error.URLError:
+						content = "DOWNLOAD FAILED - urllib URLError"
+						content += "<br>"
+						content += traceback.format_exc()
+						job.content = content
+						job.raw_content = content
+						job.state = 'error'
+						job.errno = -1
+						self.log.error("`urllib.error.URLError` Exception when downloading.")
+					except DownloadException:
+						content = "DOWNLOAD FAILED - DownloadException"
+						content += "<br>"
+						content += traceback.format_exc()
+						job.content = content
+						job.raw_content = content
+						job.state = 'error'
+						job.errno = -2
+						self.log.error("`DownloadException` Exception when downloading.")
+
+			else:
+				time.sleep(5)
+
+		self.log.info("Task exiting.")
+
 
 # 	def queueLoop(self):
 # 		self.log.info("Fetch thread starting")
@@ -478,7 +246,7 @@ class SiteArchiver(LogBase.LoggerMixin):
 # 						)
 
 # 					try:
-# 						self.dispatchUrlRequest(url, distance)
+# 						self.dispatchRequest(url, distance)
 # 					except urllib.error.URLError:
 # 						content = "DOWNLOAD FAILED"
 # 						content += "<br>"
@@ -586,9 +354,14 @@ class SiteArchiver(LogBase.LoggerMixin):
 # 		self.log.info("Queue Feeder thread exiting!")
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-# 	archiver = SiteArchiver()
-# 	print(archiver)
+	archiver = SiteArchiver()
+	print(archiver)
+	print(archiver.resetDlstate())
+	print(archiver.getTask())
+	print(archiver.getTask())
+	print(archiver.getTask())
+	print(archiver.taskProcess())
 
 

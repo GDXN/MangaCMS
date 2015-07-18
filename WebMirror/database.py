@@ -66,14 +66,15 @@ session = Session()
 print("Creating database interface:", session)
 Base = declarative_base()
 
-dlstate_enum  = ENUM('new', 'fetching', 'processing', 'complete', name='dlstate_enum')
-itemtype_enum  = ENUM('western', 'eastern', 'unknown', name='itemtype_enum')
+dlstate_enum  = ENUM('new', 'fetching', 'processing', 'complete', 'error', 'removed', name='dlstate_enum')
+itemtype_enum  = ENUM('western', 'eastern', 'unknown',            name='itemtype_enum')
 
 class WebPages(Base):
 	__tablename__ = 'web_pages'
 	id           = Column(Integer, primary_key = True)
 	state        = Column(dlstate_enum, default='new', index=True)
-	url          = Column(Text, nullable = False, index = True)
+	errno        = Column(Integer, default='0')
+	url          = Column(Text, nullable = False, index = True, unique = True)
 	starturl     = Column(Text, nullable = False)
 	netloc       = Column(Text, nullable = False)
 
@@ -93,7 +94,7 @@ class WebPages(Base):
 	raw_content = Column(Text)
 	content     = Column(Text)
 
-	scantime    = Column(DateTime)
+	fetchtime   = Column(DateTime, default=datetime.datetime.min)
 	addtime     = Column(DateTime, default=datetime.datetime.utcnow)
 
 
