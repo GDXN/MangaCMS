@@ -5,22 +5,20 @@
 
 <%
 
-path = []
-while 1:
-	item = request.path_info_pop()
-	if item == None:
-		break
-	path.append(item)
-
-route_root = path.pop(0)
+route_root = request.path_info_pop()
+## route_root = path.pop(0)
 
 %>
 
 
 % if route_root == '':
 	<%include file="view/index.mako"/>
+
+% elif route_root == 'books':
+	<%include file="view/books/book_route.mako"/>
 % else:
-	Invalid route!
+
+	Invalid route: '${route_root}'!
 % endif
 
 

@@ -167,6 +167,12 @@ def getIgnoreMalformed(ruleset):
 		return False
 	return ruleset['IGNORE_MALFORMED_URLS']
 
+def getGenreType(ruleset):
+	if not 'type' in ruleset:
+		return "eastern"
+	assert ruleset['type'] in ['western', 'eastern', 'unknown']
+	return ruleset['type']
+
 def load_validate_rules(fname, dat):
 
 	checkBadValues(dat)
@@ -185,6 +191,7 @@ def load_validate_rules(fname, dat):
 	rules['fileDomains']           = getFileDomains(dat)
 	rules['cloudflare']            = getCloudflare(dat)
 	rules['IGNORE_MALFORMED_URLS'] = getIgnoreMalformed(dat)
+	rules['type']                  = getGenreType(dat)
 
 	# itemGenre
 	# allowQueryStr

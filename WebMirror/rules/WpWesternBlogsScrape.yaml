@@ -223,6 +223,8 @@ titleTweakLut:
 		'add'    : 'Douluo Dalu - '
 	}
 
+type: "western"
+
 #   # Methods to allow the child-class to modify the content at various points.
 #   def extractTitle(self, srcSoup, doc, url):
 #       title = doc.title()

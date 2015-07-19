@@ -1,4 +1,7 @@
 
 <%inherit file="/view/base.mako"/>
 
-this is the body content.
+<%block name="body_content">
+	Main index body
+
+</%block>

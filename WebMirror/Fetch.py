@@ -113,6 +113,26 @@ class ItemFetcher(LogBase.LoggerMixin):
 		return {'plainLinks' : [], 'rsrcLinks' : []}
 
 
+	def processHtmlPage(self, url, content):
+		scraper = WebMirror.processor.HtmlProcessor.HtmlPageProcessor(
+									baseUrls        = self.job.starturl,
+									pageUrl         = url,
+									pgContent       = content,
+									loggerPath      = self.loggerPath,
+									badwords        = self.rules['badwords'],
+									decompose       = self.rules['decompose'],
+									decomposeBefore = self.rules['decomposeBefore'],
+									fileDomains     = self.rules['fileDomains'],
+									allImages       = self.rules['allImages'],
+									ignoreBadLinks  = self.rules['IGNORE_MALFORMED_URLS'],
+									stripTitle      = self.rules['stripTitle'],
+									relinkable      = self.relinkable
+								)
+		extracted = scraper.extractContent()
+
+		return extracted
+
+
 # 	def processReturnedFileResources(self, resources):
 
 # 		# fMap = {}
@@ -145,26 +165,6 @@ class ItemFetcher(LogBase.LoggerMixin):
 # 			self.log.info("File had no resource content!")
 
 
-
-
-	def processHtmlPage(self, url, content):
-		scraper = WebMirror.processor.HtmlProcessor.HtmlPageProcessor(
-									baseUrls        = self.job.starturl,
-									pageUrl         = url,
-									pgContent       = content,
-									loggerPath      = self.loggerPath,
-									badwords        = self.rules['badwords'],
-									decompose       = self.rules['decompose'],
-									decomposeBefore = self.rules['decomposeBefore'],
-									fileDomains     = self.rules['fileDomains'],
-									allImages       = self.rules['allImages'],
-									ignoreBadLinks  = self.rules['IGNORE_MALFORMED_URLS'],
-									stripTitle      = self.rules['stripTitle'],
-									relinkable      = self.relinkable
-								)
-		extracted = scraper.extractContent()
-
-		return extracted
 
 
 	def extractGoogleDriveFolder(self, url):

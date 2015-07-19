@@ -66,6 +66,7 @@ def initializeStartUrls(rules):
 						url      = starturl,
 						starturl = starturl,
 						netloc   = netloc,
+						type     = ruleset['type'],
 						priority = db.DB_MED_PRIORITY,
 						distance = db.DB_DEFAULT_DIST,
 					)

@@ -26,7 +26,6 @@ DNLDED = 2
 	<%
 
 	itemCountsDict  = sidebar.fetchSidebarCounts(sqlConnection)
-
 	normalPlug, adultPlug = sidebar.fetchSidebarPluginStatus(sqlConnection)
 
 	randomLink      = sidebar.fetchRandomLink()
@@ -34,96 +33,58 @@ DNLDED = 2
 
 	%>
 
-	<div class="statusdiv">
-		<div class="statediv navId">
+	<div class="statediv navId">
+		<div class="statusdiv">
 			<strong>Navigation:</strong><br />
 			<ul>
-				<li><a href="/">Index</a>
-				<hr>
-				<hr>
-				<li><a href="/reader2/browse/">Reader</a>
-				<hr>
-				<li>${randomLink}
-				<hr>
-				<hr>
-				<li><a href="/bmUpdates">Baka Manga</a>
-				<hr>
-				<li><a href="/books/">Books!</a>
-				<li><a href="/books/changeView">New Books</a>
-				<hr>
-				<li><a href="/itemsManga?distinct=True"><b>All Mangos</b></a>
-				<li><a href="/tags/tags">M Tags</a>
-				<li><a href="/tags/genres">M Genres</a>
-				<li><a href="/rating/">Ratings</a>
+				<li><a href="/m/">Index</a>
 
 				<hr>
-				% for item in [item for item in normalPlug]:
-					<li><a href="/itemsManga?sourceSite=${item["dictKey"]}&distinct=True">${item["name"]}</a>
-				% endfor
+				<li><strong>Eastern</strong></a>
+				<li><a href="/m/books/">Books!</a>
+				<li><a href="/m/books/change_view">New Books</a>
+				<li><a href="/m/books/search">Book Search</a>
+				<li><a href="/m/books/all">All books</a>
+				<hr>
+				<li><strong>Western</strong></a>
+				<li><a href="/m/books-w/">Books!</a>
+				<li><a href="/m/books-w/changeView">New Books</a>
+				<li><a href="/m/books-w/search">Book Search</a>
+				<li><a href="/m/books-w/book-sources?src=books_custom">Custom</a>
+				<hr>
+				## <li><a href="/m/itemsManga?distinct=True"><b>All Mangos</b></a>
+				## <li><a href="/m/tags/tags">M Tags</a>
+				## <li><a href="/m/tags/genres">M Genres</a>
+				## <li><a href="/m/rating/">Ratings</a>
 
-				<hr>
-				% if adultPlug:
-					<hr>
-					<li><a href="/itemsPron"><b>All Pron</b></a>
-					% for item in [item for item in adultPlug]:
-						<li><a href="/itemsPron?sourceSite=${item["dictKey"]}">${item["name"]}</a>
-					% endfor
-					<hr>
-					<li><a href="/hTags">H Tags</a>
-					<hr>
-					<hr>
-					<li><a href="/hentaiError">H Errors</a>
-				% endif
-				<li><a href="/mangaError">M Errors</a>
-				<hr>
-				<li><a href="/dbg/">Debug Tools</a>
-				<li><a href="/errorLog">Scraper Logs</a>
+				## <hr>
+				## % for item in [item for item in normalPlug]:
+				## 	<li><a href="/m/itemsManga?sourceSite=${item["dictKey"]}&distinct=True">${item["name"]}</a>
+				## % endfor
+
+				## <hr>
+				## % if adultPlug:
+				## 	<hr>
+				## 	<li><a href="/m/itemsPron"><b>All Pron</b></a>
+				## 	% for item in [item for item in adultPlug]:
+				## 		<li><a href="/m/itemsPron?sourceSite=${item["dictKey"]}">${item["name"]}</a>
+				## 	% endfor
+				## 	<hr>
+				## 	<li><a href="/m/hTags">H Tags</a>
+				## 	<hr>
+				## 	<hr>
+				## 	<li><a href="/m/hentaiError">H Errors</a>
+				## % endif
+				## <li><a href="/m/mangaError">M Errors</a>
+				## <hr>
+				## <li><a href="/m/dbg/">Debug Tools</a>
+				## <li><a href="/m/errorLog">Scraper Logs</a>
 
 
 			</ul>
 		</div>
 		<br>
 
-		<div class="statediv">
-			<strong>Status:</strong>
-		</div>
-		%for plugSet in [normalPlug, adultPlug]:
-			% for item in plugSet:
-
-				<div class="statediv ${item['cssClass']}">
-					<strong>
-						${item["name"]}
-					</strong><br />
-					% if item['errored']:
-						<a href="/errorLog">Had Error!</a><br />
-					% endif
-
-					${item['runStart']}<br />
-					${item['runState']}
-
-					% if item["dictKey"] != None:
-						% if item["dictKey"] in itemCountsDict:
-							<%
-							keys = [DNLDED, DLING, QUEUED, FAILED]
-							pres = [key in itemCountsDict[item["dictKey"]] for key in keys]
-
-							%>
-							% if all(pres):
-								<ul>
-									<li>Have: ${itemCountsDict[item["dictKey"]][DNLDED]}</li>
-									<li>DLing: ${itemCountsDict[item["dictKey"]][DLING]}</li>
-									<li>Want: ${itemCountsDict[item["dictKey"]][QUEUED]}</li>
-									<li>Failed: ${itemCountsDict[item["dictKey"]][FAILED]}</li>
-								</ul>
-							% endif
-						% else:
-							<b>WARN: No lookup dict built yet!</b>
-						% endif
-					% endif
-
-				</div>
-			% endfor
-		% endfor
 	</div>
 
 </%def>

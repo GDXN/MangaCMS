@@ -113,6 +113,8 @@ class SiteArchiver(LogBase.LoggerMixin):
 		[items.append((link, True))  for link in plain]
 		[items.append((link, False)) for link in resource]
 
+		newlinks = 0
+		retriggerLinks = 0
 		for link, istext in items:
 			assert link.startswith("http")
 			while 1:
@@ -126,12 +128,10 @@ class SiteArchiver(LogBase.LoggerMixin):
 						else:
 							ago = datetime.datetime.now() - datetime.timedelta(hours = 24*14)
 						if job.fetchtime < ago:
-							print("retriggering download")
+							retriggerLinks += 1
 							job.dlstate = "new"
-						else:
-							print("Download does not need to be retriggered")
 					else:
-						print("New download")
+						newlinks += 1
 						start = urllib.parse.urlsplit(link).netloc
 						assert start
 						new = self.db.WebPages(
@@ -141,6 +141,7 @@ class SiteArchiver(LogBase.LoggerMixin):
 							distance  = job.distance+1,
 							is_text   = istext,
 							priority  = job.priority,
+							type      = job.type,
 							fetchtime = datetime.datetime.now(),
 							)
 						self.db.session.add(new)
@@ -148,20 +149,21 @@ class SiteArchiver(LogBase.LoggerMixin):
 				except sqlalchemy.exc.IntegrityError:
 					self.db.session.rollback()
 			self.db.session.commit()
+		self.log.info("New links: %s, retriggered links: %s.", newlinks, retriggerLinks)
 
 
+	########################################################################################################################
+	#
+	#	########  ########   #######   ######  ########  ######   ######      ######   #######  ##    ## ######## ########   #######  ##
+	#	##     ## ##     ## ##     ## ##    ## ##       ##    ## ##    ##    ##    ## ##     ## ###   ##    ##    ##     ## ##     ## ##
+	#	##     ## ##     ## ##     ## ##       ##       ##       ##          ##       ##     ## ####  ##    ##    ##     ## ##     ## ##
+	#	########  ########  ##     ## ##       ######    ######   ######     ##       ##     ## ## ## ##    ##    ########  ##     ## ##
+	#	##        ##   ##   ##     ## ##       ##             ##       ##    ##       ##     ## ##  ####    ##    ##   ##   ##     ## ##
+	#	##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ##    ##    ## ##     ## ##   ###    ##    ##    ##  ##     ## ##
+	#	##        ##     ##  #######   ######  ########  ######   ######      ######   #######  ##    ##    ##    ##     ##  #######  ########
+	#
+	########################################################################################################################
 
-# 	########################################################################################################################
-# 	#
-# 	#	########  ########   #######   ######  ########  ######   ######      ######   #######  ##    ## ######## ########   #######  ##
-# 	#	##     ## ##     ## ##     ## ##    ## ##       ##    ## ##    ##    ##    ## ##     ## ###   ##    ##    ##     ## ##     ## ##
-# 	#	##     ## ##     ## ##     ## ##       ##       ##       ##          ##       ##     ## ####  ##    ##    ##     ## ##     ## ##
-# 	#	########  ########  ##     ## ##       ######    ######   ######     ##       ##     ## ## ## ##    ##    ########  ##     ## ##
-# 	#	##        ##   ##   ##     ## ##       ##             ##       ##    ##       ##     ## ##  ####    ##    ##   ##   ##     ## ##
-# 	#	##        ##    ##  ##     ## ##    ## ##       ##    ## ##    ##    ##    ## ##     ## ##   ###    ##    ##    ##  ##     ## ##
-# 	#	##        ##     ##  #######   ######  ########  ######   ######      ######   #######  ##    ##    ##    ##     ##  #######  ########
-# 	#
-# 	########################################################################################################################
 
 	def resetDlstate(self):
 		self.db.session.query(self.db.WebPages) \
@@ -169,21 +171,24 @@ class SiteArchiver(LogBase.LoggerMixin):
 			.update({self.db.WebPages.state : "new"})
 		self.db.session.commit()
 
+
 	def getTask(self):
 		'''
 		Get a job row item from the database.
 
 		Also updates the row to be in the "fetching" state.
 		'''
-		job = self.db.session.query(self.db.WebPages)           \
+		query = self.db.session.query(self.db.WebPages)         \
 			.filter(self.db.WebPages.state == "new")            \
 			.filter(self.db.WebPages.distance < (MAX_DISTANCE)) \
 			.order_by(self.db.WebPages.priority)                \
+			.order_by(desc(self.db.WebPages.is_text))           \
 			.order_by(desc(self.db.WebPages.addtime))           \
 			.order_by(self.db.WebPages.distance)                \
 			.order_by(self.db.WebPages.url)                     \
-			.limit(1)                                           \
-			.scalar()
+			.limit(1)
+
+		job = query.scalar()
 		if not job:
 			return False
 
@@ -193,34 +198,34 @@ class SiteArchiver(LogBase.LoggerMixin):
 		return job
 
 
-
-
 	def taskProcess(self):
 		while runStatus.run:
-			runStatus.run = False
+			# runStatus.run = False
 			job = self.getTask()
 			if job:
-
-					try:
-						self.dispatchRequest(job)
-					except urllib.error.URLError:
-						content = "DOWNLOAD FAILED - urllib URLError"
-						content += "<br>"
-						content += traceback.format_exc()
-						job.content = content
-						job.raw_content = content
-						job.state = 'error'
-						job.errno = -1
-						self.log.error("`urllib.error.URLError` Exception when downloading.")
-					except DownloadException:
-						content = "DOWNLOAD FAILED - DownloadException"
-						content += "<br>"
-						content += traceback.format_exc()
-						job.content = content
-						job.raw_content = content
-						job.state = 'error'
-						job.errno = -2
-						self.log.error("`DownloadException` Exception when downloading.")
+				try:
+					self.dispatchRequest(job)
+				except urllib.error.URLError:
+					content = "DOWNLOAD FAILED - urllib URLError"
+					content += "<br>"
+					content += traceback.format_exc()
+					job.content = content
+					job.raw_content = content
+					job.state = 'error'
+					job.errno = -1
+					self.log.error("`urllib.error.URLError` Exception when downloading.")
+				except DownloadException:
+					content = "DOWNLOAD FAILED - DownloadException"
+					content += "<br>"
+					content += traceback.format_exc()
+					job.content = content
+					job.raw_content = content
+					job.state = 'error'
+					job.errno = -2
+					self.log.error("`DownloadException` Exception when downloading.")
+				except KeyboardInterrupt:
+					runStatus.run = False
+					print("Keyboard Interrupt!")
 
 			else:
 				time.sleep(5)
