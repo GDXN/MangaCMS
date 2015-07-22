@@ -15,7 +15,7 @@ route_root = request.path_info_pop()
 	<%include file="view/index.mako"/>
 
 % elif route_root == 'books':
-	<%include file="view/books/book_route.mako"/>
+	<%include file="controller/book_route.mako"/>
 % else:
 
 	Invalid route: '${route_root}'!

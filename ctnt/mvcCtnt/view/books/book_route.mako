@@ -1,5 +1,7 @@
 
 
+<%namespace name="ut" file="utilities.mako"/>
+
 <%
 
 path = []
@@ -25,8 +27,13 @@ print("Route_root:", route_root)
 % elif route_root == 'all':
 	<%include file="./all.mako"/>
 
-% else:
+% elif route_root == 'view':
+	<%
 
+	%>
+	<%include file="./all.mako"/>
+
+% else:
 	Invalid book route: '${route_root}'!
 % endif
 

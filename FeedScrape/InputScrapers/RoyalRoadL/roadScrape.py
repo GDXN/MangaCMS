@@ -175,7 +175,6 @@ class RoyalRoadLMonitor(FeedScrape.RssMonitorDbBase.RssDbBase, FeedScrape.FeedDa
 			if ret:
 				for item in ret:
 					data.append(item)
-
 		self.log.info("Found %s releases from fictionpress", len(data))
 		return data
 
