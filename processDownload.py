@@ -37,7 +37,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def crossLink(self, delItem, dupItem, isPhash=False):
-		self.log.info("Cross-referencing file")
+		self.log.warning("Duplicate found! Cross-referencing file")
 
 		delItemRoot, delItemFile = os.path.split(delItem)
 		dupItemRoot, dupItemFile = os.path.split(dupItem)
