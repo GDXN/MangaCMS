@@ -89,7 +89,7 @@ Plugin scrapers for:
 	 - ~~MangaBaby.com~~ (Defunct?)
 	 - ~~MangaTraders~~ (Defunct)
 	 - ~~Fufufuu.net~~ (Defunct)
-	 - Realitylapse.com (Planned, possibly)
+	 - ~~Realitylapse.com~~ (Defunct)
 
 
 Under consideration:   
