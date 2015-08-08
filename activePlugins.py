@@ -41,24 +41,24 @@ import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import ScrapePlugins.SurasPlace.Run
 
 
-import TextScrape.PrinceRevolution.Run
-import TextScrape.WpBlogs.Run
-import TextScrape.BakaTsuki.Run
-import TextScrape.SekaiGaGame.Run
-import TextScrape.ReTranslations.Run
-import TextScrape.Krytyk.Run
-import TextScrape.TlWiki.Run
-import TextScrape.Dawnglare.Run
-import TextScrape.WarTdf.Run
-import TextScrape.UnlimitedNovelFailures.Run
-import TextScrape.BsBlogs.Run
-import TextScrape.JapTem.Run
-import TextScrape.Guhehe.Run
-import TextScrape.DearestFairy.Run
-import TextScrape.HaruParty.Run
-import TextScrape.ReMonsterWikia.Run
-import TextScrape.Sousetsuka.Run
-import TextScrape.RoyalRoad.Run
+# import TextScrape.PrinceRevolution.Run
+# import TextScrape.WpBlogs.Run
+# import TextScrape.BakaTsuki.Run
+# import TextScrape.SekaiGaGame.Run
+# import TextScrape.ReTranslations.Run
+# import TextScrape.Krytyk.Run
+# import TextScrape.TlWiki.Run
+# import TextScrape.Dawnglare.Run
+# import TextScrape.WarTdf.Run
+# import TextScrape.UnlimitedNovelFailures.Run
+# import TextScrape.BsBlogs.Run
+# import TextScrape.JapTem.Run
+# import TextScrape.Guhehe.Run
+# import TextScrape.DearestFairy.Run
+# import TextScrape.HaruParty.Run
+# import TextScrape.ReMonsterWikia.Run
+# import TextScrape.Sousetsuka.Run
+# import TextScrape.RoyalRoad.Run
 
 import TextScrape.BakaTsuki.RunUpdate
 import TextScrape.BsBlogs.RunUpdate
@@ -84,7 +84,7 @@ import TextScrape.WattPad.RunUpdate
 import TextScrape.ReMonsterWikia.RunUpdate
 import TextScrape.Sousetsuka.RunUpdate
 
-import TextScrape.CloudFlareWordPress.Run
+# import TextScrape.CloudFlareWordPress.Run
 import TextScrape.CloudFlareWordPress.RunUpdate
 
 import TextScrape.Lndb.Run
@@ -188,21 +188,21 @@ scrapePlugins = {
 	224 : (TextScrape.Sousetsuka.Run,                          minutes(30)),
 
 
-	300 : (TextScrape.BakaTsuki.Run,                           days(7)),
-	301 : (TextScrape.JapTem.Run,                              days(3)),
-	302 : (TextScrape.Guhehe.Run,                              days(3)),
-	303 : (TextScrape.WpBlogs.Run,                             days(1)),
-	304 : (TextScrape.BsBlogs.Run,                             days(1)),
-	305 : (TextScrape.PrinceRevolution.Run,                    days(5)),
-	306 : (TextScrape.Krytyk.Run,                              days(5)),
-	307 : (TextScrape.UnlimitedNovelFailures.Run,              days(2)),
-	308 : (TextScrape.ReTranslations.Run,                      days(1)),
-	309 : (TextScrape.WarTdf.Run,                              days(1)),
-	310 : (TextScrape.HaruParty.Run,                           days(2)),
-	311 : (TextScrape.CloudFlareWordPress.Run,                 days(2)),
-	312 : (TextScrape.ReMonsterWikia.RunUpdate,                days(7)),
-	313 : (TextScrape.Sousetsuka.RunUpdate,                    days(7)),
-	314 : (TextScrape.RoyalRoad.Run,                           days(7)),
+	# 300 : (TextScrape.BakaTsuki.Run,                           days(7)),
+	# 301 : (TextScrape.JapTem.Run,                              days(3)),
+	# 302 : (TextScrape.Guhehe.Run,                              days(3)),
+	# 303 : (TextScrape.WpBlogs.Run,                             days(1)),
+	# 304 : (TextScrape.BsBlogs.Run,                             days(1)),
+	# 305 : (TextScrape.PrinceRevolution.Run,                    days(5)),
+	# 306 : (TextScrape.Krytyk.Run,                              days(5)),
+	# 307 : (TextScrape.UnlimitedNovelFailures.Run,              days(2)),
+	# 308 : (TextScrape.ReTranslations.Run,                      days(1)),
+	# 309 : (TextScrape.WarTdf.Run,                              days(1)),
+	# 310 : (TextScrape.HaruParty.Run,                           days(2)),
+	# 311 : (TextScrape.CloudFlareWordPress.Run,                 days(2)),
+	# 312 : (TextScrape.ReMonsterWikia.RunUpdate,                days(7)),
+	# 313 : (TextScrape.Sousetsuka.RunUpdate,                    days(7)),
+	# 314 : (TextScrape.RoyalRoad.Run,                           days(7)),
 
 
 	400 : (TextScrape.Lndb.Run,                                hours(2)),
