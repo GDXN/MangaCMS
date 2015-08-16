@@ -60,36 +60,36 @@ import ScrapePlugins.SurasPlace.Run
 # import TextScrape.Sousetsuka.Run
 # import TextScrape.RoyalRoad.Run
 
-import TextScrape.BakaTsuki.RunUpdate
-import TextScrape.BsBlogs.RunUpdate
-import TextScrape.Dawnglare.RunUpdate
-import TextScrape.DearestFairy.RunUpdate
-import TextScrape.Guhehe.RunUpdate
-import TextScrape.HaruParty.RunUpdate
-import TextScrape.JapTem.RunUpdate
-import TextScrape.Krytyk.RunUpdate
-import TextScrape.PrinceRevolution.RunUpdate
-import TextScrape.ReTranslations.RunUpdate
-import TextScrape.SekaiGaGame.RunUpdate
-import TextScrape.UnlimitedNovelFailures.RunUpdate
-import TextScrape.WarTdf.RunUpdate
-import TextScrape.WpBlogs.RunUpdate
-import TextScrape.PasteBin.RunUpdate
-import TextScrape.AFic.RunUpdate
-import TextScrape.FanFiction.RunUpdate
-import TextScrape.FictionPress.RunUpdate
-import TextScrape.RoyalRoad.RunUpdate
-import TextScrape.StoriesOnline.RunUpdate
-import TextScrape.WattPad.RunUpdate
-import TextScrape.ReMonsterWikia.RunUpdate
-import TextScrape.Sousetsuka.RunUpdate
+# import TextScrape.BakaTsuki.RunUpdate
+# import TextScrape.BsBlogs.RunUpdate
+# import TextScrape.Dawnglare.RunUpdate
+# import TextScrape.DearestFairy.RunUpdate
+# import TextScrape.Guhehe.RunUpdate
+# import TextScrape.HaruParty.RunUpdate
+# import TextScrape.JapTem.RunUpdate
+# import TextScrape.Krytyk.RunUpdate
+# import TextScrape.PrinceRevolution.RunUpdate
+# import TextScrape.ReTranslations.RunUpdate
+# import TextScrape.SekaiGaGame.RunUpdate
+# import TextScrape.UnlimitedNovelFailures.RunUpdate
+# import TextScrape.WarTdf.RunUpdate
+# import TextScrape.WpBlogs.RunUpdate
+# import TextScrape.PasteBin.RunUpdate
+# import TextScrape.AFic.RunUpdate
+# import TextScrape.FanFiction.RunUpdate
+# import TextScrape.FictionPress.RunUpdate
+# import TextScrape.RoyalRoad.RunUpdate
+# import TextScrape.StoriesOnline.RunUpdate
+# import TextScrape.WattPad.RunUpdate
+# import TextScrape.ReMonsterWikia.RunUpdate
+# import TextScrape.Sousetsuka.RunUpdate
 
 # import TextScrape.CloudFlareWordPress.Run
 import TextScrape.CloudFlareWordPress.RunUpdate
 
 import TextScrape.Lndb.Run
 
-import TextScrape.RssRun
+# import TextScrape.RssRun
 
 # Fictionpress triggers
 import FeedScrape.InputScrapers.FictionPress.Run
@@ -160,32 +160,32 @@ scrapePlugins = {
 	# Update the feeds hourly (if they have new updateable content only)
 	# Feed updaters and complete updaters have the same run-name, so
 	# there /shouldn't/ be concurrency issues (one will just block)
-	200 : (TextScrape.RssRun,                                  minutes(15)),
+	# 200 : (TextScrape.RssRun,                                  minutes(15)),
 
-	201 : (TextScrape.BakaTsuki.RunUpdate,                     minutes(30)),
-	202 : (TextScrape.BsBlogs.RunUpdate,                       minutes(30)),
-	203 : (TextScrape.Dawnglare.RunUpdate,                     minutes(30)),
-	204 : (TextScrape.DearestFairy.RunUpdate,                  minutes(30)),
-	205 : (TextScrape.Guhehe.RunUpdate,                        minutes(30)),
-	206 : (TextScrape.HaruParty.RunUpdate,                     minutes(30)),
-	207 : (TextScrape.JapTem.RunUpdate,                        minutes(30)),
-	208 : (TextScrape.Krytyk.RunUpdate,                        minutes(30)),
-	209 : (TextScrape.PrinceRevolution.RunUpdate,              minutes(30)),
-	210 : (TextScrape.ReTranslations.RunUpdate,                minutes(30)),
-	211 : (TextScrape.SekaiGaGame.RunUpdate,                   minutes(30)),
-	212 : (TextScrape.UnlimitedNovelFailures.RunUpdate,        minutes(30)),
-	213 : (TextScrape.WarTdf.RunUpdate,                        minutes(30)),
-	214 : (TextScrape.WpBlogs.RunUpdate,                       minutes(30)),
-	215 : (TextScrape.PasteBin.RunUpdate,                      minutes(30)),
-	216 : (TextScrape.AFic.RunUpdate,                          minutes(30)),
-	217 : (TextScrape.FanFiction.RunUpdate,                    minutes(30)),
-	218 : (TextScrape.FictionPress.RunUpdate,                  minutes(30)),
-	219 : (TextScrape.RoyalRoad.RunUpdate,                     minutes(30)),
-	220 : (TextScrape.StoriesOnline.RunUpdate,                 minutes(30)),
-	221 : (TextScrape.WattPad.RunUpdate,                       minutes(30)),
-	222 : (TextScrape.CloudFlareWordPress.RunUpdate,           minutes(30)),
-	223 : (TextScrape.ReMonsterWikia.Run,                      minutes(30)),
-	224 : (TextScrape.Sousetsuka.Run,                          minutes(30)),
+	# 201 : (TextScrape.BakaTsuki.RunUpdate,                     minutes(30)),
+	# 202 : (TextScrape.BsBlogs.RunUpdate,                       minutes(30)),
+	# 203 : (TextScrape.Dawnglare.RunUpdate,                     minutes(30)),
+	# 204 : (TextScrape.DearestFairy.RunUpdate,                  minutes(30)),
+	# 205 : (TextScrape.Guhehe.RunUpdate,                        minutes(30)),
+	# 206 : (TextScrape.HaruParty.RunUpdate,                     minutes(30)),
+	# 207 : (TextScrape.JapTem.RunUpdate,                        minutes(30)),
+	# 208 : (TextScrape.Krytyk.RunUpdate,                        minutes(30)),
+	# 209 : (TextScrape.PrinceRevolution.RunUpdate,              minutes(30)),
+	# 210 : (TextScrape.ReTranslations.RunUpdate,                minutes(30)),
+	# 211 : (TextScrape.SekaiGaGame.RunUpdate,                   minutes(30)),
+	# 212 : (TextScrape.UnlimitedNovelFailures.RunUpdate,        minutes(30)),
+	# 213 : (TextScrape.WarTdf.RunUpdate,                        minutes(30)),
+	# 214 : (TextScrape.WpBlogs.RunUpdate,                       minutes(30)),
+	# 215 : (TextScrape.PasteBin.RunUpdate,                      minutes(30)),
+	# 216 : (TextScrape.AFic.RunUpdate,                          minutes(30)),
+	# 217 : (TextScrape.FanFiction.RunUpdate,                    minutes(30)),
+	# 218 : (TextScrape.FictionPress.RunUpdate,                  minutes(30)),
+	# 219 : (TextScrape.RoyalRoad.RunUpdate,                     minutes(30)),
+	# 220 : (TextScrape.StoriesOnline.RunUpdate,                 minutes(30)),
+	# 221 : (TextScrape.WattPad.RunUpdate,                       minutes(30)),
+	# 222 : (TextScrape.CloudFlareWordPress.RunUpdate,           minutes(30)),
+	# 223 : (TextScrape.ReMonsterWikia.Run,                      minutes(30)),
+	# 224 : (TextScrape.Sousetsuka.Run,                          minutes(30)),
 
 
 	# 300 : (TextScrape.BakaTsuki.Run,                           days(7)),
