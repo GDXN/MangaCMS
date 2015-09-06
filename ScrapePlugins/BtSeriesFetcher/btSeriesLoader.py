@@ -142,6 +142,6 @@ if __name__ == '__main__':
 	with tb.testSetup(startObservers=False):
 		fl = BtSeriesLoader()
 
-		fl.scanForSeries(rangeOverride=1510)
+		fl.scanForSeries(rangeOverride=101)
 		# fl.go()
 
