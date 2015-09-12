@@ -66,6 +66,8 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def go(self):
+
+		self.wg.stepThroughCloudFlare("http://pururin.com/", titleContains="Pururin")
 		self.loginIfNeeded()
 		newLinks = self.retreiveTodoLinksFromDB()
 		if newLinks:

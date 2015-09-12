@@ -56,23 +56,27 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret["pageUrl"] = urllib.parse.urljoin(self.urlBase, linkLi.a["href"])
 		return ret
 
-	def getFeed(self, pageOverride=None):
+	def getFeed(self, pageOverride=[None]):
 		# for item in items:
 		# 	self.log.info(item)
 		#
 
-		page = self.loadFeed(pageOverride)
-
-		soup = bs4.BeautifulSoup(page)
-
-		mainSection = soup.find("ul", class_="gallery-list")
-
-		doujinLink = mainSection.find_all("li", class_="gallery-block")
+		self.wg.stepThroughCloudFlare("http://pururin.com/", titleContains="Pururin")
 
 		ret = []
-		for linkLi in doujinLink:
-			tmp = self.parseLinkLi(linkLi)
-			ret.append(tmp)
+
+		for x in pageOverride:
+			page = self.loadFeed(x)
+
+			soup = bs4.BeautifulSoup(page)
+
+			mainSection = soup.find("ul", class_="gallery-list")
+
+			doujinLink = mainSection.find_all("li", class_="gallery-block")
+
+			for linkLi in doujinLink:
+				tmp = self.parseLinkLi(linkLi)
+				ret.append(tmp)
 
 		return ret
 
@@ -104,7 +108,8 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def go(self):
 		self.resetStuckItems()
-		dat = self.getFeed()
+		dat = self.getFeed(list(range(50)))
+		# dat = self.getFeed()
 		self.processLinksIntoDB(dat)
 
 		# for x in range(10):
