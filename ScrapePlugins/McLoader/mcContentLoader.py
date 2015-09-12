@@ -169,3 +169,16 @@ class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=True):
+
+		run = McContentLoader()
+		run.go()
+
+
+

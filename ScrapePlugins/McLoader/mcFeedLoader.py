@@ -47,12 +47,12 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def extractItemInfo(self, soup):
 
 		ret = {}
-
-		titleDiv = soup.find("h1", class_="ttl")
-		ret["title"] = titleDiv.get_text()
-
 		container = soup.find("div", class_="mng_ifo")
 		infoDiv = container.find("div", class_="det")
+
+		titleDiv = infoDiv.find("h4")
+		ret["title"] = titleDiv.get_text()
+
 		items = infoDiv.find_all("p")
 
 		ret["note"] = " ".join(items[0].strings)   # Messy hack to replace <br> tags with a ' ', rather then just removing them.
@@ -67,10 +67,10 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			what, text = text.split(":", 1)
 			if what == "Category":
-				tags = text.split(",")
+				tags = [tag_link.get_text() for tag_link in item.find_all("a")]
+
 				tags = [tag.lower().strip().replace(" ", "-") for tag in tags]
 				ret["tags"] = " ".join(tags)
-
 
 		return ret
 
@@ -156,5 +156,15 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.processLinksIntoDB(feedItems)
 		self.log.info("Complete")
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		run = McFeedLoader()
+		run.go()
 
 
