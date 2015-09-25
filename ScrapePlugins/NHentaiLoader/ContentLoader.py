@@ -62,6 +62,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				imgUrl = thumbUrl[:-6] + thumbUrl[-6:].replace("t.", '.')
 
 			imgUrl   = urllib.parse.urljoin(self.urlBase, imgUrl)
+			imgUrl = imgUrl.replace("//t.", "//i.")
 
 			ret.append((imgUrl, referrer))
 
@@ -209,6 +210,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.updateDbEntry(link["sourceUrl"], dlState=1)
 			linkInfo = self.getDownloadInfo(link)
 			self.doDownload(linkInfo)
+		except IOError:
+			self.log.error("Failure retreiving content for link %s", link)
+			self.log.error("Traceback: %s", traceback.format_exc())
+			self.updateDbEntry(link["sourceUrl"], dlState=-2, downloadPath="ERROR", fileName="ERROR: MISSING")
 		except urllib.error.URLError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
