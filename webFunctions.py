@@ -659,7 +659,6 @@ class WebGetRobust:
 
 
 
-
 	def stepThroughCloudFlare(self, url, titleContains='', titleNotContains=''):
 		'''
 		Use Selenium+PhantomJS to access a resource behind cloudflare protection.
@@ -697,11 +696,18 @@ class WebGetRobust:
 		for headerName in wgSettings:
 			dcap['phantomjs.page.customHeaders.{header}'.format(header=headerName)] = wgSettings[headerName]
 
+		# Phantomjs is shitty, and doesn't accept some encoding options sometimes, apparently
+		if 'phantomjs.page.customHeaders.Accept-Encoding' in dcap:
+			dcap.pop('phantomjs.page.customHeaders.Accept-Encoding')
+
+
+
 		driver = selenium.webdriver.PhantomJS(desired_capabilities=dcap)
 		driver.set_window_size(1024, 768)
 
 		driver.get(url)
 
+		print("Fetched. Validating contains")
 		if titleContains:
 			condition = EC.title_contains(titleContains)
 		elif titleNotContains:
@@ -709,7 +715,7 @@ class WebGetRobust:
 		else:
 			raise ValueError("Wat?")
 
-
+		driver.save_screenshot('screenshot.png')
 		try:
 			WebDriverWait(driver, 20).until(condition)
 			success = True

@@ -19,7 +19,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	pluginName = "NHentai Link Retreiver"
 	tableKey    = "nh"
 	urlBase = "http://nhentai.net/"
-	urlFeed = "http://nhentai.net/tagged/english/?page={num}"
+	urlFeed = "http://nhentai.net/language/english/?page={num}"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -49,7 +49,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# 'Origin'       : '',  (Category)
 		for chunk in tagChunks:
-			for rawTag in chunk.find_all("a", class_='tagbutton'):
+			for rawTag in chunk.find_all("a", class_='tag'):
 				if rawTag.span:
 					rawTag.span.decompose()
 				tag = rawTag.get_text().strip()
@@ -62,7 +62,6 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				tags.append(tag)
 
 		tags = " ".join(tags)
-
 		return category, tags
 
 	def getUploadTime(self, soup):
@@ -73,7 +72,13 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		cal = parsedatetime.Calendar()
 		ulDate, status = cal.parse(timeTag['datetime'])
 		# print(ulDate)
-		return calendar.timegm(ulDate)
+		ultime = calendar.timegm(ulDate)
+
+		# No future times!
+		if ultime > time.time():
+			self.log.warning("Clamping timestamp to now!")
+			ultime = time.time()
+		return ultime
 
 
 	def getInfo(self, itemUrl):
@@ -97,7 +102,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret.update(self.getInfo(ret['sourceUrl']))
 
 		# Yaoi isn't something I'm that in to.
-		if "guys-only" in ret["tags"]:
+		if "guys-only" in ret["tags"] or "males-only" in ret['tags']:
 			self.log.info("Yaoi item. Skipping.")
 			return None
 
@@ -115,7 +120,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		mainDiv = soup.find("div", class_="index-container")
 
-		divs = mainDiv.find_all("div", class_='preview-container')
+		divs = mainDiv.find_all("div", class_='gallery')
 
 		ret = []
 		for itemDiv in divs:
@@ -147,7 +152,9 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 def getHistory():
 
 	run = DbLoader()
-	for x in range(95, 1000):
+	# dat = run.getFeed()
+	# print(dat)
+	for x in range(0, 1500):
 		dat = run.getFeed(pageOverride=x)
 		run.processLinksIntoDB(dat)
 

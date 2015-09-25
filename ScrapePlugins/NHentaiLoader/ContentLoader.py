@@ -51,7 +51,11 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		for link in thumbnailDiv.find_all("a", class_='gallerythumb'):
 
 			referrer = urllib.parse.urljoin(self.urlBase, link['href'])
-			thumbUrl = link.img['src']
+			if hasattr(link, "data-src"):
+				thumbUrl = link.img['data-src']
+			else:
+				thumbUrl = link.img['src']
+
 			if not "t." in thumbUrl[-6:]:
 				raise ValueError("Url is not a thumb? = '%s'" % thumbUrl)
 			else:
@@ -91,7 +95,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		imageUrls = self.imageUrls(soup)
 
-
+		# print("Image URLS: ", imageUrls)
 		linkDict["dlLinks"] = imageUrls
 
 
@@ -217,5 +221,6 @@ if __name__ == "__main__":
 	with tb.testSetup(startObservers=False):
 
 		run = ContentLoader()
+		# run.retreivalThreads = 1
 		run.resetStuckItems()
 		run.go()

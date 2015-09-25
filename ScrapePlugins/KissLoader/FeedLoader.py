@@ -205,7 +205,8 @@ Not found
 
 	def go(self, historical=False):
 
-		if not self.wg.stepThroughCloudFlare(self.urlBase, 'KissManga'):
+
+		if not self.wg.stepThroughCloudFlare("http://kissmanga.com/", titleContains='Read manga online in high quality'):
 			raise ValueError("Could not access site due to cloudflare protection.")
 
 		self.resetStuckItems()
