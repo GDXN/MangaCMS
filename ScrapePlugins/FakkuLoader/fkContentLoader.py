@@ -199,7 +199,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# So...... Fakku's reader is completely javascript driven. No (easily) parseable shit here.
 		# Therefore: WE DECEND TO THE LEVEL OF REGEXBOMINATIONS!
-		pathFormatterRe = re.compile(r"return '(//t\.fakku\.net/images/.+/.+/.+?/images/)' \+ x \+ '(\.jpg|\.gif|\.png)';", re.IGNORECASE)
+		pathFormatterRe = re.compile(r"return '(https://t\.fakku\.net/images/.+/.+/.+?/images/)' \+ x \+ '(\.jpg|\.gif|\.png)';", re.IGNORECASE)
 
 		# We need to know how many images there are, but there is no convenient way to access this information.
 		# The fakku code internally uses the length of the thumbnail array for the number of images, so
