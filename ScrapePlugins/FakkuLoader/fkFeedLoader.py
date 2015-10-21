@@ -127,7 +127,8 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def extractNote(self, soup):
 
 		noteHeader = soup.find(text='Description')
-
+		if not noteHeader:
+			return ""
 		note = noteHeader.parent.next_sibling
 		note = note.strip()
 		if note == "No description has been written.":
@@ -138,7 +139,7 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def parseDoujinDiv(self, containerDiv):
 		ret = {}
-
+		# print("Parsing div:", containerDiv)
 		# Extract title
 		titleLink = containerDiv.find("a", class_='content-title')
 		ret["dlName"] = titleLink.get_text()
@@ -266,7 +267,7 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def goHistory(self):
 
-		for x in range(20, 125):
+		for x in range(0, 125):
 			dat = self.getItems(pageOverride=x)
 			self.processLinksIntoDB(dat)
 

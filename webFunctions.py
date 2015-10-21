@@ -657,6 +657,38 @@ class WebGetRobust:
 		self.saveCookies(halting=True)
 
 
+	def _phantomJS_install_block(self, driver):
+		# Install addblocking so that loading the kissmanga homepage no
+		# longer takes 60+ seconds while the add scripts load scripts that load scripts,
+		# etc... I measured page-load time without adblock at ~70 seconds!
+
+		# hack while the python interface lags
+		driver.command_executor._commands['executePhantomScript'] = ('POST', '/session/$sessionId/phantom/execute')
+
+		driver.execute('executePhantomScript', {'script': '''
+			var page = this; // won't work otherwise
+			page.onResourceRequested = function(requestData, request)
+			{
+				var badwords = [
+					"ads/adprotect",
+					"google-analytics.com/ga.js",
+					"ads/sideskins",
+				]
+				var url = requestData['url'];
+				for (badword in badwords)
+				{
+					if (url.indexOf() >= 0)
+					{
+						console.log('The url of the request is matching. Aborting: ' + requestData['url']);
+						request.abort();
+						return;
+
+					}
+				}
+			}
+		''', 'args': []})
+
+
 
 
 	def stepThroughCloudFlare(self, url, titleContains='', titleNotContains=''):
@@ -696,40 +728,59 @@ class WebGetRobust:
 		for headerName in wgSettings:
 			dcap['phantomjs.page.customHeaders.{header}'.format(header=headerName)] = wgSettings[headerName]
 
+		# Set up timeouts
+		dcap["phantomjs.page.settings.resourceTimeout"] = ("5000")
+
 		# Phantomjs is shitty, and doesn't accept some encoding options sometimes, apparently
 		if 'phantomjs.page.customHeaders.Accept-Encoding' in dcap:
 			dcap.pop('phantomjs.page.customHeaders.Accept-Encoding')
 
-
-
-		driver = selenium.webdriver.PhantomJS(desired_capabilities=dcap)
-		driver.set_window_size(1024, 768)
-
-		driver.get(url)
-
-		print("Fetched. Validating contains")
-		if titleContains:
-			condition = EC.title_contains(titleContains)
-		elif titleNotContains:
-			condition = title_not_contains(titleNotContains)
-		else:
-			raise ValueError("Wat?")
-
-		driver.save_screenshot('screenshot.png')
+		original_timeout = socket.getdefaulttimeout()
+		socket.setdefaulttimeout(120)
 		try:
-			WebDriverWait(driver, 20).until(condition)
-			success = True
-			self.log.info("Successfully accessed main page!")
-		except TimeoutException:
-			self.log.error("Could not pass through cloudflare blocking!")
-			success = False
-		# Add cookies to cookiejar
 
-		for cookie in driver.get_cookies():
-			self.addSeleniumCookie(cookie)
-			#print cookie[u"value"]
+			driver = selenium.webdriver.PhantomJS(desired_capabilities=dcap)
+			self._phantomJS_install_block(driver)
+			driver.set_page_load_timeout(120)
+			driver.set_window_size(1024, 768)
+			print("PhantomJS Fetch call")
+			start = time.time()
+			try:
+				driver.get(url)
+			except:
+				print("Error delta: ", time.time() - start)
+				raise
+
+			print("Fetch time: ", time.time() - start)
+
+			print("Taking first screenshot.")
+			driver.save_screenshot('screenshot1.png')
+			print("Fetched. Validating contains")
+			if titleContains:
+				condition = EC.title_contains(titleContains)
+			elif titleNotContains:
+				condition = title_not_contains(titleNotContains)
+			else:
+				raise ValueError("Wat?")
+
+			try:
+				WebDriverWait(driver, 120).until(condition)
+				success = True
+				self.log.info("Successfully accessed main page!")
+			except TimeoutException:
+				self.log.error("Could not pass through cloudflare blocking!")
+				success = False
+			# Add cookies to cookiejar
+
+			for cookie in driver.get_cookies():
+				self.addSeleniumCookie(cookie)
+				#print cookie[u"value"]
+		finally:
+			socket.setdefaulttimeout(original_timeout)
 
 		self.syncCookiesFromFile()
+
+		driver.save_screenshot('screenshot2.png')
 
 		return success
 
@@ -1093,22 +1144,23 @@ if __name__ == "__main__":
 	print("Oh HAI")
 	wg = WebGetRobust()
 
-	if len(sys.argv) == 3:
-		getUrl = sys.argv[1]
-		fName  = sys.argv[2]
-		print(getUrl, fName)
+	# if len(sys.argv) == 3:
+	# 	getUrl = sys.argv[1]
+	# 	fName  = sys.argv[2]
+	# 	print(getUrl, fName)
 
-		content = wg.getpage(getUrl)
+	# 	content = wg.getpage(getUrl)
 
-		try:
-			out = content.encode("utf-8")
-		except:
-			out = content
+	# 	try:
+	# 		out = content.encode("utf-8")
+	# 	except:
+	# 		out = content
 
-		with open(fName, 'wb') as fp:
-			fp.write(out)
+	# 	with open(fName, 'wb') as fp:
+	# 		fp.write(out)
 
 
+	wg.stepThroughCloudFlare("http://kissmanga.com/", titleContains='KissManga')
 
 	# content, handle = wg.getpage("http://japtem.com/wp-content/uploads/2014/07/Arifureta.png", returnMultiple = True)
 	# print((handle.headers.get('Content-Encoding')))
@@ -1126,8 +1178,8 @@ if __name__ == "__main__":
 	# content_2 = wg.getSoup("http://www.lighttpd.net")
 	# assert(content_1 == content_2)
 
-	gTest = wg.getpage('https://drive.google.com/folderview?id=0B2lnOX3NF2LOeW55WlpYQWIxYnM')
-	print(type(gTest))
+	# gTest = wg.getpage('https://drive.google.com/folderview?id=0B2lnOX3NF2LOeW55WlpYQWIxYnM')
+	# print(type(gTest))
 
 
 

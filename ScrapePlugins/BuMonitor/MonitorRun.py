@@ -11,7 +11,7 @@ import settings
 import dateutil.parser
 
 import ScrapePlugins.MonitorDbBase
-import TextScrape.NovelMixin
+# import TextScrape.NovelMixin
 
 def toInt(inStr):
 	return int(''.join(ele for ele in inStr if ele.isdigit()))
@@ -19,7 +19,7 @@ def toInt(inStr):
 
 # Maintains a local mirror of a user's watches series on mangaUpdates
 # This only retreives the watched item list. ChangeMonitor.py actually fetches the metadata.
-class BuWatchMonitor(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBase.MonitorDbBase):
+class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	loggerPath       = "Main.Manga.Bu.Watcher"
 	pluginName       = "BakaUpdates List Monitor"
@@ -134,8 +134,8 @@ class BuWatchMonitor(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBa
 				readChapter = -1
 
 			# Update the novel information (if it exists)
-			self.updateNovelAvailable(mangaName, currentChapter)
-			self.updateNovelRead(mangaName, readChapter)
+			# self.updateNovelAvailable(mangaName, currentChapter)
+			# self.updateNovelRead(mangaName, readChapter)
 
 			seriesID = toInt(urlParsed.query)
 			listName = listName.replace("\u00A0"," ")

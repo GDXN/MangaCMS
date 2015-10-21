@@ -139,7 +139,12 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		for subList in lists:
 			for series in subList.find_all("li"):
-				url = urllib.parse.urljoin(self.urlBase, series.a['href'])
+				val = series.a['href']
+
+				# Fix broken source URLs.
+				val = val.replace(" ", "%20")
+
+				url = urllib.parse.urljoin(self.urlBase, val)
 				ret.add(url)
 			# if td.a:
 			# 	link = td.a["href"]

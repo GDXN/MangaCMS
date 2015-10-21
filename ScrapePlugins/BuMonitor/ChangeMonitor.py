@@ -22,7 +22,7 @@ CHECK_INTERVAL_OTHER = 60 * 60 * 24 * 30  # Every month
 def toInt(inStr):
 	return int(''.join(ele for ele in inStr if ele.isdigit()))
 
-class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBase.MonitorDbBase):
+class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 	loggerPath       = "Main.Manga.Bu.DateUpdater"
 	pluginName       = "BakaUpdates Update Date Monitor"
@@ -232,14 +232,14 @@ class BuDateUpdater(TextScrape.NovelMixin.NovelMixin, ScrapePlugins.MonitorDbBas
 		if not kwds:
 			return
 
-		if kwds['buType'] == 'Novel':
-			self.upsertNovelName(kwds['buName'])
-			if 'availProgress' in kwds:
-				self.updateNovelAvailable(kwds['buName'], kwds['availProgress'])
-			if 'buTags' in kwds:
-				self.updateNovelTags(kwds['buName'], kwds['buTags'])
-			if 'buGenre' in kwds:
-				self.updateNovelTags(kwds['buName'], kwds['buGenre'])
+		# if kwds['buType'] == 'Novel':
+		# 	self.upsertNovelName(kwds['buName'])
+		# 	if 'availProgress' in kwds:
+		# 		self.updateNovelAvailable(kwds['buName'], kwds['availProgress'])
+		# 	if 'buTags' in kwds:
+		# 		self.updateNovelTags(kwds['buName'], kwds['buTags'])
+		# 	if 'buGenre' in kwds:
+		# 		self.updateNovelTags(kwds['buName'], kwds['buGenre'])
 
 
 		haveRows = self.getRowByValue(buName=kwds['buName'])
