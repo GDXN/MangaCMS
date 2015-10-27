@@ -313,3 +313,13 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not runStatus.run:
 			return
 		self.processTodoLinks(todo)
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=True):
+
+		run = BtContentLoader()
+		run.go()
+		# run.getMainItems()

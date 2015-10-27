@@ -1,4 +1,4 @@
-﻿## -*- coding: utf-8 -*-
+## -*- coding: utf-8 -*-
 <!DOCTYPE html>
 
 <%namespace name="ut" file="utilities.mako"/>
@@ -913,11 +913,7 @@ colours = {
 			<td class="padded">
 				${ut.createReaderLink(itemInfo["dirKey"], itemInfo) if itemInfo["item"] else ""}
 
-				% if 'novel' in (name+str(dataDict['tags'])+str(dataDict['genre'])).lower():
-					<span style='float:right'>
-						${ut.createBookSearch("Books Found", name)}
-					</span>
-				% elif 'hentai' in (str(dataDict['tags'])+str(dataDict['genre'])).lower():
+				% if 'hentai' in (str(dataDict['tags'])+str(dataDict['genre'])).lower():
 					<span style='float:right'>
 						${ut.createHentaiSearch("Hentai Search", name)}
 					</span>

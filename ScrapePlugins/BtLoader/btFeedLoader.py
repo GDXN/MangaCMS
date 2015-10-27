@@ -123,6 +123,8 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		item["retreivalTime"] = calendar.timegm(addDate.timetuple())
 		item["sourceUrl"] = chapter.a["href"]
 
+		if "http://bato.to/reader#" in item["sourceUrl"]:
+			return False
 
 		return item
 

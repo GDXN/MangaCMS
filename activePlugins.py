@@ -87,7 +87,7 @@ import ScrapePlugins.SurasPlace.Run
 # import TextScrape.CloudFlareWordPress.Run
 import TextScrape.CloudFlareWordPress.RunUpdate
 
-import TextScrape.Lndb.Run
+# import TextScrape.Lndb.Run
 
 # import TextScrape.RssRun
 
@@ -205,9 +205,9 @@ scrapePlugins = {
 	# 314 : (TextScrape.RoyalRoad.Run,                           days(7)),
 
 
-	400 : (TextScrape.Lndb.Run,                                hours(2)),
-	401 : (FeedScrape.InputScrapers.FictionPress.Run,          minutes(30)),
-	402 : (FeedScrape.InputScrapers.RoyalRoadL.Run,            hours(5)),
+	# 400 : (TextScrape.Lndb.Run,                                hours(2)),
+	# 401 : (FeedScrape.InputScrapers.FictionPress.Run,          minutes(30)),
+	# 402 : (FeedScrape.InputScrapers.RoyalRoadL.Run,            hours(5)),
 
 }
 

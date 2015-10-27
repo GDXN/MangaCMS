@@ -195,7 +195,6 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		desc      = self.getDescription(soup)
 		relState  = self.getReleaseState(soup)
 
-		self.saveCover(dbId, mId, soup)
 
 		baseName, altNames = self.getNames(soup)
 		# print("Basename = ", baseName)
@@ -504,32 +503,6 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 
 		return " ".join(container.strings).strip().strip(" ,")
 
-
-	def saveCover(self, mId, buId, soup):
-
-		haveCover = self.checkHaveCover(mId)
-		if haveCover:
-			return
-		else:
-			self.log.info("Need to fetch cover: %s", haveCover)
-		header = soup.find("b", text="Image")
-		if not header:
-			return ""
-
-		container = header.parent.find_next_sibling("div", class_="sContent")
-
-		if not container:
-			return
-		if not container.img:
-			return
-		if not container.img['src']:
-			return
-
-		ctnt, name = self.wgH.getFileAndName(container.img['src'], addlHeaders={'Referer': self.itemURL.format(buId=mId)})
-		if not name:
-			name = os.path.split(urllib.parse.urlsplit(container.img['src']).path)[-1]
-
-		self.upsertCover(name, ctnt, mId, sourceId=buId)
 
 
 if __name__ == "__main__":
