@@ -121,6 +121,9 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		item["date"] = calendar.timegm(addDate.timetuple())
 		item["dlLink"] = chapter.a["href"]
 
+		if 'http://bato.to/reader#' in item["dlLink"]:
+			return False
+
 		return item
 
 

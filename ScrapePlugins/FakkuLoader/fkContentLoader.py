@@ -197,6 +197,13 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-7, downloadPath="REMOVED", fileName="ERROR: Paywalled. ", lastUpdate=time.time())
 			return False
 
+
+		# Fuck you Fakku, don't include pay-content in your free gallery system.
+		if "Enter your account information below." in imagePage:
+			self.log.warning("Subscription bullshit?.")
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-7, downloadPath="REMOVED", fileName="ERROR: Paywalled. ", lastUpdate=time.time())
+			return False
+
 		# So...... Fakku's reader is completely javascript driven. No (easily) parseable shit here.
 		# Therefore: WE DECEND TO THE LEVEL OF REGEXBOMINATIONS!
 		pathFormatterRe = re.compile(r"return '(https://t\.fakku\.net/images/.+/.+/.+?/images/)' \+ x \+ '(\.jpg|\.gif|\.png)';", re.IGNORECASE)
@@ -310,5 +317,6 @@ if __name__ == "__main__":
 	with tb.testSetup(startObservers=False):
 		# getHistory()
 		run = FakkuContentLoader()
+		run.retreivalThreads = 1
 		# run.getFeed()
 		run.go()

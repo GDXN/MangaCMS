@@ -139,6 +139,12 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def parseDoujinDiv(self, containerDiv):
 		ret = {}
+
+		# Put your fucking pay-content somewhere else.
+		payola = containerDiv.find('div', class_='fakku-books')
+		if payola:
+			return False
+
 		# print("Parsing div:", containerDiv)
 		# Extract title
 		titleLink = containerDiv.find("a", class_='content-title')
@@ -279,5 +285,5 @@ if __name__ == "__main__":
 		# getHistory()
 		run = FakkuFeedLoader()
 		# run.getFeed()
-		run.go()
+		# run.go()
 		run.goHistory()
