@@ -21,6 +21,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
 
+from ScrapePlugins.BtLoader.common import checkLogin
+
 class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
@@ -34,7 +36,9 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 8
+	retreivalThreads = 1
+
+
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -63,19 +67,6 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
 		return items
 
-
-	def getImageFromPage(self, containerPageUrl):
-
-		soup = self.wg.getSoup(containerPageUrl)
-
-
-		img = soup.find("img", id="comic_page")
-		if not img:
-			raise ValueError("Could not find image on page '%s'!" % containerPageUrl)
-		imgUrl = img["src"]
-
-		return self.getImage(imgUrl, containerPageUrl)
-
 	def getImage(self, imageUrl, referrer):
 
 		content, handle = self.wg.getpage(imageUrl, returnMultiple=True, addlHeaders={'Referer': referrer})
@@ -86,6 +77,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		fileN = bs4.UnicodeDammit(fileN).unicode_markup
 		self.log.info("retreived image '%s' with a size of %0.3f K", fileN, len(content)/1000.0)
 		return fileN, content
+
 
 	def extractFilename(self, inString):
 		title, dummy_blurb = inString.rsplit("|", 1)
@@ -142,47 +134,47 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		chapter = " ".join(volChap)
 
-		return title, chapter
+		return title, chapter.strip()
 
 
 	def getContainerPages(self, firstPageUrl):
 
+		gid = urllib.parse.urlsplit(firstPageUrl).fragment
+
 		# Korean Webtoons are non-paginated in their default state
 		# this breaks shit, so we force paginated mode.
-		if not firstPageUrl.endswith("/1"):
-			firstPageUrl += "/1"
-
-		pageCtnt = self.wg.getpage(firstPageUrl)
-		soup = bs4.BeautifulSoup(pageCtnt)
-		title = soup.find("meta", property="og:title")
-		title = title["content"]
-
-		if 'alt="File not found"' in pageCtnt:
-			return False, False, False, False
-
-		seriesName, chapterVol = self.extractFilename(title)
-
-		selector = soup.find("select", attrs={'name':'page_select'})
-		if selector:
-
-			pages = selector.find_all("option")
-			pages = [page["value"] for page in pages]
-			self.log.info("Item has %s pages.", len(pages))
-
-			return seriesName, chapterVol, pages, False
-
-		if not selector and "Want to see this chapter per page instead?" in pageCtnt:
-			self.log.info("It's a webcomic.")
-
-			contentDiv = soup.find("div", attrs={'id':'content', 'class':'clearfix'})
-			images = contentDiv.find_all("img", src=re.compile(r'img[0-9]?\.bato\.to/comics/[0-9][0-9][0-9][0-9]'))
-
-			images = [image["src"] for image in images]
-			return seriesName, chapterVol, images, True
+		if not firstPageUrl.endswith("_1_t"):
+			firstPageUrl += "_1_t"
 
 
-		raise ValueError("Unable to find contained images on page '%s'" % firstPageUrl)
+		pageUrl = firstPageUrl
 
+		basepage = self.wg.getpage(pageUrl)
+
+		seriesName = "Unknown - ERROR"
+		chapterVol = "Unknown - ERROR"
+
+		images = []
+		for pgnum in range(1, 9999999):
+			ajaxurl = "http://bato.to/areader?id={id}&p={pgnum}".format(id=gid, pgnum=pgnum)
+			extra_headers = {
+				"X-Requested-With" : "XMLHttpRequest",
+				"Referer"          : "http://bato.to/reader",
+			}
+			subpage = self.wg.getSoup(ajaxurl, addlHeaders=extra_headers)
+			imgtag = subpage.find("img", id='comic_page')
+			if not imgtag:
+				self.log.warning("No image - Breaking")
+				break
+
+			seriesName, chapterVol = self.extractFilename(imgtag['alt'])
+			images.append(imgtag['src'])
+
+			pages = subpage.find("select", id='page_select')
+			if pgnum + 1 > len(pages.find_all("option")):
+				break
+
+		return seriesName, chapterVol, images
 
 
 	def getLink(self, link):
@@ -193,7 +185,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info( "Should retreive url - %s", sourceUrl)
 			self.updateDbEntry(sourceUrl, dlState=1)
 
-			seriesName, chapterVol, imageUrls, directImageLinks = self.getContainerPages(sourceUrl)
+			seriesName, chapterVol, imageUrls = self.getContainerPages(sourceUrl)
 			if not seriesName and not chapterVol and not imageUrls:
 				self.log.critical("Failure on retreiving content at %s", sourceUrl)
 				self.log.critical("Page not found - 404")
@@ -224,10 +216,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			images = []
 			for imgUrl in imageUrls:
-				if directImageLinks:
-					imageName, imageContent = self.getImage(imgUrl, sourceUrl)
-				else:
-					imageName, imageContent = self.getImageFromPage(imgUrl)
+				imageName, imageContent = self.getImage(imgUrl, "http://bato.to/reader")
 
 				images.append([imageName, imageContent])
 
@@ -287,7 +276,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def processTodoLinks(self, links):
 		if links:
 
-			def iter_baskets_from(items, maxbaskets=3):
+			def iter_baskets_from(items, maxbaskets=self.retreivalThreads):
 				'''generates evenly balanced baskets from indexable iterable'''
 				item_count = len(items)
 				baskets = min(item_count, maxbaskets)
@@ -308,10 +297,12 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def go(self):
-
 		todo = self.retreiveTodoLinksFromDB()
 		if not runStatus.run:
 			return
+		if not todo:
+			return
+		checkLogin(self.wg)
 		self.processTodoLinks(todo)
 
 
@@ -322,4 +313,7 @@ if __name__ == "__main__":
 
 		run = BtContentLoader()
 		run.go()
+		# got = run.getContainerPages("http://bato.to/reader#2b720b1a2ccae5d8")
+		# print(got)
 		# run.getMainItems()
+		# run.checkLogin()

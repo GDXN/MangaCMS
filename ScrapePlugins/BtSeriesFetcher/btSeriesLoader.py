@@ -85,9 +85,9 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		#
 
 
-		self.log.info("Loading Monitored IDs from MangaUpdates table")
+		self.log.info("Loading Monitored IDs from Batoto table")
 		self.wantedIds = set(self.getBuListItemIds())
-		self.log.info("Have %s items from MangaUpdates lists to trigger on", len(self.wantedIds))
+		self.log.info("Have %s items from Batoto lists to trigger on", len(self.wantedIds))
 
 
 		self.log.info("Loading BT Main Feed")

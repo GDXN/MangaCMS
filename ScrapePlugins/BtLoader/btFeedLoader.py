@@ -14,6 +14,7 @@ import dateutil.parser
 import settings
 import datetime
 
+from ScrapePlugins.BtLoader.common import checkLogin
 import ScrapePlugins.RetreivalDbBase
 
 
@@ -123,7 +124,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		item["retreivalTime"] = calendar.timegm(addDate.timetuple())
 		item["sourceUrl"] = chapter.a["href"]
 
-		if "http://bato.to/reader#" in item["sourceUrl"]:
+		if not "http://bato.to/reader#" in item["sourceUrl"]:
 			return False
 
 		return item
@@ -238,6 +239,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def go(self):
 
+		checkLogin(self.wg)
 		self.resetStuckItems()
 		self.log.info("Getting feed items")
 
