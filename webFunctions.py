@@ -581,6 +581,7 @@ class WebGetRobust:
 		the active opener
 		'''
 		# print cookieDict
+		print("cookieDict:",  cookieDict)
 		cookie = http.cookiejar.Cookie(
 				version=0,
 				name=cookieDict['name'],
@@ -593,7 +594,10 @@ class WebGetRobust:
 				path=cookieDict['path'],
 				path_specified=False,
 				secure=cookieDict['secure'],
-				expires=cookieDict['expiry'],
+
+				# Apparently the expiry parameter is conditionally present.
+				expires=cookieDict['expiry'] if 'expiry' in cookieDict else None,
+
 				discard=False,
 				comment=None,
 				comment_url=None,
@@ -753,8 +757,8 @@ class WebGetRobust:
 
 			print("Fetch time: ", time.time() - start)
 
-			print("Taking first screenshot.")
-			driver.save_screenshot('screenshot1.png')
+			# print("Taking first screenshot.")
+			# driver.save_screenshot('screenshot1.png')
 			print("Fetched. Validating contains")
 			if titleContains:
 				condition = EC.title_contains(titleContains)
@@ -780,7 +784,7 @@ class WebGetRobust:
 
 		self.syncCookiesFromFile()
 
-		driver.save_screenshot('screenshot2.png')
+		# driver.save_screenshot('screenshot2.png')
 
 		return success
 
