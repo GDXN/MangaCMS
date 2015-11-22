@@ -9,7 +9,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor
 import time
 import settings
-import TextScrape.NovelMixin
+
 import os.path
 import ScrapePlugins.MonitorDbBase
 

@@ -85,15 +85,15 @@ import ScrapePlugins.SurasPlace.Run
 # import TextScrape.Sousetsuka.RunUpdate
 
 # import TextScrape.CloudFlareWordPress.Run
-import TextScrape.CloudFlareWordPress.RunUpdate
+# import TextScrape.CloudFlareWordPress.RunUpdate
 
 # import TextScrape.Lndb.Run
 
 # import TextScrape.RssRun
 
 # Fictionpress triggers
-import FeedScrape.InputScrapers.FictionPress.Run
-import FeedScrape.InputScrapers.RoyalRoadL.Run
+# import FeedScrape.InputScrapers.FictionPress.Run
+# import FeedScrape.InputScrapers.RoyalRoadL.Run
 
 
 import ScrapePlugins.MangaMadokami.mkContentLoader
