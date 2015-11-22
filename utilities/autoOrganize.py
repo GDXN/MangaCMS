@@ -27,6 +27,8 @@ class DbInterface(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 	pluginName       = "Organization Tool"
 	tableName        = "MangaSeries"
 	nameMapTableName = "muNameList"
+	changedTableName = "muItemChanged"
+	itemReleases     = "muReleases"
 
 	dbName = settings.DATABASE_DB_NAME
 

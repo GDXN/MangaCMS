@@ -12,6 +12,7 @@ import json
 import ScrapePlugins.RetreivalDbBase
 import ScrapePlugins.RunBase
 import nameTools as nt
+from concurrent.futures import ThreadPoolExecutor
 
 MASK_PATHS = [
 	'/Raws',
@@ -188,6 +189,39 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return dirRet, itemRet
 
 
+
+
+	def thread_go(self):
+
+		while len(self.seriesPages) and runStatus.run:
+			folderName, folderUrl = self.seriesPages.pop()
+
+
+			if folderUrl in self.scanned:
+				self.log.warning("Duplicate item made it into %s", folderUrl)
+				continue
+			try:
+				newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
+			except ValueError:
+				pass
+
+			self.scanned.add(folderUrl)
+
+
+			for newDir in [newD for newD in newDirs if newD not in self.scanned]:
+				self.seriesPages.add(newDir)
+
+			if newItems:
+				self.processLinksIntoDB(newItems)
+				for newItem in newItems:
+					self.items.append(newItem)
+
+			self.log.info("Have %s items %s total, %s pages remain to scan", len(newItems), len(self.items), len(self.seriesPages))
+			if not runStatus.run:
+				self.log.info("Breaking due to exit flag being set")
+
+
+
 	def getMainItems(self):
 		# for item in items:
 		# 	self.log.info( item)
@@ -199,51 +233,28 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info( "Loading Madokami Main Feed")
 
-		items = []
+		self.items = []
 
-		scanned = set((self.urlBaseManga, self.urlBaseMT))
+		self.scanned = set((self.urlBaseManga, self.urlBaseMT))
 
 
-		seriesPages, items = self.getItemsFromContainer("UNKNOWN", self.urlBaseManga)
+		self.seriesPages, self.items = self.getItemsFromContainer("UNKNOWN", self.urlBaseManga)
 		# seriesPages2, items2 = self.getItemsFromContainer("UNKNOWN", self.urlBaseMT)
 		seriesPages2, items2 = [], []
 
-		seriesPages = set(seriesPages) | set(seriesPages2)
+		self.seriesPages = set(self.seriesPages) | set(seriesPages2)
 
 		for page in seriesPages2:
-			seriesPages.add(page)
+			self.seriesPages.add(page)
 
 		for page in items2:
-			items.append(page)
+			self.items.append(page)
 
-		while len(seriesPages):
-			folderName, folderUrl = seriesPages.pop()
+		processes = 3
 
-
-			if folderUrl in scanned:
-				self.log.warning("Duplicate item made it into %s", folderUrl)
-				continue
-			try:
-				newDirs, newItems = self.getItemsFromContainer(folderName, folderUrl)
-			except ValueError:
-				pass
-
-			scanned.add(folderUrl)
-
-
-			for newDir in [newD for newD in newDirs if newD not in scanned]:
-				seriesPages.add(newDir)
-
-			if newItems:
-				self.processLinksIntoDB(newItems)
-				for newItem in newItems:
-					items.append(newItem)
-
-			self.log.info("Have %s items %s total, %s pages remain to scan", len(newItems), len(items), len(seriesPages))
-			if not runStatus.run:
-				self.log.info("Breaking due to exit flag being set")
-
-
+		with ThreadPoolExecutor(max_workers=processes) as executor:
+			futures = [executor.submit(self.thread_go) for x in range(processes)]
+			complete = [future.result() for future in futures]
 
 
 

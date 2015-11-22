@@ -17,8 +17,10 @@ http://mocopersonal.tumblr.com/tagged/kuroko-no-basuke-novel
 http://forums.mangafox.me/threads/379264-Kuroko-no-Basuke-Novel-Replace-I-and-II
 
 
-http://pokegirls.org/
 
+
+Webcomics module?
+http://sinnergate.com/
 
 Handle fractional parts (e.g. 1/6, 2/3, etc... ) of chapters.
 

@@ -108,10 +108,13 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				if url:
 					self.doDownload(url)
 					delay = random.randint(5, 30)
+				else:
+					return
 			except:
 				print("ERROR WAT?")
 				traceback.print_exc()
 				delay = 1
+
 
 			for x in range(delay):
 				time.sleep(1)
