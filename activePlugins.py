@@ -41,61 +41,6 @@ import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import ScrapePlugins.SurasPlace.Run
 
 
-# import TextScrape.PrinceRevolution.Run
-# import TextScrape.WpBlogs.Run
-# import TextScrape.BakaTsuki.Run
-# import TextScrape.SekaiGaGame.Run
-# import TextScrape.ReTranslations.Run
-# import TextScrape.Krytyk.Run
-# import TextScrape.TlWiki.Run
-# import TextScrape.Dawnglare.Run
-# import TextScrape.WarTdf.Run
-# import TextScrape.UnlimitedNovelFailures.Run
-# import TextScrape.BsBlogs.Run
-# import TextScrape.JapTem.Run
-# import TextScrape.Guhehe.Run
-# import TextScrape.DearestFairy.Run
-# import TextScrape.HaruParty.Run
-# import TextScrape.ReMonsterWikia.Run
-# import TextScrape.Sousetsuka.Run
-# import TextScrape.RoyalRoad.Run
-
-# import TextScrape.BakaTsuki.RunUpdate
-# import TextScrape.BsBlogs.RunUpdate
-# import TextScrape.Dawnglare.RunUpdate
-# import TextScrape.DearestFairy.RunUpdate
-# import TextScrape.Guhehe.RunUpdate
-# import TextScrape.HaruParty.RunUpdate
-# import TextScrape.JapTem.RunUpdate
-# import TextScrape.Krytyk.RunUpdate
-# import TextScrape.PrinceRevolution.RunUpdate
-# import TextScrape.ReTranslations.RunUpdate
-# import TextScrape.SekaiGaGame.RunUpdate
-# import TextScrape.UnlimitedNovelFailures.RunUpdate
-# import TextScrape.WarTdf.RunUpdate
-# import TextScrape.WpBlogs.RunUpdate
-# import TextScrape.PasteBin.RunUpdate
-# import TextScrape.AFic.RunUpdate
-# import TextScrape.FanFiction.RunUpdate
-# import TextScrape.FictionPress.RunUpdate
-# import TextScrape.RoyalRoad.RunUpdate
-# import TextScrape.StoriesOnline.RunUpdate
-# import TextScrape.WattPad.RunUpdate
-# import TextScrape.ReMonsterWikia.RunUpdate
-# import TextScrape.Sousetsuka.RunUpdate
-
-# import TextScrape.CloudFlareWordPress.Run
-# import TextScrape.CloudFlareWordPress.RunUpdate
-
-# import TextScrape.Lndb.Run
-
-# import TextScrape.RssRun
-
-# Fictionpress triggers
-# import FeedScrape.InputScrapers.FictionPress.Run
-# import FeedScrape.InputScrapers.RoyalRoadL.Run
-
-
 import ScrapePlugins.MangaMadokami.mkContentLoader
 import ScrapePlugins.MangaMadokami.mkFeedLoader
 
@@ -156,74 +101,17 @@ scrapePlugins = {
 	40  : (ScrapePlugins.MangaMadokami.mkContentLoader,    hours(1)),       # Content loader runs each hour, because it only downloads 100 items per-run
 	150 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       days(4)),  # every 4 days, because I have to iterate over the ENTIRE site.
 
-
-	# Update the feeds hourly (if they have new updateable content only)
-	# Feed updaters and complete updaters have the same run-name, so
-	# there /shouldn't/ be concurrency issues (one will just block)
-	# 200 : (TextScrape.RssRun,                                  minutes(15)),
-
-	# 201 : (TextScrape.BakaTsuki.RunUpdate,                     minutes(30)),
-	# 202 : (TextScrape.BsBlogs.RunUpdate,                       minutes(30)),
-	# 203 : (TextScrape.Dawnglare.RunUpdate,                     minutes(30)),
-	# 204 : (TextScrape.DearestFairy.RunUpdate,                  minutes(30)),
-	# 205 : (TextScrape.Guhehe.RunUpdate,                        minutes(30)),
-	# 206 : (TextScrape.HaruParty.RunUpdate,                     minutes(30)),
-	# 207 : (TextScrape.JapTem.RunUpdate,                        minutes(30)),
-	# 208 : (TextScrape.Krytyk.RunUpdate,                        minutes(30)),
-	# 209 : (TextScrape.PrinceRevolution.RunUpdate,              minutes(30)),
-	# 210 : (TextScrape.ReTranslations.RunUpdate,                minutes(30)),
-	# 211 : (TextScrape.SekaiGaGame.RunUpdate,                   minutes(30)),
-	# 212 : (TextScrape.UnlimitedNovelFailures.RunUpdate,        minutes(30)),
-	# 213 : (TextScrape.WarTdf.RunUpdate,                        minutes(30)),
-	# 214 : (TextScrape.WpBlogs.RunUpdate,                       minutes(30)),
-	# 215 : (TextScrape.PasteBin.RunUpdate,                      minutes(30)),
-	# 216 : (TextScrape.AFic.RunUpdate,                          minutes(30)),
-	# 217 : (TextScrape.FanFiction.RunUpdate,                    minutes(30)),
-	# 218 : (TextScrape.FictionPress.RunUpdate,                  minutes(30)),
-	# 219 : (TextScrape.RoyalRoad.RunUpdate,                     minutes(30)),
-	# 220 : (TextScrape.StoriesOnline.RunUpdate,                 minutes(30)),
-	# 221 : (TextScrape.WattPad.RunUpdate,                       minutes(30)),
-	# 222 : (TextScrape.CloudFlareWordPress.RunUpdate,           minutes(30)),
-	# 223 : (TextScrape.ReMonsterWikia.Run,                      minutes(30)),
-	# 224 : (TextScrape.Sousetsuka.Run,                          minutes(30)),
-
-
-	# 300 : (TextScrape.BakaTsuki.Run,                           days(7)),
-	# 301 : (TextScrape.JapTem.Run,                              days(3)),
-	# 302 : (TextScrape.Guhehe.Run,                              days(3)),
-	# 303 : (TextScrape.WpBlogs.Run,                             days(1)),
-	# 304 : (TextScrape.BsBlogs.Run,                             days(1)),
-	# 305 : (TextScrape.PrinceRevolution.Run,                    days(5)),
-	# 306 : (TextScrape.Krytyk.Run,                              days(5)),
-	# 307 : (TextScrape.UnlimitedNovelFailures.Run,              days(2)),
-	# 308 : (TextScrape.ReTranslations.Run,                      days(1)),
-	# 309 : (TextScrape.WarTdf.Run,                              days(1)),
-	# 310 : (TextScrape.HaruParty.Run,                           days(2)),
-	# 311 : (TextScrape.CloudFlareWordPress.Run,                 days(2)),
-	# 312 : (TextScrape.ReMonsterWikia.RunUpdate,                days(7)),
-	# 313 : (TextScrape.Sousetsuka.RunUpdate,                    days(7)),
-	# 314 : (TextScrape.RoyalRoad.Run,                           days(7)),
-
-
-	# 400 : (TextScrape.Lndb.Run,                                hours(2)),
-	# 401 : (FeedScrape.InputScrapers.FictionPress.Run,          minutes(30)),
-	# 402 : (FeedScrape.InputScrapers.RoyalRoadL.Run,            hours(5)),
-
 }
-
 
 
 if __name__ == "__main__":
 
 	scrapePlugins = {
-	0 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
-	1 : (TextScrape.JapTem.Run,                          60*60*24*5),
-	3 : (TextScrape.Guhehe.Run,                          60*60*24*5),
-	2 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
-
-
+		# 0 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
+		# 1 : (TextScrape.JapTem.Run,                          60*60*24*5),
+		# 3 : (TextScrape.Guhehe.Run,                          60*60*24*5),
+		# 2 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
 	}
-
 
 
 	import nameTools as nt
