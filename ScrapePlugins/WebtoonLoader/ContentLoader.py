@@ -62,7 +62,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-		pages = {}
+		pages = []
 
 		pageCtnt = self.wg.getpage(baseUrl)
 		soup = bs4.BeautifulSoup(pageCtnt)
@@ -71,7 +71,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		images = imagesContainer.find_all("img")
 		for image in images:
 			if hasattr(image, 'data-url'):
-				pages[image['data-url']] = baseUrl
+				pages.append((image['data-url'], baseUrl))
+				# pages[image['data-url']] = baseUrl
 			else:
 				raise ValueError("Missing 'data-url'? Page = '%s'", baseUrl)
 
@@ -127,7 +128,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			images = []
 
 			imgCnt = 1
-			for imgUrl, referrerUrl in imageUrls.items():
+			for imgUrl, referrerUrl in imageUrls:
 				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
 				imageName = "{num:03.0f} - {srcName}".format(num=imgCnt, srcName=imageName)
 				imgCnt += 1
