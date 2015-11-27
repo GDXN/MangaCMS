@@ -253,7 +253,7 @@ table {
 	position: relative;
 }
 
-body:not(.mobile) .navigate:hover {
+body:not(.mobile) .navigate:active {
 	opacity: 1;
 }
 

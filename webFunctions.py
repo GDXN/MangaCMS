@@ -31,7 +31,8 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
-
+def as_soup(str):
+	return bs4.BeautifulSoup(str)
 
 class title_not_contains(object):
 	""" An expectation for checking that the title *does not* contain a case-sensitive
@@ -201,7 +202,7 @@ class WebGetRobust:
 		if isinstance(page, bytes):
 			raise ValueError("Received content not decoded! Cannot parse!")
 
-		soup = bs4.BeautifulSoup(page)
+		soup = as_soup(page)
 		return soup
 
 
