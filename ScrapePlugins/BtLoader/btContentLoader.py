@@ -216,6 +216,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			images = []
 			for imgUrl in imageUrls:
+				self.log.info("Fetching content for item: %s", imgUrl)
 				imageName, imageContent = self.getImage(imgUrl, "http://bato.to/reader")
 
 				images.append([imageName, imageContent])
@@ -284,7 +285,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
 
 			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
-
+			self.log.info("Retreiving with '%s' threads", self.retreivalThreads)
 			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
 
 				for linkList in linkLists:

@@ -12,6 +12,8 @@ import base64
 import json
 import time
 import webFunctions
+import ssl
+import socket
 import traceback
 
 COMPLAIN_ABOUT_DUPS = True
@@ -21,7 +23,7 @@ import ScrapePlugins.RetreivalDbBase
 
 import chardet
 
-class TolerantFTP(ftplib.FTP):
+class TolerantFTP(ftplib.FTP_TLS):
 
 	def retrlines(self, cmd, callback = None):
 		"""Retrieve data in line mode.  A new port is created for you.
@@ -43,6 +45,7 @@ class TolerantFTP(ftplib.FTP):
 		if callback is None:
 			callback = ftplib.print_line
 		self.sendcmd('TYPE A')
+
 		with self.transfercmd(cmd) as conn, conn.makefile('rb', encoding=None) as fp:
 			while 1:
 				line = fp.readline(self.maxline + 1)
@@ -92,10 +95,24 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.wg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web")
 
 
-		self.ftp = TolerantFTP(host=settings.mkSettings["ftpAddr"])
+		self.ftp = TolerantFTP()
+		self.ftp.connect(
+				host = settings.mkSettings["ftpAddr"],
+				port = settings.mkSettings["ftpPort"],
+				)
 
-		self.ftp.login()
+
+		self.ftp.login(
+				user   = settings.mkSettings["ftpUser"],
+				passwd = settings.mkSettings["ftpPass"],
+				)
+
+		self.ftp.prot_p()
+		self.ftp.set_pasv(True)
 		self.enableUtf8()
+		# print(self.ftp.retrlines('LIST'))
+
+		self.log.info("Init finished.")
 		self.mainDirs     = {}
 		self.unsortedDirs = {}
 
@@ -228,7 +245,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def checkInitDirs(self):
 		try:
-			dirs = list(self.ftp.mlsd(settings.mkSettings["uploadContainerDir"]))
+			tmp = self.ftp.mlsd(settings.mkSettings["uploadContainerDir"])
+			dirs = list(tmp)
 		except ftplib.error_perm:
 			self.log.critical("Container dir for uploads ('%s') does not exist!", settings.mkSettings["uploadContainerDir"])
 			raise
@@ -378,7 +396,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("To container directory %s", ulDir)
 		self.ftp.cwd(ulDir)
 
-		command = "STOR %s" % filename
+		command = "STOR %s" % "test-"+filename
 
 		self.ftp.storbinary(command, open(filePath, "rb"))
 		self.log.info("File Uploaded")
@@ -409,7 +427,7 @@ def test():
 	uploader = MkUploader()
 	uploader.checkInitDirs()
 	uploader.getExistingDir('87 Clockers')
-	# uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
+	uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
 
 
 if __name__ == "__main__":
