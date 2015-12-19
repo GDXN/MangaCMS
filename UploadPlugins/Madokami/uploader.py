@@ -13,7 +13,9 @@ import json
 import time
 import webFunctions
 import ssl
+import Levenshtein as lv
 import socket
+import ftfy
 import traceback
 
 COMPLAIN_ABOUT_DUPS = True
@@ -49,16 +51,16 @@ class TolerantFTP(ftplib.FTP_TLS):
 		with self.transfercmd(cmd) as conn, conn.makefile('rb', encoding=None) as fp:
 			while 1:
 				line = fp.readline(self.maxline + 1)
-				guess = chardet.detect(line)
+				# guess = chardet.detect(line)
 
 				# print("Line type = ", type(line))
 				# print("conn type = ", type(conn))
 				# print("Guessed encoding - ", chardet.detect(line))
 				# print(line)
-				if guess['confidence'] > 0.7:
-					line = line.decode(guess['encoding'])
-				else:
-					line = line.decode(self.encoding)
+				# if guess['confidence'] > 0.7:
+				# 	line = line.decode(guess['encoding'])
+				# else:
+				line = line.decode(self.encoding)
 
 				if len(line) > self.maxline:
 					raise ftplib.Error("got more than %d bytes" % self.maxline)
@@ -144,6 +146,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# path starts with "/". Therefore, we have to reset the CWD.
 		self.ftp.cwd("/")
 		for itemName, dummy_stats in self.ftp.mlsd(srcDirPath):
+			# itemName = ftfy.fix_text(itemName)
 			if itemName == ".." or itemName == ".":
 				continue
 			srcPath = os.path.join(srcDirPath, itemName)
@@ -154,16 +157,16 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	def aggregateDirs(self, pathBase, dir1, dir2):
-		canonName = nt.getCanonicalMangaUpdatesName(dir1)
+		canonName    = nt.getCanonicalMangaUpdatesName(dir1)
 		canonNameAlt = nt.getCanonicalMangaUpdatesName(dir2)
-		if canonName != canonNameAlt:
+		if canonName.lower() != canonNameAlt.lower():
 			self.log.critical("Error in uploading file. Name lookup via MangaUpdates table not commutative!")
 			self.log.critical("First returned value    '%s'", canonName)
 			self.log.critical("For directory with path '%s'", dir1)
 			self.log.critical("Second returned value   '%s'", canonNameAlt)
 			self.log.critical("For directory with path '%s'", dir2)
 
-			raise ValueError("Identical and yet not?")
+			raise ValueError("Identical and yet not? '%s' - '%s'" % (canonName, canonNameAlt))
 		self.log.info("Aggregating directories for canon name '%s':", canonName)
 
 		n1 = lv.distance(dir1, canonName)
@@ -186,7 +189,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.moveItemsInDir(src, dst)
 		self.log.info("Removing directory '%s'", src)
-		self.ftp.rmd(src)
+		# self.ftp.rmd(src)
+		# self.ftp.rename(src, "/Admin Cleanup/garbage dir %s" % id(src))
 
 		return dst
 
@@ -195,6 +199,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		for dirName, stats in self.ftp.mlsd(fullPath):
 
+			dirName = ftfy.fix_text(dirName)
 			# Skip items that aren't directories
 			if stats["type"]!="dir":
 				continue
@@ -204,16 +209,21 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			fqPath = os.path.join(fullPath, dirName)
 
-			# matchName = os.path.split(ret[matchingName])[-1]
 
 			if matchingName in ret:
-				# if aggregate:
-				# 	fqPath = self.aggregateDirs(fullPath, dirName, matchName)
-				# else:
-				if COMPLAIN_ABOUT_DUPS:
-					self.log.warning("Duplicate directories for series '%s'!", canonName)
-					self.log.warning("	'%s'", dirName)
-					self.log.warning("	'%s'", matchingName)
+				if aggregate:
+					matchName = os.path.split(ret[matchingName])[-1]
+					try:
+						fqPath = self.aggregateDirs(fullPath, dirName, matchName)
+					except ValueError:
+						traceback.print_exc()
+					except ftplib.error_perm:
+						traceback.print_exc()
+				else:
+					if COMPLAIN_ABOUT_DUPS:
+						self.log.warning("Duplicate directories for series '%s'!", canonName)
+						self.log.warning("	'%s/%s'", fullPath, dirName)
+						self.log.warning("	'%s/%s'", fullPath, matchingName)
 				ret[matchingName] = fqPath
 
 			else:
@@ -231,10 +241,10 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if dirPath == ".." or dirPath == ".":
 				continue
 			dirPath = os.path.join(settings.mkSettings["mainContainerDir"], dirPath)
-			items = self.loadRemoteDirectory(dirPath)
+			items = self.loadRemoteDirectory(dirPath, aggregate=True)
 			for key, value in items.items():
 				if key not in ret:
-					ret[key] = value
+					ret[key] = [value]
 				else:
 					for item in value:
 						ret[key].append(item)
@@ -258,7 +268,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			self.log.info("Base container directory exists.")
 
-
+		# We only reach this point if API-based lookup has failed.
+		self.unsortedDirs     = self.loadMainDirs()
 
 	def checkInitDoujinDirs(self):
 		doujinDir = "_Doujinshi"
@@ -276,9 +287,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			self.log.info("Base container directory exists.")
 
-		# self.mainDirs     = self.loadMainDirs()
 		self.unsortedDirs = self.loadRemoteDirectory(fullPath, aggregate=True)
-
 
 	def migrateTempDirContents(self):
 		for key in self.unsortedDirs.keys():
@@ -327,10 +336,10 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ulDir = self.getExistingDir(seriesName)
 
 		if not ulDir:
-			seriesName = nt.getCanonicalMangaUpdatesName(seriesName)
+			seriesName   = nt.getCanonicalMangaUpdatesName(seriesName)
 			safeFilename = nt.makeFilenameSafe(seriesName)
-			matchName = nt.prepFilenameForMatching(seriesName)
-			matchName = matchName.encode('latin-1', 'ignore').decode('latin-1')
+			matchName    = nt.prepFilenameForMatching(seriesName)
+			matchName    = matchName.encode('utf-8', 'ignore').decode('utf-8')
 
 			self.checkInitDirs()
 			if matchName in self.unsortedDirs:
@@ -403,7 +412,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		dummy_fPath, fName = os.path.split(filePath)
-		url = urllib.parse.urljoin("http://manga.madokami.com", urllib.parse.quote(filePath.strip("/")))
+		url = urllib.parse.urljoin("https://manga.madokami.com", urllib.parse.quote(filePath.strip("/")))
 
 		self.insertIntoDb(retreivalTime = time.time(),
 							sourceUrl   = url,
@@ -426,8 +435,9 @@ def uploadFile(seriesName, filePath):
 def test():
 	uploader = MkUploader()
 	uploader.checkInitDirs()
-	uploader.getExistingDir('87 Clockers')
-	uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
+	uploader.loadMainDirs()
+	# uploader.getExistingDir('87 Clockers')
+	# uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ I think it's converting Vol.1 to Vol, 0.1, and then casting 0.1 to integer, and 
 http://www.animenewsnetwork.com/news/2015-08-27/comic-zenon-magazine-manga-offered-in-english-online/.92188
 http://www.manga-audition.com/comic-zenon/
 http://www.nekyou.net/
+https://www.spottoon.com/
 
 http://mirage-trans.dreamwidth.org/
 http://mirage-trans.dreamwidth.org/profile
