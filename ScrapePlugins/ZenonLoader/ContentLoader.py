@@ -14,6 +14,7 @@ import os.path
 import nameTools as nt
 
 import time
+import datetime
 
 import urllib.parse
 import html.parser
@@ -40,7 +41,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 5
+	retreivalThreads = 1
 
 
 
@@ -73,29 +74,29 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	def getImageUrls(self, baseUrl):
+	def getImageUrlsInfo(self, baseUrl):
 
-		pgctnt = self.wg.getpage(baseUrl)
+		soup = self.wg.getSoup(baseUrl)
 
+		container = soup.find("div", class_='swiper-wrapper')
+		# print(container)
 
-		linkRe = re.compile(r'lstImages\.push\("(.+?)"\);')
-
-		links = linkRe.findall(pgctnt)
+		imgs = container.find_all("img")
 
 
 		pages = []
-		for item in links:
-			pages.append(item)
+		for item in imgs:
+			pages.append(item['src'])
 
 		self.log.info("Found %s pages", len(pages))
 
-		return pages
+		meta = {}
 
-	# Don't download items for 12 hours after relase,
-	# so that other, (better) sources can potentially host
-	# the items first.
-	def checkDelay(self, inTime):
-		return inTime < (time.time() - 60*60*12)
+		minfo = soup.find("meta", property="og:title")
+		meta['series_name'] = minfo['content'].split(" by ", 1)[0]
+		meta['rel_name']    = minfo['content']
+		return pages, meta
+
 
 
 
@@ -107,18 +108,24 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-		seriesName = link['seriesName']
+
 
 
 		try:
 			self.log.info( "Should retreive url - %s", sourceUrl)
-			self.updateDbEntry(sourceUrl, dlState=1)
+			# self.updateDbEntry(sourceUrl, dlState=1)
 
-			imageUrls = self.getImageUrls(sourceUrl)
+			imageUrls, meta = self.getImageUrlsInfo(sourceUrl)
+
+			self.updateDbEntry(sourceUrl, seriesName=meta['series_name'])
+			seriesName = meta['series_name']
+
+			link["originName"] = meta['rel_name']
+
 			if not imageUrls:
 				self.log.critical("Failure on retreiving content at %s", sourceUrl)
 				self.log.critical("Page not found - 404")
-				self.updateDbEntry(sourceUrl, dlState=-1)
+				# self.updateDbEntry(sourceUrl, dlState=-1)
 				return
 
 
@@ -130,12 +137,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				link["flags"] = ""
 
 			if newDir:
-				self.updateDbEntry(sourceUrl, flags=" ".join([link["flags"], "haddir"]))
+				# self.updateDbEntry(sourceUrl, flags=" ".join([link["flags"], "haddir"]))
 				self.conn.commit()
 
 			chapterName = nt.makeFilenameSafe(link["originName"])
 
-			fqFName = os.path.join(dlPath, chapterName+" [KissManga].zip")
+			fqFName = os.path.join(dlPath, chapterName+" [Comic Zenon].zip")
 
 			loop = 1
 			prefix, ext = os.path.splitext(fqFName)
@@ -154,13 +161,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
-					self.updateDbEntry(sourceUrl, dlState=0)
+					# self.updateDbEntry(sourceUrl, dlState=0)
 					return
 
 			self.log.info("Creating archive with %s images", len(images))
 
 			if not images:
-				self.updateDbEntry(sourceUrl, dlState=-1, tags="error-404")
+				# self.updateDbEntry(sourceUrl, dlState=-1, tags="error-404")
 				return
 
 			#Write all downloaded files to the archive.
@@ -174,7 +181,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)
-			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
+			# self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 			return
 
 
@@ -182,23 +189,15 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		except Exception:
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)
 			self.log.critical("Traceback = %s", traceback.format_exc())
-			self.updateDbEntry(sourceUrl, dlState=-1)
+			# self.updateDbEntry(sourceUrl, dlState=-1)
 			raise
 
-
-	def setup(self):
-		'''
-		poke through cloudflare
-		'''
-
-
-		if not self.wg.stepThroughCloudFlare("http://kissmanga.com", 'KissManga'):
-			raise ValueError("Could not access site due to cloudflare protection.")
 
 
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
+	# with tb.testSetup(startObservers=True):
 	with tb.testSetup(startObservers=True):
 		cl = ContentLoader()
 
@@ -206,7 +205,34 @@ if __name__ == '__main__':
 		# inMarkup = cl.wg.getpage(pg)
 		# cl.getImageUrls(inMarkup, pg)
 		cl.go()
-		# cl.getLink('http://www.webtoons.com/viewer?titleNo=281&episodeNo=3')
+
+
+		# urls = [
+		# 		'http://comic.manga-audition.com/entries/angel-heart-by-tsukasa-hojo-chapter001/',
+		# 		'http://comic.manga-audition.com/entries/arte-by-kei-ohkubo-chapter-005/',
+		# 		'http://comic.manga-audition.com/entries/ikusa-no-ko_by-tetsuo-hara_chapter003/',
+		# 		'http://comic.manga-audition.com/entries/nobo-and-her-by-molico-ross-chapter005/',
+		# 		'http://comic.manga-audition.com/entries/nobo-and-her-by-molico-ross-chapter001/',
+		# 	]
+		# link = {
+		# 		'downloadPath'  : None,
+		# 		'retreivalTime' : datetime.datetime.now(),
+		# 		'lastUpdate'    : 0.0,
+		# 		'sourceId'      : None,
+		# 		'originName'    : None,
+		# 		'tags'          : None,
+		# 		'dbId'          : 840370,
+		# 		'dlState'       : 0,
+		# 		'note'          : None,
+		# 		'sourceUrl'     : None,  # Insert here
+		# 		'seriesName'    : None,
+		# 		'fileName'      : None,
+		# 		'flags'         : None
+		# 	}
+
+		# for url in urls:
+		# 	link['sourceUrl'] = url
+		# 	cl.getLink(link)
 		# cl.getImageUrls('http://kissmanga.com/Manga/Hanza-Sky/Ch-031-Read-Online?id=225102')
 
 

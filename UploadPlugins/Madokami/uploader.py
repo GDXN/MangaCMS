@@ -159,12 +159,15 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def aggregateDirs(self, pathBase, dir1, dir2):
 		canonName    = nt.getCanonicalMangaUpdatesName(dir1)
 		canonNameAlt = nt.getCanonicalMangaUpdatesName(dir2)
+		cname1 = nt.prepFilenameForMatching(canonName)
+		cname2 = nt.prepFilenameForMatching(canonNameAlt)
 		if canonName.lower() != canonNameAlt.lower():
 			self.log.critical("Error in uploading file. Name lookup via MangaUpdates table not commutative!")
 			self.log.critical("First returned value    '%s'", canonName)
 			self.log.critical("For directory with path '%s'", dir1)
 			self.log.critical("Second returned value   '%s'", canonNameAlt)
 			self.log.critical("For directory with path '%s'", dir2)
+			self.log.critical("After cleaning: '%s', '%s', equal: '%s'", cname1, cname2, cname1 == cname2)
 
 			raise ValueError("Identical and yet not? '%s' - '%s'" % (canonName, canonNameAlt))
 		self.log.info("Aggregating directories for canon name '%s':", canonName)
@@ -224,10 +227,10 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 						self.log.warning("Duplicate directories for series '%s'!", canonName)
 						self.log.warning("	'%s/%s'", fullPath, dirName)
 						self.log.warning("	'%s/%s'", fullPath, matchingName)
-				ret[matchingName] = fqPath
+				ret[matchingName].append(fqPath)
 
 			else:
-				ret[matchingName] = fqPath
+				ret[matchingName] = [fqPath]
 
 		return ret
 
@@ -287,7 +290,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			self.log.info("Base container directory exists.")
 
-		self.unsortedDirs = self.loadRemoteDirectory(fullPath, aggregate=True)
+		self.unsortedDirs = self.loadRemoteDirectory(fullPath)
 
 	def migrateTempDirContents(self):
 		for key in self.unsortedDirs.keys():
@@ -398,6 +401,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			ulDir = self.getUploadDirectory(seriesName)
 
+		if isinstance(ulDir, (list, tuple)):
+			ulDir = ulDir[0]
 
 		dummy_path, filename = os.path.split(filePath)
 		self.log.info("Uploading file %s", filePath)
