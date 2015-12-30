@@ -119,9 +119,9 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			title, dummy = title.split("Page", 1)
 
 		title = title.rstrip(" -")
-		haveLookup = nt.haveCanonicalMangaUpdatesName(title)
-		if not haveLookup:
-			self.log.warning("Did not find title '%s' in MangaUpdates database!", title)
+		# haveLookup = nt.haveCanonicalMangaUpdatesName(title)
+		# if not haveLookup:
+		# 	self.log.warning("Did not find title '%s' in MangaUpdates database!", title)
 		title = nt.getCanonicalMangaUpdatesName(title).strip()
 
 

@@ -16,6 +16,7 @@ import datetime
 
 from ScrapePlugins.BtLoader.common import checkLogin
 import ScrapePlugins.RetreivalDbBase
+from concurrent.futures import ThreadPoolExecutor
 
 
 # Only downlad items in language specified.
@@ -171,13 +172,19 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def getItemsFromSeriesUrls(self, seriesItems, historical):
 		ret = []
-		for seriesUrl in seriesItems:
-			items = self.fetchItemsForSeries(seriesUrl, historical)
-			for item in items:
-				ret.append(item)
-			if not runStatus.run:
-				self.log.info( "Breaking due to exit flag being set")
-				break
+		self.log.info("Have %s items to fetch data for.", len(seriesItems))
+		with ThreadPoolExecutor(max_workers=5) as executor:
+			tmp = []
+			for seriesUrl in seriesItems:
+				tmp.append(executor.submit(self.fetchItemsForSeries, seriesUrl, historical))
+			for future in tmp:
+				# items = self.fetchItemsForSeries(seriesUrl, historical)
+				items = future.result()
+				for item in items:
+					ret.append(item)
+				if not runStatus.run:
+					self.log.info( "Breaking due to exit flag being set")
+					break
 
 		return ret
 
