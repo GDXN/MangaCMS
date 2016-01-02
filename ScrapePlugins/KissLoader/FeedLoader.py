@@ -224,8 +224,8 @@ if __name__ == '__main__':
 
 	with tb.testSetup(startObservers=False):
 		fl = FeedLoader()
+		fl.go(historical=False)
 		# fl.go(historical=True)
-		fl.go(historical=True)
 		# fl.getSeriesUrls()
 
 		# fl.getAllItems()

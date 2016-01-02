@@ -169,6 +169,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.critical("For directory with path '%s'", dir2)
 			self.log.critical("After cleaning: '%s', '%s', equal: '%s'", cname1, cname2, cname1 == cname2)
 
+
 			raise ValueError("Identical and yet not? '%s' - '%s'" % (canonName, canonNameAlt))
 		self.log.info("Aggregating directories for canon name '%s':", canonName)
 
@@ -214,8 +215,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 			if matchingName in ret:
+				tmp = ret[matchingName]
+				if isinstance(tmp, list):
+					tmp = tmp.pop()
 				if aggregate:
-					matchName = os.path.split(ret[matchingName])[-1]
+					matchName = os.path.split(tmp)[-1]
 					try:
 						fqPath = self.aggregateDirs(fullPath, dirName, matchName)
 					except ValueError:
@@ -244,7 +248,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			if dirPath == ".." or dirPath == ".":
 				continue
 			dirPath = os.path.join(settings.mkSettings["mainContainerDir"], dirPath)
-			items = self.loadRemoteDirectory(dirPath, aggregate=True)
+			items = self.loadRemoteDirectory(dirPath, aggregate=False)
 			for key, value in items.items():
 				if key not in ret:
 					ret[key] = [value]
