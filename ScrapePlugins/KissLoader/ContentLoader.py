@@ -183,7 +183,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
-			raise
+
 
 
 	def setup(self):

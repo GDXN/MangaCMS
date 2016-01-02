@@ -405,7 +405,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			ulDir = self.getUploadDirectory(seriesName)
 
-		if isinstance(ulDir, (list, tuple)):
+		while not isinstance(ulDir, str):
 			ulDir = ulDir[0]
 
 		dummy_path, filename = os.path.split(filePath)
