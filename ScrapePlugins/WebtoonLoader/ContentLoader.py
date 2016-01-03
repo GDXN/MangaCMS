@@ -2,11 +2,6 @@
 
 import logSetup
 import runStatus
-if __name__ == "__main__":
-	logSetup.initLogging()
-	runStatus.preloadDicts = False
-
-
 import webFunctions
 import settings
 import os
@@ -41,7 +36,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 3
+	retreivalThreads = 4
 
 	urlBase = "http://www.webtoons.com/"
 
@@ -167,10 +162,14 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.updateDbEntry(sourceUrl, dlState=-1)
 
 if __name__ == '__main__':
-	nt.dirNameProxy.startDirObservers()
-	cl = ContentLoader()
-	print("CL", cl)
-	cl.go()
+
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+
+		cl = ContentLoader()
+		print("CL", cl)
+		cl.go()
 	# cl.getLink('http://www.webtoons.com/viewer?titleNo=281&episodeNo=3')
 
 

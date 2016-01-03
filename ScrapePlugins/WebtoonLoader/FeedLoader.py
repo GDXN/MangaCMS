@@ -196,7 +196,8 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 if __name__ == '__main__':
 	fl = FeedLoader()
 	print("fl", fl)
-	fl.go(historical=True)
+	# fl.go(historical=True)
+	fl.go()
 	# fl.getSeriesUrls()
 	# items = fl.getItemPages('http://www.webtoons.com/episodeList?titleNo=78')
 	# print("Items")
