@@ -414,7 +414,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("To container directory %s", ulDir)
 		self.ftp.cwd(ulDir)
 
-		command = "STOR %s" % "test-"+filename
+		command = "STOR %s" % filename
 
 		self.ftp.storbinary(command, open(filePath, "rb"))
 		self.log.info("File Uploaded")
