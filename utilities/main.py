@@ -13,6 +13,7 @@ import os.path
 import utilities.dedupDir
 import utilities.approxFileSorter
 import utilities.autoOrganize as autOrg
+import utilities.importer as autoImporter
 import utilities.cleanDb
 import utilities.bookClean
 import utilities.cleanFiles
@@ -27,6 +28,11 @@ def printHelp():
 	print("*********************************************************")
 	print("Organizing Tools")
 	print("*********************************************************")
+	print("	import {dirPath}")
+	print("		Import folders of manga from {dirPath}")
+	print("		Assumes that {dirPath} is composed of directories containing manga")
+	print("		zip files, and the directory is named after the series that it contains.")
+	print()
 	print("	organize {dirPath}")
 	print("		Run auto-organizing tools against {dirPath}")
 	print()
@@ -194,6 +200,13 @@ def parseOneArgCall(cmd):
 	pc.closeDB()
 
 def parseTwoArgCall(cmd, val):
+	if cmd == "import":
+		if not os.path.exists(val):
+			print("Passed path '%s' does not exist!" % val)
+			return
+		autoImporter.importDirectories(val)
+		return
+
 	if cmd == "organize":
 		if not os.path.exists(val):
 			print("Passed path '%s' does not exist!" % val)

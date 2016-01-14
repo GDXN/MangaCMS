@@ -19,6 +19,38 @@ http://forums.mangafox.me/threads/379264-Kuroko-no-Basuke-Novel-Replace-I-and-II
 
 
 
+Add MangaBox scraper.
+
+
+09:09 < keane> to who ever has the scrapper http://bato.to/comic/_/comics/henjo-hen-na-joshi-kousei-amaguri-senko-r15331 is not being
+               updated https://manga.madokami.com/Manga/G%20-%20M/Henjo%20-%20Hen%20na%20Joshi%20Kousei%20Amaguri%20Chiko
+09:12 -!- thefunkydealer [~thefunkyd@Rizon-4C3A4585.dsl.telepac.pt] has joined #madokami
+09:23 -!- AcidWeb [~AcidWeb@Rizon-23A1441B.re] has quit [Remote host closed the connection]
+09:23 -!- OmegaGlory [~Omega@Rizon-24BCD897.cable.virginm.net] has joined #madokami
+09:30 -!- AcidWeb [~AcidWeb@Rizon-23A1441B.re] has joined #madokami
+09:35 <@Fake-Name> @keane - check if it's being updated under another name
+09:36 < keane> other title is
+https://manga.madokami.com/Manga/_Autouploads/AutoUploaded%20from%20Assorted%20Sources/Henjo%20-%20Hen%20na%20Joshi%20Kousei%20Amaguri%20Chiko but the one from 2 days ago wasn't updated
+09:37 <@Fake-Name> alright, I'll look at it this evening
+09:37 < keane> also thanks for the scrapper
+09:38 < keane> some of the new uploads also have the word "test-" in the beginning of the file
+09:38 <@Lord-Simon> Fake-Name, go create a temple under a fake name. So they can worship you.
+09:38 < keane> I just noticed when downloading
+09:38 -!- Coppola [~Coppola@Toothbrush.imo.to] has joined #madokami
+09:39 < keane> like https://manga.madokami.com/Manga/G%20-%20M/Helck
+09:39 < keane> or basically https://manga.madokami.com/recent
+09:40 <@Fake-Name> that's probably one of the source sites doing
+09:40 <@Fake-Name> is it consistently one source?
+09:40 < keane> >/G - M/Livingstone/test-Livingstone Vol.002 Ch.009 Word Animal [KissManga].zip
+09:40 <@Fake-Name> do they all have [kissmanga.com] in the title?
+09:41 < keane> >/N - Z/Super Danganronpa 2 - Chou Koukoukyuu no Kouun to Kibou to Zetsubou/test-Super Danganronpa 2 - Chou Koukoukyuu no
+               Kouun to Kibou to Zetsubou - v2 c8 [batoto].zip
+09:41 <@Fake-Name> huh
+09:41 < keane> seems like batoto and kissmanga
+09:42 < Blueshirt> if Fake-Name took a fake name would he be Real-Name
+09:43 < cranon> http://i.imgur.com/XWOuu8G.gif
+09:46 -!- Bromura [~Bromura@Rizon-15D2562F.res.bhn.net] has joined #madokami 
+
 
 Webcomics module?
 http://sinnergate.com/
