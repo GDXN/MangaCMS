@@ -47,7 +47,7 @@ class ItemImporter(ScrapePlugins.DbBase.DbBase):
 						shutil.move(item, dstPath)
 
 						# Set pron to True, to prevent accidental uploading.
-						processDownload.processDownload(guessName, dstPath, deleteDups=True, pron=True)
+						processDownload.processDownload(guessName, dstPath, deleteDups=True, includePHash=True, pron=True, crossReference=False)
 
 
 	def importFromDirectory(self, dirPath):

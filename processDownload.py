@@ -115,7 +115,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathFilter=None, **kwargs):
+	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathFilter=None, crossReference=True, **kwargs):
 
 		if 'phashThresh' in kwargs:
 			phashThresh = kwargs.pop('phashThresh')
@@ -157,7 +157,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		retTags += " " + retTagsTmp
 		retTags = retTags.strip()
 
-		if bestMatch:
+		if bestMatch and crossReference:
 			isPhash = False
 			if "phash-duplicate" in retTags:
 				isPhash = True
