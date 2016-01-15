@@ -8,21 +8,14 @@ if __name__ == "__main__":
 
 import shutil
 import ScrapePlugins.DbBase
-import rpyc
 import os
 import nameTools as nt
-
-from utilities.askUser import query_response, query_response_bool
+import processDownload
 
 class ItemImporter(ScrapePlugins.DbBase.DbBase):
 	loggerPath = "Main.ItemImporter"
 	tableName  = "MangaItems"
 
-
-	def setupDbApi(self):
-
-		remote = rpyc.connect("localhost", 12345)
-		self.db = remote.root.DbApi()
 
 
 	def scanSingleDir(self, dirPath):
@@ -55,9 +48,6 @@ class ItemImporter(ScrapePlugins.DbBase.DbBase):
 
 						# Set pron to True, to prevent accidental uploading.
 						processDownload.processDownload(guessName, dstPath, deleteDups=True, pron=True)
-
-		# 				doMove = query_response_bool("Do move?")
-		# 				if doMove:
 
 
 	def importFromDirectory(self, dirPath):
