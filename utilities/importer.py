@@ -11,6 +11,7 @@ import ScrapePlugins.DbBase
 import os
 import nameTools as nt
 import processDownload
+from concurrent.futures import ThreadPoolExecutor
 
 class ItemImporter(ScrapePlugins.DbBase.DbBase):
 	loggerPath = "Main.ItemImporter"
@@ -33,7 +34,7 @@ class ItemImporter(ScrapePlugins.DbBase.DbBase):
 				# if guessName != guess2:
 				# 	print("Dirname not matching either?", dirName, guessName)
 
-				if guessName in nt.dirNameProxy:
+				if guessName in nt.dirNameProxy and nt.dirNameProxy[guessName]["fqPath"]:
 					itemInfo = nt.dirNameProxy[guessName]
 					# print(itemInfo)
 					if itemInfo["fqPath"] != dirPath:
@@ -44,10 +45,16 @@ class ItemImporter(ScrapePlugins.DbBase.DbBase):
 						print("	Dst = '%s'" % dstDir)
 
 						dstPath = os.path.join(dstDir, fName)
-						shutil.move(item, dstPath)
 
-						# Set pron to True, to prevent accidental uploading.
-						processDownload.processDownload(guessName, dstPath, deleteDups=True, includePHash=True, pron=True, crossReference=False)
+						try:
+							shutil.move(item, dstPath)
+
+							# Set pron to True, to prevent accidental uploading.
+							processDownload.processDownload(guessName, dstPath, deleteDups=True, includePHash=True, pron=True, crossReference=False)
+
+						except KeyboardInterrupt:
+							shutil.move(dstPath, item)
+							raise
 
 
 	def importFromDirectory(self, dirPath):
@@ -55,10 +62,13 @@ class ItemImporter(ScrapePlugins.DbBase.DbBase):
 		self.log.info("Importing from path '%s'", dirPath)
 		items = os.listdir(dirPath)
 		items.sort()
-		for item in items:
-			item = os.path.join(dirPath, item)
-			if os.path.isdir(item):
-				self.scanSingleDir(item)
+
+		with ThreadPoolExecutor(max_workers=4) as tpe:
+			for item in items:
+				item = os.path.join(dirPath, item)
+				if os.path.isdir(item):
+					tpe.submit(self.scanSingleDir, item)
+					# self.scanSingleDir(item)
 
 
 def importDirectories(basePath):

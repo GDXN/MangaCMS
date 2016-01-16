@@ -191,6 +191,8 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if retTags:
 			self.log.info("Applying tags to archive: '%s'", retTags)
+		if "deleted" in retTags:
+			self.log.warning("Item was deleted!")
 		return retTags.strip()
 
 

@@ -131,7 +131,7 @@ if __name__ == "__main__":
 	def signal_handler(dummy_signal, dummy_frame):
 		if runStatus.run:
 			runStatus.run = False
-			print("Telling threads to stop")
+			print("Telling threads to stop (activePlugins)")
 		else:
 			print("Multiple keyboard interrupts. Raising")
 			raise KeyboardInterrupt
