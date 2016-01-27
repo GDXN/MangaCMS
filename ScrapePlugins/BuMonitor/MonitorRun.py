@@ -8,6 +8,7 @@ import urllib.parse
 
 import time
 import settings
+import psycopg2
 import dateutil.parser
 
 import ScrapePlugins.MonitorDbBase
@@ -157,13 +158,17 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			if haveRow:
 				# print("HaveRow = ", haveRow)
 				haveRow = haveRow.pop()
-				self.updateDbEntry(haveRow["dbId"],
-					commit=False,
-					buName=mangaName,
-					buList=listName,
-					availProgress=currentChapter,
-					readingProgress=readChapter,
-					buId=seriesID)
+
+				try:
+					self.updateDbEntry(haveRow["dbId"],
+						commit=False,
+						buName=mangaName,
+						buList=listName,
+						availProgress=currentChapter,
+						readingProgress=readChapter,
+						buId=seriesID)
+				except psycopg2.IntegrityError:
+					self.log.error("Failure updating item: '%s' on list '%s'", mangaName, listName)
 			else:
 				# ["mtList", "buList", "mtName", "mdId", "mtTags", "buName", "buId", "buTags", "readingProgress", "availProgress", "rating", "lastChanged"]
 

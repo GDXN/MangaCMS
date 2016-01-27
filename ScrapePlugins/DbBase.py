@@ -6,10 +6,12 @@ import settings
 import logging
 from contextlib import contextmanager
 
+import DbBase as dbb
+
 # Absolutely minimal class to handle opening a DB interface.
 
 
-class DbBase(metaclass=abc.ABCMeta):
+class DbBase(dbb.TransactionMixin, metaclass=abc.ABCMeta):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
@@ -41,25 +43,9 @@ class DbBase(metaclass=abc.ABCMeta):
 		self.conn.close()
 		self.log.info("DB Closed")
 
-
-	@contextmanager
-	def transaction(self, commit=True):
-		cursor = self.conn.cursor()
-		if commit:
-			cursor.execute("BEGIN;")
-
-		try:
-			yield cursor
-
-		except Exception as e:
-			self.log.error("Error in transaction!")
-			self.log.error(traceback.format_exc())
-			if commit:
-				cursor.execute("ROLLBACK;")
-			raise e
-
-		finally:
-			if commit:
-				cursor.execute("COMMIT;")
+	def get_cursor(self):
+		return self.conn.cursor()
 
 
+	def release_cursor(self, cursor):
+		return None

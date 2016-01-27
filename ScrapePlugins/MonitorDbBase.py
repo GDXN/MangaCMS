@@ -222,10 +222,13 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 		query = '''UPDATE {t} SET {v} WHERE dbId=%s;'''.format(t=self.tableName, v=column)
 
-		with self.transaction(commit=commit) as cur:
-
-			cur.execute(query, qArgs)
-
+		try:
+			with self.transaction(commit=commit) as cur:
+				cur.execute(query, qArgs)
+		except Exception as e:
+			print(query)
+			print(qArgs)
+			raise e
 
 
 
@@ -272,7 +275,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 		query = '''SELECT {cols} FROM {tableN} WHERE {key}=%s{type};'''.format(cols=", ".join(self.validColName), tableN=self.tableName, key=key, type=typeSpecifier)
 		# print("Query = ", query)
 
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
 			cur.execute(query, (val, ))
 			rets = cur.fetchall()
 
