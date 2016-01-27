@@ -10,7 +10,7 @@ import time
 import calendar
 import dateutil.parser
 import settings
-
+import urllib.error
 import ScrapePlugins.RetreivalDbBase
 
 # Only downlad items in language specified.
@@ -114,6 +114,9 @@ Not found
 
 			if not historical:
 				break
+			else:
+				if cnt > 100:
+					break
 
 			cnt += 1
 
@@ -171,6 +174,9 @@ Not found
 
 	def getChapterLinkFromSeriesPage(self, seriesUrl, historical=False):
 		ret = []
+
+		if " " in seriesUrl:
+			seriesUrl = seriesUrl.replace(" ", "%20")
 		soup = self.wg.getSoup(seriesUrl)
 		soup = self.checkAdult(soup)
 
@@ -194,11 +200,16 @@ Not found
 		ret = []
 
 		for url in toScan:
-			items = self.getChapterLinkFromSeriesPage(url, historical)
-			for item in items:
-				if item in ret:
-					raise ValueError("Duplicate items in ret?")
-				ret.append(item)
+			try:
+				items = self.getChapterLinkFromSeriesPage(url, historical)
+				for item in items:
+					if item in ret:
+						self.log.warn("Duplicate items in ret?")
+						# raise ValueError("Duplicate items in ret?")
+					else:
+						ret.append(item)
+			except urllib.error.URLError:
+				pass
 
 		return ret
 
@@ -224,7 +235,7 @@ if __name__ == '__main__':
 
 	with tb.testSetup(startObservers=False):
 		fl = FeedLoader()
-		fl.go(historical=False)
+		fl.go(historical=True)
 		# fl.go(historical=True)
 		# fl.getSeriesUrls()
 

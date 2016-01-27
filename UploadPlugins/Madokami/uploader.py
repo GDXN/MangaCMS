@@ -18,12 +18,14 @@ import socket
 import ftfy
 import traceback
 
+import paramiko
+
 COMPLAIN_ABOUT_DUPS = True
 
 import urllib.parse
 import ScrapePlugins.RetreivalDbBase
 
-import chardet
+import stat
 
 class TolerantFTP(ftplib.FTP_TLS):
 
@@ -78,6 +80,19 @@ class TolerantFTP(ftplib.FTP_TLS):
 				conn.unwrap()
 		return self.voidresp()
 
+def getSftpConnection():
+
+	host = settings.mkSettings["ftpAddr"]
+	port = settings.mkSettings["sftpPort"]
+
+	user   = settings.mkSettings["ftpUser"]
+	passwd = settings.mkSettings["ftpPass"]
+
+	t = paramiko.Transport((host, port))
+	t.connect(None, user, passwd)
+	sftp = paramiko.SFTPClient.from_transport(t)
+	return sftp
+
 class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	log = logging.getLogger("Main.Mk.Uploader")
 
@@ -117,6 +132,23 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Init finished.")
 		self.mainDirs     = {}
 		self.unsortedDirs = {}
+
+
+		self.log.info("Initializing SFTP connection")
+		self.sftp_conn = getSftpConnection()
+		self.log.info("SFTP connected.")
+
+		# x = self.sftp_conn.listdir_attr("/")
+		# for item in x:
+		# 	print(item.filename, stat.S_ISDIR(item.st_mode))
+
+		# raise ValueError
+
+	def sftp_mlsdir(self, basepath):
+
+		items = [(os.path.join(basepath, item.filename), stat.S_ISDIR(item.st_mode)) for item in self.sftp_conn.listdir_attr(basepath)]
+		return items
+
 
 	def enableUtf8(self):
 		features_string_ftp = self.ftp.sendcmd('FEAT')
@@ -198,43 +230,56 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return dst
 
-	def loadRemoteDirectory(self, fullPath, aggregate=False):
+	def loadRemoteDirectory(self, fullPath, depth, aggregate=False):
 		ret = {}
 
-		for dirName, stats in self.ftp.mlsd(fullPath):
+		contents = self.sftp_mlsdir(fullPath)
+		for fqPath, isdir in contents:
 
-			dirName = ftfy.fix_text(dirName)
+			base, dirName = os.path.split(fqPath)
+			# dirName = ftfy.fix_text(dirName)
 			# Skip items that aren't directories
-			if stats["type"]!="dir":
+			if not isdir:
 				continue
 
-			canonName = nt.getCanonicalMangaUpdatesName(dirName)
-			matchingName = nt.prepFilenameForMatching(canonName)
+			if depth < 3:
 
-			fqPath = os.path.join(fullPath, dirName)
-
-
-			if matchingName in ret:
-				tmp = ret[matchingName]
-				if isinstance(tmp, list):
-					tmp = tmp.pop()
-				if aggregate:
-					matchName = os.path.split(tmp)[-1]
-					try:
-						fqPath = self.aggregateDirs(fullPath, dirName, matchName)
-					except ValueError:
-						traceback.print_exc()
-					except ftplib.error_perm:
-						traceback.print_exc()
-				else:
-					if COMPLAIN_ABOUT_DUPS:
-						self.log.warning("Duplicate directories for series '%s'!", canonName)
-						self.log.warning("	'%s/%s'", fullPath, dirName)
-						self.log.warning("	'%s/%s'", fullPath, matchingName)
-				ret[matchingName].append(fqPath)
+				new = self.loadRemoteDirectory(fqPath, depth+1)
+				for key, val in new.items():
+					if key in ret:
+						ret[key].append(val)
+					else:
+						ret[key] = val
 
 			else:
-				ret[matchingName] = [fqPath]
+
+				canonName = nt.getCanonicalMangaUpdatesName(dirName)
+				matchingName = nt.prepFilenameForMatching(canonName)
+
+
+
+
+				if matchingName in ret:
+					tmp = ret[matchingName]
+					if isinstance(tmp, list):
+						tmp = tmp.pop()
+					if aggregate:
+						matchName = os.path.split(tmp)[-1]
+						try:
+							fqPath = self.aggregateDirs(fullPath, dirName, matchName)
+						except ValueError:
+							traceback.print_exc()
+						except ftplib.error_perm:
+							traceback.print_exc()
+					else:
+						if COMPLAIN_ABOUT_DUPS:
+							self.log.warning("Duplicate directories for series '%s'!", canonName)
+							self.log.warning("	'%s/%s'", fullPath, dirName)
+							self.log.warning("	'%s/%s'", fullPath, matchingName)
+					ret[matchingName].append(fqPath)
+
+				else:
+					ret[matchingName] = [fqPath]
 
 		return ret
 
@@ -244,11 +289,16 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			dirs = list(self.ftp.mlsd(settings.mkSettings["mainContainerDir"]))
 		except ftplib.error_perm:
 			self.log.critical("Container dir ('%s') does not exist!", settings.mkSettings["mainContainerDir"])
-		for dirPath, dummy_stats in dirs:
+		for dirPath, stats in dirs:
+
+			if stats["type"] != "dir":
+				continue
+
 			if dirPath == ".." or dirPath == ".":
 				continue
+
 			dirPath = os.path.join(settings.mkSettings["mainContainerDir"], dirPath)
-			items = self.loadRemoteDirectory(dirPath, aggregate=False)
+			items = self.loadRemoteDirectory(dirPath, depth=1, aggregate=False)
 			for key, value in items.items():
 				if key not in ret:
 					ret[key] = [value]
