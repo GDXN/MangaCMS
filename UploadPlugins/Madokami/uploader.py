@@ -93,6 +93,21 @@ def getSftpConnection():
 	sftp = paramiko.SFTPClient.from_transport(t)
 	return sftp
 
+def splitall(path):
+	allparts = []
+	while 1:
+		parts = os.path.split(path)
+		if parts[0] == path:  # sentinel for absolute paths
+			allparts.insert(0, parts[0])
+			break
+		elif parts[1] == path: # sentinel for relative paths
+			allparts.insert(0, parts[1])
+			break
+		else:
+			path = parts[0]
+			allparts.insert(0, parts[1])
+	return allparts
+
 class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	log = logging.getLogger("Main.Mk.Uploader")
 
@@ -134,9 +149,9 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.unsortedDirs = {}
 
 
-		self.log.info("Initializing SFTP connection")
-		self.sftp_conn = getSftpConnection()
-		self.log.info("SFTP connected.")
+		# self.log.info("Initializing SFTP connection")
+		# self.sftp_conn = getSftpConnection()
+		# self.log.info("SFTP connected.")
 
 		# x = self.sftp_conn.listdir_attr("/")
 		# for item in x:
@@ -144,10 +159,10 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# raise ValueError
 
-	def sftp_mlsdir(self, basepath):
+	# def sftp_mlsdir(self, basepath):
 
-		items = [(os.path.join(basepath, item.filename), stat.S_ISDIR(item.st_mode)) for item in self.sftp_conn.listdir_attr(basepath)]
-		return items
+	# 	items = [(os.path.join(basepath, item.filename), stat.S_ISDIR(item.st_mode)) for item in self.sftp_conn.listdir_attr(basepath)]
+	# 	return items
 
 
 	def enableUtf8(self):
@@ -230,41 +245,56 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return dst
 
-	def loadRemoteDirectory(self, fullPath, depth, aggregate=False):
+	def loadRemoteDirectory(self, fullPath, aggregate=False):
 		ret = {}
+		dirs = self.wg.getpage("https://manga.madokami.com/stupidapi/fakedirs")
 
-		contents = self.sftp_mlsdir(fullPath)
-		for fqPath, isdir in contents:
+		requirePrefix = splitall(fullPath)
 
-			base, dirName = os.path.split(fqPath)
-			# dirName = ftfy.fix_text(dirName)
-			# Skip items that aren't directories
-			if not isdir:
-				continue
+		badwords = [
+			'Non-English',
+			'Oneshots',
+			'_Doujinshi',
+			'AutoUploaded from Assorted Sources',
+		]
 
-			if depth < 3:
+		rows = [tmp for tmp in
+					[splitall(item) for item in
+						[item[1:] if item.startswith("./") else item for item in dirs.split("\n")]
+					]
+				if
+					(
+							len(tmp) >= len(requirePrefix)
+						and
+							all([tmp[x] == requirePrefix[x] for x in range(len(requirePrefix))])
+						and
+							not any([badword in tmp for badword in badwords]))
+				]
 
-				new = self.loadRemoteDirectory(fqPath, depth+1)
-				for key, val in new.items():
-					if key in ret:
-						ret[key].append(val)
-					else:
-						ret[key] = val
 
-			else:
+		print(len(rows))
+		for line in rows:
+			if len(line) == 6:
 
+				dirName = line[-1]
+				if not dirName:
+					continue
 				canonName = nt.getCanonicalMangaUpdatesName(dirName)
 				matchingName = nt.prepFilenameForMatching(canonName)
 
-
-
+				# prepFilenameForMatching can result in empty directory names in some cases.
+				# Detect that, and don't bother with it if that happened.
+				if not matchingName:
+					continue
+				fqPath   = os.path.join(*line)
+				fullPath = os.path.join(*line[:-1])
 
 				if matchingName in ret:
 					tmp = ret[matchingName]
+					matchpath, matchName = os.path.split(tmp[-1])
 					if isinstance(tmp, list):
 						tmp = tmp.pop()
 					if aggregate:
-						matchName = os.path.split(tmp)[-1]
 						try:
 							fqPath = self.aggregateDirs(fullPath, dirName, matchName)
 						except ValueError:
@@ -275,7 +305,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 						if COMPLAIN_ABOUT_DUPS:
 							self.log.warning("Duplicate directories for series '%s'!", canonName)
 							self.log.warning("	'%s/%s'", fullPath, dirName)
-							self.log.warning("	'%s/%s'", fullPath, matchingName)
+							self.log.warning("	'%s/%s'", matchpath, matchName)
 					ret[matchingName].append(fqPath)
 
 				else:
@@ -283,32 +313,6 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-	def loadMainDirs(self):
-		ret = {}
-		try:
-			dirs = list(self.ftp.mlsd(settings.mkSettings["mainContainerDir"]))
-		except ftplib.error_perm:
-			self.log.critical("Container dir ('%s') does not exist!", settings.mkSettings["mainContainerDir"])
-		for dirPath, stats in dirs:
-
-			if stats["type"] != "dir":
-				continue
-
-			if dirPath == ".." or dirPath == ".":
-				continue
-
-			dirPath = os.path.join(settings.mkSettings["mainContainerDir"], dirPath)
-			items = self.loadRemoteDirectory(dirPath, depth=1, aggregate=False)
-			for key, value in items.items():
-				if key not in ret:
-					ret[key] = [value]
-				else:
-					for item in value:
-						ret[key].append(item)
-
-			self.log.info("Loading contents of FTP dir '%s'.", dirPath)
-		self.log.info("Have '%s remote directories on FTP server.", len(ret))
-		return ret
 
 	def checkInitDirs(self):
 		try:
@@ -326,7 +330,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Base container directory exists.")
 
 		# We only reach this point if API-based lookup has failed.
-		self.unsortedDirs     = self.loadMainDirs()
+		self.mainDirs     = self.loadRemoteDirectory(settings.mkSettings["mainContainerDir"])
+		self.unsortedDirs = list(self.ftp.mlsd(settings.mkSettings["uploadContainerDir"]))
+
+		self.log.info("Have %s remote directories in primary dirs on FTP server.", len(self.mainDirs))
+		self.log.info("Have %s remote directories in autoupload folder FTP server.", len(self.unsortedDirs))
 
 	def checkInitDoujinDirs(self):
 		doujinDir = "_Doujinshi"
@@ -399,10 +407,10 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			matchName    = matchName.encode('utf-8', 'ignore').decode('utf-8')
 
 			self.checkInitDirs()
-			if matchName in self.unsortedDirs:
-				ulDir = self.unsortedDirs[matchName]
-			elif safeFilename in self.unsortedDirs:
-				ulDir = self.unsortedDirs[safeFilename]
+			if matchName in self.mainDirs:
+				ulDir = self.mainDirs[matchName][0]
+			elif seriesName in self.mainDirs:
+				ulDir = self.mainDirs[seriesName][0]
 			else:
 
 				self.log.info("Need to create container directory for %s", seriesName)
@@ -493,8 +501,13 @@ def uploadFile(seriesName, filePath):
 
 def test():
 	uploader = MkUploader()
-	uploader.checkInitDirs()
-	uploader.loadMainDirs()
+	# uploader.checkInitDirs()
+	# print(uploader.getUploadDirectory('Jitsu wa Watashi wa'))
+	# print(uploader.getUploadDirectory('Ouroboros'))
+	print(uploader.getUploadDirectory('Infection'))
+	# print(uploader.getUploadDirectory('Wish Fulfillment'))
+	# uploader.loadRemoteDirectory("/")
+	# uploader.loadRemoteDirectory("/Manga")
 	# uploader.getExistingDir('87 Clockers')
 	# uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
 

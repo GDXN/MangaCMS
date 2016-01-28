@@ -20,6 +20,7 @@ http://forums.mangafox.me/threads/379264-Kuroko-no-Basuke-Novel-Replace-I-and-II
 
 
 Add MangaBox scraper.
+Add spottoon scraper.
 
 
 09:09 < keane> to who ever has the scrapper http://bato.to/comic/_/comics/henjo-hen-na-joshi-kousei-amaguri-senko-r15331 is not being
@@ -54,6 +55,7 @@ https://manga.madokami.com/Manga/_Autouploads/AutoUploaded%20from%20Assorted%20S
 
 Webcomics module?
 http://sinnergate.com/
+
 
 Handle fractional parts (e.g. 1/6, 2/3, etc... ) of chapters.
 
