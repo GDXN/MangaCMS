@@ -1,9 +1,10 @@
 Broken volume number: Vol.1 part 2 chapter 8: level 2 	
 I think it's converting Vol.1 to Vol, 0.1, and then casting 0.1 to integer, and getting 0
 
+Add MangaBox scraper.
+Add spottoon scraper.
 
-http://www.animenewsnetwork.com/news/2015-08-27/comic-zenon-magazine-manga-offered-in-english-online/.92188
-http://www.manga-audition.com/comic-zenon/
+
 http://www.nekyou.net/
 https://www.spottoon.com/
 
@@ -18,9 +19,6 @@ http://mocopersonal.tumblr.com/tagged/kuroko-no-basuke-novel
 http://forums.mangafox.me/threads/379264-Kuroko-no-Basuke-Novel-Replace-I-and-II
 
 
-
-Add MangaBox scraper.
-Add spottoon scraper.
 
 
 09:09 < keane> to who ever has the scrapper http://bato.to/comic/_/comics/henjo-hen-na-joshi-kousei-amaguri-senko-r15331 is not being
