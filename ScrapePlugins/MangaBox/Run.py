@@ -1,57 +1,22 @@
 
 import runStatus
-from ScrapePlugins.MangaBoxLoader.FeedLoader import FeedLoader
-from ScrapePlugins.MangaBoxLoader.ContentLoader import ContentLoader
+from ScrapePlugins.MangaStreamLoader.FeedLoader import FeedLoader
+from ScrapePlugins.MangaStreamLoader.ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
 import time
 
 
- # cr
- # mj
- # cs
- # lm
- # th
- # mh
- # mt
- # bt
- # mp
- # sj
- # cx
- # mc
- # s2
- # mb
- # irc-trg
- # irc-irh
- # rs
- # kw
- # mk
- # ki
- # jz
- # se
- # dy
- # wr
- # sk
- # vx
- # ms
- # ze
- # cz
- # sura
- # rh
- # wt
-
-
-
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 	loggerPath = "Main.Manga.Mbx.Run"
 
-	pluginName = "MangaBoxLoader"
+	pluginName = "MbxLoader"
 
 
 	def _go(self):
 
-		self.log.info("Checking MangaBox for updates")
+		self.log.info("Checking Manga Box feeds for updates")
 		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
@@ -67,8 +32,13 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		if not runStatus.run:
 			return
 
-		cl.go()
+		todo = cl.retreiveTodoLinksFromDB()
 
+		if not runStatus.run:
+			return
+
+		cl.processTodoLinks(todo)
+		cl.closeDB()
 
 
 

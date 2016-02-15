@@ -51,6 +51,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		nextUrl = baseUrl
 		chapBase = baseUrl.rstrip('0123456789.')
+
+		imnum = 1
+
 		while 1:
 			soup = self.wg.getSoup(nextUrl)
 			imageDiv = soup.find('div', class_='page')
@@ -58,12 +61,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			if not imageDiv.a:
 				raise ValueError("Could not find imageDiv?")
 
-			pages.add((imageDiv.img['src'], nextUrl))
+			pages.add((imnum, imageDiv.img['src'], nextUrl))
 
 			nextUrl = imageDiv.a['href']
 
 			if not chapBase in nextUrl:
 				break
+			imnum += 1
 
 
 		self.log.info("Found %s pages", len(pages))
@@ -110,9 +114,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info("Saving to archive = %s", fqFName)
 
 			images = []
-			for imgUrl, referrerUrl in imageUrls:
+			for imgNum, imgUrl, referrerUrl in imageUrls:
 				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
-				images.append([imageName, imageContent])
+				images.append([imgNum, imageName, imageContent])
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
@@ -127,8 +131,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			#Write all downloaded files to the archive.
 			arch = zipfile.ZipFile(fqFName, "w")
-			for imageName, imageContent in images:
-				arch.writestr(imageName, imageContent)
+			for imgNum, imageName, imageContent in images:
+				arch.writestr("{:03} - {}".format(imgNum, imageName), imageContent)
 			arch.close()
 
 
@@ -138,8 +142,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			filePath, fileName = os.path.split(fqFName)
 			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, seriesName=seriesName, originName=chapterVol, tags=dedupState)
 			return
-
-
 
 		except Exception:
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)

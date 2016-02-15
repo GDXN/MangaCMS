@@ -66,6 +66,8 @@ class ItemImporter(ScrapePlugins.DbBase.DbBase):
 							except KeyboardInterrupt:
 								shutil.move(dstPath, item)
 								raise
+					else:
+						print("No match: ", fName)
 
 
 	def importFromDirectory(self, dirPath):

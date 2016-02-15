@@ -19,6 +19,7 @@ import io
 import socket
 
 import base64
+import json
 
 import random
 random.seed()
@@ -29,6 +30,56 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+
+
+def determine_json_encoding(json_bytes):
+	'''
+	Given the fact that the first 2 characters in json are guaranteed to be ASCII, we can use
+	these to determine the encoding.
+	See: http://tools.ietf.org/html/rfc4627#section-3
+
+	Copied here:
+	   Since the first two characters of a JSON text will always be ASCII
+	   characters [RFC0020], it is possible to determine whether an octet
+	   stream is UTF-8, UTF-16 (BE or LE), or UTF-32 (BE or LE) by looking
+	   at the pattern of nulls in the first four octets.
+
+	           00 00 00 xx  UTF-32BE
+	           00 xx 00 xx  UTF-16BE
+	           xx 00 00 00  UTF-32LE
+	           xx 00 xx 00  UTF-16LE
+	           xx xx xx xx  UTF-8
+	'''
+	assert(isinstance(json_bytes, bytes))
+	if len(json_bytes) > 4:
+		b1, b2, b3, b4 = json_bytes[0], json_bytes[1], json_bytes[2], json_bytes[3]
+		if   b1 == 0 and b2 == 0 and b3 == 0 and b4 != 0:
+			return "UTF-32BE"
+		elif b1 == 0 and b2 != 0 and b3 == 0 and b4 != 0:
+			return "UTF-16BE"
+		elif b1 != 0 and b2 == 0 and b3 == 0 and b4 == 0:
+			return "UTF-32LE"
+		elif b1 != 0 and b2 == 0 and b3 != 0 and b4 == 0:
+			return "UTF-16LE"
+		elif b1 != 0 and b2 != 0 and b3 != 0 and b4 != 0:
+			return "UTF-8"
+		else:
+			raise ValueError("Unknown encoding!")
+	elif len(json_bytes) > 2:
+		b1, b2 = json_bytes[0], json_bytes[1]
+		if   b1 == 0 and b2 == 0:
+			return "UTF-32BE"
+		elif b1 == 0 and b2 != 0:
+			return "UTF-16BE"
+		elif b1 != 0 and b2 == 0:
+			raise ValueError("Json string too short to definitively infer encoding.")
+		elif b1 != 0 and b2 != 0:
+			return "UTF-8"
+		else:
+			raise ValueError("Unknown encoding!")
+
+	raise ValueError("Input string too short to guess encoding!")
 
 
 def as_soup(str):
@@ -87,12 +138,11 @@ class WebGetRobust:
 	retryDelay = 1.5
 
 
-	data = None
 
 	# if test=true, no resources are actually fetched (for testing)
 	# creds is a list of 3-tuples that gets inserted into the password manager.
 	# it is structured [(top_level_url1, username1, password1), (top_level_url2, username2, password2)]
-	def __init__(self, test=False, creds=None, logPath="Main.Web"):
+	def __init__(self, test=False, creds=None, logPath="Main.Web", uaOverride=None):
 
 		# Override the global default socket timeout, so hung connections will actually time out properly.
 		socket.setdefaulttimeout(30)
@@ -108,12 +158,13 @@ class WebGetRobust:
 
 		# Due to general internet people douchebaggyness, I've basically said to hell with it and decided to spoof a whole assortment of browsers
 		# It should keep people from blocking this scraper *too* easily
-		self.browserHeaders = getUserAgent()
+		if uaOverride:
+			self.browserHeaders = uaOverride
+		else:
+			self.browserHeaders = getUserAgent()
 
 		self.testMode = test		# if we don't want to actually contact the remote server, you pass a string containing
 									# pagecontent for testing purposes as test. It will get returned for any calls of getpage()
-
-		self.data = urllib.parse.urlencode(self.browserHeaders)
 
 
 		if creds:
@@ -206,6 +257,40 @@ class WebGetRobust:
 		return soup
 
 
+	def getJson(self, *args, **kwargs):
+		if 'returnMultiple' in kwargs and kwargs['returnMultiple']:
+			raise ValueError("getSoup cannot be called with 'returnMultiple' being true")
+
+		attempts = 0
+		while 1:
+			try:
+				page = self.getpage(*args, **kwargs)
+				if isinstance(page, bytes):
+					page = page.decode(determine_json_encoding(page))
+					# raise ValueError("Received content not decoded! Cannot parse!")
+
+				page = page.strip()
+				ret = json.loads(page)
+				return ret
+			except ValueError:
+				if attempts < 1:
+					attempts += 1
+					self.log.error("JSON Parsing issue retreiving content from page!")
+					for line in traceback.format_exc().split("\n"):
+						self.log.error("%s", line.rstrip())
+					self.log.error("Retrying!")
+
+					# Scramble our current UA
+					self.browserHeaders = getUserAgent()
+					time.sleep(3)
+				else:
+					self.log.error("JSON Parsing issue, and retries exhausted!")
+					# self.log.error("Page content:")
+					# self.log.error(page)
+					# with open("Error-ctnt-{}.json".format(time.time()), "w") as tmp_err_fp:
+					# 	tmp_err_fp.write(page)
+					raise
+
 	def getFileAndName(self, *args, **kwargs):
 		if 'returnMultiple' in kwargs:
 			raise ValueError("getFileAndName cannot be called with 'returnMultiple'")
@@ -229,7 +314,7 @@ class WebGetRobust:
 		return pgctnt, hName
 
 
-	def buildRequest(self, pgreq, postData, addlHeaders, binaryForm):
+	def buildRequest(self, pgreq, postData, addlHeaders, binaryForm, jsonPost):
 		# Encode Unicode URL's properly
 		pgreq = iri2uri(pgreq)
 
@@ -239,6 +324,9 @@ class WebGetRobust:
 			if postData != None:
 				self.log.info("Making a post-request! Params: '%s'", postData)
 				params['data'] = urllib.parse.urlencode(postData).encode("utf-8")
+			if jsonPost != None:
+				self.log.info("Making a JSON post-request! Params: '%s'", postData)
+				params['data'] = jsonPost.encode("utf-8")
 			if addlHeaders != None:
 				self.log.info("Have additional GET parameters!")
 				headers = addlHeaders
@@ -449,6 +537,7 @@ class WebGetRobust:
 		retryQuantity  = kwargs.setdefault("retryQuantity",   None)
 		nativeError    = kwargs.setdefault("nativeError",     False)
 		binaryForm     = kwargs.setdefault("binaryForm",      False)
+		jsonPost       = kwargs.setdefault("jsonPost",      False)
 
 		# Conditionally encode the referrer if needed, because otherwise
 		# urllib will barf on unicode referrer values.
@@ -459,7 +548,7 @@ class WebGetRobust:
 		pghandle = None
 		retryCount = 0
 
-		pgreq = self.buildRequest(requestedUrl, postData, addlHeaders, binaryForm)
+		pgreq = self.buildRequest(requestedUrl, postData, addlHeaders, binaryForm, jsonPost)
 
 		errored = False
 		lastErr = ""

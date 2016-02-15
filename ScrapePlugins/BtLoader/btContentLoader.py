@@ -36,7 +36,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 5
+	retreivalThreads = 2
 
 
 

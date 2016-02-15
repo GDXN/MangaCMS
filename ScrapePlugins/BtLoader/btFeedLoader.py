@@ -173,7 +173,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def getItemsFromSeriesUrls(self, seriesItems, historical):
 		ret = []
 		self.log.info("Have %s items to fetch data for.", len(seriesItems))
-		with ThreadPoolExecutor(max_workers=5) as executor:
+		with ThreadPoolExecutor(max_workers=2) as executor:
 			tmp = []
 			for seriesUrl in seriesItems:
 				tmp.append(executor.submit(self.fetchItemsForSeries, seriesUrl, historical))
