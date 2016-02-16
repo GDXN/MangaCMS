@@ -1,9 +1,9 @@
 
 
-with open("022.webp", "rb") as fp:
+with open("fout_1.bin", "rb") as fp:
 	cont = fp.read()
 
-cont_o = bytes([b ^ 0x10 for b in cont])
+cont_o = bytes([b ^ 0x47 for b in cont])
 
-with open("022_decr.webp", "wb") as fp:
+with open("fout_1.jpg", "wb") as fp:
 	fp.write(cont_o)

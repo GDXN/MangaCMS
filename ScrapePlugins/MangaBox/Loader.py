@@ -20,6 +20,7 @@ import json
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 
+import pprint
 
 app_user_agent = [
 			('User-Agent'		,	"MangaBox"),
@@ -177,6 +178,8 @@ Observed API calls
 	"indies_on" is interesting, but I can't figure out if it's a toggleable
 	setting /in/ the app.
 
+	Excepting the time field, the return values are identical for a device with a 2560*1600 screen.
+
 	Params:
 		"method"/"id" - "get_app_status"
 		"params"->"first_launch" - "0" (presumably 1 on first launch)
@@ -232,6 +235,7 @@ Observed API calls
 		        }
 		    }
 		}
+
 
 # Get Magazines:
 	This seems to be for querying the "magazines" available
@@ -455,12 +459,6 @@ Observed API calls
 
 		Of interest is the "baseUrl" param, which is the base for the generated URLs for the series.
 
-		Additionally, the "mask" param is interesting. I suspect (admittedly based on nothing, at the moment) that
-		it encodes the mask XORed with each byte of the images to make them valid.
-		Fortunately, we can skip that because they're serving webp images, which means the first 12 bytes are
-		always "RIFFxxxxWEBP", where xxxx is the file size. As such, since the protection is just a fixed
-		XORed byte, we can just determine it from the first 4 bytes by XORing them with the actual content
-		("RIFF").
 
 		The "title" field is the title of the manga series. "volume" appears to be the chapter release, called
 		"Ep." in the app (confusing much?).
@@ -496,6 +494,33 @@ Observed API calls
 	Note that requests for the images/filenames.txt are done using the default device user-agent, rather
 	then the "MangaBox" user-agent that's used for all API requests.
 
+	The retreived images are encrypted.
+
+	Png header chunks:
+		Expected: 89 50 4e 47    0d 0a 1a 0a
+		Recieved: c0 19 d7 de    9a 9d 9a 8a
+		XOR:      49 49 99 99    97 97 80 80
+
+	Another sample (jpg):
+		Expected: b8 9f 80 9f
+		Recieved: ff d8 ff
+		XOR:      47 47 7f
+
+
+	Another sample (webp):
+		Expected: 52 49 46 46 -- -- -- -- 57 45 42 50 56 50 38 20
+		Recieved: 7e 65 71 71 -- -- -- -- 72 60 67 75 67 61 17 0f
+		XOR:      2c 2c 37 37 -- -- -- -- 25 25 25 25 31 31 2f 2f
+
+	Scraped via proxy (webp):
+		Expected: 52 49 46 46 -- -- -- -- 57 45 42 50 56 50 38 20
+		Recieved: 41 5a 4e 4e -- -- -- -- 4d 5f 58 4a 58 5e 28 30
+		XOR:      13 13 08 08 -- -- -- -- 1a 1a 1a 1a 0e 0e 10 10
+
+	It looks like every 2 bytes are XOR with a rolling value.
+	How the rolling value is generated is not currently certain.
+
+
 '''
 
 
@@ -522,47 +547,68 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.jwg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web", uaOverride=app_user_agent)
 
 
-	def make_base_api_request(self, params):
+	def make_base_api_request(self, params=None, param_str=None):
+
+		if params and param_str:
+			raise ValueError("Wat?")
+		if not (params or param_str):
+			raise ValueError("Watt?")
+
 		header_params = {
 			'Content-Type': 'application/json-rpc; charset=utf-8'
 		}
-		params = json.dumps(params)
+		if params:
+			params = json.dumps(params)
+		else:
+			params = param_str
+		print(params)
 		ret = self.jwg.getJson(self.api_endpoint, jsonPost=params, addlHeaders=header_params)
 		return ret
 
-	def make_api_request(self, method, params):
+	def make_api_request(self, *args, **kwargs):
+		postdata = self.pack_api_request(*args, **kwargs)
+
+		pprint.pprint(postdata)
+
+		ret = self.make_base_api_request(postdata)
+		return ret
+
+	def pack_api_request(self, method, params, root_id_override=None, pack_in_list=False):
+		if root_id_override is None:
+			root_id = method
+		else:
+			root_id = root_id_override
 		postdata = {
 		    "jsonrpc": "2.0",
 		    "method": method,
 		    "params": {
 		        "device": {
-		            "uid": "ff664f69f686b9cd35da1ab08683510b",
+		            "uid": "5e264d04e1d8aaa5741ba89f26888bc7",
 		            "os": "android",
 		            "adid": "",
 		            "os_ver": "4.2.2",
 		            "bundle_id": "mangabox.me",
-		            "UUID": "8cf467bf-7633-4915-a909-a4ca819bc92e",
+		            "UUID": "052a4e19-12ae-403a-862d-7ff999eb136e",
 		            "require_image_size": "l",
-		            "aid": "79fc41b8bdcdb20b",
+		            "aid": "b7521aa854d72c44",
 		            "app_build": 88,
 		            "lang": "en",
 		            "app_ver": "1008005",
-		            "model_name": "Dickbutt Google Nexus 7 - 4.2.2 - API 17 - 800x1280"
+		            "model_name": "Genymotion Google Nexus 10 - 4.2.2 - API 17 - 2560x1600"
 		        },
 		        "user": {
 		            "locale": "en"
 		        }
 		    },
-		    "id": method
+		    "id": root_id
 		}
 		for key, value in params.items():
 			postdata['params'][key] = value
 
+		if pack_in_list:
+			postdata = [postdata,]
 
-		ret = self.make_base_api_request(postdata)
-		print(ret)
-
-
+		return postdata
 
 	def closeDB(self):
 		self.log.info( "Closing DB...",)
@@ -570,108 +616,71 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "done")
 
 
+	def getFileInfo(self, chapter_obj):
 
-
-	def extractItemInfo(self, soup):
-
-		ret = {}
-		main = soup.find('div', class_='span8')
-
-		ret["title"] = main.h1.get_text().strip()
-
-		return ret
-
-	def getItemPages(self, pageUrl):
-		self.log.info("Should get item for '%s'", pageUrl)
-
-		ret = []
-
-		soup = self.wg.getSoup(pageUrl)
-		baseInfo = self.extractItemInfo(soup)
-
-		table = soup.find('table', class_='table-striped')
-
-		for row in table.find_all("tr"):
-
-			if not row.td:
-				continue
-			if not row.a:
-				continue
-			chapter, ulDate = row.find_all('td')
-
-			chapTitle = chapter.get_text().strip()
-
-			# Fix stupid chapter naming
-			chapTitle = chapTitle.replace("Ep. ", "c")
-
-			date = dateutil.parser.parse(ulDate.get_text().strip(), fuzzy=True)
-
-			item = {}
-
-			url = row.a["href"]
-			url = urllib.parse.urljoin(self.urlBase, url)
-
-			item["originName"]    = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
-			item["sourceUrl"]     = url
-			item["seriesName"]    = baseInfo["title"]
-			item["retreivalTime"] = calendar.timegm(date.timetuple())
-
-			if not item in ret:
-				ret.append(item)
-
-		self.log.info("Found %s chapters for series '%s'", len(ret), baseInfo["title"])
-		return ret
-
-
-
-	def getSeriesUrls(self):
-		ret = set()
-
-		soup = self.wg.getSoup(self.seriesBase)
-		table = soup.find('table', class_='table-striped')
-
-		rows = table.find_all("tr")
-
-
-		for row in rows:
-			if not row.td:
-				continue
-			series, dummy_chapName = row.find_all('td')
-			if not series.a:
-				continue
-
-
-			ret.add(series.a['href'])
-
-		self.log.info("Found %s series", len(ret))
+		url = chapter_obj['baseUrl'] + "/" + "filenames.txt" + "?" + str(chapter_obj['updatedDate'])
+		ret = self.wg.getpage(url)
+		ret = ret.split()
+		ret = [
+			(tmp, chapter_obj['baseUrl'] + "/" + tmp + "?" + str(chapter_obj['updatedDate']))
+			for
+				tmp
+			in
+				ret
+			]
 
 		return ret
 
 
-	def getAllItems(self, historical=False):
-		# for item in items:
-		# 	self.log.info( item)
-		#
-
-		self.log.info( "Loading Red Hawk Items")
-
-		ret = []
-
-		seriesPages = self.getSeriesUrls()
 
 
-		for item in seriesPages:
+	def getMagazineContent(self, mag_id):
+		vals = self.make_api_request("get_contents_by_magazine_id", {
+				"magazineId"  : mag_id,
+				"contentSize" : "l",
+				"locale"      : "en",
+			},
+			root_id_override=mag_id,
+			pack_in_list=True)
 
-			itemList = self.getItemPages(item)
-			for item in itemList:
-				ret.append(item)
+		assert "result" in vals
+		assert isinstance(vals['result'], list)
+		assert all([isinstance(tmp['episode'], dict) for tmp in vals['result']])
 
-			if not runStatus.run:
-				self.log.info( "Breaking due to exit flag being set")
-				break
-		self.log.info("Found %s total items", len(ret))
+		ret = [
+			{
+				"chapter"     : int(mag['episode']['volume']),
+				"title"       : mag['episode']['manga']['title'],
+				"updatedDate" : mag['episode']['manga']['updatedDate'],
+				"baseUrl"     : mag['baseUrl'],
+			}
+			for mag in vals['result']
+		]
 		return ret
 
+
+	def getMagazines(self):
+		vals = self.make_api_request("get_magazines", {
+				"locale"         : "en",
+				"is_include_all" : "1",
+			})
+
+		assert "result" in vals
+		assert isinstance(vals['result'], list)
+
+
+		ret = [
+			{
+				"id" : int(mag['id']),
+				"title" : mag['title'],
+			}
+			for mag in vals['result']
+		]
+
+		# Do not scrape the "digest" magazine
+		ret = [tmp for tmp in ret if not "digest" in tmp['title'].lower()]
+
+		return ret
 
 	def go(self):
 
@@ -686,15 +695,32 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 if __name__ == '__main__':
+	import pprint
 	fl = FeedLoader()
-	print("fl", fl)
-	fl.make_api_request(
-			method = 'get_information',
-			params = {
-					"os": "android",
-					"locale": "en"
-				}
-		)
+
+
+	# mags = fl.getMagazines()
+	# for mag in mags:
+	# 	print(mag)
+	# 	pprint.pprint(fl.getMagazineContent(mag['id']))
+
+	# pprint.pprint(fl.getMagazineContent(33))
+
+	params =  {
+		'baseUrl'     : 'https://image-a.mangabox.me/static/content/magazine/33/l/565f6c686e91821cf17c58045d63785e89e7806ba5a166acb7eeef87cc23b6ec/webp',
+		'chapter'     : 0,
+		'title'       : 'Wild Fancy Dynamite!',
+		'updatedDate' : 1415627871
+	}
+
+
+	data = fl.getFileInfo(params)
+	print(data)
+	ctnt = fl.wg.getpage(data[0][1])
+	with open("fout.bin", "wb") as fp:
+		fp.write(ctnt)
+
+
 	# fl.go()
 	# fl.getSeriesUrls()
 	# items = fl.getItemPages('http://mangastream.com/manga/area_d')

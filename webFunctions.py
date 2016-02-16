@@ -537,7 +537,7 @@ class WebGetRobust:
 		retryQuantity  = kwargs.setdefault("retryQuantity",   None)
 		nativeError    = kwargs.setdefault("nativeError",     False)
 		binaryForm     = kwargs.setdefault("binaryForm",      False)
-		jsonPost       = kwargs.setdefault("jsonPost",      False)
+		jsonPost       = kwargs.setdefault("jsonPost",        None)
 
 		# Conditionally encode the referrer if needed, because otherwise
 		# urllib will barf on unicode referrer values.
