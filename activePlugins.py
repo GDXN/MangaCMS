@@ -30,6 +30,7 @@ import ScrapePlugins.IrcGrabber.IrcEnqueueRun
 import ScrapePlugins.IrcGrabber.BotRunner
 import ScrapePlugins.Kawaii.Run
 import ScrapePlugins.ZenonLoader.Run
+import ScrapePlugins.MangaBox.Run
 
 import ScrapePlugins.FoolSlide.RhLoader.Run
 import ScrapePlugins.FoolSlide.VortexLoader.Run
@@ -84,6 +85,7 @@ scrapePlugins = {
 	24 : (ScrapePlugins.Tadanohito.Run,                      hours(6)),
 	25 : (ScrapePlugins.Kawaii.Run,                          hours(12)),
 	26 : (ScrapePlugins.ZenonLoader.Run,                     hours(24)),
+	27 : (ScrapePlugins.MangaBox.Run,                        hours(24)),
 
 	# FoolSlide modules
 	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          hours(12)),

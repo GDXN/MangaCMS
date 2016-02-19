@@ -28,3 +28,4 @@ __pycache__
 *.pyc
 /covers
 /FeedScrape/cert
+/decr

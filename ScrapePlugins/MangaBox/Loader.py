@@ -1,4 +1,9 @@
 
+import time
+import zipfile
+import settings
+import json
+import os.path
 
 import logSetup
 import runStatus
@@ -6,26 +11,22 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 	runStatus.preloadDicts = False
 
-
 import webFunctions
-
-import urllib.parse
-import time
-import calendar
-import dateutil.parser
-import runStatus
-import settings
-import json
-
+import processDownload
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
-
-import pprint
 
 app_user_agent = [
 			('User-Agent'		,	"MangaBox"),
 			('Accept-Encoding'	,	"gzip")
 			]
+
+app_browser_ua = [
+			('User-Agent'		,	"Dalvik/1.6.0 (Linux; U; Android 4.2.2; Google Nexus 7 - 4.2.2 - API 17 - 800x1280 Build/JDQ39E) MangaBox (android, com.dena.mj)"),
+			('Accept-Encoding'	,	"gzip, deflate")
+			]
+
+
 
 '''
 
@@ -524,7 +525,7 @@ Observed API calls
 '''
 
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
@@ -533,7 +534,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableKey = "mbx"
 	dbName = settings.DATABASE_DB_NAME
 
-	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "MangaItems"
 
@@ -544,6 +544,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.wg  = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web", uaOverride=app_browser_ua)
 		self.jwg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web", uaOverride=app_user_agent)
 
 
@@ -561,14 +562,14 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			params = json.dumps(params)
 		else:
 			params = param_str
-		print(params)
+		# print(params)
 		ret = self.jwg.getJson(self.api_endpoint, jsonPost=params, addlHeaders=header_params)
 		return ret
 
 	def make_api_request(self, *args, **kwargs):
 		postdata = self.pack_api_request(*args, **kwargs)
 
-		pprint.pprint(postdata)
+		# pprint.pprint(postdata)
 
 		ret = self.make_base_api_request(postdata)
 		return ret
@@ -652,11 +653,80 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				"chapter"     : int(mag['episode']['volume']),
 				"title"       : mag['episode']['manga']['title'],
 				"updatedDate" : mag['episode']['manga']['updatedDate'],
+				"xor_key"     : int(mag['mask']),
 				"baseUrl"     : mag['baseUrl'],
 			}
 			for mag in vals['result']
 		]
 		return ret
+
+	def get_image(self, imageurl, xor_key):
+		ctnt = self.wg.getpage(imageurl)
+
+		# Fix sign issues in the byte mask.
+		if xor_key < 0:
+			xor_key += 256
+
+		# "Decrypt" the file
+		cont_o = bytes([b ^ xor_key for b in ctnt])
+
+		return cont_o
+
+
+	def getFile(self, file_data):
+
+
+		row = self.getRowsByValue(sourceUrl=file_data["baseUrl"], limitByKey=False)
+		if row and row[0]['dlState'] != 0:
+			return
+		if not row:
+			self.insertIntoDb(retreivalTime = time.time(),
+								sourceUrl   = file_data["baseUrl"],
+								originName  = file_data["title"],
+								dlState     = 1,
+								seriesName  = file_data["title"])
+
+		image_links = fl.getFileInfo(file_data)
+
+		images = []
+		for imagen, imageurl in image_links:
+			imdat = self.get_image(imageurl, file_data['xor_key'])
+			images.append((imagen, imdat))
+
+			# filen = nt.makeFilenameSafe(file_data['title'] + " - " + imagen)
+			# with open(filen, "wb") as fp:
+			# 	fp.write(imdat)
+
+
+
+
+		fileN = '{series} - c{chapNo:03.0f} [MangaBox].zip'.format(series=file_data['title'], chapNo=file_data['chapter'])
+		fileN = nt.makeFilenameSafe(fileN)
+
+		dlPath, newDir = self.locateOrCreateDirectoryForSeries(file_data["title"])
+		wholePath = os.path.join(dlPath, fileN)
+
+
+		if newDir:
+			self.updateDbEntry(file_data["baseUrl"], flags="haddir")
+			self.conn.commit()
+
+		arch = zipfile.ZipFile(wholePath, "w")
+		for imageName, imageContent in images:
+			arch.writestr(imageName, imageContent)
+		arch.close()
+
+		self.log.info("Successfully Saved to path: %s", wholePath)
+
+		dedupState = processDownload.processDownload(file_data["title"], wholePath, deleteDups=True)
+		if dedupState:
+			self.addTags(sourceUrl=file_data["baseUrl"], tags=dedupState)
+
+		self.updateDbEntry(file_data["baseUrl"], dlState=2, downloadPath=dlPath, fileName=fileN, originName=fileN)
+
+		self.conn.commit()
+		self.log.info( "Done")
+
 
 
 	def getMagazines(self):
@@ -684,18 +754,19 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def go(self):
 
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
+		mag_nums = self.getMagazines()
+		for mag in mag_nums:
+			cont = self.getMagazineContent(mag)
+			for release in cont:
+				self.getFile(release)
 
-		feedItems = self.getAllItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
+				if not runStatus.run:
+					return
 
 
 if __name__ == '__main__':
-	import pprint
+
+
 	fl = FeedLoader()
 
 
@@ -704,21 +775,18 @@ if __name__ == '__main__':
 	# 	print(mag)
 	# 	pprint.pprint(fl.getMagazineContent(mag['id']))
 
-	# pprint.pprint(fl.getMagazineContent(33))
+	# cont = fl.getMagazineContent(33)
 
-	params =  {
-		'baseUrl'     : 'https://image-a.mangabox.me/static/content/magazine/33/l/565f6c686e91821cf17c58045d63785e89e7806ba5a166acb7eeef87cc23b6ec/webp',
-		'chapter'     : 0,
-		'title'       : 'Wild Fancy Dynamite!',
-		'updatedDate' : 1415627871
-	}
+	# for release in cont:
+	# 	fl.getFile(release)
 
 
-	data = fl.getFileInfo(params)
-	print(data)
-	ctnt = fl.wg.getpage(data[0][1])
-	with open("fout.bin", "wb") as fp:
-		fp.write(ctnt)
+	# data = fl.getFileInfo(params)
+	# print(data)
+	# for fname, url in data:
+	# 	ctnt = fl.wg.getpage(url)
+	# 	with open(fname+".bin", "wb") as fp:
+	# 		fp.write(ctnt)
 
 
 	# fl.go()

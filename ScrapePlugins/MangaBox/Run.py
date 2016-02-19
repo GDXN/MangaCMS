@@ -1,7 +1,5 @@
 
-import runStatus
-from ScrapePlugins.MangaStreamLoader.FeedLoader import FeedLoader
-from ScrapePlugins.MangaStreamLoader.ContentLoader import ContentLoader
+from ScrapePlugins.MangaBox.Loader import Loader
 
 import ScrapePlugins.RunBase
 
@@ -16,29 +14,11 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	def _go(self):
 
-		self.log.info("Checking Manga Box feeds for updates")
-		fl = FeedLoader()
+		self.log.info("Checking Manga Box for updates")
+		fl = Loader()
 		fl.go()
 		fl.closeDB()
 
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
-		cl.closeDB()
 
 
 
