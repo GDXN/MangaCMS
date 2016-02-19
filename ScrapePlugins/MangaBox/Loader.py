@@ -2,6 +2,7 @@
 import time
 import zipfile
 import settings
+import traceback
 import json
 import os.path
 
@@ -644,6 +645,7 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			root_id_override=mag_id,
 			pack_in_list=True)
 
+
 		assert "result" in vals
 		assert isinstance(vals['result'], list)
 		assert all([isinstance(tmp['episode'], dict) for tmp in vals['result']])
@@ -686,7 +688,7 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 								dlState     = 1,
 								seriesName  = file_data["title"])
 
-		image_links = fl.getFileInfo(file_data)
+		image_links = self.getFileInfo(file_data)
 
 		images = []
 		for imagen, imageurl in image_links:
@@ -756,12 +758,17 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		mag_nums = self.getMagazines()
 		for mag in mag_nums:
-			cont = self.getMagazineContent(mag)
-			for release in cont:
-				self.getFile(release)
+			try:
+				cont = self.getMagazineContent(mag['id'])
+				for release in cont:
+					self.getFile(release)
 
-				if not runStatus.run:
-					return
+					if not runStatus.run:
+						return
+			except Exception:
+				self.log.error("Wat?")
+				for line in traceback.format_exc().split("\n"):
+					self.log.error(line)
 
 
 if __name__ == '__main__':
