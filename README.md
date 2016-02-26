@@ -21,6 +21,7 @@ Plugin scrapers for:
 	 - KissManga
 	 - Manga.Madokami
 	 - Crunchyroll
+	 - MangaBox
 	 - Comic Zenon english site
 	 - Many FoolSlide based sites:
 		- Vortex Scans
@@ -52,27 +53,14 @@ Plugin scrapers for:
 	 - Exhen.Madokami
 	 - HBrowse
 	 - Exhentai/SadPanda
-	 - Tadanohito
-	  
 
  - Metadata:
 	 - MangaUpdates (metadata only).
- - Defunct:
-	 - ~~Crazytje.be~~ (Defunct)
-	 - ~~MangaBaby.com~~ (Defunct?)
-	 - ~~MangaTraders~~ (Defunct)
-	 - ~~Fufufuu.net~~ (Defunct)
-	 - ~~Realitylapse.com~~ (Defunct)
-
 
 Under consideration:   
 
  - http://tapastic.com/ (Lots of western stuff. Add a separate western table 
    system, and start grabbing webcomics?)
- - NoManga   - 500 Error
- - ~~MangaTown~~ - Converts to JPEG.
- - ~~MangaHere~~ - converts to JPEG? Seems like they recompress 
- - ~~MangaSky~~  - converts to JPEG?
 
 This is a "firehose-style" scraper, in that it doesn't really provide any 
 built in facilities for filtering the scraped content. It basically just 
