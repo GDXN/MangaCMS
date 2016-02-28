@@ -760,15 +760,22 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		for mag in mag_nums:
 			try:
 				cont = self.getMagazineContent(mag['id'])
-				for release in cont:
-					self.getFile(release)
-
-					if not runStatus.run:
-						return
 			except Exception:
 				self.log.error("Wat?")
 				for line in traceback.format_exc().split("\n"):
 					self.log.error(line)
+			for release in cont:
+
+				try:
+					self.getFile(release)
+				except Exception:
+					self.log.error("Wat?")
+					for line in traceback.format_exc().split("\n"):
+						self.log.error(line)
+					self.updateDbEntry(release["baseUrl"], dlState=-1)
+
+				if not runStatus.run:
+					return
 
 
 if __name__ == '__main__':

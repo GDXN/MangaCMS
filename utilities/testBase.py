@@ -24,8 +24,7 @@ def testSetup(startObservers=False):
 
 	signal.signal(signal.SIGINT, signal_handler)
 
-	if startObservers:
-		nt.dirNameProxy.startDirObservers()
+	nt.dirNameProxy.startDirObservers(useObservers=startObservers)
 
 	yield
 
