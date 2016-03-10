@@ -754,8 +754,16 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-	def go(self):
 
+	def reset_failed(self):
+		# Force every failed fetch to retrigger, in case it has become available.
+		with self.conn.cursor() as cur:
+			with ScrapePlugins.RetreivalDbBase.transaction(cur, commit=True):
+				cur.execute("UPDATE mangaitems SET dlstate=0  WHERE sourcesite='mbx' AND dlstate < 2;")
+
+
+	def go(self):
+		self.reset_failed()
 		mag_nums = self.getMagazines()
 		for mag in mag_nums:
 			try:
