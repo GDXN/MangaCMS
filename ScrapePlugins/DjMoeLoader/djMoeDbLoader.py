@@ -31,14 +31,13 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		try:
 			# They're apparently sniffing cookies now. Fake out the system by loading the container page first.
 			dummy_pg = self.wg.getpage("http://www.doujin-moe.us/main")
-			feed = self.wg.getpage( urllib.parse.urljoin(self.urlBase, "/ajax/newest.php"), addlHeaders={'Referer': 'http://www.doujin-moe.us/main'}, postData={'get': pageOverride} )
+			data = self.wg.getJson( urllib.parse.urljoin(self.urlBase, "/ajax/newest.php"), addlHeaders={'Referer': 'http://www.doujin-moe.us/main'}, postData={'get': pageOverride} )
 		except urllib.error.URLError:
 			self.log.critical("Could not get feed from Doujin Moe!")
 			self.log.critical(traceback.format_exc())
 			return []
 
 		try:
-			data = json.loads(feed)
 			self.log.info("done")
 		except ValueError:
 			self.log.critical("Get did not return JSON like normal!")

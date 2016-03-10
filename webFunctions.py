@@ -83,7 +83,7 @@ def determine_json_encoding(json_bytes):
 
 
 def as_soup(str):
-	return bs4.BeautifulSoup(str)
+	return bs4.BeautifulSoup(str, "lxml")
 
 class title_not_contains(object):
 	""" An expectation for checking that the title *does not* contain a case-sensitive

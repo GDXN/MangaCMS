@@ -153,9 +153,8 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		linkDict["contentId"] = linkDict["sourceUrl"]
 		linkDict["sourceUrl"] = sourcePage
 
-		cont = self.wg.getpage(sourcePage)
+		soup = self.wg.getSoup(sourcePage)
 
-		soup = bs4.BeautifulSoup(cont)
 		if not soup:
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			if not retag:
@@ -238,8 +237,9 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def doDownload(self, linkDict):
 
-		contentUrl = urllib.parse.urljoin(self.urlBase, "/zip.php?token=%s" % linkDict["contentId"])
-		content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': linkDict["sourceUrl"]})
+		contentUrl = urllib.parse.urljoin(self.urlBase, "/zipd.php?token=%s" % linkDict["contentId"])
+		print("Fetching: ", contentUrl, " Referer ", linkDict["sourceUrl"])
+		content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': linkDict["sourceUrl"], "Host" : "www.doujin-moe.us"})
 
 		# self.log.info(len(content))
 
@@ -255,7 +255,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			# DjMoe is apparently returning "zip.php" for ALL filenames.
 			# Blargh
-			if urlFileN == "zip.php":
+			if urlFileN == "zipd.php":
 				urlFileN = ".zip"
 				fileN = "%s%s" % (linkDict["originName"], urlFileN)
 			else:
