@@ -3,9 +3,9 @@ I think it's converting Vol.1 to Vol, 0.1, and then casting 0.1 to integer, and 
 
 invert hash table to find potential dups
 
-Add MangaBox scraper.
-Add spottoon scraper.
+Todo: Replace messy walking system for madokami with the stupidapi call dir listing thing.
 
+Add spottoon scraper.
 
 http://www.nekyou.net/
 https://www.spottoon.com/

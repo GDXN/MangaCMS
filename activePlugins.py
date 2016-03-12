@@ -31,6 +31,7 @@ import ScrapePlugins.IrcGrabber.BotRunner
 import ScrapePlugins.Kawaii.Run
 import ScrapePlugins.ZenonLoader.Run
 import ScrapePlugins.MangaBox.Run
+import ScrapePlugins.YoMangaLoader.Run
 
 import ScrapePlugins.FoolSlide.RhLoader.Run
 import ScrapePlugins.FoolSlide.VortexLoader.Run
@@ -59,33 +60,34 @@ def minutes(num):
 # All they do is specify the order in which plugins
 # are run, initially, starting after 1-minue*{key} intervals
 scrapePlugins = {
-	0  : (ScrapePlugins.BtBaseManager.Run,                   hours(1)),
-	2  : (ScrapePlugins.BuMonitor.Run,                       hours(1)),
+	0  : (ScrapePlugins.BtBaseManager.Run,                   hours( 1)),
+	2  : (ScrapePlugins.BuMonitor.Run,                       hours( 1)),
 
-	3  : (ScrapePlugins.JzLoader.Run,                        hours(8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
-	4  : (ScrapePlugins.DjMoeLoader.Run,                     hours(1)),
-	5  : (ScrapePlugins.DjMoeLoader.Retag,                   hours(1)),
+	3  : (ScrapePlugins.JzLoader.Run,                        hours( 8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
+	4  : (ScrapePlugins.DjMoeLoader.Run,                     hours( 1)),
+	5  : (ScrapePlugins.DjMoeLoader.Retag,                   hours( 1)),
 	6  : (ScrapePlugins.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
 	8  : (ScrapePlugins.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
-	9  : (ScrapePlugins.PururinLoader.Run,                   hours(1)),
-	10 : (ScrapePlugins.FakkuLoader.Run,                     hours(1)),
+	9  : (ScrapePlugins.PururinLoader.Run,                   hours( 1)),
+	10 : (ScrapePlugins.FakkuLoader.Run,                     hours( 1)),
 	11 : (ScrapePlugins.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
 	# 12 : (ScrapePlugins.MjLoader.Run,                        hours(1)),
-	13 : (ScrapePlugins.IrcGrabber.BotRunner,                hours(1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
+	13 : (ScrapePlugins.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
 	14 : (ScrapePlugins.FoolSlide.RhLoader.Run,              hours(12)),
 	15 : (ScrapePlugins.LoneMangaLoader.Run,                 hours(12)),
-	16 : (ScrapePlugins.WebtoonLoader.Run,                   hours(8)),
-	17 : (ScrapePlugins.DynastyLoader.Run,                   hours(8)),
-	18 : (ScrapePlugins.HBrowseLoader.Run,                   hours(1)),
-	19 : (ScrapePlugins.KissLoader.Run,                      hours(1)),
-	20 : (ScrapePlugins.NHentaiLoader.Run,                   hours(1)),
-	21 : (ScrapePlugins.Crunchyroll.Run,                     hours(6)),
-	22 : (ScrapePlugins.SadPandaLoader.Run,                  hours(2)),
-	23 : (ScrapePlugins.WebtoonsReader.Run,                  hours(6)),
-	24 : (ScrapePlugins.Tadanohito.Run,                      hours(6)),
+	16 : (ScrapePlugins.WebtoonLoader.Run,                   hours( 8)),
+	17 : (ScrapePlugins.DynastyLoader.Run,                   hours( 8)),
+	18 : (ScrapePlugins.HBrowseLoader.Run,                   hours( 1)),
+	19 : (ScrapePlugins.KissLoader.Run,                      hours( 1)),
+	20 : (ScrapePlugins.NHentaiLoader.Run,                   hours( 1)),
+	21 : (ScrapePlugins.Crunchyroll.Run,                     hours( 6)),
+	22 : (ScrapePlugins.SadPandaLoader.Run,                  hours( 2)),
+	23 : (ScrapePlugins.WebtoonsReader.Run,                  hours( 6)),
+	24 : (ScrapePlugins.Tadanohito.Run,                      hours( 6)),
 	25 : (ScrapePlugins.Kawaii.Run,                          hours(12)),
 	26 : (ScrapePlugins.ZenonLoader.Run,                     hours(24)),
 	27 : (ScrapePlugins.MangaBox.Run,                        hours(12)),
+	28 : (ScrapePlugins.YoMangaLoader.Run,                   hours(12)),
 
 	# FoolSlide modules
 	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          hours(12)),
@@ -95,7 +97,7 @@ scrapePlugins = {
 	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            hours(12)),
 	35 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         hours(12)),
 	36 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      hours(12)),
-	37 : (ScrapePlugins.SurasPlace.Run,                      days(1)),
+	37 : (ScrapePlugins.SurasPlace.Run,                      hours(24)),
 
 
 
