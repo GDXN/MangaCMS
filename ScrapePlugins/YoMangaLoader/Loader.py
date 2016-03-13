@@ -16,7 +16,7 @@ import processDownload
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
@@ -159,7 +159,7 @@ if __name__ == '__main__':
 
 	# import logSetup
 	# logSetup.initLogging()
-	# fl = FeedLoader()
+	# fl = Loader()
 	# print("fl", fl)
 	# fl.go()
 
@@ -171,10 +171,10 @@ if __name__ == '__main__':
 	import utilities.testBase as tb
 	with tb.testSetup(startObservers=False):
 
-		fl = FeedLoader()
+		fl = Loader()
 		print("fl", fl)
 		fl.go()
-	# 	fl = FeedLoader()
+	# 	fl = Loader()
 	# 	print("fl", fl)
 	# 	# fl.go()
 	# 	fl.getSeriesUrls()
