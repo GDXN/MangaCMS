@@ -72,20 +72,12 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getDownloadUrl(self, containerUrl):
-		page = self.wg.getpage(containerUrl)
-		soup = bs4.BeautifulSoup(page)
-
-		link = soup.find("a", {"id": "dlButton"})
-		if link:
-			quotedFilename = urllib.parse.quote(link["href"])
-			url = urllib.parse.urljoin(containerUrl, quotedFilename)
-			return url
-
-		return None
-
 
 	def getLinkFile(self, fileUrl):
+		scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(fileUrl)
+		path = urllib.parse.quote(path)
+		fileUrl = urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
+
 		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "https://manga.madokami.com"})
 		pageUrl = pghandle.geturl()
 		hName = urllib.parse.urlparse(pageUrl)[2].split("/")[-1]
@@ -294,7 +286,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup(startObservers=False):
 
 		run = Runner()
 		run.go()
