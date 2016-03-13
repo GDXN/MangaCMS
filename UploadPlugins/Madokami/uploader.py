@@ -88,7 +88,9 @@ class TolerantFTP(ftplib.FTP_TLS):
 			print('*put*', self.sanitize(line))
 
 		# FORCE the line to ALWAYS be utf-8.
-		self.sock.sendall(line.encode("utf-8"))
+		line = ftfy.fix_text(line)
+		line = line.encode("UTF-8")
+		self.sock.sendall(line)
 
 
 def getSftpConnection():
@@ -195,7 +197,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.log.warn("Could not enable UTF-8 mode?")
 				raise RuntimeError("No UTF-8?")
 		else:
-			self.log.warn("Server does not support UTF-8. Some transfers may be broken.")
+			raise RuntimeError("Server does not support UTF-8. What is this, 1980?")
 
 	def go(self):
 		pass

@@ -24,6 +24,7 @@ import json
 import random
 random.seed()
 
+import ftfy
 
 import selenium.webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -272,6 +273,11 @@ class WebGetRobust:
 				page = page.strip()
 				ret = json.loads(page)
 				return ret
+			except UnicodeDecodeError:
+				self.log.error("Decoding error. Using UnicodeDammit()")
+				ret = bs4.UnicodeDammit(page)
+				return ret
+
 			except ValueError:
 				if attempts < 1:
 					attempts += 1
@@ -448,7 +454,10 @@ class WebGetRobust:
 
 				# Assume JSON is utf-8. Probably a bad idea?
 				elif "application/json" in cType:
-					pgctnt = pgctnt.decode('utf-8')
+					try:
+						pgctnt = pgctnt.decode('utf-8')
+					except UnicodeDecodeError:
+						pass
 
 				elif "text" in cType:
 					self.log.critical("Unknown content type!")
