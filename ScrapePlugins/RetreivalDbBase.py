@@ -376,7 +376,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 	def deleteRowsByValue(self, commit=True, **kwargs):
 		if len(kwargs) != 1:
-			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
+			raise ValueError("deleteRowsByValue only supports calling with a single kwarg", kwargs)
 
 		validCols = ["dbId", "sourceUrl", "dlState"]
 

@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.MangaMadokami.mkFeedLoader import MkFeedLoader
-from ScrapePlugins.MangaMadokami.mkContentLoader import MkContentLoader
+from ScrapePlugins.BooksMadokami.FeedLoader    import FeedLoader
+from ScrapePlugins.BooksMadokami.ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -11,15 +11,15 @@ import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Manga.Mk.Run"
+	loggerPath = "Main.Books.Mk.Run"
 
-	pluginName = "MkLoader"
+	pluginName = "MkBookLoader"
 
 
 	def _go(self):
 
 		self.log.info("Checking Mk feeds for updates")
-		fl = MkFeedLoader()
+		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
 
@@ -29,7 +29,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		if not runStatus.run:
 			return
 
-		cl = MkContentLoader()
+		cl = ContentLoader()
 
 		if not runStatus.run:
 			return

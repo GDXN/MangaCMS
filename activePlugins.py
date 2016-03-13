@@ -44,8 +44,8 @@ import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import ScrapePlugins.SurasPlace.Run
 
 
-import ScrapePlugins.MangaMadokami.mkContentLoader
-import ScrapePlugins.MangaMadokami.mkFeedLoader
+import ScrapePlugins.MangaMadokami.Run
+import ScrapePlugins.BooksMadokami.Run
 
 # Convenience functions to make intervals clearer.
 def days(num):
@@ -99,13 +99,8 @@ scrapePlugins = {
 	36 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      hours(12)),
 	37 : (ScrapePlugins.SurasPlace.Run,                      hours(24)),
 
-
-
-
-	# Madokami is two separate sections, because the feedLoader takes
-	# 5+ hours just to run.
-	40  : (ScrapePlugins.MangaMadokami.mkContentLoader,    hours(1)),       # Content loader runs each hour, because it only downloads 100 items per-run
-	41 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       hours(4)),
+	40 : (ScrapePlugins.MangaMadokami.Run,                   hours(4)),
+	41 : (ScrapePlugins.BooksMadokami.Run,                   hours(4)),
 
 }
 

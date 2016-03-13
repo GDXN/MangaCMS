@@ -15,55 +15,23 @@ from concurrent.futures import ThreadPoolExecutor
 MASK_PATHS = [
 
 
-	'/mango/_Autouploads',
-	'/mango/Admin cleanup',
 	'/mango/Admin%20cleanup',
 	'/mango/Info',
-	'/mango/Manga/_Autouploads',
-	'/mango/Manga/HOW_TO_FIND_STUFF.txt',
-	'/mango/Manga/Non-English',
-	'/mango/Misc/_About this folder.txt',
-	'/mango/Misc/webm.txt',
-	'/mango/Misc/webm/ota yuuri.webm',
-	'/mango/Misc/WebRadio',
-	'/mango/Needs sorting',
-	'/mango/Needs%20sorting',
-	'/mango/Non-English',
+	'/mango/Manga',
+	'/mango/Misc',
 	'/mango/Raws',
-	'/mango/READ.txt',
 	'/mango/Requests',
+	'/mango/READ.txt',
 
-
-
-	'/_Autouploads',
-	'/Admin cleanup',
 	'/Admin%20cleanup',
 	'/Info',
-	'/Manga/_Autouploads',
-	'/Manga/HOW_TO_FIND_STUFF.txt',
-	'/Manga/Non-English',
-	'/Misc/_About this folder.txt',
-	'/Misc/webm.txt',
-	'/Misc/webm/ota yuuri.webm',
-	'/Misc/WebRadio',
-	'/Needs sorting',
-	'/Needs%20sorting',
-	'/Non-English',
+	'/Manga',
+	'/Misc',
 	'/Raws',
-	'/READ.txt',
 	'/Requests',
-
-	# Don't walk files we know we uploaded (only the uploader generates this series name)
-	'/mango/Manga/_/__/____/=0= IRC - Could not infer series',
-	'/Manga/_/__/____/=0= IRC - Could not infer series',
+	'/READ.txt',
 
 
-	# I need to add a separate system to mirror novels
-	# and other media
-	'/mango/Novels',
-	'/mango/Artbooks',
-	'/Novels',
-	'/Artbooks',
 ]
 
 STRIP_PREFIX = "/mango"
@@ -74,15 +42,15 @@ HTTPS_CREDS = [
 	("https://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
 	]
 
-class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
-	loggerPath = "Main.Manga.Mk.Fl"
-	pluginName = "Manga.Madokami Link Retreiver"
+	loggerPath = "Main.Books.Mk.Fl"
+	pluginName = "Books.Madokami Link Retreiver"
 	tableKey = "mk"
 	dbName = settings.DATABASE_DB_NAME
 
-	tableName = "MangaItems"
+	tableName = "BookItems"
 	url_base     = "https://manga.madokami.com/"
 	tree_api     = "https://manga.madokami.com/stupidapi/lessdumbtree"
 
@@ -109,7 +77,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				# Parse out the series name if we're in a directory we understand,
 				# otherwise just assume the dir name is the series.
-				match = re.search(r'/Manga/[^/]/[^/]{2}/[^/]{4}/([^/]+)/', item_path)
+				match = re.search(r'/Novels/([^/]+)/', item_path)
 				if match:
 					sname = match.group(1)
 				else:
@@ -173,7 +141,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		brokeItems = 0
 		for seriesName, fqFileN in linksDicts:
 
-			dlLink = urllib.parse.urljoin(self.url_base, urllib.parse.quote(fqFileN))
+			dlLink = urllib.parse.urljoin(self.url_base, fqFileN)
 			fileN = os.path.split(fqFileN)[-1]
 
 
@@ -199,7 +167,7 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-				self.log.info("New item: %s", (nt.haveCanonicalMangaUpdatesName(seriesName), dlLink, seriesName, fileN))
+				self.log.info("New item! Have canon name: %s, URL: %s, Series: %s, FileName: %s", nt.haveCanonicalMangaUpdatesName(seriesName), dlLink, seriesName, fileN)
 
 			elif len(rows) > 1:
 				brokeItems += 1
@@ -260,7 +228,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 
 		self.log.info("Checking Mk feeds for updates")
-		fl = MkFeedLoader()
+		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
 
@@ -269,7 +237,7 @@ if __name__ == "__main__":
 
 	with tb.testSetup(startObservers=False):
 
-		run = MkFeedLoader()
+		run = FeedLoader()
 		# run.go()
 		run.getMainItems()
 

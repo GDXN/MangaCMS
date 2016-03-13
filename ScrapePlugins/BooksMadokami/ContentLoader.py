@@ -30,18 +30,18 @@ HTTPS_CREDS = [
 	]
 
 
-class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
-	loggerPath = "Main.Manga.Mk.Cl"
-	pluginName = "Manga.Madokami Content Retreiver"
+	loggerPath = "Main.Books.Mk.Cl"
+	pluginName = "Books.Madokami Content Retreiver"
 	tableKey = "mk"
 	dbName = settings.DATABASE_DB_NAME
 
 	retreivalThreads = 1
 
-	tableName = "MangaItems"
+	tableName = "BookItems"
 	urlBase = "https://manga.madokami.com/"
 
 	def retreiveTodoLinksFromDB(self):
@@ -72,20 +72,13 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getDownloadUrl(self, containerUrl):
-		page = self.wg.getpage(containerUrl)
-		soup = bs4.BeautifulSoup(page)
-
-		link = soup.find("a", {"id": "dlButton"})
-		if link:
-			quotedFilename = urllib.parse.quote(link["href"])
-			url = urllib.parse.urljoin(containerUrl, quotedFilename)
-			return url
-
-		return None
-
 
 	def getLinkFile(self, fileUrl):
+
+		scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(fileUrl)
+		path = urllib.parse.quote(path)
+		fileUrl = urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
+
 		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "https://manga.madokami.com"})
 		pageUrl = pghandle.geturl()
 		hName = urllib.parse.urlparse(pageUrl)[2].split("/")[-1]
@@ -104,31 +97,25 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		safeBaseName = nt.makeFilenameSafe(link["seriesName"])
 
 
-
-		if seriesName in nt.dirNameProxy:
-			self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
-			link["targetDir"] = nt.dirNameProxy[seriesName]["fqPath"]
-		else:
-			self.log.info( "Don't have target dir for: %s Using default for: %s, full name = %s", seriesName, link["seriesName"], link["originName"])
-			targetDir = os.path.join(settings.mkSettings["dirs"]['mDlDir'], safeBaseName)
-			if not os.path.exists(targetDir):
-				try:
-					os.makedirs(targetDir)
-					link["targetDir"] = targetDir
-					self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "newdir"]))
-					self.conn.commit()
-
-					self.conn.commit()
-				except OSError:
-					self.log.critical("Directory creation failed?")
-					self.log.critical(traceback.format_exc())
-			else:
-				self.log.warning("Directory not found in dir-dict, but it exists!")
-				self.log.warning("Directory-Path: %s", targetDir)
+		targetDir = os.path.join(settings.mkSettings["dirs"]['bookDir'], safeBaseName)
+		if not os.path.exists(targetDir):
+			try:
+				self.log.info( "Need to create directory for: %s Using default for: %s, full name = %s", seriesName, link["seriesName"], link["originName"])
+				os.makedirs(targetDir)
 				link["targetDir"] = targetDir
-
-				self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "haddir"]))
+				self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "newdir"]))
 				self.conn.commit()
+
+				self.conn.commit()
+			except OSError:
+				self.log.critical("Directory creation failed?")
+				self.log.critical(traceback.format_exc())
+		else:
+			self.log.info("Have existing directory for item %s - : %s", seriesName, targetDir)
+			link["targetDir"] = targetDir
+
+			self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "haddir"]))
+			self.conn.commit()
 
 
 
@@ -156,7 +143,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# And fix %xx crap
 		hName = urllib.parse.unquote(hName)
 
-		fName = "%s - %s" % (originFileName, hName)
+		fName = "%s" % originFileName
 		fName = nt.makeFilenameSafe(fName)
 
 		fqFName = os.path.join(link["targetDir"], fName)
@@ -165,7 +152,8 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		loop = 1
 		while os.path.exists(fqFName):
-			fName = "%s - (%d) - %s" % (originFileName, loop,  hName)
+			root, ext = os.path.splitext(fqFName)
+			fName = "%s - (%d) - %s" % (root, loop,  ext)
 			fqFName = os.path.join(link["targetDir"], fName)
 			loop += 1
 		self.log.info( "Writing file")
@@ -205,12 +193,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		#self.log.info( filePath)
 
 		ext = os.path.splitext(fileName)[-1]
-		imageExts = ["jpg", "png", "bmp"]
-		if not any([ext.endswith(ex) for ex in imageExts]):
-			# We don't want to upload the file we just downloaded, so specify doUpload as false.
-			dedupState = processDownload.processDownload(False, fqFName, deleteDups=True, doUpload=False)
-		else:
-			dedupState = ""
+		dedupState = ""
 
 		self.log.info( "Done")
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
@@ -286,7 +269,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	def _go(self):
 		self.log.info("Checking Mk feeds for updates")
-		fl = MkContentLoader()
+		fl = ContentLoader()
 		fl.go()
 		fl.closeDB()
 
@@ -294,7 +277,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup(startObservers=False):
 
 		run = Runner()
 		run.go()

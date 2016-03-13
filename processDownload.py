@@ -115,7 +115,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathFilter=None, crossReference=True, **kwargs):
+	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathFilter=None, crossReference=True, doUpload=True, **kwargs):
 
 		if 'phashThresh' in kwargs:
 			phashThresh = kwargs.pop('phashThresh')
@@ -176,7 +176,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
 		# Also, don't upload porn
-		if (not self.pron) and (not retTags) and seriesName:
+		if (not self.pron) and (not retTags) and seriesName and doUpload:
 			try:
 				self.log.info("Trying to upload file '%s'.", archivePath)
 				up.uploadFile(seriesName, archivePath)
