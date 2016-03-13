@@ -90,6 +90,7 @@ class TolerantFTP(ftplib.FTP_TLS):
 		# FORCE the line to ALWAYS be utf-8.
 		line = ftfy.fix_text(line)
 		line = line.encode("UTF-8")
+		print("Transmitting line '%s', type: '%s'" % (line, type(line)))
 		self.sock.sendall(line)
 
 
@@ -469,7 +470,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ulDir
 
-	def uploadFile(self, seriesName, filePath):
+	def uploadFile(self, seriesName, filePath, db_commit=True):
 
 		if '(Doujinshi)' in filePath or 'Doujin}' in filePath:
 			self.checkInitDoujinDirs()
@@ -496,14 +497,15 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dummy_fPath, fName = os.path.split(filePath)
 		url = urllib.parse.urljoin("https://manga.madokami.com", urllib.parse.quote(filePath.strip("/")))
 
-		self.insertIntoDb(retreivalTime = time.time(),
-							sourceUrl   = url,
-							originName  = fName,
-							dlState     = 3,
-							seriesName  = seriesName,
-							flags       = '',
-							tags="uploaded",
-							commit = True)  # Defer commiting changes to speed things up
+		if db_commit:
+			self.insertIntoDb(retreivalTime = time.time(),
+								sourceUrl   = url,
+								originName  = fName,
+								dlState     = 3,
+								seriesName  = seriesName,
+								flags       = '',
+								tags="uploaded",
+								commit = True)  # Defer commiting changes to speed things up
 
 
 

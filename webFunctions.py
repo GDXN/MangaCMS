@@ -275,7 +275,9 @@ class WebGetRobust:
 				return ret
 			except UnicodeDecodeError:
 				self.log.error("Decoding error. Using UnicodeDammit()")
-				ret = bs4.UnicodeDammit(page)
+				page = bs4.UnicodeDammit(page).unicode_markup
+
+				ret = json.loads(page)
 				return ret
 
 			except ValueError:

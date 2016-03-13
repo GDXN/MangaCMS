@@ -171,7 +171,7 @@ def buildQuery(srcTbl, cols, **kwargs):
 	if 'originTrigram' in kwargs and kwargs['originTrigram']:
 
 		# If we're doing a trigram search, we want to order by trigram similarity
-		query = srcTbl.select(*cols, order_by = sqlo.Similarity(srcTbl.originname, kwargs['originTrigram']).asc, where=where)
+		query = srcTbl.select(*cols, order_by = sqlo.Mod(srcTbl.originname, kwargs['originTrigram']).asc, where=where)
 		# query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime), where=where)
 	else:
 		query = srcTbl.select(*cols, order_by = sql.Desc(srcTbl.retreivaltime), where=where)
@@ -787,7 +787,7 @@ colours = {
 
 	cols = hentaiCols
 	if originTrigram:
-		cols = cols + (sqlo.Similarity(hentaiTable.originname, originTrigram), )
+		cols = cols + (sqlo.Mod(hentaiTable.originname, originTrigram), )
 
 	query = buildQuery(hentaiTable,
 		cols,

@@ -13,16 +13,19 @@ import UploadPlugins.Madokami.uploader as up
 import os
 import os.path
 
-TESTPATH = "/media/Storage/MP/Koalove [++]/"
+TESTPATH = "/media/Storage/Manga/Shirokuma Café/"
 def test():
 	con = up.MkUploader()
 	con.checkInitDirs()
 
-	con.migrateTempDirContents()
+	# con.migrateTempDirContents()
 
-	# for fileN in os.listdir(TESTPATH):
-	# 	fqPath = os.path.join(TESTPATH, fileN)
-	# 	con.uploadFile("Koalove", fqPath)
+	for fileN in os.listdir(TESTPATH):
+		fqPath = os.path.join(TESTPATH, fileN)
+		try:
+			con.uploadFile("Shirokuma Café", fqPath, db_commit=False)
+		except Exception:
+			pass
 
 
 if __name__ == "__main__":

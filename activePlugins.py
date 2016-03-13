@@ -105,7 +105,7 @@ scrapePlugins = {
 	# Madokami is two separate sections, because the feedLoader takes
 	# 5+ hours just to run.
 	40  : (ScrapePlugins.MangaMadokami.mkContentLoader,    hours(1)),       # Content loader runs each hour, because it only downloads 100 items per-run
-	150 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       days(4)),  # every 4 days, because I have to iterate over the ENTIRE site.
+	41 : (ScrapePlugins.MangaMadokami.mkFeedLoader,       hours(4)),
 
 }
 
