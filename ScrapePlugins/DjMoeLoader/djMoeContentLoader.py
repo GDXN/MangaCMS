@@ -188,6 +188,8 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return
 
 
+		linkDict["dlToken"] = soup.find('div', id='gallery')['ziptoken']
+
 
 		note = soup.find("div", class_="message")
 		if note == None or note.string == None:
@@ -237,7 +239,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def doDownload(self, linkDict):
 
-		contentUrl = urllib.parse.urljoin(self.urlBase, "/zipd.php?token=%s" % linkDict["contentId"])
+		contentUrl = urllib.parse.urljoin(self.urlBase, "zipf.php?token={token}&hash={hash}".format(token=linkDict["contentId"], hash=linkDict["dlToken"]))
 		print("Fetching: ", contentUrl, " Referer ", linkDict["sourceUrl"])
 		content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': linkDict["sourceUrl"], "Host" : "www.doujin-moe.us"})
 
@@ -255,7 +257,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			# DjMoe is apparently returning "zip.php" for ALL filenames.
 			# Blargh
-			if urlFileN == "zipd.php":
+			if urlFileN == "zipf.php":
 				urlFileN = ".zip"
 				fileN = "%s%s" % (linkDict["originName"], urlFileN)
 			else:
