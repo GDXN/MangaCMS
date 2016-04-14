@@ -1,3 +1,9 @@
+http://cafeconirst.com/
+https://gameofscanlation.moe/
+https://www.spottoon.com/
+
+refetch items with 3 or fewer images.
+
 Broken volume number: Vol.1 part 2 chapter 8: level 2 	
 I think it's converting Vol.1 to Vol, 0.1, and then casting 0.1 to integer, and getting 0
 

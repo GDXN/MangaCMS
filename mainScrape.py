@@ -41,8 +41,10 @@ job_defaults = {
 jobstores = {
 
 	'transient_jobstore' : MemoryJobStore(),
-	'main_jobstore'      : SQLAlchemyJobStore(url='postgresql://{username}:{password}@localhost:5432/{dbname}'.format(username=settings.DATABASE_USER,
+	'main_jobstore'      : SQLAlchemyJobStore(url='postgresql://{username}:{password}@{address}:5432/{dbname}'.format(
+				username=settings.DATABASE_USER,
 				password=settings.DATABASE_PASS,
+				address=settings.DATABASE_IP,
 				dbname=settings.DATABASE_DB_NAME))
 }
 
