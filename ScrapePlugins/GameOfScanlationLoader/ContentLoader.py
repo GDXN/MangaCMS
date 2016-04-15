@@ -17,11 +17,11 @@ import zipfile
 
 class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
-	retreivalThreads = 4
+	retreivalThreads = 1
 
 	loggerPath = "Main.Manga.GoS.Cl"
 	pluginName = "Game of Scanlation Scans Content Retreiver"
-	tableKey = "Gos"
+	tableKey = "gos"
 	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
@@ -61,9 +61,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				if filename.startswith("x"):
 					filename = filename[1:]
 				path = os.path.join(root, filename)
-				url = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
-				pages.add((pageno, url))
-				pageno += 1
+				src = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+
+			pages.add((pageno, src))
+			pageno += 1
 
 
 		return pages
@@ -98,7 +99,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			chapterName = nt.makeFilenameSafe(chapterVol)
 
-			fqFName = os.path.join(dlPath, chapterName+" [MangaStream.com].zip")
+			fqFName = os.path.join(dlPath, chapterName+" [GameOfScanlation.moe].zip")
 
 			loop = 1
 			while os.path.exists(fqFName):

@@ -10,15 +10,11 @@ if __name__ == "__main__":
 import webFunctions
 
 import urllib.parse
-import time
 import calendar
 import dateutil.parser
-import runStatus
 import settings
-import datetime
 
 import ScrapePlugins.RetreivalDbBase
-import nameTools as nt
 
 class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
@@ -26,7 +22,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	loggerPath = "Main.Manga.GoS.Fl"
 	pluginName = "Game of Scanlation Scans Link Retreiver"
-	tableKey = "Gos"
+	tableKey = "gos"
 	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
