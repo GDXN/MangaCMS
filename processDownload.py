@@ -176,7 +176,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# processNewArchive returns "damaged" or "duplicate" for the corresponding archive states.
 		# Since we don't want to upload archives that are either, we skip if retTags is anything other then ""
 		# Also, don't upload porn
-		if (not self.pron) and (not retTags) and seriesName and doUpload:
+		if (not self.pron) and (not retTags or retTags=="fewfiles") and seriesName and doUpload:
 			try:
 				self.log.info("Trying to upload file '%s'.", archivePath)
 				up.uploadFile(seriesName, archivePath)

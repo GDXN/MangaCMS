@@ -2,10 +2,6 @@
 
 import logSetup
 import runStatus
-if __name__ == "__main__":
-	logSetup.initLogging()
-	runStatus.preloadDicts = False
-
 
 import bs4
 import nameTools as nt
@@ -21,19 +17,19 @@ import zipfile
 
 class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
+	retreivalThreads = 4
 
-
-	loggerPath = "Main.Manga.Ms.Cl"
-	pluginName = "MangaStream.com Content Retreiver"
-	tableKey = "ms"
+	loggerPath = "Main.Manga.GoS.Cl"
+	pluginName = "Game of Scanlation Scans Content Retreiver"
+	tableKey = "Gos"
 	dbName = settings.DATABASE_DB_NAME
-	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 4
+	tableName = "MangaItems"
 
-
+	urlBase    = "https://gameofscanlation.moe/"
+	seriesBase = "https://gameofscanlation.moe/projects/"
 
 	def getImage(self, imageUrl, referrer):
 
@@ -49,28 +45,26 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	def getImageUrls(self, baseUrl):
 		pages = set()
 
-		nextUrl = baseUrl
-		chapBase = baseUrl.rstrip('0123456789.')
-
-		imnum = 1
-
-		while 1:
-			soup = self.wg.getSoup(nextUrl)
-			imageDiv = soup.find('div', class_='page')
-
-			if not imageDiv.a:
-				raise ValueError("Could not find imageDiv?")
-
-			pages.add((imnum, imageDiv.img['src'], nextUrl))
-
-			nextUrl = imageDiv.a['href']
-
-			if not chapBase in nextUrl:
-				break
-			imnum += 1
+		soup = self.wg.getSoup(baseUrl)
 
 
-		self.log.info("Found %s pages", len(pages))
+		imagesDiv = soup.find('div', class_='chapterPages')
+		images = imagesDiv.find_all('img', class_='avatar')
+
+		pageno = 1
+		for image in images:
+			src = image['src']
+			if "pagespeed" in src:
+				scheme, netloc, path, query, fragment = urllib.parse.urlsplit(src)
+				root, filename = os.path.split(path)
+				filename = filename.split(".pagespeed.")[0]
+				if filename.startswith("x"):
+					filename = filename[1:]
+				path = os.path.join(root, filename)
+				url = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+				pages.add((pageno, url))
+				pageno += 1
+
 
 		return pages
 
@@ -114,8 +108,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.info("Saving to archive = %s", fqFName)
 
 			images = []
-			for imgNum, imgUrl, referrerUrl in imageUrls:
-				imageName, imageContent = self.getImage(imgUrl, referrerUrl)
+			for imgNum, imgUrl in imageUrls:
+				imageName, imageContent = self.getImage(imgUrl, referrer=sourceUrl)
 				images.append([imgNum, imageName, imageContent])
 
 				if not runStatus.run:
@@ -148,10 +142,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
 
-if __name__ == '__main__':
-	nt.dirNameProxy.startDirObservers()
-	cl = ContentLoader()
 
-	cl.go()
+if __name__ == '__main__':
+	import utilities.testBase as tb
+
+	with tb.testSetup():
+
+		cl = ContentLoader()
+		cl.go()
 
 

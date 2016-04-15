@@ -95,6 +95,7 @@ class ArchCleaner(object):
 			raise NotAnArchive("Trying to clean a file that is not a zip/rar/7z archive! File=%s" % archPath)
 
 
+		file_count = 0
 
 
 		self.log.info("Scanning arch '%s'", archPath)
@@ -115,7 +116,9 @@ class ArchCleaner(object):
 				hadBadFile = True
 
 
+
 			for fileN, fileCtnt in old_zfp:
+				file_count += 1
 
 				if fileN.endswith("Thumbs.db"):
 					hadBadFile = True
@@ -179,7 +182,7 @@ class ArchCleaner(object):
 				self.log.error(line)
 			raise DamagedArchive()
 
-		return archPath
+		return archPath, file_count
 
 
 	# Rebuild zipfile `zipPath` that has a password as a non-password protected zip
@@ -260,7 +263,10 @@ class ArchCleaner(object):
 		# ArchPath will convert from rar to zip if needed, and returns the name of the resulting
 		# file in either case
 		try:
-			archPath = self.cleanZip(archPath)
+			archPath, filecount = self.cleanZip(archPath)
+			if filecount <= 2:
+				return "fewfiles", archPath
+			return "", archPath
 		except (zipfile.BadZipFile, rarfile.BadRarFile, DamagedArchive, NotAnArchive):
 			self.log.error("Ignoring archive because it appears damaged.")
 			return "damaged", archPath
@@ -271,7 +277,6 @@ class ArchCleaner(object):
 				self.log.error(line)
 			return "damaged", archPath
 
-		return "", archPath
 
 
 if __name__ == "__main__":

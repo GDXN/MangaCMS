@@ -42,6 +42,7 @@ import ScrapePlugins.FoolSlide.TwistedHel.Run
 import ScrapePlugins.FoolSlide.CasanovaScans.Run
 import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import ScrapePlugins.SurasPlace.Run
+import ScrapePlugins.GameOfScanlationLoader.Run
 
 
 import ScrapePlugins.MangaMadokami.Run
@@ -88,6 +89,7 @@ scrapePlugins = {
 	26 : (ScrapePlugins.ZenonLoader.Run,                     hours(24)),
 	27 : (ScrapePlugins.MangaBox.Run,                        hours(12)),
 	28 : (ScrapePlugins.YoMangaLoader.Run,                   hours(12)),
+	29 : (ScrapePlugins.GameOfScanlationLoader.Run,          hours(12)),
 
 	# FoolSlide modules
 	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          hours(12)),

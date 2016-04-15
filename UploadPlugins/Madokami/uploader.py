@@ -90,7 +90,7 @@ class TolerantFTP(ftplib.FTP_TLS):
 		# FORCE the line to ALWAYS be utf-8.
 		line = ftfy.fix_text(line)
 		line = line.encode("UTF-8")
-		print("Transmitting line '%s', type: '%s'" % (line, type(line)))
+		# print("Transmitting line '%s', type: '%s'" % (line, type(line)))
 		self.sock.sendall(line)
 
 
