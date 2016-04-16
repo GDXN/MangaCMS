@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.FoolSlide.ShoujoSenseLoader.FeedLoader    import FeedLoader
-from ScrapePlugins.FoolSlide.ShoujoSenseLoader.ContentLoader import ContentLoader
+from .FeedLoader    import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

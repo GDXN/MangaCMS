@@ -1,13 +1,10 @@
 
 
-from ScrapePlugins.MjLoader.mjFeedLoader import MjFeedLoader
-from ScrapePlugins.MjLoader.mjContentLoader import MjContentLoader
+from .mjFeedLoader import MjFeedLoader
+from .mjContentLoader import MjContentLoader
 
 import ScrapePlugins.RunBase
 
-import time
-
-import runStatus
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):

@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.MangaMadokami.mkFeedLoader import MkFeedLoader
-from ScrapePlugins.MangaMadokami.mkContentLoader import MkContentLoader
+from .mkFeedLoader import MkFeedLoader
+from .mkContentLoader import MkContentLoader
 
 import ScrapePlugins.RunBase
 

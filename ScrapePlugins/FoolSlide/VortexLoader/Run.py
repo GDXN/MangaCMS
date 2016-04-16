@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.FoolSlide.VortexLoader.FeedLoader    import FeedLoader
-from ScrapePlugins.FoolSlide.VortexLoader.ContentLoader import ContentLoader
+from .FeedLoader    import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.McLoader.mcFeedLoader import McFeedLoader
-from ScrapePlugins.McLoader.mcContentLoader import McContentLoader
+from .mcFeedLoader import McFeedLoader
+from .mcContentLoader import McContentLoader
 
 import ScrapePlugins.RunBase
 

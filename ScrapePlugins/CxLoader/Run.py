@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.CxLoader.cxFeedLoader import CxFeedLoader
-from ScrapePlugins.CxLoader.cxContentLoader import CxContentLoader
+from .cxFeedLoader import CxFeedLoader
+from .cxContentLoader import CxContentLoader
 
 import ScrapePlugins.RunBase
 

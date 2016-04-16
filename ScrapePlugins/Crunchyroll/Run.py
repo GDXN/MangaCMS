@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.Crunchyroll.DbLoader import DbLoader
-from ScrapePlugins.Crunchyroll.ContentLoader import ContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import runStatus
 

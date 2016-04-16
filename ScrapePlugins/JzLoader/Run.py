@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.JzLoader.jzFeedLoader import JzFeedLoader
-from ScrapePlugins.JzLoader.jzContentLoader import JzContentLoader
+from .jzFeedLoader import JzFeedLoader
+from .jzContentLoader import JzContentLoader
 
 import ScrapePlugins.RunBase
 

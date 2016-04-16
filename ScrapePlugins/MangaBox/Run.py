@@ -1,5 +1,5 @@
 
-from ScrapePlugins.MangaBox.Loader import Loader
+from .Loader import Loader
 
 import ScrapePlugins.RunBase
 

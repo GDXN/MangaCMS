@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.Tadanohito.DbLoader import DbLoader
-from ScrapePlugins.Tadanohito.ContentLoader import ContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import runStatus
 

@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.HBrowseLoader.hbrowseDbLoader import HBrowseDbLoader
-from ScrapePlugins.HBrowseLoader.hbrowseContentLoader import HBrowseContentLoader
+from .hbrowseDbLoader import HBrowseDbLoader
+from .hbrowseContentLoader import HBrowseContentLoader
 
 import settings
 

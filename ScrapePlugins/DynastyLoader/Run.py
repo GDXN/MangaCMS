@@ -1,7 +1,7 @@
 
 import runStatus
-from ScrapePlugins.DynastyLoader.FeedLoader import FeedLoader
-from ScrapePlugins.DynastyLoader.ContentLoader import ContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

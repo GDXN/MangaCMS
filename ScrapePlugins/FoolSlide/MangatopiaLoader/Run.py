@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.FoolSlide.MangatopiaLoader.FeedLoader    import FeedLoader
-from ScrapePlugins.FoolSlide.MangatopiaLoader.ContentLoader import ContentLoader
+from .FeedLoader    import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

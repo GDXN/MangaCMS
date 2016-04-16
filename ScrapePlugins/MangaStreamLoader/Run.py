@@ -1,7 +1,7 @@
 
 import runStatus
-from ScrapePlugins.MangaStreamLoader.FeedLoader import FeedLoader
-from ScrapePlugins.MangaStreamLoader.ContentLoader import ContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

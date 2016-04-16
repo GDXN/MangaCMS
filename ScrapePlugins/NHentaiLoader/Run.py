@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.NHentaiLoader.DbLoader import DbLoader
-from ScrapePlugins.NHentaiLoader.ContentLoader import ContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import runStatus
 

@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.FoolSlide.RoseliaLoader.FeedLoader    import FeedLoader
-from ScrapePlugins.FoolSlide.RoseliaLoader.ContentLoader import ContentLoader
+from .FeedLoader    import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

@@ -1,6 +1,6 @@
 
 import runStatus
-from ScrapePlugins.YoMangaLoader.Loader import Loader
+from .Loader import Loader
 
 import ScrapePlugins.RunBase
 

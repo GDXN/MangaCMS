@@ -1,7 +1,7 @@
 
 import runStatus
-from ScrapePlugins.GameOfScanlationLoader.FeedLoader import FeedLoader
-from ScrapePlugins.GameOfScanlationLoader.ContentLoader import ContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

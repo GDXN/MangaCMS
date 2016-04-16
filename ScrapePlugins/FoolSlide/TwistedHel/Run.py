@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.FoolSlide.TwistedHel.FeedLoader import FeedLoader
-from ScrapePlugins.FoolSlide.TwistedHel.ContentLoader import ContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import runStatus
 

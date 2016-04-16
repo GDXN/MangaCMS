@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.SadPandaLoader.DbLoader import DbLoader
-from ScrapePlugins.SadPandaLoader.ContentLoader import ContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import runStatus
 

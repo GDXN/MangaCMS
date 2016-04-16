@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.FakkuLoader.fkFeedLoader import FakkuFeedLoader
-from ScrapePlugins.FakkuLoader.fkContentLoader import FakkuContentLoader
+from .fkFeedLoader import FakkuFeedLoader
+from .fkContentLoader import FakkuContentLoader
 
 import ScrapePlugins.RunBase
 

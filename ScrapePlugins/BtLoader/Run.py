@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.BtLoader.btFeedLoader import BtFeedLoader
-from ScrapePlugins.BtLoader.btContentLoader import BtContentLoader
+from .btFeedLoader import BtFeedLoader
+from .btContentLoader import BtContentLoader
 
 import ScrapePlugins.RunBase
 

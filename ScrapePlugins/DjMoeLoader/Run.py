@@ -1,8 +1,8 @@
 
 
 
-from ScrapePlugins.DjMoeLoader.djMoeDbLoader import DjMoeDbLoader
-from ScrapePlugins.DjMoeLoader.djMoeContentLoader import DjMoeContentLoader
+from .djMoeDbLoader import DjMoeDbLoader
+from .djMoeContentLoader import DjMoeContentLoader
 
 
 import runStatus

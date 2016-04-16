@@ -1,7 +1,7 @@
 
 import runStatus
-from ScrapePlugins.ZenonLoader.FeedLoader import FeedLoader
-from ScrapePlugins.ZenonLoader.ContentLoader import ContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 

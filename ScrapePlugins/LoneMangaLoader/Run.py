@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.LoneMangaLoader.LmFeedLoader import LmFeedLoader
-from ScrapePlugins.LoneMangaLoader.LmContentLoader import LmContentLoader
+from .LmFeedLoader import LmFeedLoader
+from .LmContentLoader import LmContentLoader
 
 import ScrapePlugins.RunBase
 

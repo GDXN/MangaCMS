@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.FoolSlide.CasanovaScans.FeedLoader import FeedLoader
-from ScrapePlugins.FoolSlide.CasanovaScans.ContentLoader import ContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import runStatus
 

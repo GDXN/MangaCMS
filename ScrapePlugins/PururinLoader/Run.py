@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.PururinLoader.pururinDbLoader import PururinDbLoader
-from ScrapePlugins.PururinLoader.pururinContentLoader import PururinContentLoader
+from .pururinDbLoader import PururinDbLoader
+from .pururinContentLoader import PururinContentLoader
 
 import settings
 

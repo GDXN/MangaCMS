@@ -1,7 +1,7 @@
 
 
-from ScrapePlugins.BtSeriesFetcher.btSeriesLoader   import BtSeriesLoader
-from ScrapePlugins.BtSeriesFetcher.btSeriesEnqueuer import BtSeriesEnqueuer
+from .btSeriesLoader   import BtSeriesLoader
+from .btSeriesEnqueuer import BtSeriesEnqueuer
 
 import ScrapePlugins.RunBase
 
