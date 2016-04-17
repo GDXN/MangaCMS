@@ -10,14 +10,12 @@ import ScrapePlugins.DjMoeLoader.Run
 import ScrapePlugins.DjMoeLoader.Retag
 import ScrapePlugins.BtBaseManager.Run
 import ScrapePlugins.PururinLoader.Run
-import ScrapePlugins.Tadanohito.Run
 import ScrapePlugins.JzLoader.Run
 
 import ScrapePlugins.FakkuLoader.Run
 import ScrapePlugins.McLoader.Run
 import ScrapePlugins.CxLoader.Run
 import ScrapePlugins.MjLoader.Run
-import ScrapePlugins.LoneMangaLoader.Run
 import ScrapePlugins.WebtoonLoader.Run            # Yeah. There is webtoon.com. and WebtoonsReader.com. Confusing much?
 import ScrapePlugins.WebtoonsReader.Run
 import ScrapePlugins.KissLoader.Run
@@ -31,15 +29,15 @@ import ScrapePlugins.IrcGrabber.BotRunner
 import ScrapePlugins.Kawaii.Run
 import ScrapePlugins.ZenonLoader.Run
 import ScrapePlugins.MangaBox.Run
+import ScrapePlugins.MangaHere.Run
 import ScrapePlugins.YoMangaLoader.Run
 
-import ScrapePlugins.FoolSlide.RhLoader.Run
 import ScrapePlugins.FoolSlide.VortexLoader.Run
 import ScrapePlugins.FoolSlide.RoseliaLoader.Run
 import ScrapePlugins.FoolSlide.SenseLoader.Run
 import ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run
 import ScrapePlugins.FoolSlide.TwistedHel.Run
-import ScrapePlugins.FoolSlide.CasanovaScans.Run
+import ScrapePlugins.FoolSlide.S2Loader.Run
 import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import ScrapePlugins.SurasPlace.Run
 import ScrapePlugins.GameOfScanlationLoader.Run
@@ -72,10 +70,9 @@ scrapePlugins = {
 	9  : (ScrapePlugins.PururinLoader.Run,                   hours( 1)),
 	10 : (ScrapePlugins.FakkuLoader.Run,                     hours( 1)),
 	11 : (ScrapePlugins.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	# 12 : (ScrapePlugins.MjLoader.Run,                        hours(1)),
+	12 : (ScrapePlugins.MjLoader.Run,                        hours( 1)),
 	13 : (ScrapePlugins.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
-	14 : (ScrapePlugins.FoolSlide.RhLoader.Run,              hours(12)),
-	15 : (ScrapePlugins.LoneMangaLoader.Run,                 hours(12)),
+	15 : (ScrapePlugins.MangaHere.Run,                       hours(12)),
 	16 : (ScrapePlugins.WebtoonLoader.Run,                   hours( 8)),
 	17 : (ScrapePlugins.DynastyLoader.Run,                   hours( 8)),
 	18 : (ScrapePlugins.HBrowseLoader.Run,                   hours( 1)),
@@ -83,8 +80,7 @@ scrapePlugins = {
 	20 : (ScrapePlugins.NHentaiLoader.Run,                   hours( 1)),
 	21 : (ScrapePlugins.Crunchyroll.Run,                     hours( 6)),
 	22 : (ScrapePlugins.SadPandaLoader.Run,                  hours( 2)),
-	23 : (ScrapePlugins.WebtoonsReader.Run,                  hours( 6)),
-	24 : (ScrapePlugins.Tadanohito.Run,                      hours( 6)),
+	# 23 : (ScrapePlugins.WebtoonsReader.Run,                  hours( 6)),  # They claim they're planning on coming back. We'll see.
 	25 : (ScrapePlugins.Kawaii.Run,                          hours(12)),
 	26 : (ScrapePlugins.ZenonLoader.Run,                     hours(24)),
 	27 : (ScrapePlugins.MangaBox.Run,                        hours(12)),
@@ -97,9 +93,9 @@ scrapePlugins = {
 	32 : (ScrapePlugins.FoolSlide.SenseLoader.Run,           hours(12)),
 	33 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     hours(12)),
 	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            hours(12)),
-	35 : (ScrapePlugins.FoolSlide.CasanovaScans.Run,         hours(12)),
 	36 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      hours(12)),
 	37 : (ScrapePlugins.SurasPlace.Run,                      hours(24)),
+	38 : (ScrapePlugins.FoolSlide.S2Loader.Run,              hours(12)),
 
 	40 : (ScrapePlugins.MangaMadokami.Run,                   hours(4)),
 	41 : (ScrapePlugins.BooksMadokami.Run,                   hours(4)),

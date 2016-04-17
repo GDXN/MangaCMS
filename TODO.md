@@ -1,5 +1,5 @@
+
 http://cafeconirst.com/
-https://gameofscanlation.moe/
 https://www.spottoon.com/
 
 refetch items with 3 or fewer images.

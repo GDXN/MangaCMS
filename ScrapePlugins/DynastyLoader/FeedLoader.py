@@ -98,7 +98,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				tagDiv = child.find('div', class_='tags')
 				if tagDiv:
 					tags = tagDiv.find_all("span")
-					tags = [tag.get_text().replace(" ", "-").lower() for tag in tags]
+					tags = [tag.get_text().replace(" ", "-").replace(":", "").lower() for tag in tags]
 					tags = ' '.join(tags)
 					item["tags"] = tags
 

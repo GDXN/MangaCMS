@@ -22,7 +22,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Manga.Mp.Fl"
 	pluginName = "MangaPark Link Retreiver"
 	tableKey = "mp"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -53,40 +53,38 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		page = self.wg.getpage(url)
 		page = self.checkMatureAgree(page, url)
 
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
+		main = soup.find("section", class_='manga')
+		series = main.find("div", class_="hd")
 
-		series = soup.find("h1", class_="title")
-		container = soup.find("div", class_="list")
+		container = soup.find("div", class_="book-list")
 
 		seriesName = series.get_text().strip()
-		segmentDivs = container.find_all("div", class_="group", recursive=False)
+
+		if seriesName.endswith(" Manga"):
+			seriesName = seriesName[:-1*len(" Manga")]
+
+		segmentDivs = container.find_all("div", class_="stream", recursive=False)
 
 		ret = []
 
 		for segment in segmentDivs:
-			chaps = segment.find_all("div", class_="element")
+			chaps = segment.find_all("li", id=re.compile(r"b-\d+"))
 			for chap in chaps:
-				dlLink = chap.find("div", class_="icon_wrapper").a["href"]
-				dlTitle = chap.find("div", class_="title").get_text()
+				dlLink = chap.find("a", class_="ch")["href"]
+				dlTitle = chap.find("span").get_text().strip()
 
 				dlTitle = dlTitle.replace(":", " -")  # Can't have colons in filenames
 				# print("dlLink", dlLink, dlTitle)
 
 				item = {}
-
-
-				chapDate = chap.find("div", class_="meta_r")
-				datestr = list(chapDate)[-1]
-				datestr.strip(", ")
-
-				date = dateutil.parser.parse(datestr, fuzzy=True)
+				date = dateutil.parser.parse(chap.i.get_text(), fuzzy=True)
 
 				item["originName"] = "{series} - {file}".format(series=seriesName, file=dlTitle)
 				item["sourceUrl"]  = dlLink
 				item["seriesName"] = seriesName
 				item["retreivalTime"]       = calendar.timegm(date.timetuple())
 
-				# print("Item", item)
 				ret.append(item)
 
 		return ret
@@ -153,6 +151,6 @@ if __name__ == "__main__":
 	with tb.testSetup(startObservers=False):
 		mon = FeedLoader()
 		# mon.getSeriesUrls()
-		mon.getItemPages(('http://mangapark.com/manga/zai-x-10-yamauchi-yasunobu', 'Zai x 10'))
-		# mon.go()
+		# mon.getItemPages(('http://mangapark.com/manga/zai-x-10-yamauchi-yasunobu', 'Zai x 10'))
+		mon.go()
 

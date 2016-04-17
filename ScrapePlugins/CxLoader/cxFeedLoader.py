@@ -53,7 +53,7 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		page = self.wg.getpage(url)
 		page = self.checkMatureAgree(page, url)
 
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 
 		series = soup.find("h1", class_="title")
 		container = soup.find("div", class_="list")
@@ -96,7 +96,7 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def getSeriesUrls(self):
 		ret = []
 		page = self.wg.getpage(self.feedUrl)
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 		divs = soup.find_all("div", class_="group")
 		for div in divs:
 			# First div in the group div is the title. Yes, this is probably brittle

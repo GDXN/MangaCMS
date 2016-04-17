@@ -37,7 +37,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 6
+	retreivalThreads = 4
 
 	shouldCanonize = False
 
@@ -98,6 +98,11 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				elif what == "Title":
 					title = values.get_text().strip()
 
+					# If cloudflare is fucking shit up, just try to get the title from the title tag.
+					if r"[email\xa0protected]" in title or r'[email protected]' in title:
+						title = soup.title.get_text().split(" by ")[0]
+
+
 				elif what in formatters:
 					for rawTag in values.find_all("a"):
 						tag = " ".join([formatters[what], rawTag.get_text().strip()])
@@ -140,6 +145,10 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		tags = ' '.join(tags)
 
 		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, originName=title, lastUpdate=time.time())
+
+		# Push the fixed title back into the linkdict so it's changes will be used later
+		# when saving the file.
+		linkDict['originName'] = title
 		if tags:
 			self.log.info("Adding tag info %s", tags)
 			self.addTags(sourceUrl=linkDict["sourceUrl"], tags=tags)

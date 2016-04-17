@@ -15,20 +15,19 @@ import runStatus
 import traceback
 import bs4
 import re
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
-from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
 
-class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
 	loggerPath = "Main.Manga.Mp.Cl"
 	pluginName = "MangaPark Content Retreiver"
 	tableKey = "mp"
-	dbName = settings.dbName
+	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
@@ -150,3 +149,14 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not runStatus.run:
 			return
 		self.processTodoLinks(todo)
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		mon = ContentLoader()
+		# mon.getSeriesUrls()
+		# mon.getItemPages(('http://mangapark.com/manga/zai-x-10-yamauchi-yasunobu', 'Zai x 10'))
+		mon.go()

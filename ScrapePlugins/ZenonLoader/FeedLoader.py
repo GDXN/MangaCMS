@@ -51,6 +51,8 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		for chunk in main_chunk:
 			for url_tag in chunk.find_all("a"):
 				url = url_tag['href']
+				if url.startswith("#"):
+					continue
 				if not url.startswith("http://comic.manga-audition.com"):
 					ret.append(url)
 

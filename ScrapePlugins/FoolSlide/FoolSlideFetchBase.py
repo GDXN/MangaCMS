@@ -53,7 +53,7 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			page = self.wg.getpage(url, postData={"adult": "true"})
 
 
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 
 
 		baseInfo = self.extractItemInfo(soup)

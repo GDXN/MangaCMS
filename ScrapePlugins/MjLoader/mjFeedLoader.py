@@ -77,7 +77,7 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		seriesPages = []
 
-		if not rangeOverride:
+		if rangeOverride is None:
 			dayDelta = 3
 		else:
 			dayDelta = int(rangeOverride)
@@ -89,7 +89,7 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			url = self.updateFeed.format(pageNo=daysAgo+rangeOffset)
 			page = self.wg.getpage(url)
-			soup = bs4.BeautifulSoup(page)
+			soup = bs4.BeautifulSoup(page, "lxml")
 
 			# Find the divs containing either new files, or the day a file was uploaded
 			mainDiv = soup.find("div", class_="mng_lts_chp")
@@ -125,7 +125,6 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# Flags has to be an empty string, because the DB is annoying.
 				#
 				# TL;DR, comparing with LIKE in a column that has NULLs in it is somewhat broken.
-				#
 				self.insertIntoDb(retreivalTime = link["date"],
 									sourceUrl   = link["dlLink"],
 									originName  = link["chapName"],
@@ -161,5 +160,22 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.processLinksIntoDB(feedItems)
 		self.log.info("Complete")
+
+def history():
+	run = MjFeedLoader()
+	for x in range(150):
+		links = run.getMainItems(rangeOverride=1, rangeOffset=x)
+		run.processLinksIntoDB(links)
+
+
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		history()
+		# run = MjFeedLoader()
+		# run.go()
+
 
 

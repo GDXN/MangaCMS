@@ -119,18 +119,14 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["sourceUrl"]  = urllib.parse.urljoin(self.urlBase, chapter.a['href'])
 			dateStr = date.get_text().strip()
 			itemDate, status = parsedatetime.Calendar().parse(dateStr)
+			if status != 1:
+				continue
 
 			item['retreivalTime'] = calendar.timegm(itemDate)
 			items.append(item)
 
-		ret = []
 
-		maxDate = max([item["retreivalTime"] for item in items])
-		for item in items:
-			if item["retreivalTime"] == maxDate:
-				ret.append(item)
-
-		return ret
+		return items
 
 	def getChapterLinkFromSeriesPage(self, seriesUrl):
 		ret = []
@@ -185,8 +181,9 @@ if __name__ == '__main__':
 		fl = FeedLoader()
 		# print(fl.getUpdatedSeriesPages())
 		# print(fl.getAllItems())
-		fl.resetStuckItems()
-		# fl.go()
+		# fl.resetStuckItems()
+		fl.go()
+		# fl.getChapterLinkFromSeriesPage("http://www.mangahere.co/manga/penguin_loves_mev/")
 		# fl.getSeriesUrls()
 
 		# fl.getAllItems()

@@ -56,7 +56,7 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info("Using URL '%s'", seriesUrl)
 		itemPage = self.wg.getpage(seriesUrl)
-		soup = bs4.BeautifulSoup(itemPage)
+		soup = bs4.BeautifulSoup(itemPage, "lxml")
 
 		linkLis = soup.find_all("li", class_="file")
 

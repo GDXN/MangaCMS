@@ -55,6 +55,8 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		titleTd = row.find("td", class_='recentTitle')
 		ret['originName'] = titleTd.get_text()
 
+
+
 		return ret
 
 	def extractDate(self, row):
@@ -70,7 +72,7 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		page = self.loadFeed(pageOverride)
 
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 
 		itemTable = soup.find("table", id="recentTable")
 
@@ -86,7 +88,16 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# curTimestamp is specifically not pre-defined, because I want to fail noisily if I try
 				# to parse a link row before seeing a valid date
 				item = self.parseItem(row, curTimestamp)
+
+				if 'originName' in item:
+					# If cloudflare is fucking shit up, just try to get the title from the title tag.
+					if r"[email\xa0protected]" in item['originName'] or r'[email protected]' in item['originName']:
+						item['originName'] = soup.title.get_text().split(" by ")[0]
+				else:
+					item['originName'] = soup.title.get_text().split(" by ")[0]
+
 				ret.append(item)
+
 
 
 
@@ -110,7 +121,7 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 def getHistory():
 
 	run = HBrowseDbLoader()
-	for x in range(235):
+	for x in range(400):
 		dat = run.getFeed(pageOverride=x)
 		run.processLinksIntoDB(dat)
 

@@ -57,7 +57,7 @@ class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		if "This series contains mature contents and is meant to be viewed by an adult audience." in pageCtnt:
 			raise ValueError("Wat?")
-		soup = bs4.BeautifulSoup(pageCtnt)
+		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 
 		container = soup.find(self.contentSelector[0], id=self.contentSelector[1])
 

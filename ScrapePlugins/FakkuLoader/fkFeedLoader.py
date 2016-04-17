@@ -212,7 +212,7 @@ class FakkuFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		#
 
 		page = self.loadFeed(pageOverride)
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 
 		mainSection = soup.find("div", id="content")
 		doujinDiv = mainSection.find_all("div", class_="content-row")

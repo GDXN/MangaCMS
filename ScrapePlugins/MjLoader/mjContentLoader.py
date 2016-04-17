@@ -33,7 +33,7 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	urlBase = "http://mangajoy.com/"
 
-	retreivalThreads = 4
+	retreivalThreads = 6
 	itemLimit = 500
 
 	# Mangajoy does recompress. Arrrgh.
@@ -58,8 +58,9 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		imgDiv = pageSoup.find("div", class_='prw')
 		images = imgDiv.find_all("img")
-
-		images = [image for image in images if "mangajoy" in image['src']]
+		images = [image for image in images if ("manga-joy" in image['src'] or "mangajoy" in image['src'])]
+		for image in images:
+			print(image)
 		if len(images) != 1:
 			for image in images:
 				print("Image", image)
@@ -71,7 +72,7 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	def getImageUrls(self, firstPageUrl):
 
 		pageCtnt = self.wg.getpage(firstPageUrl)
-		soup = bs4.BeautifulSoup(pageCtnt)
+		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 
 		if 'alt="File not found"' in pageCtnt:
 			return []
@@ -95,7 +96,7 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			scanPages = ["{base}{cnt}/".format(base=firstPageUrl, cnt=page["value"]) for page in pages]
 			for page in scanPages:
 				pageCtnt = self.wg.getpage(page)
-				soup = bs4.BeautifulSoup(pageCtnt)
+				soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 				imUrls.add(self.getImgUrlFromPage(soup))
 
 
@@ -198,3 +199,10 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			return
 		self.processTodoLinks(todo)
 
+
+if __name__ == "__main__":
+	import utilities.testBase as tb
+
+	with tb.testSetup(startObservers=False):
+		run = MjContentLoader()
+		run.go()
