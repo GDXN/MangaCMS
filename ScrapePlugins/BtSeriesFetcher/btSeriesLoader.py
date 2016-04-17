@@ -108,7 +108,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 			url = self.feedUrl % (daysAgo+rangeOffset)
 			page = self.wg.getpage(url)
-			soup = bs4.BeautifulSoup(page)
+			soup = bs4.BeautifulSoup(page, "lxml")
 
 			# Find the divs containing either new files, or the day a file was uploaded
 			itemRow = soup.find_all("tr", class_=re.compile("row[01]"))

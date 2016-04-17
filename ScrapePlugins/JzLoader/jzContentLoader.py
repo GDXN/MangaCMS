@@ -95,7 +95,7 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def getDownloadUrl(self, containerUrl):
 		page = self.wg.getpage(containerUrl)
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 
 		link = soup.find("a", {"id": "dlButton"})
 		if link:

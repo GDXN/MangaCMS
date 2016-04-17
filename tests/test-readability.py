@@ -33,7 +33,7 @@ def test():
 	pg = wg.getpage("http://japtem.com/knm-volume-11-chapter-5/")
 
 
-	soup = bs4.BeautifulSoup(pg)
+	soup = bs4.BeautifulSoup(pg, "lxml")
 	strip = ['slider-container', 'secondarymenu-container', 'mainmenu-container', 'mobile-menu', 'footer', 'sidebar', 'disqus_thread', 'sharedaddy', 'scrollUp']
 	for rm in strip:
 		[tag.decompose() for tag in soup.find_all("div", class_=rm)]
@@ -46,7 +46,7 @@ def test():
 	print(doc.title())
 	# content = doc.content()
 
-	# soup = bs4.BeautifulSoup(content)
+	# soup = bs4.BeautifulSoup(content, "lxml")
 	# out = soup.prettify()
 
 	# print(out)

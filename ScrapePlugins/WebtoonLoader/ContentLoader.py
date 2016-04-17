@@ -60,7 +60,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		pages = []
 
 		pageCtnt = self.wg.getpage(baseUrl)
-		soup = bs4.BeautifulSoup(pageCtnt)
+		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 
 		imagesContainer = soup.find('div', class_='viewer_img')
 		images = imagesContainer.find_all("img")

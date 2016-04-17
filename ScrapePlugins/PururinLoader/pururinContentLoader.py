@@ -186,7 +186,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		cont = self.wg.getpage(sourcePage, addlHeaders={'Referer': 'http://pururin.com/'})
-		soup = bs4.BeautifulSoup(cont)
+		soup = bs4.BeautifulSoup(cont, "lxml")
 
 		if not soup:
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
@@ -241,7 +241,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		while nextPage:
 			gatewayPage = self.wg.getpage(nextPage, addlHeaders={'Referer': linkDict["sourceUrl"]})
 
-			soup = bs4.BeautifulSoup(gatewayPage)
+			soup = bs4.BeautifulSoup(gatewayPage, "lxml")
 			titleCont = soup.find("div", class_="image-menu")
 
 			title = titleCont.h1.get_text()

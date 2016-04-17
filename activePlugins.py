@@ -105,14 +105,14 @@ scrapePlugins = {
 
 if __name__ == "__main__":
 
-	scrapePlugins = {
+	# scrapePlugins = {
 		# 0 : (TextScrape.BakaTsuki.Run,                       60*60*24*7),  # Every 7 days, because books is slow to update
 		# 1 : (TextScrape.JapTem.Run,                          60*60*24*5),
 		# 3 : (TextScrape.Guhehe.Run,                          60*60*24*5),
 		# 2 : (TextScrape.ReTranslations.Run,                  60*60*24*1)   # There's not much to actually scrape here, and it's google, so I don't mind hitting their servers a bit.
-	}
+	# }
 
-
+	print("Test run!")
 	import nameTools as nt
 
 	def callGoOnClass(passedModule):
@@ -120,6 +120,7 @@ if __name__ == "__main__":
 		print("Calling class = ", passedModule.Runner)
 		instance = passedModule.Runner()
 		instance.go()
+		print("Instance:", instance)
 
 
 	import signal
@@ -144,11 +145,13 @@ if __name__ == "__main__":
 			print(plugin, interval)
 			callGoOnClass(plugin)
 		else:
+			print("Loopin!", scrapePlugins)
 			for plugin, interval in scrapePlugins.values():
 				print(plugin, interval)
 				callGoOnClass(plugin)
 	except:
 		traceback.print_exc()
+
 
 	print("Complete")
 

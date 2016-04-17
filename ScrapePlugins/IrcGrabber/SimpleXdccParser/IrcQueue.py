@@ -57,7 +57,7 @@ class TriggerLoader(ScrapePlugins.IrcGrabber.IrcQueueBase.IrcQueueBase):
 			page = self.wg.getpage(url)
 
 			self.log.info("Processing itemList markup....")
-			soup = bs4.BeautifulSoup(page)
+			soup = bs4.BeautifulSoup(page, "lxml")
 			self.log.info("Done. Searching")
 
 			contentDiv = soup.find("div", id="content")

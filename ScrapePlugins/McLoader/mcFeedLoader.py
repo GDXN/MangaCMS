@@ -79,7 +79,7 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		page = self.wg.getpage(url)
 
 
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 		baseInfo = self.extractItemInfo(soup)
 
 		ret = []
@@ -112,7 +112,7 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = []
 		print("wat?")
 		page = self.wg.getpage(self.feedUrl)
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 		divs = soup.find_all("div", class_="img_wrp")
 		for div in divs:
 			url = div.a["href"]

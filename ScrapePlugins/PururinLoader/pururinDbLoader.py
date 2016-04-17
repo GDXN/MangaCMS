@@ -68,7 +68,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		for x in pageOverride:
 			page = self.loadFeed(x)
 
-			soup = bs4.BeautifulSoup(page)
+			soup = bs4.BeautifulSoup(page, "lxml")
 
 			mainSection = soup.find("ul", class_="gallery-list")
 

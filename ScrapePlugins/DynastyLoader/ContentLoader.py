@@ -81,7 +81,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	def getSeries(self, markup):
-		soup = bs4.BeautifulSoup(markup)
+		soup = bs4.BeautifulSoup(markup, "lxml")
 		title = soup.find("h3", id='chapter-title')
 
 		if title.b.find('a'):

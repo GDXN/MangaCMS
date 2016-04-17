@@ -49,7 +49,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def getInfo(self, inMarkup):
 		ret = {}
-		soup = bs4.BeautifulSoup(inMarkup)
+		soup = bs4.BeautifulSoup(inMarkup, "lxml")
 		header = soup.find("h1", class_='ellipsis')
 
 		# Remove the leading breadcrumb link
@@ -127,7 +127,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		raw = ''.join(data['data'].values())
 
 
-		soup = bs4.BeautifulSoup(raw)
+		soup = bs4.BeautifulSoup(raw, "lxml")
 		links = soup.find_all("a")
 
 		ret = []

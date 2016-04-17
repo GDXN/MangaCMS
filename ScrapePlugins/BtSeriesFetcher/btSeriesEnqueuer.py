@@ -138,7 +138,7 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 		url = self.seriesUrl % row["seriesId"]
 		page = self.wg.getpage(url)
-		soup = bs4.BeautifulSoup(page)
+		soup = bs4.BeautifulSoup(page, "lxml")
 
 		# Find the divs containing either new files, or the day a file was uploaded
 		itemRows = soup.find_all("tr", class_=re.compile("chapter_row"))

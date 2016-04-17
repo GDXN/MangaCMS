@@ -38,7 +38,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		expect = 'Hi {name},'.format(name=settings.suraSettings['login'])
 		if expect in pg:
 			self.log.info("Still logged in!")
-		soup = bs4.BeautifulSoup(pg)
+		soup = bs4.BeautifulSoup(pg, "lxml")
 		logindiv = soup.find('div', class_='login')
 
 		params = logindiv.find_all("input")

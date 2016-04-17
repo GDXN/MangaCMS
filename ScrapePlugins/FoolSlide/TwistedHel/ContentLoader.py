@@ -50,7 +50,7 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 
 		if "The following content is intended for mature audiences" in pageCtnt:
 			raise ValueError("Wat?")
-		soup = bs4.BeautifulSoup(pageCtnt)
+		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 
 		container = soup.find('body')
 

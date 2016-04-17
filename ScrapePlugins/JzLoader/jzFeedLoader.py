@@ -108,7 +108,7 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		ret = []
 
 		basePage = self.wg.getpage(self.urlBase)
-		soup = bs4.BeautifulSoup(basePage)
+		soup = bs4.BeautifulSoup(basePage, "lxml")
 
 		seriesPages = self.getSeriesPages(soup, self.urlBase)
 

@@ -52,7 +52,7 @@ class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 		pageCtnt = self.wg.getpage(baseUrl)
-		soup = bs4.BeautifulSoup(pageCtnt)
+		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 
 		selector = soup.find("select", class_="cbo_wpm_pag")
 
@@ -81,7 +81,7 @@ class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			pageCtnt = self.wg.getpage(pageUrl)
 
-			soup = bs4.BeautifulSoup(pageCtnt)
+			soup = bs4.BeautifulSoup(pageCtnt, "lxml")
 
 			imageContainer = soup.find("div", class_="prw")
 			url = imageContainer.img["src"]
