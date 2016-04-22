@@ -27,7 +27,18 @@ import ScrapePlugins.RetreivalDbBase
 
 import stat
 
+class CanonMismatch(Exception):
+	pass
+
 class TolerantFTP(ftplib.FTP_TLS):
+
+	@property
+	def encoding(self):
+		return 'utf-8'
+
+	@encoding.setter
+	def encoding(self, new_encoding):
+		assert new_encoding.lower() == "utf-8"
 
 	def retrlines(self, cmd, callback = None):
 		"""Retrieve data in line mode.  A new port is created for you.
@@ -90,8 +101,9 @@ class TolerantFTP(ftplib.FTP_TLS):
 		# FORCE the line to ALWAYS be utf-8.
 		line = ftfy.fix_text(line)
 		line = line.encode("UTF-8")
-		# print("Transmitting line '%s', type: '%s'" % (line, type(line)))
 		self.sock.sendall(line)
+
+
 
 
 def getSftpConnection():
@@ -206,19 +218,29 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def moveItemsInDir(self, srcDirPath, dstDirPath):
 		# FTP is /weird/. Rename apparently really wants to use the cwd for the srcpath param, even if the
 		# path starts with "/". Therefore, we have to reset the CWD.
+		self.log.info("Source: '%s'", srcDirPath)
+		self.log.info("Dest:   '%s'", dstDirPath)
 		self.ftp.cwd("/")
 		for itemName, dummy_stats in self.ftp.mlsd(srcDirPath):
 			# itemName = ftfy.fix_text(itemName)
 			if itemName == ".." or itemName == ".":
 				continue
+
 			srcPath = os.path.join(srcDirPath, itemName)
-			dstPath = os.path.join(dstDirPath, itemName)
-			self.ftp.rename(srcPath, dstPath)
+			try:
+				dstPath = os.path.join(dstDirPath, itemName)
+				self.ftp.rename(srcPath, dstPath)
+			except ftplib.error_perm:
+				base, ext = os.path.splitext(itemName)
+				dstPath = os.path.join(dstDirPath, base+" (1)"+ext)
+				self.ftp.rename(srcPath, dstPath)
+
 			self.log.info("	Moved from '%s'", srcPath)
 			self.log.info("	        to '%s'", dstPath)
 
 
-	def aggregateDirs(self, pathBase, dir1, dir2):
+
+	def aggregateDirs(self, pathBase_1, pathBase_2, dir1, dir2):
 		canonName    = nt.getCanonicalMangaUpdatesName(dir1)
 		canonNameAlt = nt.getCanonicalMangaUpdatesName(dir2)
 		cname1 = nt.prepFilenameForMatching(canonName)
@@ -232,7 +254,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.critical("After cleaning: '%s', '%s', equal: '%s'", cname1, cname2, cname1 == cname2)
 
 
-			raise ValueError("Identical and yet not? '%s' - '%s'" % (canonName, canonNameAlt))
+			raise CanonMismatch("Identical and yet not? '%s' - '%s'" % (canonName, canonNameAlt))
 		self.log.info("Aggregating directories for canon name '%s':", canonName)
 
 		n1 = lv.distance(dir1, canonName)
@@ -244,19 +266,17 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# I'm using less then or equal, so situations where
 		# both names are equadistant get aggregated anyways.
 		if n1 <= n2:
-			src = dir2
-			dst = dir1
+			src = os.path.join(pathBase_2, dir2)
+			dst = os.path.join(pathBase_1, dir1)
 		else:
-			src = dir1
-			dst = dir2
+			src = os.path.join(pathBase_1, dir1)
+			dst = os.path.join(pathBase_2, dir2)
 
-		src = os.path.join(pathBase, src)
-		dst = os.path.join(pathBase, dst)
 
 		self.moveItemsInDir(src, dst)
 		self.log.info("Removing directory '%s'", src)
 		# self.ftp.rmd(src)
-		# self.ftp.rename(src, "/Admin Cleanup/garbage dir %s" % id(src))
+		self.ftp.rename(src, "/Admin cleanup/autoclean dirs/garbage dir %s" % src.replace("/", ";").replace(" ", "_"))
 
 		return dst
 
@@ -269,6 +289,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		badwords = [
 			'Non-English',
 			'Oneshots',
+			'Raws',
+			'Novels',
 			'_Doujinshi',
 			'AutoUploaded from Assorted Sources',
 		]
@@ -311,7 +333,9 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 						tmp = tmp.pop()
 					if aggregate:
 						try:
-							fqPath = self.aggregateDirs(fullPath, dirName, matchName)
+							fqPath = self.aggregateDirs(fullPath, matchpath,dirName, matchName)
+						except CanonMismatch:
+							pass
 						except ValueError:
 							traceback.print_exc()
 						except ftplib.error_perm:
@@ -508,6 +532,9 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 								commit = True)  # Defer commiting changes to speed things up
 
 
+def do_remote_organize():
+	uploader = MkUploader()
+	uploader.loadRemoteDirectory("/", aggregate=True)
 
 
 

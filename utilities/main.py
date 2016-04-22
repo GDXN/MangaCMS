@@ -18,6 +18,7 @@ import utilities.cleanDb
 import utilities.bookClean
 import utilities.cleanFiles
 import deduplicator.remoteInterface
+import UploadPlugins.Madokami.uploader
 
 def printHelp():
 
@@ -97,6 +98,10 @@ def printHelp():
 	print("	clean-book-cache")
 	print("		Clean out and delete any old files from the book content cache")
 	print("		that no longer has any entries in the database.")
+	print()
+	print("	madokami-organize")
+	print("		Attempt to consolidate directories on the Madokami FTP")
+	print("		using the name synonym system.")
 	print()
 
 	print("*********************************************************")
@@ -190,6 +195,8 @@ def parseOneArgCall(cmd):
 		utilities.bookClean.fixBookLinkSources()
 	elif mainArg.lower() == "fix-bu-authors":
 		utilities.bookClean.fixMangaUpdatesAuthors()
+	elif mainArg.lower() == "madokami-organize":
+		UploadPlugins.Madokami.uploader.do_remote_organize()
 	elif mainArg.lower() == "fix-h-tags-case":
 		cleaner = utilities.cleanDb.HCleaner('None')
 		cleaner.cleanTags()
