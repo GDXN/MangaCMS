@@ -156,7 +156,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		images = []
 		for pgnum in range(1, 9999999):
-			ajaxurl = "http://bato.to/areader?id={id}&p={pgnum}".format(id=gid, pgnum=pgnum)
+			ajaxurl = "http://bato.to/areader?id={id}&p={pgnum}&supress_webtoon=t".format(id=gid, pgnum=pgnum)
 			extra_headers = {
 				"X-Requested-With" : "XMLHttpRequest",
 				"Referer"          : "http://bato.to/reader",
@@ -310,11 +310,11 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup(startObservers=False):
 
 		run = BtContentLoader()
 		run.go()
-		# got = run.getContainerPages("http://bato.to/reader#2b720b1a2ccae5d8")
+		# got = run.getContainerPages("http://bato.to/reader#be32cd58490fe40a")
 		# print(got)
 		# run.getMainItems()
 		# run.checkLogin()

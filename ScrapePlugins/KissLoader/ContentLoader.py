@@ -199,7 +199,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=True):
+	with tb.testSetup():
 		cl = ContentLoader()
 
 		# pg = 'http://dynasty-scans.com/chapters/qualia_the_purple_ch16'

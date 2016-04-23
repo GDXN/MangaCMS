@@ -513,7 +513,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		command = "STOR %s" % filename
 
-		assert self.ftp.encoding == "UTF-8"
+		assert self.ftp.encoding.lower() == "UTF-8".lower()
 		self.ftp.storbinary(command, open(filePath, "rb"))
 		self.log.info("File Uploaded")
 
