@@ -117,8 +117,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		try:
 			soup = self.wg.getSoup(sourcePage, addlHeaders={'Referer': self.urlBase})
-		except:
+		except Exception as e:
+
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
+			for line in traceback.format_exc().split("\n"):
+				self.log.critical(""+line)
+
 			raise IOError("Invalid webpage")
 
 		if "This gallery has been removed, and is unavailable." in soup.get_text():
@@ -260,7 +264,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 					self.log.info( "Breaking due to exit flag being set")
 					break
 
-		except urllib.error.URLError:
+		except Exception:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
 			self.updateDbEntry(link["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")

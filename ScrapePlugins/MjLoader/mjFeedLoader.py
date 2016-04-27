@@ -28,7 +28,7 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableName = "MangaItems"
 
 	urlBase = "http://mangajoy.com/"
-	updateFeed = "http://mangajoy.com/latest-chapters/{pageNo}/"
+	updateFeed = "http://manga-joy.com/latest-chapters/{pageNo}/"
 
 
 	def closeDB(self):

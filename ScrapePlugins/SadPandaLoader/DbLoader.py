@@ -54,7 +54,6 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			"submit"     : "Log me in"
 			}
 
-
 		getPage = self.wg.getpage(r"https://forums.e-hentai.org/index.php?act=Login&CODE=01", postData=logondict)
 		if "Username or password incorrect" in getPage:
 			self.log.error("Login failed!")
@@ -62,6 +61,89 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				fp.write(getPage)
 		elif "You are now logged in as:" in getPage:
 			self.log.info("Logged in successfully!")
+
+		confdict = {
+			'uh'          : 'y',
+			'xr'          : 'a',
+			'rx'          : '0',
+			'ry'          : '0',
+			'tl'          : 'r',
+			'ar'          : '0',
+			'dm'          : 'l',
+			'prn'         : 'y',
+			'f_doujinshi' : 'on',
+			'f_manga'     : 'on',
+			'f_artistcg'  : 'on',
+			'f_gamecg'    : 'on',
+			'f_western'   : 'on',
+			'f_non-h'     : 'on',
+			'f_imageset'  : 'on',
+			'f_cosplay'   : 'on',
+			'f_asianporn' : 'on',
+			'f_misc'      : 'on',
+			'favorite_0'  : 'Favorites+0',
+			'favorite_1'  : 'Favorites+1',
+			'favorite_2'  : 'Favorites+2',
+			'favorite_3'  : 'Favorites+3',
+			'favorite_4'  : 'Favorites+4',
+			'favorite_5'  : 'Favorites+5',
+			'favorite_6'  : 'Favorites+6',
+			'favorite_7'  : 'Favorites+7',
+			'favorite_8'  : 'Favorites+8',
+			'favorite_9'  : 'Favorites+9',
+			'xl_1034'     : 'on',
+			'xl_1044'     : 'on',
+			'xl_1054'     : 'on',
+			'xl_1064'     : 'on',
+			'xl_1074'     : 'on',
+			'xl_1084'     : 'on',
+			'xl_1094'     : 'on',
+			'xl_1104'     : 'on',
+			'xl_1114'     : 'on',
+			'xl_1124'     : 'on',
+			'xl_1134'     : 'on',
+			'xl_1144'     : 'on',
+			'xl_1154'     : 'on',
+			'xl_1278'     : 'on',
+			'xl_1279'     : 'on',
+			'xl_2048'     : 'on',
+			'xl_2049'     : 'on',
+			'xl_2058'     : 'on',
+			'xl_2068'     : 'on',
+			'xl_2078'     : 'on',
+			'xl_2088'     : 'on',
+			'xl_2098'     : 'on',
+			'xl_2108'     : 'on',
+			'xl_2118'     : 'on',
+			'xl_2128'     : 'on',
+			'xl_2138'     : 'on',
+			'xl_2148'     : 'on',
+			'xl_2158'     : 'on',
+			'xl_2168'     : 'on',
+			'xl_2178'     : 'on',
+			'xl_2302'     : 'on',
+			'xl_2303'     : 'on',
+			'fs'          : 'p',
+			'ru'          : 'RRGGB',
+			'rc'          : '3',
+			'lt'          : 'm',
+			'ts'          : 'm',
+			'tr'          : '2',
+			'cs'          : 'a',
+			'sc'          : '0',
+			'to'          : 'a',
+			'pn'          : '0',
+			'hp'          : '',
+			'hk'          : '',
+			'sa'          : 'y',
+			'oi'          : 'n',
+			'apply'       : 'Apply',
+			}
+		headers = {
+			'Referer': 'http://g.e-hentai.org/uconfig.php',
+			'Host': 'g.e-hentai.org'
+		}
+		getPage = self.wg.getpage(r"http://g.e-hentai.org/uconfig.php", postData=confdict, addlHeaders=headers)
 
 		self.permuteCookies()
 		self.wg.saveCookies()
@@ -73,7 +155,12 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def permuteCookies(self):
 		self.log.info("Fixing cookies")
 		for cookie in self.wg.cj:
-			if "ipb_member_id" in cookie.name or "ipb_pass_hash" in cookie.name:
+			if (
+					"ipb_member_id" in cookie.name or
+					"ipb_pass_hash" in cookie.name or
+					"uconfig"       in cookie.name or
+					'hath_perks'    in cookie.name
+					):
 
 				dup = copy.copy(cookie)
 				dup.domain = 'exhentai.org'
@@ -98,13 +185,15 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def loadFeed(self, tag, pageOverride=None):
+	def loadFeed(self, tag, pageOverride=None, includeExpunge=False):
 		self.log.info("Retreiving feed content...",)
 		if not pageOverride:
 			pageOverride = 0  # Pages start at zero. Yeah....
 		try:
 			tag = urllib.parse.quote_plus(tag)
 			pageUrl = self.urlFeed.format(search=tag, num=pageOverride)
+			if includeExpunge:
+				pageUrl = pageUrl + '&f_sh=on'
 			soup = self.wg.getSoup(pageUrl)
 		except urllib.error.URLError:
 			self.log.critical("Could not get page from SadPanda!")
@@ -155,14 +244,14 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-	def getFeed(self, searchTag, pageOverride=None):
+	def getFeed(self, searchTag, includeExpunge=False, pageOverride=None):
 		# for item in items:
 		# 	self.log.info(item)
 		#
 
 		ret = []
 
-		soup = self.loadFeed(searchTag, pageOverride)
+		soup = self.loadFeed(searchTag, pageOverride, includeExpunge)
 
 		itemTable = soup.find("table", class_="itg")
 
@@ -170,7 +259,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			return []
 
 		rows = itemTable.find_all("tr", class_=re.compile("gtr[01]"))
-
+		self.log.info("Found %s items on page.", len(rows))
 		for row in rows:
 
 			item = self.parseItem(row)
@@ -190,9 +279,9 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not self.checkExAccess():
 			raise ValueError("Cannot access ex! Wat?")
 
-		for searchTag in settings.sadPanda['sadPandaSearches']:
+		for searchTag, includeExpunge in settings.sadPanda['sadPandaSearches']:
 
-			dat = self.getFeed(searchTag)
+			dat = self.getFeed(searchTag, includeExpunge)
 
 			self.processLinksIntoDB(dat)
 
@@ -227,8 +316,9 @@ if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup(startObservers=False):
-		login()
-		# run = DbLoader()
-		# run.go()
+		# login()
+		run = DbLoader()
+		run.checkLogin()
+		run.go()
 
 
