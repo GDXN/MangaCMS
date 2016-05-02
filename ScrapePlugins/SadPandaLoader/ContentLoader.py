@@ -17,8 +17,9 @@ import processDownload
 random.seed()
 
 import ScrapePlugins.RetreivalBase
+from . import LoginMixin
 
-class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase, LoginMixin.ExLoginMixin):
 
 
 
@@ -37,6 +38,14 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	shouldCanonize = False
 
 	outOfCredits = False
+
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		self.checkLogin()
+		if not self.checkExAccess():
+			raise ValueError("Cannot access ex! Wat?")
 
 	def getTags(self, sourceUrl, inSoup):
 

@@ -44,6 +44,14 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 
   return "<div id=\"cb-status-right\" class=\"cb-control cb-status-right\" data-action=\"close\">\r\n	<div id=\"cb-progress-bar\">\r\n		<div class=\"progressbar-value\"></div>\r\n	</div>\r\n	<div class=\"progressbar-text\">None!</div>\r\n</div>\r\n";
   });
+templates['thumbnails'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  
+
+
+  return "\n<div class=\"cb-control thumbnails\"></div>\n";
+  });
 templates['toggleMode'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
@@ -66,7 +74,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
   
 
 
-  return "\r\n<div class=\"toolbar\">\r\n\r\n	<ul class=\"pull-left\">\r\n		<li class=\"close\">\r\n			<button data-trigger=\"click\" data-action=\"close\" title=\"close\" class=\"icon-remove-sign\"></button>\r\n		</li>\r\n		<li class=\"close separator\"></li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"zoomOut\" title=\"Zoom out\" class=\"icon-zoom-out\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"zoomIn\" title=\"Zoom in\" class=\"icon-zoom-in\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"fitWidth\" title=\"Fit page to window width\" class=\"icon-expand\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"originalSize\" title=\"Do not scale image\" class=\"icon-expand-2\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"fitWindow\" title=\"Fit page to window\" class=\"icon-contract\"></button>\r\n		</li>\r\n		<li>\r\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-right-3 manga-false\"></button>\r\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-left-3 manga-true\"></button>\r\n		</li>\r\n	</ul>\r\n\r\n	<ul class=\"pull-right\">\r\n		<li><span id=\"current-page\"></span> / <span id=\"page-count\"></span></li>\r\n	</ul>\r\n\r\n</div>\r\n";
+  return "\n<div class=\"toolbar\">\n\n	<ul class=\"pull-left\">\n		<li class=\"close\">\n			<button data-trigger=\"click\" data-action=\"close\" title=\"close\" class=\"icon-remove-sign\"></button>\n		</li>\n		<li class=\"close separator\"></li>\n		<li>\n			<button data-trigger=\"click\" data-action=\"zoomOut\" title=\"Zoom out\" class=\"icon-zoom-out\"></button>\n		</li>\n		<li>\n			<button data-trigger=\"click\" data-action=\"zoomIn\" title=\"Zoom in\" class=\"icon-zoom-in\"></button>\n		</li>\n		<li>\n			<button data-trigger=\"click\" data-action=\"fitWidth\" title=\"Fit page to window width\" class=\"icon-expand\"></button>\n		</li>\n		<li>\n			<button data-trigger=\"click\" data-action=\"originalSize\" title=\"Do not scale image\" class=\"icon-expand-2\"></button>\n		</li>\n		<li>\n			<button data-trigger=\"click\" data-action=\"fitWindow\" title=\"Fit page to window\" class=\"icon-contract\"></button>\n		</li>\n		<li>\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-right-3 manga-false\"></button>\n			<button data-trigger=\"click\" data-action=\"toggleReadingMode\" title=\"switch reading direction\" class=\"icon-arrow-left-3 manga-true\"></button>\n		</li>\n	</ul>\n\n	<ul class=\"pull-right\">\n		<li>\n			<button data-trigger=\"click\" data-action=\"thumbs\" title=\"Show Thumbnails\" class=\"icon-image\"></button>\n		</li>\n		<li><span id=\"current-page\"></span> / <span id=\"page-count\"></span></li>\n	</ul>\n\n</div>\n";
   });
 })();/* exported ComicBook */
 
@@ -129,8 +137,8 @@ var ComicBook = (function ($) {
 				next: 39,
 				// previous: 80,
 				previous: 37,
-				toolbar: 84,
-				toggleLayout: 76
+				toggleLayout: 76,
+				thumbnails: 84
 			},
 			libPath: '/comicbook/js/',
 			forward_buffer: 3,
@@ -394,6 +402,9 @@ var ComicBook = (function ($) {
 			options.zoomMode = 'fitWindow';
 			self.drawPage();
 		};
+		ComicBook.prototype.thumbs = function () {
+			self.toggleThumbnails();
+		};
 
 		/**
 		 * Preload all images, draw the page only after a given number have been loaded.
@@ -507,6 +518,10 @@ var ComicBook = (function ($) {
 			else if (options.zoomMode === 'fitWindow')
 			{
 				bubbleText += 'Zoom Mode: Fit Window<br>';
+			}
+			else if (options.zoomMode === 'manual')
+			{
+				bubbleText += 'Zoom Mode: Manual<br>';
 			}
 			else
 			{
@@ -777,8 +792,6 @@ var ComicBook = (function ($) {
 				var imXSz  = page_width  * devicePixelRatio;
 				var imYSz  = page_height * devicePixelRatio;
 
-
-
 				context.drawImage(image, imXPos, imYPos, imXSz, imYSz);
 			}
 
@@ -871,6 +884,11 @@ var ComicBook = (function ($) {
 				if (e.keyCode === options.keyboard.toggleLayout) {
 					self.toggleLayout();
 				}
+
+				// display thumbnail browser
+				if (e.keyCode === options.keyboard.thumbnails) {
+					self.toggleThumbnails();
+				}
 				break;
 
 			default:
@@ -938,6 +956,27 @@ var ComicBook = (function ($) {
 				.find('.manga-' + options.manga).show().end()
 				.find('.manga-' + !options.manga).hide();
 			self.drawPage();
+		};
+
+		ComicBook.prototype.toggleThumbnails = function () {
+			// TODO: show page numbers
+			// TODO: in double page mode merge both pages into a single link
+			// TODO: only load thumbnails when they are in view
+			// TODO: keyboard navigation (left / right / up / down / enter)
+			// TODO: highlight currently selected thumbnail
+			// TODO: focus on current page
+			// TODO: toolbar button
+			var $thumbnails = self.getControl('thumbnails');
+			$thumbnails.html('');
+			self.toggleControl('thumbnails');
+			$.each(pages, function (i, img) {
+				var $img = $(img).clone();
+				var $link = $('<a>').attr('href', '#' + i).append($img);
+				$link.on('click', function () {
+					self.hideControl('thumbnails');
+				});
+				$thumbnails.append($link);
+			});
 		};
 
 		ComicBook.prototype.toggleUIOverlay = function () {
