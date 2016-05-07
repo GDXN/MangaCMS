@@ -5,6 +5,7 @@ import re
 
 import urllib.parse
 import time
+import urllib.error
 import calendar
 import dateutil.parser
 import runStatus
@@ -88,8 +89,11 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		for daysAgo in range(1, dayDelta+1):
 
 			url = self.updateFeed.format(pageNo=daysAgo+rangeOffset)
-			page = self.wg.getpage(url)
-			soup = bs4.BeautifulSoup(page, "lxml")
+			try:
+				soup = self.wg.getSoup(url, retryQuantity=1)
+			except urllib.error.URLError as e:
+				soup = e.get_error_page_as_soup()
+				# return ret
 
 			# Find the divs containing either new files, or the day a file was uploaded
 			mainDiv = soup.find("div", class_="mng_lts_chp")
@@ -150,11 +154,21 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return newItems
 
 
+
+	def setup(self):
+		'''
+		poke through cloudflare
+		'''
+
+
+		if not self.wg.stepThroughCloudFlare("http://manga-joy.com/latest-chapters/1/", titleContains='Latest Chapters'):
+			raise ValueError("Could not access site due to cloudflare protection.")
+
 	def go(self):
 
 		self.resetStuckItems()
 		self.log.info("Getting feed items")
-
+		# self.setup()
 		feedItems = self.getMainItems()
 		self.log.info("Processing feed Items")
 

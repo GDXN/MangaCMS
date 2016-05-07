@@ -133,7 +133,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase, LoginMixin.ExLoginMi
 		if not self.checkExAccess():
 			raise ValueError("Cannot access ex! Wat?")
 
-		for searchTag, includeExpunge in settings.sadPanda['sadPandaSearches']:
+		for searchTag, includeExpunge, includeLowPower, includeDownvoted in settings.sadPanda['sadPandaSearches']:
 
 			dat = self.getFeed(searchTag, includeExpunge)
 

@@ -86,6 +86,17 @@ def determine_json_encoding(json_bytes):
 def as_soup(str):
 	return bs4.BeautifulSoup(str, "lxml")
 
+
+class ContentError(urllib.error.URLError):
+	def __init__(self, reason, errpgcontent):
+		super().__init__(reason)
+		self.error_page_content = errpgcontent
+
+	def get_error_page(self):
+		return self.error_page_content
+	def get_error_page_as_soup(self):
+		return as_soup(self.error_page_content)
+
 class title_not_contains(object):
 	""" An expectation for checking that the title *does not* contain a case-sensitive
 	substring. title is the fragment of title expected
@@ -355,7 +366,7 @@ class WebGetRobust:
 			raise
 
 
-	def decodeHtml(self, pageContent, cType):
+	def decodeHtml(self, pageContent, cType=None):
 
 		# this *should* probably be done using a parser.
 		# However, it seems to be grossly overkill to shove the whole page (which can be quite large) through a parser just to pull out a tag that
@@ -366,6 +377,7 @@ class WebGetRobust:
 		# bytes string is using, and we need the regex to get that encoding
 		coding = re.search(rb"charset=[\'\"]?([a-zA-Z0-9\-]*)[\'\"]?", pageContent, flags=re.IGNORECASE)
 
+		# TODO: Actually use passed cType value
 		cType = b""
 		charset = None
 		try:
@@ -545,7 +557,7 @@ class WebGetRobust:
 		returnMultiple = kwargs.setdefault("returnMultiple",  False)
 		callBack       = kwargs.setdefault("callBack",        None)
 		postData       = kwargs.setdefault("postData",        None)
-		retryQuantity  = kwargs.setdefault("retryQuantity",   None)
+		retryQuantity  = kwargs.setdefault("retryQuantity",   self.errorOutCount)
 		nativeError    = kwargs.setdefault("nativeError",     False)
 		binaryForm     = kwargs.setdefault("binaryForm",      False)
 		jsonPost       = kwargs.setdefault("jsonPost",        None)
@@ -570,7 +582,7 @@ class WebGetRobust:
 
 				retryCount = retryCount + 1
 
-				if (retryQuantity and retryCount > retryQuantity) or (not retryQuantity and retryCount > self.errorOutCount):
+				if retryCount > retryQuantity:
 					self.log.error("Failed to retrieve Website : %s at %s All Attempts Exhausted", pgreq.get_full_url(), time.ctime(time.time()))
 					pgctnt = None
 					try:
@@ -648,7 +660,10 @@ class WebGetRobust:
 
 			if lastErr and nativeError:
 				raise lastErr
-			raise urllib.error.URLError("Failed to retreive page '%s'!" % (requestedUrl, ))
+
+			content = self.decodeHtml(lastErr.read())
+			reterr = ContentError("Failed to retreive page '%s'!" % (requestedUrl, ), content)
+			raise reterr
 
 		if returnMultiple:
 			return pgctnt, pghandle
