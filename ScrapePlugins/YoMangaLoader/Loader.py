@@ -30,7 +30,7 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableName = "MangaItems"
 
 	urlBase    = "http://yomanga.co/"
-	seriesBase = "http://yomanga.co/reader/directory"
+	seriesBase = "http://yomanga.co/reader/directory/%s/"
 
 
 	def closeDB(self):
@@ -93,6 +93,7 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		new = 0
 		total = 0
 
+
 		soup = self.wg.getSoup(url)
 
 		stitle = soup.find("h1", class_='title').get_text().strip()
@@ -113,12 +114,24 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def getSeriesUrls(self):
 		ret = set()
 
-		soup = self.wg.getSoup(self.seriesBase)
+		self.wg.stepThroughCloudFlare(self.seriesBase % 1, titleContains='Series List')
 
-		rows = soup.find_all('div', class_='group')
+		page = 1
+		while True:
+			soup = self.wg.getSoup(self.seriesBase % page)
 
-		for row in rows:
-			ret.add(row.a['href'])
+			new = False
+
+			rows = soup.find_all('div', class_='group')
+
+			for row in rows:
+				if row.a['href'] not in ret:
+					new = True
+					ret.add(row.a['href'])
+
+			page += 1
+			if not new:
+				break
 
 		self.log.info("Found %s series", len(ret))
 
@@ -174,10 +187,10 @@ if __name__ == '__main__':
 		fl = Loader()
 		print("fl", fl)
 		fl.go()
-	# 	fl = Loader()
-	# 	print("fl", fl)
-	# 	# fl.go()
-	# 	fl.getSeriesUrls()
+		# fl = Loader()
+		# print("fl", fl)
+		# # fl.go()
+		# fl.getSeriesUrls()
 		# items = fl.getItemPages('http://mangastream.com/manga/area_d')
 		# print("Items")
 		# for item in items:

@@ -250,7 +250,7 @@ with the contents of `sys.path`.
 Q: Is this hard to use?  
 A: It requires at minimum a decent familiarity with the Linux command line. 
 Python and/or SQL knowledge is also helpful.    
-   I generally idle in #madokami on irchighway, so you can ask me questions 
+   I generally idle in #madokami on rizon, so you can ask me questions 
 if you need there, though I'm not actually present behind my client a lot of 
 the time. I'll help with whatever, though I can't exactly give a complete 
 lesson on "how to linux" or so forth.

@@ -70,7 +70,7 @@ scrapePlugins = {
 	9  : (ScrapePlugins.PururinLoader.Run,                   hours( 1)),
 	10 : (ScrapePlugins.FakkuLoader.Run,                     hours( 1)),
 	11 : (ScrapePlugins.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	12 : (ScrapePlugins.MjLoader.Run,                        hours( 1)),
+	# 12 : (ScrapePlugins.MjLoader.Run,                        hours( 1)),
 	13 : (ScrapePlugins.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
 	15 : (ScrapePlugins.MangaHere.Run,                       hours(12)),
 	16 : (ScrapePlugins.WebtoonLoader.Run,                   hours( 8)),

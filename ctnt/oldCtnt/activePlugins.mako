@@ -372,6 +372,17 @@ sidebarItemList = [
 			'genRow'        : True,
 			'type'          : 'Manga'
 		},
+		{
+			"num"           : 40,
+			'dbKey'         : "ym",
+			'name'          : "YoManga",
+			'dictKey'       : "ym",
+			'cssClass'      : "ym",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Manga'
+		},
 
 		{
 			"num"           : 7,

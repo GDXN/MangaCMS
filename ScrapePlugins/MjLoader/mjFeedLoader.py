@@ -4,7 +4,6 @@ import bs4
 import re
 
 import urllib.parse
-import time
 import urllib.error
 import calendar
 import dateutil.parser
@@ -91,7 +90,7 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			url = self.updateFeed.format(pageNo=daysAgo+rangeOffset)
 			try:
 				soup = self.wg.getSoup(url, retryQuantity=1)
-			except urllib.error.URLError as e:
+			except webFunctions.ContentError as e:
 				soup = e.get_error_page_as_soup()
 				# return ret
 
