@@ -31,7 +31,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 4
+	retreivalThreads = 1
 
 
 
@@ -149,9 +149,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.updateDbEntry(sourceUrl, dlState=-1)
 
 if __name__ == '__main__':
-	nt.dirNameProxy.startDirObservers()
-	cl = ContentLoader()
+	import utilities.testBase as tb
+	with tb.testSetup():
+		cl = ContentLoader()
 
-	cl.go()
+		cl.go()
 
 

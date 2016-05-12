@@ -30,6 +30,7 @@ import ScrapePlugins.Kawaii.Run
 import ScrapePlugins.ZenonLoader.Run
 import ScrapePlugins.MangaBox.Run
 import ScrapePlugins.MangaHere.Run
+import ScrapePlugins.MangaStreamLoader.Run
 import ScrapePlugins.YoMangaLoader.Run
 
 import ScrapePlugins.FoolSlide.VortexLoader.Run
@@ -60,6 +61,7 @@ def minutes(num):
 # are run, initially, starting after 1-minue*{key} intervals
 scrapePlugins = {
 	0  : (ScrapePlugins.BtBaseManager.Run,                   hours( 1)),
+	1  : (ScrapePlugins.MangaStreamLoader.Run,               hours( 6)),
 	2  : (ScrapePlugins.BuMonitor.Run,                       hours( 1)),
 
 	3  : (ScrapePlugins.JzLoader.Run,                        hours( 8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways

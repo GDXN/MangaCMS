@@ -121,7 +121,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-	def getAllItems(self, historical=False):
+	def getAllItems(self, historical):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -146,12 +146,12 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-	def go(self):
+	def go(self, historical=False):
 
 		self.resetStuckItems()
 		self.log.info("Getting feed items")
 
-		feedItems = self.getAllItems()
+		feedItems = self.getAllItems(historical)
 		self.log.info("Processing feed Items")
 
 		self.processLinksIntoDB(feedItems)
