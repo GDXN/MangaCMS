@@ -150,6 +150,19 @@ if __name__ == '__main__':
 	with tb.testSetup():
 
 		cl = ContentLoader()
-		cl.go()
+		# cl.go()
+
+		sourceUrl = "https://gameofscanlation.moe/projects/unbalance-triangle/chapter-32-2.1036/"
+
+		imageUrls = cl.getImageUrls(sourceUrl)
+
+		for url in imageUrls:
+			print(url)
+		images = []
+		for imgNum, imgUrl in imageUrls:
+			imageName, imageContent = cl.getImage(imgUrl, referrer=sourceUrl)
+			print(imgNum, imgUrl, imageName)
+			images.append([imgNum, imageName, imageContent])
+
 
 
