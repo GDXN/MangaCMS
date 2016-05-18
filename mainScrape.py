@@ -144,7 +144,6 @@ def go():
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=20)
 	startTime = datetime.datetime.now()+datetime.timedelta(seconds=10)
 	scheduleJobs(sched, startTime)
-	sched.start()
 
 	# spinwait for ctrl+c, and exit when it's received.
 	loops = 0
