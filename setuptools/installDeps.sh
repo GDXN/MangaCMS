@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 ROOT_UID="0"
 
 #Check if run as root
@@ -10,7 +12,7 @@ fi
 
 # install said up-to-date python
 apt-get install -y python3.4 python3.4-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.5 unrar
-apt-get install -y postgresql-server-dev-9.5 postgresql-contrib libyaml-dev git phantomjs
+apt-get install -y postgresql-server-dev-9.5 postgresql-contrib libyaml-dev git phantomjs libffi-dev
 
 # PIL/Pillow support stuff
 sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
@@ -41,16 +43,16 @@ python3 get-pip.py
 # echo TODO: ADD PostgreSQL >= 9.3 install stuff here!
 
 # Install the libraries we actually need
-sudo pip3 install Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama
-sudo pip3 install pyinotify python-dateutil apscheduler rarfile python-magic
-sudo pip3 install babel cython irc psycopg2 python-levenshtein chardet roman
-sudo pip3 install python-sql natsort pyyaml pillow rpyc server_reloader selenium
-sudo pip3 install logging_tree ftfy paramiko irc sqlalchemy
+sudo pip3 install --upgrade Mako CherryPy Pyramid Beautifulsoup4 FeedParser colorama
+sudo pip3 install --upgrade pyinotify python-dateutil apscheduler rarfile python-magic
+sudo pip3 install --upgrade babel cython irc psycopg2 python-levenshtein chardet roman
+sudo pip3 install --upgrade python-sql natsort pyyaml pillow rpyc server_reloader selenium
+sudo pip3 install --upgrade logging_tree ftfy paramiko irc sqlalchemy
 
 # numpy and scipy are just needed for the image deduplication stuff. They can be left out if
 # those functions are not desired.
 # And numpy itself
-sudo pip3 install numpy scipy
+sudo pip3 install --upgrade numpy scipy
 
 # Readability (python 3 port)
 sudo pip3 install git+https://github.com/stalkerg/python-readability
@@ -58,6 +60,6 @@ sudo pip3 install git+https://github.com/bear/parsedatetime
 
 # Pylzma for 7z support. ~~py3k support is still not in Pypi for no good reason~~
 # Never mind. Bugged the dev a bit, and it's now up to date.
-sudo pip3 install pylzma markdown
+sudo pip3 install --upgrade pylzma markdown
 
 sudo pip3 install git+https://github.com/fake-name/UniversalArchiveInterface.git

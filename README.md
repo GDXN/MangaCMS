@@ -124,6 +124,9 @@ Has lots of dependencies:
  - Probably more
 
 Installing:
+
+Add Postgresql 9.5 repository if not present (see [here](http://www.postgresql.org/download/linux/ubuntu/)).
+
 Run the `installDeps.sh` script in the `setuptools` directory (note: must be 
 run with `sudo` or as root. Please review it before running for security 
 reasons).   
@@ -200,7 +203,7 @@ You also have to add the line
 
 `local   mangacms        all                                     md5`
 
-to `/etc/postgresql/9.3/main/pg_hba.conf`, to allow local connections to the 
+to `/etc/postgresql/9.5/main/pg_hba.conf`, to allow local connections to the 
 postgres database with password auth.
 
 Once you have the above complete, you will want to run the bootstrap script `firstRun.py` to do the database setup. After that, you should be able to run `mainScrape` without issues.

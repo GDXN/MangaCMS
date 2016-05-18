@@ -8,7 +8,6 @@ import shlex
 
 import ssl
 import logging
-import irc.buffer
 import irc.client
 import irc.bot
 import irc.strings

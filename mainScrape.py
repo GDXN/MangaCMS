@@ -75,7 +75,13 @@ def scheduleJobs(sched, timeToStart):
 	for jobId, callee, interval, startWhen in jobs:
 		jId = callee.__name__
 		activeJobs.append(jId)
-		if not sched.get_job(jId):
+		have = False
+		try:
+			have = sched.get_job(jId)
+		except Exception:
+			pass
+
+		if not have:
 			sched.add_job(callMod,
 						args=(callee.__name__, ),
 						trigger='interval',
@@ -130,6 +136,7 @@ def go():
 	preflight()
 
 	sched = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
+	sched.start()
 
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*60)
 	# startTime = datetime.datetime.now()+datetime.timedelta(seconds=60*15)

@@ -47,8 +47,6 @@ webMvcPath       = '/SOMETHING/MangaCMS/ctnt/mvcCtnt'
 staticCtntPath   = '/SOMETHING/MangaCMS/ctnt/staticContent'
 bookCachePath    = '/SOMETHING/MangaCMS/BookCache'
 
-# Path to the directory of images that get auto-removed from archives on download.
-badImageDir  = r"/SOMETHING/MangaCMS/removeImages"
 
 # This is the path to the deduplication tool database API python file.
 # and the file hashing python file.
@@ -186,16 +184,17 @@ badImageDir  = r"/somepath/dir"
 # When files are "deleted" through the web UI, they're moved here.
 recycleBin = r'/media/Storage/MangaRecycleBin'
 
-# Starkana.com
-skSettings = {
+
+batotoSettings = {
 
 	"login"         : "username",
 	"passWd"        : "password",
 
-	"dirs" : {
-		"dlDir"         : pickedDir,
-		"mDlDir"        : baseDir
-		}
+}
+suraSettings = {
+
+	"login"         : "username",
+	"passWd"        : "password",
 
 }
 
@@ -318,66 +317,4 @@ ircMotdScraperMaskChannels = [
 ]
 
 
-
-
-# Book Sources (maps database key to proper name)
-bookSources = [
-	('tsuki',   'Baka-Tsuki'),
-	('japtem',  'JapTem'),
-	('retrans', 'Re:Translations'),
-	('guhehe',  'Guhehe'),
-	('prev',    'Prince Revolution'),
-	('solt',    'Solitary Translations'),
-	('kryt',    'Krytyk\'s Translations'),
-	('yora',    'Yoraikun Translation'),
-	('unf',     'Unlimited Novel Failures'),
-	('iml',     'Imoutolicious Translations'),
-	('stw',     'SkyTheWood Translations'),
-
-
-	('htl',     'Heretic Translation'),
-	('ntl',     'NanoDesu Translation'),
-	('cetl',    'CE Translation'),
-	('se86',    'Setsuna86 Trans'),
-	('untl',    'Untuned Translation'),
-
-	('unbrktl', 'Unbreakable Translation'),
-	('kytl',    'Kyakka Translation'),
-	('sktl',    'Sakura Honyaku Translation'),
-
-	('rtdtl',   'RaiseTheDead Translation'),
-
-	('hptytl',  'HaruPARTY Translation'),
-	('m0205',   'Manga0205 Translations'),
-	('ocytl',   'Onii-chan Yamete'),
-
-	('souse',   'Sousetsuka Translations'),
-	('defrtl',  'Defiring Translations'),
-	('gravtl',  'Gravity Translations'),
-	('tlwiki',  'TL Wiki Translations'),
-
-
-	('tsuigeki',     'Tsuigeki'),
-	('pirateyoshi',  'PirateYoshi'),
-	('mahoutsuki',   'MahouTsuki'),
-	('lorcromwell',  'Lorcromwell'),
-	('noitl',        'Noitl'),
-	('ecwebnovel',   'Ecwebnovel'),
-
-
-	('hikuo',        'Hikuo'),      # http://hikuosan.blogspot.com
-	('kurotsuki',    'Kurotsuki'),  # http://kurotsuki-novel.blogspot.com
-	('panofi',       'Panofi'),     # http://panofitrans.blogspot.com
-	('sword',        'Sword'),      # http://swordandgame.blogspot.ca
-	('lazy9',        'Lazy9'),      # http://9ethtranslations.wordpress.com
-	('kobato',       'Kobato'),     # http://kobatochandaisuki.wordpress.com
-	('tsal',         'Tsal'),       # http://tsaltranslation.wordpress.com
-	('zmun',         'Zmun'),       # http://zmunjali.wordpress.com
-	('binh',         'Binh'),       # https://binhjamin.wordpress.com
-	('bluesilver',   'Bluesilver'), # https://bluesilvertranslations.wordpress.com
-	('hokage',       'Hokage'),     # https://hokagetranslations.wordpress.com
-	('metal',        'Metal'),      # https://metalhaguremt.wordpress.com
-	('tomo',         'Tomo'),       # https://tomorolls.wordpress.com
-
-]
 
