@@ -118,13 +118,13 @@ skipTags = [
 	'tags to not download'
 ]
 
+tagNegativeHighlight = [
+]
+
 noHighlightAddresses = [
 	# "IP Addresses which won't get the tag highlighting behaviour"
 ]
 
-
-# IP range that is shown the hentai tables. In CIDR notation
-pronWhiteList = '192.168.1.0/24'
 
 
 # ExHentai
