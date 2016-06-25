@@ -81,7 +81,7 @@ scrapePlugins = {
 	19 : (ScrapePlugins.KissLoader.Run,                      hours( 1)),
 	20 : (ScrapePlugins.NHentaiLoader.Run,                   hours( 1)),
 	21 : (ScrapePlugins.Crunchyroll.Run,                     hours( 6)),
-	22 : (ScrapePlugins.SadPandaLoader.Run,                  hours( 6)),
+	22 : (ScrapePlugins.SadPandaLoader.Run,                  hours(12)),
 	# 23 : (ScrapePlugins.WebtoonsReader.Run,                  hours( 6)),  # They claim they're planning on coming back. We'll see.
 	25 : (ScrapePlugins.Kawaii.Run,                          hours(12)),
 	26 : (ScrapePlugins.ZenonLoader.Run,                     hours(24)),

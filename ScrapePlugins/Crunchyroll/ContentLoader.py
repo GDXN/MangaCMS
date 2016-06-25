@@ -283,6 +283,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		except urllib.error.URLError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
+		except IOError:
+			self.log.error("Failure retreiving content for link %s", link)
+			self.log.error("Traceback: %s", traceback.format_exc())
+
 		# 	self.updateDbEntry(link["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
 

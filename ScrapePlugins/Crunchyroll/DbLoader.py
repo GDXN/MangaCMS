@@ -65,26 +65,18 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-
-	def extractItemPage(self, page):
-		# Extract the information needed to determine the ajax call that will let us get the
-		# recent items for the series.
-		if not page:
-			return False
-
+	def getUrlFormat1(self, page):
 		indiceQuery = re.compile(r'var next_first_visible = (\d+);')
-		jsFrag      = re.compile(r" ajax_root: '/ajax/\?req=RpcApiManga_GetMangaCollectionCarouselPage',.+?},.+callback: function\(resp\)", re.DOTALL)
-
-
+		jsFrag1     = re.compile(r" ajax_root: '/ajax/\?req=RpcApiManga_GetMangaCollectionCarouselPage',.+?},.+callback: function\(resp\)", re.DOTALL)
 		indice = indiceQuery.search(page)
-		frag   = jsFrag.search(page)
+		frag   = jsFrag1.search(page)
 		if not indice or not frag:
-			return None
+			return []
 
 		paramRe = re.compile(r'params_obj: ({.+})', re.DOTALL)
 		urlParams = paramRe.search(frag.group(0))
 		if not urlParams:
-			return None
+			return []
 
 
 		# YAML insists on a space after a colon. Since our intput is
@@ -95,48 +87,85 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		params['first_index'] = indice.group(1)
 		params['req'] = "RpcApiManga_GetMangaCollectionCarouselPage"
 		ajaxUrl = '%s?%s' % (self.ajaxRoot, urllib.parse.urlencode(params))
+		return [ajaxUrl]
 
+	def getUrlFormat2(self, page):
+		jsFrag2     = re.compile(r"{\W+req:'RpcApiManga_GetMangaCollectionCarousel',.*?}", re.DOTALL)
 
-		page = self.wg.getpage(ajaxUrl)
+		link_all = jsFrag2.findall(page)
+		ret = []
+		for item in link_all:
+			params = item.replace(":", ": ")
+			try:
+				params = yaml.load(params)
+				# print(params)
+				params['req'] = "RpcApiManga_GetMangaCollectionCarousel"
+				ajaxUrl = '%s?%s' % (self.ajaxRoot, urllib.parse.urlencode(params))
+				ret.append(ajaxUrl)
+			except (ValueError, yaml.parser.ParserError):
+				# print("Failed parsing: ", params)
+				pass
+
+		return ret
+
+	def extractItemPage(self, page):
+		# Extract the information needed to determine the ajax call that will let us get the
+		# recent items for the series.
 		if not page:
 			return False
 
-		return page
-
-	def extractUrl(self, page):
-
-		mangaCarousel = self.extractItemPage(page)
-		if not mangaCarousel:
-			return False
-
-		# There is some XSS (I think?) blocking stuff, namely the whole AJAX response is
-		# wrapped in comments to protect from certain parsing attacks or something?
-		# ANyways, get rid of that.
-		mangaCarousel = mangaCarousel.replace("/*-secure-", "").replace("*/", "")
-		data = json.loads(mangaCarousel)
-		if data['result_code'] != 1:
-			# Failure?
-			return False
-
-		if not data['data']:
-			return False
-
-		# print(data['data'].keys())
-
-
-		raw = ''.join(data['data'].values())
-
-
-		soup = bs4.BeautifulSoup(raw, "lxml")
-		links = soup.find_all("a")
+		urls = self.getUrlFormat1(page) + self.getUrlFormat2(page)
+		urls = [url for url in urls if url]
+		# http://www.crunchyroll.com/ajax/?req=RpcApiManga_GetMangaCollectionCarouselPage&media_type=manga&first_index=4&volume_id=1139&series_id=397&manga_premium
+		# http://www.crunchyroll.com/ajax/?req=RpcApiManga_GetMangaCollectionCarousel&volume_id=1139&series_id=397&locale=enUS&media_type=manga&manga_premium
 
 		ret = []
-		for link in links:
-			if 'comics_read' in link['href']:
-				link = urllib.parse.urljoin(self.urlBase, link['href'])
-				ret.append(link)
+		for url in urls:
+			tmp = self.wg.getpage(url)
+			if tmp:
+				ret.append(tmp)
+		if not page:
+			return False
 
 		return ret
+
+	def extractUrl(self, page):
+		# print(page)
+		mangaCarousels = self.extractItemPage(page)
+		if not mangaCarousels:
+			return False
+
+		ret = []
+		for mangaCarousel in mangaCarousels:
+			# There is some XSS (I think?) blocking stuff, namely the whole AJAX response is
+			# wrapped in comments to protect from certain parsing attacks or something?
+			# ANyways, get rid of that.
+			mangaCarousel = mangaCarousel.replace("/*-secure-", "").replace("*/", "")
+			data = json.loads(mangaCarousel)
+			if data['result_code'] != 1:
+				# Failure?
+				continue
+
+			if not data['data']:
+				continue
+
+			# print(data['data'].keys())
+
+			if isinstance(data['data'], str):
+				raw = data['data']
+			else:
+				raw = ''.join(data['data'].values())
+
+
+			soup = bs4.BeautifulSoup(raw, "lxml")
+			links = soup.find_all("a")
+
+			for link in links:
+				if 'comics_read' in link['href']:
+					link = urllib.parse.urljoin(self.urlBase, link['href'])
+					ret.append(link)
+
+		return list(set(ret))
 
 
 	def parseItem(self, pageUrl):
@@ -203,5 +232,6 @@ if __name__ == "__main__":
 		run = DbLoader()
 		# run.getFeed()
 		run.go()
+		# run.parseItem('http://www.crunchyroll.com/comics/manga/tales-of-wedding-rings/volumes')
 
 

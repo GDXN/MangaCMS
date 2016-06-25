@@ -15,43 +15,25 @@ from concurrent.futures import ThreadPoolExecutor
 MASK_PATHS = [
 
 
-	'/mango/_Autouploads',
-	'/mango/Admin cleanup',
-	'/mango/Admin%20cleanup',
-	'/mango/Info',
-	'/mango/Manga/_Autouploads',
-	'/mango/Manga/HOW_TO_FIND_STUFF.txt',
-	'/mango/Manga/Non-English',
-	'/mango/Misc/_About this folder.txt',
-	'/mango/Misc/webm.txt',
-	'/mango/Misc/webm/ota yuuri.webm',
-	'/mango/Misc/WebRadio',
-	'/mango/Needs sorting',
-	'/mango/Needs%20sorting',
-	'/mango/Non-English',
-	'/mango/Raws',
-	'/mango/READ.txt',
-	'/mango/Requests',
-
-
-
-	'/_Autouploads',
 	'/Admin cleanup',
-	'/Admin%20cleanup',
 	'/Info',
+
+
+	'/Admin%20cleanup',
+	'/Admin cleanup',
 	'/Manga/_Autouploads',
 	'/Manga/HOW_TO_FIND_STUFF.txt',
 	'/Manga/Non-English',
-	'/Misc/_About this folder.txt',
-	'/Misc/webm.txt',
-	'/Misc/webm/ota yuuri.webm',
-	'/Misc/WebRadio',
+	'/Misc',
+
 	'/Needs sorting',
 	'/Needs%20sorting',
-	'/Non-English',
 	'/Raws',
+	'/Raws/',
 	'/READ.txt',
 	'/Requests',
+	'/WIP',
+	'/WIP/',
 
 	# Don't walk files we know we uploaded (only the uploader generates this series name)
 	'/mango/Manga/_/__/____/=0= IRC - Could not infer series',
@@ -60,8 +42,6 @@ MASK_PATHS = [
 
 	# I need to add a separate system to mirror novels
 	# and other media
-	'/mango/Novels',
-	'/mango/Artbooks',
 	'/Novels',
 	'/Artbooks',
 ]
@@ -69,9 +49,9 @@ MASK_PATHS = [
 STRIP_PREFIX = "/mango"
 
 HTTPS_CREDS = [
-	("manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
-	("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
-	("https://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("http://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("https://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
 	]
 
 class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
@@ -83,8 +63,8 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.DATABASE_DB_NAME
 
 	tableName = "MangaItems"
-	url_base     = "https://manga.madokami.com/"
-	tree_api     = "https://manga.madokami.com/stupidapi/lessdumbtree"
+	url_base     = "https://manga.madokami.al/"
+	tree_api     = "https://manga.madokami.al/stupidapi/lessdumbtree"
 
 	def checkLogin(self):
 		pass
@@ -130,9 +110,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		data = []
 		for sName, filen in data_unfiltered:
+			assert filen.startswith(STRIP_PREFIX)
+			filen = filen[len(STRIP_PREFIX):]
 			if not any([filen.startswith(prefix) for prefix in MASK_PATHS]):
-				assert filen.startswith(STRIP_PREFIX)
-				filen = filen[len(STRIP_PREFIX):]
 				sName = nt.getCanonicalMangaUpdatesName(sName)
 				data.append((sName, filen))
 

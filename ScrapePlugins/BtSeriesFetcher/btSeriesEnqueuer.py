@@ -1,7 +1,7 @@
 
 import webFunctions
 import settings
-
+import traceback
 import os.path
 
 
@@ -177,10 +177,14 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		rows = self.getSeriesRowsByValue(dlState=0)
 		self.log.info("Have %s new items to scan for items.", len(rows))
 		for row in rows:
-			self.updateSeriesDbEntryById(row["dbId"], dlState=1)
-			self.fetchItemFromRow(row)
-			self.updateSeriesDbEntryById(row["dbId"], dlState=2, lastUpdate=time.time())
-
+			try:
+				self.updateSeriesDbEntryById(row["dbId"], dlState=1)
+				self.fetchItemFromRow(row)
+				self.updateSeriesDbEntryById(row["dbId"], dlState=2, lastUpdate=time.time())
+			except webFunctions.ContentError:
+				self.log.error("Failure fetching pave: '%s'",  self.seriesUrl % row["seriesId"])
+				for line in traceback.format_exc().split("\n"):
+					self.log.error("%s", line)
 
 
 			if not runStatus.run:

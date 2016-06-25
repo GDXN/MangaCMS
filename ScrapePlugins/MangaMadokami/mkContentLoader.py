@@ -24,9 +24,9 @@ import processDownload
 
 
 HTTPS_CREDS = [
-	("manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
-	("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
-	("https://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("http://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("https://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
 	]
 
 
@@ -42,7 +42,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	retreivalThreads = 1
 
 	tableName = "MangaItems"
-	urlBase = "https://manga.madokami.com/"
+	urlBase = "https://manga.madokami.al/"
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -78,7 +78,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		path = urllib.parse.quote(path)
 		fileUrl = urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
 
-		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "https://manga.madokami.com"})
+		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "https://manga.madokami.al"})
 		pageUrl = pghandle.geturl()
 		hName = urllib.parse.urlparse(pageUrl)[2].split("/")[-1]
 		self.log.info( "HName: %s", hName, )
