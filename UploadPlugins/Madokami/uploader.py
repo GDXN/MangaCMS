@@ -30,81 +30,6 @@ import stat
 class CanonMismatch(Exception):
 	pass
 
-class TolerantFTP(ftplib.FTP_TLS):
-
-	@property
-	def encoding(self):
-		return 'utf-8'
-
-	@encoding.setter
-	def encoding(self, new_encoding):
-		assert new_encoding.lower() == "utf-8"
-
-	def retrlines(self, cmd, callback = None):
-		"""Retrieve data in line mode.  A new port is created for you.
-
-		Args:
-		  cmd: A RETR, LIST, or NLST command.
-		  callback: An optional single parameter callable that is called
-					for each line with the trailing CRLF stripped.
-					[default: print_line()]
-
-		Returns:
-		  The response code.
-
-		Tolerant of fucked up encoding issues. All received strings are decoded with
-		the encoding detected by chardet if the confidence is > 70%.
-		The default encoding is used if the chardet detected encoding lacks
-		sufficent confidence.
-		"""
-		if callback is None:
-			callback = ftplib.print_line
-		self.sendcmd('TYPE A')
-
-		with self.transfercmd(cmd) as conn, conn.makefile('rb', encoding=None) as fp:
-			while 1:
-				line = fp.readline(self.maxline + 1)
-				# guess = chardet.detect(line)
-
-				# print("Line type = ", type(line))
-				# print("conn type = ", type(conn))
-				# print("Guessed encoding - ", chardet.detect(line))
-				# print(line)
-				# if guess['confidence'] > 0.7:
-				# 	line = line.decode(guess['encoding'])
-				# else:
-				line = line.decode(self.encoding)
-
-				if len(line) > self.maxline:
-					raise ftplib.Error("got more than %d bytes" % self.maxline)
-				if self.debugging > 2:
-					print('*retr*', repr(line))
-				if not line:
-					break
-				if line[-2:] == ftplib.CRLF:
-					line = line[:-2]
-				elif line[-1:] == '\n':
-					line = line[:-1]
-				callback(line)
-			# shutdown ssl layer
-			if ftplib._SSLSocket is not None and isinstance(conn, ftplib._SSLSocket):
-				conn.unwrap()
-		return self.voidresp()
-
-
-	# Internal: send one line to the server, appending CRLF
-	def putline(self, line):
-		line = line + '\r\n'
-		if self.debugging > 1:
-			print('*put*', self.sanitize(line))
-
-		# FORCE the line to ALWAYS be utf-8.
-		line = ftfy.fix_text(line)
-		line = line.encode("UTF-8")
-		self.sock.sendall(line)
-
-
-
 
 def getSftpConnection():
 
@@ -118,6 +43,7 @@ def getSftpConnection():
 	t.connect(None, user, passwd)
 	sftp = paramiko.SFTPClient.from_transport(t)
 	return sftp
+
 
 def splitall(path):
 	allparts = []
@@ -149,68 +75,16 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		super().__init__()
 
-
 		self.wg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web")
 
-
-		self.ftp = TolerantFTP()
-		self.ftp.connect(
-				host = settings.mkSettings["ftpAddr"],
-				port = settings.mkSettings["ftpPort"],
-				)
-
-
-		self.ftp.login(
-				user   = settings.mkSettings["ftpUser"],
-				passwd = settings.mkSettings["ftpPass"],
-				)
-
-		self.ftp.prot_p()
-		self.ftp.set_pasv(True)
-		self.enableUtf8()
-		# print(self.ftp.retrlines('LIST'))
+		self.log.info("Initializing SFTP connection")
+		self.sftp = getSftpConnection()
+		self.log.info("SFTP connected.")
 
 		self.log.info("Init finished.")
 		self.mainDirs     = {}
 		self.unsortedDirs = {}
 
-
-		# self.log.info("Initializing SFTP connection")
-		# self.sftp_conn = getSftpConnection()
-		# self.log.info("SFTP connected.")
-
-		# x = self.sftp_conn.listdir_attr("/")
-		# for item in x:
-		# 	print(item.filename, stat.S_ISDIR(item.st_mode))
-
-		# raise ValueError
-
-	# def sftp_mlsdir(self, basepath):
-
-	# 	items = [(os.path.join(basepath, item.filename), stat.S_ISDIR(item.st_mode)) for item in self.sftp_conn.listdir_attr(basepath)]
-	# 	return items
-
-
-	def enableUtf8(self):
-		features_string_ftp = self.ftp.sendcmd('FEAT')
-		# self.log.info("FTP Feature string: '%s'", features_string_ftp)
-		if 'UTF8' in features_string_ftp.upper():
-			self.log.info("Server supports UTF-8 charset. Trying to enable it.")
-			# Command:	OPTS UTF8 ON
-			# Response:	200 UTF8 set to on
-			ret = self.ftp.sendcmd('OPTS UTF8 ON')
-			self.log.info("Response to 'OPTS UTF8 ON': '%s'", ret)
-			ret = ret.upper()
-			if "UTF8" in ret and "ON" in ret:
-				# Override undocumented class member to set the FTP encoding.
-				# This is a HORRIBLE hack.
-				self.log.info("FTP Connection set to UTF-8 mode!")
-				self.ftp.encoding = "UTF-8"
-			else:
-				self.log.warn("Could not enable UTF-8 mode?")
-				raise RuntimeError("No UTF-8?")
-		else:
-			raise RuntimeError("Server does not support UTF-8. What is this, 1980?")
 
 	def go(self):
 		pass
@@ -220,8 +94,8 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# path starts with "/". Therefore, we have to reset the CWD.
 		self.log.info("Source: '%s'", srcDirPath)
 		self.log.info("Dest:   '%s'", dstDirPath)
-		self.ftp.cwd("/")
-		for itemName, dummy_stats in self.ftp.mlsd(srcDirPath):
+		self.sftp.chdir("/")
+		for itemName, dummy_stats in self.sftp.listdir(srcDirPath):
 			# itemName = ftfy.fix_text(itemName)
 			if itemName == ".." or itemName == ".":
 				continue
@@ -229,11 +103,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			srcPath = os.path.join(srcDirPath, itemName)
 			try:
 				dstPath = os.path.join(dstDirPath, itemName)
-				self.ftp.rename(srcPath, dstPath)
+				self.sftp.rename(srcPath, dstPath)
 			except ftplib.error_perm:
 				base, ext = os.path.splitext(itemName)
 				dstPath = os.path.join(dstDirPath, base+" (1)"+ext)
-				self.ftp.rename(srcPath, dstPath)
+				self.sftp.rename(srcPath, dstPath)
 
 			self.log.info("	Moved from '%s'", srcPath)
 			self.log.info("	        to '%s'", dstPath)
@@ -275,14 +149,14 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.moveItemsInDir(src, dst)
 		self.log.info("Removing directory '%s'", src)
-		# self.ftp.rmd(src)
-		self.ftp.rename(src, "/Admin cleanup/autoclean dirs/garbage dir %s" % src.replace("/", ";").replace(" ", "_"))
+
+		self.sftp.rename(src, "/Admin cleanup/autoclean dirs/garbage dir %s" % src.replace("/", ";").replace(" ", "_"))
 
 		return dst
 
 	def loadRemoteDirectory(self, fullPath, aggregate=False):
 		ret = {}
-		dirs = self.wg.getpage("https://manga.madokami.com/stupidapi/fakedirs")
+		dirs = self.wg.getpage("https://manga.madokami.al/stupidapi/fakedirs")
 
 		requirePrefix = splitall(fullPath)
 
@@ -355,7 +229,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def checkInitDirs(self):
 		try:
-			tmp = self.ftp.mlsd(settings.mkSettings["uploadContainerDir"])
+			tmp = self.sftp.listdir(settings.mkSettings["uploadContainerDir"])
 			dirs = list(tmp)
 		except ftplib.error_perm:
 			self.log.critical("Container dir for uploads ('%s') does not exist!", settings.mkSettings["uploadContainerDir"])
@@ -364,13 +238,13 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		fullPath = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"])
 		if settings.mkSettings["uploadDir"] not in [item[0] for item in dirs]:
 			self.log.info("Need to create base container path")
-			self.ftp.mkd(fullPath)
+			self.sftp.mkdir(fullPath)
 		else:
 			self.log.info("Base container directory exists.")
 
 		# We only reach this point if API-based lookup has failed.
 		self.mainDirs     = self.loadRemoteDirectory(settings.mkSettings["mainContainerDir"])
-		self.unsortedDirs = list(self.ftp.mlsd(settings.mkSettings["uploadContainerDir"]))
+		self.unsortedDirs = list(self.sftp.listdir(settings.mkSettings["uploadContainerDir"]))
 
 		self.log.info("Have %s remote directories in primary dirs on FTP server.", len(self.mainDirs))
 		self.log.info("Have %s remote directories in autoupload folder FTP server.", len(self.unsortedDirs))
@@ -379,7 +253,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		doujinDir = "_Doujinshi"
 		fullPath = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], doujinDir)
 		try:
-			dirs = list(self.ftp.mlsd(fullPath))
+			dirs = list(self.sftp.listdir(fullPath))
 		except ftplib.error_perm:
 			self.log.critical("Container dir for uploads ('%s') does not exist!", settings.mkSettings["uploadContainerDir"])
 			raise
@@ -387,7 +261,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if os.path.join(settings.mkSettings["uploadDir"], doujinDir) not in [item[0] for item in dirs]:
 			self.log.info("Need to create base container path")
-			self.ftp.mkd(fullPath)
+			self.sftp.mkdir(fullPath)
 		else:
 			self.log.info("Base container directory exists.")
 
@@ -404,7 +278,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				self.moveItemsInDir(src, dst)
 				self.log.info("Removing directory '%s'", src)
-				self.ftp.rmd(src)
+				self.sftp.rmdir(src)
 
 
 	def getExistingDir(self, seriesName):
@@ -421,7 +295,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		authHeader = {"Authorization": "Basic %s" % authHeader.decode("ascii")}
 
 
-		dirInfo = self.wg.getpage("https://manga.madokami.com/api/muid/{mId}".format(mId=mId), addlHeaders = authHeader)
+		dirInfo = self.wg.getpage("https://manga.madokami.al/api/muid/{mId}".format(mId=mId), addlHeaders = authHeader)
 
 		ret = json.loads(dirInfo)
 		if not 'result' in ret or not ret['result']:
@@ -455,7 +329,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.log.info("Need to create container directory for %s", seriesName)
 				ulDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
 				try:
-					self.ftp.mkd(ulDir)
+					self.sftp.mkdir(ulDir)
 				except ftplib.error_perm as e:
 					# If the error is just a "directory exists" warning, ignore it silently
 					if str(e).startswith("550") and str(e).endswith('File exists'):
@@ -486,7 +360,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				self.log.info("Need to create container directory for %s", seriesName)
 				ulDir = os.path.join(settings.mkSettings["uploadContainerDir"], settings.mkSettings["uploadDir"], safeFilename)
 				try:
-					self.ftp.mkd(ulDir)
+					self.sftp.mkdir(ulDir)
 				except ftplib.error_perm:
 					self.log.warn("Directory exists?")
 					self.log.warn(traceback.format_exc())
@@ -508,18 +382,21 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dummy_path, filename = os.path.split(filePath)
 		self.log.info("Uploading file %s", filePath)
 		self.log.info("From series %s", seriesName)
-		self.log.info("To container directory %s", ulDir)
-		self.ftp.cwd(ulDir)
 
-		command = "STOR %s" % filename
+		fqUploadPath = os.path.join(ulDir, filename)
+		self.log.info("To container directory %s (%s)", ulDir, fqUploadPath)
 
-		assert self.ftp.encoding.lower() == "UTF-8".lower()
-		self.ftp.storbinary(command, open(filePath, "rb"))
+		self.sftp.chdir(ulDir)
+		self.sftp.put(filePath, fqUploadPath)
+
+		# command = "STOR %s" % filename
+		# assert self.ftp.encoding.lower() == "UTF-8".lower()
+		# self.ftp.storbinary(command, open(filePath, "rb"))
 		self.log.info("File Uploaded")
 
 
 		dummy_fPath, fName = os.path.split(filePath)
-		url = urllib.parse.urljoin("https://manga.madokami.com", urllib.parse.quote(filePath.strip("/")))
+		url = urllib.parse.urljoin("https://manga.madokami.al", urllib.parse.quote(filePath.strip("/")))
 
 		if db_commit:
 			self.insertIntoDb(retreivalTime = time.time(),
@@ -553,7 +430,7 @@ def test():
 	# uploader.loadRemoteDirectory("/")
 	# uploader.loadRemoteDirectory("/Manga")
 	# uploader.getExistingDir('87 Clockers')
-	# uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c21 [batoto].zip')
+	uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c22 [batoto].zip')
 
 
 if __name__ == "__main__":
