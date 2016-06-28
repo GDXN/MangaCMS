@@ -31,19 +31,6 @@ class CanonMismatch(Exception):
 	pass
 
 
-def getSftpConnection():
-
-	host = settings.mkSettings["ftpAddr"]
-	port = settings.mkSettings["sftpPort"]
-
-	user   = settings.mkSettings["ftpUser"]
-	passwd = settings.mkSettings["ftpPass"]
-
-	t = paramiko.Transport((host, port))
-	t.connect(None, user, passwd)
-	sftp = paramiko.SFTPClient.from_transport(t)
-	return sftp
-
 
 def splitall(path):
 	allparts = []
@@ -78,13 +65,25 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.wg = webFunctions.WebGetRobust(logPath=self.loggerPath+".Web")
 
 		self.log.info("Initializing SFTP connection")
-		self.sftp = getSftpConnection()
+
+
+		host = settings.mkSettings["ftpAddr"]
+		port = settings.mkSettings["sftpPort"]
+
+		user   = settings.mkSettings["ftpUser"]
+		passwd = settings.mkSettings["ftpPass"]
+
+		t = paramiko.Transport((host, port))
+		t.connect(None, user, passwd)
+		self.sftp = paramiko.SFTPClient.from_transport(t)
 		self.log.info("SFTP connected.")
 
 		self.log.info("Init finished.")
 		self.mainDirs     = {}
 		self.unsortedDirs = {}
 
+	def __del__(self):
+		self.sftp.close()
 
 	def go(self):
 		pass
@@ -368,7 +367,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ulDir
 
-	def uploadFile(self, seriesName, filePath, db_commit=True):
+	def uploadFileInternal(self, seriesName, filePath, db_commit=True):
 
 		if '(Doujinshi)' in filePath or 'Doujin}' in filePath:
 			self.checkInitDoujinDirs()
@@ -417,7 +416,7 @@ def do_remote_organize():
 
 def uploadFile(seriesName, filePath):
 	uploader = MkUploader()
-	uploader.uploadFile(seriesName, filePath)
+	uploader.uploadFileInternal(seriesName, filePath)
 
 
 def test():
@@ -430,7 +429,7 @@ def test():
 	# uploader.loadRemoteDirectory("/")
 	# uploader.loadRemoteDirectory("/Manga")
 	# uploader.getExistingDir('87 Clockers')
-	uploader.uploadFile('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c22 [batoto].zip')
+	uploader.uploadFileInternal('87 Clockers', '/media/Storage/Manga/87 Clockers/87 Clockers - v4 c22 [batoto].zip')
 
 
 if __name__ == "__main__":

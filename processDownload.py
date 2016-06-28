@@ -183,9 +183,12 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				retTags += " uploaded"
 			except ConnectionRefusedError:
 				self.log.warning("Uploading file failed! Connection Refused!")
+				for line in traceback.format_exc().split("\n"):
+					self.log.error("	%s", line)
 			except Exception:
 				self.log.error("Uploading file failed! Unknown Error!")
-				self.log.error(traceback.format_exc())
+				for line in traceback.format_exc().split("\n"):
+					self.log.error("	%s", line)
 		else:
 			self.log.info("File not slated for upload: '%s' (tags: '%s')", archivePath, retTags)
 
