@@ -103,6 +103,10 @@ def printHelp():
 	print("		Attempt to consolidate directories on the Madokami FTP")
 	print("		using the name synonym system.")
 	print()
+	print("	madokami-upload")
+	print("		Look through the last week of downloads, and try to upload any.")
+	print("		which appear to not have been uploaded..")
+	print()
 
 	print("*********************************************************")
 	print("Database Maintenance")
@@ -197,6 +201,8 @@ def parseOneArgCall(cmd):
 		utilities.bookClean.fixMangaUpdatesAuthors()
 	elif mainArg.lower() == "madokami-organize":
 		UploadPlugins.Madokami.uploader.do_remote_organize()
+	elif mainArg.lower() == "madokami-upload":
+		UploadPlugins.Madokami.uploader.do_missing_ul()
 	elif mainArg.lower() == "fix-h-tags-case":
 		cleaner = utilities.cleanDb.HCleaner('None')
 		cleaner.cleanTags()

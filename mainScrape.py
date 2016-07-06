@@ -35,7 +35,7 @@ executors = {
 }
 job_defaults = {
 	'coalesce': True,
-	'max_instances': 1
+	'max_instances': 3
 }
 
 jobstores = {
