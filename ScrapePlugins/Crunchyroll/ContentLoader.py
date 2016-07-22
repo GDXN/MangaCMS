@@ -171,6 +171,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		urls = self.fetchImageUrls(soup)
 		if not urls:
+			self.log.warn("No urls in chapter metadata?")
 			return False
 
 		imageUrls, linkDict["originName"], linkDict["chapterNo"] = urls
@@ -279,11 +280,15 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			if linkInfo:
 				self.doDownload(linkInfo)
 			else:
+				print("No link info?")
 				self.updateDbEntry(link["sourceUrl"], dlState=0)
 		except urllib.error.URLError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
 		except IOError:
+			self.log.error("Failure retreiving content for link %s", link)
+			self.log.error("Traceback: %s", traceback.format_exc())
+		except OSError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())
 

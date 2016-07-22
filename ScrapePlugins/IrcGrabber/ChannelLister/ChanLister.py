@@ -54,7 +54,7 @@ class ListerBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		return ret
 
 
-	def welcome_func(self):
+	def welcome_func(self, c, e):
 		print("Welcomed!")
 		# print(self.server_list[0])
 		# print(self.connection)

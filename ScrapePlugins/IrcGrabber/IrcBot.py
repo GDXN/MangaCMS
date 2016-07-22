@@ -5,6 +5,7 @@ import struct
 import sys
 
 import shlex
+import settings
 
 import ssl
 import logging
@@ -125,6 +126,8 @@ class TestBot(irc.bot.SingleServerIRCBot):
 			peerport = int(args[3])
 
 			self.dcc = self.dcc_connect(peeraddress, peerport, "raw")
+		else:
+			print("Wut?", e)
 
 	def on_dccmsg(self, connection, event):
 		data = event.arguments[0]
@@ -145,7 +148,7 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		self.log.info("On Welcome.")
 		self.welcomed = True
 		if hasattr(self, "welcome_func"):
-			self.welcome_func()
+			self.welcome_func(c, e)
 
 
 
@@ -189,6 +192,9 @@ class TestBot(irc.bot.SingleServerIRCBot):
 		else:
 			self.log.error("Unknown command = '%s'" % cmd)
 
+	def say_in_channel(self, channel, message):
+		self.log.info("Saygin %s in channel %s", message, channel)
+		self.connection.privmsg(channel, message)
 
 	def startup(self):
 		self.log.info("Bot entering select loop")

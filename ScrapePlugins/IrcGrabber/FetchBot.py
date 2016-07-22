@@ -324,7 +324,7 @@ class FetcherBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			self.log.info("Current state = %s, rec bytes = %s", self.state, self.received_bytes)
 		self.stepStateMachine()
 
-	def welcome_func(self):
+	def welcome_func(self, c, e):
 		# Tie periodic calls to on_welcome, so they don't back up while we're connecting.
 
 		self.reactor.execute_every(2.5,     self.processQueue)

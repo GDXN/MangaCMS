@@ -28,10 +28,13 @@ from apscheduler.executors.pool import ProcessPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
 
+import UploadPlugins.Madokami.notifier
+
 import datetime
 
 executors = {
 	'main_jobstore': ProcessPoolExecutor(20),
+	# 'main_jobstore': ThreadPoolExecutor(20),
 }
 job_defaults = {
 	'coalesce': True,
@@ -126,6 +129,9 @@ def scheduleJobs(sched, timeToStart):
 # check/update database schema, etc...
 def preflight():
 	logSetup.initLogging(logToDb=True)
+
+	runStatus.notq = UploadPlugins.Madokami.notifier.start_notifier()
+
 	schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 	statusManager.resetAllRunningFlags()
 
@@ -157,6 +163,8 @@ def go():
 	print("Scraper stopping scheduler")
 	sched.shutdown()
 	nt.dirNameProxy.stop()
+
+	runStatus.run_state.value = 0
 
 
 

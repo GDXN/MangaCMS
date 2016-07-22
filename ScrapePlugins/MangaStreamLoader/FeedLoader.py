@@ -48,7 +48,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def extractItemInfo(self, soup):
 
 		ret = {}
-		main = soup.find('div', class_='span8')
+		main = soup.find('div', class_='col-sm-8')
 
 		ret["title"] = main.h1.get_text().strip()
 

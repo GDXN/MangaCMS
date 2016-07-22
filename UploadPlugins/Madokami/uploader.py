@@ -28,6 +28,8 @@ import ScrapePlugins.RetreivalDbBase
 
 import stat
 
+import UploadPlugins.Madokami.notifier
+
 class CanonMismatch(Exception):
 	pass
 
@@ -429,6 +431,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		dummy_fPath, fName = os.path.split(filePath)
+
+		runStatus.notq.put(
+				"New chapter uploaded: '%s', from series: '%s'" %
+				(fqUploadPath, seriesName)
+			)
 
 		if db_commit:
 			self.insertIntoDb(retreivalTime = time.time(),

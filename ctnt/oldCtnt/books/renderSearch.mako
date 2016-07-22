@@ -48,7 +48,7 @@ bookWesternCols = (
 	)
 
 
-srcLookup = dict(settings.bookSources)
+# srcLookup = dict(settings.bookSources)
 
 
 def buildQuery(srcTbl, cols, **kwargs):
