@@ -100,12 +100,15 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		# etc...
 		pageno = 1
 		for page in chapterInfo['pages']:
-			url = page['locale']['enUS']['encrypted_composed_image_url']
-			if url == None or url == 'null':
-				raise ValueError("Item has null URLs?")
-			imageUrls.append((pageno, url))
+			print(page)
+			if 'locale' in page and page['locale'] and 'enUS' in page['locale'] and page['locale']['enUS']:
+				if 'encrypted_composed_image_url' in page['locale']['enUS']:
+					url = page['locale']['enUS']['encrypted_composed_image_url']
+					if url == None or url == 'null':
+						raise ValueError("Item has null URLs?")
+					imageUrls.append((pageno, url))
 
-			pageno += 1
+					pageno += 1
 
 		return imageUrls
 

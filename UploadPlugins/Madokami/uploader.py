@@ -431,11 +431,11 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		dummy_fPath, fName = os.path.split(filePath)
-
-		runStatus.notq.put(
-				"New chapter uploaded: '%s', from series: '%s'" %
-				(fqUploadPath, seriesName)
-			)
+		if runStatus.notq:
+			runStatus.notq.put(
+					"New chapter uploaded: '%s', from series: '%s'" %
+					(fqUploadPath, seriesName)
+				)
 
 		if db_commit:
 			self.insertIntoDb(retreivalTime = time.time(),
