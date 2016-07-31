@@ -112,7 +112,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase, LoginMixin.ExLoginM
 		dlA = inSoup.find('a', onclick=re.compile('archiver.php'))
 
 		clickAction = dlA['onclick']
-		clickUrl = re.search("(http://exhentai.org/archiver.php.*)'", clickAction)
+		clickUrl = re.search("(https?://exhentai.org/archiver.php.*)'", clickAction)
 		return clickUrl.group(1)
 
 

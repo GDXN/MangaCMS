@@ -38,6 +38,7 @@ import ScrapePlugins.FoolSlide.RoseliaLoader.Run
 import ScrapePlugins.FoolSlide.SenseLoader.Run
 import ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run
 import ScrapePlugins.FoolSlide.TwistedHel.Run
+import ScrapePlugins.FoolSlide.GoMangaCo.Run
 import ScrapePlugins.FoolSlide.S2Loader.Run
 import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import ScrapePlugins.SurasPlace.Run
@@ -96,8 +97,9 @@ scrapePlugins = {
 	33 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     hours(12)),
 	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            hours(12)),
 	36 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      hours(12)),
-	37 : (ScrapePlugins.SurasPlace.Run,                      hours(24)),
-	38 : (ScrapePlugins.FoolSlide.S2Loader.Run,              hours(12)),
+	37 : (ScrapePlugins.FoolSlide.GoMangaCo.Run,             hours(12)),
+	38 : (ScrapePlugins.SurasPlace.Run,                      hours(24)),
+	39 : (ScrapePlugins.FoolSlide.S2Loader.Run,              hours(12)),
 
 	40 : (ScrapePlugins.MangaMadokami.Run,                   hours(4)),
 	41 : (ScrapePlugins.BooksMadokami.Run,                   hours(4)),
