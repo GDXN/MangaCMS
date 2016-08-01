@@ -32,17 +32,24 @@ import ScrapePlugins.MangaBox.Run
 import ScrapePlugins.MangaHere.Run
 import ScrapePlugins.MangaStreamLoader.Run
 import ScrapePlugins.YoMangaLoader.Run
-
-import ScrapePlugins.FoolSlide.VortexLoader.Run
-import ScrapePlugins.FoolSlide.RoseliaLoader.Run
-import ScrapePlugins.FoolSlide.SenseLoader.Run
-import ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run
-import ScrapePlugins.FoolSlide.TwistedHel.Run
-import ScrapePlugins.FoolSlide.GoMangaCo.Run
-import ScrapePlugins.FoolSlide.S2Loader.Run
-import ScrapePlugins.FoolSlide.MangatopiaLoader.Run
 import ScrapePlugins.SurasPlace.Run
 import ScrapePlugins.GameOfScanlationLoader.Run
+
+import ScrapePlugins.FoolSlide.Modules.CanisMajorRun
+import ScrapePlugins.FoolSlide.Modules.ChibiMangaRun
+import ScrapePlugins.FoolSlide.Modules.DokiRun
+import ScrapePlugins.FoolSlide.Modules.GoMangaCoRun
+import ScrapePlugins.FoolSlide.Modules.IlluminatiMangaRun
+import ScrapePlugins.FoolSlide.Modules.JaptemMangaRun
+import ScrapePlugins.FoolSlide.Modules.MangatopiaRun
+import ScrapePlugins.FoolSlide.Modules.RoseliaRun
+import ScrapePlugins.FoolSlide.Modules.S2Run
+import ScrapePlugins.FoolSlide.Modules.SenseRun
+import ScrapePlugins.FoolSlide.Modules.ShoujoSenseRun
+import ScrapePlugins.FoolSlide.Modules.TripleSevenRun
+import ScrapePlugins.FoolSlide.Modules.TwistedHelRun
+import ScrapePlugins.FoolSlide.Modules.VortexRun
+
 
 
 import ScrapePlugins.MangaMadokami.Run
@@ -91,18 +98,24 @@ scrapePlugins = {
 	29 : (ScrapePlugins.GameOfScanlationLoader.Run,          hours(12)),
 
 	# FoolSlide modules
-	30 : (ScrapePlugins.FoolSlide.VortexLoader.Run,          hours(12)),
-	31 : (ScrapePlugins.FoolSlide.RoseliaLoader.Run,         hours(12)),
-	32 : (ScrapePlugins.FoolSlide.SenseLoader.Run,           hours(12)),
-	33 : (ScrapePlugins.FoolSlide.ShoujoSenseLoader.Run,     hours(12)),
-	34 : (ScrapePlugins.FoolSlide.TwistedHel.Run,            hours(12)),
-	36 : (ScrapePlugins.FoolSlide.MangatopiaLoader.Run,      hours(12)),
-	37 : (ScrapePlugins.FoolSlide.GoMangaCo.Run,             hours(12)),
-	38 : (ScrapePlugins.SurasPlace.Run,                      hours(24)),
-	39 : (ScrapePlugins.FoolSlide.S2Loader.Run,              hours(12)),
 
-	40 : (ScrapePlugins.MangaMadokami.Run,                   hours(4)),
-	41 : (ScrapePlugins.BooksMadokami.Run,                   hours(4)),
+	30 : (ScrapePlugins.FoolSlide.Modules.CanisMajorRun,      hours(12)),
+	31 : (ScrapePlugins.FoolSlide.Modules.ChibiMangaRun,      hours(12)),
+	32 : (ScrapePlugins.FoolSlide.Modules.DokiRun,            hours(12)),
+	33 : (ScrapePlugins.FoolSlide.Modules.GoMangaCoRun,       hours(12)),
+	34 : (ScrapePlugins.FoolSlide.Modules.IlluminatiMangaRun, hours(12)),
+	35 : (ScrapePlugins.FoolSlide.Modules.JaptemMangaRun,     hours(12)),
+	36 : (ScrapePlugins.FoolSlide.Modules.MangatopiaRun,      hours(12)),
+	37 : (ScrapePlugins.FoolSlide.Modules.RoseliaRun,         hours(12)),
+	38 : (ScrapePlugins.FoolSlide.Modules.S2Run,              hours(12)),
+	39 : (ScrapePlugins.FoolSlide.Modules.SenseRun,           hours(12)),
+	40 : (ScrapePlugins.FoolSlide.Modules.ShoujoSenseRun,     hours(12)),
+	41 : (ScrapePlugins.FoolSlide.Modules.TripleSevenRun,     hours(12)),
+	42 : (ScrapePlugins.FoolSlide.Modules.TwistedHelRun,      hours(12)),
+	43 : (ScrapePlugins.FoolSlide.Modules.VortexRun,          hours(12)),
+
+	50 : (ScrapePlugins.MangaMadokami.Run,                   hours(4)),
+	51 : (ScrapePlugins.BooksMadokami.Run,                   hours(4)),
 
 }
 

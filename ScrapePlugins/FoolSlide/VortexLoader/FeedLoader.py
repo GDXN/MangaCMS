@@ -1,27 +1,4 @@
 
-import webFunctions
-
-import settings
-import ScrapePlugins.RetreivalDbBase
-
-import ScrapePlugins.FoolSlide.FoolSlideFetchBase
-
-class FeedLoader(ScrapePlugins.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
-
-
-
-	loggerPath = "Main.Manga.Vx.Fl"
-	pluginName = "Vortex Scans Link Retreiver"
-	tableKey = "vx"
-	dbName = settings.DATABASE_DB_NAME
-
-	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
-
-	tableName = "MangaItems"
-
-	urlBase = "http://reader.vortex-scans.com/"
-	feedUrl = urlBase+"reader/list/{num}/"
-
 
 if __name__ == '__main__':
 	import utilities.testBase as tb
