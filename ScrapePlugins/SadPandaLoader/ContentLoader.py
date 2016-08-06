@@ -165,11 +165,11 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase, LoginMixin.ExLoginM
 			self.outOfCredits = True
 			raise ValueError("Out of credits. Cannot download!")
 
-		if 'Pressing this button will immediately deduct funds' in soup.get_text():
+		if 'Download Cost:' in soup.get_text():
 			self.log.info("Accepting download.")
 			acceptForm = soup.find('form')
 			formPostUrl = acceptForm['action']
-			soup = self.wg.getSoup(formPostUrl, addlHeaders={'Referer': referrer}, postData={'dlcheck': 'Download Archive'})
+			soup = self.wg.getSoup(formPostUrl, addlHeaders={'Referer': referrer}, postData={'dlcheck': 'Download Original Archive', 'dltype' : 'org'})
 		else:
 			self.log.warn("Already accepted download?")
 
