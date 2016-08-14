@@ -544,6 +544,10 @@ def do_missing_ul():
 
 
 def uploadFile(seriesName, filePath):
+
+	if seriesName.lower() in [tmp.lower() for tmp in settings.mkSettings['noUpload']]:
+		return
+
 	log = logging.getLogger("Main.Manga.Mk.Up.Base")
 	for x in range(50):
 		try:

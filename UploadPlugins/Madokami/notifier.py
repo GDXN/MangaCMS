@@ -53,8 +53,22 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		if self.runState.value == 0:
 			self.connection.close()
 
+	def on_pubmsg(self, c, e):
+		self.log.info("On pubmsg = '%s', '%s'", c, e)
+		if e.arguments:
+			if e.arguments == ["%s blocked uploads" % settings.notifierBot["name"]]:
+				self.say_in_channel(self.channel, "Blocked series uploads:")
+				for bad in settings.mkSettings['noUpload']:
+					self.say_in_channel(self.channel, "	'{}'".format(bad))
+			if e.arguments == ["%s shrug" % settings.notifierBot["name"]]:
+				self.say_in_channel(self.channel, r"¯\_(ツ)_/¯")
+
+		print((type(e), e))
+		print(e.arguments)
+
 	def on_privmsg(self, c, e):
 		self.log.info("On Privmsg = '%s', '%s'", c, e)
+		print((type(e), e))
 		# self.say_command(e, e.arguments[0])
 		cmd = e.arguments[0]
 		if cmd.startswith(settings.ircBot["pubmsg_prefix"]):
@@ -67,7 +81,7 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		while True:
 			try:
 				message = self.message_queue.get_nowait()
-				self.say_in_channel(self.channel, message)
+				# self.say_in_channel(self.channel, message)
 			except queue.Empty:
 				break
 
