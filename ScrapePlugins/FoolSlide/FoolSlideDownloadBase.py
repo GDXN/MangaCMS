@@ -74,14 +74,25 @@ class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 		if not scriptText:
 			raise ValueError("No contents in script tag? '%s'" % baseUrl)
 
-		jsonRe = re.compile(r'var pages ?= ?(\[.+?\]);', re.DOTALL)
+		jsonRe = re.compile(r'var [a-zA-Z]+ ?= ?(\[.*?\]);', re.DOTALL)
 		jsons = jsonRe.findall(scriptText)
-
+		jsons = [tmp for tmp in jsons if len(tmp)>2]
 		if not jsons:
 			# print("Script = ", container.script)
 			raise ValueError("No JSON variable in script! '%s'" % baseUrl)
 
-		arr = json.loads(jsons.pop())
+		valid = False
+		for item in jsons:
+			loaded = json.loads(item)
+			bad = False
+			for image in loaded:
+				urlfname = os.path.split(urllib.parse.urlsplit(image['url']).path)[-1]
+				if image['filename'] != urlfname:
+					bad = True
+			if not bad:
+				arr = loaded
+				break
+
 
 		imageUrls = []
 

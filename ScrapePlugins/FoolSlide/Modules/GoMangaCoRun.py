@@ -87,6 +87,13 @@ if __name__ == '__main__':
 
 	with tb.testSetup():
 		fl = Runner()
-
 		fl.go()
+
+		# cl = ContentLoader()
+		# ret = cl.getImageUrls("http://gomanga.co/reader/read/hajimete_no_gal/en/0/13/")
+		# print(ret)
+		# ret = cl.getImageUrls("http://reader.roseliascans.com/read/futari_ecchi/en/24/225/")
+		# print(ret)
+		# ret = cl.getImageUrls("http://reader.s2smanga.com/read/dimension_w/en/4/31/5/page/1")
+		# print(ret)
 

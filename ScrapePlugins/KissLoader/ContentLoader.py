@@ -27,6 +27,7 @@ from mimetypes import guess_extension
 from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
+import magic
 
 class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
@@ -68,6 +69,11 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			else:
 				fileN += ".jpg"
 
+		# Let magic figure out the files for us (it's probably smarter then kissmanga, anyways.)
+		guessed = magic.from_buffer(content, mime=True)
+		ext = guess_extension(tp)
+		if ext:
+			fileN = fileN + ext
 
 		return fileN, content
 

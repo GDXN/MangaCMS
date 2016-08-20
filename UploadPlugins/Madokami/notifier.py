@@ -60,8 +60,12 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 				self.say_in_channel(self.channel, "Blocked series uploads:")
 				for bad in settings.mkSettings['noUpload']:
 					self.say_in_channel(self.channel, "	'{}'".format(bad))
-			if e.arguments == ["%s shrug" % settings.notifierBot["name"]]:
-				self.say_in_channel(self.channel, r"¯\_(ツ)_/¯")
+			if e.arguments and e.arguments[0].startswith("%s shrug" % settings.notifierBot["name"]):
+				vals = e.arguments[0].split(" ")[1:]
+				print("Vals:", vals)
+				if all([val == "shrug" for val in vals]):
+					msg = " ".join([r"¯\_(ツ)_/¯"]*len(vals))
+					self.say_in_channel(self.channel, msg)
 
 		print((type(e), e))
 		print(e.arguments)
