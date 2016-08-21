@@ -21,6 +21,8 @@ import multiprocessing
 import processDownload
 
 import abc
+import random
+random.seed()
 
 
 class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
@@ -56,19 +58,32 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 	def on_pubmsg(self, c, e):
 		self.log.info("On pubmsg = '%s', '%s'", c, e)
 		if e.arguments:
-			if e.arguments == ["%s blocked uploads" % settings.notifierBot["name"]]:
-				self.say_in_channel(self.channel, "Blocked series uploads:")
-				for bad in settings.mkSettings['noUpload']:
-					self.say_in_channel(self.channel, "	'{}'".format(bad))
-			if e.arguments and e.arguments[0].startswith("%s shrug" % settings.notifierBot["name"]):
-				vals = e.arguments[0].split(" ")[1:]
-				print("Vals:", vals)
-				if all([val == "shrug" for val in vals]):
-					msg = " ".join([r"¯\_(ツ)_/¯"]*len(vals))
-					self.say_in_channel(self.channel, msg)
+			if len(e.arguments) == 1:
+				if len(e.arguments[0]):
+					self.handle_argstr(e.arguments[0])
 
 		print((type(e), e))
 		print(e.arguments)
+
+	def handle_argstr(self, argstr):
+
+		if argstr == "%s blocked uploads" % settings.notifierBot["name"]:
+			self.say_in_channel(self.channel, "Blocked series uploads:")
+			for bad in settings.mkSettings['noUpload']:
+				self.say_in_channel(self.channel, "	'{}'".format(bad))
+
+		if argstr == ".boolean":
+			if random.randrange(2):
+				self.say_in_channel(self.channel, "Yes")
+			else:
+				self.say_in_channel(self.channel, "No")
+
+		if argstr.startswith("%s shrug" % settings.notifierBot["name"]):
+			vals = argstr.split(" ")[1:]
+			print("Vals:", vals)
+			if all([val == "shrug" for val in vals]):
+				msg = " ".join([r"¯\_(ツ)_/¯"]*len(vals))
+				self.say_in_channel(self.channel, msg)
 
 	def on_privmsg(self, c, e):
 		self.log.info("On Privmsg = '%s', '%s'", c, e)
@@ -81,7 +96,6 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			super().on_privmsg(c, e)
 
 	def check_message(self):
-
 		while True:
 			try:
 				message = self.message_queue.get_nowait()

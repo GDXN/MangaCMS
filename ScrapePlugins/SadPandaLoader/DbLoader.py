@@ -12,6 +12,7 @@ import copy
 import urllib.parse
 import time
 import calendar
+import random
 
 from . import LoginMixin
 
@@ -139,7 +140,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase, LoginMixin.ExLoginMi
 
 			self.processLinksIntoDB(dat)
 
-			time.sleep(5)
+			time.sleep(random.randrange(5, 60))
 
 # def getHistory():
 
