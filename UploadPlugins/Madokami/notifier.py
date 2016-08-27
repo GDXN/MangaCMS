@@ -24,6 +24,120 @@ import abc
 import random
 random.seed()
 
+EMOTICONS = {
+	'flip-table' : r'(╯°□°）╯︵ ┻━┻',
+	'FLIP-TABLE' : r'(ノಠ益ಠ)ノ彡┻━┻',
+	'fix-table' : r'┬──┬ ノ( ゜-゜ノ)',
+	'table-flip' : r'┬─┬ ︵ /(.□. ）',
+	'lenny' : r'( ͡° ͜ʖ ͡°)',
+	'shrug' : r'¯\_(ツ)_/¯',
+	'lenny-swarm' : r'( ͡°( ͡° ͜ʖ( ͡° ͜ʖ ͡°)ʖ ͡°) ͡°)',
+	'lenny-spider' : r'/╲/\\╭( ͡° ͡° ͜ʖ ͡° ͡°)╮/\\╱\\',
+	'whry' : r'ლ(ಠ益ಠლ)',
+	'kiss' : r'(づ￣ ³￣)づ',
+	'grin' : r'☜(⌒▽⌒)☞',
+	'happy' : r'( ͡ᵔ ͜ʖ ͡ᵔ )',
+	'barrel-roll' : r'(._.) ( l: ) ( .-. ) ( :l ) (._.)',
+	'peek' : r'┬┴┬┴┤ ͜ʖ ͡°) ├┬┴┬┴',
+	'unsure' : r'(ಥ﹏ಥ)',
+	'rpeek' : r'┬┴┬┴┤(･_├┬┴┬┴',
+	'smile' : r'(͡ ͡° ͜ つ ͡͡°)',
+	'SHOVE' : r'༼ つ ಥ_ಥ ༽つ',
+	'shove' : r'༼ つ ͡° ͜ʖ ͡° ༽つ',
+	'ORLY' : r'﴾͡๏̯͡๏﴿ O\'RLY?',
+	'sad' : r'(；一_一)',
+	'flip-tables' : r'┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻',
+	'point' : r'(☞ﾟ∀ﾟ)☞',
+	'sunglasses' : r'(•_•) ( •_•)>⌐■-■ (⌐■_■)',
+
+	# '' : r'ʕ•ᴥ•ʔ',
+	# '' : r'(▀̿Ĺ̯▀̿ ̿)',
+	# '' : r'(ง ͠° ͟ل͜ ͡°)ง',
+	# '' : r'ಠ_ಠ',
+	# '' : r'༼ つ ◕_◕ ༽つ',
+	# '' : r'(づ｡◕‿‿◕｡)づ',
+	# '' : r'(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ ✧ﾟ･: *ヽ(◕ヮ◕ヽ)',
+	# '' : r'(ง\'̀-\'́)ง',
+	# '' : r'(• ε •)',
+	# '' : r'(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧',
+	# '' : r'(¬‿¬)',
+	# '' : r'(◕‿◕✿)',
+	# '' : r'(ᵔᴥᵔ)',
+	# '' : r'♥‿♥',
+	# '' : r'ಠ╭╮ಠ',
+	# '' : r'♪~ ᕕ(ᐛ)ᕗ',
+	# '' : r'| (• ◡•)| (❍ᴥ❍ʋ)',
+	# '' : r'(;´༎ຶД༎ຶ`)',
+	# '' : r'◉_◉',
+	# '' : r'~(˘▾˘~)',
+	# '' : r'ヾ(⌐■_■)ノ♪',
+	# '' : r'\ (•◡•) /',
+	# '' : r'(~˘▾˘)~',
+	# '' : r'( ͡°╭͜ʖ╮͡° )',
+	# '' : r'ᕙ(⇀‸↼‶)ᕗ',
+	# '' : r'⚆ _ ⚆',
+	# '' : r'༼ ºل͟º ༼ ºل͟º ༼ ºل͟º ༽ ºل͟º ༽ ºل͟º ༽',
+	# '' : r'༼ʘ̚ل͜ʘ̚༽',
+	# '' : r'ᕦ(ò_óˇ)ᕤ',
+	# '' : r'(｡◕‿‿◕｡)',
+	# '' : r'ಥ_ಥ',
+	# '' : r'(｡◕‿◕｡)',
+	# '' : r'⌐╦╦═─',
+	# '' : r'¯\(°_o)/¯',
+	# '' : r'(•ω•)',
+	# '' : r'(☞ຈل͜ຈ)☞',
+	# '' : r'ヽ༼ຈل͜ຈ༽ﾉ',
+	# '' : r'（╯°□°）╯︵( .o.)',
+	# '' : r'☜(˚▽˚)☞',
+	# '' : r'(ง°ل͜°)ง',
+	# '' : r'˙ ͜ʟ˙',
+	# '' : r'ಠ⌣ಠ',
+	# '' : r'(°ロ°)☝',
+	# '' : r'(っ˘ڡ˘ς)',
+	# '' : r'ლ(´ڡ`ლ)',
+	# '' : r'｡◕‿‿◕｡',
+	# '' : r'(─‿‿─)',
+	# '' : r'╚(ಠ_ಠ)=┐',
+	# '' : r'(¬_¬)',
+	# '' : r'( ಠ ͜ʖರೃ)',
+	# '' : r'｡◕‿◕｡',
+	# '' : r'( ⚆ _ ⚆ )',
+	# '' : r'(ʘᗩʘ\')',
+	# '' : r'Ƹ̵̡Ӝ̵̨̄Ʒ',
+	# '' : r'(ʘ‿ʘ)',
+	# '' : r'ლ,ᔑ•ﺪ͟͠•ᔐ.ლ',
+	# '' : r'ಠ‿↼',
+	# '' : r'ƪ(˘⌣˘)ʃ',
+	# '' : r'(´・ω・`)',
+	# '' : r'ʘ‿ʘ',
+	# '' : r'ಠ_ಥ',
+	# '' : r'┬─┬ノ( º _ ºノ)',
+	# '' : r'(´・ω・)っ由',
+	# '' : r'ಠ~ಠ',
+	# '' : r'(&gt;ლ)',
+	# '' : r'(° ͡ ͜ ͡ʖ ͡ °)',
+	# '' : r'ರ_ರ',
+	# '' : r'ಠoಠ',
+	# '' : r'(▰˘◡˘▰)',
+	# '' : r'(✿´‿`)',
+	# '' : r'(ღ˘⌣˘ღ)',
+	# '' : r'◔̯◔',
+	# '' : r'¬_¬',
+	# '' : r'｡゜(｀Д´)゜｡',
+	# '' : r'ب_ب',
+	# '' : r'◔ ⌣ ◔',
+	# '' : r'(ó ì_í)=óò=(ì_í ò)',
+	# '' : r'°Д°',
+	# '' : r'( ﾟヮﾟ)',
+	# '' : r'☼.☼',
+	# '' : r'≧☉_☉≦',
+	# '' : r'(>人<)',
+	# '' : r'٩◔̯◔۶',
+	# '' : r'〆(・∀・＠)',
+	# '' : r'(･.◤)',
+}
+
+KEYS = list(EMOTICONS.keys())
 
 class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 
@@ -78,12 +192,18 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 			else:
 				self.say_in_channel(self.channel, "No")
 
-		if argstr.startswith("%s shrug" % settings.notifierBot["name"]):
-			vals = argstr.split(" ")[1:]
-			print("Vals:", vals)
-			if all([val == "shrug" for val in vals]):
-				msg = " ".join([r"¯\_(ツ)_/¯"]*len(vals))
+
+		first, vals = argstr.split(" ")[0], argstr.split(" ")[1:]
+		if first == settings.notifierBot["name"] and vals:
+			if any([all([val == key for val in vals]) for key in KEYS]):
+				msg = " ".join([EMOTICONS[vals[0]]]*len(vals))
 				self.say_in_channel(self.channel, msg)
+
+		if len(first) > 2 and first[0] == ".":
+			if first[1:] in EMOTICONS:
+				print("Dot command: '%s' (%s)" % (first[1:], first))
+				self.say_in_channel(self.channel, EMOTICONS[first[1:]])
+
 
 	def on_privmsg(self, c, e):
 		self.log.info("On Privmsg = '%s', '%s'", c, e)
