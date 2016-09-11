@@ -149,7 +149,6 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 		super(NotifierBot, self).__init__(*args, **kwargs)
 
 		self.connection.execute_every(5, self.alive)
-		self.joined = False
 
 		self.channel = "#madokami"
 
@@ -159,8 +158,9 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 
 	def alive(self):
 		self.log.info("Alive loop!")
+		print("Current channels: ", self.channels)
 
-		if not self.joined:
+		if not '#madokami' in self.channels:
 			self.connection.join(self.channel)
 			self.log.info("Joined channel: %s", self.channel)
 
@@ -225,7 +225,6 @@ class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
 
 	def on_currenttopic(self, c, e):
 		if '#madokami' in e.arguments :
-			self.joined = True
 			self.log.info("Joined to channel!")
 
 
