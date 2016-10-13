@@ -48,33 +48,20 @@ class ContentLoader(ScrapePlugins.FoolSlide.FoolSlideDownloadBase.FoolContentLoa
 
 		if "The following content is intended for mature audiences" in pageCtnt:
 			raise ValueError("Wat?")
-		soup = bs4.BeautifulSoup(pageCtnt, "lxml")
-
-		container = soup.find('body')
-
-		if not container:
-			raise ValueError("Unable to find javascript container div '%s'" % baseUrl)
-
-		# If there is a ad div in the content container, it'll mess up the javascript match, so
-		# find it, and remove it from the tree.
-		container.find('div', class_='isreaderc').decompose()
-		# if container.find('div', class_='ads'):
-		# 	container.find('div', class_='ads').decompose()
 
 
-		scriptText = container.script.get_text()
-
-		if not scriptText:
-			raise ValueError("No contents in script tag? '%s'" % baseUrl)
-
-
-		jsonRe = re.compile(r'var pages = (\[.+?\]);', re.DOTALL)
-		jsons = jsonRe.findall(scriptText)
+		jsonRe = re.compile(r'var pages = (\[.*?\]);', re.DOTALL)
+		jsons = jsonRe.findall(pageCtnt)
 
 		if not jsons:
 			raise ValueError("No JSON variable in script! '%s'" % baseUrl)
 
-		arr = json.loads(jsons.pop())
+		data = jsons.pop()
+		print(data)
+		if data == "[]":
+			arr = []
+		else:
+			arr = json.loads(data)
 
 		imageUrls = []
 
@@ -194,5 +181,15 @@ if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup():
-		run = Runner()
-		run.go()
+		# run = Runner()
+		# run.go()
+
+		runStatus.run = True
+		cl = ContentLoader()
+		cl.go()
+		cl.closeDB()
+
+		# cl = ContentLoader()
+		# pg = 'http://www.twistedhelscans.com/read/trace_15/en/0/33/page/1'
+		# pg = 'http://www.twistedhelscans.com/read/trace_15/en/0/32/'
+		# cl.getImageUrls(pg)
