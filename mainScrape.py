@@ -130,7 +130,8 @@ def scheduleJobs(sched, timeToStart):
 def preflight():
 	logSetup.initLogging(logToDb=True)
 
-	runStatus.notq = UploadPlugins.Madokami.notifier.start_notifier()
+	# runStatus.notq = UploadPlugins.Madokami.notifier.start_notifier()
+	runStatus.notq = None
 
 	schemaUpdater.schemaRevisioner.updateDatabaseSchema()
 	statusManager.resetAllRunningFlags()
