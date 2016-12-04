@@ -105,6 +105,12 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		elif name == "conn":
 			if threadName not in self.dbConnections:
 
+				if len(self.dbConnections) > 25:
+					for cname, conn in list(self.dbConnections.items()):
+						conn.close()
+						conn.pop(cname)
+					self.dbConnections.clear()
+
 				# First try local socket connection, fall back to a IP-based connection.
 				# That way, if the server is local, we get the better performance of a local socket.
 				try:
@@ -119,6 +125,12 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		else:
 			return object.__getattribute__(self, name)
 
+	def __del__(self):
+		for db_conn in self.dbConnections.values():
+			try:
+				db_conn.close()
+			except Exception:
+				pass
 
 	validKwargs = ["dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note"]
 
@@ -180,6 +192,9 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	def closeDB(self):
 		self.log.info("Closing DB...",)
 		self.conn.close()
+		for connection in self.dbConnections.values():
+			connection.close()
+
 		self.log.info("DB Closed")
 
 
