@@ -209,7 +209,7 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			loop = 1
 			while os.path.exists(fqFName):
-				fName = "%s - (%d).zip" % (chapterName, loop)
+				fName = "%s [batoto] - (%d).zip" % (chapterName, loop)
 				fqFName = os.path.join(dlPath, fName)
 				loop += 1
 			self.log.info("Saving to archive = %s", fqFName)
