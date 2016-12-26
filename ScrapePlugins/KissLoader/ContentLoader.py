@@ -43,7 +43,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	retreivalThreads = 2
 
-
+	itemLimit = 250
 
 	def getImage(self, imageUrl, referrer):
 
