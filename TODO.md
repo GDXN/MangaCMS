@@ -1,7 +1,7 @@
 
 http://www.tsumino.com/
+https://doujinshi.online/
 
-http://yomanga.co/
 http://cafeconirst.com/
 https://www.spottoon.com/
 

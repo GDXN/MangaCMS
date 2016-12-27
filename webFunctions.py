@@ -661,7 +661,12 @@ class WebGetRobust:
 			if lastErr and nativeError:
 				raise lastErr
 
-			content = self.decodeHtml(lastErr.read())
+			# Decode the error content (if it's compressed)
+			encoded = lastErr.headers.get('Content-Encoding')
+			errctnt = lastErr.read()
+			compType, errctnt = self.decompressContent(encoded, errctnt)
+
+			content = self.decodeHtml(errctnt)
 			reterr = ContentError("Failed to retreive page '%s'!" % (requestedUrl, ), content)
 			raise reterr
 

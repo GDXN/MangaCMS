@@ -3,6 +3,7 @@
 
 import webFunctions
 import os
+import re
 import os.path
 
 import zipfile
@@ -32,7 +33,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 6
+	retreivalThreads = 1
 
 	shouldCanonize = False
 
@@ -73,8 +74,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		self.log.info("Retreiving item: %s", sourcePage)
 
-
-
 		try:
 			soup = self.wg.getSoup(sourcePage, addlHeaders={'Referer': self.urlBase})
 		except:
@@ -82,7 +81,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			raise IOError("Invalid webpage")
 
 
-		linkDict['dirPath'] = os.path.join(settings.nhSettings["dlDir"], linkDict['seriesName'])
+		linkDict['dirPath'] = os.path.join(settings.tsSettings["dlDir"], linkDict['seriesName'])
 
 		if not os.path.exists(linkDict["dirPath"]):
 			os.makedirs(linkDict["dirPath"])
@@ -92,6 +91,43 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		self.log.info("Folderpath: %s", linkDict["dirPath"])
 		#self.log.info(os.path.join())
+
+
+		read_link = soup.find("a", class_='book-read-button', href=re.compile("/read/view", re.IGNORECASE))
+
+		nav_to = urllib.parse.urljoin(self.urlBase, read_link['href'])
+		soup = self.wg.getSoup(nav_to, addlHeaders={'Referer': sourcePage})
+
+		# This is probably brittle
+		mid = read_link['href'].split("/")[-1]
+
+		page_params = {
+			"q"         : mid,
+		}
+		addlHeaders = {
+			"X-Requested-With":"XMLHttpRequest",
+			"Referer" : nav_to,
+			"Host"    : "www.tsumino.com",
+			"Origin"  : "http://www.tsumino.com",
+			"Content-Type" : "application/x-www-form-urlencoded; charset=UTF-8",
+			"Cache-Control":"no-cache",
+		}
+
+		try:
+			jdat = self.wg.getJson("http://www.tsumino.com/Read/Load", postData=page_params, addlHeaders=addlHeaders)
+		except Exception as e:
+			traceback.format_exc()
+
+			print(e)
+			print(e.get_error_page())
+
+			raise RuntimeError
+
+
+
+		print("read_link")
+		print(read_link)
+		print(jdat)
 
 
 		imageUrls = self.imageUrls(soup)
@@ -223,9 +259,11 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	# with tb.testSetup(startObservers=False):
+	with tb.testSetup(startObservers=False, load=False):
 
 		run = ContentLoader()
 		# run.retreivalThreads = 1
 		run.resetStuckItems()
 		run.go()
+		# run.getDownloadInfo("http://www.tsumino.com/Book/Info/27758/1/the-you-behind-the-lens-fakku")

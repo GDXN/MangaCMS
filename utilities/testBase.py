@@ -2,7 +2,7 @@
 from contextlib import contextmanager
 
 @contextmanager
-def testSetup(startObservers=False):
+def testSetup(startObservers=False, load=True):
 
 	import runStatus
 	runStatus.preloadDicts = False
@@ -24,9 +24,10 @@ def testSetup(startObservers=False):
 
 	signal.signal(signal.SIGINT, signal_handler)
 
-	nt.dirNameProxy.startDirObservers(useObservers=startObservers)
+	if load:
+		nt.dirNameProxy.startDirObservers(useObservers=startObservers)
 
 	yield
 
-	if startObservers:
+	if startObservers and load:
 		nt.dirNameProxy.stop()
