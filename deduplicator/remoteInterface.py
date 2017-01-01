@@ -70,7 +70,7 @@ def cleanDirectory(dirPath, delDir):
 		print("Item", dummy_num, basePath)
 
 
-		fType = magic.from_file(basePath, mime=True).decode("ascii")
+		fType = magic.from_file(basePath, mime=True)
 
 		if fType == 'application/zip' or fType == 'application/x-rar':
 			print(basePath)

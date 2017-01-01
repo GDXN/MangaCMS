@@ -88,7 +88,7 @@ class ArchCleaner(object):
 		if not os.path.exists(archPath):
 			raise ValueError("Trying to clean non-existant file?")
 
-		fType = magic.from_file(archPath, mime=True).decode('ascii')
+		fType = magic.from_file(archPath, mime=True)
 		if not fType == 'application/zip' and \
 		   not fType == 'application/x-rar' and \
 		   not fType == 'application/x-7z-compressed':
@@ -249,15 +249,15 @@ class ArchCleaner(object):
 	# If includePHash is true as well, the duplicate search is done using phashes of the images, in addition
 	# to just raw file-hashing.
 	def processNewArchive(self, archPath, passwd=""):
-		if magic.from_file(archPath, mime=True).decode("ascii") == 'application/zip':
+		if magic.from_file(archPath, mime=True) == 'application/zip':
 			self.unprotectZip(archPath, passwd)
-		elif magic.from_file(archPath, mime=True).decode("ascii") == 'application/x-rar':
+		elif magic.from_file(archPath, mime=True) == 'application/x-rar':
 			pass
 		else:
 			self.log.error("ArchCleaner called on file that isn't a rar or zip!")
 			self.log.error("Called on file %s", archPath)
 			self.log.error("Specified password '%s'", passwd)
-			self.log.error("Inferred file type %s", magic.from_file(archPath, mime=True).decode("ascii"))
+			self.log.error("Inferred file type %s", magic.from_file(archPath, mime=True))
 			raise NotAnArchive("ArchCleaner called on file that isn't a rar or zip!")
 
 		# ArchPath will convert from rar to zip if needed, and returns the name of the resulting
@@ -294,7 +294,7 @@ if __name__ == "__main__":
 			if not os.path.exists(fileP):
 				raise ValueError
 
-			fType = magic.from_file(fileP, mime=True).decode("ascii")
+			fType = magic.from_file(fileP, mime=True)
 
 			if fType == 'application/zip' or fType == 'application/x-rar':
 				run.processNewArchive(fileP)

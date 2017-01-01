@@ -268,6 +268,27 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 					split -= 1
 			print("item = ", newName)
 
+	def reprocessFailedH(self):
+
+		with self.conn.cursor() as cur:
+			cur.execute('''SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE tags LIKE %s;''', ('%unprocessable%', ))
+			ret = cur.fetchall()
+		for dbid, fname, dpath, tags in ret:
+			basePath = os.path.join(dpath, fname)
+
+			tags = tags.split(" ")
+			badtags = ['unprocessable', 'corrupt']
+			for bad in badtags:
+				while bad in tags:
+					tags.remove(bad)
+			print(os.path.exists(basePath), basePath)
+			print(tags)
+
+			proc = processDownload.MangaProcessor()
+			tags = proc.processDownload(seriesName=None, archivePath=basePath, pathFilter=[''])
+			self.addTag(basePath, tags)
+
+
 	def moveUnlinkableDirectories(self, dirPath, toPath):
 
 
@@ -459,3 +480,15 @@ def runSingleDirDeduper(dirPath, deletePath):
 
 	dd.closeDB()
 
+
+
+
+def reprocessHFailed():
+
+	dd = DirDeduper()
+	dd.openDB()
+	dd.setupDbApi()
+
+	dd.reprocessFailedH()
+
+	dd.closeDB()

@@ -667,7 +667,7 @@ class WebGetRobust:
 			compType, errctnt = self.decompressContent(encoded, errctnt)
 
 			content = self.decodeHtml(errctnt)
-			reterr = ContentError("Failed to retreive page '%s'!" % (requestedUrl, ), content)
+			reterr = ContentError("Failed to retreive page '%s' due to error: %s!" % (requestedUrl, lastErr.code if lastErr else "unknown"), content)
 			raise reterr
 
 		if returnMultiple:

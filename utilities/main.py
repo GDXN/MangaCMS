@@ -107,6 +107,9 @@ def printHelp():
 	print("		Look through the last week of downloads, and try to upload any.")
 	print("		which appear to not have been uploaded..")
 	print()
+	print("	rescan-failed-h")
+	print("		Rescan all H items that failed on previous phash processing.")
+	print()
 
 	print("*********************************************************")
 	print("Database Maintenance")
@@ -206,7 +209,8 @@ def parseOneArgCall(cmd):
 	elif mainArg.lower() == "fix-h-tags-case":
 		cleaner = utilities.cleanDb.HCleaner('None')
 		cleaner.cleanTags()
-
+	elif mainArg.lower() == "rescan-failed-h":
+		utilities.dedupDir.reprocessHFailed()
 	else:
 		print("Unknown arg!")
 
