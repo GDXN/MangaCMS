@@ -41,7 +41,7 @@ class FakkuContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 6
+	retreivalThreads = 2
 
 	shouldCanonize = False
 

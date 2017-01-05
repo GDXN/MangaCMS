@@ -33,7 +33,7 @@ class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	urlBase = "http://mangajoy.com/"
 
-	retreivalThreads = 6
+	retreivalThreads = 2
 	itemLimit = 500
 
 	# Mangajoy does recompress. Arrrgh.

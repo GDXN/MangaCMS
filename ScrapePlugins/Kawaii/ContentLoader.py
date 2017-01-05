@@ -29,7 +29,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 4
+	retreivalThreads = 2
 
 	urlBase = "http://kawaii.ca/reader/"
 
