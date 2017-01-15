@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
 import runStatus
 
-from ScrapePlugins.IrcGrabber.IrcEnqueueRun import Runner
+from ScrapePlugins.M.IrcGrabber.IrcEnqueueRun import Runner
 import signal
 
 import os.path

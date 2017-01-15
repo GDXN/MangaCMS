@@ -5,55 +5,57 @@ if __name__ == "__main__":
 	import logSetup
 	logSetup.initLogging()
 
-import ScrapePlugins.BuMonitor.Run
-import ScrapePlugins.DjMoeLoader.Run
-import ScrapePlugins.DjMoeLoader.Retag
-import ScrapePlugins.BtBaseManager.Run
-import ScrapePlugins.PururinLoader.Run
-import ScrapePlugins.JzLoader.Run
+import ScrapePlugins.M.BuMonitor.Run
+import ScrapePlugins.M.BtBaseManager.Run
+import ScrapePlugins.M.JzLoader.Run
 
-import ScrapePlugins.FakkuLoader.Run
-import ScrapePlugins.McLoader.Run
-import ScrapePlugins.CxLoader.Run
-import ScrapePlugins.MjLoader.Run
-import ScrapePlugins.WebtoonLoader.Run            # Yeah. There is webtoon.com. and WebtoonsReader.com. Confusing much?
-import ScrapePlugins.WebtoonsReader.Run
-import ScrapePlugins.KissLoader.Run
-import ScrapePlugins.SadPandaLoader.Run
-import ScrapePlugins.NHentaiLoader.Run
-import ScrapePlugins.DynastyLoader.Run
-import ScrapePlugins.HBrowseLoader.Run
-import ScrapePlugins.Crunchyroll.Run
-import ScrapePlugins.IrcGrabber.IrcEnqueueRun
-import ScrapePlugins.IrcGrabber.BotRunner
-import ScrapePlugins.Kawaii.Run
-import ScrapePlugins.ZenonLoader.Run
-import ScrapePlugins.MangaBox.Run
-import ScrapePlugins.MangaHere.Run
-import ScrapePlugins.MangaStreamLoader.Run
-import ScrapePlugins.YoMangaLoader.Run
-import ScrapePlugins.SurasPlace.Run
-import ScrapePlugins.GameOfScanlationLoader.Run
-
-import ScrapePlugins.FoolSlide.Modules.CanisMajorRun
-import ScrapePlugins.FoolSlide.Modules.ChibiMangaRun
-import ScrapePlugins.FoolSlide.Modules.DokiRun
-import ScrapePlugins.FoolSlide.Modules.GoMangaCoRun
-import ScrapePlugins.FoolSlide.Modules.IlluminatiMangaRun
-import ScrapePlugins.FoolSlide.Modules.JaptemMangaRun
-import ScrapePlugins.FoolSlide.Modules.MangatopiaRun
-import ScrapePlugins.FoolSlide.Modules.RoseliaRun
-import ScrapePlugins.FoolSlide.Modules.S2Run
-import ScrapePlugins.FoolSlide.Modules.SenseRun
-import ScrapePlugins.FoolSlide.Modules.ShoujoSenseRun
-import ScrapePlugins.FoolSlide.Modules.TripleSevenRun
-import ScrapePlugins.FoolSlide.Modules.TwistedHelRun
-import ScrapePlugins.FoolSlide.Modules.VortexRun
+import ScrapePlugins.H.DjMoeLoader.Run
+import ScrapePlugins.H.DjMoeLoader.Retag
+import ScrapePlugins.H.PururinLoader.Run
+import ScrapePlugins.H.FakkuLoader.Run
+import ScrapePlugins.H.SadPandaLoader.Run
+import ScrapePlugins.H.NHentaiLoader.Run
+import ScrapePlugins.H.HBrowseLoader.Run
 
 
+import ScrapePlugins.M.McLoader.Run
+import ScrapePlugins.M.CxLoader.Run
+import ScrapePlugins.M.MjLoader.Run
+import ScrapePlugins.M.WebtoonLoader.Run            # Yeah. There is webtoon.com. and WebtoonsReader.com. Confusing much?
+import ScrapePlugins.M.WebtoonsReader.Run
+import ScrapePlugins.M.KissLoader.Run
+import ScrapePlugins.M.DynastyLoader.Run
+import ScrapePlugins.M.Crunchyroll.Run
+import ScrapePlugins.M.IrcGrabber.IrcEnqueueRun
+import ScrapePlugins.M.IrcGrabber.BotRunner
+import ScrapePlugins.M.Kawaii.Run
+import ScrapePlugins.M.ZenonLoader.Run
+import ScrapePlugins.M.MangaBox.Run
+import ScrapePlugins.M.MangaHere.Run
+import ScrapePlugins.M.MangaStreamLoader.Run
+import ScrapePlugins.M.YoMangaLoader.Run
+import ScrapePlugins.M.SurasPlace.Run
+import ScrapePlugins.M.GameOfScanlationLoader.Run
 
-import ScrapePlugins.MangaMadokami.Run
-import ScrapePlugins.BooksMadokami.Run
+import ScrapePlugins.M.FoolSlide.Modules.CanisMajorRun
+import ScrapePlugins.M.FoolSlide.Modules.ChibiMangaRun
+import ScrapePlugins.M.FoolSlide.Modules.DokiRun
+import ScrapePlugins.M.FoolSlide.Modules.GoMangaCoRun
+import ScrapePlugins.M.FoolSlide.Modules.IlluminatiMangaRun
+import ScrapePlugins.M.FoolSlide.Modules.JaptemMangaRun
+import ScrapePlugins.M.FoolSlide.Modules.MangatopiaRun
+import ScrapePlugins.M.FoolSlide.Modules.RoseliaRun
+import ScrapePlugins.M.FoolSlide.Modules.S2Run
+import ScrapePlugins.M.FoolSlide.Modules.SenseRun
+import ScrapePlugins.M.FoolSlide.Modules.ShoujoSenseRun
+import ScrapePlugins.M.FoolSlide.Modules.TripleSevenRun
+import ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun
+import ScrapePlugins.M.FoolSlide.Modules.VortexRun
+
+
+
+import ScrapePlugins.M.MangaMadokami.Run
+import ScrapePlugins.M.BooksMadokami.Run
 
 # Convenience functions to make intervals clearer.
 def days(num):
@@ -68,54 +70,55 @@ def minutes(num):
 # All they do is specify the order in which plugins
 # are run, initially, starting after 1-minue*{key} intervals
 scrapePlugins = {
-	0  : (ScrapePlugins.BtBaseManager.Run,                   hours( 1)),
-	1  : (ScrapePlugins.MangaStreamLoader.Run,               hours( 6)),
-	2  : (ScrapePlugins.BuMonitor.Run,                       hours( 1)),
+	0  : (ScrapePlugins.M.BtBaseManager.Run,                   hours( 1)),
+	1  : (ScrapePlugins.M.MangaStreamLoader.Run,               hours( 6)),
+	2  : (ScrapePlugins.M.BuMonitor.Run,                       hours( 1)),
 
-	3  : (ScrapePlugins.JzLoader.Run,                        hours( 8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
-	4  : (ScrapePlugins.DjMoeLoader.Run,                     hours( 1)),
-	5  : (ScrapePlugins.DjMoeLoader.Retag,                   hours( 1)),
-	6  : (ScrapePlugins.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	8  : (ScrapePlugins.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
-	9  : (ScrapePlugins.PururinLoader.Run,                   hours( 1)),
-	10 : (ScrapePlugins.FakkuLoader.Run,                     hours( 1)),
-	11 : (ScrapePlugins.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	# 12 : (ScrapePlugins.MjLoader.Run,                        hours( 1)),
-	13 : (ScrapePlugins.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
-	15 : (ScrapePlugins.MangaHere.Run,                       hours(12)),
-	16 : (ScrapePlugins.WebtoonLoader.Run,                   hours( 8)),
-	17 : (ScrapePlugins.DynastyLoader.Run,                   hours( 8)),
-	18 : (ScrapePlugins.HBrowseLoader.Run,                   hours( 1)),
-	19 : (ScrapePlugins.KissLoader.Run,                      hours( 1)),
-	20 : (ScrapePlugins.NHentaiLoader.Run,                   hours( 1)),
-	21 : (ScrapePlugins.Crunchyroll.Run,                     hours( 4)),
-	22 : (ScrapePlugins.SadPandaLoader.Run,                  hours(12)),
-	# 23 : (ScrapePlugins.WebtoonsReader.Run,                  hours( 6)),  # They claim they're planning on coming back. We'll see.
-	25 : (ScrapePlugins.Kawaii.Run,                          hours(12)),
-	26 : (ScrapePlugins.ZenonLoader.Run,                     hours(24)),
-	27 : (ScrapePlugins.MangaBox.Run,                        hours(12)),
-	28 : (ScrapePlugins.YoMangaLoader.Run,                   hours(12)),
-	29 : (ScrapePlugins.GameOfScanlationLoader.Run,          hours(12)),
+	3  : (ScrapePlugins.M.JzLoader.Run,                        hours( 8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
+	6  : (ScrapePlugins.M.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
+	8  : (ScrapePlugins.M.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
+	11 : (ScrapePlugins.M.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
+	# 12 : (ScrapePlugins.M.MjLoader.Run,                        hours( 1)),
+	13 : (ScrapePlugins.M.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
+	15 : (ScrapePlugins.M.MangaHere.Run,                       hours(12)),
+	16 : (ScrapePlugins.M.WebtoonLoader.Run,                   hours( 8)),
+	17 : (ScrapePlugins.M.DynastyLoader.Run,                   hours( 8)),
+	19 : (ScrapePlugins.M.KissLoader.Run,                      hours( 1)),
+	21 : (ScrapePlugins.M.Crunchyroll.Run,                     hours( 4)),
+	# 23 : (ScrapePlugins.M.WebtoonsReader.Run,                  hours( 6)),  # They claim they're planning on coming back. We'll see.
+	25 : (ScrapePlugins.M.Kawaii.Run,                          hours(12)),
+	26 : (ScrapePlugins.M.ZenonLoader.Run,                     hours(24)),
+	27 : (ScrapePlugins.M.MangaBox.Run,                        hours(12)),
+	28 : (ScrapePlugins.M.YoMangaLoader.Run,                   hours(12)),
+	29 : (ScrapePlugins.M.GameOfScanlationLoader.Run,          hours(12)),
+
+	18 : (ScrapePlugins.H.HBrowseLoader.Run,                   hours( 1)),
+	9  : (ScrapePlugins.H.PururinLoader.Run,                   hours( 1)),
+	10 : (ScrapePlugins.H.FakkuLoader.Run,                     hours( 1)),
+	20 : (ScrapePlugins.H.NHentaiLoader.Run,                   hours( 1)),
+	22 : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
+	4  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 1)),
+	5  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours( 1)),
 
 	# FoolSlide modules
 
-	30 : (ScrapePlugins.FoolSlide.Modules.CanisMajorRun,      hours(12)),
-	31 : (ScrapePlugins.FoolSlide.Modules.ChibiMangaRun,      hours(12)),
-	32 : (ScrapePlugins.FoolSlide.Modules.DokiRun,            hours(12)),
-	33 : (ScrapePlugins.FoolSlide.Modules.GoMangaCoRun,       hours(12)),
-	34 : (ScrapePlugins.FoolSlide.Modules.IlluminatiMangaRun, hours(12)),
-	35 : (ScrapePlugins.FoolSlide.Modules.JaptemMangaRun,     hours(12)),
-	36 : (ScrapePlugins.FoolSlide.Modules.MangatopiaRun,      hours(12)),
-	37 : (ScrapePlugins.FoolSlide.Modules.RoseliaRun,         hours(12)),
-	38 : (ScrapePlugins.FoolSlide.Modules.S2Run,              hours(12)),
-	39 : (ScrapePlugins.FoolSlide.Modules.SenseRun,           hours(12)),
-	40 : (ScrapePlugins.FoolSlide.Modules.ShoujoSenseRun,     hours(12)),
-	41 : (ScrapePlugins.FoolSlide.Modules.TripleSevenRun,     hours(12)),
-	42 : (ScrapePlugins.FoolSlide.Modules.TwistedHelRun,      hours(12)),
-	43 : (ScrapePlugins.FoolSlide.Modules.VortexRun,          hours(12)),
+	30 : (ScrapePlugins.M.FoolSlide.Modules.CanisMajorRun,      hours(12)),
+	31 : (ScrapePlugins.M.FoolSlide.Modules.ChibiMangaRun,      hours(12)),
+	32 : (ScrapePlugins.M.FoolSlide.Modules.DokiRun,            hours(12)),
+	33 : (ScrapePlugins.M.FoolSlide.Modules.GoMangaCoRun,       hours(12)),
+	34 : (ScrapePlugins.M.FoolSlide.Modules.IlluminatiMangaRun, hours(12)),
+	35 : (ScrapePlugins.M.FoolSlide.Modules.JaptemMangaRun,     hours(12)),
+	36 : (ScrapePlugins.M.FoolSlide.Modules.MangatopiaRun,      hours(12)),
+	37 : (ScrapePlugins.M.FoolSlide.Modules.RoseliaRun,         hours(12)),
+	38 : (ScrapePlugins.M.FoolSlide.Modules.S2Run,              hours(12)),
+	39 : (ScrapePlugins.M.FoolSlide.Modules.SenseRun,           hours(12)),
+	40 : (ScrapePlugins.M.FoolSlide.Modules.ShoujoSenseRun,     hours(12)),
+	41 : (ScrapePlugins.M.FoolSlide.Modules.TripleSevenRun,     hours(12)),
+	42 : (ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,      hours(12)),
+	43 : (ScrapePlugins.M.FoolSlide.Modules.VortexRun,          hours(12)),
 
-	50 : (ScrapePlugins.MangaMadokami.Run,                   hours(4)),
-	51 : (ScrapePlugins.BooksMadokami.Run,                   hours(4)),
+	50 : (ScrapePlugins.M.MangaMadokami.Run,                   hours(4)),
+	51 : (ScrapePlugins.M.BooksMadokami.Run,                   hours(4)),
 
 }
 

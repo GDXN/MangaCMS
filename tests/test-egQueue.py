@@ -10,7 +10,7 @@ runStatus.preloadDicts = False
 import runStatus
 
 
-from ScrapePlugins.IrcGrabber.EgScans.EgScrape                import EgTriggerLoader
+from ScrapePlugins.M.IrcGrabber.EgScans.EgScrape                import EgTriggerLoader
 import signal
 
 import os.path

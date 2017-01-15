@@ -1,7 +1,7 @@
 
 
 import ScrapePlugins.RetreivalDbBase
-import ScrapePlugins.IrcGrabber.IrcBot
+import ScrapePlugins.M.IrcGrabber.IrcBot
 import irc.client
 import irc.bot
 import irc.events
@@ -139,7 +139,7 @@ EMOTICONS = {
 
 KEYS = list(EMOTICONS.keys())
 
-class NotifierBot(ScrapePlugins.IrcGrabber.IrcBot.TestBot):
+class NotifierBot(ScrapePlugins.M.IrcGrabber.IrcBot.TestBot):
 
 
 	def __init__(self, message_queue, runstate, *args, **kwargs):

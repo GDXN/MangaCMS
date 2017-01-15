@@ -7,7 +7,7 @@ if __name__ == "__main__":
 import nameTools as nt
 import runStatus
 
-from ScrapePlugins.IrcGrabber.FetchBot import IrcRetreivalInterface
+from ScrapePlugins.M.IrcGrabber.FetchBot import IrcRetreivalInterface
 import signal
 import time
 
