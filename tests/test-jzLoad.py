@@ -6,9 +6,9 @@ if __name__ == "__main__":
 
 
 import runStatus
-from ScrapePlugins.JzLoader.Run import Runner
-from ScrapePlugins.JzLoader.jzFeedLoader import JzFeedLoader
-from ScrapePlugins.JzLoader.jzContentLoader import JzContentLoader
+from ScrapePlugins.M.JzLoader.Run import Runner
+from ScrapePlugins.M.JzLoader.jzFeedLoader import JzFeedLoader
+from ScrapePlugins.M.JzLoader.jzContentLoader import JzContentLoader
 import signal
 
 import nameTools as nt

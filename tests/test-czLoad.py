@@ -9,9 +9,9 @@ if __name__ == "__main__":
 
 import runStatus
 
-from ScrapePlugins.CzLoader.Run import Runner
-from ScrapePlugins.CzLoader.czFeedLoader import CzFeedLoader
-from ScrapePlugins.CzLoader.czContentLoader import CzContentLoader
+from ScrapePlugins.M.CzLoader.Run import Runner
+from ScrapePlugins.M.CzLoader.czFeedLoader import CzFeedLoader
+from ScrapePlugins.M.CzLoader.czContentLoader import CzContentLoader
 import signal
 
 import os.path

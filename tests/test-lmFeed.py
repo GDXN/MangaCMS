@@ -7,7 +7,7 @@ if __name__ == "__main__":
 import runStatus
 runStatus.preloadDicts = False
 
-from ScrapePlugins.LoneMangaLoader.LmFeedLoader import LmFeedLoader
+from ScrapePlugins.M.LoneMangaLoader.LmFeedLoader import LmFeedLoader
 
 import signal
 

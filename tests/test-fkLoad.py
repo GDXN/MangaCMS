@@ -7,9 +7,9 @@ if __name__ == "__main__":
 import runStatus
 runStatus.preloadDicts = False
 
-from ScrapePlugins.FakkuLoader.Run import Runner
-from ScrapePlugins.FakkuLoader.fkFeedLoader import FakkuFeedLoader
-from ScrapePlugins.FakkuLoader.fkContentLoader import FakkuContentLoader
+from ScrapePlugins.H.FakkuLoader.Run import Runner
+from ScrapePlugins.H.FakkuLoader.fkFeedLoader import FakkuFeedLoader
+from ScrapePlugins.H.FakkuLoader.fkContentLoader import FakkuContentLoader
 import signal
 
 import os.path

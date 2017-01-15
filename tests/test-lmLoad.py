@@ -7,8 +7,8 @@ if __name__ == "__main__":
 import runStatus
 runStatus.preloadDicts = False
 
-from ScrapePlugins.LoneMangaLoader.Run import Runner
-from ScrapePlugins.LoneMangaLoader.LmContentLoader import LmContentLoader
+from ScrapePlugins.M.LoneMangaLoader.Run import Runner
+from ScrapePlugins.M.LoneMangaLoader.LmContentLoader import LmContentLoader
 
 import signal
 import time

@@ -8,10 +8,10 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 
 
-from ScrapePlugins.DjMoeLoader.Retag import Runner as TagRunner
-from ScrapePlugins.DjMoeLoader.Run import Runner
-from ScrapePlugins.DjMoeLoader.djMoeDbLoader import DjMoeDbLoader
-from ScrapePlugins.DjMoeLoader.djMoeContentLoader import DjMoeContentLoader
+from ScrapePlugins.H.DjMoeLoader.Retag import Runner as TagRunner
+from ScrapePlugins.H.DjMoeLoader.Run import Runner
+from ScrapePlugins.H.DjMoeLoader.djMoeDbLoader import DjMoeDbLoader
+from ScrapePlugins.H.DjMoeLoader.djMoeContentLoader import DjMoeContentLoader
 # import DjMoeLoader.Run
 
 import logging

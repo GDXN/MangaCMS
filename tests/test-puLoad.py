@@ -8,9 +8,9 @@ import archCleaner
 import runStatus
 
 import deduplicator.dupCheck as deduper
-from ScrapePlugins.PururinLoader.Run import Runner
-from ScrapePlugins.PururinLoader.pururinDbLoader import PururinDbLoader
-from ScrapePlugins.PururinLoader.pururinContentLoader import PururinContentLoader
+from ScrapePlugins.H.PururinLoader.Run import Runner
+from ScrapePlugins.H.PururinLoader.pururinDbLoader import PururinDbLoader
+from ScrapePlugins.H.PururinLoader.pururinContentLoader import PururinContentLoader
 import signal
 
 import nameTools as nt

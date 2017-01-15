@@ -12,9 +12,9 @@ if __name__ == "__main__":
 
 import logging
 import runStatus
-import ScrapePlugins.BuMonitor.Run
-import ScrapePlugins.BuMonitor.ChangeMonitor
-import ScrapePlugins.BuMonitor.MonitorRun
+import ScrapePlugins.M.BuMonitor.Run
+import ScrapePlugins.M.BuMonitor.ChangeMonitor
+import ScrapePlugins.M.BuMonitor.MonitorRun
 
 import signal
 
@@ -31,10 +31,10 @@ def test():
 	signal.signal(signal.SIGINT, customHandler)
 
 
-	runner = ScrapePlugins.BuMonitor.Run.Runner()
+	runner = ScrapePlugins.M.BuMonitor.Run.Runner()
 	runner.go()
 
-	# chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
+	# chMon = ScrapePlugins.M.BuMonitor.ChangeMonitor.BuDateUpdater()
 	# chMon.go()
 	# chMon.closeDB()
 
@@ -55,7 +55,7 @@ def test():
 
 
 
-	# runner = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
+	# runner = ScrapePlugins.M.BuMonitor.MonitorRun.BuWatchMonitor()
 	# runner.scanRecentlyUpdated()
 	# runner.getListNames()
 	# runner.go()
@@ -63,12 +63,12 @@ def test():
 
 
 
-	# chMon = ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater()
+	# chMon = ScrapePlugins.M.BuMonitor.ChangeMonitor.BuDateUpdater()
 	# chMon.go()
 	# chMon.closeDB()
 
 
-	# mon = ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor()
+	# mon = ScrapePlugins.M.BuMonitor.MonitorRun.BuWatchMonitor()
 	# mon.scanRecentlyUpdated()
 	# mon.getAllManga()
 	# mon.closeDB()

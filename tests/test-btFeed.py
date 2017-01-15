@@ -6,9 +6,9 @@ if __name__ == "__main__":
 
 
 import runStatus
-from ScrapePlugins.BtBaseManager.Run import Runner
-from ScrapePlugins.BtLoader.btFeedLoader import BtFeedLoader
-from ScrapePlugins.BtLoader.btContentLoader import BtContentLoader
+from ScrapePlugins.M.BtBaseManager.Run import Runner
+from ScrapePlugins.M.BtLoader.btFeedLoader import BtFeedLoader
+from ScrapePlugins.M.BtLoader.btContentLoader import BtContentLoader
 import signal
 
 import nameTools as nt

@@ -41,9 +41,9 @@ def go():
 	wg = webFunctions.WebGetRobust()
 	print(wg.getpage('http://api.ipify.org?format=json'))
 
-	import ScrapePlugins.SadPandaLoader.Run
+	import ScrapePlugins.H.SadPandaLoader.Run
 
-	ScrapePlugins.SadPandaLoader.Run.test()
+	ScrapePlugins.H.SadPandaLoader.Run.test()
 
 if __name__ == "__main__":
 	go()

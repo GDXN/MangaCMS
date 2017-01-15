@@ -4,12 +4,12 @@
 Do the initial database setup, so a functional system can be bootstrapped from an empty database.
 '''
 
-import ScrapePlugins.BuMonitor.MonitorRun
-import ScrapePlugins.BuMonitor.ChangeMonitor
-import ScrapePlugins.DjMoeLoader.djMoeDbLoader
+import ScrapePlugins.M.BuMonitor.MonitorRun
+import ScrapePlugins.M.BuMonitor.ChangeMonitor
+import ScrapePlugins.H.DjMoeLoader.djMoeDbLoader
 
-import ScrapePlugins.BtSeriesFetcher.btSeriesEnqueuer
-import ScrapePlugins.BtLoader.btFeedLoader
+import ScrapePlugins.M.BtSeriesFetcher.btSeriesEnqueuer
+import ScrapePlugins.M.BtLoader.btFeedLoader
 
 
 '''
@@ -19,11 +19,11 @@ Each plugin is instantiated, and then the plugin database setup method is called
 
 '''
 toInit = [
-	ScrapePlugins.BuMonitor.MonitorRun.BuWatchMonitor,
-	ScrapePlugins.BuMonitor.ChangeMonitor.BuDateUpdater,
-	ScrapePlugins.DjMoeLoader.djMoeDbLoader.DjMoeDbLoader,
-	ScrapePlugins.BtSeriesFetcher.btSeriesEnqueuer.BtSeriesEnqueuer,
-	ScrapePlugins.BtLoader.btFeedLoader.BtFeedLoader,
+	ScrapePlugins.M.BuMonitor.MonitorRun.BuWatchMonitor,
+	ScrapePlugins.M.BuMonitor.ChangeMonitor.BuDateUpdater,
+	ScrapePlugins.H.DjMoeLoader.djMoeDbLoader.DjMoeDbLoader,
+	ScrapePlugins.M.BtSeriesFetcher.btSeriesEnqueuer.BtSeriesEnqueuer,
+	ScrapePlugins.M.BtLoader.btFeedLoader.BtFeedLoader,
 	]
 
 

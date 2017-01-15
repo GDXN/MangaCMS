@@ -7,9 +7,9 @@ if __name__ == "__main__":
 
 import runStatus
 
-from ScrapePlugins.CxLoader.Run import Runner
-from ScrapePlugins.CxLoader.cxFeedLoader import CxFeedLoader
-from ScrapePlugins.CxLoader.cxContentLoader import CxContentLoader
+from ScrapePlugins.M.CxLoader.Run import Runner
+from ScrapePlugins.M.CxLoader.cxFeedLoader import CxFeedLoader
+from ScrapePlugins.M.CxLoader.cxContentLoader import CxContentLoader
 import signal
 
 import nameTools as nt

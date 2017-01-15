@@ -7,9 +7,9 @@ if __name__ == "__main__":
 import runStatus
 runStatus.preloadDicts = False
 
-from ScrapePlugins.RhLoader.Run import Runner
-from ScrapePlugins.RhLoader.RhFeedLoader import RhFeedLoader
-from ScrapePlugins.RhLoader.RhContentLoader import RhContentLoader
+from ScrapePlugins.M.RhLoader.Run import Runner
+from ScrapePlugins.M.RhLoader.RhFeedLoader import RhFeedLoader
+from ScrapePlugins.M.RhLoader.RhContentLoader import RhContentLoader
 import signal
 
 import nameTools as nt

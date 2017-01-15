@@ -3,12 +3,12 @@ import logSetup
 if __name__ == "__main__":
 	logSetup.initLogging()
 
-# import ScrapePlugins.FufufuuLoader.Run
+# import ScrapePlugins.H.FufufuuLoader.Run
 import nameTools as nt
-from ScrapePlugins.FufufuuLoader.fufufuDbLoader import FuFuFuuDbLoader
-from ScrapePlugins.FufufuuLoader.fufufuContentLoader import FuFuFuuContentLoader
-from ScrapePlugins.FufufuuLoader.Run import Runner
-from ScrapePlugins.FufufuuLoader.Retag import Runner as TagRunner
+from ScrapePlugins.H.FufufuuLoader.fufufuDbLoader import FuFuFuuDbLoader
+from ScrapePlugins.H.FufufuuLoader.fufufuContentLoader import FuFuFuuContentLoader
+from ScrapePlugins.H.FufufuuLoader.Run import Runner
+from ScrapePlugins.H.FufufuuLoader.Retag import Runner as TagRunner
 
 import signal
 import runStatus
@@ -25,8 +25,8 @@ def signal_handler(dummy_signal, dummy_frame):
 def test():
 
 	signal.signal(signal.SIGINT, signal_handler)
-	# print(ScrapePlugins.FufufuuLoader.Run)
-	# runner = ScrapePlugins.FufufuuLoader.Run.Runner()
+	# print(ScrapePlugins.H.FufufuuLoader.Run)
+	# runner = ScrapePlugins.H.FufufuuLoader.Run.Runner()
 
 	# dbInt = FuFuFuuDbLoader()
 	# dbInt.go()
