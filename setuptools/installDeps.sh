@@ -22,7 +22,7 @@ sudo apt-get install -y gfortran libopenblas-dev liblapack-dev
 
 
 # Install the citext extension
-sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS citext;'
+sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS citext SCHEMA pg_catalog;;'
 
 # I'm not currently using plpython3. Legacy?
 # sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS plpython3u;'
