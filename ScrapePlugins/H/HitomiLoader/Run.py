@@ -1,7 +1,7 @@
 
 
-from .DbLoader import PururinDbLoader
-from .ContentLoader import PururinContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import settings
 
@@ -12,13 +12,13 @@ import ScrapePlugins.RunBase
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
-	loggerPath = "Main.Manga.Pururin.Run"
-	pluginName = "Pururin"
+	loggerPath = "Main.Manga.Hitomi.Run"
+	pluginName = "Hitomi"
 
 
-	sourceName = "Pururin"
-	feedLoader = PururinDbLoader
-	contentLoader = PururinContentLoader
+	sourceName = "Hitomi"
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
 
 
