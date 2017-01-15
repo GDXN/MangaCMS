@@ -893,7 +893,7 @@ class WebGetRobust:
 				success = True
 				self.log.info("Successfully accessed main page!")
 			except TimeoutException:
-				self.log.error("Could not pass through cloudflare blocking!")
+				self.log.error("Could not pass through cloudflare blocking! Current title: %s", driver.title)
 				success = False
 			# Add cookies to cookiejar
 

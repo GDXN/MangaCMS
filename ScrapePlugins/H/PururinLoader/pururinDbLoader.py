@@ -20,7 +20,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Manga.Pururin.Fl"
 	pluginName = "Pururin Link Retreiver"
 	tableKey    = "pu"
-	urlBase = "http://pururin.com/"
+	urlBase = "http://pururin.us/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -33,7 +33,8 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		try:
 			# I really don't get the logic behind Pururin's path scheme.
 			if pageOverride > 1:
-				urlPath = '/browse/0/1{num1}/{num2}.html'.format(num1=pageOverride-1, num2=pageOverride)
+
+				urlPath = '/browse/search/1/{num}.html'.format(num=pageOverride)
 				pageUrl = urllib.parse.urljoin(self.urlBase, urlPath)
 			else:
 				# First page is just the bare URL. It /looks/ like they're blocking the root page by direct path.
@@ -61,7 +62,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# 	self.log.info(item)
 		#
 
-		self.wg.stepThroughCloudFlare("http://pururin.com/", titleContains="Pururin")
+		self.wg.stepThroughCloudFlare("http://pururin.us/", titleContains="Pururin")
 
 		ret = []
 
@@ -82,7 +83,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processLinksIntoDB(self, linksDict):
+	def processLinksIntoDB(self, linksDict, ago=0):
 		self.log.info("Inserting...")
 
 		newItemCount = 0
@@ -91,7 +92,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			row = self.getRowsByValue(sourceUrl=link["pageUrl"])
 			if not row:
-				curTime = time.time()
+				curTime = time.time() - ago
 				self.insertIntoDb(retreivalTime=curTime, sourceUrl=link["pageUrl"], originName=link["dlName"], dlState=0)
 				# cur.execute('INSERT INTO fufufuu VALUES(?, ?, ?, "", ?, ?, "", ?);',(link["date"], 0, 0, link["dlLink"], link["itemTags"], link["dlName"]))
 				self.log.info("New item: %s", (curTime, link["pageUrl"], link["dlName"]))
@@ -108,13 +109,14 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def go(self):
 		self.resetStuckItems()
-		dat = self.getFeed(list(range(50)))
-		# dat = self.getFeed()
+		# dat = self.getFeed(list(range(50)))
+		dat = self.getFeed()
 		self.processLinksIntoDB(dat)
 
 		# for x in range(10):
 		# 	dat = self.getFeed(pageOverride=x)
 		# 	self.processLinksIntoDB(dat)
+
 
 
 
@@ -124,5 +126,8 @@ if __name__ == "__main__":
 	with tb.testSetup(startObservers=False):
 
 		run = PururinDbLoader()
-		run.go()
+		# run.go()
+		for x in range(10):
+			dat = run.getFeed(pageOverride=[x])
+			run.processLinksIntoDB(dat, ago=(60 * 60 * 24 * x))
 
