@@ -1,24 +1,29 @@
 
 # -*- coding: utf-8 -*-
 
-import runStatus
-runStatus.preloadDicts = False
-import webFunctions
+import re
+
 import os
 import os.path
 
 import random
+import json
 import sys
 import zipfile
-import nameTools as nt
 
-import runStatus
 import time
-import urllib.request, urllib.parse, urllib.error
+import pprint
+import urllib.parse
 import traceback
 
-import settings
 import bs4
+
+
+import runStatus
+runStatus.preloadDicts = False
+import nameTools as nt
+import webFunctions
+import settings
 
 import processDownload
 
@@ -33,45 +38,47 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Manga.Pururin.Cl"
 	pluginName = "Pururin Content Retreiver"
 	tableKey   = "pu"
-	urlBase = "http://pururin.com"
+	urlBase = "http://pururin.us"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "HentaiItems"
 
-	def checkLogin(self):
-		acctPage = self.wg.getpage("http://pururin.com/account/home")
-		if "You don't have an account!" in acctPage:
-			return False
-		else:
-			return True
-
-	def login(self):
-		loginPage = self.wg.getpage("http://pururin.com/account/recover",
-				addlHeaders={'Referer': 'http://pururin.com/account/recover'},
-				postData={'token': settings.puSettings["accountKey"], "recover-token": "Submit"} )
-
-		if "Success! Welcome back" in loginPage:
-			return True
-
-		else:
-			return False
-
-	def loginIfNeeded(self):
-		self.log.info("Checking login state on Pururin")
-		if not self.checkLogin():
-			if not self.login():
-				self.log.error("Could not log in. Is your account key set?")
-		self.log.info("Logged in!")
 
 
-	def go(self):
+	def getFileName(self, soup):
+		title = soup.find("h1", class_="otitle")
+		if not title:
+			raise ValueError("Could not find title. Wat?")
+		return title.get_text()
 
-		self.wg.stepThroughCloudFlare("http://pururin.com/", titleContains="Pururin")
-		self.loginIfNeeded()
-		newLinks = self.retreiveTodoLinksFromDB()
-		if newLinks:
-			self.processTodoLinks(newLinks)
+
+	def imageUrls(self, soup):
+		thumbnailDiv = soup.find("div", id="thumbnail-container")
+
+		ret = []
+
+		for link in thumbnailDiv.find_all("a", class_='gallerythumb'):
+
+			referrer = urllib.parse.urljoin(self.urlBase, link['href'])
+			if hasattr(link, "data-src"):
+				thumbUrl = link.img['data-src']
+			else:
+				thumbUrl = link.img['src']
+
+			if not "t." in thumbUrl[-6:]:
+				raise ValueError("Url is not a thumb? = '%s'" % thumbUrl)
+			else:
+				imgUrl = thumbUrl[:-6] + thumbUrl[-6:].replace("t.", '.')
+
+			imgUrl   = urllib.parse.urljoin(self.urlBase, imgUrl)
+			imgUrl = imgUrl.replace("//t.", "//i.")
+
+			ret.append((imgUrl, referrer))
+
+		return ret
+
+
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -90,38 +97,6 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return items
 
-
-	def processTodoLinks(self, inLinks):
-
-		for contentId in inLinks:
-			print("Loopin!")
-			try:
-				url = self.getDownloadInfo(contentId)
-				self.doDownload(url)
-
-
-				delay = random.randint(5, 30)
-			except:
-				print("ERROR WAT?")
-				traceback.print_exc()
-				delay = 1
-
-
-			for x in range(delay):
-				time.sleep(1)
-				remaining = delay-x
-				sys.stdout.write("\rPururin CL sleeping %d          " % remaining)
-				sys.stdout.flush()
-				if not runStatus.run:
-					self.log.info("Breaking due to exit flag being set")
-					return
-
-
-	def getFileName(self, soup):
-		title = soup.find("h1", class_="otitle")
-		if not title:
-			raise ValueError("Could not find title. Wat?")
-		return title.get_text()
 
 	def getCategoryTags(self, soup):
 		tagTable = soup.find("table", class_="table-info")
@@ -176,17 +151,15 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		else:
 			note = note.get_text()
 
-	def getDownloadInfo(self, linkDict, retag=False):
+
+	def getDownloadInfo(self, linkDict):
 		sourcePage = linkDict["sourceUrl"]
 
 		self.log.info("Retreiving item: %s", sourcePage)
 
-		if not retag:
-			self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
+		self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
 
-
-		cont = self.wg.getpage(sourcePage, addlHeaders={'Referer': 'http://pururin.com/'})
-		soup = bs4.BeautifulSoup(cont, "lxml")
+		soup = self.wg.getSoup(sourcePage, addlHeaders={'Referer': 'http://pururin.us/'})
 
 		if not soup:
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
@@ -196,6 +169,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		note = self.getNote(soup)
 		tags = ' '.join(tags)
 
+		linkDict['title'] = self.getFileName(soup)
 		linkDict['dirPath'] = os.path.join(settings.puSettings["dlDir"], nt.makeFilenameSafe(category))
 
 		if not os.path.exists(linkDict["dirPath"]):
@@ -205,10 +179,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		self.log.info("Folderpath: %s", linkDict["dirPath"])
-		#self.log.info(os.path.join())
 
-		dlPage = soup.find("a", class_="link-next")
-		linkDict["dlLink"] = urllib.parse.urljoin(self.urlBase, dlPage["href"])
 
 		self.log.debug("Linkdict = ")
 		for key, value in list(linkDict.items()):
@@ -224,53 +195,52 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(linkDict["sourceUrl"], note=note)
 
 
-		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, lastUpdate=time.time())
+		read_url = soup.find("a", text=re.compile("Read Online", re.IGNORECASE))
+		spage = urllib.parse.urljoin(self.urlBase, read_url['href'])
 
+		linkDict["spage"] = spage
+
+		self.updateDbEntry(linkDict["sourceUrl"], seriesName=category, lastUpdate=time.time())
 
 
 		return linkDict
 
 
-	def doDownload(self, linkDict):
+	def getImage(self, imageUrl, referrer):
+
+		content, handle = self.wg.getpage(imageUrl, returnMultiple=True, addlHeaders={'Referer': referrer})
+		if not content or not handle:
+			raise ValueError("Failed to retreive image from page '%s'!" % referrer)
+
+		fileN = urllib.parse.unquote(urllib.parse.urlparse(handle.geturl())[2].split("/")[-1])
+		fileN = bs4.UnicodeDammit(fileN).unicode_markup
+		self.log.info("retreived image '%s' with a size of %0.3f K", fileN, len(content)/1000.0)
+		return fileN, content
+
+	def getImages(self, linkDict):
+		soup = self.wg.getSoup(linkDict['spage'], addlHeaders={'Referer': linkDict["sourceUrl"]})
+		scripts = "\n".join([scrt.get_text() for scrt in soup.find_all("script")])
+		dat_arr = None
+		for line in [t.strip() for t in scripts.split("\n") if t.strip()]:
+			if line.startswith("var d = "):
+				# Trin off the assignment and semicoln
+				data = line[8:-1]
+				dat_arr = json.loads(data)
+		if not dat_arr:
+			return []
 
 
 		images = []
-		title = None
-		nextPage = linkDict["dlLink"]
+		for key, value in dat_arr.items():
+			images.append(self.getImage(value['chapter_image'], linkDict['spage']))
 
-		while nextPage:
-			gatewayPage = self.wg.getpage(nextPage, addlHeaders={'Referer': linkDict["sourceUrl"]})
-
-			soup = bs4.BeautifulSoup(gatewayPage, "lxml")
-			titleCont = soup.find("div", class_="image-menu")
-
-			title = titleCont.h1.get_text()
-			title = title.replace("Reading ", "")
-			title, dummy = title.rsplit(" Page ", 1)
-			title = title.strip()
+		return images
 
 
-			imageUrl = soup.find("img", class_="b")
-			imageUrl = urllib.parse.urljoin(self.urlBase, imageUrl["src"])
+	def doDownload(self, linkDict):
 
-			imagePath = urllib.parse.urlsplit(imageUrl)[2]
-			imageFileName = imagePath.split("/")[-1]
-
-
-			imageData = self.wg.getpage(imageUrl, addlHeaders={'Referer': nextPage})
-
-			images.append((imageFileName, imageData))
-			# Find next page
-			nextPageLink = soup.find("a", class_="link-next")
-			if not nextPageLink:
-				nextPage = None
-			elif nextPageLink["href"].startswith("/finish/"):    # Break on the last image.
-				nextPage = None
-			else:
-				nextPage = urllib.parse.urljoin(self.urlBase, nextPageLink["href"])
-
-
-		# self.log.info(len(content))
+		images = self.getImages(linkDict)
+		title = linkDict['title']
 
 		if images and title:
 			fileN = title+".zip"
@@ -322,10 +292,49 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.conn.commit()
 			return False
 
+
+
+	def processTodoLinks(self, inLinks):
+
+		for contentId in inLinks:
+			print("Loopin!")
+			try:
+				url = self.getDownloadInfo(contentId)
+				self.doDownload(url)
+
+				delay = random.randint(5, 30)
+			except RuntimeError:
+				raise
+			except:
+				print("ERROR WAT?")
+				traceback.print_exc()
+				delay = 1
+
+
+			for x in range(delay):
+				time.sleep(1)
+				remaining = delay-x
+				sys.stdout.write("\rPururin CL sleeping %d          " % remaining)
+				sys.stdout.flush()
+				if not runStatus.run:
+					self.log.info("Breaking due to exit flag being set")
+					return
+
+
+
+	def go(self):
+
+		self.wg.stepThroughCloudFlare(self.urlBase, titleContains="Pururin")
+
+		newLinks = self.retreiveTodoLinksFromDB()
+		if newLinks:
+			self.processTodoLinks(newLinks)
+
+
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup(startObservers=False, load=False):
 
 		run = PururinContentLoader()
 		run.go()
