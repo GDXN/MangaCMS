@@ -19,7 +19,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.Manga.Hitomi.Fl"
 	pluginName = "Hitomi Link Retreiver"
-	tableKey    = "pu"
+	tableKey    = "hit"
 	urlBase = "https://hitomi.la/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
@@ -82,7 +82,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.info("Skipping item due to tag 'males only' (%s).", val.replace("\n", " "))
 					return None
 
-		ret["originName"] = linkdiv.h1.get_text()
+		ret["originName"] = linkdiv.h1.get_text().strip()
 		ret["sourceUrl"] = urllib.parse.urljoin(self.urlBase, linkdiv.h1.a["href"])
 
 
@@ -139,7 +139,7 @@ if __name__ == "__main__":
 		run = DbLoader()
 		# dat = run.getFeed(pageOverride=[1])
 		# run.go()
-		for x in range(10):
+		for x in range(13500):
 			dat = run.getFeed(pageOverride=[x])
 			run.processLinksIntoDB(dat)
 

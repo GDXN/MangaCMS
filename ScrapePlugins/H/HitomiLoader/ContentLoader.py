@@ -5,6 +5,7 @@ import re
 
 import os
 import os.path
+import sys
 
 import random
 import json
@@ -27,9 +28,9 @@ import settings
 
 import processDownload
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
-class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
@@ -37,7 +38,7 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.DATABASE_DB_NAME
 	loggerPath = "Main.Manga.Hitomi.Cl"
 	pluginName = "Hitomi Content Retreiver"
-	tableKey   = "pu"
+	tableKey   = "hit"
 	urlBase = "https://hitomi.la/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
@@ -45,12 +46,14 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableName = "HentaiItems"
 
 
+	retreivalThreads = 1
+
 
 	def getFileName(self, soup):
-		title = soup.find("h1", class_="otitle")
+		title = soup.find("h1")
 		if not title:
 			raise ValueError("Could not find title. Wat?")
-		return title.get_text()
+		return title.get_text().strip()
 
 
 	def imageUrls(self, soup):
@@ -97,67 +100,81 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return items
 
+	def format_tag(self, tag_raw):
+		if "♀" in tag_raw:
+			tag_raw = tag_raw.replace("♀", "")
+			tag_raw = "female " + tag_raw
+		if "♂" in tag_raw:
+			tag_raw = tag_raw.replace("♂", "")
+			tag_raw = "male " + tag_raw
+
+		tag = tag_raw.strip()
+		while "  " in tag:
+			tag = tag.replace("  ", " ")
+		tag = tag.strip().replace(" ", "-")
+		return tag.lower()
 
 	def getCategoryTags(self, soup):
-		tagTable = soup.find("table", class_="table-info")
+		tablediv = soup.find("div", class_='gallery-info')
+		tagTable = soup.find("table")
 
 		tags = []
 
 		formatters = {
-						"Artist"     : "Artist",
-						"Circle"     : "Circles",
-						"Parody"     : "Parody",
-						"Characters" : "Characters",
-						"Contents"   : "",
-						"Language"   : "",
-						"Scanlator"  : "scanlators",
-						"Convention" : "Convention"
+						"series"     : "parody",
+						"characters" : "characters",
+						"tags"       : "",
 					}
 
 		ignoreTags = [
-					"Uploader",
-					"Pages",
-					"Ranking",
-					"Rating"]
+					"type",
+					]
+
+		print("soup.h2", )
 
 		category = "Unknown?"
+
 		for tr in tagTable.find_all("tr"):
 			if len(tr.find_all("td")) != 2:
 				continue
 
 			what, values = tr.find_all("td")
 
-			what = what.get_text()
+			what = what.get_text().strip().lower()
 			if what in ignoreTags:
 				continue
-			elif what == "Category":
+			elif what == "Type":
 				category = values.get_text().strip()
 				if category == "Manga One-shot":
 					category = "=0= One-Shot"
+			elif what == "language":
+
+				lang_tag = values.get_text().strip()
+				lang_tag = self.format_tag("language " + lang_tag)
+				tags.append(lang_tag)
+
 			elif what in formatters:
 				for li in values.find_all("li"):
 					tag = " ".join([formatters[what], li.get_text()])
-					tag = tag.strip()
-					tag = tag.replace("  ", " ")
-					tag = tag.replace(" ", "-")
+					tag = self.format_tag(tag)
 					tags.append(tag)
 
-		return category, tags
+		artist_str = "unknown artist"
+		for artist in soup.h2("li"):
+			artist_str = artist.get_text()
+			atag = "artist " + artist_str
+			atag = self.format_tag(atag)
+			tags.append(atag)
 
-	def getNote(self, soup):
-		note = soup.find("div", class_="gallery-description")
-		if note == None:
-			note = " "
-		else:
-			note = note.get_text()
-
+		print(category, tags)
+		return category, tags, artist_str
 
 	def getDownloadInfo(self, linkDict):
 		sourcePage = linkDict["sourceUrl"]
 
 		self.log.info("Retreiving item: %s", sourcePage)
 
-		self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
+		# self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
 
 		soup = self.wg.getSoup(sourcePage, addlHeaders={'Referer': 'https://hitomi.la/'})
 
@@ -165,12 +182,14 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			raise IOError("Invalid webpage")
 
-		category, tags = self.getCategoryTags(soup)
-		note = self.getNote(soup)
-		tags = ' '.join(tags)
+		gal_section = soup.find("div", class_='gallery')
 
-		linkDict['title'] = self.getFileName(soup)
-		linkDict['dirPath'] = os.path.join(settings.puSettings["dlDir"], nt.makeFilenameSafe(category))
+
+		category, tags, artist = self.getCategoryTags(gal_section)
+		tags = ' '.join(tags)
+		linkDict['artist'] = artist
+		linkDict['title'] = self.getFileName(gal_section)
+		linkDict['dirPath'] = os.path.join(settings.hitSettings["dlDir"], nt.makeFilenameSafe(category))
 
 		if not os.path.exists(linkDict["dirPath"]):
 			os.makedirs(linkDict["dirPath"])
@@ -186,11 +205,7 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if tags:
 			self.log.info("Adding tag info %s", tags)
-
 			self.addTags(sourceUrl=linkDict["sourceUrl"], tags=tags)
-		if note:
-			self.log.info("Adding note %s", note)
-			self.updateDbEntry(linkDict["sourceUrl"], note=note)
 
 
 		read_url = soup.find("a", text=re.compile("Read Online", re.IGNORECASE))
@@ -214,31 +229,40 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return fileN, content
 
 	def getImages(self, linkDict):
+
+		print("getImage", linkDict)
+
 		soup = self.wg.getSoup(linkDict['spage'], addlHeaders={'Referer': linkDict["sourceUrl"]})
-		scripts = "\n".join([scrt.get_text() for scrt in soup.find_all("script")])
-		dat_arr = None
-		for line in [t.strip() for t in scripts.split("\n") if t.strip()]:
-			if line.startswith("var d = "):
-				# Trin off the assignment and semicoln
-				data = line[8:-1]
-				dat_arr = json.loads(data)
-		if not dat_arr:
+
+		raw_imgs = soup.find_all('div', class_="img-url")
+
+		imageurls = []
+		for div in raw_imgs:
+			imgurl = div.get_text().strip()
+			imgurl = re.sub(r"\/\/..?\.hitomi\.la\/", r'https://la.hitomi.la/', imgurl, flags=re.IGNORECASE)
+			imageurls.append((imgurl, linkDict['spage']))
+
+		if not imageurls:
 			return []
 
 		images = []
-		for dummy_key, value in dat_arr.items():
-			images.append(self.getImage(value['chapter_image'], linkDict['spage']))
+
+
+		for imageurl, referrer in imageurls:
+			images.append(self.getImage(imageurl, referrer))
 
 		return images
 
 
-	def doDownload(self, linkDict):
+	def getLink(self, linkDict):
 
+		linkDict = self.getDownloadInfo(linkDict)
 		images = self.getImages(linkDict)
-		title = linkDict['title']
+		title  = linkDict['title']
+		artist = linkDict['artist']
 
 		if images and title:
-			fileN = title+".zip"
+			fileN = title+" "+artist+".zip"
 			fileN = nt.makeFilenameSafe(fileN)
 
 
@@ -247,6 +271,7 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("Complete filepath: %s", wholePath)
 
 					#Write all downloaded files to the archive.
+
 			try:
 				arch = zipfile.ZipFile(wholePath, "w")
 			except OSError:
@@ -289,41 +314,14 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processTodoLinks(self, inLinks):
-
-		for contentId in inLinks:
-			print("Loopin!")
-			try:
-				url = self.getDownloadInfo(contentId)
-				self.doDownload(url)
-
-				delay = random.randint(5, 30)
-			except RuntimeError:
-				raise
-			except Exception:
-				print("ERROR WAT?")
-				traceback.print_exc()
-				delay = 1
-
-
-			for x in range(delay):
-				time.sleep(1)
-				remaining = delay-x
-				sys.stdout.write("\rHitomi CL sleeping %d          " % remaining)
-				sys.stdout.flush()
-				if not runStatus.run:
-					self.log.info("Breaking due to exit flag being set")
-					return
-
-
-
-	def go(self):
-
+	def setup(self):
 		self.wg.stepThroughCloudFlare(self.urlBase, titleContains="Hitomi")
 
-		newLinks = self.retreiveTodoLinksFromDB()
-		if newLinks:
-			self.processTodoLinks(newLinks)
+	# def go(self):
+
+	# 	newLinks = self.retreiveTodoLinksFromDB()
+	# 	if newLinks:
+	# 		self.processTodoLinks(newLinks)
 
 
 if __name__ == "__main__":
@@ -332,5 +330,6 @@ if __name__ == "__main__":
 	with tb.testSetup(startObservers=False, load=False):
 
 		run = ContentLoader()
+		# run.getDownloadInfo({'sourceUrl':'https://hitomi.la/galleries/284.html'})
 		run.go()
 

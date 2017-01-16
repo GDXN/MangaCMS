@@ -62,7 +62,6 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# 	self.log.info(item)
 		#
 
-		self.wg.stepThroughCloudFlare("http://pururin.us/", titleContains="Pururin")
 
 		ret = []
 
@@ -110,6 +109,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def go(self):
 		self.resetStuckItems()
 		# dat = self.getFeed(list(range(50)))
+		self.wg.stepThroughCloudFlare("http://pururin.us/", titleContains="Pururin")
 		dat = self.getFeed()
 		self.processLinksIntoDB(dat)
 
@@ -123,11 +123,11 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup(startObservers=False, load=False):
 
 		run = PururinDbLoader()
 		# run.go()
-		for x in range(10):
+		for x in range(1000):
 			dat = run.getFeed(pageOverride=[x])
-			run.processLinksIntoDB(dat, ago=(60 * 60 * 24 * x))
+			run.processLinksIntoDB(dat, ago=(60 * 60 * 24 * (x+100)))
 

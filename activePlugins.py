@@ -16,6 +16,7 @@ import ScrapePlugins.H.FakkuLoader.Run
 import ScrapePlugins.H.SadPandaLoader.Run
 import ScrapePlugins.H.NHentaiLoader.Run
 import ScrapePlugins.H.HBrowseLoader.Run
+import ScrapePlugins.H.HitomiLoader.Run
 
 
 import ScrapePlugins.M.McLoader.Run
@@ -70,55 +71,57 @@ def minutes(num):
 # All they do is specify the order in which plugins
 # are run, initially, starting after 1-minue*{key} intervals
 scrapePlugins = {
-	0  : (ScrapePlugins.M.BtBaseManager.Run,                   hours( 1)),
-	1  : (ScrapePlugins.M.MangaStreamLoader.Run,               hours( 6)),
-	2  : (ScrapePlugins.M.BuMonitor.Run,                       hours( 1)),
+	0   : (ScrapePlugins.M.BtBaseManager.Run,                   hours( 1)),
+	1   : (ScrapePlugins.M.MangaStreamLoader.Run,               hours( 6)),
+	2   : (ScrapePlugins.M.BuMonitor.Run,                       hours( 1)),
 
-	3  : (ScrapePlugins.M.JzLoader.Run,                        hours( 8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
-	6  : (ScrapePlugins.M.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	8  : (ScrapePlugins.M.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
-	11 : (ScrapePlugins.M.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	# 12 : (ScrapePlugins.M.MjLoader.Run,                        hours( 1)),
-	13 : (ScrapePlugins.M.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
-	15 : (ScrapePlugins.M.MangaHere.Run,                       hours(12)),
-	16 : (ScrapePlugins.M.WebtoonLoader.Run,                   hours( 8)),
-	17 : (ScrapePlugins.M.DynastyLoader.Run,                   hours( 8)),
-	19 : (ScrapePlugins.M.KissLoader.Run,                      hours( 1)),
-	21 : (ScrapePlugins.M.Crunchyroll.Run,                     hours( 4)),
-	# 23 : (ScrapePlugins.M.WebtoonsReader.Run,                  hours( 6)),  # They claim they're planning on coming back. We'll see.
-	25 : (ScrapePlugins.M.Kawaii.Run,                          hours(12)),
-	26 : (ScrapePlugins.M.ZenonLoader.Run,                     hours(24)),
-	27 : (ScrapePlugins.M.MangaBox.Run,                        hours(12)),
-	28 : (ScrapePlugins.M.YoMangaLoader.Run,                   hours(12)),
-	29 : (ScrapePlugins.M.GameOfScanlationLoader.Run,          hours(12)),
+	10  : (ScrapePlugins.M.JzLoader.Run,                        hours( 8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
+	11  : (ScrapePlugins.M.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
+	12  : (ScrapePlugins.M.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
+	13  : (ScrapePlugins.M.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
+	# 14 : (ScrapePlugins.M.MjLoader.Run,                        hours( 1)),
+	15  : (ScrapePlugins.M.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
+	16  : (ScrapePlugins.M.MangaHere.Run,                       hours(12)),
+	17  : (ScrapePlugins.M.WebtoonLoader.Run,                   hours( 8)),
+	18  : (ScrapePlugins.M.DynastyLoader.Run,                   hours( 8)),
+	19  : (ScrapePlugins.M.KissLoader.Run,                      hours( 1)),
+	20  : (ScrapePlugins.M.Crunchyroll.Run,                     hours( 4)),
+	# 21 : (ScrapePlugins.M.WebtoonsReader.Run,                  hours( 6)),  # They claim they're planning on coming back. We'll see.
+	22  : (ScrapePlugins.M.Kawaii.Run,                          hours(12)),
+	23  : (ScrapePlugins.M.ZenonLoader.Run,                     hours(24)),
+	24  : (ScrapePlugins.M.MangaBox.Run,                        hours(12)),
+	25  : (ScrapePlugins.M.YoMangaLoader.Run,                   hours(12)),
+	26  : (ScrapePlugins.M.GameOfScanlationLoader.Run,          hours(12)),
 
-	18 : (ScrapePlugins.H.HBrowseLoader.Run,                   hours( 1)),
-	9  : (ScrapePlugins.H.PururinLoader.Run,                   hours( 1)),
-	10 : (ScrapePlugins.H.FakkuLoader.Run,                     hours( 1)),
-	20 : (ScrapePlugins.H.NHentaiLoader.Run,                   hours( 1)),
-	22 : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
-	4  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 1)),
-	5  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours( 1)),
+
+	41  : (ScrapePlugins.H.HBrowseLoader.Run,                   hours( 2)),
+	42  : (ScrapePlugins.H.PururinLoader.Run,                   hours( 2)),
+	43  : (ScrapePlugins.H.FakkuLoader.Run,                     hours( 2)),
+	44  : (ScrapePlugins.H.NHentaiLoader.Run,                   hours( 2)),
+	45  : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
+	46  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 4)),
+	47  : (ScrapePlugins.H.HitomiLoader.Run,                    hours( 4)),
+	48  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours(24)),
 
 	# FoolSlide modules
 
-	30 : (ScrapePlugins.M.FoolSlide.Modules.CanisMajorRun,      hours(12)),
-	31 : (ScrapePlugins.M.FoolSlide.Modules.ChibiMangaRun,      hours(12)),
-	32 : (ScrapePlugins.M.FoolSlide.Modules.DokiRun,            hours(12)),
-	33 : (ScrapePlugins.M.FoolSlide.Modules.GoMangaCoRun,       hours(12)),
-	34 : (ScrapePlugins.M.FoolSlide.Modules.IlluminatiMangaRun, hours(12)),
-	35 : (ScrapePlugins.M.FoolSlide.Modules.JaptemMangaRun,     hours(12)),
-	36 : (ScrapePlugins.M.FoolSlide.Modules.MangatopiaRun,      hours(12)),
-	37 : (ScrapePlugins.M.FoolSlide.Modules.RoseliaRun,         hours(12)),
-	38 : (ScrapePlugins.M.FoolSlide.Modules.S2Run,              hours(12)),
-	39 : (ScrapePlugins.M.FoolSlide.Modules.SenseRun,           hours(12)),
-	40 : (ScrapePlugins.M.FoolSlide.Modules.ShoujoSenseRun,     hours(12)),
-	41 : (ScrapePlugins.M.FoolSlide.Modules.TripleSevenRun,     hours(12)),
-	42 : (ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,      hours(12)),
-	43 : (ScrapePlugins.M.FoolSlide.Modules.VortexRun,          hours(12)),
+	61 : (ScrapePlugins.M.FoolSlide.Modules.CanisMajorRun,      hours(12)),
+	62 : (ScrapePlugins.M.FoolSlide.Modules.ChibiMangaRun,      hours(12)),
+	63 : (ScrapePlugins.M.FoolSlide.Modules.DokiRun,            hours(12)),
+	64 : (ScrapePlugins.M.FoolSlide.Modules.GoMangaCoRun,       hours(12)),
+	65 : (ScrapePlugins.M.FoolSlide.Modules.IlluminatiMangaRun, hours(12)),
+	66 : (ScrapePlugins.M.FoolSlide.Modules.JaptemMangaRun,     hours(12)),
+	67 : (ScrapePlugins.M.FoolSlide.Modules.MangatopiaRun,      hours(12)),
+	68 : (ScrapePlugins.M.FoolSlide.Modules.RoseliaRun,         hours(12)),
+	69 : (ScrapePlugins.M.FoolSlide.Modules.S2Run,              hours(12)),
+	70 : (ScrapePlugins.M.FoolSlide.Modules.SenseRun,           hours(12)),
+	71 : (ScrapePlugins.M.FoolSlide.Modules.ShoujoSenseRun,     hours(12)),
+	72 : (ScrapePlugins.M.FoolSlide.Modules.TripleSevenRun,     hours(12)),
+	73 : (ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,      hours(12)),
+	74 : (ScrapePlugins.M.FoolSlide.Modules.VortexRun,          hours(12)),
 
-	50 : (ScrapePlugins.M.MangaMadokami.Run,                   hours(4)),
-	51 : (ScrapePlugins.M.BooksMadokami.Run,                   hours(4)),
+	80 : (ScrapePlugins.M.MangaMadokami.Run,                    hours(4)),
+	81 : (ScrapePlugins.M.BooksMadokami.Run,                    hours(4)),
 
 }
 

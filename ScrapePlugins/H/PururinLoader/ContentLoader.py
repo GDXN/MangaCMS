@@ -27,9 +27,9 @@ import settings
 
 import processDownload
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
-class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class PururinContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
@@ -44,6 +44,7 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	tableName = "HentaiItems"
 
+	retreivalThreads = 2
 
 
 	def getFileName(self, soup):
@@ -232,7 +233,9 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return images
 
 
-	def doDownload(self, linkDict):
+	def getLink(self, linkDict):
+
+		linkDict = self.getDownloadInfo(linkDict)
 
 		images = self.getImages(linkDict)
 		title = linkDict['title']
@@ -289,41 +292,9 @@ class PururinContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processTodoLinks(self, inLinks):
-
-		for contentId in inLinks:
-			print("Loopin!")
-			try:
-				url = self.getDownloadInfo(contentId)
-				self.doDownload(url)
-
-				delay = random.randint(5, 30)
-			except RuntimeError:
-				raise
-			except Exception:
-				print("ERROR WAT?")
-				traceback.print_exc()
-				delay = 1
-
-
-			for x in range(delay):
-				time.sleep(1)
-				remaining = delay-x
-				sys.stdout.write("\rPururin CL sleeping %d          " % remaining)
-				sys.stdout.flush()
-				if not runStatus.run:
-					self.log.info("Breaking due to exit flag being set")
-					return
-
-
-
-	def go(self):
-
+	def setup(self):
 		self.wg.stepThroughCloudFlare(self.urlBase, titleContains="Pururin")
 
-		newLinks = self.retreiveTodoLinksFromDB()
-		if newLinks:
-			self.processTodoLinks(newLinks)
 
 
 if __name__ == "__main__":
