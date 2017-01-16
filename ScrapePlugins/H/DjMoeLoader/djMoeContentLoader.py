@@ -272,6 +272,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			# self.log.info("geturl with processing", fileN)
 			wholePath = os.path.join(linkDict["dirPath"], fileN)
+			wholePath = self.insertCountIfFilenameExists(wholePath)
 			self.log.info("Complete filepath: %s", wholePath)
 
 			fp = open(wholePath, "wb")

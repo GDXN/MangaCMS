@@ -213,6 +213,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase, LoginMixin.ExLoginM
 					fileN = fileN[:chop]+fileN[-4:]
 					# self.log.info("geturl with processing", fileN)
 					wholePath = os.path.join(linkDict["dirPath"], fileN)
+					wholePath = self.insertCountIfFilenameExists(wholePath)
 					self.log.info("Complete filepath: %s", wholePath)
 
 					#Write all downloaded files to the archive.
