@@ -234,11 +234,15 @@ class PururinContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 	def getLink(self, linkDict):
+		try:
+			linkDict = self.getDownloadInfo(linkDict)
 
-		linkDict = self.getDownloadInfo(linkDict)
-
-		images = self.getImages(linkDict)
-		title = linkDict['title']
+			images = self.getImages(linkDict)
+			title = linkDict['title']
+		except webFunctions.ContentError:
+			self.updateDbEntry(linkDict["sourceUrl"], dlState=-2, downloadPath="ERROR", fileName="ERROR: FAILED")
+			self.conn.commit()
+			return False
 
 		if images and title:
 			fileN = title+".zip"
