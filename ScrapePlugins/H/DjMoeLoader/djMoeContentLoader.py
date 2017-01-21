@@ -247,7 +247,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.updateDbEntry(linkDict["contentId"], downloadPath=linkDict["dirPath"], fileName=fileN)
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
-			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True)
+			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True, includePHash=True)
 			self.log.info( "Done")
 
 			if dedupState:
@@ -257,6 +257,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.conn.commit()
 
 
+			return wholePath
 
 
 
@@ -268,6 +269,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			# cur.execute('UPDATE djmoe SET dlPath=?, dlName=?, itemTags=?  WHERE contentID=?;', ("ERROR", 'ERROR: FAILED', "N/A", linkDict["contentId"]))
 			# self.log.info("fetchall = ", cur.fetchall())
 			self.conn.commit()
+			return False
 
 
 
