@@ -69,7 +69,7 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# Only scrape english TLs and japanese language content.
 				# This'll probably miss some other non-japanese content,
 				# but they don't seem to have a "translated" tag.
-				if val.lower() not in ['日本語', 'english']:
+				if val.lower() not in ['english']:
 					self.log.info("Skipping item due to language being %s.", val)
 					return None
 

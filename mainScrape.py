@@ -33,7 +33,7 @@ import UploadPlugins.Madokami.notifier
 import datetime
 
 executors = {
-	'main_jobstore': ProcessPoolExecutor(5),
+	'main_jobstore': ProcessPoolExecutor(10),
 }
 job_defaults = {
 	'coalesce': True,

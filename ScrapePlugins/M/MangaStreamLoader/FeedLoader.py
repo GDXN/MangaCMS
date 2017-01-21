@@ -43,8 +43,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "done")
 
 
-
-
 	def extractItemInfo(self, soup):
 
 		ret = {}
@@ -77,7 +75,12 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			# Fix stupid chapter naming
 			chapTitle = chapTitle.replace("Ep. ", "c")
 
-			date = dateutil.parser.parse(ulDate.get_text().strip(), fuzzy=True)
+			reldate_str = ulDate.get_text().strip()
+			if reldate_str == "Today":
+				reldate_ts = time.time()
+			else:
+				date = dateutil.parser.parse(reldate_str, fuzzy=True)
+				reldate_ts = calendar.timegm(date.timetuple())
 
 			item = {}
 
@@ -87,7 +90,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			item["originName"]    = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
 			item["sourceUrl"]     = url
 			item["seriesName"]    = baseInfo["title"]
-			item["retreivalTime"] = calendar.timegm(date.timetuple())
+			item["retreivalTime"] = reldate_ts
 
 			if not item in ret:
 				ret.append(item)

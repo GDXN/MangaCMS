@@ -17,7 +17,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Manga.DjM.Fl"
 	pluginName = "DjMoe Link Retreiver"
 	tableKey    = "djm"
-	urlBase = "http://www.doujin-moe.us/"
+	urlBase = "http://doujins.com/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -30,8 +30,8 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			pageOverride = 1
 		try:
 			# They're apparently sniffing cookies now. Fake out the system by loading the container page first.
-			dummy_pg = self.wg.getpage("http://www.doujin-moe.us/main")
-			data = self.wg.getJson( urllib.parse.urljoin(self.urlBase, "/ajax/newest.php"), addlHeaders={'Referer': 'http://www.doujin-moe.us/main'}, postData={'get': pageOverride} )
+			dummy_pg = self.wg.getpage("http://doujins.com/main")
+			data = self.wg.getJson( urllib.parse.urljoin(self.urlBase, "/ajax/newest.php"), addlHeaders={'Referer': 'http://doujins.com/main'}, postData={'get': pageOverride} )
 		except urllib.error.URLError:
 			self.log.critical("Could not get feed from Doujin Moe!")
 			self.log.critical(traceback.format_exc())
@@ -41,12 +41,12 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.info("done")
 		except ValueError:
 			self.log.critical("Get did not return JSON like normal!")
-			self.log.critical("Returned page contents = %s", feed)
+			self.log.critical("Returned page contents = %s", data)
 			return []
 
 		if not "success" in data or data["success"] != True:
 			self.log.error("POST did not return success!")
-			self.log.error("Returned JSON string = %s", feed)
+			self.log.error("Returned JSON string = %s", data)
 			return []
 
 		items = data["newest"]
@@ -108,7 +108,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		dat = self.getFeed()
 		self.processLinksIntoDB(dat)
 
-		# for x in range(10):
+		# for x in range(10, 100):
 		# 	dat = self.getFeed(pageOverride=x)
 		# 	self.processLinksIntoDB(dat)
 
@@ -116,7 +116,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup(startObservers=False, load=False):
 		# getHistory()
 		run = DjMoeDbLoader()
 		# run.getFeed()

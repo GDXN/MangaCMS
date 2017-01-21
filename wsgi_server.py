@@ -99,10 +99,13 @@ _____________________   _____    _________________    _______    _________
 def fix_matchdict(request):
 	if request.matchdict:
 		for key, values in request.matchdict.items():
-			if type(values) is str:
-				request.matchdict[key] = values.encode("latin-1").decode("utf-8")
-			else:
-				request.matchdict[key] = tuple(value.encode("latin-1").decode("utf-8") for value in values)
+			try:
+				if type(values) is str:
+					request.matchdict[key] = values.encode("latin-1").decode("utf-8")
+				else:
+					request.matchdict[key] = tuple(value.encode("latin-1").decode("utf-8") for value in values)
+			except UnicodeEncodeError:
+				pass
 
 
 def errorPage(errorStr, moreInfo=False):

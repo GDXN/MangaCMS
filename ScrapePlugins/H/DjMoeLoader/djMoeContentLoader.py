@@ -22,9 +22,9 @@ import logging
 import processDownload
 from ScrapePlugins.H.DjMoeLoader import tagsLUT
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
-class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	log = logging.getLogger("Main.Manga.DjM.Cl")
 
 
@@ -32,12 +32,14 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	loggerPath = "Main.Manga.DjM.Cl"
 	pluginName = "DjMoe Content Retreiver"
 	tableKey   = "djm"
-	urlBase = "http://www.doujin-moe.us/"
+	urlBase = "http://doujins.com/"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 	tableName = "HentaiItems"
 
+	itemLimit = 20
 	shouldCanonize = False
+
 	def retag(self):
 		retagUntaggedThresh = time.time()-settings.djSettings["retagMissing"]
 		retagThresh = time.time()-settings.djSettings["retag"]
@@ -67,63 +69,24 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				ret = self.getDownloadUrl(conf, retag=True)
 				# print(ret)
 
-
-
-
 			if not runStatus.run:
 				return
 
 
-	def go(self):
-		newLinks = self.retreiveTodoLinksFromDB()
-		if newLinks:
-			self.processTodoLinks(newLinks)
+	def getLink(self, inLink):
 
-	def retreiveTodoLinksFromDB(self):
+		try:
+			url = self.getDownloadUrl(inLink)
+			if url:
+				self.doDownload(url)
+				delay = random.randint(5, 30)
+			else:
+				return
+		except:
+			print("ERROR WAT?")
+			traceback.print_exc()
+			delay = 1
 
-		self.log.info("Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-		if not rows:
-			self.log.info("No items")
-			return
-		self.log.info("Done")
-		# print(rows)
-		items = []
-		for row in rows:
-			# self.log.info("Row = %s", row)
-
-			items.append(row)  # Actually the contentID
-		self.log.info("Have %s new items to retreive in DjMDownloader" % len(items))
-
-		return items
-
-
-	def processTodoLinks(self, inLinks):
-
-		for contentId in inLinks:
-			print("Loopin!")
-			try:
-				url = self.getDownloadUrl(contentId)
-				if url:
-					self.doDownload(url)
-					delay = random.randint(5, 30)
-				else:
-					return
-			except:
-				print("ERROR WAT?")
-				traceback.print_exc()
-				delay = 1
-
-
-			for x in range(delay):
-				time.sleep(1)
-				remaining = delay-x
-				sys.stdout.write("\rDjM CL sleeping %d          " % remaining)
-				sys.stdout.flush()
-				if not runStatus.run:
-					self.log.info("Breaking due to exit flag being set")
-					return
 
 
 	def getDirAndFName(self, soup):
@@ -241,7 +204,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		contentUrl = urllib.parse.urljoin(self.urlBase, "zipf.php?token={token}&hash={hash}".format(token=linkDict["contentId"], hash=linkDict["dlToken"]))
 		print("Fetching: ", contentUrl, " Referer ", linkDict["sourceUrl"])
-		content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': linkDict["sourceUrl"], "Host" : "www.doujin-moe.us"})
+		content, handle = self.wg.getpage(contentUrl, returnMultiple=True, addlHeaders={'Referer': linkDict["sourceUrl"], "Host" : "doujins.com"})
 
 		# self.log.info(len(content))
 
@@ -311,7 +274,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup(startObservers=False, load=False):
 
 		# run = HBrowseRetagger()
 		run = DjMoeContentLoader()

@@ -2,10 +2,6 @@
 
 import logSetup
 import runStatus
-if __name__ == "__main__":
-	logSetup.initLogging()
-	runStatus.preloadDicts = False
-
 
 import bs4
 import nameTools as nt
@@ -150,6 +146,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 if __name__ == '__main__':
 	import utilities.testBase as tb
+
 	with tb.testSetup():
 		cl = ContentLoader()
 
