@@ -12,7 +12,6 @@ import ScrapePlugins.M.JzLoader.Run
 import ScrapePlugins.H.DjMoeLoader.Run
 import ScrapePlugins.H.DjMoeLoader.Retag
 import ScrapePlugins.H.PururinLoader.Run
-import ScrapePlugins.H.FakkuLoader.Run
 import ScrapePlugins.H.SadPandaLoader.Run
 import ScrapePlugins.H.NHentaiLoader.Run
 import ScrapePlugins.H.HBrowseLoader.Run
@@ -96,7 +95,6 @@ scrapePlugins = {
 
 	41  : (ScrapePlugins.H.HBrowseLoader.Run,                   hours( 2)),
 	42  : (ScrapePlugins.H.PururinLoader.Run,                   hours( 2)),
-	43  : (ScrapePlugins.H.FakkuLoader.Run,                     hours( 2)),
 	44  : (ScrapePlugins.H.NHentaiLoader.Run,                   hours( 2)),
 	45  : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
 	46  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 4)),
