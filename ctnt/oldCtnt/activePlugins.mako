@@ -487,7 +487,7 @@ sidebarItemList = [
 			'name'          : "Fakku",
 			'dictKey'       : "fk",
 			'cssClass'      : "fkId",
-			'showOnHome'    : True,
+			'showOnHome'    : False,
 			'renderSideBar' : True,
 			'genRow'        : True,
 			'type'          : 'Porn'
@@ -549,6 +549,18 @@ sidebarItemList = [
 			'name'          : "Hitomi",
 			'dictKey'       : "hit",
 			'cssClass'      : "hitId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Porn'
+		},
+
+		{
+			"num"           : 37,
+			'dbKey'         : "DoujinOnline",
+			'name'          : "DoujinOnline",
+			'dictKey'       : "dol",
+			'cssClass'      : "dolId",
 			'showOnHome'    : True,
 			'renderSideBar' : True,
 			'genRow'        : True,

@@ -16,6 +16,7 @@ import ScrapePlugins.H.SadPandaLoader.Run
 import ScrapePlugins.H.NHentaiLoader.Run
 import ScrapePlugins.H.HBrowseLoader.Run
 import ScrapePlugins.H.HitomiLoader.Run
+import ScrapePlugins.H.DoujinOnlineLoader.Run
 
 
 import ScrapePlugins.M.McLoader.Run
@@ -99,7 +100,8 @@ scrapePlugins = {
 	45  : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
 	46  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 4)),
 	47  : (ScrapePlugins.H.HitomiLoader.Run,                    hours( 4)),
-	48  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours(24)),
+	48  : (ScrapePlugins.H.DoujinOnlineLoader.Run,              hours( 4)),
+	55  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours(24)),
 
 	# FoolSlide modules
 
