@@ -455,7 +455,7 @@ class DirNameProxy(object):
 		self.paths = paths
 
 		self.lastCheck = 0
-		self.maxRate = 5
+		self.maxRate = 60*5
 		self._dirDicts = {}
 
 
@@ -482,7 +482,7 @@ class DirNameProxy(object):
 	def observersActive(self):
 		return self.notifierRunning
 
-	def startDirObservers(self, useObservers=True):
+	def startDirObservers(self):
 		# Observers do not need to be started for simple use, particularly
 		# for quick-scripts where the filesystem is not expected to change significantly.
 		# Pass useObservers=False to avoid the significant delay
@@ -492,29 +492,6 @@ class DirNameProxy(object):
 		self.notifierRunning = True
 		# Used to check that the directories have been loaded.
 		# Should probably be broken up into `notifierRunning` and `dirsLoaded` flags.
-
-		if useObservers:
-			if not "wm" in self.__dict__:
-				self.wm = pyinotify.WatchManager(exclude_filter=lambda p: os.path.isfile(p))
-				self.eventH = EventHandler([item["dir"] for item in self.paths.values()])
-				self.notifier = pyinotify.ThreadedNotifier(self.wm, self.eventH)
-
-			self.log.info("Setting up filesystem observers")
-			for key in self.paths.keys():
-				if not "observer" in self.paths[key]:
-					self.log.info("Instantiating observer for path %s", self.paths[key]["dir"])
-
-					self.paths[key]["observer"] = self.wm.add_watch(self.paths[key]["dir"], MONITORED_FS_EVENTS, rec=True)
-
-
-				else:
-					self.log.info("WARNING = DirNameProxy Instantiated multiple times!")
-
-			self.notifier.start()
-			self.log.info("Filesystem observers initialized")
-			self.log.info("Loading DirLookup")
-		else:
-			self.eventH = EventHandler([item["dir"] for item in self.paths.values()])
 
 		self.checkUpdate(force=True)
 		baseDictKeys = list(self._dirDicts.keys())
@@ -586,13 +563,10 @@ class DirNameProxy(object):
 		for key in keys:
 			# Only query the filesystem at most once per *n* seconds.
 			if updateTime > self.paths[key]["lastScan"] + self.paths[key]["interval"] or force or skipTime:
-				changed = self.eventH.getClearChangedStatus( self.paths[key]["dir"])
-
-				if changed or force:
-					self.log.info("DirLookupTool updating %s, path=%s!", key, self.paths[key]["dir"])
-					self.log.info("DirLookupTool updating from Directory")
-					self._dirDicts[key] = self.getDirDict(self.paths[key]["dir"])
-					self.paths[key]["lastScan"] = updateTime
+				self.log.info("DirLookupTool updating %s, path=%s!", key, self.paths[key]["dir"])
+				self.log.info("DirLookupTool updating from Directory")
+				self._dirDicts[key] = self.getDirDict(self.paths[key]["dir"])
+				self.paths[key]["lastScan"] = updateTime
 
 		self.updateLock.release()
 
@@ -665,11 +639,9 @@ class DirNameProxy(object):
 				raise ValueError("New path exists already!")
 			else:
 				os.rename(oldPath, newPath)
-				if self.notifierRunning:
-					self.eventH.setPathDirty(os.path.split(oldPath)[0])
-					print("Calling checkUpdate")
-					self.checkUpdate(skipTime=True)
-					print("checkUpdate Complete")
+				print("Calling checkUpdate")
+				self.checkUpdate(skipTime=True)
+				print("checkUpdate Complete")
 
 
 	def filterPreppedNameThroughDB(self, name):

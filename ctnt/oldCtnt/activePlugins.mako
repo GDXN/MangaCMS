@@ -104,7 +104,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 15,
+			"num"           : 7,
 			'dbKey'         : "CxLoader",
 			'name'          : "CXC Scans",
 			'dictKey'       : "cx",
@@ -116,7 +116,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 16,
+			"num"           : 8,
 			'dbKey'         : "MjLoader",
 			'name'          : "MangaJoy",
 			'dictKey'       : "mj",
@@ -128,7 +128,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 16,
+			"num"           : 9,
 			'dbKey'         : "RhLoader",
 			'name'          : "RedHawk",
 			'dictKey'       : "rh",
@@ -140,7 +140,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 17,
+			"num"           : 10,
 			'dbKey'         : "LmLoader",
 			'name'          : "LoneManga",
 			'dictKey'       : "lm",
@@ -152,7 +152,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 17,
+			"num"           : 11,
 			'dbKey'         : "WtLoader",
 			'name'          : "Webtoon",
 			'dictKey'       : "wt",
@@ -164,7 +164,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 18,
+			"num"           : 12,
 			'dbKey'         : "DyLoader",
 			'name'          : "Dynasty",
 			'dictKey'       : "dy",
@@ -177,7 +177,7 @@ sidebarItemList = [
 
 
 		{
-			"num"           : 20,
+			"num"           : 13,
 			'dbKey'         : "KissLoader",
 			'name'          : "KissManga",
 			'dictKey'       : "ki",
@@ -189,7 +189,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 22,
+			"num"           : 14,
 			'dbKey'         : "CrunchyRoll",
 			'name'          : "CrunchyRoll",
 			'dictKey'       : "cr",
@@ -200,7 +200,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 23,
+			"num"           : 15,
 			'dbKey'         : "RoseliaLoader",
 			'name'          : "Roselia",
 			'dictKey'       : "rs",
@@ -211,7 +211,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 24,
+			"num"           : 16,
 			'dbKey'         : "SenseLoader",
 			'name'          : "Sense",
 			'dictKey'       : "se",
@@ -222,7 +222,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 25,
+			"num"           : 16,
 			'dbKey'         : "ShoujoSense",
 			'name'          : "ShoujoSense",
 			'dictKey'       : "sj",
@@ -233,7 +233,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 26,
+			"num"           : 17,
 			'dbKey'         : "VortexLoader",
 			'name'          : "Vortex",
 			'dictKey'       : "vx",
@@ -245,7 +245,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 27,
+			"num"           : 17,
 			'dbKey'         : "TwistedHel",
 			'name'          : "TwistedHel",
 			'dictKey'       : "th",
@@ -257,7 +257,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 28,
+			"num"           : 18,
 			'dbKey'         : "Casanova",
 			'name'          : "Casanova",
 			'dictKey'       : "cs",
@@ -269,7 +269,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 32,
+			"num"           : 19,
 			'dbKey'         : "MsLoader",
 			'name'          : "MangaStrm",
 			'dictKey'       : "ms",
@@ -280,7 +280,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 31,
+			"num"           : 20,
 			'dbKey'         : "MangatopiaLoader",
 			'name'          : "Mangatopia",
 			'dictKey'       : "mp",
@@ -291,7 +291,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 33,
+			"num"           : 21,
 			'dbKey'         : "WrLoader",
 			'name'          : "WebTnsRdr",
 			'dictKey'       : "wr",
@@ -304,7 +304,7 @@ sidebarItemList = [
 
 
 		{
-			"num"           : 14,
+			"num"           : 22,
 			'dbKey'         : "IrcEnqueue",
 			'name'          : "IRC XDCC",
 			'dictKey'       : "irc-irh",
@@ -315,7 +315,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 30,
+			"num"           : 23,
 			'dbKey'         : "IrcEnqueue",
 			'name'          : "IRC Trigger",
 			'dictKey'       : "irc-trg",
@@ -327,7 +327,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 36,
+			"num"           : 24,
 			'dbKey'         : "kawaii",
 			'name'          : "Kawaii Scans",
 			'dictKey'       : "kw",
@@ -340,7 +340,7 @@ sidebarItemList = [
 
 
 		{
-			"num"           : 37,
+			"num"           : 25,
 			'dbKey'         : "sura",
 			'name'          : "Sura's Place",
 			'dictKey'       : "sura",
@@ -351,7 +351,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 38,
+			"num"           : 26,
 			'dbKey'         : "mbx",
 			'name'          : "MangaBox",
 			'dictKey'       : "mbx",
@@ -362,7 +362,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 39,
+			"num"           : 27,
 			'dbKey'         : "gos",
 			'name'          : "GosLoader",
 			'dictKey'       : "gos",
@@ -373,7 +373,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 40,
+			"num"           : 28,
 			'dbKey'         : "ym",
 			'name'          : "YoManga",
 			'dictKey'       : "ym",
@@ -384,7 +384,7 @@ sidebarItemList = [
 			'type'          : 'Manga'
 		},
 		{
-			"num"           : 41,
+			"num"           : 29,
 			'dbKey'         : "ms",
 			'name'          : "MangaStrm",
 			'dictKey'       : "ms",
@@ -396,7 +396,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 7,
+			"num"           : 30,
 			'dbKey'         : "MkLoader",
 			'name'          : "Madokami",
 			'dictKey'       : "mk",
@@ -408,7 +408,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 8,
+			"num"           : 31,
 			'dbKey'         : "BuMon",
 			'name'          : "MU Mon",
 			'dictKey'       : None,
@@ -422,7 +422,7 @@ sidebarItemList = [
 		###################################################################################################################
 
 		{
-			"num"           : 9,
+			"num"           : 32,
 			'dbKey'         : False,
 			'name'          : "Mt Mon",
 			'dictKey'       : None,
@@ -433,8 +433,10 @@ sidebarItemList = [
 			'type'          : 'Manga-defunct'
 		},
 
+		###################################################################################################################
+
 		{
-			"num"           : 10,
+			"num"           : 100,
 			'dbKey'         : "DjMoe",
 			'name'          : "DjMoe",
 			'dictKey'       : "djm",
@@ -446,7 +448,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 11,
+			"num"           : 101,
 			'dbKey'         : "Pururin",
 			'name'          : "Pururin",
 			'dictKey'       : "pu",
@@ -458,19 +460,19 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 12,
-			'dbKey'         : "EmLoader",
-			'name'          : "ExHenMado",
-			'dictKey'       : "em",
-			'cssClass'      : "emId",
+			"num"           : 102,
+			'dbKey'         : "SadPanda",
+			'name'          : "ExHentai",
+			'dictKey'       : "sp",
+			'cssClass'      : "spId",
 			'showOnHome'    : True,
-			'renderSideBar' : False,
+			'renderSideBar' : True,
 			'genRow'        : True,
 			'type'          : 'Porn'
 		},
 
 		{
-			"num"           : 19,
+			"num"           : 103,
 			'dbKey'         : "H-Browse",
 			'name'          : "H-Browse",
 			'dictKey'       : "hb",
@@ -482,7 +484,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 13,
+			"num"           : 104,
 			'dbKey'         : "FkLoader",
 			'name'          : "Fakku",
 			'dictKey'       : "fk",
@@ -494,7 +496,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 21,
+			"num"           : 105,
 			'dbKey'         : "NHentai",
 			'name'          : "NHentai",
 			'dictKey'       : "nh",
@@ -506,20 +508,20 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 29,
-			'dbKey'         : "SadPanda",
-			'name'          : "ExHentai",
-			'dictKey'       : "sp",
-			'cssClass'      : "spId",
+			"num"           : 106,
+			'dbKey'         : "EmLoader",
+			'name'          : "ExHenMado",
+			'dictKey'       : "em",
+			'cssClass'      : "emId",
 			'showOnHome'    : True,
-			'renderSideBar' : True,
+			'renderSideBar' : False,
 			'genRow'        : True,
 			'type'          : 'Porn'
 		},
 
 
 		{
-			"num"           : 34,
+			"num"           : 107,
 			'dbKey'         : "Tadanohito",
 			'name'          : "Tadano",
 			'dictKey'       : "ta",
@@ -532,7 +534,7 @@ sidebarItemList = [
 
 
 		{
-			"num"           : 35,
+			"num"           : 108,
 			'dbKey'         : "ExArchive",
 			'name'          : "ExArch",
 			'dictKey'       : "exArch",
@@ -544,7 +546,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 36,
+			"num"           : 109,
 			'dbKey'         : "Hitomi",
 			'name'          : "Hitomi",
 			'dictKey'       : "hit",
@@ -556,7 +558,7 @@ sidebarItemList = [
 		},
 
 		{
-			"num"           : 37,
+			"num"           : 110,
 			'dbKey'         : "DoujinOnline",
 			'name'          : "DoujinOnline",
 			'dictKey'       : "dol",
