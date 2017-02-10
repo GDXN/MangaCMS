@@ -66,7 +66,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 def scanDirectories(basePath):
 
-	nt.dirNameProxy.startDirObservers(useObservers=False)
+	nt.dirNameProxy.startDirObservers()
 	dd = DirDeduper()
 	dd.openDB()
 	dd.setupDbApi()

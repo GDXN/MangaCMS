@@ -376,7 +376,7 @@ def renameSeriesToMatchMangaUpdates(scanpath):
 
 def organizeFolder(folderPath):
 	try:
-		nt.dirNameProxy.startDirObservers(useObservers=False)
+		nt.dirNameProxy.startDirObservers()
 		consolidateMangaFolders(folderPath)
 		deduplicateMangaFolders()
 		consolicateSeriesToSingleDir()

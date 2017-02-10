@@ -219,7 +219,8 @@ def dequoteDict(inDict):
 						<div class="errorPattern">
 							<h3>File info:</h3>
 							<p>Exists = ${os.path.exists(itemPath)}</p>
-							<p>Magic file-type = ${magic.from_file(itemPath).decode()}</p>
+							<p>Magic file-type = ${magic.from_file(itemPath)}</p>
+							<p>File path:<pre>${itemPath}</pre></p>
 						</div>
 						<a href="/reader2/browse/">Back</a>
 					</div>

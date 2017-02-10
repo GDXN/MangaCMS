@@ -88,7 +88,7 @@ class ItemImporter(ScrapePlugins.DbBase.DbBase):
 
 def importDirectories(basePath):
 
-	nt.dirNameProxy.startDirObservers(useObservers=False)
+	nt.dirNameProxy.startDirObservers()
 	nt.dirNameProxy.refresh()
 
 	dd = ItemImporter()
