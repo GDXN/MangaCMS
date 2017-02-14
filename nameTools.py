@@ -501,7 +501,6 @@ class DirNameProxy(object):
 		# Only stop once (should prevent on-exit errors)
 		if self.notifierRunning:
 			self.log.info("Unoading DirLookup")
-			self.notifier.stop()
 			self.notifierRunning = False
 
 	def getDirDict(self, dlPath):

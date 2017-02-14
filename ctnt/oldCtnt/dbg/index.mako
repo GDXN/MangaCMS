@@ -17,6 +17,13 @@
 </head>
 
 
+<%!
+import time
+import settings
+import os
+
+%>
+
 
 <%
 startTime = time.time()
@@ -24,10 +31,22 @@ startTime = time.time()
 %>
 
 
-<%!
-import time
-import settings
-import os
+<%
+
+def resetDownloads(table):
+	print("reset", table)
+
+	cur = sqlCon.cursor()
+	cur.execute("ROLLBACK;")
+	ret = cur.execute('UPDATE {} SET dlstate = 0 WHERE dlstate < 0 AND retreivaltime >= %s'.format(table), (time.time() - (60 * 60 * 24 * 7), ))
+	cur.execute("COMMIT;")
+
+
+if "resetManga" in request.params:
+	resetDownloads("mangaItems")
+if "resetHentai" in request.params:
+	resetDownloads("hentaiItems")
+
 
 
 %>
@@ -45,6 +64,8 @@ import os
 				<div id='mangatable'>
 					<ul>
 						<li><a href="/dbg/nt">NameTools State Dump</a></li>
+						<li><a href="/dbg/?resetManga=True">Reset failed manga downloads from this week.</a></li>
+						<li><a href="/dbg/?resetHentai=True">Reset failed Hentai downloads from this week.</a></li>
 					</ul>
 				</div>
 			</div>
