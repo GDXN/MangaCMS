@@ -32,7 +32,7 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 def test():
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup():
 		run = Runner()
 		run.go()
 

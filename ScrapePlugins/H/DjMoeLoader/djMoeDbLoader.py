@@ -116,7 +116,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False, load=False):
+	with tb.testSetup(load=False):
 		# getHistory()
 		run = DjMoeDbLoader()
 		# run.getFeed()

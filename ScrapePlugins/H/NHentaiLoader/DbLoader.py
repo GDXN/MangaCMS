@@ -158,9 +158,9 @@ def getHistory():
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
-		getHistory()
-		# run = DbLoader()
-		# run.go()
+	with tb.testSetup():
+		# getHistory()
+		run = DbLoader()
+		run.go()
 
 

@@ -224,7 +224,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup():
 
 		run = ContentLoader()
 		# run.retreivalThreads = 1

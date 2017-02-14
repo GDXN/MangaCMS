@@ -333,7 +333,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False, load=False):
+	with tb.testSetup(load=False):
 
 		run = ContentLoader()
 		# run.getDownloadInfo({'sourceUrl':'https://hitomi.la/galleries/284.html'})

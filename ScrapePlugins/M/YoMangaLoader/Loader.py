@@ -182,7 +182,7 @@ if __name__ == '__main__':
 
 
 	import utilities.testBase as tb
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup():
 
 		fl = Loader()
 		print("fl", fl)

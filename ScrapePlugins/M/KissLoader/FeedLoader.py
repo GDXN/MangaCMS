@@ -233,7 +233,7 @@ Not found
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup(startObservers=False):
+	with tb.testSetup():
 		fl = FeedLoader()
 		fl.go(historical=True)
 		# fl.go(historical=True)
