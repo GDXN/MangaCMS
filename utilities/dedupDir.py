@@ -18,61 +18,47 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 	def addTag(self, srcPath, newTags):
+		if newTags == '':
+			return
+
 		with self.conn.cursor() as cur:
 
-			tags = None
-			rowId = None
+			tagsets = []
+			rowIds = []
 
 			cur.execute("BEGIN;")
 			basePath, fName = os.path.split(srcPath)
 			# print("fname='%s', path='%s'" % (fName, basePath))
 			cur.execute('''SELECT dbId, tags FROM {tableName} WHERE fileName=%s AND downloadPath=%s;'''.format(tableName=self.tableName), (fName, basePath))
 			rows = cur.fetchall()
-			if len(rows) > 1:
+			if len(rows) >= 1:
 				exists = 0
-				for row in rows:
+				for rowid, tagsTmp in rows:
 
-					tagsTmp = row[1]
-					if tagsTmp == None:
+					if tagsTmp is None:
 						tagsTmp = ''
-					if not "deleted" in tagsTmp and not "missing" in tagsTmp and not "duplicate" in tagsTmp:
+					if not any([tmp in tagsTmp for tmp in ["deleted", "missing", "duplicate"]]):
 						exists += 1
-						rowId = row[0]
-						tags = row[1]
+						rowIds.append(rowid)
 
+					tagsets.append(tagsTmp)
 
-				if exists > 1:
-
-					print("Rows")
-					for row in rows:
-						print(" = ", row)
-						print(" = ", "deleted" in row, not "missing" in row, not "duplicate" in row)
-
-					self.log.error("More then one row for the same path! Wat?")
-
-					row = rows.pop()
-					tags = row[1]
-					rowId = row[0]
-
-			elif rows:
-				row = rows.pop()
-				tags = row[1]
-				rowId = row[0]
 			else:
 				self.log.info("File {fname} not in manga database!".format(fname=srcPath))
 				return
 
-			if not rowId:
-				self.log.warning("WAt?")
+			if not rowIds:
+				self.log.warning("Wat?")
 				return
 
-			if tags == None:
-				tags = ''
-			tags = set(tags.split())
-			for tag in newTags.split():
-				tags.add(tag.lower())
+			for tags, rowId in zip(tagsets, rowIds):
+				if tags is None:
+					tags = ''
+				tags = set(tags.split())
+				for tag in newTags.split():
+					tags.add(tag.lower())
 
-			cur.execute('''UPDATE {tableName} SET tags=%s WHERE dbId=%s;'''.format(tableName=self.tableName), (" ".join(tags), rowId))
+				cur.execute('''UPDATE {tableName} SET tags=%s WHERE dbId=%s;'''.format(tableName=self.tableName), (" ".join(tags), rowId))
 			cur.execute("COMMIT;")
 
 	def setupDbApi(self):
