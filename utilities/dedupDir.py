@@ -18,6 +18,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 
 	def addTag(self, srcPath, newTags):
+		# Don't do anything if we're not actually doing anything.
 		if newTags == '':
 			return
 
