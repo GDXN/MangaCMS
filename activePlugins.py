@@ -52,6 +52,7 @@ import ScrapePlugins.M.FoolSlide.Modules.ShoujoSenseRun
 import ScrapePlugins.M.FoolSlide.Modules.TripleSevenRun
 import ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun
 import ScrapePlugins.M.FoolSlide.Modules.VortexRun
+import ScrapePlugins.M.FoolSlide.Modules.MangazukiRun
 
 
 
@@ -119,6 +120,7 @@ scrapePlugins = {
 	72 : (ScrapePlugins.M.FoolSlide.Modules.TripleSevenRun,     hours(12)),
 	73 : (ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,      hours(12)),
 	74 : (ScrapePlugins.M.FoolSlide.Modules.VortexRun,          hours(12)),
+	75 : (ScrapePlugins.M.FoolSlide.Modules.MangazukiRun,       hours(12)),
 
 	80 : (ScrapePlugins.M.MangaMadokami.Run,                    hours(4)),
 	81 : (ScrapePlugins.M.BooksMadokami.Run,                    hours(4)),

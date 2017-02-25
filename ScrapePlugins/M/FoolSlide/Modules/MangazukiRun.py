@@ -16,16 +16,16 @@ class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 
 
 
-	loggerPath = "Main.Manga.Vx.Fl"
-	pluginName = "Vortex Scans Link Retreiver"
-	tableKey = "vx"
+	loggerPath = "Main.Manga.Mzk.Fl"
+	pluginName = "Mangazuki Link Retreiver"
+	tableKey = "mzk"
 	dbName = settings.DATABASE_DB_NAME
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	tableName = "MangaItems"
 
-	urlBase = "http://reader.vortex-scans.com/"
+	urlBase = "https://mangazuki.co/"
 	feedUrl = urlBase+"directory/{num}/"
 
 class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
@@ -33,12 +33,12 @@ class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentL
 
 
 
-	loggerPath = "Main.Manga.Vx.Cl"
-	pluginName = "Vortex Scans Content Retreiver"
-	tableKey = "vx"
+	loggerPath = "Main.Manga.Mzk.Cl"
+	pluginName = "Mangazuki Content Retreiver"
+	tableKey = "mzk"
 	dbName = settings.DATABASE_DB_NAME
 	tableName = "MangaItems"
-	groupName = "VortexScans"
+	groupName = "Mangazuki"
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
@@ -47,14 +47,14 @@ class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentL
 	contentSelector = ('article', 'content')
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):
-	loggerPath = "Main.Manga.Vx.Run"
+	loggerPath = "Main.Manga.Mzk.Run"
 
-	pluginName = "VortexLoader"
+	pluginName = "MangazukiLoader"
 
 
 	def _go(self):
 
-		self.log.info("Checking Vortex Scans feeds for updates")
+		self.log.info("Checking Mangazuki feeds for updates")
 		fl = FeedLoader()
 		fl.go()
 		fl.closeDB()
