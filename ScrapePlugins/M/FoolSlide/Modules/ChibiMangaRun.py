@@ -18,7 +18,7 @@ SHORT_NAME = "CM"
 GROUP_NAME = "ChibiMangaScanlation"
 
 URL_BASE = "http://www.cmreader.info/"
-READER_POSTFIX = "reader/list/{num}/"
+READER_POSTFIX = "latest/{num}/"
 
 class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 

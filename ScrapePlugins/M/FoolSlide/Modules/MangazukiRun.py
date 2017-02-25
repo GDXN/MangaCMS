@@ -26,7 +26,7 @@ class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	tableName = "MangaItems"
 
 	urlBase = "https://mangazuki.co/"
-	feedUrl = urlBase+"directory/{num}/"
+	feedUrl = urlBase+"latest/{num}/"
 
 class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 

@@ -41,7 +41,7 @@ class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	tableName = "MangaItems"
 
 	urlBase = "http://reader.roseliascans.com/"
-	feedUrl = urlBase+"reader/list/{num}/"
+	feedUrl = urlBase+"latest/{num}/"
 
 
 

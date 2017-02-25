@@ -18,7 +18,7 @@ SHORT_NAME = "IM"
 GROUP_NAME = "IlluminatiManga"
 
 URL_BASE = "http://reader.manga-download.org/"
-READER_POSTFIX = "reader/list/{num}/"
+READER_POSTFIX = "latest/{num}/"
 
 class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 

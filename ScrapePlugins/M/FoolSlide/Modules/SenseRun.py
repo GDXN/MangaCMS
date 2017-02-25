@@ -39,7 +39,7 @@ class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://reader.sensescans.com/"
-	feedUrl = urlBase+"reader/list/{num}/"
+	feedUrl = urlBase+"latest/{num}/"
 
 
 class Runner(ScrapePlugins.RunBase.ScraperBase):

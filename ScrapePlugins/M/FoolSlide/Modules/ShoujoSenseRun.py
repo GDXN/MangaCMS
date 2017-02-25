@@ -23,7 +23,7 @@ class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
 	urlBase = "http://reader.shoujosense.com/"
-	feedUrl = urlBase+"reader/list/{num}/"
+	feedUrl = urlBase+"latest/{num}/"
 
 class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 

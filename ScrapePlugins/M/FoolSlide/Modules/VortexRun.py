@@ -26,7 +26,7 @@ class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 	tableName = "MangaItems"
 
 	urlBase = "http://reader.vortex-scans.com/"
-	feedUrl = urlBase+"directory/{num}/"
+	feedUrl = urlBase+"latest/{num}/"
 
 class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 
