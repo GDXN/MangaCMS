@@ -37,9 +37,9 @@ MASK_PATHS = [
 STRIP_PREFIX = "/mango"
 
 HTTPS_CREDS = [
-	("manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
-	("http://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
-	("https://manga.madokami.com", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("http://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
+	("https://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
 	]
 
 class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
@@ -51,8 +51,8 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	dbName = settings.DATABASE_DB_NAME
 
 	tableName = "BookItems"
-	url_base     = "https://manga.madokami.com/"
-	tree_api     = "https://manga.madokami.com/stupidapi/lessdumbtree"
+	url_base     = "https://manga.madokami.al/"
+	tree_api     = "https://manga.madokami.al/stupidapi/lessdumbtree"
 
 	def checkLogin(self):
 		pass
