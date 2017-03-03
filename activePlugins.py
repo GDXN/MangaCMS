@@ -101,7 +101,7 @@ scrapePlugins = {
 	45  : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
 	46  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 4)),
 	47  : (ScrapePlugins.H.HitomiLoader.Run,                    hours( 4)),
-	48  : (ScrapePlugins.H.DoujinOnlineLoader.Run,              hours( 4)),
+	# 48  : (ScrapePlugins.H.DoujinOnlineLoader.Run,              hours( 4)),
 	55  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours(24)),
 
 	# FoolSlide modules

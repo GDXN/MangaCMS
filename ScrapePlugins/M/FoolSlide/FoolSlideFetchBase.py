@@ -2,9 +2,11 @@
 import bs4
 
 import time
-import calendar
 import dateutil.parser
 import runStatus
+import parsedatetime
+import calendar
+import datetime
 
 import ScrapePlugins.RetreivalDbBase
 
@@ -44,6 +46,27 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
+	def extractDate(self, inStr):
+		try:
+			date = dateutil.parser.parse(inStr, fuzzy=True)
+			return date
+		except ValueError:
+			pass
+
+
+		cal = parsedatetime.Calendar()
+		ulDate, ign_status = cal.parse(inStr)
+		# print(ulDate)
+		ultime = datetime.datetime.fromtimestamp(calendar.timegm(ulDate))
+
+		# No future times!
+		if ultime > datetime.datetime.now():
+			self.log.warning("Clamping timestamp to now!")
+			ultime = datetime.datetime.now()
+		return ultime
+
+
+
 	def getItemPages(self, url):
 		self.log.info("Should get item for '%s'", url)
 		page = self.wg.getpage(url)
@@ -72,8 +95,8 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
+			date = self.extractDate(chapDate.a.next_sibling.strip(", "))
 
-			date = dateutil.parser.parse(chapDate.a.next_sibling.strip(", "), fuzzy=True)
 
 			item["originName"] = "{series} - {file}".format(series=baseInfo["title"], file=chapTitle)
 			item["sourceUrl"]  = url
