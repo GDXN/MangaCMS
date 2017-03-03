@@ -65,7 +65,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def setupDbApi(self):
 		pass
 
-	def cleanDirectory(self, dirPath, delDir, includePhash=False, pathFilter=['']):
+	def cleanDirectory(self, dirPath, delDir, includePhash=False, pathPositiveFilter=['']):
 
 		self.log.info("Cleaning path '%s'", dirPath)
 		items = os.listdir(dirPath)
@@ -74,11 +74,11 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			item = os.path.join(dirPath, item)
 			if os.path.isdir(item):
 				print("Scanning", item)
-				self.cleanSingleDir(item, delDir, includePhash, pathFilter)
+				self.cleanSingleDir(item, delDir, includePhash, pathPositiveFilter)
 
 
 
-	def cleanSingleDir(self, dirPath, delDir, includePhash=True, pathFilter=['']):
+	def cleanSingleDir(self, dirPath, delDir, includePhash=True, pathPositiveFilter=['']):
 
 		self.log.info("Processing subdirectory '%s'", dirPath)
 		if not dirPath.endswith("/"):
@@ -91,7 +91,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 		dirs = [i for i in items if os.path.isdir(i)]
 		self.log.info("Recursing into %s subdirectories!", len(dirs))
 		for subDir in dirs:
-			self.cleanSingleDir(subDir, delDir, includePhash, pathFilter)
+			self.cleanSingleDir(subDir, delDir, includePhash, pathPositiveFilter)
 
 
 		parsedItems = [(os.path.getsize(i), i) for i in items if os.path.isfile(i)]
@@ -108,13 +108,13 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				self.log.info("Scanning '%s'", basePath)
 
 				proc = processDownload.MangaProcessor()
-				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathFilter=pathFilter)
+				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=pathPositiveFilter)
 				self.addTag(basePath, tags)
 
 			except KeyboardInterrupt:
 				raise
 
-	def cleanBySourceKey(self, sourceKey, delDir, includePhash=True, pathFilter=['']):
+	def cleanBySourceKey(self, sourceKey, delDir, includePhash=True, pathPositiveFilter=['']):
 
 
 		with self.conn.cursor() as cur:
@@ -138,7 +138,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 				self.log.info("Scanning '%s'", basePath)
 
 				proc = processDownload.MangaProcessor()
-				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathFilter=pathFilter)
+				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=pathPositiveFilter)
 				self.addTag(basePath, tags)
 
 			except KeyboardInterrupt:
@@ -272,7 +272,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			print(tags)
 
 			proc = processDownload.MangaProcessor()
-			tags = proc.processDownload(seriesName=None, archivePath=basePath, pathFilter=[''])
+			tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=[''])
 			self.addTag(basePath, tags)
 
 

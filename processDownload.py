@@ -77,7 +77,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def scanIntersectingArchives(self, containerPath, intersections, phashThresh, moveToPath):
 
-		pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
+		pathPositiveFilter = [item['dir'] for item in settings.mangaFolders.values()]
 		self.log.info("File intersections:")
 		keys = list(intersections)
 		keys.sort()
@@ -100,7 +100,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				# I need some sort of deletion lock for file removal. Outside deletion is disabled until that's done.
 				# EDIT: Wrapped the deduper end in a lock.
 
-				dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter)
+				dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathPositiveFilter=pathPositiveFilter)
 				retTags, bestMatch, dummy_intersections = dc.process(moveToPath=moveToPath)
 				retTags = retTags.strip()
 
@@ -115,7 +115,7 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathFilter=None, crossReference=True, doUpload=True, **kwargs):
+	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathPositiveFilter=None, crossReference=True, doUpload=True, **kwargs):
 
 		if 'phashThresh' in kwargs:
 			phashThresh = kwargs.pop('phashThresh')
@@ -147,12 +147,12 @@ class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		# Limit dedup matches to the served directories.
-		if not pathFilter:
-			pathFilter = [item['dir'] for item in settings.mangaFolders.values()]
+		if not pathPositiveFilter:
+			pathPositiveFilter = [item['dir'] for item in settings.mangaFolders.values()]
 
 		# Let the remote deduper do it's thing.
 		# It will delete duplicates automatically.
-		dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathFilter=pathFilter, lock=False)
+		dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathPositiveFilter=pathPositiveFilter, lock=False)
 		retTagsTmp, bestMatch, intersections = dc.process(moveToPath=moveToPath)
 		retTags += " " + retTagsTmp
 		retTags = retTags.strip()
