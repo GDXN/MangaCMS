@@ -242,14 +242,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase, LoginMixin.ExLoginM
 
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
-			self.conn.commit()
-
 
 		else:
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
-
-			self.conn.commit()
 			return False
 
 

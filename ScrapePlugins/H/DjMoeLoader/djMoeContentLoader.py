@@ -43,7 +43,7 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 	def retag(self):
 		retagUntaggedThresh = time.time()-settings.djSettings["retagMissing"]
 		retagThresh = time.time()-settings.djSettings["retag"]
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 
 			ret = cur.execute("SELECT sourceUrl,tags FROM {tableName} WHERE lastUpdate<%s AND sourceSite=%s AND dlState=2 AND (tags IS NULL OR tags='') ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (retagUntaggedThresh, self.tableKey))
 			rets = cur.fetchall()
@@ -108,7 +108,6 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.warning("Retagging. No download is expected behaviour.")
 		else:
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=1)
-			self.conn.commit()
 
 		#self.log.info("%s %s", dirDict, linkDict["sourceUrl"])
 		sourcePage = urllib.parse.urljoin(self.urlBase, linkDict["sourceUrl"])
@@ -122,7 +121,6 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			self.log.critical("No download at url %s! SourceUrl = %s", sourcePage, linkDict["sourceUrl"])
 			if not retag:
 				self.updateDbEntry(linkDict["sourceUrl"], dlState=-1)
-				self.conn.commit()
 			raise IOError("Invalid webpage")
 
 
@@ -136,7 +134,6 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				return
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1)
-			self.conn.commit()
 			return
 
 		except ValueError:
@@ -147,7 +144,6 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				return
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1)
-			self.conn.commit()
 			return
 
 
@@ -196,7 +192,6 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		if "tags" in linkDict and "note" in linkDict:
 			self.updateDbEntry(linkDict["contentId"], tags=linkDict["tags"], note=linkDict["note"], lastUpdate=time.time())
-			self.conn.commit()
 
 		return linkDict
 
@@ -254,7 +249,6 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				self.addTags(sourceUrl=linkDict["contentId"], tags=dedupState)
 
 			self.updateDbEntry(linkDict["contentId"], dlState=2)
-			self.conn.commit()
 
 
 			return wholePath
@@ -268,7 +262,6 @@ class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			# cur.execute('UPDATE djmoe SET downloaded=1 WHERE contentID=?;', (linkDict["contentId"], ))
 			# cur.execute('UPDATE djmoe SET dlPath=?, dlName=?, itemTags=?  WHERE contentID=?;', ("ERROR", 'ERROR: FAILED', "N/A", linkDict["contentId"]))
 			# self.log.info("fetchall = ", cur.fetchall())
-			self.conn.commit()
 			return False
 
 

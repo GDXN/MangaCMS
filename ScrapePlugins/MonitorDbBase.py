@@ -8,9 +8,9 @@ import traceback
 import time
 import settings
 import nameTools as nt
-import ScrapePlugins.DbBase
+import DbBase
 
-class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
+class MonitorDbBase(DbBase.DbBase):
 	'''
 	This was originally supposed to be a general purpose series monitoring
 	base, but at this point it's basically only useful for MangaUpdates.
@@ -56,7 +56,6 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Loading %s Monitor BaseClass", self.pluginName)
-		self.openDB()
 		self.checkInitPrimaryDb()
 
 		self.validKwargs  = ["buName",
@@ -186,9 +185,6 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 		with self.transaction(commit=commit) as cur:
 			cur.execute(query, queryAdditionalArgs)
 
-		if commit:
-			self.conn.commit()
-
 
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
@@ -254,8 +250,6 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			cur.execute(query1, qArgs)
 			cur.execute(query2, qArgs)
 
-		if commit:
-			self.conn.commit()
 
 	def getRowsByValue(self, **kwargs):
 		if len(kwargs) != 1:
@@ -303,7 +297,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 		query = ''' SELECT ({colName}) FROM {tableN};'''.format(colName=colName, tableN=self.tableName)
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			ret = cur.execute(query)
 			rets = cur.fetchall()
 
@@ -361,18 +355,11 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			toRow.pop("dbId")
 
 
-			with self.transaction():
+			with self.transaction(commit=True):
 
 				self.deleteRowById(fromRow["dbId"], commit=False)
 				self.updateDbEntry(dbId, commit=False, **toRow)
 
-		except (psycopg2.OperationalError, psycopg2.IntegrityError) as e:
-			self.log.critical("Encountered error!")
-			self.log.critical(e)
-			traceback.print_exc()
-			self.conn.rollback()
-			self.log.critical("Rolled back")
-			raise e
 
 	def printDict(self, inDict):
 		keys = list(inDict.keys())
@@ -383,7 +370,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 			print("	", keyStr, " "*(20-len(keyStr)), inDict[key])
 
 	def printDb(self):
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute('SELECT * FROM {db};'.format(db=self.tableName))
 			for line in cur.fetchall():
 				print(line)
@@ -451,7 +438,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 		self.log.info("Updated!")
 	def getIdFromName(self, name):
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute("""SELECT buId FROM %s WHERE name=%%s;""" % self.nameMapTableName, (name, ))
 			ret = cur.fetchall()
 		if ret:
@@ -463,7 +450,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 	def getIdFromDirName(self, fsSafeName):
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute("""SELECT buId FROM %s WHERE fsSafeName=%%s;""" % self.nameMapTableName, (fsSafeName, ))
 			ret = cur.fetchall()
 		if ret:
@@ -475,7 +462,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 	def getNamesFromId(self, mId):
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute("""SELECT name FROM %s WHERE buId=%%s::TEXT;""" % self.nameMapTableName, (mId, ))
 			ret = cur.fetchall()
 		if ret:
@@ -486,7 +473,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 	def getLastCheckedFromId(self, mId):
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			ret = cur.execute("""SELECT lastChecked FROM %s WHERE buId=%%s::TEXT;""" % self.tableName, (mId, ))
 			ret = cur.fetchall()
 		if len(ret) > 1:
@@ -500,9 +487,8 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 
 
 	def updateLastCheckedFromId(self, mId, changed):
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute("""UPDATE %s SET lastChecked=%%s WHERE buId=%%s::TEXT;""" % self.tableName, (changed, mId))
-		self.conn.commit()
 
 
 
@@ -515,7 +501,7 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 	def checkInitPrimaryDb(self):
 
 		self.log.info( "Content Retreiver Opening DB...",)
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			## LastChanged is when the last scanlation release was released
 			# Last checked is when the page was actually last scanned.
 			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
@@ -628,7 +614,6 @@ class MonitorDbBase(ScrapePlugins.DbBase.DbBase):
 					cur.execute(nameFormat % (name, table))
 
 
-		self.conn.commit()
 		self.log.info("Retreived page database created")
 
 	@abc.abstractmethod

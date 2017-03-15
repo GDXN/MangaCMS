@@ -41,10 +41,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	seriesBase = "http://www.webtoons.com/genre"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
 
 
 

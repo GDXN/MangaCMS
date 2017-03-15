@@ -36,10 +36,6 @@ class McFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	feedUrl = "http://mngcow.co/manga-list/"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
 
 
 

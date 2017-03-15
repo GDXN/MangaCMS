@@ -32,11 +32,6 @@ class JzFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def checkLogin(self):
 		pass
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
 	def quoteUrl(self, url):
 		# print("InUrl = '%s'" % url)
 		scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(url)

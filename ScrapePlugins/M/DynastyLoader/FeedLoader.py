@@ -40,15 +40,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase    = "http://dynasty-scans.com/"
 	seriesBase = "http://dynasty-scans.com/?page={num}"
 
-
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
-
-
 	def extractItemInfo(self, soup):
 
 		ret = {}

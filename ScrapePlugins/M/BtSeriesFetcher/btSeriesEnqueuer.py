@@ -40,13 +40,6 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 	seriesTableName = "batotoSeries"
 
-
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
 	def parseDateStr(self, inStr):
 
 		# For strings like "n Days Ago", split out the "n", convert it to an int, and take the

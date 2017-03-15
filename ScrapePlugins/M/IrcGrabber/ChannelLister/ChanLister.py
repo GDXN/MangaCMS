@@ -105,14 +105,6 @@ class ChannelTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase)
 	extractRe = re.compile(r"p\.k\[\d+\] = ({.*?});")
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
-
-
 	def getChannels(self):
 
 		bot = ListerBot("Test-bot", "Test-bot-bot", 'irc.irchighway.net')
@@ -181,9 +173,7 @@ class ChannelTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase)
 		self.log.info( "Inserting...",)
 		newItems = 0
 
-		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
-
+		with self.transaction() as cur:
 			for itemKey, itemData in itemDataSets:
 				if itemData is None:
 					print("itemDataSets", itemDataSets)
@@ -208,10 +198,7 @@ class ChannelTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase)
 					self.log.info("New item: %s", itemData)
 
 
-			self.log.info( "Done")
-			self.log.info( "Committing...",)
-			cur.execute("COMMIT;")
-			self.log.info( "Committed")
+		self.log.info( "Done")
 
 		return newItems
 

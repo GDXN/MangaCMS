@@ -139,34 +139,33 @@ class BuDateUpdater(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 			limitStr = "LIMIT 500"
 
 
-		with self.conn.cursor() as cur:
-			with self.transaction() as cur:
-				if not allTheItems:
+		with self.transaction() as cur:
+			if not allTheItems:
+				ret = cur.execute('''SELECT dbId,buId
+										FROM {tableName}
+										WHERE
+											(lastChecked < %s or lastChecked IS NULL)
+											AND buId IS NOT NULL
+											AND buList IS NOT NULL
+										{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL,))
+				rets = cur.fetchall()
+
+				# Only process non-list items if there are no list-items to process.
+				if len(rets) < 50:
+
 					ret = cur.execute('''SELECT dbId,buId
 											FROM {tableName}
 											WHERE
 												(lastChecked < %s or lastChecked IS NULL)
 												AND buId IS NOT NULL
-												AND buList IS NOT NULL
-											{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL,))
-					rets = cur.fetchall()
-
-					# Only process non-list items if there are no list-items to process.
-					if len(rets) < 50:
-
-						ret = cur.execute('''SELECT dbId,buId
-												FROM {tableName}
-												WHERE
-													(lastChecked < %s or lastChecked IS NULL)
-													AND buId IS NOT NULL
-													AND buList IS NULL
-												{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL_OTHER,))
-						rets2 = cur.fetchall()
-						for row in rets2:
-							rets.append(row)
-				else:  # AllTheItems:
-					ret = cur.execute('''SELECT dbId,buId FROM {tableName} WHERE buId IS NOT NULL;'''.format(tableName=self.tableName))
-					rets = cur.fetchall()
+												AND buList IS NULL
+											{limitStr} ;'''.format(tableName=self.tableName, limitStr=limitStr), (time.time()-CHECK_INTERVAL_OTHER,))
+					rets2 = cur.fetchall()
+					for row in rets2:
+						rets.append(row)
+			else:  # AllTheItems:
+				ret = cur.execute('''SELECT dbId,buId FROM {tableName} WHERE buId IS NOT NULL;'''.format(tableName=self.tableName))
+				rets = cur.fetchall()
 
 			cur.execute("COMMIT;")
 		self.log.info("Items to check = %s", len(rets))

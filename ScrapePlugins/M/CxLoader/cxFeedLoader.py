@@ -33,12 +33,6 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	feedUrl = "http://manga.cxcscans.com/directory/"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
 	def checkMatureAgree(self, page, url):
 		if "This series contains mature contents" in page:
 			self.log.info("Need to step through mature agreement page.")

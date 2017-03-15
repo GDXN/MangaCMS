@@ -33,10 +33,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	urlBase    = "http://www.manga-audition.com/comic-zenon/"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
 
 
 	def getSeriesPages(self):

@@ -6,6 +6,8 @@ import LogBase
 import threading
 import dbPool
 import traceback
+import graphitesend
+import settings
 
 class TransactionMixin(object, metaclass=abc.ABCMeta):
 
@@ -35,6 +37,14 @@ class TransactionMixin(object, metaclass=abc.ABCMeta):
 				cursor.execute("COMMIT;")
 			self.release_cursor(cursor)
 
+	@contextmanager
+	def context_cursor(self):
+		cursor = self.get_cursor()
+		try:
+			yield cursor
+		finally:
+			self.release_cursor(cursor)
+
 
 	@abc.abstractmethod
 	def get_cursor(self):
@@ -57,8 +67,17 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 		return None
 
 	def __init__(self):
-		super().__init__()
 		self.connections = {}
+		super().__init__()
+
+		self.mon_con = graphitesend.init(
+			group = "Scrapers",
+			prefix='MangaCMS.{tableName}.{pluginName}'.format(tableName=self.tableName, pluginName=self.pluginName),
+			system_name='',
+			graphite_server=settings.GRAPHITE_DB_IP
+			)
+
+
 
 	def __del__(self):
 		if hasattr(self, 'connections'):

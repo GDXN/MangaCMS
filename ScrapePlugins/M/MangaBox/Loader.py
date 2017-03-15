@@ -612,11 +612,6 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return postdata
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
 
 	def getFileInfo(self, chapter_obj):
 
@@ -711,7 +706,6 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if newDir:
 			self.updateDbEntry(file_data["baseUrl"], flags="haddir")
-			self.conn.commit()
 
 		arch = zipfile.ZipFile(wholePath, "w")
 		for imageName, imageContent in images:
@@ -726,7 +720,6 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.updateDbEntry(file_data["baseUrl"], dlState=2, downloadPath=dlPath, fileName=fileN, originName=fileN)
 
-		self.conn.commit()
 		self.log.info( "Done")
 
 
@@ -757,9 +750,8 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def reset_failed(self):
 		# Force every failed fetch to retrigger, in case it has become available.
-		with self.conn.cursor() as cur:
-			with ScrapePlugins.RetreivalDbBase.transaction(cur, commit=True):
-				cur.execute("UPDATE mangaitems SET dlstate=0  WHERE sourcesite='mbx' AND dlstate < 2;")
+		with self.transaction() as cur:
+			cur.execute("UPDATE mangaitems SET dlstate=0  WHERE sourcesite='mbx' AND dlstate < 2;")
 
 
 	def go(self):

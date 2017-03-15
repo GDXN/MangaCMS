@@ -1,11 +1,11 @@
 
 
 import settings
-import ScrapePlugins.DbBase
+import DbBase
 import time
 
 
-class LogTrimmer(ScrapePlugins.DbBase.DbBase):
+class LogTrimmer(DbBase.DbBase):
 
 
 	loggerPath = "Main.LogCleaner"
@@ -14,7 +14,7 @@ class LogTrimmer(ScrapePlugins.DbBase.DbBase):
 	def clean(self):
 		self.openDB()
 		self.log.info("Flattening item count table.")
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			try:
 				cur.execute("BEGIN;")
 				self._doClean(cur)

@@ -33,13 +33,6 @@ class TriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		("http://fth-scans.com/xdcc.txt",      'halibut', '`FTH`')
 		]
 
-
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
 	def extractRow(self, row, channel, botName):
 
 
@@ -116,8 +109,7 @@ class TriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		self.log.info( "Inserting...",)
 		newItems = 0
 
-		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
+		with self.transaction() as cur:
 
 			for itemKey, itemData in itemDataSets:
 				if itemData is None:
@@ -143,10 +135,7 @@ class TriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 					self.log.info("New item: %s", itemData)
 
 
-			self.log.info( "Done")
-			self.log.info( "Committing...",)
-			cur.execute("COMMIT;")
-			self.log.info( "Committed")
+		self.log.info( "Done")
 
 		return newItems
 

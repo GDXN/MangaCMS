@@ -130,7 +130,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			if newDir:
 				self.updateDbEntry(sourceUrl, flags=" ".join([link["flags"], "haddir"]))
-				self.conn.commit()
 
 			chapterName = nt.makeFilenameSafe(chapterVol)
 

@@ -4,7 +4,7 @@ import processDownload
 import nameTools as nt
 import shutil
 import settings
-import ScrapePlugins.DbBase
+import DbBase
 import rpyc
 import signal
 import traceback
@@ -12,7 +12,7 @@ import os
 import deduplicator.archChecker
 
 
-class DirDeduper(ScrapePlugins.DbBase.DbBase):
+class DirDeduper(DbBase.DbBase):
 	loggerPath = "Main.DirDedup"
 	tableName  = "MangaItems"
 
@@ -22,7 +22,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 		if newTags == '':
 			return
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 
 			tagsets = []
 			rowIds = []
@@ -117,7 +117,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 	def cleanBySourceKey(self, sourceKey, delDir, includePhash=True, pathPositiveFilter=['']):
 
 		self.log.info("Getting fetched items from database for source: %s", sourceKey)
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute('''SELECT dbid, filename, downloadpath FROM mangaitems WHERE sourcesite=%s;''', (sourceKey, ))
 			ret = cur.fetchall()
 
@@ -151,7 +151,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 	def cleanHHistory(self, delDir):
 		self.log.info("Querying for items.")
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE sourcesite='sp' ORDER BY dbid ASC")
 			ret = cur.fetchall()
 
@@ -262,7 +262,7 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 	def reprocessFailedH(self):
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute('''SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE tags LIKE %s;''', ('%unprocessable%', ))
 			ret = cur.fetchall()
 		for dbid, fname, dpath, tags in ret:

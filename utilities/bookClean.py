@@ -10,12 +10,11 @@ if __name__ == "__main__":
 import urllib.parse
 import os
 import settings
-import ScrapePlugins.DbBase
-import ScrapePlugins.RetreivalDbBase
+import DbBase
 import nameTools as nt
 
 
-class BookCleaner(ScrapePlugins.DbBase.DbBase):
+class BookCleaner(DbBase.DbBase):
 	loggerPath = "Main.Pc"
 	tableName  = "MangaItems"
 
@@ -28,35 +27,35 @@ class BookCleaner(ScrapePlugins.DbBase.DbBase):
 		'''
 		self.openDB()
 		self.log.info("Updating any items where the netloc is null")
-		cur = self.conn.cursor()
-		cur.execute("BEGIN;")
+		with self.context_cursor() as cur:
+			cur.execute("BEGIN;")
 
-		cur.execute('''SELECT dbid, url, netloc FROM book_items WHERE netloc IS NULL;''')
-		ret = cur.fetchall()
-		for dbid, url, old_netloc in ret:
-			if old_netloc != None:
-				raise ValueError("netloc is not null?")
+			cur.execute('''SELECT dbid, url, netloc FROM book_items WHERE netloc IS NULL;''')
+			ret = cur.fetchall()
+			for dbid, url, old_netloc in ret:
+				if old_netloc != None:
+					raise ValueError("netloc is not null?")
 
-			urlParam = urllib.parse.urlparse(url)
-			cur.execute('''UPDATE book_items SET netloc=%s WHERE dbid=%s;''', (urlParam.netloc, dbid))
-
-
-		self.log.info("Fixing google document content.")
-
-		cur.execute('''SELECT dbid, url, netloc FROM book_items WHERE netloc = '';''')
-		ret = cur.fetchall()
-		for dbid, url, old_netloc in ret:
-			if old_netloc != '':
-				raise ValueError("netloc is not null?")
-			urlParam = urllib.parse.urlparse(url)
-
-			cur.execute('''UPDATE book_items SET netloc=%s WHERE dbid=%s;''', ('docs.google.com', dbid))
+				urlParam = urllib.parse.urlparse(url)
+				cur.execute('''UPDATE book_items SET netloc=%s WHERE dbid=%s;''', (urlParam.netloc, dbid))
 
 
+			self.log.info("Fixing google document content.")
 
-		self.log.info("All null netlocs updated. Committing changes.")
-		cur.execute("COMMIT;")
-		self.log.info("Committed. Complete.")
+			cur.execute('''SELECT dbid, url, netloc FROM book_items WHERE netloc = '';''')
+			ret = cur.fetchall()
+			for dbid, url, old_netloc in ret:
+				if old_netloc != '':
+					raise ValueError("netloc is not null?")
+				urlParam = urllib.parse.urlparse(url)
+
+				cur.execute('''UPDATE book_items SET netloc=%s WHERE dbid=%s;''', ('docs.google.com', dbid))
+
+
+
+			self.log.info("All null netlocs updated. Committing changes.")
+			cur.execute("COMMIT;")
+			self.log.info("Committed. Complete.")
 
 
 	def loadCacheFiles(self):
@@ -82,19 +81,19 @@ class BookCleaner(ScrapePlugins.DbBase.DbBase):
 
 	def loadDatabaseFiles(self):
 		self.log.info("Loading files from database into memory")
-		cur = self.conn.cursor()
-		cur.execute("BEGIN;")
+		with self.context_cursor() as cur:
+			cur.execute("BEGIN;")
 
-		cur.execute('''SELECT dbid, fspath FROM book_items WHERE fspath IS NOT NULL AND fspath <> '';''')
-		data = cur.fetchall()
-		self.log.info('Fetched items from database: %s', len(data))
-		cur.execute("COMMIT;")
-		self.log.info("DB Files Loaded")
+			cur.execute('''SELECT dbid, fspath FROM book_items WHERE fspath IS NOT NULL AND fspath <> '';''')
+			data = cur.fetchall()
+			self.log.info('Fetched items from database: %s', len(data))
+			cur.execute("COMMIT;")
+			self.log.info("DB Files Loaded")
 
-		ret = {}
-		for dbid, fspath in data:
-			ret.setdefault(fspath, set()).add(dbid)
-		self.log.info('Distinct items on filesystem: %s', len(ret))
+			ret = {}
+			for dbid, fspath in data:
+				ret.setdefault(fspath, set()).add(dbid)
+			self.log.info('Distinct items on filesystem: %s', len(ret))
 
 		return ret
 

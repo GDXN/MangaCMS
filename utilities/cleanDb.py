@@ -12,7 +12,7 @@ runStatus.preloadDicts = False
 
 import traceback
 import re
-import ScrapePlugins.DbBase
+import DbBase
 import ScrapePlugins.RetreivalDbBase
 import nameTools as nt
 import shutil
@@ -24,7 +24,7 @@ import utilities.EmptyRetreivalDb
 import processDownload
 
 
-class PathCleaner(ScrapePlugins.DbBase.DbBase):
+class PathCleaner(DbBase.DbBase):
 	loggerPath = "Main.Pc"
 	tableName  = "MangaItems"
 
@@ -32,7 +32,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 	def moveFile(self, srcPath, dstPath):
 		dlPath, fName = os.path.split(srcPath)
 		# print("dlPath, fName", dlPath, fName)
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 
 		cur.execute("BEGIN;")
 		cur.execute("SELECT dbId FROM {tableName} WHERE downloadPath=%s AND fileName=%s".format(tableName=self.tableName), (dlPath, fName))
@@ -49,7 +49,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 	def updatePath(self, dbId, dlPath):
 
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 
 		cur.execute("BEGIN;")
 
@@ -77,7 +77,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		return False
 
 	def resetDlState(self, dbId, newState):
-		with self.conn.cursor() as cur:
+		with self.get_cursor() as cur:
 			cur.execute("UPDATE {tableName}  SET dlState=%s WHERE dbId=%s".format(tableName=self.tableName), (newState, dbId))
 
 	def resetMissingDownloads(self):
@@ -88,7 +88,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 			nt.dirNameProxy.startDirObservers()
 
 
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 
 
 		cur.execute("BEGIN;")
@@ -133,12 +133,12 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		cur.execute("COMMIT;")
 
 	def updateTags(self, dbId, newTags):
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 		cur.execute("UPDATE {tableName} SET tags=%s WHERE dbId=%s;".format(tableName=self.tableName), (newTags, dbId))
 
 	def clearInvalidDedupTags(self):
 
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 		cur.execute("BEGIN;")
 		print("Querying")
 		cur.execute("SELECT dbId, downloadPath, fileName, tags FROM {tableName}".format(tableName=self.tableName))
@@ -167,7 +167,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 	def patchBatotoLinks(self):
 
 
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 		cur.execute("BEGIN;")
 		print("Querying")
 		cur.execute("SELECT dbId, sourceUrl FROM {tableName} WHERE sourceSite='bt';".format(tableName=self.tableName))
@@ -201,7 +201,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 	def insertNames(self, buId, names):
 
-		with self.conn.cursor() as cur:
+		with self.get_cursor() as cur:
 			for name in names:
 				fsSafeName = nt.prepFilenameForMatching(name)
 				cur.execute("""SELECT COUNT(*) FROM munamelist WHERE buId=%s AND name=%s;""", (buId, name))
@@ -213,7 +213,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 	def crossSyncNames(self):
 
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 		cur.execute("BEGIN;")
 		print("Querying")
 		cur.execute("SELECT DISTINCT ON (buname) buname, buId FROM mangaseries ORDER BY buname, buid;")
@@ -249,7 +249,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 	def consolidateSeriesNaming(self):
 
 
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 		# cur.execute("BEGIN;")
 		# print("Querying")
 		# cur.execute("SELECT DISTINCT(seriesName) FROM {tableName};".format(tableName=self.tableName))
@@ -326,7 +326,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 
 	def renameDlPaths(self):
 		nt.dirNameProxy.startDirObservers()
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 		cur.execute("BEGIN ;")
 		cur.execute("SELECT dbId, downloadPath, seriesName FROM mangaitems ORDER BY retreivalTime DESC;")
 		rows = cur.fetchall()
@@ -357,7 +357,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		nt.dirNameProxy.stop()
 
 	def regenerateNameMappings(self):
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 		cur.execute("BEGIN ;")
 		cur.execute("SELECT dbId, name, fsSafeName FROM munamelist;")
 		rows = cur.fetchall()
@@ -471,7 +471,7 @@ class PathCleaner(ScrapePlugins.DbBase.DbBase):
 		utilities.EmptyRetreivalDb.ScraperDbTool.tableKey = "djm"
 
 		dbInt = utilities.EmptyRetreivalDb.ScraperDbTool()
-		cur = dbInt.conn.cursor()
+		cur = dbInt.get_cursor()
 		print("Cursor", cur)
 		cur.execute("SELECT sourceUrl, fileName, tags FROM HentaiItems WHERE sourceSite='djm' AND retreivalTime=200;")
 		rows = cur.fetchall()
@@ -506,7 +506,7 @@ class HCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def resetMissingDownloads(self, pathBase):
 
-		cur = self.conn.cursor()
+		cur = self.get_cursor()
 
 
 		with self.transaction() as cur:

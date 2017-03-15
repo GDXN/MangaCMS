@@ -31,10 +31,6 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	updateFeed = "http://manga-joy.com/latest-chapters/{pageNo}/"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
 
 
 	def getItemsFromContainer(self, divSoup):
@@ -146,9 +142,6 @@ class MjFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		self.log.info( "Done")
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
 
 		return newItems
 

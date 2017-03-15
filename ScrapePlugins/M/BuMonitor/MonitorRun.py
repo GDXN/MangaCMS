@@ -206,7 +206,6 @@ class BuWatchMonitor(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		listTotalNo = toInt(soup.find("div", class_="low_col1").text)
 		if itemCount != listTotalNo:
 			self.log.error("Invalid list reported length! Items from page: %d, found items %d", listTotalNo, itemCount)
-		self.conn.commit()
 		self.log.info("Properly processed all items in list!")
 
 

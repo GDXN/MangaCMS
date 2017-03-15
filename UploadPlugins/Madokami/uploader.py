@@ -451,7 +451,7 @@ class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		thresh_time = time.time() - 60*60*24*7
 
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
 			cur.execute("""SELECT
 								seriesName,
 								fileName,

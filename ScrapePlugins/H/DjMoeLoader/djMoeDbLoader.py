@@ -96,9 +96,6 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		self.log.info("Done")
-		self.log.info("Committing...",)
-		self.conn.commit()
-		self.log.info("Committed")
 
 		return newItemCount
 

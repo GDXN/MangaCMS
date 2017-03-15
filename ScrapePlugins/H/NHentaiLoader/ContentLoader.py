@@ -194,7 +194,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
-			self.conn.commit()
 
 			return wholePath
 
@@ -202,7 +201,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
-			self.conn.commit()
 			return False
 
 

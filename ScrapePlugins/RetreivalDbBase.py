@@ -15,41 +15,21 @@ import os
 import traceback
 
 import nameTools as nt
-import ScrapePlugins.DbBase
+import DbBase
 
 import sql
 import time
 import sql.operators as sqlo
 
-from contextlib import contextmanager
-
-@contextmanager
-def transaction(cursor, commit=True):
-	if commit:
-		cursor.execute("BEGIN;")
-
-	try:
-		yield
-
-	except Exception as e:
-		if commit:
-			cursor.execute("ROLLBACK;")
-		raise e
-
-	finally:
-		if commit:
-			cursor.execute("COMMIT;")
 
 
-
-class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
+class ScraperDbBase(DbBase.DbBase):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
 
 	shouldCanonize = True
 
-	loggers = {}
 	dbConnections = {}
 
 	# Turn on to print all db queries to STDOUT before running them.
@@ -75,56 +55,6 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		return None
 
 
-	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
-	# Messy hack to do log indirection so I can inject thread info into log statements, and give each thread it's own DB handle.
-	# Basically, intercept all class member accesses, and if the access is to either the logging interface, or the DB,
-	# look up/create a per-thread instance of each, and return that
-	#
-	# The end result is each thread just uses `self.conn` and `self.log` as normal, but actually get a instance of each that is
-	# specifically allocated for just that thread
-	#
-	# ~~Sqlite 3 doesn't like having it's DB handles shared across threads. You can turn the checking off, but I had
-	# db issues when it was disabled. This is a much more robust fix~~
-	#
-	# Migrated to PostgreSQL. We'll see how that works out.
-	#
-	# The log indirection is just so log statements include their originating thread. I like lots of logging.
-	#
-	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	def __getattribute__(self, name):
-
-		threadName = threading.current_thread().name
-		if name == "log" and "Thread-" in threadName:
-			if threadName not in self.loggers:
-				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
-				self.lastLoggerIndex += 1
-			return self.loggers[threadName]
-
-
-		elif name == "conn":
-			if threadName not in self.dbConnections:
-
-				if len(self.dbConnections) > 25:
-					for cname, conn in list(self.dbConnections.items()):
-						conn.close()
-						conn.pop(cname)
-					self.dbConnections.clear()
-
-				# First try local socket connection, fall back to a IP-based connection.
-				# That way, if the server is local, we get the better performance of a local socket.
-				try:
-					self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-				except psycopg2.OperationalError:
-					self.dbConnections[threadName] = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-
-				# self.dbConnections[threadName].autocommit = True
-			return self.dbConnections[threadName]
-
-
-		else:
-			return object.__getattribute__(self, name)
-
 	def __del__(self):
 		for db_conn in self.dbConnections.values():
 			try:
@@ -135,7 +65,11 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	validKwargs = ["dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note"]
 
 	def __init__(self):
+		self.lastLoggerIndex = 1
+		self.dbConnections = {}
+
 		super().__init__()
+
 		self.table = sql.Table(self.tableName.lower())
 
 		self.cols = (
@@ -173,29 +107,9 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 				"note"          : self.table.note
 			}
 
-
-		self.loggers = {}
-		self.dbConnections = {}
-		self.lastLoggerIndex = 1
-
-		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Loading %s Runner BaseClass", self.pluginName)
-		self.openDB()
 		self.checkInitPrimaryDb()
 
-	# Deferred to special hook in __getattribute__ that provides separate
-	# db interfaces to each thread.
-	def openDB(self):
-		pass
-
-
-	def closeDB(self):
-		self.log.info("Closing DB...",)
-		self.conn.close()
-		for connection in self.dbConnections.values():
-			connection.close()
-
-		self.log.info("DB Closed")
 
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -306,9 +220,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		with self.conn.cursor() as cur:
-			with transaction(cur, commit=commit):
-				cur.execute(query, queryArguments)
+		with self.transaction(commit=commit) as cur:
+			cur.execute(query, queryArguments)
 
 
 
@@ -360,9 +273,9 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		with self.conn.cursor() as cur:
-			with transaction(cur, commit=commit):
-				cur.execute(query, queryArguments)
+
+		with self.transaction(commit=commit) as cur:
+			cur.execute(query, queryArguments)
 
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
@@ -381,9 +294,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		with self.conn.cursor() as cur:
-			with transaction(cur, commit=commit):
-				cur.execute(query, queryArguments)
+		with self.transaction(commit=commit) as cur:
+			cur.execute(query, queryArguments)
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
 
@@ -410,9 +322,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			print("Query = ", query)
 			print("Args = ", args)
 
-		with self.conn.cursor() as cur:
-			with transaction(cur, commit=commit):
-				cur.execute(query, args)
+		with self.transaction(commit=commit) as cur:
+			cur.execute(query, queryArguments)
 
 
 
@@ -466,12 +377,10 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 			print("Query = ", query)
 			print("args = ", quargs)
 
-		with self.conn.cursor() as cur:
 
-			#wrap queryies in transactions so we don't have hanging db handles.
-			with transaction(cur):
-				cur.execute(query, quargs)
-				rets = cur.fetchall()
+		with self.transaction(commit=False) as cur:
+			cur.execute(query, quargs)
+			rets = cur.fetchall()
 
 
 		retL = []
@@ -570,9 +479,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 	def resetStuckItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
 			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=%s'''.format(tableName=self.tableName), (self.tableKey, ))
-		self.conn.commit()
 		self.log.info("Download reset complete")
 
 
@@ -620,9 +528,6 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 		self.mon_con.send('new_links.count', newItems)
 
 		self.log.info( "Done (%s new items)", newItems)
-		self.log.info( "Committing...",)
-		self.conn.commit()
-		self.log.info( "Committed")
 
 		return newItems
 
@@ -633,7 +538,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	def checkInitPrimaryDb(self):
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
 
 			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 												dbId          SERIAL PRIMARY KEY,
@@ -690,7 +595,6 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 
 
-		self.conn.commit()
 		self.log.info("Retreived page database created")
 
 

@@ -7,14 +7,14 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 
 import shutil
-import ScrapePlugins.DbBase
+import DbBase
 import rpyc
 import os
 import nameTools as nt
 
 from utilities.askUser import query_response, query_response_bool
 
-class DirDeduper(ScrapePlugins.DbBase.DbBase):
+class DirDeduper(DbBase.DbBase):
 	loggerPath = "Main.DirDedup"
 	tableName  = "MangaItems"
 

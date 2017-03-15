@@ -23,12 +23,6 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def feedUrl(self):
 		return None
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
 	# Can be overridden by child-classes, to allow filtering of
 	# downloads
 	def filterItem(self, item):

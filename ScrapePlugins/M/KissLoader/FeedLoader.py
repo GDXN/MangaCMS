@@ -34,16 +34,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	seriesBase = "http://kissmanga.com/MangaList/LatestUpdate?page={num}"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
-
-
-
-
 	def getUpdatedSeries(self, url):
 		ret = set()
 

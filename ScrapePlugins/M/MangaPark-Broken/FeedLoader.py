@@ -33,10 +33,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	feedUrl = "http://mangapark.com/latest"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
 
 
 	def checkMatureAgree(self, page, url):

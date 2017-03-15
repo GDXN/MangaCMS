@@ -33,16 +33,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	seriesBase = "http://www.mangahere.co/latest/"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
-
-
-
-
 	def getUpdatedSeries(self, url):
 		ret = set()
 

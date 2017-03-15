@@ -272,7 +272,6 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
-			self.conn.commit()
 
 
 
@@ -283,7 +282,6 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
-			self.conn.commit()
 			return False
 
 

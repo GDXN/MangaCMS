@@ -1,7 +1,7 @@
 
 
 import settings
-import ScrapePlugins.DbBase
+import DbBase
 import time
 
 # This is a class used for situations where a script needs access to the database, but I don't
@@ -10,7 +10,7 @@ import time
 # It's terrible practice, but laaaazy, and sometimes I do just
 # need to hack a one-time-use thing together.
 
-class CountCleaner(ScrapePlugins.DbBase.DbBase):
+class CountCleaner(DbBase.DbBase):
 
 
 	loggerPath = "Main.DbCleaner"
@@ -19,7 +19,7 @@ class CountCleaner(ScrapePlugins.DbBase.DbBase):
 	def clean(self):
 		self.openDB()
 		self.log.info("Flattening item count table.")
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			try:
 				cur.execute("BEGIN;")
 				self._doClean(cur)

@@ -15,15 +15,15 @@ import runStatus
 import traceback
 import bs4
 import re
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
+from ScrapePlugins.M.BtLoader.common import checkLogin
 from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
 
-from ScrapePlugins.M.BtLoader.common import checkLogin
 
-class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class BtContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
@@ -39,6 +39,8 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	retreivalThreads = 2
 
 
+	def setup(self):
+		checkLogin(self.wg)
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -200,7 +202,6 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 			if newDir:
 				self.updateDbEntry(sourceUrl, flags=" ".join([link["flags"], "haddir"]))
-				self.conn.commit()
 
 			chapterNameRaw = " - ".join((seriesName, chapterVol))
 			chapterName = nt.makeFilenameSafe(chapterNameRaw)
@@ -253,58 +254,6 @@ class BtContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.log.critical("Traceback = %s", traceback.format_exc())
 			self.updateDbEntry(sourceUrl, dlState=-1)
 
-
-	def fetchLinkList(self, linkList):
-		try:
-			for link in linkList:
-				if link is None:
-					self.log.error("One of the items in the link-list is none! Wat?")
-					continue
-
-				ret = self.getLink(link)
-
-
-				if not runStatus.run:
-					self.log.info( "Breaking due to exit flag being set")
-					break
-
-		except:
-			self.log.critical("Exception!")
-			traceback.print_exc()
-			self.log.critical(traceback.format_exc())
-
-
-	def processTodoLinks(self, links):
-		if links:
-
-			def iter_baskets_from(items, maxbaskets=self.retreivalThreads):
-				'''generates evenly balanced baskets from indexable iterable'''
-				item_count = len(items)
-				baskets = min(item_count, maxbaskets)
-				for x_i in range(baskets):
-					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
-
-			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
-			self.log.info("Retreiving with '%s' threads", self.retreivalThreads)
-			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
-
-				for linkList in linkLists:
-					executor.submit(self.fetchLinkList, linkList)
-
-				executor.shutdown(wait=True)
-
-			# Multithreading goes here, if I decide I want it at some point
-
-
-
-	def go(self):
-		todo = self.retreiveTodoLinksFromDB()
-		if not runStatus.run:
-			return
-		if not todo:
-			return
-		checkLogin(self.wg)
-		self.processTodoLinks(todo)
 
 
 if __name__ == "__main__":

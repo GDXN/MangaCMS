@@ -104,9 +104,7 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				os.makedirs(targetDir)
 				link["targetDir"] = targetDir
 				self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "newdir"]))
-				self.conn.commit()
 
-				self.conn.commit()
 			except OSError:
 				self.log.critical("Directory creation failed?")
 				self.log.critical(traceback.format_exc())
@@ -115,7 +113,6 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			link["targetDir"] = targetDir
 
 			self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "haddir"]))
-			self.conn.commit()
 
 
 
@@ -125,7 +122,6 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Should retreive: %s, url - %s", originFileName, sourceUrl)
 
 		self.updateDbEntry(sourceUrl, dlState=1)
-		self.conn.commit()
 
 
 		try:
@@ -199,65 +195,6 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 		return
 
-
-	def fetchLinkList(self, linkList):
-
-		# Muck about in the webget internal settings
-		self.wg.errorOutCount = 4
-		self.wg.retryDelay    = 5
-
-		try:
-			for link in linkList:
-				if link is None:
-					self.log.error("One of the items in the link-list is none! Wat?")
-					continue
-
-				if not runStatus.run:
-					self.log.info("Breaking due to exit flag being set")
-					return
-
-				ret = self.getLink(link)
-				if ret == "Limited":
-					break
-
-
-				if not runStatus.run:
-					self.log.info( "Breaking due to exit flag being set")
-					break
-
-		except:
-			self.log.critical("Exception!")
-			traceback.print_exc()
-			self.log.critical(traceback.format_exc())
-
-
-	def processTodoLinks(self, links):
-
-		if links:
-
-			def iter_baskets_from(items, maxbaskets=3):
-				'''generates evenly balanced baskets from indexable iterable'''
-				item_count = len(items)
-				baskets = min(item_count, maxbaskets)
-				for x_i in range(baskets):
-					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
-
-			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
-
-			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
-
-				for linkList in linkLists:
-					executor.submit(self.fetchLinkList, linkList)
-
-				executor.shutdown(wait=True)
-
-
-	def go(self):
-
-		todo = self.retreiveTodoLinksFromDB()
-		if not runStatus.run:
-			return
-		self.processTodoLinks(todo)
 
 
 

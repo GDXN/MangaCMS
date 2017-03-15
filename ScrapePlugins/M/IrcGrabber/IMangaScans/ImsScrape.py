@@ -35,11 +35,6 @@ class IMSTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 
 	extractRe = re.compile(r"packlist\.packs\[\d+\] = ({.*?});")
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
 	# def getItemFromLine(self, line):
 	# 	match = self.extractRe.search(line)
 	# 	if not match:
@@ -111,8 +106,7 @@ class IMSTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		self.log.info( "Inserting...",)
 		newItems = 0
 
-		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
+		with self.transaction() as cur:
 
 			for itemKey, itemData in itemDataSets:
 				if itemData is None:
@@ -138,10 +132,7 @@ class IMSTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 					self.log.info("New item: %s", itemData)
 
 
-			self.log.info( "Done")
-			self.log.info( "Committing...",)
-			cur.execute("COMMIT;")
-			self.log.info( "Committed")
+		self.log.info( "Done")
 
 		return newItems
 

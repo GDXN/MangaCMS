@@ -160,8 +160,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 			if not linkDict["flags"]:
 				linkDict["flags"] = ''
 			self.updateDbEntry(sourcePage, flags=" ".join([linkDict["flags"], "haddir"]))
-			self.conn.commit()
-
 
 		if not os.path.exists(linkDict["dirPath"]):
 			os.makedirs(linkDict["dirPath"])
@@ -263,15 +261,11 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 				self.addTags(sourceUrl=linkDict["sourceUrl"], tags=dedupState)
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=2, downloadPath=linkDict["dirPath"], fileName=fileN, originName=fileN)
-
-			self.conn.commit()
 			return wholePath
 
 		else:
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
-
-			self.conn.commit()
 			return False
 
 

@@ -9,13 +9,6 @@ import abc
 
 class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
-
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
 	@abc.abstractmethod
 	def getMainItems(self, rangeOverride=None, rangeOffset=None):
 		pass

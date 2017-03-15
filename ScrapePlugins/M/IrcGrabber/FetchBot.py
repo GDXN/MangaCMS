@@ -89,7 +89,6 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if newDir:
 			self.updateDbEntry(item["sourceUrl"], flags=" ".join([item["flags"], "haddir"]))
-			self.conn.commit()
 
 		fqFName = os.path.join(dlPath, fName)
 

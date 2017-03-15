@@ -33,10 +33,6 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	seriesBase = "http://yomanga.co/reader/directory/%s/"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
 
 
 
@@ -71,7 +67,6 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		if newDir:
 			self.updateDbEntry(dlurl, flags="haddir")
-			self.conn.commit()
 
 		with open(wholePath, "wb") as fp:
 			fp.write(fctnt)
@@ -85,7 +80,6 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.updateDbEntry(dlurl, dlState=2, downloadPath=dlPath, fileName=fileN, originName=fileN)
 
-		self.conn.commit()
 
 
 

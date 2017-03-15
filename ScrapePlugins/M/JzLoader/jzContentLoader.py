@@ -69,9 +69,7 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 						os.makedirs(targetDir)
 						item["targetDir"] = targetDir
 						self.updateDbEntry(item["sourceUrl"],flags=" ".join([item["flags"], "newdir"]))
-						self.conn.commit()
 
-						self.conn.commit()
 					except OSError:
 						self.log.critical("Directory creation failed?")
 						self.log.critical(traceback.format_exc())
@@ -81,7 +79,6 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					item["targetDir"] = targetDir
 
 					self.updateDbEntry(item["sourceUrl"],flags=" ".join([item["flags"], "haddir"]))
-					self.conn.commit()
 
 			items.append(item)
 
@@ -123,7 +120,6 @@ class JzContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Should retreive: %s, url - %s", originFileName, sourceUrl)
 
 		self.updateDbEntry(sourceUrl, dlState=1)
-		self.conn.commit()
 
 		fileUrl = self.getDownloadUrl(sourceUrl)
 		if fileUrl is None:

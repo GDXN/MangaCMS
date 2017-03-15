@@ -108,9 +108,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					os.makedirs(targetDir)
 					link["targetDir"] = targetDir
 					self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "newdir"]))
-					self.conn.commit()
 
-					self.conn.commit()
 				except OSError:
 					self.log.critical("Directory creation failed?")
 					self.log.critical(traceback.format_exc())
@@ -120,7 +118,6 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				link["targetDir"] = targetDir
 
 				self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "haddir"]))
-				self.conn.commit()
 
 
 
@@ -130,7 +127,6 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Should retreive: %s, url - %s", originFileName, sourceUrl)
 
 		self.updateDbEntry(sourceUrl, dlState=1)
-		self.conn.commit()
 
 
 		try:

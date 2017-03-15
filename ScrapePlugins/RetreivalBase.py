@@ -1,6 +1,5 @@
 
 import time
-import ScrapePlugins.DbBase
 import abc
 import runStatus
 import traceback
@@ -23,15 +22,15 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	@abc.abstractmethod
 	def getLink(self, link):
-
-
-
-
 		pass
 
 	# Provision for a delay. If checkDelay returns false, item is not enqueued
 	def checkDelay(self, inTime):
 		return True
+
+	# And for logging in (if needed)
+	def setup(self):
+		pass
 
 	def retreiveTodoLinksFromDB(self):
 
@@ -67,7 +66,9 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					self.log.error("One of the items in the link-list is none! Wat?")
 					continue
 
-				self.getLink(link)
+				ret = self.getLink(link)
+				if ret == "Limited":
+					break
 
 				self.mon_con.send('fetched_items.count', 1)
 
@@ -129,5 +130,16 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		todo = self.retreiveTodoLinksFromDB()
 		if not runStatus.run:
+			return
+		self.processTodoLinks(todo)
+
+
+
+	def go(self):
+		self.setup()
+		todo = self.retreiveTodoLinksFromDB()
+		if not runStatus.run:
+			return
+		if not todo:
 			return
 		self.processTodoLinks(todo)

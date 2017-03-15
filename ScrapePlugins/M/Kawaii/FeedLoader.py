@@ -34,13 +34,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	feedUrl = "http://kawaii.ca/reader/"
 
-
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
 	def getItemPages(self, url, title):
 		# print("Should get item for ", url)
 

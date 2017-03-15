@@ -75,7 +75,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		query = '''SELECT buId FROM {tableName} WHERE buList IS NOT NULL;'''.format(tableName=listTable)
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute("BEGIN;")
 			cur.execute(query)
 			ret = cur.fetchall()
@@ -120,7 +120,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 
 			if commit:
 				cur.execute("BEGIN;")
@@ -162,7 +162,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Query = ", query)
 			print("Args = ", qArgs)
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 
 			if commit:
 				cur.execute("BEGIN;")
@@ -201,7 +201,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Query = ", query)
 			print("Args = ", qArgs)
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 
 			if commit:
 				cur.execute("BEGIN;")
@@ -236,7 +236,7 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			print("Query = ", query)
 			print("args = ", (val))
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute(query, (val,))
 			rets = cur.fetchall()
 
@@ -251,16 +251,15 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def resetStuckSeriesItems(self):
 		self.log.info("Resetting stuck downloads in DB")
-		with self.conn.cursor() as cur:
+		with self.transaction() as cur:
 			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1'''.format(tableName=self.seriesTableName))
-		self.conn.commit()
 		self.log.info("Download reset complete")
 
 
 
 	def checkInitSeriesDb(self):
 
-		with self.conn.cursor() as cur:
+		with self.context_cursor() as cur:
 			cur.execute('''CREATE TABLE IF NOT EXISTS {tableName} (
 												dbId          SERIAL PRIMARY KEY,
 												seriesId      TEXT NOT NULL,
@@ -289,5 +288,4 @@ class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				if not name.lower() in haveIndexes:
 					cur.execute(nameFormat % (name, table))
 
-		self.conn.commit()
 		self.log.info("Retreived page database created")

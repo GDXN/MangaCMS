@@ -253,7 +253,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 		except webFunctions.ContentError:
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-2, downloadPath="ERROR", fileName="ERROR: FAILED")
-			self.conn.commit()
 
 		if images and title:
 			fileN = title+" - "+artist+".zip"
@@ -295,16 +294,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=2)
-			self.conn.commit()
-
 
 			return wholePath
 
 		else:
 
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
-
-			self.conn.commit()
 			return False
 
 

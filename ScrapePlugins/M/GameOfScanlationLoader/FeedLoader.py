@@ -33,14 +33,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	seriesBase = "https://gameofscanlation.moe/projects/"
 
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
-
-
 	def extractItemInfo(self, soup):
 
 		ret = {}

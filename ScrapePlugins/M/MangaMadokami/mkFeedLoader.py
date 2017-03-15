@@ -69,10 +69,6 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def checkLogin(self):
 		pass
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
 
 
 	def process_tree_elements(self, elements, cum_path="/mango"):
@@ -205,11 +201,6 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		self.log.info( "Done")
 
-		if newItems or movedItems:
-
-			self.log.info( "Committing...",)
-			self.conn.commit()
-			self.log.info( "Committed")
 
 		self.log.info("%s new items, %s old items, %s moved items,  %s items with broken rows.", newItems, oldItems, movedItems, brokeItems)
 

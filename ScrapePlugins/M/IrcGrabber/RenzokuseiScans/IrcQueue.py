@@ -30,12 +30,6 @@ class TriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 	# Use the ATOM rss feed to get whole articles with less work.
 	baseUrl = "http://renzokuseiscans.blogspot.com/feeds/posts/default"
 
-	def closeDB(self):
-		self.log.info( "Closing DB...",)
-		self.conn.close()
-		self.log.info( "done")
-
-
 
 	def getBot(self, botPageUrl):
 
@@ -87,8 +81,7 @@ class TriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 		self.log.info( "Inserting...",)
 		newItems = 0
 
-		with self.conn.cursor() as cur:
-			cur.execute("BEGIN;")
+		with self.transaction() as cur:
 
 			for itemKey, itemData in itemDataSets:
 				if itemData is None:
@@ -114,10 +107,7 @@ class TriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase):
 					self.log.info("New item: %s", itemData)
 
 
-			self.log.info( "Done")
-			self.log.info( "Committing...",)
-			cur.execute("COMMIT;")
-			self.log.info( "Committed")
+		self.log.info( "Done")
 
 		return newItems
 
