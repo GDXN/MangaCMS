@@ -49,8 +49,9 @@ class MonitorDbBase(DbBase.DbBase):
 
 
 	def __init__(self):
+		super().__init__()
+
 		self.loggers = {}
-		self.dbConnections = {}
 		self.lastLoggerIndex = 1
 
 

@@ -7,7 +7,6 @@ if __name__ == "__main__":
 
 import ScrapePlugins.M.BuMonitor.Run
 import ScrapePlugins.M.BtBaseManager.Run
-import ScrapePlugins.M.JzLoader.Run
 
 import ScrapePlugins.H.DjMoeLoader.Run
 import ScrapePlugins.H.DjMoeLoader.Retag
@@ -76,7 +75,6 @@ scrapePlugins = {
 	1   : (ScrapePlugins.M.MangaStreamLoader.Run,               hours( 6)),
 	2   : (ScrapePlugins.M.BuMonitor.Run,                       hours( 1)),
 
-	10  : (ScrapePlugins.M.JzLoader.Run,                        hours( 8)),   # Every 8 hours, since I have to scrape a lot of pages, and it's not a high-volume source anyways
 	11  : (ScrapePlugins.M.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
 	12  : (ScrapePlugins.M.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
 	13  : (ScrapePlugins.M.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
@@ -148,6 +146,7 @@ if __name__ == "__main__":
 		print("Instance:", instance)
 
 
+	nt.dirNameProxy.startDirObservers()
 	import signal
 	import runStatus
 
@@ -159,7 +158,44 @@ if __name__ == "__main__":
 			print("Multiple keyboard interrupts. Raising")
 			raise KeyboardInterrupt
 
-
+	run = [
+			ScrapePlugins.M.McLoader.Run,
+			ScrapePlugins.M.CxLoader.Run,
+			ScrapePlugins.M.MangaHere.Run,
+			ScrapePlugins.M.WebtoonLoader.Run,
+			ScrapePlugins.M.DynastyLoader.Run,
+			ScrapePlugins.M.KissLoader.Run,
+			ScrapePlugins.M.Crunchyroll.Run,
+			ScrapePlugins.M.Kawaii.Run,
+			ScrapePlugins.M.ZenonLoader.Run,
+			ScrapePlugins.M.MangaBox.Run,
+			ScrapePlugins.M.YoMangaLoader.Run,
+			ScrapePlugins.M.GameOfScanlationLoader.Run,
+			ScrapePlugins.H.HBrowseLoader.Run,
+			ScrapePlugins.H.PururinLoader.Run,
+			ScrapePlugins.H.NHentaiLoader.Run,
+			ScrapePlugins.H.SadPandaLoader.Run,
+			ScrapePlugins.H.DjMoeLoader.Run,
+			ScrapePlugins.H.HitomiLoader.Run,
+			ScrapePlugins.H.DjMoeLoader.Retag,
+			ScrapePlugins.M.FoolSlide.Modules.CanisMajorRun,
+			ScrapePlugins.M.FoolSlide.Modules.ChibiMangaRun,
+			ScrapePlugins.M.FoolSlide.Modules.DokiRun,
+			ScrapePlugins.M.FoolSlide.Modules.GoMangaCoRun,
+			ScrapePlugins.M.FoolSlide.Modules.IlluminatiMangaRun,
+			ScrapePlugins.M.FoolSlide.Modules.JaptemMangaRun,
+			ScrapePlugins.M.FoolSlide.Modules.MangatopiaRun,
+			ScrapePlugins.M.FoolSlide.Modules.RoseliaRun,
+			ScrapePlugins.M.FoolSlide.Modules.S2Run,
+			ScrapePlugins.M.FoolSlide.Modules.SenseRun,
+			ScrapePlugins.M.FoolSlide.Modules.ShoujoSenseRun,
+			ScrapePlugins.M.FoolSlide.Modules.TripleSevenRun,
+			ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,
+			ScrapePlugins.M.FoolSlide.Modules.VortexRun,
+			ScrapePlugins.M.FoolSlide.Modules.MangazukiRun,
+			ScrapePlugins.M.MangaMadokami.Run,
+			ScrapePlugins.M.BooksMadokami.Run,
+		]
 	signal.signal(signal.SIGINT, signal_handler)
 	import sys
 	import traceback
@@ -170,10 +206,17 @@ if __name__ == "__main__":
 			print(plugin, interval)
 			callGoOnClass(plugin)
 		else:
+
 			print("Loopin!", scrapePlugins)
-			for plugin, interval in scrapePlugins.values():
-				print(plugin, interval)
-				callGoOnClass(plugin)
+			for plugin in run:
+				print(plugin)
+				try:
+					callGoOnClass(plugin)
+				except Exception:
+					print()
+					print("Wat?")
+					traceback.print_exc()
+					print("Continuing on with next source.")
 	except:
 		traceback.print_exc()
 

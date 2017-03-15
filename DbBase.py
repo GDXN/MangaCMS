@@ -67,7 +67,7 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 		return None
 
 	def __init__(self):
-		self.connections = {}
+		self.db_connection_dict = {}
 		super().__init__()
 
 		self.mon_con = graphitesend.init(
@@ -83,8 +83,8 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 
 
 	def __del__(self):
-		if hasattr(self, 'connections'):
-			for conn in self.connections:
+		if hasattr(self, 'db_connection_dict'):
+			for conn in self.db_connection_dict:
 				dbPool.pool.putconn(conn)
 
 	@property
@@ -96,20 +96,20 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 
 		tid = threading.get_ident()
 
-		if tid in self.connections:
+		if tid in self.db_connection_dict:
 			self.log.critical('Recursive access to singleton thread-specific resource!')
 			self.log.critical("Calling thread ID: '%s'", tid)
 			self.log.critical("Allocated handles")
-			for key, value in self.connections.items():
+			for key, value in self.db_connection_dict.items():
 				self.log.critical("	'%s', '%s'", key, value)
 
 			raise ValueError("Recursive cursor retreival! What's going on?")
 
-		self.connections[tid] = dbPool.pool.getconn()
-		return self.connections[tid].cursor()
+		self.db_connection_dict[tid] = dbPool.pool.getconn()
+		return self.db_connection_dict[tid].cursor()
 
 	def __freeConn(self):
-		conn = self.connections.pop(threading.get_ident())
+		conn = self.db_connection_dict.pop(threading.get_ident())
 		dbPool.pool.putconn(conn)
 
 	def get_cursor(self):
