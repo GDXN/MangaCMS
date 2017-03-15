@@ -116,13 +116,14 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 
 	def cleanBySourceKey(self, sourceKey, delDir, includePhash=True, pathPositiveFilter=['']):
 
-
+		self.log.info("Getting fetched items from database for source: %s", sourceKey)
 		with self.conn.cursor() as cur:
 			cur.execute('''SELECT dbid, filename, downloadpath FROM mangaitems WHERE sourcesite=%s;''', (sourceKey, ))
 			ret = cur.fetchall()
 
-		# print(ret)
+		self.log.info("Retreived %s items. Doing existance validation", len(ret))
 
+		loops = 0
 		parsedItems = []
 		for dbId, fName, fPath in ret:
 			if not fName or not fPath:
@@ -131,6 +132,10 @@ class DirDeduper(ScrapePlugins.DbBase.DbBase):
 			if not os.path.exists(fqpath):
 				continue
 			parsedItems.append((dbId, fqpath))
+			if loops % 500 == 0:
+				self.log.info("Checked %s files (out of %s)", loops, len(ret))
+
+			loops += 1
 
 		for dummy_num, basePath in parsedItems:
 			try:

@@ -135,7 +135,7 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	validKwargs = ["dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note"]
 
 	def __init__(self):
-
+		super().__init__()
 		self.table = sql.Table(self.tableName.lower())
 
 		self.cols = (
@@ -580,6 +580,8 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 	def processLinksIntoDB(self, linksDicts):
 
 		self.log.info( "Inserting...",)
+
+
 		newItems = 0
 		for link in linksDicts:
 			if link is None:
@@ -615,8 +617,9 @@ class ScraperDbBase(ScrapePlugins.DbBase.DbBase):
 
 
 
+		self.mon_con.send('new_links.count', newItems)
 
-		self.log.info( "Done")
+		self.log.info( "Done (%s new items)", newItems)
 		self.log.info( "Committing...",)
 		self.conn.commit()
 		self.log.info( "Committed")

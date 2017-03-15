@@ -17,8 +17,16 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	itemLimit = False
 	retreivalThreads = 1
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+
 	@abc.abstractmethod
 	def getLink(self, link):
+
+
+
+
 		pass
 
 	# Provision for a delay. If checkDelay returns false, item is not enqueued
@@ -45,6 +53,7 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info( "Have %s new items to retreive in %sDownloader", len(items), self.tableKey.title())
 
 
+
 		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
 		if self.itemLimit:
 			items = items[:self.itemLimit]
@@ -60,6 +69,7 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				self.getLink(link)
 
+				self.mon_con.send('fetched_items.count', 1)
 
 				if not runStatus.run:
 					self.log.info( "Breaking due to exit flag being set")
@@ -72,10 +82,13 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 			self.updateDbEntry(link["sourceUrl"], dlState=0)
 			raise
 
-		except:
+		except Exception:
+			self.mon_con.send('failed_items.count', 1)
+
 			self.log.critical("Exception!")
 			traceback.print_exc()
 			self.log.critical(traceback.format_exc())
+
 
 
 	def processTodoLinks(self, links):

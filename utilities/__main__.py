@@ -81,6 +81,9 @@ def printHelp():
 	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
 	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
 	print("	")
+	print("	k-clean {del-dir}")
+	print("		Functions identically to the h-cleaner, but operates on the kissmange database entries")
+	print("	")
 	print("	src-clean {source-key} {del-dir}")
 	print("		Find duplicates for all the items downloaded under the key {source-key}, and remove them.")
 	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
@@ -291,7 +294,6 @@ def parseTwoArgCall(cmd, val):
 			return
 		utilities.dedupDir.runHDeduper(val)
 		return
-
 
 	else:
 		print("Did not understand command!")

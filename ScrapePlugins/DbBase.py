@@ -1,4 +1,5 @@
 
+import graphitesend
 import traceback
 import psycopg2
 import abc
@@ -23,6 +24,13 @@ class DbBase(dbb.TransactionMixin, metaclass=abc.ABCMeta):
 	def __init__(self):
 		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Base DB Interface Starting!")
+
+		self.mon_con = graphitesend.init(
+			group = "Scrapers",
+			prefix='MangaCMS.{tableName}.{pluginName}'.format(tableName=self.tableName, pluginName=self.pluginName),
+			system_name='',
+			graphite_server='10.1.1.56'
+			)
 
 	def openDB(self):
 		self.log.info("Opening DB...",)
