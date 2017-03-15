@@ -67,7 +67,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking %s feeds for updates" % LONG_NAME)
 		fl = FeedLoader()
 		fl.go()
-		fl.closeDB()
 
 		time.sleep(3)
 		#print "wat", cl
@@ -86,7 +85,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 			return
 
 		cl.processTodoLinks(todo)
-		cl.closeDB()
 
 
 if __name__ == '__main__':

@@ -54,7 +54,6 @@ class MonitorDbBase(DbBase.DbBase):
 		self.lastLoggerIndex = 1
 
 
-		self.log = logging.getLogger(self.loggerPath)
 		self.log.info("Loading %s Monitor BaseClass", self.pluginName)
 		self.checkInitPrimaryDb()
 
@@ -350,15 +349,13 @@ class MonitorDbBase(DbBase.DbBase):
 					toRow[key] = fromRow[key]
 
 		# self.printDict(toRow)
-		try:
-			dbId = toRow["dbId"]
-			toRow.pop("dbId")
+		dbId = toRow["dbId"]
+		toRow.pop("dbId")
 
+		with self.transaction(commit=True):
 
-			with self.transaction(commit=True):
-
-				self.deleteRowById(fromRow["dbId"], commit=False)
-				self.updateDbEntry(dbId, commit=False, **toRow)
+			self.deleteRowById(fromRow["dbId"], commit=False)
+			self.updateDbEntry(dbId, commit=False, **toRow)
 
 
 	def printDict(self, inDict):

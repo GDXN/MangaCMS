@@ -166,7 +166,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 		fl = FeedLoader()
 		fl.go()
-		fl.closeDB()
 
 
 		if not runStatus.run:
@@ -174,7 +173,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl = ContentLoader()
 		cl.go()
-		cl.closeDB()
 
 
 if __name__ == "__main__":
@@ -187,7 +185,6 @@ if __name__ == "__main__":
 		runStatus.run = True
 		cl = ContentLoader()
 		cl.go()
-		cl.closeDB()
 
 		# cl = ContentLoader()
 		# pg = 'http://www.twistedhelscans.com/read/trace_15/en/0/33/page/1'

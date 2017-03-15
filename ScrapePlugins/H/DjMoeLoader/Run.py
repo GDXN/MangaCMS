@@ -20,7 +20,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		#print "lawl", fl
 		fl = DjMoeDbLoader()
 		fl.go()
-		fl.closeDB()
 
 
 		if not runStatus.run:
@@ -28,7 +27,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl = DjMoeContentLoader()
 		cl.go()
-		cl.closeDB()
 
 
 

@@ -208,7 +208,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking Mk feeds for updates")
 		fl = ContentLoader()
 		fl.go()
-		fl.closeDB()
 
 
 if __name__ == "__main__":

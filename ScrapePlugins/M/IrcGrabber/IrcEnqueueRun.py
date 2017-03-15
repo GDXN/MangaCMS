@@ -52,7 +52,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 			try:
 				fl = runClass()
 				fl.go()
-				fl.closeDB()
 			except Exception as e:
 				self.log.critical("Error in IRC enqueue system!")
 				self.log.critical(traceback.format_exc())

@@ -13,13 +13,11 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		runner = MonitorRun.BuWatchMonitor()
 		runner.go()
-		runner.closeDB()
 
 
 
 		chMon = ChangeMonitor.BuDateUpdater()
 		chMon.go()
-		chMon.closeDB()
 
 
 

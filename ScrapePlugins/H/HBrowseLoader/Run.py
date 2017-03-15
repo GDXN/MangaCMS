@@ -20,7 +20,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 		fl = HBrowseDbLoader()
 		fl.go()
-		fl.closeDB()
 
 
 		if not runStatus.run:
@@ -28,7 +27,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl = HBrowseContentLoader()
 		cl.go()
-		cl.closeDB()
 
 
 

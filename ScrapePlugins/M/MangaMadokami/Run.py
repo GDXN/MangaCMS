@@ -21,7 +21,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking Mk feeds for updates")
 		fl = MkFeedLoader()
 		fl.go()
-		fl.closeDB()
 
 		time.sleep(3)
 		#print "wat", cl
@@ -40,7 +39,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 			return
 
 		cl.processTodoLinks(todo)
-		cl.closeDB()
 
 
 

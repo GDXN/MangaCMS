@@ -53,7 +53,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking Sense Scans feeds for updates")
 		fl = FeedLoader()
 		fl.go()
-		fl.closeDB()
 
 		time.sleep(3)
 		#print "wat", cl
@@ -72,7 +71,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 			return
 
 		cl.processTodoLinks(todo)
-		cl.closeDB()
 
 
 if __name__ == '__main__':

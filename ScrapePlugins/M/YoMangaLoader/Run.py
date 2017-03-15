@@ -18,7 +18,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking YoManga feeds for updates")
 		fl = Loader()
 		fl.go()
-		fl.closeDB()
 
 
 

@@ -313,5 +313,4 @@ if __name__ == "__main__":
 		mon.go()
 		# mon.scanRecentlyUpdated()
 		# mon.getAllManga()
-		mon.closeDB()
 

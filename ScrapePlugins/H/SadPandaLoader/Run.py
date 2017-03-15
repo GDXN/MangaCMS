@@ -18,7 +18,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	def _go(self):
 		fl = DbLoader()
 		fl.go()
-		fl.closeDB()
 
 
 		if not runStatus.run:
@@ -26,7 +25,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl = ContentLoader()
 		cl.go()
-		cl.closeDB()
 
 
 def test():

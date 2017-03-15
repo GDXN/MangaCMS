@@ -21,7 +21,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking Bt feeds for updates")
 		fl = BtSeriesLoader()
 		fl.go()
-		fl.closeDB()
 
 		time.sleep(3)
 		#print "wat", cl
@@ -31,7 +30,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 		cl = BtSeriesEnqueuer()
 		cl.go()
-		cl.closeDB()
 
 
 if __name__ == '__main__':

@@ -17,7 +17,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		self.log.info("Checking Manga Box for updates")
 		fl = Loader()
 		fl.go()
-		fl.closeDB()
 
 
 

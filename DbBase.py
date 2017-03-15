@@ -71,11 +71,14 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 		super().__init__()
 
 		self.mon_con = graphitesend.init(
-			group = "Scrapers",
-			prefix='MangaCMS.{tableName}.{pluginName}'.format(tableName=self.tableName, pluginName=self.pluginName),
-			system_name='',
-			graphite_server=settings.GRAPHITE_DB_IP
+				init_type       = 'pickle_tcp',
+				autoreconnect   = True,
+				group           = "Scrapers",
+				prefix          = 'MangaCMS.{tableName}.{pluginName}'.format(tableName=self.tableName, pluginName=self.pluginName),
+				system_name     = '',
+				graphite_server = settings.GRAPHITE_DB_IP
 			)
+		self.mon_con.connect()
 
 
 
