@@ -44,33 +44,7 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableName = "MangaItems"
 	urlBase = "https://manga.madokami.al/"
 
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info( "Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-
-		self.log.info( "Done")
-		if not rows:
-			self.log.info("No new items, nothing to do.")
-			return
-
-
-		items = []
-		for item in rows:
-			# print("Item", item)
-			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
-
-			items.append(item)
-
-		self.log.info( "Have %s new items to retreive in MkDownloader" % len(items))
-
-
-		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
-
-		return items[:500]
-
-
+	itemLimit = 500
 
 
 	def getLinkFile(self, fileUrl):
@@ -90,12 +64,9 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def getLink(self, link):
 
-
 		seriesName = link["seriesName"]
 		seriesName = seriesName.replace("[", "(").replace("]", "(")
 		safeBaseName = nt.makeFilenameSafe(link["seriesName"])
-
-
 
 		if seriesName in nt.dirNameProxy:
 			self.log.info( "Have target dir for '%s' Dir = '%s'", seriesName, nt.dirNameProxy[seriesName]['fqPath'])
@@ -118,9 +89,6 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				link["targetDir"] = targetDir
 
 				self.updateDbEntry(link["sourceUrl"],flags=" ".join([link["flags"], "haddir"]))
-
-
-
 
 		sourceUrl, originFileName = link["sourceUrl"], link["originName"]
 
@@ -205,32 +173,30 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return
 
 
-	def fetchLinkList(self, linkList):
+	def fetchLink(self, link):
 
 		# Muck about in the webget internal settings
 		self.wg.errorOutCount = 4
 		self.wg.retryDelay    = 5
 
 		try:
-			for link in linkList:
-				if link is None:
-					self.log.error("One of the items in the link-list is none! Wat?")
-					continue
+			if link is None:
+				self.log.error("One of the items in the link-list is none! Wat?")
+				return
 
-				if not runStatus.run:
-					self.log.info("Breaking due to exit flag being set")
-					return
+			if not runStatus.run:
+				self.log.info("Breaking due to exit flag being set")
+				return
 
-				ret = self.getLink(link)
-				if ret == "Limited":
-					break
+			ret = self.getLink(link)
+			if ret == "Limited":
+				return
 
+			if not runStatus.run:
+				self.log.info( "Breaking due to exit flag being set")
+				return
 
-				if not runStatus.run:
-					self.log.info( "Breaking due to exit flag being set")
-					break
-
-		except:
+		except Exception:
 			self.log.critical("Exception!")
 			traceback.print_exc()
 			self.log.critical(traceback.format_exc())
@@ -239,20 +205,10 @@ class MkContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def processTodoLinks(self, links):
 
 		if links:
-
-			def iter_baskets_from(items, maxbaskets=3):
-				'''generates evenly balanced baskets from indexable iterable'''
-				item_count = len(items)
-				baskets = min(item_count, maxbaskets)
-				for x_i in range(baskets):
-					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
-
-			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
-
 			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
 
-				for linkList in linkLists:
-					executor.submit(self.fetchLinkList, linkList)
+				for link in links:
+					executor.submit(self.fetchLink, link)
 
 				executor.shutdown(wait=True)
 

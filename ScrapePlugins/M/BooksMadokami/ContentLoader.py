@@ -44,34 +44,6 @@ class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	tableName = "BookItems"
 	urlBase = "https://manga.madokami.al/"
 
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info( "Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-
-		self.log.info( "Done")
-		if not rows:
-			self.log.info("No new items, nothing to do.")
-			return
-
-
-		items = []
-		for item in rows:
-			# print("Item", item)
-			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
-
-			items.append(item)
-
-		self.log.info( "Have %s new items to retreive in MkDownloader" % len(items))
-
-
-		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
-
-		return items[:500]
-
-
-
 
 	def getLinkFile(self, fileUrl):
 

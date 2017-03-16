@@ -83,22 +83,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info("Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-		if not rows:
-			self.log.info("No items")
-			return
-		self.log.info("Done")
-		# print(rows)
-		items = []
-		for row in rows:
-			items.append(row)
-		self.log.info("Have %s new items to retreive in HitomiDownloader" % len(items))
-
-		return items
 
 	def format_tag(self, tag_raw):
 		if "♀" in tag_raw:

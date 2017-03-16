@@ -38,36 +38,11 @@ class BtContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	retreivalThreads = 2
 
+	itemLimit = 500
 
 	def setup(self):
 		checkLogin(self.wg)
 
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info( "Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-
-		self.log.info( "Done")
-		if not rows:
-			return
-
-		# Anyways, limit the maximum items/hour to 500 items
-		rows = rows[:500]
-
-		items = []
-		for item in rows:
-
-			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
-
-
-			items.append(item)
-
-		self.log.info( "Have %s new items to retreive in BtDownloader" % len(items))
-
-
-		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
-		return items
 
 	def getImage(self, imageUrl, referrer):
 

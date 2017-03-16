@@ -34,32 +34,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	retreivalThreads = 2
 
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info( "Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=0)
-
-		self.log.info( "Done")
-		if not rows:
-			return
-
-		items = []
-		for item in rows:
-
-			item["retreivalTime"] = time.gmtime(item["retreivalTime"])
-
-
-			items.append(item)
-
-		self.log.info( "Have %s new items to retreive in BtDownloader" % len(items))
-
-
-		items = sorted(items, key=lambda k: k["retreivalTime"], reverse=True)
-		return items
-
-
-
 	def getLinkFile(self, fileUrl):
 		pgctnt, pghandle = self.wg.getpage(fileUrl, returnMultiple = True, addlHeaders={'Referer': "http://manga.cxcscans.com/directory/"})
 		pageUrl = pghandle.geturl()

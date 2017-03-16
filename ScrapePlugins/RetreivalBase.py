@@ -34,13 +34,13 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def retreiveTodoLinksFromDB(self):
 
+		# self.QUERY_DEBUG = True
+
 		self.log.info( "Fetching items from db...",)
 
 		rows = self.getRowsByValue(dlState=0)
 
 		self.log.info( "Done")
-		if not rows:
-			return
 
 		items = []
 		for item in rows:
@@ -59,22 +59,23 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return items
 
 
-	def fetchLinkList(self, linkList):
+	def fetchLink(self, link):
 		try:
-			for link in linkList:
-				if link is None:
-					self.log.error("One of the items in the link-list is none! Wat?")
-					continue
+			if link is None:
+				self.log.error("Worker received null task! Wat?")
+				return
 
-				ret = self.getLink(link)
-				if ret == "Limited":
-					break
+			ret = self.getLink(link)
+			if ret == "Limited":
+				self.log.info("Remote site is rate limiting. Exiting early.")
+				return
 
-				self.mon_con.send('fetched_items.count', 1)
+			self.mon_con.send('fetched_items.count', 1)
 
-				if not runStatus.run:
-					self.log.info( "Breaking due to exit flag being set")
-					break
+			if not runStatus.run:
+				self.log.info( "Breaking due to exit flag being set")
+				return
+
 		except KeyboardInterrupt:
 			self.log.critical("Keyboard Interrupt!")
 			self.log.critical(traceback.format_exc())
@@ -95,19 +96,10 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def processTodoLinks(self, links):
 		if links:
 
-			def iter_baskets_from(items, maxbaskets=3):
-				'''generates evenly balanced baskets from indexable iterable'''
-				item_count = len(items)
-				baskets = min(item_count, maxbaskets)
-				for x_i in range(baskets):
-					yield [items[y_i] for y_i in range(x_i, item_count, baskets)]
-
-			linkLists = iter_baskets_from(links, maxbaskets=self.retreivalThreads)
-
 			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
 
-				for linkList in linkLists:
-					executor.submit(self.fetchLinkList, linkList)
+				for link in links:
+					executor.submit(self.fetchLink, link)
 
 				executor.shutdown(wait=True)
 
@@ -143,3 +135,4 @@ class ScraperBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		if not todo:
 			return
 		self.processTodoLinks(todo)
+		self.log.info("ContentRetreiver for %s has finished.", self.pluginName)

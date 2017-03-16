@@ -303,29 +303,6 @@ class HBrowseRetagger(HBrowseContentLoader):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	# retreivalThreads = 1
-
-	def retreiveTodoLinksFromDB(self):
-
-		self.log.info( "Fetching items from db...",)
-
-		rows = self.getRowsByValue(dlState=2)
-
-		self.log.info( "Done")
-		if not rows:
-			return
-
-		items = []
-		for item in rows:
-
-			if self.checkDelay(item["retreivalTime"]):
-				item["retreivalTime"] = time.gmtime(item["retreivalTime"])
-				items.append(item)
-
-		self.log.info( "Have %s new items to process in %sRetagger", len(items), self.tableKey.title())
-
-
-		return items
 
 
 	def getLink(self, link):

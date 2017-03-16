@@ -217,8 +217,6 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def go(self):
 		self.resetStuckItems()
 		dat = self.getFeed()
-
-
 		self.processLinksIntoDB(dat)
 
 

@@ -6,6 +6,7 @@ def testSetup(load=True):
 
 	import runStatus
 	runStatus.preloadDicts = False
+	runStatus.run = True
 
 	import logSetup
 	import signal
