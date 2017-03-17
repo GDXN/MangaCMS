@@ -59,30 +59,6 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 		return soup
 
-
-	def getCategoryTags(self, soup):
-		tagChunks = soup.find_all('div', class_='field-name')
-		tags = []
-		category = "None"
-
-
-
-		# 'Origin'       : '',  (Category)
-		for chunk in tagChunks:
-			for rawTag in chunk.find_all("a", class_='tag'):
-				if rawTag.span:
-					rawTag.span.decompose()
-				tag = rawTag.get_text().strip()
-
-				if "Artist" in chunk.contents[0]:
-					category = "Artist-"+tag.title()
-					tag = "artist "+tag
-				tag = tag.replace("  ", " ")
-				tag = tag.replace(" ", "-")
-				tags.append(tag)
-
-		tags = " ".join(tags)
-		return category, tags
 	def rowToTags(self, content):
 		ret = []
 		for item in content.find_all("a", class_='book-tag'):
@@ -167,6 +143,8 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 		# Colons break the tsvector
 		ret['tags'] = [tag.replace(":", "-") for tag in ret['tags']]
+
+		ret['tags'] = " ".join(ret['tags'])
 
 		return ret
 

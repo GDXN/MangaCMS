@@ -1,7 +1,7 @@
 
 
 import settings
-import ScrapePlugins.MonitorDbBase
+import ScrapePlugins.MangaScraperDbBase
 import ScrapePlugins.RetreivalBase
 import time
 
@@ -11,7 +11,7 @@ import time
 # It's terrible practice, but laaaazy, and sometimes I do just
 # need to hack a one-time-use thing together.
 
-class Inserter(ScrapePlugins.MonitorDbBase.MonitorDbBase):
+class Inserter(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 	loggerPath = "Main.Inserter"
@@ -24,7 +24,7 @@ class Inserter(ScrapePlugins.MonitorDbBase.MonitorDbBase):
 		pass
 
 
-class Scraper(ScrapePlugins.RetreivalBase.ScraperBase):
+class Scraper(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 	loggerPath = "Main.Inserter"

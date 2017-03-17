@@ -154,13 +154,7 @@ if __name__ == "__main__":
 
 	run = [
 			# ScrapePlugins.M.CxLoader.Run,
-			ScrapePlugins.M.MangaHere.Run,
-			ScrapePlugins.M.WebtoonLoader.Run,
-			ScrapePlugins.M.DynastyLoader.Run,
-			ScrapePlugins.M.KissLoader.Run,
-			ScrapePlugins.M.Crunchyroll.Run,
-			ScrapePlugins.M.Kawaii.Run,
-			ScrapePlugins.M.ZenonLoader.Run,
+			# ScrapePlugins.M.ZenonLoader.Run,
 			ScrapePlugins.M.MangaBox.Run,
 			ScrapePlugins.M.YoMangaLoader.Run,
 			ScrapePlugins.M.GameOfScanlationLoader.Run,
@@ -189,6 +183,12 @@ if __name__ == "__main__":
 			ScrapePlugins.M.MangaMadokami.Run,
 			ScrapePlugins.M.BooksMadokami.Run,
 			ScrapePlugins.M.McLoader.Run,
+			ScrapePlugins.M.MangaHere.Run,
+			ScrapePlugins.M.WebtoonLoader.Run,
+			ScrapePlugins.M.DynastyLoader.Run,
+			ScrapePlugins.M.KissLoader.Run,
+			ScrapePlugins.M.Crunchyroll.Run,
+			ScrapePlugins.M.Kawaii.Run,
 		]
 	signal.signal(signal.SIGINT, signal_handler)
 	import sys

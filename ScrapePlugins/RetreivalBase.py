@@ -9,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor
 import ScrapePlugins.MangaScraperDbBase
 import nameTools as nt
 
+import ScrapePlugins.ScrapeExceptions as ScrapeExceptions
+
 class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 	# Abstract class (must be subclassed)
@@ -20,6 +22,8 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+
+		self.die = False
 
 
 	@abc.abstractmethod
@@ -67,17 +71,21 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 			if link is None:
 				self.log.error("Worker received null task! Wat?")
 				return
-
-			ret = self.getLink(link)
-			if ret == "Limited":
-				self.log.info("Remote site is rate limiting. Exiting early.")
+			if self.die:
+				self.log.warning("Skipping job due to die flag!")
 				return
+
+			self.getLink(link)
 
 			self.mon_con.send('fetched_items.count', 1)
 
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
 				return
+		except ScrapeExceptions.LimitedException as e:
+			self.log.info("Remote site is rate limiting. Exiting early.")
+			self.die = True
+			raise e
 
 		except KeyboardInterrupt:
 			self.log.critical("Keyboard Interrupt!")

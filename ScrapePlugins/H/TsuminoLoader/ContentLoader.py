@@ -15,9 +15,9 @@ import traceback
 import settings
 import bs4
 import processDownload
-
-
 import ScrapePlugins.RetreivalBase
+
+import ScrapePlugins.ScrapeExceptions as ScrapeExceptions
 
 class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
@@ -33,7 +33,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 2
+	retreivalThreads = 1
 
 	itemLimit = 220
 
@@ -99,6 +99,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 		nav_to = urllib.parse.urljoin(self.urlBase, read_link['href'])
 		soup = self.wg.getSoup(nav_to, addlHeaders={'Referer': sourcePage})
+		if soup.find_all("div", class_="g-recaptcha"):
+			raise ScrapeExceptions.LimitedException
 
 		# This is probably brittle
 		mid = read_link['href'].split("/")[-1]
@@ -107,12 +109,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			"q"         : mid,
 		}
 		addlHeaders = {
-			"X-Requested-With":"XMLHttpRequest",
-			"Referer" : nav_to,
-			"Host"    : "www.tsumino.com",
-			"Origin"  : "http://www.tsumino.com",
-			"Content-Type" : "application/x-www-form-urlencoded; charset=UTF-8",
-			"Cache-Control":"no-cache",
+			"X-Requested-With" : "XMLHttpRequest",
+			"Referer"          : nav_to,
+			"Host"             : "www.tsumino.com",
+			"Origin"           : "http://www.tsumino.com",
+			"Content-Type"     : "application/x-www-form-urlencoded; charset=UTF-8",
+			"Cache-Control"    : "no-cache",
+			"Pragma"           : "no-cache",
 		}
 
 		try:
@@ -256,6 +259,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			self.log.error("Traceback: %s", traceback.format_exc())
 			self.updateDbEntry(link["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
+	def setup(self):
+		self.wg.stepThroughCloudFlare(self.urlBase, titleContains="Tsumino")
 
 if __name__ == "__main__":
 	import utilities.testBase as tb
