@@ -14,17 +14,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "SadPanda"
 
 
-
-	def _go(self):
-		fl = DbLoader()
-		fl.go()
-
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-		cl.go()
+	sourceName = "SadPanda"
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
 
 def test():

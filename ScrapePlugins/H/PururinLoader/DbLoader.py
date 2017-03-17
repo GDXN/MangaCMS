@@ -12,8 +12,8 @@ from dateutil import parser
 import urllib.parse
 import time
 
-import ScrapePlugins.RetreivalDbBase
-class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+import ScrapePlugins.LoaderBase
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
@@ -54,7 +54,7 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 	def parseLinkLi(self, linkLi):
 		ret = {}
 		ret["dlName"] = " / ".join(linkLi.h2.strings) # Messy hack to replace <br> tags with a ' / "', rather then just removing them.
-		ret["pageUrl"] = urllib.parse.urljoin(self.urlBase, linkLi.a["href"])
+		ret["sourceUrl"] = urllib.parse.urljoin(self.urlBase, linkLi.a["href"])
 		return ret
 
 	def getFeed(self, pageOverride=[None]):
@@ -82,37 +82,9 @@ class PururinDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def processLinksIntoDB(self, linksDict, ago=0):
-		self.log.info("Inserting...")
-
-		newItemCount = 0
-
-		for link in linksDict:
-
-			row = self.getRowsByValue(sourceUrl=link["pageUrl"])
-			if not row:
-				curTime = time.time() - ago
-				self.insertIntoDb(retreivalTime=curTime, sourceUrl=link["pageUrl"], originName=link["dlName"], dlState=0)
-				# cur.execute('INSERT INTO fufufuu VALUES(?, ?, ?, "", ?, ?, "", ?);',(link["date"], 0, 0, link["dlLink"], link["itemTags"], link["dlName"]))
-				self.log.info("New item: %s", (curTime, link["pageUrl"], link["dlName"]))
-
-
-
-		self.log.info("Done")
-
-		return newItemCount
-
-
-	def go(self):
-		self.resetStuckItems()
-		# dat = self.getFeed(list(range(50)))
+	def setup(self):
 		self.wg.stepThroughCloudFlare("http://pururin.us/", titleContains="Pururin")
-		dat = self.getFeed()
-		self.processLinksIntoDB(dat)
 
-		# for x in range(10):
-		# 	dat = self.getFeed(pageOverride=x)
-		# 	self.processLinksIntoDB(dat)
 
 
 

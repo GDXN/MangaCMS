@@ -1,6 +1,5 @@
 
 
-import ScrapePlugins.RetreivalDbBase
 import ScrapePlugins.M.IrcGrabber.IrcBot
 import irc.client
 import irc.bot

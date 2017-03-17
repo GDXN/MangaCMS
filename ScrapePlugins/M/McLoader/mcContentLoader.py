@@ -19,7 +19,7 @@ import ScrapePlugins.RetreivalBase
 
 import processDownload
 
-class McContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 

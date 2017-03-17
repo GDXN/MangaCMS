@@ -24,7 +24,7 @@ import psycopg2
 COMPLAIN_ABOUT_DUPS = True
 
 import urllib.parse
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 
 import stat
 
@@ -50,7 +50,7 @@ def splitall(path):
 			allparts.insert(0, parts[1])
 	return allparts
 
-class MkUploader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class MkUploader(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 	# log = logging.getLogger("Main.Mk.Uploader")
 
 	loggerPath = "Main.Manga.Mk.Up.Plugin"

@@ -9,8 +9,8 @@ from dateutil import parser
 import urllib.parse
 import time
 
-import ScrapePlugins.RetreivalDbBase
-class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+import ScrapePlugins.LoaderBase
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
@@ -68,6 +68,7 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				item["contentID"] = feedEntry["token"]
 				item["date"] = calendar.timegm(parser.parse( feedEntry["date"]).utctimetuple())
 				#self.log.info("date = ", feedEntry['published_parsed'])
+				item['retreivalTime'] = time.time()
 
 				ret.append(item)
 
@@ -76,38 +77,6 @@ class DjMoeDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				traceback.print_exc()
 
 		return ret
-
-
-
-	def processLinksIntoDB(self, linksDict):
-		self.log.info("Inserting...")
-
-		newItemCount = 0
-
-		for link in linksDict:
-
-			row = self.getRowsByValue(sourceUrl=link["contentID"])
-			if not row:
-				curTime = time.time()
-				self.insertIntoDb(retreivalTime=curTime, sourceUrl=link["contentID"], originName=link["dlName"], dlState=0)
-				# cur.execute('INSERT INTO fufufuu VALUES(?, ?, ?, "", ?, ?, "", ?);',(link["date"], 0, 0, link["dlLink"], link["itemTags"], link["dlName"]))
-				self.log.info("New item: %s", (curTime, link["contentID"], link["dlName"]))
-
-
-
-		self.log.info("Done")
-
-		return newItemCount
-
-
-	def go(self):
-		self.resetStuckItems()
-		dat = self.getFeed()
-		self.processLinksIntoDB(dat)
-
-		# for x in range(10, 100):
-		# 	dat = self.getFeed(pageOverride=x)
-		# 	self.processLinksIntoDB(dat)
 
 
 if __name__ == "__main__":

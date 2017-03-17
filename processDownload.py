@@ -6,14 +6,14 @@ import archCleaner as ac
 import deduplicator.archChecker
 import traceback
 import os.path
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 import settings
 import runStatus
 
 PHASH_DISTANCE = 4
 
 
-class DownloadProcessor(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 	pluginName = 'Download Processor'
 

@@ -15,7 +15,7 @@ import urllib.parse
 import webFunctions
 import zipfile
 
-class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 

@@ -29,7 +29,7 @@ import processDownload
 
 import ScrapePlugins.RetreivalBase
 
-class PururinContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
@@ -44,10 +44,26 @@ class PururinContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 	tableName = "HentaiItems"
 
-	retreivalThreads = 2
+	retreivalThreads = 1
 
 
 	def getFileName(self, soup):
+		container = soup.find("table", class_="table-data")
+		link_w_title = container.find("a", title=True)
+		title = link_w_title['title']
+
+		# Read THE iDOLM@STER CINDERELLA GIRLS X-RATED 765  / THE iDOLM@STER シンデレラガールズ X-RATED 765 Online
+		bad_prefix = "Read "
+		bad_postfix = " Online"
+		if title.startswith(bad_prefix):
+			title = title[len(bad_prefix):]
+		if title.endswith(bad_postfix):
+			title = title[: -1 * len(bad_postfix)]
+
+		if "/" in title:
+			title = title.split("/")[0]
+		return title
+
 		title = soup.find("h1", class_="otitle")
 		if not title:
 			raise ValueError("Could not find title. Wat?")

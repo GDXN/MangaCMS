@@ -14,8 +14,8 @@ import urllib.parse
 import time
 import calendar
 
-import ScrapePlugins.RetreivalDbBase
-class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+import ScrapePlugins.LoaderBase
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
@@ -102,19 +102,6 @@ class HBrowseDbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 		return ret
-
-
-
-
-
-	def go(self):
-		self.resetStuckItems()
-		dat = self.getFeed()
-		self.processLinksIntoDB(dat)
-
-		# for x in range(10):
-		# 	dat = self.getFeed(pageOverride=x)
-		# 	self.processLinksIntoDB(dat)
 
 
 

@@ -23,7 +23,7 @@ import sql.operators as sqlo
 
 
 
-class ScraperDbBase(DbBase.DbBase):
+class MangaScraperDbBase(DbBase.DbBase):
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
@@ -111,52 +111,6 @@ class ScraperDbBase(DbBase.DbBase):
 		self.checkInitPrimaryDb()
 
 
-
-	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
-	# Filesystem stuff
-	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-	# either locate or create a directory for `seriesName`.
-	# If the directory cannot be found, one will be created.
-	# Returns {pathToDirectory string}, {HadToCreateDirectory bool}
-	def locateOrCreateDirectoryForSeries(self, seriesName):
-
-		if self.shouldCanonize:
-			canonSeriesName = nt.getCanonicalMangaUpdatesName(seriesName)
-		else:
-			canonSeriesName = seriesName
-
-		safeBaseName = nt.makeFilenameSafe(canonSeriesName)
-
-
-		if canonSeriesName in nt.dirNameProxy:
-			self.log.info("Have target dir for '%s' Dir = '%s'", canonSeriesName, nt.dirNameProxy[canonSeriesName]['fqPath'])
-			return nt.dirNameProxy[canonSeriesName]["fqPath"], False
-		else:
-			self.log.info("Don't have target dir for: %s, full name = %s", canonSeriesName, seriesName)
-			targetDir = os.path.join(settings.baseDir, safeBaseName)
-			if not os.path.exists(targetDir):
-				try:
-					os.makedirs(targetDir)
-					return targetDir, True
-
-				except FileExistsError:
-					# Probably means the directory was concurrently created by another thread in the background?
-					self.log.critical("Directory doesn't exist, and yet it does?")
-					self.log.critical(traceback.format_exc())
-					pass
-				except OSError:
-					self.log.critical("Directory creation failed?")
-					self.log.critical(traceback.format_exc())
-
-			else:
-				self.log.warning("Directory not found in dir-dict, but it exists!")
-				self.log.warning("Directory-Path: %s", targetDir)
-				self.log.warning("Base series name: %s", seriesName)
-				self.log.warning("Canonized series name: %s", canonSeriesName)
-				self.log.warning("Safe canonized name: %s", safeBaseName)
-			return targetDir, False
 
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -323,7 +277,7 @@ class ScraperDbBase(DbBase.DbBase):
 			print("Args = ", args)
 
 		with self.transaction(commit=commit) as cur:
-			cur.execute(query, queryArguments)
+			cur.execute(query, args)
 
 
 
@@ -475,61 +429,6 @@ class ScraperDbBase(DbBase.DbBase):
 			return []
 		else:
 			return rows.pop(0)
-
-
-	def resetStuckItems(self):
-		self.log.info("Resetting stuck downloads in DB")
-		with self.transaction() as cur:
-			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=%s'''.format(tableName=self.tableName), (self.tableKey, ))
-		self.log.info("Download reset complete")
-
-
-
-	def processLinksIntoDB(self, linksDicts):
-
-		self.log.info( "Inserting...",)
-
-
-		newItems = 0
-		for link in linksDicts:
-			if link is None:
-				print("linksDicts", linksDicts)
-				print("WAT")
-
-			row = self.getRowsByValue(sourceUrl=link["sourceUrl"], limitByKey=False)
-
-			if not row:
-				newItems += 1
-
-				if not "dlState" in link:
-					link['dlState'] = 0
-
-				# Patch series name.
-				if 'seriesName' in link and self.shouldCanonize:
-					link["seriesName"] = nt.getCanonicalMangaUpdatesName(link["seriesName"])
-
-
-				# Using fancy dict hijinks now. Old call below for reference.
-
-				# self.insertIntoDb(retreivalTime = link["date"],
-				# 					sourceUrl   = link["dlLink"],
-				# 					originName  = link["dlName"],
-				# 					dlState     = 0,
-				# 					seriesName  = link["baseName"],
-				# 					flags       = flagStr)
-
-				self.insertIntoDb(**link)
-
-
-				self.log.info("New item: %s", link)
-
-
-
-		self.mon_con.send('new_links.count', newItems)
-
-		self.log.info( "Done (%s new items)", newItems)
-
-		return newItems
 
 
 

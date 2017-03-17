@@ -118,7 +118,7 @@ class ScraperBase(metaclass=abc.ABCMeta):
 
 		self.log.info("Checking %s feeds for updates", self.sourceName)
 		fl = self.feedLoader()
-		fl.go()
+		fl.do_fetch_feeds()
 
 		time.sleep(3)
 		#print "wat", cl
@@ -127,4 +127,4 @@ class ScraperBase(metaclass=abc.ABCMeta):
 			return
 
 		cl = self.contentLoader()
-		todo = cl.go()
+		todo = cl.do_fetch_content()

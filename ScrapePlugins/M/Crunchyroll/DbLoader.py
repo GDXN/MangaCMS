@@ -30,7 +30,7 @@ import ScrapePlugins.RetreivalDbBase
 # Since I don't like javascript, I've opted for the later. Be warned.
 #
 
-class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 	dbName = settings.DATABASE_DB_NAME

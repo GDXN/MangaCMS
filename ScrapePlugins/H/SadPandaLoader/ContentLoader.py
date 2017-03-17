@@ -19,7 +19,7 @@ random.seed()
 import ScrapePlugins.RetreivalBase
 from . import LoginMixin
 
-class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase, LoginMixin.ExLoginMixin):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase, LoginMixin.ExLoginMixin):
 
 
 
@@ -282,5 +282,4 @@ if __name__ == "__main__":
 	with tb.testSetup():
 
 		run = ContentLoader()
-		run.resetStuckItems()
-		run.go()
+		run.do_fetch_content()

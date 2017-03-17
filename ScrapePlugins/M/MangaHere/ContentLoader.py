@@ -28,7 +28,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
 
-class ContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 

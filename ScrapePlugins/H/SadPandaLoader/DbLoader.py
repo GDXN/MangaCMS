@@ -13,11 +13,12 @@ import urllib.parse
 import time
 import calendar
 import random
+import runStatus
 
 from . import LoginMixin
 
-import ScrapePlugins.RetreivalDbBase
-class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase, LoginMixin.ExLoginMixin):
+import ScrapePlugins.LoaderBase
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase, LoginMixin.ExLoginMixin):
 
 
 	dbName = settings.DATABASE_DB_NAME
@@ -100,10 +101,6 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase, LoginMixin.ExLoginMi
 		return ret
 
 	def getFeed(self, searchTag, includeExpunge=False, pageOverride=None):
-		# for item in items:
-		# 	self.log.info(item)
-		#
-
 		ret = []
 
 		soup = self.loadFeed(searchTag, pageOverride, includeExpunge)
@@ -124,12 +121,11 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase, LoginMixin.ExLoginMi
 
 		return ret
 
-
-
 	# TODO: Add the ability to re-acquire downloads that are
 	# older then a certain age.
-	def go(self):
-		self.resetStuckItems()
+	# We have to override the parent class here, since we're doing some more complex stuff.
+	def do_fetch_feeds(self):
+		self._resetStuckItems()
 		self.checkLogin()
 		if not self.checkExAccess():
 			raise ValueError("Cannot access ex! Wat?")
@@ -138,16 +134,24 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase, LoginMixin.ExLoginMi
 
 			dat = self.getFeed(searchTag, includeExpunge)
 
-			self.processLinksIntoDB(dat)
+			self._processLinksIntoDB(dat)
 
-			time.sleep(random.randrange(5, 60))
+			sleeptime = random.randrange(5, 60)
+			self.log.info("Sleeping %s seconds.", sleeptime)
+			for dummy_x in range(sleeptime):
+				time.sleep(1)
+				if not runStatus.run:
+					self.log.info( "Breaking due to exit flag being set")
+					return
+
+
 
 # def getHistory():
 
 # 	run = DbLoader()
 # 	for x in range(18, 1150):
 # 		dat = run.getFeed(pageOverride=x)
-# 		run.processLinksIntoDB(dat)
+# 		run._processLinksIntoDB(dat)
 
 
 
@@ -161,7 +165,7 @@ def login():
 			ret = run.getFeed(feed, pageOverride=x)
 			if not ret:
 				break
-			run.processLinksIntoDB(ret)
+			run._processLinksIntoDB(ret)
 
 			time.sleep(5)
 	# run.go()

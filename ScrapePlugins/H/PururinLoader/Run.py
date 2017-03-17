@@ -1,7 +1,7 @@
 
 
-from .DbLoader import PururinDbLoader
-from .ContentLoader import PururinContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import settings
 
@@ -17,8 +17,8 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
 	sourceName = "Pururin"
-	feedLoader = PururinDbLoader
-	contentLoader = PururinContentLoader
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
 
 

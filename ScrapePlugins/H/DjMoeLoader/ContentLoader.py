@@ -24,7 +24,7 @@ from ScrapePlugins.H.DjMoeLoader import tagsLUT
 
 import ScrapePlugins.RetreivalBase
 
-class DjMoeContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 	log = logging.getLogger("Main.Manga.DjM.Cl")
 
 
@@ -274,5 +274,4 @@ if __name__ == "__main__":
 		# run = HBrowseRetagger()
 		run = DjMoeContentLoader()
 
-		run.resetStuckItems()
 		run.go()

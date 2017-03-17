@@ -1,7 +1,7 @@
 
 
-from .hbrowseDbLoader import HBrowseDbLoader
-from .hbrowseContentLoader import HBrowseContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import settings
 
@@ -18,14 +18,14 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
 	def _go(self):
-		fl = HBrowseDbLoader()
+		fl = DbLoader()
 		fl.go()
 
 
 		if not runStatus.run:
 			return
 
-		cl = HBrowseContentLoader()
+		cl = ContentLoader()
 		cl.go()
 
 

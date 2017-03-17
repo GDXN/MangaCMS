@@ -1,4 +1,6 @@
-
+Broken:
+tsumino
+DoujinMoe
 
 
 http://www.tsumino.com/

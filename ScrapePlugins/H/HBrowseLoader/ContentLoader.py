@@ -22,7 +22,7 @@ import processDownload
 
 import ScrapePlugins.RetreivalBase
 
-class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
@@ -296,7 +296,7 @@ class HBrowseContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
 
 
 
-class HBrowseRetagger(HBrowseContentLoader):
+class HBrowseRetagger(ContentLoader):
 
 	loggerPath = "Main.Manga.HBrowse.Tag"
 	pluginName = "H-Browse Content Re-Tagger"

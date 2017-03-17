@@ -17,7 +17,7 @@ import ScrapePlugins.RetreivalBase
 import processDownload
 import abc
 
-class FoolContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class FoolContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 	@abc.abstractmethod

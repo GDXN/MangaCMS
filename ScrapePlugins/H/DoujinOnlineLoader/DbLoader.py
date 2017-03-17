@@ -12,8 +12,8 @@ from dateutil import parser
 import urllib.parse
 import time
 
-import ScrapePlugins.RetreivalDbBase
-class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+import ScrapePlugins.LoaderBase
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
@@ -93,20 +93,6 @@ class DbLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					ret.append(tmp)
 
 		return ret
-
-
-
-
-	def go(self):
-		self.resetStuckItems()
-		# dat = self.getFeed(list(range(50)))
-		dat = self.getFeed()
-		self.processLinksIntoDB(dat)
-
-		# for x in range(10):
-		# 	dat = self.getFeed(pageOverride=x)
-		# 	self.processLinksIntoDB(dat)
-
 
 
 

@@ -1,8 +1,8 @@
 
 
 
-from .djMoeDbLoader import DjMoeDbLoader
-from .djMoeContentLoader import DjMoeContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 
 import runStatus
@@ -18,14 +18,14 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 
 		#print "lawl", fl
-		fl = DjMoeDbLoader()
+		fl = DbLoader()
 		fl.go()
 
 
 		if not runStatus.run:
 			return
 
-		cl = DjMoeContentLoader()
+		cl = ContentLoader()
 		cl.go()
 
 

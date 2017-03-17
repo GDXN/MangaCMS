@@ -21,7 +21,7 @@ import psycopg2
 
 import processDownload
 
-class MjContentLoader(ScrapePlugins.RetreivalBase.ScraperBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 	loggerPath = "Main.Manga.Mj.Cl"
 	pluginName = "MangaJoy Content Retreiver"
