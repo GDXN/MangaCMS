@@ -7,13 +7,13 @@ import abc
 import nameTools as nt
 
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 # Turn on to print all db queries to STDOUT before running them.
 # Intended for debugging DB interactions.
 # Excessively verbose otherwise.
 QUERY_DEBUG = False
 
-class SeriesScraperDbBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class SeriesScraperDbBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 

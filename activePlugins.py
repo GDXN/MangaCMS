@@ -15,14 +15,11 @@ import ScrapePlugins.H.SadPandaLoader.Run
 import ScrapePlugins.H.NHentaiLoader.Run
 import ScrapePlugins.H.HBrowseLoader.Run
 import ScrapePlugins.H.HitomiLoader.Run
-import ScrapePlugins.H.DoujinOnlineLoader.Run
 
 
 import ScrapePlugins.M.McLoader.Run
 import ScrapePlugins.M.CxLoader.Run
-import ScrapePlugins.M.MjLoader.Run
 import ScrapePlugins.M.WebtoonLoader.Run            # Yeah. There is webtoon.com. and WebtoonsReader.com. Confusing much?
-import ScrapePlugins.M.WebtoonsReader.Run
 import ScrapePlugins.M.KissLoader.Run
 import ScrapePlugins.M.DynastyLoader.Run
 import ScrapePlugins.M.Crunchyroll.Run
@@ -78,14 +75,12 @@ scrapePlugins = {
 	11  : (ScrapePlugins.M.McLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
 	12  : (ScrapePlugins.M.IrcGrabber.IrcEnqueueRun,            hours(12)),  # Queue up new items from IRC bots.
 	13  : (ScrapePlugins.M.CxLoader.Run,                        hours(12)),  # every 12 hours, it's just a single scanlator site.
-	# 14 : (ScrapePlugins.M.MjLoader.Run,                        hours( 1)),
 	15  : (ScrapePlugins.M.IrcGrabber.BotRunner,                hours( 1)),  # Irc bot never returns. It runs while the app is live. Rerun interval doesn't matter, as a result.
 	16  : (ScrapePlugins.M.MangaHere.Run,                       hours(12)),
 	17  : (ScrapePlugins.M.WebtoonLoader.Run,                   hours( 8)),
 	18  : (ScrapePlugins.M.DynastyLoader.Run,                   hours( 8)),
 	19  : (ScrapePlugins.M.KissLoader.Run,                      hours( 1)),
 	20  : (ScrapePlugins.M.Crunchyroll.Run,                     hours( 4)),
-	# 21 : (ScrapePlugins.M.WebtoonsReader.Run,                  hours( 6)),  # They claim they're planning on coming back. We'll see.
 	22  : (ScrapePlugins.M.Kawaii.Run,                          hours(12)),
 	23  : (ScrapePlugins.M.ZenonLoader.Run,                     hours(24)),
 	24  : (ScrapePlugins.M.MangaBox.Run,                        hours(12)),
@@ -99,7 +94,6 @@ scrapePlugins = {
 	45  : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
 	46  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 4)),
 	47  : (ScrapePlugins.H.HitomiLoader.Run,                    hours( 4)),
-	# 48  : (ScrapePlugins.H.DoujinOnlineLoader.Run,              hours( 4)),
 	55  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours(24)),
 
 	# FoolSlide modules
@@ -159,8 +153,7 @@ if __name__ == "__main__":
 			raise KeyboardInterrupt
 
 	run = [
-			ScrapePlugins.M.McLoader.Run,
-			ScrapePlugins.M.CxLoader.Run,
+			# ScrapePlugins.M.CxLoader.Run,
 			ScrapePlugins.M.MangaHere.Run,
 			ScrapePlugins.M.WebtoonLoader.Run,
 			ScrapePlugins.M.DynastyLoader.Run,
@@ -195,6 +188,7 @@ if __name__ == "__main__":
 			ScrapePlugins.M.FoolSlide.Modules.MangazukiRun,
 			ScrapePlugins.M.MangaMadokami.Run,
 			ScrapePlugins.M.BooksMadokami.Run,
+			ScrapePlugins.M.McLoader.Run,
 		]
 	signal.signal(signal.SIGINT, signal_handler)
 	import sys
@@ -216,7 +210,9 @@ if __name__ == "__main__":
 					print()
 					print("Wat?")
 					traceback.print_exc()
+					raise
 					print("Continuing on with next source.")
+
 	except:
 		traceback.print_exc()
 

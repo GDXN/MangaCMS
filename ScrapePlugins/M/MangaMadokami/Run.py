@@ -1,7 +1,7 @@
 
 
-from .mkFeedLoader import MkFeedLoader
-from .mkContentLoader import MkContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -15,32 +15,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "MkLoader"
 
-
-	def _go(self):
-
-		self.log.info("Checking Mk feeds for updates")
-		fl = MkFeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = MkContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
-
-
+	sourceName = "MangaMadokami"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 if __name__ == "__main__":
 	import utilities.testBase as tb

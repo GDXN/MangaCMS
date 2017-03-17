@@ -1,7 +1,7 @@
 
 
-from . import FeedLoader
-from . import ContentLoader
+from .FeedLoader    import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -15,30 +15,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "SuraLoader"
 
-
-	def _go(self):
-
-		self.log.info("Checking Sura's Place feeds for updates")
-		fl = FeedLoader.FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader.ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
+	sourceName = "Sura's Place"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 if __name__ == "__main__":

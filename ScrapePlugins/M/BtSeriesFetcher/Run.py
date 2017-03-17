@@ -1,7 +1,7 @@
 
 
-from .btSeriesLoader   import BtSeriesLoader
-from .btSeriesEnqueuer import BtSeriesEnqueuer
+from .SeriesLoader   import SeriesLoader
+from .SeriesEnqueuer import SeriesEnqueuer
 
 import ScrapePlugins.RunBase
 
@@ -15,21 +15,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "BtEnqueue"
 
+	sourceName = "BatotoSeries"
 
-	def _go(self):
-
-		self.log.info("Checking Bt feeds for updates")
-		fl = BtSeriesLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = BtSeriesEnqueuer()
-		cl.go()
+	feedLoader    = SeriesLoader
+	contentLoader = SeriesEnqueuer
 
 
 if __name__ == '__main__':

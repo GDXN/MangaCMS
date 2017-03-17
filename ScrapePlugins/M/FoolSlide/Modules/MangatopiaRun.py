@@ -2,8 +2,8 @@
 import runStatus
 import ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase
 import ScrapePlugins.M.FoolSlide.FoolSlideFetchBase
-import ScrapePlugins.RetreivalBase
-import ScrapePlugins.RetreivalDbBase
+
+
 import ScrapePlugins.RunBase
 import settings
 import time
@@ -63,29 +63,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "MangatopiaLoader"
 
 
-	def _go(self):
+	sourceName = "Mangatopia"
 
-		self.log.info("Checking Mangatopia feeds for updates")
-		fl = FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 if __name__ == '__main__':

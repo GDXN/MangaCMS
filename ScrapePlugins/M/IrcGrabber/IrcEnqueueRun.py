@@ -29,8 +29,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "IrcEnqueue"
 
 	runClasses = [
-		ScrapePlugins.M.IrcGrabber.SimpleXdccParser.IrcQueue.TriggerLoader,
-		ScrapePlugins.M.IrcGrabber.IrcOfferLoader.IrcQueue.TriggerLoader,
 		ScrapePlugins.M.IrcGrabber.IMangaScans.ImsScrape.IMSTriggerLoader,
 		ScrapePlugins.M.IrcGrabber.EgScans.EgScrape.EgTriggerLoader,
 		ScrapePlugins.M.IrcGrabber.ModernXdccParser.IrcQueue.TriggerLoader,
@@ -40,7 +38,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 		ScrapePlugins.M.IrcGrabber.CatScans.IrcQueue.TriggerLoader,
 		ScrapePlugins.M.IrcGrabber.RenzokuseiScans.IrcQueue.TriggerLoader,
 
-		ScrapePlugins.M.IrcGrabber.ChannelLister.ChanLister.ChannelTriggerLoader
+		ScrapePlugins.M.IrcGrabber.ChannelLister.ChanLister.ChannelTriggerLoader,
+
+		ScrapePlugins.M.IrcGrabber.SimpleXdccParser.IrcQueue.TriggerLoader,
+		ScrapePlugins.M.IrcGrabber.IrcOfferLoader.IrcQueue.TriggerLoader,
 	]
 
 	def _go(self):

@@ -11,13 +11,13 @@ import calendar
 import dateutil.parser
 import settings
 import urllib.error
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 
 # Only downlad items in language specified.
 # Set to None to disable filtering (e.g. fetch ALL THE FILES).
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
@@ -184,7 +184,7 @@ Not found
 
 		return ret
 
-	def getAllItems(self, historical=False):
+	def getFeed(self, historical=False):
 		toScan = self.getUpdatedSeriesPages(historical)
 
 		ret = []
@@ -203,21 +203,10 @@ Not found
 
 		return ret
 
-
-	def go(self, historical=False):
-
-
+	def setup(self):
 		if not self.wg.stepThroughCloudFlare("http://kissmanga.com/", titleContains='Read manga online in high quality'):
 			raise ValueError("Could not access site due to cloudflare protection.")
 
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getAllItems(historical=historical)
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
 
 
 if __name__ == '__main__':

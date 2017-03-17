@@ -7,7 +7,7 @@ import time
 import settings
 import re
 import os.path
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 import ScrapePlugins.RunBase
 import nameTools as nt
 from concurrent.futures import ThreadPoolExecutor
@@ -31,7 +31,6 @@ MASK_PATHS = [
 	'/Requests',
 	'/READ.txt',
 
-
 ]
 
 STRIP_PREFIX = "/mango"
@@ -42,7 +41,7 @@ HTTPS_CREDS = [
 	("https://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
 	]
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
 	loggerPath = "Main.Books.Mk.Fl"
@@ -85,7 +84,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-	def loadRemoteItems(self):
+	def getFeed(self):
 		treedata = self.wg.getJson(self.tree_api)
 		assert 'contents' in treedata
 		assert treedata['name'] == 'mango'
@@ -105,24 +104,9 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getMainItems(self):
-		# for item in items:
-		# 	self.log.info( item)
-		#
 
-		# Muck about in the webget internal settings
-		self.wg.errorOutCount = 4
-		self.wg.retryDelay    = 5
-
-		self.log.info( "Loading Madokami Main Feed")
-
-		items = self.loadRemoteItems()
-		self.processLinksIntoDB(items)
-
-
-
-
-	def processLinksIntoDB(self, linksDicts, isPicked=False):
+	# Override the upsert call so we can handle files that have been moved.
+	def _processLinksIntoDB(self, linksDicts, isPicked=False):
 
 
 		# item["date"]     = time.time()
@@ -195,16 +179,12 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		# return newItems
 
 
-	def go(self):
+	def setup(self):
+		# Muck about in the webget internal settings
+		self.wg.errorOutCount = 4
+		self.wg.retryDelay    = 5
 
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getMainItems()
-		# self.log.info("Processing feed Items")
-
-		# self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
+		self.log.info( "Loading Madokami Main Feed")
 
 
 

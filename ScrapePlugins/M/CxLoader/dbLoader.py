@@ -11,11 +11,11 @@ import runStatus
 import settings
 import datetime
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 
 
 
-class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
@@ -100,7 +100,7 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-	def getAllItems(self):
+	def getFeed(self):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -123,19 +123,4 @@ class CxFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				break
 		self.log.info("Found %s total items", len(ret))
 		return ret
-
-
-
-
-	def go(self):
-
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getAllItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
-
 

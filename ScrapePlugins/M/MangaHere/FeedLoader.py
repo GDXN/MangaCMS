@@ -11,13 +11,13 @@ import calendar
 import parsedatetime
 import settings
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 
 # Only downlad items in language specified.
 # Set to None to disable filtering (e.g. fetch ALL THE FILES).
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
@@ -137,7 +137,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-	def getAllItems(self):
+	def getFeed(self):
 		toScan = self.getUpdatedSeriesPages()
 
 		ret = []
@@ -151,17 +151,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-
-	def go(self):
-
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getAllItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
 
 
 if __name__ == '__main__':

@@ -10,11 +10,8 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	def _go(self):
 
-
 		runner = MonitorRun.BuWatchMonitor()
 		runner.go()
-
-
 
 		chMon = ChangeMonitor.BuDateUpdater()
 		chMon.go()

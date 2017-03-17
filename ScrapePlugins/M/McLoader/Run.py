@@ -1,7 +1,7 @@
 
 
-from .mcFeedLoader import McFeedLoader
-from .mcContentLoader import McContentLoader
+from .FeedLoader import FeedLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -15,30 +15,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "McLoader"
 
-
-	def _go(self):
-
-		self.log.info("Checking Mc feeds for updates")
-		fl = McFeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = McContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
+	sourceName = "MangaCow"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 if __name__ == "__main__":

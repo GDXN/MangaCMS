@@ -1,7 +1,10 @@
 Broken:
 tsumino
 DoujinMoe
+Sura's Place
 
+Gone:
+WebtoonsReader
 
 http://www.tsumino.com/
 https://doujinshi.online/

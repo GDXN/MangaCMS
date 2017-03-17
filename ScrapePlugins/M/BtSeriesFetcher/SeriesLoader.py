@@ -16,7 +16,7 @@ import nameTools as nt
 
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
-class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
+class SeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 
 
@@ -127,7 +127,7 @@ class BtSeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 
 
-	def go(self):
+	def do_fetch_feeds(self):
 
 		self.log.info("Looking for new series to download")
 		self.scanForSeries()

@@ -1,7 +1,7 @@
 
 
-from .cxFeedLoader import CxFeedLoader
-from .cxContentLoader import CxContentLoader
+from .dbLoader import DbLoader
+from .contentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -15,30 +15,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "CxLoader"
 
+	sourceName = "CxC Scans"
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
-	def _go(self):
-
-		self.log.info("Checking CXC feeds for updates")
-		fl = CxFeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = CxContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
 
 if __name__ == "__main__":
 	import utilities.testBase as tb

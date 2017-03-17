@@ -117,6 +117,11 @@ class MangaScraperDbBase(DbBase.DbBase):
 	# Misc Utilities
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	def _resetStuckItems(self):
+		self.log.info("Resetting stuck downloads in DB")
+		with self.transaction() as cur:
+			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=%s'''.format(tableName=self.tableName), (self.tableKey, ))
+		self.log.info("Download reset complete")
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Tools
@@ -168,14 +173,18 @@ class MangaScraperDbBase(DbBase.DbBase):
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 	def insertIntoDb(self, commit=True, **kwargs):
+		cur = kwargs.pop('cur', None)
+
 		query, queryArguments = self.sqlBuildInsertArgs(**kwargs)
 
 		if self.QUERY_DEBUG:
 			print("Query = ", query)
 			print("Args = ", queryArguments)
-
-		with self.transaction(commit=commit) as cur:
+		if cur is not None:
 			cur.execute(query, queryArguments)
+		else:
+			with self.transaction(commit=commit) as cur:
+				cur.execute(query, queryArguments)
 
 
 
@@ -210,6 +219,7 @@ class MangaScraperDbBase(DbBase.DbBase):
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, sourceUrl, commit=True, **kwargs):
+		cur = kwargs.pop('cur', None)
 
 		# Patch series name.
 		if "seriesName" in kwargs and kwargs["seriesName"] and self.shouldCanonize:
@@ -227,9 +237,11 @@ class MangaScraperDbBase(DbBase.DbBase):
 			print("Query = ", query)
 			print("Args = ", queryArguments)
 
-
-		with self.transaction(commit=commit) as cur:
+		if cur is not None:
 			cur.execute(query, queryArguments)
+		else:
+			with self.transaction(commit=commit) as cur:
+				cur.execute(query, queryArguments)
 
 
 		# print("Updating", self.getRowByValue(sourceUrl=sourceUrl))
@@ -256,6 +268,8 @@ class MangaScraperDbBase(DbBase.DbBase):
 
 
 	def deleteRowsByValue(self, commit=True, **kwargs):
+		cur = kwargs.pop('cur', None)
+
 		if len(kwargs) != 1:
 			raise ValueError("deleteRowsByValue only supports calling with a single kwarg", kwargs)
 
@@ -276,8 +290,11 @@ class MangaScraperDbBase(DbBase.DbBase):
 			print("Query = ", query)
 			print("Args = ", args)
 
-		with self.transaction(commit=commit) as cur:
+		if cur is not None:
 			cur.execute(query, args)
+		else:
+			with self.transaction(commit=commit) as cur:
+				cur.execute(query, args)
 
 
 
@@ -301,6 +318,9 @@ class MangaScraperDbBase(DbBase.DbBase):
 
 
 	def getRowsByValue(self, limitByKey=True, **kwargs):
+
+		cur = kwargs.pop("cur", None)
+
 		if limitByKey and self.tableKey:
 			kwargs["sourceSite"] = self.tableKey
 
@@ -331,10 +351,13 @@ class MangaScraperDbBase(DbBase.DbBase):
 			print("Query = ", query)
 			print("args = ", quargs)
 
-
-		with self.transaction(commit=False) as cur:
+		if cur is not None:
 			cur.execute(query, quargs)
 			rets = cur.fetchall()
+		else:
+			with self.transaction(commit=False) as cur:
+				cur.execute(query, quargs)
+				rets = cur.fetchall()
 
 
 		retL = []

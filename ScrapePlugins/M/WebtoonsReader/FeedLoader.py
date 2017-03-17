@@ -16,9 +16,9 @@ import dateutil.parser
 
 import settings
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
@@ -112,7 +112,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-	def getAllItems(self, historical=False):
+	def getFeed(self, historical=False):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -135,18 +135,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 				break
 		self.log.info("Found %s total items", len(ret))
 		return ret
-
-
-	def go(self):
-
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getAllItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
 
 
 if __name__ == '__main__':

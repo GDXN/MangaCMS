@@ -29,14 +29,6 @@ class LoaderBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 	def setup(self):
 		pass
 
-
-	def _resetStuckItems(self):
-		self.log.info("Resetting stuck downloads in DB")
-		with self.transaction() as cur:
-			cur.execute('''UPDATE {tableName} SET dlState=0 WHERE dlState=1 AND sourceSite=%s'''.format(tableName=self.tableName), (self.tableKey, ))
-		self.log.info("Download reset complete")
-
-
 	def _processLinksIntoDB(self, linksDicts):
 
 		self.log.info( "Inserting...",)

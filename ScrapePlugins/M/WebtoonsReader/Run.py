@@ -13,31 +13,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "WrLoader"
 
-
-	def _go(self):
-
-		self.log.info("Checking Webtoons Reader feeds for updates")
-		fl = FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
-
+	sourceName = "WebtoonsReader"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 if __name__ == "__main__":

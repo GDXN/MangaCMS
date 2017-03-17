@@ -13,30 +13,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "MangaHereLoader"
 
+	sourceName = "MangaHere"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
-	def _go(self):
-
-		self.log.info("Checking MangaHere feeds for updates")
-		fl = FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
 
 
 

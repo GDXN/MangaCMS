@@ -15,7 +15,6 @@ import runStatus
 import traceback
 import bs4
 import re
-import ScrapePlugins.RetreivalDbBase
 
 from concurrent.futures import ThreadPoolExecutor
 

@@ -3,8 +3,8 @@
 
 import ScrapePlugins.RunBase
 import settings
-import ScrapePlugins.RetreivalDbBase
-import ScrapePlugins.RetreivalBase
+
+
 import ScrapePlugins.M.FoolSlide.FoolSlideFetchBase
 import ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase
 
@@ -40,9 +40,6 @@ class FeedLoader(ScrapePlugins.M.FoolSlide.FoolSlideFetchBase.FoolFeedLoader):
 
 class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentLoader):
 
-
-
-
 	loggerPath = "Main.Manga.%s.Cl" % SHORT_NAME
 	pluginName = "%s Content Retreiver" % LONG_NAME
 	tableKey = DB_KEY
@@ -56,35 +53,17 @@ class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentL
 
 	contentSelector = ('article', 'content')
 
+
+
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 	loggerPath = "Main.Manga.%s.Run" % SHORT_NAME
 
 	pluginName = "%sLoader" % GROUP_NAME
 
+	sourceName = "%s" % GROUP_NAME
 
-	def _go(self):
-
-		self.log.info("Checking %s feeds for updates" % LONG_NAME)
-		fl = FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 if __name__ == '__main__':

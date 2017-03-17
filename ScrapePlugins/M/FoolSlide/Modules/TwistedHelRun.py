@@ -9,7 +9,7 @@ import re
 import runStatus
 import ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase
 import ScrapePlugins.RetreivalBase
-import ScrapePlugins.RetreivalDbBase
+
 import ScrapePlugins.RunBase
 import settings
 import time
@@ -80,7 +80,7 @@ class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentL
 
 
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 	dbName = settings.DATABASE_DB_NAME
@@ -162,18 +162,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "TwistedHel"
 
 
+	sourceName = "TwistedHel Scans"
 
-	def _go(self):
-		fl = FeedLoader()
-		fl.go()
-
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-		cl.go()
-
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 if __name__ == "__main__":
 	import utilities.testBase as tb

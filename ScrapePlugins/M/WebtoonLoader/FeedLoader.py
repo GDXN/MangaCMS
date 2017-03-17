@@ -17,14 +17,14 @@ import runStatus
 import settings
 import datetime
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 import nameTools as nt
 
 # Only downlad items in language specified.
 # Set to None to disable filtering (e.g. fetch ALL THE FILES).
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
@@ -152,7 +152,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-	def getAllItems(self, historical=False):
+	def getFeed(self, historical=False):
 		# for item in items:
 		# 	self.log.info( item)
 		#

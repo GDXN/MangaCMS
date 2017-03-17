@@ -8,12 +8,12 @@ import parsedatetime
 import calendar
 import datetime
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 
 
 import abc
 
-class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FoolFeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 	@abc.abstractmethod
@@ -130,7 +130,7 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-	def getAllItems(self):
+	def getFeed(self):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -154,18 +154,5 @@ class FoolFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		self.log.info("Found %s total items", len(ret))
 		return ret
 
-
-
-
-	def go(self):
-
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getAllItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
 
 

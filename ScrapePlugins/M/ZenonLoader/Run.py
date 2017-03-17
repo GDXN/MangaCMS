@@ -13,25 +13,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "ZenonLoader"
 
-
-	def _go(self):
-
-		self.log.info("Checking Dynasty feeds for updates")
-		fl = FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		cl.go()
+	sourceName = "Comic Zenon"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 

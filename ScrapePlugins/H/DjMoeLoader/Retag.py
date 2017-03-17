@@ -1,6 +1,6 @@
 
 
-from ScrapePlugins.H.DjMoeLoader.djMoeContentLoader import DjMoeContentLoader
+from ScrapePlugins.H.DjMoeLoader.ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -11,6 +11,6 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "Doujin Moe Retagger"
 
 	def _go(self):
-		cl = DjMoeContentLoader()
+		cl = ContentLoader()
 		cl.retag()
 

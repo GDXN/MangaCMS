@@ -5,10 +5,10 @@ import time
 import urllib.parse
 import runStatus
 import settings
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 
 
-class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
@@ -119,7 +119,7 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getAllItems(self):
+	def getFeed(self):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -144,17 +144,6 @@ class FeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-
-	def go(self):
-
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getAllItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
 
 if __name__ == "__main__":
 	import utilities.testBase as tb

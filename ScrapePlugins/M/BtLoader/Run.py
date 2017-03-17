@@ -1,7 +1,7 @@
 
 
-from .btFeedLoader import BtFeedLoader
-from .btContentLoader import BtContentLoader
+from .DbLoader import DbLoader
+from .ContentLoader import ContentLoader
 
 import ScrapePlugins.RunBase
 
@@ -14,31 +14,11 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	loggerPath = "Main.Manga.Bt.Run"
 
 	pluginName = "BtLoader"
+	sourceName = "Batoto"
 
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
-	def _go(self):
-
-		self.log.info("Checking Bt feeds for updates")
-		fl = BtFeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = BtContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
 
 
 if __name__ == "__main__":

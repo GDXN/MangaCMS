@@ -15,13 +15,13 @@ import runStatus
 import traceback
 import bs4
 import re
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 
 from concurrent.futures import ThreadPoolExecutor
 
 import processDownload
 
-class CxContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 

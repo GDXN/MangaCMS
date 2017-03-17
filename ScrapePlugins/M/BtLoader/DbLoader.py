@@ -15,7 +15,7 @@ import settings
 import datetime
 
 from ScrapePlugins.M.BtLoader.common import checkLogin
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -23,7 +23,7 @@ from concurrent.futures import ThreadPoolExecutor
 # Set to None to disable filtering (e.g. fetch ALL THE FILES).
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
-class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
@@ -189,7 +189,7 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getMainItems(self, rangeOverride=None, rangeOffset=None, historical=False):
+	def getFeed(self, rangeOverride=None, rangeOffset=None, historical=False):
 		# for item in items:
 		# 	self.log.info( item)
 		#
@@ -235,26 +235,12 @@ class BtFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def go(self):
-
-		checkLogin(self.wg)
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getMainItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
-
-
-
 
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup():
 
-		run = BtFeedLoader()
+		run = FeedLoader()
 		run.go()
 		# run.getMainItems()

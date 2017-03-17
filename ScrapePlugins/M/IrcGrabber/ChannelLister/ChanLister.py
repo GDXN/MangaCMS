@@ -179,7 +179,7 @@ class ChannelTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase)
 					print("itemDataSets", itemDataSets)
 					print("WAT")
 
-				row = self.getRowsByValue(limitByKey=False, sourceUrl=itemKey)
+				row = self.getRowsByValue(limitByKey=False, sourceUrl=itemKey, cur=cur)
 				if not row:
 					newItems += 1
 
@@ -193,7 +193,8 @@ class ChannelTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase)
 										sourceId    = itemData,
 										dlState     = 0,
 										flags       = '',
-										commit=False)
+										commit      = False,
+										cur         = cur)
 
 					self.log.info("New item: %s", itemData)
 
@@ -202,17 +203,6 @@ class ChannelTriggerLoader(ScrapePlugins.M.IrcGrabber.IrcQueueBase.IrcQueueBase)
 
 		return newItems
 
-
-	def go(self):
-
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getMainItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
 
 
 if __name__ == "__main__":

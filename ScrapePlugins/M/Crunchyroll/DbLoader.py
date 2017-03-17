@@ -9,7 +9,7 @@ import urllib.parse
 import time
 import bs4
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 
 
 #  ##      ##    ###    ########  ##    ## #### ##    ##  ######

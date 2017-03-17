@@ -13,30 +13,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	pluginName = "DyLoader"
 
-
-	def _go(self):
-
-		self.log.info("Checking Dynasty feeds for updates")
-		fl = FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
+	sourceName = "DynastyScans"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 

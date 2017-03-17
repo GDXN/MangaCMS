@@ -278,7 +278,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 				self.doDownload(linkInfo)
 			else:
 				print("No link info?")
-				self.updateDbEntry(link["sourceUrl"], dlState=0)
+				self.deleteRowsByValue(sourceUrl=link["sourceUrl"])
+
 		except urllib.error.URLError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())

@@ -15,7 +15,7 @@ import runStatus
 import traceback
 import bs4
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 import ScrapePlugins.RunBase
 
 from concurrent.futures import ThreadPoolExecutor
@@ -30,7 +30,7 @@ HTTPS_CREDS = [
 	]
 
 
-class ContentLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)

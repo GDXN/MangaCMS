@@ -13,18 +13,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	loggerPath = "Main.Manga.CrunchyRoll.Run"
 	pluginName = "CrunchyRoll"
 
+	sourceName = "CrunchyRoll"
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
-
-	def _go(self):
-		fl = DbLoader()
-		fl.go()
-
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-		cl.go()
 
 
 if __name__ == "__main__":

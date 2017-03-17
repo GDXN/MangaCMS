@@ -619,6 +619,12 @@ class WebGetRobust:
 
 					time.sleep(self.retryDelay)
 
+				except urllib.error.URLError as e:
+					self.log.critical("Unrecoverable Unicode issue retreiving page - %s", requestedUrl)
+					for line in traceback.format_exc().split("\n"):
+						self.log.critical("%s", line.rstrip())
+					break
+
 				except UnicodeEncodeError:
 					self.log.critical("Unrecoverable Unicode issue retreiving page - %s", requestedUrl)
 					for line in traceback.format_exc().split("\n"):

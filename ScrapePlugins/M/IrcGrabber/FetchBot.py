@@ -1,6 +1,6 @@
 
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 import ScrapePlugins.M.IrcGrabber.IrcBot
 import irc.client
 
@@ -18,7 +18,7 @@ import processDownload
 
 import abc
 
-class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class DbWrapper(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 	pluginName = "IrcDb Wrapper"
 
@@ -42,7 +42,7 @@ class DbWrapper(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def retreiveTodoLinkFromDB(self):
 
-		self.resetStuckItems()
+		self._resetStuckItems()
 		self.log.info( "Fetching items from db...",)
 
 		rows = self.getRowsByValue(dlState=0)

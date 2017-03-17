@@ -3,15 +3,11 @@
 
 
 import time
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 
 import abc
 
-class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
-
-	@abc.abstractmethod
-	def getMainItems(self, rangeOverride=None, rangeOffset=None):
-		pass
+class IrcQueueBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 	def processLinksIntoDB(self, itemDataSets, isPicked=False):
@@ -30,7 +26,7 @@ class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 					print("itemDataSets", itemDataSets)
 					print("WAT")
 
-				row = self.getRowsByValue(limitByKey=False, sourceUrl=itemKey)
+				row = self.getRowsByValue(limitByKey=False, sourceUrl=itemKey, cur=cur)
 				if not row:
 					newItems += 1
 
@@ -44,7 +40,8 @@ class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 										sourceId    = itemData,
 										dlState     = 0,
 										flags       = '',
-										commit=False)
+										commit      = False,
+										cur         = cur)
 
 					self.log.info("New item: %s", itemData)
 
@@ -56,7 +53,7 @@ class IrcQueueBase(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	def go(self):
 
-		self.resetStuckItems()
+		self._resetStuckItems()
 		self.log.info("Getting feed items")
 
 		feedItems = self.getMainItems()

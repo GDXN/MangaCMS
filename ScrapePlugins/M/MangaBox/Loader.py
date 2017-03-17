@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
 import webFunctions
 import processDownload
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 import nameTools as nt
 
 app_user_agent = [
@@ -526,7 +526,7 @@ Observed API calls
 '''
 
 
-class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class Loader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
@@ -776,6 +776,10 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 				if not runStatus.run:
 					return
+
+	# Stub out getLink to prevent abstract class instance.
+	def getLink(self):
+		pass
 
 
 if __name__ == '__main__':

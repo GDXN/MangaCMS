@@ -175,12 +175,17 @@ class MonitorDbBase(DbBase.DbBase):
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 	def insertIntoDb(self, commit=True, **kwargs):
+		cur = kwargs.pop('cur', None)
+
 		keysStr, valuesStr, queryAdditionalArgs = self.buildInsertArgs(**kwargs)
 
 		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values});'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
 
 		# print("Query = ", query, queryAdditionalArgs)
 
+		if cur:
+			cur.execute(query, queryAdditionalArgs)
+			return
 
 		with self.transaction(commit=commit) as cur:
 			cur.execute(query, queryAdditionalArgs)
@@ -189,6 +194,8 @@ class MonitorDbBase(DbBase.DbBase):
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, dbId, commit=True, **kwargs):
+
+		cur = kwargs.pop('cur', None)
 
 		# lowercase the tags/genre
 		if "buGenre" in kwargs:
@@ -217,6 +224,10 @@ class MonitorDbBase(DbBase.DbBase):
 
 
 		query = '''UPDATE {t} SET {v} WHERE dbId=%s;'''.format(t=self.tableName, v=column)
+
+		if cur:
+			cur.execute(query, qArgs)
+			return
 
 		try:
 			with self.transaction(commit=commit) as cur:
@@ -252,8 +263,12 @@ class MonitorDbBase(DbBase.DbBase):
 
 
 	def getRowsByValue(self, **kwargs):
+		cur = kwargs.pop('cur', None)
+
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
+
+
 		validCols = ["dbId", "buName", "buId"]
 		key, val = kwargs.popitem()
 		if key not in validCols:
@@ -269,9 +284,14 @@ class MonitorDbBase(DbBase.DbBase):
 		query = '''SELECT {cols} FROM {tableN} WHERE {key}=%s{type};'''.format(cols=", ".join(self.validColName), tableN=self.tableName, key=key, type=typeSpecifier)
 		# print("Query = ", query)
 
-		with self.transaction() as cur:
+		if cur is None:
+			with self.transaction() as cur:
+				cur.execute(query, (val, ))
+				rets = cur.fetchall()
+		else:
 			cur.execute(query, (val, ))
 			rets = cur.fetchall()
+
 
 		retL = []
 		if rets:
@@ -381,28 +401,29 @@ class MonitorDbBase(DbBase.DbBase):
 
 
 			for name, mId in items:
-				row = self.getRowByValue(buId=mId)
+				row = self.getRowByValue(buId=mId, cur=cur)
 				if row:
 					if name.lower() != row["buName"].lower():
 						self.log.warning("Name disconnect!")
 						self.log.warning("New name='%s', old name='%s'.", name, row["buName"])
 						self.log.warning("Whole row=%s", row)
-						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0, cur=cur)
 
 				else:
-					row = self.getRowByValue(buName=name)
+					row = self.getRowByValue(buName=name, cur=cur)
 					if row:
 						self.log.error("Conflicting with existing series?")
 						self.log.error("Existing row = %s, %s", row["buName"], row["buId"])
 						self.log.error("Current item = %s, %s", name, mId)
-						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0, cur=cur)
 					else:
-						self.insertIntoDb(buName=name,
-										buId=mId,
-										lastChanged=0,
-										lastChecked=0,
-										itemAdded=time.time(),
-										commit=False)
+						self.insertIntoDb(buName    = name,
+										buId        = mId,
+										lastChanged = 0,
+										lastChecked = 0,
+										itemAdded   = time.time(),
+										commit      = False,
+										cur         = cur)
 						new += 1
 					# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
 

@@ -13,10 +13,10 @@ import settings
 import os.path
 import processDownload
 
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.RetreivalBase
 import nameTools as nt
 
-class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class Loader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
@@ -31,10 +31,6 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 	urlBase    = "http://yomanga.co/"
 	seriesBase = "http://yomanga.co/reader/directory/%s/"
-
-
-
-
 
 
 
@@ -83,7 +79,7 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 
 
-	def getContentForItem(self, url):
+	def getLink(self, url):
 		new = 0
 		total = 0
 
@@ -132,7 +128,7 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 		return ret
 
 
-	def getAllItems(self):
+	def go(self):
 		self.log.info( "Loading YoManga Items")
 
 
@@ -142,24 +138,13 @@ class Loader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		for item in seriesPages:
 
-			new, total     = self.getContentForItem(item)
+			new, total     = self.getLink(item)
 			tot_new       += new
 			total_overall += total
 
 		self.log.info("Found %s total items, %s of which were new", total_overall, tot_new)
 		return []
 
-
-	def go(self):
-
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
-
-		feedItems = self.getAllItems()
-		self.log.info("Processing feed Items")
-
-		self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
 
 
 if __name__ == '__main__':

@@ -23,7 +23,7 @@ import ScrapePlugins.SeriesRetreivalDbBase
 # Set to None to disable filtering (e.g. fetch ALL THE FILES).
 DOWNLOAD_ONLY_LANGUAGE = "English"
 
-class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
+class SeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 
 	loggerPath      = "Main.BtS.Se"
 	pluginName      = "Batoto Series Link Retreiver"
@@ -162,7 +162,7 @@ class BtSeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 		self.log.info("Found %s items for %s, %s were new.", items, row["seriesName"], newItems)
 
 
-	def go(self):
+	def do_fetch_content(self):
 
 
 		self.resetStuckSeriesItems()

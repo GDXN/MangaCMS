@@ -7,7 +7,7 @@ import time
 import settings
 import re
 import os.path
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.LoaderBase
 import ScrapePlugins.RunBase
 import nameTools as nt
 from concurrent.futures import ThreadPoolExecutor
@@ -54,7 +54,7 @@ HTTPS_CREDS = [
 	("https://manga.madokami.al", settings.mkSettings["login"], settings.mkSettings["passWd"]),
 	]
 
-class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 	wg = webFunctions.WebGetRobust(creds=HTTPS_CREDS)
 	loggerPath = "Main.Manga.Mk.Fl"
@@ -97,44 +97,9 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		return ret
 
-	def loadRemoteItems(self):
-		treedata = self.wg.getJson(self.tree_api)
-		assert 'contents' in treedata
-		assert treedata['name'] == 'mango'
-		assert treedata['type'] == 'directory'
-		data_unfiltered = self.process_tree_elements(treedata['contents'])
-
-		data = []
-		for sName, filen in data_unfiltered:
-			assert filen.startswith(STRIP_PREFIX)
-			filen = filen[len(STRIP_PREFIX):]
-			if not any([filen.startswith(prefix) for prefix in MASK_PATHS]):
-				sName = nt.getCanonicalMangaUpdatesName(sName)
-				data.append((sName, filen))
-
-		return data
 
 
-
-
-	def getMainItems(self):
-		# for item in items:
-		# 	self.log.info( item)
-		#
-
-		# Muck about in the webget internal settings
-		self.wg.errorOutCount = 4
-		self.wg.retryDelay    = 5
-
-		self.log.info( "Loading Madokami Main Feed")
-
-		items = self.loadRemoteItems()
-		self.processLinksIntoDB(items)
-
-
-
-
-	def processLinksIntoDB(self, linksDicts, isPicked=False):
+	def _processLinksIntoDB(self, linksDicts, isPicked=False):
 
 
 		# item["date"]     = time.time()
@@ -207,17 +172,31 @@ class MkFeedLoader(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
 
 		# return newItems
 
+	def setup(self):
 
-	def go(self):
+		# Muck about in the webget internal settings
+		self.wg.errorOutCount = 4
+		self.wg.retryDelay    = 5
 
-		self.resetStuckItems()
-		self.log.info("Getting feed items")
 
-		feedItems = self.getMainItems()
-		# self.log.info("Processing feed Items")
+	def getFeed(self):
+		treedata = self.wg.getJson(self.tree_api)
+		assert 'contents' in treedata
+		assert treedata['name'] == 'mango'
+		assert treedata['type'] == 'directory'
+		data_unfiltered = self.process_tree_elements(treedata['contents'])
 
-		# self.processLinksIntoDB(feedItems)
-		self.log.info("Complete")
+		data = []
+		for sName, filen in data_unfiltered:
+			assert filen.startswith(STRIP_PREFIX)
+			filen = filen[len(STRIP_PREFIX):]
+			if not any([filen.startswith(prefix) for prefix in MASK_PATHS]):
+				sName = nt.getCanonicalMangaUpdatesName(sName)
+				data.append((sName, filen))
+
+		return data
+
+
 
 
 

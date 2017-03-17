@@ -14,29 +14,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "GosLoader"
 
 
-	def _go(self):
-
-		self.log.info("Checking GoS feeds for updates")
-		fl = FeedLoader()
-		fl.go()
-
-		time.sleep(3)
-		#print "wat", cl
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-
-		if not runStatus.run:
-			return
-
-		todo = cl.retreiveTodoLinksFromDB()
-
-		if not runStatus.run:
-			return
-
-		cl.processTodoLinks(todo)
+	sourceName = "GameOfScanlations Scans"
+	feedLoader = FeedLoader
+	contentLoader = ContentLoader
 
 
 
