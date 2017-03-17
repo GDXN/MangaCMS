@@ -9,6 +9,7 @@ import re
 import runStatus
 import ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase
 import ScrapePlugins.RetreivalBase
+import ScrapePlugins.LoaderBase
 
 import ScrapePlugins.RunBase
 import settings
@@ -80,7 +81,7 @@ class ContentLoader(ScrapePlugins.M.FoolSlide.FoolSlideDownloadBase.FoolContentL
 
 
 
-class FeedLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
+class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 	dbName = settings.DATABASE_DB_NAME

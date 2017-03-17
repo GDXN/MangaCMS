@@ -1,6 +1,7 @@
 
 
 import ScrapePlugins.MangaScraperDbBase
+import ScrapePlugins.RetreivalBase
 import ScrapePlugins.M.IrcGrabber.IrcBot
 import irc.client
 
@@ -18,7 +19,7 @@ import processDownload
 
 import abc
 
-class DbWrapper(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
+class DbWrapper(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 	pluginName = "IrcDb Wrapper"
 
@@ -37,6 +38,8 @@ class DbWrapper(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 	# Have to define go (it's abstract in the parent). We're never going to call it, though.
 	def go(self):
+		pass
+	def getLink(self):
 		pass
 
 
