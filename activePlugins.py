@@ -155,16 +155,7 @@ if __name__ == "__main__":
 	run = [
 			# ScrapePlugins.M.CxLoader.Run,
 			# ScrapePlugins.M.ZenonLoader.Run,
-			ScrapePlugins.M.MangaBox.Run,
-			ScrapePlugins.M.YoMangaLoader.Run,
-			ScrapePlugins.M.GameOfScanlationLoader.Run,
-			ScrapePlugins.H.HBrowseLoader.Run,
-			ScrapePlugins.H.PururinLoader.Run,
-			ScrapePlugins.H.NHentaiLoader.Run,
-			ScrapePlugins.H.SadPandaLoader.Run,
-			ScrapePlugins.H.DjMoeLoader.Run,
 			ScrapePlugins.H.HitomiLoader.Run,
-			ScrapePlugins.H.DjMoeLoader.Retag,
 			ScrapePlugins.M.FoolSlide.Modules.CanisMajorRun,
 			ScrapePlugins.M.FoolSlide.Modules.ChibiMangaRun,
 			ScrapePlugins.M.FoolSlide.Modules.DokiRun,
@@ -189,6 +180,15 @@ if __name__ == "__main__":
 			ScrapePlugins.M.KissLoader.Run,
 			ScrapePlugins.M.Crunchyroll.Run,
 			ScrapePlugins.M.Kawaii.Run,
+			ScrapePlugins.M.MangaBox.Run,
+			ScrapePlugins.M.YoMangaLoader.Run,
+			ScrapePlugins.M.GameOfScanlationLoader.Run,
+			ScrapePlugins.H.HBrowseLoader.Run,
+			ScrapePlugins.H.PururinLoader.Run,
+			ScrapePlugins.H.NHentaiLoader.Run,
+			ScrapePlugins.H.SadPandaLoader.Run,
+			ScrapePlugins.H.DjMoeLoader.Run,
+			ScrapePlugins.H.DjMoeLoader.Retag,
 		]
 	signal.signal(signal.SIGINT, signal_handler)
 	import sys

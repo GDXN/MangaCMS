@@ -14,19 +14,10 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	loggerPath = "Main.Manga.DjM.Run"
 	pluginName = "DjMoe"
 
-	def _go(self):
 
-
-		#print "lawl", fl
-		fl = DbLoader()
-		fl.go()
-
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-		cl.go()
+	sourceName = "DoujinMoe"
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
 
 

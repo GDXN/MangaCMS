@@ -16,17 +16,9 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 	pluginName = "H-Browse"
 
 
-
-	def _go(self):
-		fl = DbLoader()
-		fl.go()
-
-
-		if not runStatus.run:
-			return
-
-		cl = ContentLoader()
-		cl.go()
+	sourceName = "H-Browse"
+	feedLoader = DbLoader
+	contentLoader = ContentLoader
 
 
 
