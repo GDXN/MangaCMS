@@ -14,19 +14,6 @@ class LoggerMixin(metaclass=abc.ABCMeta):
 		self.lastLoggerIndex = 1
 
 
-	def __getattribute__(self, name):
-
-		threadName = threading.current_thread().name
-		if name == "log" and "Thread-" in threadName:
-			if threadName not in self.loggers:
-				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
-				self.lastLoggerIndex += 1
-			return self.loggers[threadName]
-
-
-		else:
-			return super().__getattribute__(name)
-
 	@property
 	def log(self):
 

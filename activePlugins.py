@@ -153,8 +153,6 @@ if __name__ == "__main__":
 			raise KeyboardInterrupt
 
 	run = [
-			# ScrapePlugins.M.CxLoader.Run,
-			# ScrapePlugins.M.ZenonLoader.Run,
 			ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,
 			ScrapePlugins.M.FoolSlide.Modules.VortexRun,
 			ScrapePlugins.M.McLoader.Run,
@@ -189,6 +187,8 @@ if __name__ == "__main__":
 			ScrapePlugins.M.FoolSlide.Modules.MangazukiRun,
 			ScrapePlugins.M.MangaMadokami.Run,
 			ScrapePlugins.M.BooksMadokami.Run,
+			ScrapePlugins.M.CxLoader.Run,
+			ScrapePlugins.M.ZenonLoader.Run,
 		]
 	signal.signal(signal.SIGINT, signal_handler)
 	import sys

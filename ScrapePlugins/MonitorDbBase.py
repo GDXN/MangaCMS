@@ -20,9 +20,6 @@ class MonitorDbBase(DbBase.DbBase):
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
 
-	loggers = {}
-	dbConnections = {}
-	lastLoggerIndex = 1
 
 	@abc.abstractmethod
 	def pluginName(self):
@@ -51,8 +48,6 @@ class MonitorDbBase(DbBase.DbBase):
 	def __init__(self):
 		super().__init__()
 
-		self.loggers = {}
-		self.lastLoggerIndex = 1
 
 
 		self.log.info("Loading %s Monitor BaseClass", self.pluginName)
@@ -126,20 +121,6 @@ class MonitorDbBase(DbBase.DbBase):
 				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
 				self.lastLoggerIndex += 1
 			return self.loggers[threadName]
-
-
-		elif name == "conn":
-			if threadName not in self.dbConnections:
-
-				# First try local socket connection, fall back to a IP-based connection.
-				# That way, if the server is local, we get the better performance of a local socket.
-				try:
-					self.dbConnections[threadName] = psycopg2.connect(dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-				except psycopg2.OperationalError:
-					self.dbConnections[threadName] = psycopg2.connect(host=settings.DATABASE_IP, dbname=settings.DATABASE_DB_NAME, user=settings.DATABASE_USER,password=settings.DATABASE_PASS)
-
-				# self.dbConnections[threadName].autocommit = True
-			return self.dbConnections[threadName]
 
 
 		else:

@@ -116,13 +116,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
-	def go(self):
-
-		todo = self.retreiveTodoLinksFromDB()
-		if not runStatus.run:
-			return
-		self.processTodoLinks(todo)
-
 
 
 if __name__ == "__main__":

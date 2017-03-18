@@ -173,52 +173,10 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 		return
 
 
-	def fetchLink(self, link):
-
+	def setup(self):
 		# Muck about in the webget internal settings
 		self.wg.errorOutCount = 4
 		self.wg.retryDelay    = 5
-
-		try:
-			if link is None:
-				self.log.error("One of the items in the link-list is none! Wat?")
-				return
-
-			if not runStatus.run:
-				self.log.info("Breaking due to exit flag being set")
-				return
-
-			ret = self.getLink(link)
-			if ret == "Limited":
-				return
-
-			if not runStatus.run:
-				self.log.info( "Breaking due to exit flag being set")
-				return
-
-		except Exception:
-			self.log.critical("Exception!")
-			traceback.print_exc()
-			self.log.critical(traceback.format_exc())
-
-
-	def processTodoLinks(self, links):
-
-		if links:
-			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
-
-				for link in links:
-					executor.submit(self.fetchLink, link)
-
-				executor.shutdown(wait=True)
-
-
-	def go(self):
-
-		todo = self.retreiveTodoLinksFromDB()
-		if not runStatus.run:
-			return
-		self.processTodoLinks(todo)
 
 
 

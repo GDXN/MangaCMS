@@ -304,12 +304,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 	def setup(self):
 		self.wg.stepThroughCloudFlare(self.urlBase, titleContains="Hitomi")
 
-	# def go(self):
-
-	# 	newLinks = self.retreiveTodoLinksFromDB()
-	# 	if newLinks:
-	# 		self.processTodoLinks(newLinks)
-
 
 if __name__ == "__main__":
 	import utilities.testBase as tb

@@ -65,18 +65,36 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 	@abc.abstractmethod
 	def loggerPath(self):
 		return None
+	@abc.abstractmethod
+	def tableName(self):
+		return None
+	@abc.abstractmethod
+	def pluginName(self):
+		return None
+
+	def __del__(self):
+		for db_conn in self.db_connection_dict.values():
+			try:
+				db_conn.close()
+			except Exception:
+				pass
 
 	def __init__(self):
 		self.db_connection_dict = {}
 		super().__init__()
 
 		self.mon_con = graphitesend.init(
-				init_type       = 'pickle_tcp',
+				# init_type       = 'pickle_tcp',
 				autoreconnect   = True,
-				group           = "Scrapers",
-				prefix          = 'MangaCMS.{tableName}.{pluginName}'.format(tableName=self.tableName, pluginName=self.pluginName),
+				group           = None,
+				prefix          = 'MangaCMS.Scrapers.{tableName}.{pluginName}'.format(
+							tableName  = self.tableName.replace(".", "_"),
+							pluginName = self.pluginName.replace(".", "_")
+						),
 				system_name     = '',
-				graphite_server = settings.GRAPHITE_DB_IP
+				graphite_server = settings.GRAPHITE_DB_IP,
+				graphite_port   = 2003,
+				debug           = True
 			)
 		self.mon_con.connect()
 
@@ -117,3 +135,26 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 
 	def release_cursor(self, cursor):
 		self.__freeConn()
+
+
+class TestConn(DbBase):
+	loggerPath = "TestConn"
+	pluginName = "TestConn"
+	tableName = "testDb"
+
+def test_mon_con():
+	c = TestConn()
+	print(c)
+
+	newItems = 3
+
+	print("Doing send: ", c.mon_con, 'new_links.count', newItems)
+	print("Formatted: ->%s<-" % c.mon_con.formatter('new_links.count', newItems, None))
+	res = c.mon_con.send(metric='new_links.count', value=newItems)
+	print("Send return: ", res)
+	pass
+
+
+
+if __name__ == "__main__":
+	test_mon_con()

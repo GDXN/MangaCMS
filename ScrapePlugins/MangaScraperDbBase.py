@@ -55,19 +55,10 @@ class MangaScraperDbBase(DbBase.DbBase):
 		return None
 
 
-	def __del__(self):
-		for db_conn in self.dbConnections.values():
-			try:
-				db_conn.close()
-			except Exception:
-				pass
 
 	validKwargs = ["dlState", "sourceUrl", "retreivalTime", "lastUpdate", "sourceId", "seriesName", "fileName", "originName", "downloadPath", "flags", "tags", "note"]
 
 	def __init__(self):
-		self.lastLoggerIndex = 1
-		self.dbConnections = {}
-
 		super().__init__()
 
 		self.table = sql.Table(self.tableName.lower())

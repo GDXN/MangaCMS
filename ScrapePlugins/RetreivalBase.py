@@ -38,7 +38,7 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 	def setup(self):
 		pass
 
-	def retreiveTodoLinksFromDB(self):
+	def _retreiveTodoLinksFromDB(self):
 
 		# self.QUERY_DEBUG = True
 
@@ -66,7 +66,7 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 		return items
 
 
-	def fetchLink(self, link):
+	def _fetchLink(self, link):
 		try:
 			if link is None:
 				self.log.error("Worker received null task! Wat?")
@@ -75,9 +75,22 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 				self.log.warning("Skipping job due to die flag!")
 				return
 
-			self.getLink(link)
+			status = self.getLink(link)
 
-			self.mon_con.send('fetched_items.count', 1)
+
+			ret1 = None
+			if status == 'phash-duplicate':
+				ret1 = self.mon_con.send('phash_dup_items.count', 1)
+			elif status == 'binary-duplicate':
+				ret1 = self.mon_con.send('bin_dup_items.count', 1)
+
+			# We /always/ send the "fetched_items" count entry.
+			# However, the deduped result is only send if the item is actually deduped.
+			ret2 = self.mon_con.send('fetched_items.count', 1)
+			self.log.info("Retreival complete. Sending log results:")
+			if ret1:
+				self.log.info("	-> %s", ret1)
+			self.log.info("	-> %s", ret2)
 
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
@@ -96,7 +109,8 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 			raise
 
 		except Exception:
-			self.mon_con.send('failed_items.count', 1)
+			ret = self.mon_con.send('failed_items.count', 1)
+			self.log.critical("Sending log result: %s", ret)
 
 			self.log.critical("Exception!")
 			traceback.print_exc()
@@ -110,7 +124,7 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 			with ThreadPoolExecutor(max_workers=self.retreivalThreads) as executor:
 
 				for link in links:
-					executor.submit(self.fetchLink, link)
+					executor.submit(self._fetchLink, link)
 
 				executor.shutdown(wait=True)
 
@@ -177,7 +191,7 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 		if hasattr(self, 'setup'):
 			self.setup()
 
-		todo = self.retreiveTodoLinksFromDB()
+		todo = self._retreiveTodoLinksFromDB()
 		if not runStatus.run:
 			return
 		if todo:
