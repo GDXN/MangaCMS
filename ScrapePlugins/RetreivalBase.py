@@ -80,13 +80,13 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 			ret1 = None
 			if status == 'phash-duplicate':
-				ret1 = self.mon_con.send('phash_dup_items.count', 1)
+				ret1 = self.mon_con.incr('phash_dup_items', 1)
 			elif status == 'binary-duplicate':
-				ret1 = self.mon_con.send('bin_dup_items.count', 1)
+				ret1 = self.mon_con.incr('bin_dup_items', 1)
 
 			# We /always/ send the "fetched_items" count entry.
 			# However, the deduped result is only send if the item is actually deduped.
-			ret2 = self.mon_con.send('fetched_items.count', 1)
+			ret2 = self.mon_con.incr('fetched_items', 1)
 			self.log.info("Retreival complete. Sending log results:")
 			if ret1:
 				self.log.info("	-> %s", ret1)
@@ -109,7 +109,7 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 			raise
 
 		except Exception:
-			ret = self.mon_con.send('failed_items.count', 1)
+			ret = self.mon_con.incr('failed_items', 1)
 			self.log.critical("Sending log result: %s", ret)
 
 			self.log.critical("Exception!")
@@ -194,6 +194,12 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 		todo = self._retreiveTodoLinksFromDB()
 		if not runStatus.run:
 			return
+
+		if not todo:
+
+			ret = self.mon_con.incr('fetched_items.count', 0)
+			self.log.info("No links to fetch. Sending null result: %s", ret)
+
 		if todo:
 			self.processTodoLinks(todo)
 		self.log.info("ContentRetreiver for %s has finished.", self.pluginName)

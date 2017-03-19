@@ -153,19 +153,6 @@ if __name__ == "__main__":
 			raise KeyboardInterrupt
 
 	run = [
-			ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,
-			ScrapePlugins.M.FoolSlide.Modules.VortexRun,
-			ScrapePlugins.M.McLoader.Run,
-			ScrapePlugins.M.MangaHere.Run,
-			ScrapePlugins.M.WebtoonLoader.Run,
-			ScrapePlugins.M.DynastyLoader.Run,
-			ScrapePlugins.M.KissLoader.Run,
-			ScrapePlugins.M.Crunchyroll.Run,
-			ScrapePlugins.M.Kawaii.Run,
-			ScrapePlugins.M.MangaBox.Run,
-			ScrapePlugins.M.YoMangaLoader.Run,
-			ScrapePlugins.M.GameOfScanlationLoader.Run,
-			ScrapePlugins.H.HBrowseLoader.Run,
 			ScrapePlugins.H.PururinLoader.Run,
 			ScrapePlugins.H.NHentaiLoader.Run,
 			ScrapePlugins.H.SadPandaLoader.Run,
@@ -189,6 +176,19 @@ if __name__ == "__main__":
 			ScrapePlugins.M.BooksMadokami.Run,
 			ScrapePlugins.M.CxLoader.Run,
 			ScrapePlugins.M.ZenonLoader.Run,
+			ScrapePlugins.M.FoolSlide.Modules.TwistedHelRun,
+			ScrapePlugins.M.FoolSlide.Modules.VortexRun,
+			ScrapePlugins.M.McLoader.Run,
+			ScrapePlugins.M.MangaHere.Run,
+			ScrapePlugins.M.WebtoonLoader.Run,
+			ScrapePlugins.M.DynastyLoader.Run,
+			ScrapePlugins.M.KissLoader.Run,
+			ScrapePlugins.M.Crunchyroll.Run,
+			ScrapePlugins.M.Kawaii.Run,
+			ScrapePlugins.M.MangaBox.Run,
+			ScrapePlugins.M.YoMangaLoader.Run,
+			ScrapePlugins.M.GameOfScanlationLoader.Run,
+			ScrapePlugins.H.HBrowseLoader.Run,
 		]
 	signal.signal(signal.SIGINT, signal_handler)
 	import sys

@@ -6,7 +6,7 @@ import LogBase
 import threading
 import dbPool
 import traceback
-import graphitesend
+import statsd
 import settings
 
 class TransactionMixin(object, metaclass=abc.ABCMeta):
@@ -83,22 +83,28 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 		self.db_connection_dict = {}
 		super().__init__()
 
-		self.mon_con = graphitesend.init(
-				# init_type       = 'pickle_tcp',
-				autoreconnect   = True,
-				group           = None,
-				prefix          = 'MangaCMS.Scrapers.{tableName}.{pluginName}'.format(
+		# self.mon_con = graphitesend.GraphitePickleClient(
+		# 		autoreconnect   = True,
+		# 		group           = None,
+		# 		prefix          = 'MangaCMS.Scrapers.{tableName}.{pluginName}'.format(
+		# 					tableName  = self.tableName.replace(".", "_"),
+		# 					pluginName = self.pluginName.replace(".", "_")
+		# 				),
+		# 		system_name     = '',
+		# 		graphite_server = settings.GRAPHITE_DB_IP,
+		# 		graphite_port   = 2003,
+		# 		debug           = True
+		# 	)
+		# self.mon_con.connect()
+
+		self.mon_con = statsd.StatsClient(
+				host = settings.GRAPHITE_DB_IP,
+				port = 8125,
+				prefix = 'MangaCMS.Scrapers.{tableName}.{pluginName}'.format(
 							tableName  = self.tableName.replace(".", "_"),
-							pluginName = self.pluginName.replace(".", "_")
-						),
-				system_name     = '',
-				graphite_server = settings.GRAPHITE_DB_IP,
-				graphite_port   = 2003,
-				debug           = True
-			)
-		self.mon_con.connect()
-
-
+							pluginName = self.pluginName.replace(".", "_"),
+						)
+				)
 
 	def __del__(self):
 		if hasattr(self, 'db_connection_dict'):
@@ -146,12 +152,12 @@ def test_mon_con():
 	c = TestConn()
 	print(c)
 
-	newItems = 3
+	for newItems in range(5):
+		# newItems = 9
 
-	print("Doing send: ", c.mon_con, 'new_links.count', newItems)
-	print("Formatted: ->%s<-" % c.mon_con.formatter('new_links.count', newItems, None))
-	res = c.mon_con.send(metric='new_links.count', value=newItems)
-	print("Send return: ", res)
+		print("Doing send: ", c.mon_con, 'new_links', newItems)
+		res = c.mon_con.incr('new_links', 0)
+		print("Send return: ", res)
 	pass
 
 

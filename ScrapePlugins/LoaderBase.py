@@ -61,7 +61,7 @@ class LoaderBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 
-		ret = self.mon_con.send(metric='new_links.count', value=newItems)
+		# ret = self.mon_con.send(metric='new_links.count', value=newItems)
 
 		self.log.info( "Done (%s new items, update: %s)", newItems, ret)
 
