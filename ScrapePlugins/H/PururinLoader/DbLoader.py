@@ -53,7 +53,7 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 	def parseLinkLi(self, linkLi):
 		ret = {}
-		ret["seriesName"] = " / ".join(linkLi.h2.strings) # Messy hack to replace <br> tags with a ' / "', rather then just removing them.
+		ret["originName"] = " / ".join(linkLi.h2.strings) # Messy hack to replace <br> tags with a ' / "', rather then just removing them.
 		ret["sourceUrl"] = urllib.parse.urljoin(self.urlBase, linkLi.a["href"])
 		ret["retreivaltime"] = time.time()
 
