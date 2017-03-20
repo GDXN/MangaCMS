@@ -167,7 +167,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 		note = self.getNote(soup)
 		tags = ' '.join(tags)
 
-		linkDict['title'] = self.getFileName(soup)
+		linkDict['originName'] = self.getFileName(soup)
 		linkDict['dirPath'] = os.path.join(settings.puSettings["dlDir"], nt.makeFilenameSafe(category))
 
 		if not os.path.exists(linkDict["dirPath"]):
@@ -235,7 +235,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			linkDict = self.getDownloadInfo(linkDict)
 
 			images = self.getImages(linkDict)
-			title = linkDict['title']
+			title = linkDict['originName']
 		except webFunctions.ContentError:
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-2, downloadPath="ERROR", fileName="ERROR: FAILED")
 			return False
