@@ -13,8 +13,6 @@ import deduplicator.archChecker
 
 
 class DirDeduper(DbBase.DbBase):
-	loggerPath = "Main.DirDedup"
-	tableName  = "MangaItems"
 
 
 	def addTag(self, srcPath, newTags):
@@ -57,10 +55,24 @@ class DirDeduper(DbBase.DbBase):
 					tags = ''
 				tags = set(tags.split())
 				for tag in newTags.split():
-					tags.add(tag.lower())
+					if tag:
+						tags.add(tag.lower())
 
 				cur.execute('''UPDATE {tableName} SET tags=%s WHERE dbId=%s;'''.format(tableName=self.tableName), (" ".join(tags), rowId))
 			cur.execute("COMMIT;")
+
+
+	def removeTag(self, dbid, deltag):
+
+		with self.transaction() as cur:
+			cur.execute('''SELECT dbId, tags FROM {tableName} WHERE dbid=%s;'''.format(tableName=self.tableName), (dbid, ))
+			rows = cur.fetchall()
+
+
+
+		print(rows)
+		raise RuntimeError("IMPLEMENT ME!")
+
 
 	def setupDbApi(self):
 		pass
@@ -149,30 +161,62 @@ class DirDeduper(DbBase.DbBase):
 			except KeyboardInterrupt:
 				raise
 
-	def cleanHHistory(self, delDir):
+	def cleanHHistory(self):
 		self.log.info("Querying for items.")
 		with self.context_cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE sourcesite='sp' ORDER BY dbid ASC")
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems ORDER BY dbid ASC")
 			ret = cur.fetchall()
 
 		for dbid, filename, downloadpath, tags in ret:
+			taglist = tags.split()
 
-			if tags and 'was-duplicate' in tags.split():
+			fpath = os.path.join(downloadpath, filename)
+
+			if tags and 'dup-checked' in taglist:
+				self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
+				continue
+
+			if tags and 'was-duplicate' in taglist:
 				continue
 
 			if not filename or not downloadpath:
 				self.log.error("Invalid path info: '%s', '%s'", downloadpath, filename)
 
-			fpath = os.path.join(downloadpath, filename)
+
 			if not os.path.exists(fpath):
 				continue
 
+
 			proc = processDownload.HentaiProcessor()
 			tags = proc.processDownload(seriesName=None, archivePath=fpath)
+			tags += " dup-checked"
 			self.log.info("Adding tags: '%s'", tags)
 			self.addTag(fpath, tags)
 
+		self.globalRemoveHTag('dup-checked')
 
+	def globalRemoveHTag(self, bad_tag):
+		assert bad_tag
+
+		self.log.info("Querying for items.")
+		with self.context_cursor() as cur:
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems ORDER BY dbid ASC")
+			ret = cur.fetchall()
+
+
+		for dbid, filename, downloadpath, tags in ret:
+			if not all([filename, downloadpath, tags]):
+				continue
+			taglist = tags.split()
+			fpath = os.path.join(downloadpath, filename)
+			if not taglist:
+				continue
+			if not bad_tag in taglist:
+				continue
+
+			self.log.info("Stripping tag from %s", fpath)
+			self.removeTag(dbid, bad_tag)
+		self.log.info("Scanned %s rows", len(ret))
 
 	def purgeDedupTempsMd5Hash(self, dirPath):
 
@@ -390,97 +434,99 @@ class DirDeduper(DbBase.DbBase):
 
 
 
+class MDirDeduper(DirDeduper):
+	loggerPath = "Main.MDirDedup"
+	tableName  = "MangaItems"
+	pluginName = "MDirDeduper"
+
+
 class HDirDeduper(DirDeduper):
 	loggerPath = "Main.HDirDedup"
 	tableName  = "HentaiItems"
+	pluginName = "HDirDeduper"
 
 
 def runRestoreDeduper(sourcePath):
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
-
 	dd.restoreDirectory(sourcePath)
 
-	dd.closeDB()
+
 
 def runDeduper(basePath, deletePath):
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
-
 	dd.cleanDirectory(basePath, deletePath)
 
-	dd.closeDB()
+
 
 def runSrcDeduper(sourceKey, deletePath):
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
-
 	dd.cleanBySourceKey(sourceKey, deletePath)
 
-	dd.closeDB()
 
-def runHDeduper(deletePath):
+
+def runHDeduper():
 
 	dd = HDirDeduper()
-	dd.openDB()
 	dd.setupDbApi()
+	dd.cleanHHistory()
 
-	dd.cleanHHistory(deletePath)
 
-	dd.closeDB()
 
 
 def purgeDedupTemps(basePath):
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
 	dd.purgeDedupTempsMd5Hash(basePath)
-	dd.closeDB()
+
 
 def purgeDedupTempsPhash(basePath):
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
 	dd.purgeDupDirPhash(basePath)
-	dd.closeDB()
+
 
 def moveUnlinkable(dirPath, toPath):
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
 	dd.moveUnlinkableDirectories(dirPath, toPath)
-	dd.closeDB()
+
 
 def runSingleDirDeduper(dirPath, deletePath):
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
 	if not os.path.isdir(dirPath):
 		raise ValueError("Passed path is not a directory! Path: '%s'" % dirPath)
 
 	dd.cleanSingleDir(dirPath, deletePath)
 
-	dd.closeDB()
+
 
 
 
 
 def reprocessHFailed():
 
-	dd = DirDeduper()
-	dd.openDB()
+	dd = MDirDeduper()
 	dd.setupDbApi()
-
 	dd.reprocessFailedH()
 
-	dd.closeDB()
+
+
+if __name__ == '__main__':
+	import logSetup
+	logSetup.initLogging()
+
+	dd = HDirDeduper()
+	dd.globalRemoveHTag("dup-checked")
+
+

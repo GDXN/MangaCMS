@@ -3,7 +3,7 @@ import rpyc
 import time
 import os.path
 import os
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 import settings
 
 def go():
@@ -11,7 +11,7 @@ def go():
 	print("exiting")
 
 
-class RemoteInt(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class RemoteInt(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 	loggerPath = "Main.DirDedup"
 	tableName  = "MangaItems"
 

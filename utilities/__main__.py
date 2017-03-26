@@ -75,13 +75,11 @@ def printHelp():
 	print("		Scan the contents of {src-path}, and try to infer the series for each subdirectory.")
 	print("		If a subdir has no matching series, move it to {to-path}")
 	print("	")
-	print("	h-clean {del-dir}")
+	print("	h-clean")
 	print("		Walk through the historical H items and remove superceded duplicates.")
 	print("		Processing is done in DB-ID order, which is roughtly chronological..")
-	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
-	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
 	print("	")
-	print("	k-clean {del-dir}")
+	print("	k-clean")
 	print("		Functions identically to the h-cleaner, but operates on the kissmange database entries")
 	print("	")
 	print("	src-clean {source-key} {del-dir}")
@@ -175,7 +173,6 @@ def parseOneArgCall(cmd):
 
 
 	pc = utilities.cleanDb.PathCleaner()
-	pc.openDB()
 
 	if mainArg.lower() == "reset-missing":
 		pc.resetMissingDownloads()
@@ -214,10 +211,12 @@ def parseOneArgCall(cmd):
 		cleaner.cleanTags()
 	elif mainArg.lower() == "rescan-failed-h":
 		utilities.dedupDir.reprocessHFailed()
+	elif mainArg.lower() == "h-clean":
+		utilities.dedupDir.runHDeduper()
+		return
 	else:
 		print("Unknown arg!")
 
-	pc.closeDB()
 
 def parseTwoArgCall(cmd, val):
 	if cmd == "import":
@@ -288,12 +287,6 @@ def parseTwoArgCall(cmd, val):
 		utilities.cleanFiles.cleanArchives(val)
 		return
 
-	elif cmd == "h-clean":
-		if not os.path.exists(val):
-			print("Passed path '%s' does not exist!" % val)
-			return
-		utilities.dedupDir.runHDeduper(val)
-		return
 
 	else:
 		print("Did not understand command!")

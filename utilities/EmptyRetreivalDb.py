@@ -1,10 +1,10 @@
 
 
 import settings
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 
 
-class ScraperDbTool(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class ScraperDbTool(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 	loggerPath       = "Main.Util.Base"

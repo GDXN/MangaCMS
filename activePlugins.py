@@ -210,7 +210,7 @@ if __name__ == "__main__":
 					print()
 					print("Wat?")
 					traceback.print_exc()
-					raise
+					# raise
 					print("Continuing on with next source.")
 
 	except:

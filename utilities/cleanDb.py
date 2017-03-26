@@ -13,7 +13,7 @@ runStatus.preloadDicts = False
 import traceback
 import re
 import DbBase
-import ScrapePlugins.RetreivalDbBase
+import ScrapePlugins.MangaScraperDbBase
 import nameTools as nt
 import shutil
 import settings
@@ -27,7 +27,7 @@ import processDownload
 class PathCleaner(DbBase.DbBase):
 	loggerPath = "Main.Pc"
 	tableName  = "MangaItems"
-
+	pluginName = "PathCleanerUtil"
 
 	def moveFile(self, srcPath, dstPath):
 		dlPath, fName = os.path.split(srcPath)
@@ -492,7 +492,7 @@ class PathCleaner(DbBase.DbBase):
 
 
 
-class HCleaner(ScrapePlugins.RetreivalDbBase.ScraperDbBase):
+class HCleaner(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 	loggerPath = "Main.Pc"
 	tableName  = "HentaiItems"
 	pluginName = "None"

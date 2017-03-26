@@ -7,7 +7,7 @@ if __name__ == "__main__":
 	logSetup.initLogging()
 
 import shutil
-import ScrapePlugins.DbBase
+import DbBase
 import os
 import nameTools as nt
 import processDownload
@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import Levenshtein as lv
 
-class ItemImporter(ScrapePlugins.DbBase.DbBase):
+class ItemImporter(DbBase.DbBase):
 	loggerPath = "Main.ItemImporter"
 	tableName  = "MangaItems"
 
