@@ -82,6 +82,9 @@ def printHelp():
 	print("	k-clean")
 	print("		Functions identically to the h-cleaner, but operates on the kissmange database entries")
 	print("	")
+	print("	m-clean")
+	print("		And for cleaning all manga items.")
+	print("	")
 	print("	src-clean {source-key} {del-dir}")
 	print("		Find duplicates for all the items downloaded under the key {source-key}, and remove them.")
 	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
@@ -213,7 +216,10 @@ def parseOneArgCall(cmd):
 		utilities.dedupDir.reprocessHFailed()
 	elif mainArg.lower() == "h-clean":
 		utilities.dedupDir.runHDeduper()
-		return
+	elif mainArg.lower() == "k-clean":
+		utilities.dedupDir.runKissDeduper()
+	elif mainArg.lower() == "m-clean":
+		utilities.dedupDir.runMDeduper()
 	else:
 		print("Unknown arg!")
 

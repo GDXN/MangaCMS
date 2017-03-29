@@ -77,7 +77,7 @@ class DirDeduper(DbBase.DbBase):
 	def setupDbApi(self):
 		pass
 
-	def cleanDirectory(self, dirPath, delDir, includePhash=False, pathPositiveFilter=['']):
+	def cleanDirectory(self, dirPath, includePhash=False, pathPositiveFilter=['']):
 
 		self.log.info("Cleaning path '%s'", dirPath)
 		items = os.listdir(dirPath)
@@ -86,11 +86,11 @@ class DirDeduper(DbBase.DbBase):
 			item = os.path.join(dirPath, item)
 			if os.path.isdir(item):
 				print("Scanning", item)
-				self.cleanSingleDir(item, delDir, includePhash, pathPositiveFilter)
+				self.cleanSingleDir(item, includePhash, pathPositiveFilter)
 
 
 
-	def cleanSingleDir(self, dirPath, delDir, includePhash=True, pathPositiveFilter=['']):
+	def cleanSingleDir(self, dirPath, includePhash=True, pathPositiveFilter=['']):
 
 		self.log.info("Processing subdirectory '%s'", dirPath)
 		if not dirPath.endswith("/"):
@@ -103,7 +103,7 @@ class DirDeduper(DbBase.DbBase):
 		dirs = [i for i in items if os.path.isdir(i)]
 		self.log.info("Recursing into %s subdirectories!", len(dirs))
 		for subDir in dirs:
-			self.cleanSingleDir(subDir, delDir, includePhash, pathPositiveFilter)
+			self.cleanSingleDir(subDir, includePhash, pathPositiveFilter)
 
 
 		parsedItems = [(os.path.getsize(i), i) for i in items if os.path.isfile(i)]
@@ -126,40 +126,40 @@ class DirDeduper(DbBase.DbBase):
 			except KeyboardInterrupt:
 				raise
 
-	def cleanBySourceKey(self, sourceKey, delDir, includePhash=True, pathPositiveFilter=['']):
+	def cleanBySourceKey(self, sourceKey, includePhash=True, pathPositiveFilter=['']):
 
 		self.log.info("Getting fetched items from database for source: %s", sourceKey)
 		with self.context_cursor() as cur:
-			cur.execute('''SELECT dbid, filename, downloadpath FROM mangaitems WHERE sourcesite=%s;''', (sourceKey, ))
+			cur.execute('''SELECT dbid, filename, downloadpath, tags FROM mangaitems WHERE sourcesite=%s;''', (sourceKey, ))
 			ret = cur.fetchall()
 
-		self.log.info("Retreived %s items. Doing existance validation", len(ret))
+		for dbid, filename, downloadpath, tags in ret:
+			taglist = tags.split()
 
-		loops = 0
-		parsedItems = []
-		for dbId, fName, fPath in ret:
-			if not fName or not fPath:
+			fpath = os.path.join(downloadpath, filename)
+
+			if tags and 'dup-checked' in taglist:
+				self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
 				continue
-			fqpath = os.path.join(fPath, fName)
-			if not os.path.exists(fqpath):
+
+			if tags and 'was-duplicate' in taglist:
 				continue
-			parsedItems.append((dbId, fqpath))
-			if loops % 500 == 0:
-				self.log.info("Checked %s files (out of %s)", loops, len(ret))
 
-			loops += 1
+			if not filename or not downloadpath:
+				self.log.error("Invalid path info: '%s', '%s'", downloadpath, filename)
 
-		for dummy_num, basePath in parsedItems:
-			try:
 
-				self.log.info("Scanning '%s'", basePath)
+			if not os.path.exists(fpath):
+				continue
 
-				proc = processDownload.MangaProcessor()
-				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=pathPositiveFilter)
-				self.addTag(basePath, tags)
 
-			except KeyboardInterrupt:
-				raise
+			proc = processDownload.MangaProcessor()
+			tags = proc.processDownload(seriesName=None, archivePath=fpath, doUpload=False)
+			tags += " dup-checked"
+			self.log.info("Adding tags: '%s'", tags)
+			self.addTag(fpath, tags)
+
+		self.globalRemoveHTag('dup-checked')
 
 	def cleanHHistory(self):
 		self.log.info("Querying for items.")
@@ -189,6 +189,40 @@ class DirDeduper(DbBase.DbBase):
 
 			proc = processDownload.HentaiProcessor()
 			tags = proc.processDownload(seriesName=None, archivePath=fpath)
+			tags += " dup-checked"
+			self.log.info("Adding tags: '%s'", tags)
+			self.addTag(fpath, tags)
+
+		self.globalRemoveHTag('dup-checked')
+
+	def cleanMHistory(self):
+		self.log.info("Querying for items.")
+		with self.context_cursor() as cur:
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM mangaitems ORDER BY dbid ASC")
+			ret = cur.fetchall()
+
+		for dbid, filename, downloadpath, tags in ret:
+			taglist = tags.split()
+
+			fpath = os.path.join(downloadpath, filename)
+
+			if tags and 'dup-checked' in taglist:
+				self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
+				continue
+
+			if tags and 'was-duplicate' in taglist:
+				continue
+
+			if not filename or not downloadpath:
+				self.log.error("Invalid path info: '%s', '%s'", downloadpath, filename)
+
+
+			if not os.path.exists(fpath):
+				continue
+
+
+			proc = processDownload.MangaProcessor()
+			tags = proc.processDownload(seriesName=None, archivePath=fpath, doUpload=False)
 			tags += " dup-checked"
 			self.log.info("Adding tags: '%s'", tags)
 			self.addTag(fpath, tags)
@@ -454,20 +488,25 @@ def runRestoreDeduper(sourcePath):
 
 
 
-def runDeduper(basePath, deletePath):
+def runMDeduper():
 
 	dd = MDirDeduper()
 	dd.setupDbApi()
-	dd.cleanDirectory(basePath, deletePath)
+	dd.cleanMHistory()
 
 
 
-def runSrcDeduper(sourceKey, deletePath):
+def runSrcDeduper(sourceKey):
 
 	dd = MDirDeduper()
 	dd.setupDbApi()
-	dd.cleanBySourceKey(sourceKey, deletePath)
+	dd.cleanBySourceKey(sourceKey)
 
+
+
+def runKissDeduper():
+
+	runSrcDeduper("ki")
 
 
 def runHDeduper():
