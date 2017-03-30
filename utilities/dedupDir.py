@@ -130,10 +130,13 @@ class DirDeduper(DbBase.DbBase):
 
 		self.log.info("Getting fetched items from database for source: %s", sourceKey)
 		with self.context_cursor() as cur:
-			cur.execute('''SELECT dbid, filename, downloadpath, tags FROM mangaitems WHERE sourcesite=%s;''', (sourceKey, ))
+			cur.execute('''SELECT dbid, filename, downloadpath, tags FROM mangaitems WHERE sourcesite=%s and dlstate=2;''', (sourceKey, ))
 			ret = cur.fetchall()
-
+		self.log.info("Found %s items from source %s.", len(ret), sourceKey)
 		for dbid, filename, downloadpath, tags in ret:
+			if not tags:
+				tags = ""
+
 			taglist = tags.split()
 
 			fpath = os.path.join(downloadpath, filename)
@@ -164,10 +167,14 @@ class DirDeduper(DbBase.DbBase):
 	def cleanHHistory(self):
 		self.log.info("Querying for items.")
 		with self.context_cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems ORDER BY dbid ASC")
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE dlstate=2 ORDER BY dbid ASC")
 			ret = cur.fetchall()
 
 		for dbid, filename, downloadpath, tags in ret:
+			if not tags:
+				tags = ""
+
+
 			taglist = tags.split()
 
 			fpath = os.path.join(downloadpath, filename)
