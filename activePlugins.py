@@ -1,7 +1,6 @@
 
 
 if __name__ == "__main__":
-
 	import logSetup
 	logSetup.initLogging()
 
@@ -15,6 +14,7 @@ import ScrapePlugins.H.SadPandaLoader.Run
 import ScrapePlugins.H.NHentaiLoader.Run
 import ScrapePlugins.H.HBrowseLoader.Run
 import ScrapePlugins.H.HitomiLoader.Run
+import ScrapePlugins.H.ASMHentaiLoader.Run
 
 
 import ScrapePlugins.M.McLoader.Run
@@ -79,7 +79,7 @@ scrapePlugins = {
 	16  : (ScrapePlugins.M.MangaHere.Run,                       hours(12)),
 	17  : (ScrapePlugins.M.WebtoonLoader.Run,                   hours( 8)),
 	18  : (ScrapePlugins.M.DynastyLoader.Run,                   hours( 8)),
-	19  : (ScrapePlugins.M.KissLoader.Run,                      hours( 1)),
+	# 19  : (ScrapePlugins.M.KissLoader.Run,                      hours( 1)),
 	20  : (ScrapePlugins.M.Crunchyroll.Run,                     hours( 4)),
 	22  : (ScrapePlugins.M.Kawaii.Run,                          hours(12)),
 	23  : (ScrapePlugins.M.ZenonLoader.Run,                     hours(24)),
@@ -94,6 +94,7 @@ scrapePlugins = {
 	45  : (ScrapePlugins.H.SadPandaLoader.Run,                  hours(12)),
 	46  : (ScrapePlugins.H.DjMoeLoader.Run,                     hours( 4)),
 	47  : (ScrapePlugins.H.HitomiLoader.Run,                    hours( 4)),
+	48  : (ScrapePlugins.H.ASMHentaiLoader.Run,                 hours( 4)),
 	55  : (ScrapePlugins.H.DjMoeLoader.Retag,                   hours(24)),
 
 	# FoolSlide modules

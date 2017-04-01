@@ -101,6 +101,13 @@ if not ratingsSort['tokey'] in mangaFolders:
 	raise ValueError("ratingsSort tokey must be present in the mangaFolders dict.")
 
 
+captcha_solvers = {
+	"2captcha" : {
+		'api_key' : "<KEY GOES HERE>"
+	}
+
+}
+
 
 tagHighlight = [
 	"tags",

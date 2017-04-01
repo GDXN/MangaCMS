@@ -569,6 +569,18 @@ sidebarItemList = [
 			'type'          : 'Porn'
 		},
 
+		{
+			"num"           : 111,
+			'dbKey'         : "ASMHentai",
+			'name'          : "ASMHentai",
+			'dictKey'       : "asmh",
+			'cssClass'      : "asmhId",
+			'showOnHome'    : True,
+			'renderSideBar' : True,
+			'genRow'        : True,
+			'type'          : 'Porn'
+		},
+
 
 	]
 
