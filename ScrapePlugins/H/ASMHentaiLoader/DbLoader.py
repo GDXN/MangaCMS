@@ -173,16 +173,20 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 		return ret
 
+def process(runner, pageOverride, time_offset):
+	print("Executing with page offset: pageOverride")
+	res = runner.getFeed(pageOverride=pageOverride, filter_eng=False, time_offset=time_offset)
+	print("Received %s results!" % len(res))
+	runner._processLinksIntoDB(res)
+
 
 def getHistory():
-
+	print("Getting history")
 	run = DbLoader()
-	# dat = run.getFeed()
-	# print(dat)
-	with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-		futures = [executor.submit(run.getFeed, pageOverride=x, filter_eng=False, time_offset=time.time()) for x in range(0, 8880)]
-		for res in futures:
-			run._processLinksIntoDB(res.result())
+	with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+		futures = [executor.submit(process, runner=run, pageOverride=x, time_offset=time.time()) for x in range(8880, 0, -1)]
+		print("Waiting for executor to finish.")
+		executor.shutdown()
 
 def test():
 	print("Test!")
