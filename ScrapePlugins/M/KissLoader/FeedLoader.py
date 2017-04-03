@@ -212,9 +212,9 @@ Not found
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup():
+	with tb.testSetup(load=False):
 		fl = FeedLoader()
-		fl.go(historical=True)
+		fl.do_fetch_feeds(historical=False)
 		# fl.go(historical=True)
 		# fl.getSeriesUrls()
 

@@ -14,6 +14,7 @@ import os.path
 import nameTools as nt
 
 import time
+import sys
 
 import urllib.parse
 import html.parser
@@ -25,9 +26,12 @@ import json
 import ScrapePlugins.RetreivalBase
 from mimetypes import guess_extension
 from concurrent.futures import ThreadPoolExecutor
+import ScrapePlugins.ScrapeExceptions as ScrapeExceptions
 
 import processDownload
 import magic
+
+import execjs
 
 class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
@@ -41,9 +45,64 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 	wg = webFunctions.WebGetRobust(logPath=loggerPath+".Web")
 
-	retreivalThreads = 2
+	retreivalThreads = 3
 
-	itemLimit = 250
+	itemLimit = 200
+
+	def check_recaptcha(self, pgurl, soup=None, markup=None):
+		if markup:
+			soup = webFunctions.as_soup(markup)
+		if not soup:
+			raise RuntimeError("You have to pass either the raw page markup, or a pre-parsed bs4 soup object!")
+
+		capdiv = soup.find("div", class_='g-recaptcha')
+		if not capdiv:
+			if markup:
+				return markup
+			return soup
+
+		raise ScrapeExceptions.LimitedException("Encountered ReCaptcha! Cannot circumvent!")
+
+		self.log.warning("Found ReCaptcha div. Need to circumvent.")
+		sitekey = capdiv['data-sitekey']
+
+		# soup.find("")
+
+
+		params = {
+			'key'       : settings.captcha_solvers['2captcha']['api_key'],
+			'method'    : 'userrecaptcha',
+			'googlekey' : sitekey,
+			'pageurl'   : pgurl,
+			'json'      : 1,
+		}
+
+		# self.wg.getJson("https://2captcha.com/in.php", postData=params)
+
+		# # here we post site key to 2captcha to get captcha ID (and we parse it here too)
+		# captcha_id = s.post("?key={}&method=userrecaptcha&googlekey={}&pageurl={}".format(API_KEY, site_key, url), proxies=proxy).text.split('|')[1]
+
+		# # then we parse gresponse from 2captcha response
+		# recaptcha_answer = s.get("http://2captcha.com/res.php?key={}&action=get&id={}".format(API_KEY, captcha_id), proxies=proxy).text
+		# print("solving ref captcha...")
+		# while 'CAPCHA_NOT_READY' in recaptcha_answer:
+		# 	sleep(5)
+		# 	recaptcha_answer = s.get("http://2captcha.com/res.php?key={}&action=get&id={}".format(API_KEY, captcha_id), proxies=proxy).text
+		# recaptcha_answer = recaptcha_answer.split('|')[1]
+
+		# # we make the payload for the post data here, use something like mitmproxy or fiddler to see what is needed
+		# payload = {
+		# 	'key': 'value',
+		# 	'gresponse': recaptcha_answer  # This is the response from 2captcha, which is needed for the post request to go through.
+		# 	}
+
+		resolved = {
+			"reUrl"                : "/Manga/Love-Lab-MIYAHARA-Ruri/Vol-010-Ch-001?id=359632",
+			"g-recaptcha-response" : "03AOP2lf5kLccgf5aAkMmzXR8mN6Kv6s76BoqHIv-raSzGCa98HMPMdx0n04ourhM1mBApnesMRbzr2vFa0264mY83SCkL5slCFcC-i3uWJoHIjVhGh0GN4yyswg5-yZpDg1iK882nPuxEeaxb18pOK790x4Z18ib5UOPGU-NoECVb6LS03S3b4fCjWwRDLNF43WhkHDFd7k-Os7ULCgOZe_7kcF9xbKkovCh2uuK0ytD7rhiKnZUUvl1TimGsSaFkSSrQ1C4cxZchVXrz7kIx0r6Qp2hPr2_PW0CAutCkmr9lt9TS5n0ecdVFhdVQBniSB-NZv9QEpbQ8",
+		}
+		# # then send the post request to the url
+		# response = s.post(url, payload, proxies=proxy)
+
 
 	def getImage(self, imageUrl, referrer):
 
@@ -81,19 +140,24 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 	def getImageUrls(self, baseUrl):
 
-		pgctnt = self.wg.getpage(baseUrl)
+		pgctnt, filename, mimetype = self.wg.getItemPhantomJS(baseUrl)
 
+		pgctnt = self.check_recaptcha(pgurl=baseUrl, markup=pgctnt)
 
-		linkRe = re.compile(r'lstImages\.push\("(.+?)"\);')
+		linkRe = re.compile(r'lstImages\.push\((wrapKA\(".+?"\))\);')
 
 		links = linkRe.findall(pgctnt)
 
 
 		pages = []
 		for item in links:
-			pages.append(item)
+			tgt = self.wg.pjs_driver.execute_script("return %s" % item)
+			if not tgt.startswith("http"):
+				raise ScrapeExceptions.LimitedException("URL Decryption failed!")
+			pages.append(tgt)
 
 		self.log.info("Found %s pages", len(pages))
+
 
 		return pages
 
@@ -182,7 +246,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)
 			return
 
-
+		except SystemExit:
+			print("SystemExit!")
+			raise
 
 		except Exception:
 			self.log.critical("Failure on retreiving content at %s", sourceUrl)
@@ -195,8 +261,6 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 		'''
 		poke through cloudflare
 		'''
-
-
 		if not self.wg.stepThroughCloudFlare("http://kissmanga.com", 'KissManga'):
 			raise ValueError("Could not access site due to cloudflare protection.")
 
@@ -204,13 +268,13 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup():
+	with tb.testSetup(load=False):
 		cl = ContentLoader()
 
 		# pg = 'http://dynasty-scans.com/chapters/qualia_the_purple_ch16'
 		# inMarkup = cl.wg.getpage(pg)
 		# cl.getImageUrls(inMarkup, pg)
-		cl.go()
+		cl.do_fetch_content()
 		# cl.getLink('http://www.webtoons.com/viewer?titleNo=281&episodeNo=3')
 		# cl.getImageUrls('http://kissmanga.com/Manga/Hanza-Sky/Ch-031-Read-Online?id=225102')
 

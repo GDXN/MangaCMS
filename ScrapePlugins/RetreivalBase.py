@@ -95,6 +95,10 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 			if not runStatus.run:
 				self.log.info( "Breaking due to exit flag being set")
 				return
+		except SystemExit:
+			self.die = True
+			raise
+
 		except ScrapeExceptions.LimitedException as e:
 			self.log.info("Remote site is rate limiting. Exiting early.")
 			self.die = True

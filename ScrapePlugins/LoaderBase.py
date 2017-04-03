@@ -21,8 +21,8 @@ import sql
 import time
 import sql.operators as sqlo
 
-
 import ScrapePlugins.MangaScraperDbBase
+
 
 class LoaderBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
@@ -69,11 +69,11 @@ class LoaderBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 
-	def do_fetch_feeds(self):
+	def do_fetch_feeds(self, *args, **kwargs):
 		self._resetStuckItems()
 		# dat = self.getFeed(list(range(50)))
 		self.setup()
-		dat = self.getFeed()
+		dat = self.getFeed(*args, **kwargs)
 		new = self._processLinksIntoDB(dat)
 
 		# for x in range(10):
