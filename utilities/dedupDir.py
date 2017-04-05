@@ -181,12 +181,14 @@ class DirDeduper(DbBase.DbBase):
 			self.log.info("Adding tags: '%s'", tags)
 			self.addTag(fpath, tags)
 
-		self.globalRemoveHTag('dup-checked')
 
-	def cleanHHistory(self):
+
+
+	def cleanHistory(self):
+
 		self.log.info("Querying for items.")
 		with self.context_cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM hentaiitems WHERE dlstate=2 ORDER BY dbid ASC")
+			cur.execute("SELECT dbid, filename, downloadpath, tags FROM {tableName} WHERE dlstate=2 ORDER BY dbid ASC".format(tableName=self.tableName))
 			ret = cur.fetchall()
 
 		for dbid, filename, downloadpath, tags in ret:
@@ -214,48 +216,15 @@ class DirDeduper(DbBase.DbBase):
 
 
 			proc = processDownload.HentaiProcessor()
-			tags = proc.processDownload(seriesName=None, archivePath=fpath)
-			tags += " dup-checked"
-			self.log.info("Adding tags: '%s'", tags)
-			self.addTag(fpath, tags)
-
-		self.globalRemoveHTag('dup-checked')
-
-	def cleanMHistory(self):
-		self.log.info("Querying for items.")
-		with self.context_cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM mangaitems ORDER BY dbid ASC")
-			ret = cur.fetchall()
-
-		for dbid, filename, downloadpath, tags in ret:
-			taglist = tags.split()
-
-			fpath = os.path.join(downloadpath, filename)
-
-			if tags and 'dup-checked' in taglist:
-				self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
-				continue
-
-			if tags and 'was-duplicate' in taglist:
-				continue
-
-			if not filename or not downloadpath:
-				self.log.error("Invalid path info: '%s', '%s'", downloadpath, filename)
-
-
-			if not os.path.exists(fpath):
-				continue
-
-
-			proc = processDownload.MangaProcessor()
 			tags = proc.processDownload(seriesName=None, archivePath=fpath, doUpload=False)
 			tags += " dup-checked"
 			self.log.info("Adding tags: '%s'", tags)
 			self.addTag(fpath, tags)
 
-		self.globalRemoveHTag('dup-checked')
 
-	def globalRemoveHTag(self, bad_tag):
+
+
+	def globalRemoveTag(self, bad_tag):
 		assert bad_tag
 
 		self.log.info("Querying for items.")
@@ -518,7 +487,7 @@ def runMDeduper():
 
 	dd = MDirDeduper()
 	dd.setupDbApi()
-	dd.cleanMHistory()
+	dd.cleanHistory()
 
 
 
@@ -539,15 +508,15 @@ def runHDeduper():
 
 	dd = HDirDeduper()
 	dd.setupDbApi()
-	dd.cleanHHistory()
+	dd.cleanHistory()
 
 
 def resetDeduperScan():
 
 	dd = HDirDeduper()
-	dd.globalRemoveHTag('dup-checked')
+	dd.globalRemoveTag('dup-checked')
 	dd = MDirDeduper()
-	dd.globalRemoveHTag('dup-checked')
+	dd.globalRemoveTag('dup-checked')
 
 
 
@@ -600,6 +569,6 @@ if __name__ == '__main__':
 	logSetup.initLogging()
 
 	dd = HDirDeduper()
-	dd.globalRemoveHTag("dup-checked")
+	dd.globalRemoveTag("dup-checked")
 
 
