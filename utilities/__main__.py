@@ -82,6 +82,9 @@ def printHelp():
 	print("	k-clean")
 	print("		Functions identically to the h-cleaner, but operates on the kissmange database entries")
 	print("	")
+	print("	clean-reset")
+	print("		Remove the incremental scan progress tags from the manga and hentai database.")
+	print("	")
 	print("	m-clean")
 	print("		And for cleaning all manga items.")
 	print("	")
@@ -220,6 +223,8 @@ def parseOneArgCall(cmd):
 		utilities.dedupDir.runKissDeduper()
 	elif mainArg.lower() == "m-clean":
 		utilities.dedupDir.runMDeduper()
+	elif mainArg.lower() == "clean-reset":
+		utilities.dedupDir.resetDeduperScan()
 	else:
 		print("Unknown arg!")
 

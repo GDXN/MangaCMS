@@ -56,8 +56,10 @@ class DirDeduper(DbBase.DbBase):
 				tags = set(tags.split())
 				for tag in newTags.split():
 					if tag:
-						tags.add(tag.lower())
+						tags.add(tag)
 
+				tags = [tag.lower() for tag in tags]
+				tags.sort()
 				cur.execute('''UPDATE {tableName} SET tags=%s WHERE dbId=%s;'''.format(tableName=self.tableName), (" ".join(tags), rowId))
 			cur.execute("COMMIT;")
 
@@ -67,17 +69,24 @@ class DirDeduper(DbBase.DbBase):
 		with self.transaction() as cur:
 			cur.execute('''SELECT dbId, tags FROM {tableName} WHERE dbid=%s;'''.format(tableName=self.tableName), (dbid, ))
 			rows = cur.fetchall()
+			assert len(rows) == 1
+			dbid, tags = rows[0]
+			tags = tags.split(" ")
+			tags.remove(deltag)
 
+			tags = [tag.lower() for tag in tags]
+			tags.sort()
 
-
-		print(rows)
-		raise RuntimeError("IMPLEMENT ME!")
+			cur.execute('''UPDATE {tableName} SET tags=%s WHERE dbId=%s;'''.format(tableName=self.tableName), (" ".join(tags), dbid))
+			print("Item return:", dbid, tags)
 
 
 	def setupDbApi(self):
 		pass
 
-	def cleanDirectory(self, dirPath, includePhash=False, pathPositiveFilter=['']):
+	def cleanDirectory(self, dirPath, includePhash=False, pathPositiveFilter=None):
+		if pathPositiveFilter is None:
+			pathPositiveFilter = ['']
 
 		self.log.info("Cleaning path '%s'", dirPath)
 		items = os.listdir(dirPath)
@@ -89,8 +98,28 @@ class DirDeduper(DbBase.DbBase):
 				self.cleanSingleDir(item, includePhash, pathPositiveFilter)
 
 
+	def __process_download(self, basePath, pathPositiveFilter):
+		failures = 0
+		while True:
+			try:
+				self.log.info("Scanning '%s'", basePath)
 
-	def cleanSingleDir(self, dirPath, includePhash=True, pathPositiveFilter=['']):
+				proc = processDownload.MangaProcessor()
+				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=pathPositiveFilter)
+				self.addTag(basePath, tags)
+				return
+			except EOFError:
+				failures += 1
+				if failures > 5:
+					raise
+
+			except KeyboardInterrupt:
+				raise
+
+
+	def cleanSingleDir(self, dirPath, includePhash=True, pathPositiveFilter=None):
+		if pathPositiveFilter is None:
+			pathPositiveFilter = ['']
 
 		self.log.info("Processing subdirectory '%s'", dirPath)
 		if not dirPath.endswith("/"):
@@ -112,21 +141,11 @@ class DirDeduper(DbBase.DbBase):
 
 
 		for dummy_num, basePath in parsedItems:
-			try:
-				# if not deduplicator.archChecker.ArchChecker.isArchive(basePath):
-				# 	print("Not archive!", basePath)
-				# 	continue
+			self.__process_download(basePath, pathPositiveFilter)
 
-				self.log.info("Scanning '%s'", basePath)
-
-				proc = processDownload.MangaProcessor()
-				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=pathPositiveFilter)
-				self.addTag(basePath, tags)
-
-			except KeyboardInterrupt:
-				raise
-
-	def cleanBySourceKey(self, sourceKey, includePhash=True, pathPositiveFilter=['']):
+	def cleanBySourceKey(self, sourceKey, includePhash=True, pathPositiveFilter=None):
+		if pathPositiveFilter is None:
+			pathPositiveFilter = ['']
 
 		self.log.info("Getting fetched items from database for source: %s", sourceKey)
 		with self.context_cursor() as cur:
@@ -335,7 +354,7 @@ class DirDeduper(DbBase.DbBase):
 		items.sort()
 		for item in items:
 			split = len(item)
-			while (1):
+			while True:
 				try:
 					newName = item[:split].replace(";", "/")+item[split:]
 					shutil.move(os.path.join(dirPath, item), os.path.join("/media/Storage/MP", newName))
@@ -521,6 +540,14 @@ def runHDeduper():
 	dd = HDirDeduper()
 	dd.setupDbApi()
 	dd.cleanHHistory()
+
+
+def resetDeduperScan():
+
+	dd = HDirDeduper()
+	dd.globalRemoveHTag('dup-checked')
+	dd = MDirDeduper()
+	dd.globalRemoveHTag('dup-checked')
 
 
 

@@ -12,6 +12,10 @@ https://doujinshi.online/
 http://cafeconirst.com/
 https://www.spottoon.com/
 
+02:30:50       Danzaiver | There's mangago.me for yaoi people                                         │ gl77bug
+02:32:33       Danzaiver | and mangahere.co perhaps                                                   │ Gordo
+02:34:52       Danzaiver | and mangatown.com and that's pretty much it.                               │ Hal9k
+
 refetch items with 3 or fewer images.
 
 Broken volume number: Vol.1 part 2 chapter 8: level 2 	
