@@ -145,6 +145,19 @@ def as_soup(str):
 	return bs4.BeautifulSoup(str, "lxml")
 
 
+
+
+class ContentError(urllib.error.URLError):
+	def __init__(self, reason, errpgcontent):
+		super().__init__(reason)
+		self.error_page_content = errpgcontent
+
+	def get_error_page(self):
+		return self.error_page_content
+	def get_error_page_as_soup(self):
+		return as_soup(self.error_page_content)
+
+
 def determine_json_encoding(json_bytes):
 	'''
 	Given the fact that the first 2 characters in json are guaranteed to be ASCII, we can use
