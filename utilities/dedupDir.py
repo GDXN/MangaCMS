@@ -99,13 +99,19 @@ class DirDeduper(DbBase.DbBase):
 
 
 	def __process_download(self, basePath, pathPositiveFilter):
+		if settings.mangaCmsHContext in os.path.abspath(basePath):
+			processor = processDownload.HentaiProcessor
+		else:
+			processor = processDownload.MangaProcessor
+
 		failures = 0
 		while True:
 			try:
 				self.log.info("Scanning '%s'", basePath)
 
-				proc = processDownload.MangaProcessor()
+				proc = processor()
 				tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=pathPositiveFilter)
+				tags += " dup-checked"
 				self.addTag(basePath, tags)
 				return
 			except EOFError:
@@ -186,6 +192,10 @@ class DirDeduper(DbBase.DbBase):
 
 	def cleanHistory(self):
 
+
+		pathPositiveFilter = ['']
+
+
 		self.log.info("Querying for items.")
 		with self.context_cursor() as cur:
 			cur.execute("SELECT dbid, filename, downloadpath, tags FROM {tableName} WHERE dlstate=2 ORDER BY dbid ASC".format(tableName=self.tableName))
@@ -214,13 +224,7 @@ class DirDeduper(DbBase.DbBase):
 			if not os.path.exists(fpath):
 				continue
 
-
-			proc = processDownload.HentaiProcessor()
-			tags = proc.processDownload(seriesName=None, archivePath=fpath, doUpload=False)
-			tags += " dup-checked"
-			self.log.info("Adding tags: '%s'", tags)
-			self.addTag(fpath, tags)
-
+			self.__process_download(fpath, pathPositiveFilter)
 
 
 

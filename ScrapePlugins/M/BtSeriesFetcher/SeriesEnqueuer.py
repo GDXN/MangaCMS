@@ -10,6 +10,7 @@ import time
 import calendar
 import datetime
 import dateutil.parser
+import urllib.error
 
 
 import runStatus
@@ -174,6 +175,11 @@ class SeriesEnqueuer(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 				self.updateSeriesDbEntryById(row["dbId"], dlState=1)
 				self.fetchItemFromRow(row)
 				self.updateSeriesDbEntryById(row["dbId"], dlState=2, lastUpdate=time.time())
+			except urllib.error.URLError:
+				self.log.error("Failure fetching pave: '%s'",  self.seriesUrl % row["seriesId"])
+				for line in traceback.format_exc().split("\n"):
+					self.log.error("%s", line)
+
 			except webFunctions.ContentError:
 				self.log.error("Failure fetching pave: '%s'",  self.seriesUrl % row["seriesId"])
 				for line in traceback.format_exc().split("\n"):
