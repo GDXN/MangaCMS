@@ -1,5 +1,6 @@
 import os.path
 
+import time
 import processDownload
 import nameTools as nt
 import shutil
@@ -115,8 +116,16 @@ class DirDeduper(DbBase.DbBase):
 				self.addTag(basePath, tags)
 				return
 			except EOFError:
+				self.log.error("EOF Error: %s", failures)
 				failures += 1
-				if failures > 5:
+				time.sleep(3)
+				if failures > 50:
+					raise
+			except ConnectionRefusedError:
+				self.log.error("ConnectionRefusedError: %s", failures)
+				failures += 1
+				time.sleep(3)
+				if failures > 50:
 					raise
 
 			except KeyboardInterrupt:

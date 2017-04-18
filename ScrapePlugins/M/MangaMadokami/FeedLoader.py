@@ -114,7 +114,7 @@ class FeedLoader(ScrapePlugins.LoaderBase.LoaderBase):
 		brokeItems = 0
 		for seriesName, fqFileN in linksDicts:
 
-			dlLink = urllib.parse.urljoin(self.url_base, urllib.parse.quote(fqFileN))
+			dlLink = urllib.parse.urljoin(self.url_base, fqFileN)
 			fileN = os.path.split(fqFileN)[-1]
 
 

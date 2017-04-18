@@ -204,7 +204,7 @@ if __name__ == '__main__':
 
 	with tb.testSetup():
 		fl = BtSeriesEnqueuer()
-		# fl.go(historical=True)
+		fl.go(historical=True)
 		fl.go()
 		# fl.getSeriesUrls()
 

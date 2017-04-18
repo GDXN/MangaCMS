@@ -129,7 +129,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 		filePath, fileName = os.path.split(fqFName)
 
 		try:
-			chop = len(fileName)-4
+			chop = len(fileName) - 4
 
 			wholePath = "ERROR"
 			while 1:
@@ -188,8 +188,8 @@ class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	def _go(self):
 		self.log.info("Checking Mk feeds for updates")
-		fl = MkContentLoader()
-		fl.go()
+		fl = ContentLoader()
+		fl.do_fetch_content()
 
 
 if __name__ == "__main__":

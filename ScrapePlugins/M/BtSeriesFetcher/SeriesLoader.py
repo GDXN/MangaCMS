@@ -139,8 +139,8 @@ class SeriesLoader(ScrapePlugins.SeriesRetreivalDbBase.SeriesScraperDbBase):
 if __name__ == '__main__':
 	import utilities.testBase as tb
 
-	with tb.testSetup():
-		fl = BtSeriesLoader()
+	with tb.testSetup(load=False):
+		fl = SeriesLoader()
 
 		fl.scanForSeries(rangeOverride=101)
 		# fl.go()
