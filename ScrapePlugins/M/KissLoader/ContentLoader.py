@@ -239,7 +239,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			arch.close()
 
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, includePHash=True, rowId=link['dbId'])
 			self.log.info( "Done")
 
 			filePath, fileName = os.path.split(fqFName)

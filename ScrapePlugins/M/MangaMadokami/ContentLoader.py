@@ -164,7 +164,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 		imageExts = ["jpg", "png", "bmp"]
 		if not any([ext.endswith(ex) for ex in imageExts]):
 			# We don't want to upload the file we just downloaded, so specify doUpload as false.
-			dedupState = processDownload.processDownload(False, fqFName, deleteDups=True, doUpload=False)
+			dedupState = processDownload.processDownload(False, fqFName, deleteDups=True, doUpload=False, rowId=link['dbId'])
 		else:
 			dedupState = ""
 

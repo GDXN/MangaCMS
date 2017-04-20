@@ -177,7 +177,7 @@ class FoolContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			filePath, fileName = os.path.split(fqFName)
 			self.updateDbEntry(sourceUrl, downloadPath=filePath, fileName=fileName)
 
-			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True)
+			dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, rowId=link['dbId'])
 			self.log.info( "Done")
 
 			self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, seriesName=seriesName, originName=chapterVol, tags=dedupState)

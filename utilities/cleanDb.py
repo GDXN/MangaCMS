@@ -47,14 +47,9 @@ class PathCleaner(DbBase.DbBase):
 		cur.execute("COMMIT;")
 		self.log.info("Moved file in local DB.")
 
-	def updatePath(self, dbId, dlPath):
-
-		cur = self.get_cursor()
-
-		cur.execute("BEGIN;")
+	def updatePath(self, dbId, dlPath, cur):
 
 		cur.execute("UPDATE {tableName} SET downloadPath=%s WHERE dbId=%s".format(tableName=self.tableName), (dlPath, dbId))
-		cur.execute("COMMIT;")
 		self.log.info("Moved file in local DB.")
 
 	def findIfMigrated(self, filePath):
@@ -76,61 +71,49 @@ class PathCleaner(DbBase.DbBase):
 
 		return False
 
-	def resetDlState(self, dbId, newState):
-		with self.get_cursor() as cur:
-			cur.execute("UPDATE {tableName}  SET dlState=%s WHERE dbId=%s".format(tableName=self.tableName), (newState, dbId))
+	def resetDlState(self, dbId, newState, cur):
+		cur.execute("UPDATE {tableName}  SET dlState=%s WHERE dbId=%s".format(tableName=self.tableName), (newState, dbId))
 
 	def resetMissingDownloads(self):
 
-		alterSites = ["bt", "jz", "mc", "mk", "irc-irh"]
 
 		if not nt.dirNameProxy.observersActive():
 			nt.dirNameProxy.startDirObservers()
 
 
-		cur = self.get_cursor()
 
 
-		cur.execute("BEGIN;")
-		cur.execute("SELECT dbId, sourceSite, downloadPath, fileName, tags FROM {tableName} WHERE dlState=%s ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (2, ))
-		ret = cur.fetchall()
-
-		cur.execute("COMMIT;")
-
-		cur.execute("BEGIN;")
+		with self.transaction() as cur:
+			cur.execute("SELECT dbId, sourceSite, downloadPath, fileName, tags FROM {tableName} WHERE dlState=%s ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (2, ))
+			ret = cur.fetchall()
 
 		print("Ret", len(ret))
 
-		loops = 0
-		for dbId, sourceSite, downloadPath, fileName, tags in ret:
-			filePath = os.path.join(downloadPath, fileName)
-			if tags == None:
-				tags = ""
-			if "deleted" in tags or "was-duplicate" in tags:
-				continue
+		with self.transaction() as cur:
+			loops = 0
+			for dbId, sourceSite, downloadPath, fileName, tags in ret:
+				filePath = os.path.join(downloadPath, fileName)
+				if tags == None:
+					tags = ""
 
-			if not os.path.exists(filePath):
-				migPath = self.findIfMigrated(filePath)
-				if not migPath:
-					if sourceSite in alterSites:
+				if not os.path.exists(filePath):
+					migPath = self.findIfMigrated(filePath)
+					if not migPath:
 						print("Resetting download for ", filePath, "source=", sourceSite)
-						self.resetDlState(dbId, 0)
+						self.resetDlState(dbId, 0, cur)
 
 					else:
-						print("Missing", filePath, "from", sourceSite)
-				else:
-					print("Moved!")
-					print("		Old = '%s'" % filePath)
-					print("		New = '%s'" % migPath)
-					self.updatePath(dbId, migPath)
+						print("Moved!")
+						print("		Old = '%s'" % filePath)
+						print("		New = '%s'" % migPath)
+						self.updatePath(dbId, migPath, cur)
 
-			loops += 1
-			if loops % 1000 == 0:
-				cur.execute("COMMIT;")
-				print("Incremental Commit!")
-				cur.execute("BEGIN;")
+				loops += 1
+				if loops % 1000 == 0:
+					cur.execute("COMMIT;")
+					print("Incremental Commit!")
+					cur.execute("BEGIN;")
 
-		cur.execute("COMMIT;")
 
 	def updateTags(self, dbId, newTags):
 		cur = self.get_cursor()
@@ -500,60 +483,59 @@ class HCleaner(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 	# QUERY_DEBUG = True
 
-	def __init__(self, tableKey):
+	def __init__(self, tableKey=None):
 		self.tableKey = tableKey
 		super().__init__()
 
-	def resetMissingDownloads(self, pathBase):
+	def resetMissingDownloads(self):
 
-		cur = self.get_cursor()
 
 
 		with self.transaction() as cur:
-			cur.execute("SELECT dbId, sourceSite, downloadPath, fileName, tags FROM {tableName} WHERE dlState=%s AND sourceSite=%s ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (2, self.tableKey))
+			cur.execute("SELECT dbId, sourceSite, downloadPath, fileName, tags FROM {tableName} WHERE dlState=%s ORDER BY retreivalTime DESC;".format(tableName=self.tableName), (2, ))
 			ret = cur.fetchall()
 
+		print("Ret", len(ret))
+
+		match = []
+		loops = 0
+		for dbId, sourceSite, downloadPath, fileName, tags in ret:
+
+			self.updateDbEntryById(rowId=dbId, commit=False, dlState=0)
+
+			removeTags = ["deleted", "was-duplicate", "phash-duplicate", "dup-checked"]
+			tagList = tags.split(" ")
+
+			self.log.info("Processing '%s', '%s'", downloadPath, fileName)
+			for tag in tagList:
+				if "crosslink" in tag:
+					removeTags.append(tag)
+			if not "crosslink" in " ".join(removeTags):
+				print("Wat?", sourceSite, downloadPath, fileName)
+
+			rows = self.getRowsByValue(limitByKey=False, filename=fileName, downloadpath=downloadPath)
+
+			for row in rows:
+				self.removeTags(dbId=row['dbId'], limitByKey=False, tags=" ".join(removeTags), commit=False)
+
+
+
+			self.updateDbEntryById(rowId=dbId, dlState=0, filename="", downloadpath='', commit=False)
+
+			loops += 1
+			if loops % 1000 == 0:
+
+				with self.transaction() as cur:
+						cur.execute("COMMIT;")
+						print("Incremental Commit!")
+						cur.execute("BEGIN;")
+
+			match.append(downloadPath)
 
 		with self.transaction() as cur:
-
-			print("Ret", len(ret))
-
-			match = []
-			loops = 0
-			for dbId, sourceSite, downloadPath, fileName, tags in ret:
-				if pathBase in downloadPath:
-					continue
-
-
-				self.updateDbEntryById(rowId=dbId, dlState=0)
-
-				removeTags = ["deleted", "was-duplicate", "phash-duplicate"]
-				tagList = tags.split(" ")
-
-				self.log.info("Processing '%s', '%s'", downloadPath, fileName)
-				for tag in tagList:
-					if "crosslink" in tag:
-						removeTags.append(tag)
-				if not "crosslink" in " ".join(removeTags):
-					print("Wat?", sourceSite, downloadPath, fileName)
-
-				rows = self.getRowsByValue(limitByKey=False, filename=fileName, downloadpath=downloadPath)
-
-				for row in rows:
-					self.removeTags(dbId=row['dbId'], limitByKey=False, tags=" ".join(removeTags))
-
-
-
-				self.updateDbEntryById(rowId=dbId, dlState=0, filename="", downloadpath='')
-
-				loops += 1
-				if loops % 1000 == 0:
-					cur.execute("COMMIT;")
-					print("Incremental Commit!")
-					cur.execute("BEGIN;")
-
-				match.append(downloadPath)
-
+				cur.execute("COMMIT;")
+				print("Incremental Commit!")
+				cur.execute("BEGIN;")
 
 
 	def cleanTags(self):

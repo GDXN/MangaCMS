@@ -407,6 +407,7 @@ class MangaScraperDbBase(DbBase.DbBase):
 	# Insert new tags specified as a string kwarg (tags="tag Str") into the tags listing for the specified item
 	def removeTags(self, **kwargs):
 		validCols = ["dbId", "sourceUrl", "dlState"]
+		commit = kwargs.pop("commit", True)
 		if not any([name in kwargs for name in validCols]):
 			raise ValueError("addTags requires at least one fully-qualified argument (%s). Passed args = '%s'" % (validCols, kwargs))
 
@@ -431,7 +432,7 @@ class MangaScraperDbBase(DbBase.DbBase):
 		while "  " in tagStr:
 			tagStr = tagStr.replace("  ", " ")
 
-		self.updateDbEntry(row["sourceUrl"], tags=tagStr)
+		self.updateDbEntry(row["sourceUrl"], tags=tagStr, commit=True)
 
 
 

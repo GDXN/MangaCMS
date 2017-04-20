@@ -182,6 +182,9 @@ def parseOneArgCall(cmd):
 
 	if mainArg.lower() == "reset-missing":
 		pc.resetMissingDownloads()
+	if mainArg.lower() == "reset-missing-h":
+		hc = utilities.cleanDb.HCleaner()
+		hc.resetMissingDownloads()
 	elif mainArg.lower() == "clear-bad-dedup":
 		pc.clearInvalidDedupTags()
 	elif mainArg.lower() == "fix-bt-links":

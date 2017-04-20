@@ -73,12 +73,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 				return
 
 
-	def getLink(self, inLink):
+	def getLink(self, link):
 
 		try:
-			url = self.getDownloadUrl(inLink)
+			url = self.getDownloadUrl(link)
 			if url:
-				self.doDownload(url)
+				self.doDownload(url, link)
 				delay = random.randint(5, 30)
 			else:
 				return
@@ -195,7 +195,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 		return linkDict
 
-	def doDownload(self, linkDict):
+	def doDownload(self, linkDict, link):
 
 		contentUrl = urllib.parse.urljoin(self.urlBase, "zipf.php?token={token}&hash={hash}".format(token=linkDict["contentId"], hash=linkDict["dlToken"]))
 		print("Fetching: ", contentUrl, " Referer ", linkDict["sourceUrl"])
@@ -242,7 +242,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			self.updateDbEntry(linkDict["contentId"], downloadPath=linkDict["dirPath"], fileName=fileN)
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
-			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True, includePHash=True)
+			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True, includePHash=True, rowId=link['dbId'])
 			self.log.info( "Done")
 
 			if dedupState:

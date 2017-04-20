@@ -108,7 +108,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
-		dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True)
+		dedupState = processDownload.processDownload(seriesName, fqFName, deleteDups=True, rowId=link['dbId'])
 
 		self.log.info( "Done")
 		self.updateDbEntry(sourceUrl, dlState=2, downloadPath=filePath, fileName=fileName, tags=dedupState)

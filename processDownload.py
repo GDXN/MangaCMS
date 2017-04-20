@@ -36,7 +36,7 @@ class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 
-	def crossLink(self, delItem, dupItem, isPhash=False):
+	def crossLink(self, delItem, dupItem, isPhash=False, rowId=None):
 		self.log.warning("Duplicate found! Cross-referencing file")
 
 		delItemRoot, delItemFile = os.path.split(delItem)
@@ -48,8 +48,18 @@ class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 		dstRow = self.getRowsByValue(limitByKey=False, downloadpath=dupItemRoot, filename=dupItemFile)
 
 		# print("HaveItem", srcRow)
-		if srcRow and len(srcRow) == 1:
-			srcId = srcRow[0]['dbId']
+		if srcRow or rowId:
+			if rowId:
+				if srcRow:
+					if not any([rowId == row['dbId'] for row in srcRow]):
+						self.log.warning("Cross linking found multiple candidate SOURCE matches")
+						self.log.warning("Wat?")
+						self.log.warning("Row IDs: %s", [row['dbId'] for row in srcRow])
+				srcId = rowId
+
+			else:
+				srcId = srcRow[0]['dbId']
+
 			self.log.info("Relinking!")
 			self.updateDbEntryById(srcId, filename=dupItemFile, downloadpath=dupItemRoot)
 
@@ -115,7 +125,7 @@ class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 
 
-	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathPositiveFilter=None, crossReference=True, doUpload=True, **kwargs):
+	def processDownload(self, seriesName, archivePath, deleteDups=False, includePHash=False, pathPositiveFilter=None, crossReference=True, doUpload=True, rowId=None, **kwargs):
 
 		if 'phashThresh' in kwargs:
 			phashThresh = kwargs.pop('phashThresh')
@@ -161,7 +171,7 @@ class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 			isPhash = False
 			if "phash-duplicate" in retTags:
 				isPhash = True
-			self.crossLink(archivePath, bestMatch, isPhash=isPhash)
+			self.crossLink(archivePath, bestMatch, isPhash=isPhash, rowId=rowId)
 
 
 		# try:

@@ -222,7 +222,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
-	def doDownload(self, linkDict, retag=False):
+	def doDownload(self, linkDict, link, retag=False):
 
 		images = self.fetchImages(linkDict)
 		# images = ['wat']
@@ -253,7 +253,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
-			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, deleteDups=True)
+			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, deleteDups=True, rowId=link['dbId'])
 			self.log.info( "Done")
 
 
@@ -275,7 +275,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			self.updateDbEntry(link["sourceUrl"], dlState=1)
 			linkInfo = self.getDownloadInfo(link)
 			if linkInfo:
-				self.doDownload(linkInfo)
+				self.doDownload(linkInfo, link)
 			else:
 				print("No link info?")
 				self.deleteRowsByValue(sourceUrl=link["sourceUrl"])

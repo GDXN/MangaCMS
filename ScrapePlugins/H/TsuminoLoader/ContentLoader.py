@@ -172,7 +172,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 
-	def doDownload(self, linkDict, retag=False):
+	def doDownload(self, linkDict, link, retag=False):
 
 		images = self.fetchImages(linkDict)
 
@@ -227,7 +227,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
-			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True)
+			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True, rowId=link['dbId'])
 			self.log.info( "Done")
 
 			if dedupState:
@@ -249,7 +249,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 		try:
 			self.updateDbEntry(link["sourceUrl"], dlState=1)
 			linkInfo = self.getDownloadInfo(link)
-			self.doDownload(linkInfo)
+			self.doDownload(linkInfo, link)
 		except IOError:
 			self.log.error("Failure retreiving content for link %s", link)
 			self.log.error("Traceback: %s", traceback.format_exc())

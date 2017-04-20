@@ -271,7 +271,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			self.updateDbEntry(linkDict["sourceUrl"], downloadPath=linkDict["dirPath"], fileName=fileN)
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
-			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True, includePHash=True)
+			dedupState = processDownload.processDownload(None, wholePath, pron=True, deleteDups=True, includePHash=True, rowId=linkDict['dbId'])
 			self.log.info( "Done")
 
 			if dedupState:

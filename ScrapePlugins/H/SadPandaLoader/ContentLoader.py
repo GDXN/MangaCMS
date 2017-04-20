@@ -185,7 +185,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase, LoginMixin.ExLogi
 
 		return downloadUrl
 
-	def doDownload(self, linkDict, retag=False):
+	def doDownload(self, linkDict, link, retag=False):
 
 		downloadUrl = self.getDownloadUrl(linkDict['dlPage'], linkDict["sourceUrl"])
 
@@ -234,7 +234,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase, LoginMixin.ExLogi
 			self.updateDbEntry(linkDict["sourceUrl"], downloadPath=linkDict["dirPath"], fileName=fileN)
 
 			# Deduper uses the path info for relinking, so we have to dedup the item after updating the downloadPath and fileN
-			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True)
+			dedupState = processDownload.processDownload(linkDict["seriesName"], wholePath, pron=True, rowId=link['dbId'])
 			self.log.info( "Done")
 
 			if dedupState:
@@ -257,7 +257,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase, LoginMixin.ExLogi
 			self.updateDbEntry(link["sourceUrl"], dlState=1)
 			linkInfo = self.getDownloadInfo(link)
 			if linkInfo:
-				self.doDownload(linkInfo)
+				self.doDownload(linkInfo, link)
 
 				sleeptime = random.randint(10,60*5)
 			else:
