@@ -12,7 +12,7 @@ import time
 import runStatus
 import webFunctions
 
-DB_KEY     = "cm"
+DB_KEY     = "cmjs"
 LONG_NAME  = "Canis Major Scanlations"
 SHORT_NAME = "CM"
 GROUP_NAME = "CanisMajorScanlations"

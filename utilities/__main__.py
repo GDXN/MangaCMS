@@ -11,6 +11,7 @@ import signal
 import sys
 import os.path
 import utilities.dedupDir
+import utilities.runPlugin
 import utilities.approxFileSorter
 import utilities.autoOrganize as autOrg
 import utilities.importer as autoImporter
@@ -25,6 +26,18 @@ def printHelp():
 	print("################################### ")
 	print("##   System maintenance script   ## ")
 	print("################################### ")
+	print("")
+	print("*********************************************************")
+	print("Runtime Tools")
+	print("*********************************************************")
+	print("	run {plug_key}")
+	print("		Execute plugin {plug_key}.")
+	print("		If plugin is not specified, print the available plugins")
+	print()
+	print("	retag {plug_key}")
+	print("		Retag items for {plug_key}.")
+	print("		If plugin is not specified, print the available plugins")
+	print()
 	print("")
 	print("*********************************************************")
 	print("Organizing Tools")
@@ -170,66 +183,64 @@ def printHelp():
 	return
 
 
-def parseOneArgCall(cmd):
+def parseOneArgCall(param):
 
-
-	mainArg = sys.argv[1]
-
-	print ("Passed arg", mainArg)
-
+	print ("Passed arg", param)
 
 	pc = utilities.cleanDb.PathCleaner()
 
-	if mainArg.lower() == "reset-missing":
+	if param == "reset-missing":
 		pc.resetMissingDownloads()
-	if mainArg.lower() == "reset-missing-h":
+	elif param == "run" or param == 'retag':
+		utilities.runPlugin.listPlugins()
+	elif param == "reset-missing-h":
 		hc = utilities.cleanDb.HCleaner()
 		hc.resetMissingDownloads()
-	elif mainArg.lower() == "clear-bad-dedup":
+	elif param == "clear-bad-dedup":
 		pc.clearInvalidDedupTags()
-	elif mainArg.lower() == "fix-bt-links":
+	elif param == "fix-bt-links":
 		pc.patchBatotoLinks()
-	elif mainArg.lower() == "cross-sync":
+	elif param == "cross-sync":
 		pc.crossSyncNames()
-	elif mainArg.lower() == "update-bu-lut":
+	elif param == "update-bu-lut":
 		pc.regenerateNameMappings()
-	elif mainArg.lower() == "fix-bad-series":
+	elif param == "fix-bad-series":
 		pc.consolidateSeriesNaming()
-	elif mainArg.lower() == "fix-djm":
+	elif param == "fix-djm":
 		pc.fixDjMItems()
-	elif mainArg.lower() == "reload-tree":
+	elif param == "reload-tree":
 		deduplicator.remoteInterface.treeReload()
-	elif mainArg.lower() == "crosslink-books":
+	elif param == "crosslink-books":
 		utilities.bookClean.updateNetloc()
-	elif mainArg.lower() == "clean-book-cache":
+	elif param == "clean-book-cache":
 		utilities.bookClean.cleanBookContent()
-	elif mainArg.lower() == "lndb-cleaned-regen":
+	elif param == "lndb-cleaned-regen":
 		utilities.bookClean.regenLndbCleanedNames()
-	elif mainArg.lower() == "truncate-trailing-novel":
+	elif param == "truncate-trailing-novel":
 		utilities.bookClean.truncateTrailingNovel()
-	elif mainArg.lower() == "fix-book-link-sources":
+	elif param == "fix-book-link-sources":
 		utilities.bookClean.fixBookLinkSources()
-	elif mainArg.lower() == "fix-bu-authors":
+	elif param == "fix-bu-authors":
 		utilities.bookClean.fixMangaUpdatesAuthors()
-	elif mainArg.lower() == "madokami-organize":
+	elif param == "madokami-organize":
 		UploadPlugins.Madokami.uploader.do_remote_organize()
-	elif mainArg.lower() == "madokami-upload":
+	elif param == "madokami-upload":
 		UploadPlugins.Madokami.uploader.do_missing_ul()
-	elif mainArg.lower() == "fix-h-tags-case":
+	elif param == "fix-h-tags-case":
 		cleaner = utilities.cleanDb.HCleaner('None')
 		cleaner.cleanTags()
-	elif mainArg.lower() == "rescan-failed-h":
+	elif param == "rescan-failed-h":
 		utilities.dedupDir.reprocessHFailed()
-	elif mainArg.lower() == "h-clean":
+	elif param == "h-clean":
 		utilities.dedupDir.runHDeduper()
-	elif mainArg.lower() == "k-clean":
+	elif param == "k-clean":
 		utilities.dedupDir.runKissDeduper()
-	elif mainArg.lower() == "m-clean":
+	elif param == "m-clean":
 		utilities.dedupDir.runMDeduper()
-	elif mainArg.lower() == "clean-reset":
+	elif param == "clean-reset":
 		utilities.dedupDir.resetDeduperScan()
 	else:
-		print("Unknown arg!")
+		print("Unknown single-word arg!")
 
 
 def parseTwoArgCall(cmd, val):
@@ -238,21 +249,21 @@ def parseTwoArgCall(cmd, val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		autoImporter.importDirectories(val)
-		return
 
-	if cmd == "organize":
+	elif cmd == "organize":
 		if not os.path.exists(val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		autOrg.organizeFolder(val)
-		return
+
+	elif cmd == "run":
+		utilities.runPlugin.runPlugin(val)
 
 	elif cmd == "rename":
 		if not os.path.exists(val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		autOrg.renameSeriesToMatchMangaUpdates(val)
-		return
 
 	elif cmd == "lookup":
 		print("Passed name = '%s'" % val)
@@ -265,33 +276,28 @@ def parseTwoArgCall(cmd, val):
 			print("Item found in lookup table!")
 			print("Canonical name = '%s'" % nt.getCanonicalMangaUpdatesName(val) )
 
-
 	elif cmd == "purge-dir":
 		if not os.path.exists(val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.dedupDir.purgeDedupTemps(val)
-		return
 	elif cmd == "purge-dir-phash":
 		if not os.path.exists(val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.dedupDir.purgeDedupTempsPhash(val)
-		return
 
 	elif cmd == "dirs-restore":
 		if not os.path.exists(val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.dedupDir.runRestoreDeduper(val)
-		return
 
 	elif cmd == "sort-dir-contents":
 		if not os.path.exists(val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.approxFileSorter.scanDirectories(val)
-		return
 
 
 	elif cmd == "clean-archives":
@@ -299,8 +305,6 @@ def parseTwoArgCall(cmd, val):
 			print("Passed path '%s' does not exist!" % val)
 			return
 		utilities.cleanFiles.cleanArchives(val)
-		return
-
 
 	else:
 		print("Did not understand command!")
@@ -315,13 +319,13 @@ def parseThreeArgCall(cmd, arg1, arg2):
 			print("Passed path '%s' does not exist!" % arg2)
 			return
 		utilities.dedupDir.runDeduper(arg1, arg2)
-		return
+
 	elif cmd == "src-clean":
 		if not os.path.exists(arg2):
 			print("Passed path '%s' does not exist!" % arg2)
 			return
 		utilities.dedupDir.runSrcDeduper(arg1, arg2)
-		return
+
 	elif cmd == "dir-clean":
 		if not os.path.exists(arg1):
 			print("Passed path '%s' does not exist!" % arg1)
@@ -330,7 +334,6 @@ def parseThreeArgCall(cmd, arg1, arg2):
 			print("Passed path '%s' does not exist!" % arg2)
 			return
 		utilities.dedupDir.runSingleDirDeduper(arg1, arg2)
-		return
 
 	elif cmd == "move-unlinked":
 		if not os.path.exists(arg1):
@@ -340,7 +343,6 @@ def parseThreeArgCall(cmd, arg1, arg2):
 			print("Passed path '%s' does not exist!" % arg2)
 			return
 		utilities.dedupDir.moveUnlinkable(arg1, arg2)
-		return
 
 	elif cmd == "auto-clean":
 		if not os.path.exists(arg1):
@@ -358,8 +360,6 @@ def parseThreeArgCall(cmd, arg1, arg2):
 
 		cleaner = utilities.cleanDb.HCleaner(arg1)
 		cleaner.resetMissingDownloads(arg2)
-		return
-
 
 	elif cmd == "phash-clean":
 		if not os.path.exists(arg1):

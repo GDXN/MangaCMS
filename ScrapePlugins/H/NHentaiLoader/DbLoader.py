@@ -8,7 +8,9 @@ import parsedatetime
 import urllib.parse
 import time
 import calendar
+import dateutil.parser
 
+import concurrent.futures
 import ScrapePlugins.LoaderBase
 class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
@@ -44,8 +46,6 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 		tags = []
 		category = "None"
 
-
-
 		# 'Origin'       : '',  (Category)
 		for chunk in tagChunks:
 			for rawTag in chunk.find_all("a", class_='tag'):
@@ -68,10 +68,8 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 		if not timeTag:
 			raise ValueError("No time tag found!")
 
-		cal = parsedatetime.Calendar()
-		ulDate, status = cal.parse(timeTag['datetime'])
-		# print(ulDate)
-		ultime = calendar.timegm(ulDate)
+		ulDate = dateutil.parser.parse(timeTag['datetime'])
+		ultime = ulDate.timestamp()
 
 		# No future times!
 		if ultime > time.time():
@@ -90,12 +88,13 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 		return ret
 
 
-	def parseItem(self, containerDiv):
+	def parseItem(self, containerDiv, retag=False):
 		ret = {}
 		ret['sourceUrl'] = urllib.parse.urljoin(self.urlBase, containerDiv.a["href"])
 
 		# Do not decend into items where we've already added the item to the DB
-		if len(self.getRowsByValue(sourceUrl=ret['sourceUrl'])):
+		row = self.getRowsByValue(sourceUrl=ret['sourceUrl'])
+		if len(row) and not retag:
 			return None
 
 		ret.update(self.getInfo(ret['sourceUrl']))
@@ -110,7 +109,16 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 		return ret
 
-	def getFeed(self, pageOverride=None):
+
+	def update_tags(self, items):
+		self.log.info("Doing tag update")
+		for item in items:
+			rowd = self.getRowsByValue(sourceUrl=item['sourceUrl'])
+			if rowd:
+				self.log.info("Updating tags for %s", item['sourceUrl'])
+				self.addTags(sourceUrl=item['sourceUrl'], tags=item['tags'])
+
+	def getFeed(self, pageOverride=None, retag=False):
 		# for item in items:
 		# 	self.log.info(item)
 		#
@@ -124,31 +132,47 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 		ret = []
 		for itemDiv in divs:
 
-			item = self.parseItem(itemDiv)
+			item = self.parseItem(itemDiv, retag)
 			if item:
 				ret.append(item)
 
+		if retag:
+			self.update_tags(ret)
 
 		return ret
 
 
+def process(runner, pageOverride, retag=False):
+	print("Executing with page offset: pageOverride")
+	res = runner.getFeed(pageOverride=pageOverride, retag=retag)
+	print("Received %s results!" % len(res))
+	runner._processLinksIntoDB(res)
 
-def getHistory():
 
+
+def getHistory(retag=False):
+
+
+	print("Getting history")
 	run = DbLoader()
-	# dat = run.getFeed()
-	# print(dat)
+	with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+		futures = [executor.submit(process, runner=run, pageOverride=x, retag=retag) for x in range(0, 1500)]
+		print("Waiting for executor to finish.")
+		executor.shutdown()
+
+
+
 	for x in range(0, 1500):
-		dat = run.getFeed(pageOverride=x)
-		run.processLinksIntoDB(dat)
+		dat = run.getFeed(pageOverride=x, retag=True)
+		run._processLinksIntoDB(dat)
 
 
 if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup():
-		# getHistory()
-		run = DbLoader()
-		run.go()
+		getHistory(retag=True)
+		# run = DbLoader()
+		# run.go()
 
 

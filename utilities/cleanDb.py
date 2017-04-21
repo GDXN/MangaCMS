@@ -32,19 +32,17 @@ class PathCleaner(DbBase.DbBase):
 	def moveFile(self, srcPath, dstPath):
 		dlPath, fName = os.path.split(srcPath)
 		# print("dlPath, fName", dlPath, fName)
-		cur = self.get_cursor()
+		with self.transaction() as cur:
 
-		cur.execute("BEGIN;")
-		cur.execute("SELECT dbId FROM {tableName} WHERE downloadPath=%s AND fileName=%s".format(tableName=self.tableName), (dlPath, fName))
-		ret = cur.fetchall()
+			cur.execute("SELECT dbId FROM {tableName} WHERE downloadPath=%s AND fileName=%s".format(tableName=self.tableName), (dlPath, fName))
+			ret = cur.fetchall()
 
-		if not ret:
-			cur.execute("COMMIT;")
-			return
-		dbId = ret.pop()
+			if not ret:
+				cur.execute("COMMIT;")
+				return
+			dbId = ret.pop()
 
-		cur.execute("UPDATE {tableName} SET downloadPath=%s, fileName=%s WHERE dbId=%s".format(tableName=self.tableName), (dlPath, fName, dbId))
-		cur.execute("COMMIT;")
+			cur.execute("UPDATE {tableName} SET downloadPath=%s, fileName=%s WHERE dbId=%s".format(tableName=self.tableName), (dlPath, fName, dbId))
 		self.log.info("Moved file in local DB.")
 
 	def updatePath(self, dbId, dlPath, cur):
@@ -501,36 +499,39 @@ class HCleaner(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 		loops = 0
 		for dbId, sourceSite, downloadPath, fileName, tags in ret:
 
-			self.updateDbEntryById(rowId=dbId, commit=False, dlState=0)
 
-			removeTags = ["deleted", "was-duplicate", "phash-duplicate", "dup-checked"]
-			tagList = tags.split(" ")
+			filePath = os.path.join(downloadPath, fileName)
+			if os.path.exists(filePath):
+				self.log.info("File exists: %s", filePath)
+			else:
+				self.log.info("Item missing: %s", filePath)
+				self.updateDbEntryById(rowId=dbId, dlState=0, commit=False)
 
-			self.log.info("Processing '%s', '%s'", downloadPath, fileName)
-			for tag in tagList:
-				if "crosslink" in tag:
-					removeTags.append(tag)
-			if not "crosslink" in " ".join(removeTags):
-				print("Wat?", sourceSite, downloadPath, fileName)
+				removeTags = ["deleted", "was-duplicate", "phash-duplicate", "dup-checked"]
+				tagList = tags.split(" ")
 
-			rows = self.getRowsByValue(limitByKey=False, filename=fileName, downloadpath=downloadPath)
+				self.log.info("Processing '%s', '%s'", downloadPath, fileName)
+				for tag in tagList:
+					if "crosslink" in tag:
+						removeTags.append(tag)
+				if not "crosslink" in " ".join(removeTags):
+					print("Wat?", sourceSite, downloadPath, fileName)
 
-			for row in rows:
-				self.removeTags(dbId=row['dbId'], limitByKey=False, tags=" ".join(removeTags), commit=False)
+				rows = self.getRowsByValue(limitByKey=False, filename=fileName, downloadpath=downloadPath)
+
+				for row in rows:
+					self.removeTags(dbId=row['dbId'], limitByKey=False, tags=" ".join(removeTags), commit=False)
 
 
+				loops += 1
+				if loops % 1000 == 0:
 
-			self.updateDbEntryById(rowId=dbId, dlState=0, filename="", downloadpath='', commit=False)
+					with self.transaction() as cur:
+							cur.execute("COMMIT;")
+							print("Incremental Commit!")
+							cur.execute("BEGIN;")
 
-			loops += 1
-			if loops % 1000 == 0:
-
-				with self.transaction() as cur:
-						cur.execute("COMMIT;")
-						print("Incremental Commit!")
-						cur.execute("BEGIN;")
-
-			match.append(downloadPath)
+				match.append(downloadPath)
 
 		with self.transaction() as cur:
 				cur.execute("COMMIT;")

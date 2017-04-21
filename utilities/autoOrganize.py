@@ -47,10 +47,7 @@ def consolidateMangaFolders(dirPath, smartMode=True):
 	idLut = nt.MtNamesMapWrapper("fsName->buId")
 
 	pc = PathCleaner()
-	pc.openDB()
-
-
-
+	
 	count = 0
 	print("Dir", dirPath)
 	items = os.listdir(dirPath)

@@ -46,7 +46,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 	tableName = "HentaiItems"
 
 
-	retreivalThreads = 1
+	retreivalThreads = 3
 
 
 	def getFileName(self, soup):

@@ -133,12 +133,15 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 		return ret
 
 
-	def parseItem(self, containerDiv):
+	def parseItem(self, containerDiv, retag):
 		ret = {}
 		ret['sourceUrl'] = urllib.parse.urljoin(self.urlBase, containerDiv.a["href"])
 
 		# Do not decend into items where we've already added the item to the DB
-		if len(self.getRowsByValue(sourceUrl=ret['sourceUrl'])):
+		rowd = self.getRowsByValue(sourceUrl=ret['sourceUrl'])
+		if len(rowd) and not retag:
+			return None
+		if not len(rowd) and retag:
 			return None
 
 		ret.update(self.getInfo(ret['sourceUrl']))
@@ -150,7 +153,14 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 		return ret
 
-	def getFeed(self, pageOverride=None, filter_eng=True, time_offset=0):
+	def update_tags(self, items):
+		for item in items:
+			rowd = self.getRowsByValue(sourceUrl=item["sourceUrl"], limitByKey=False)
+			if rowd:
+				self.log.info("Updating tags for %s", item['sourceUrl'])
+				self.addTags(sourceUrl=item['sourceUrl'], tags=item['tags'])
+
+	def getFeed(self, pageOverride=None, filter_eng=True, time_offset=0, retag=False):
 		# for item in items:
 		# 	self.log.info(item)
 		#
@@ -164,27 +174,30 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 		for itemDiv in divs:
 			cap = itemDiv.find("div", class_='caption')
-			if cap.img['src'] == "/images/en.png" or filter_eng != True:
-				item = self.parseItem(itemDiv)
+			if cap.img['src'] == "/images/en.png" or filter_eng != True or retag:
+				item = self.parseItem(itemDiv, retag)
 				if item:
 
 					item['retreivalTime'] = time.time() - time_offset
 					ret.append(item)
 
+		if retag:
+			self.update_tags(ret)
+			ret = []
 		return ret
 
-def process(runner, pageOverride, time_offset):
+def process(runner, pageOverride, time_offset, retag=False):
 	print("Executing with page offset: pageOverride")
-	res = runner.getFeed(pageOverride=pageOverride, filter_eng=False, time_offset=time_offset)
+	res = runner.getFeed(pageOverride=pageOverride, filter_eng=False, time_offset=time_offset, retag=retag)
 	print("Received %s results!" % len(res))
 	runner._processLinksIntoDB(res)
 
 
-def getHistory():
+def getHistory(retag=False):
 	print("Getting history")
 	run = DbLoader()
 	with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-		futures = [executor.submit(process, runner=run, pageOverride=x, time_offset=time.time()) for x in range(8880, 0, -1)]
+		futures = [executor.submit(process, runner=run, pageOverride=x, time_offset=time.time(), retag=retag) for x in range(0, 8980)]
 		print("Waiting for executor to finish.")
 		executor.shutdown()
 
@@ -192,7 +205,7 @@ def test():
 	print("Test!")
 	run = DbLoader()
 
-	dat = run.getFeed()
+	dat = run.getFeed(retag=True)
 	print(dat)
 	# print(run.go())
 	# print(run)
@@ -204,7 +217,7 @@ if __name__ == "__main__":
 	import utilities.testBase as tb
 
 	with tb.testSetup(load=False):
-		getHistory()
+		getHistory(retag=True)
 		# test()
 		# run = DbLoader()
 		# run.go()

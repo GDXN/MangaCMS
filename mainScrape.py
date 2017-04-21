@@ -22,6 +22,8 @@ import signal
 import nameTools as nt
 import activePlugins
 
+import utilities.runPlugin
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.executors.pool import ProcessPoolExecutor
@@ -128,6 +130,11 @@ def scheduleJobs(sched, timeToStart):
 # check/update database schema, etc...
 def preflight():
 	logSetup.initLogging(logToDb=True)
+
+	# A side effect of get_plugins() is to validate there are no database key conflicts.
+	# This has been an issue in the past.
+	utilities.runPlugin.get_plugins()
+
 
 	# runStatus.notq = UploadPlugins.Madokami.notifier.start_notifier()
 	runStatus.notq = None
