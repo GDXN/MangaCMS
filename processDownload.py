@@ -158,6 +158,7 @@ class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 		# Limit dedup matches to the served directories.
 		if not pathPositiveFilter:
+			self.log.info("Using manga download folders for path filtering.")
 			pathPositiveFilter = [item['dir'] for item in settings.mangaFolders.values()]
 
 		# Let the remote deduper do it's thing.

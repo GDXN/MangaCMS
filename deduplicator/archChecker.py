@@ -16,8 +16,6 @@ class ArchChecker(object):
 
 		self.remote = rpyc.connect("localhost", 12345)
 
-		if not pathPositiveFilter:
-			pathPositiveFilter = ['']
 		# pathPositiveFilter filters
 		# Basically, if you pass a list of valid path prefixes, any matches not
 		# on any of those path prefixes are not matched.

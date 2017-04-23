@@ -86,8 +86,6 @@ class DirDeduper(DbBase.DbBase):
 		pass
 
 	def cleanDirectory(self, dirPath, includePhash=False, pathPositiveFilter=None):
-		if pathPositiveFilter is None:
-			pathPositiveFilter = ['']
 
 		self.log.info("Cleaning path '%s'", dirPath)
 		items = os.listdir(dirPath)
@@ -133,8 +131,6 @@ class DirDeduper(DbBase.DbBase):
 
 
 	def cleanSingleDir(self, dirPath, includePhash=True, pathPositiveFilter=None):
-		if pathPositiveFilter is None:
-			pathPositiveFilter = ['']
 
 		self.log.info("Processing subdirectory '%s'", dirPath)
 		if not dirPath.endswith("/"):
@@ -159,8 +155,6 @@ class DirDeduper(DbBase.DbBase):
 			self.__process_download(basePath, pathPositiveFilter)
 
 	def cleanBySourceKey(self, sourceKey, includePhash=True, pathPositiveFilter=None):
-		if pathPositiveFilter is None:
-			pathPositiveFilter = ['']
 
 		self.log.info("Getting fetched items from database for source: %s", sourceKey)
 		with self.context_cursor() as cur:
@@ -202,7 +196,7 @@ class DirDeduper(DbBase.DbBase):
 	def cleanHistory(self):
 
 
-		pathPositiveFilter = ['']
+		pathPositiveFilter = None
 
 
 		self.log.info("Querying for items.")
@@ -363,7 +357,7 @@ class DirDeduper(DbBase.DbBase):
 			print(tags)
 
 			proc = processDownload.MangaProcessor()
-			tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=[''])
+			tags = proc.processDownload(seriesName=None, archivePath=basePath, pathPositiveFilter=None)
 			self.addTag(basePath, tags)
 
 

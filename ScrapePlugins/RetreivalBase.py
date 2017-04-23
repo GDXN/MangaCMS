@@ -17,7 +17,7 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 	__metaclass__ = abc.ABCMeta
 
 
-	itemLimit = False
+	itemLimit = 250
 	retreivalThreads = 1
 
 	def __init__(self, *args, **kwargs):
