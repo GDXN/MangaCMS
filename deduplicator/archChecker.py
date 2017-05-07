@@ -30,7 +30,7 @@ class ArchChecker(object):
 
 	def process(self, moveToPath=None):
 		self.log.info("Processing download '%s'", self.arch)
-		status, bestMatch, intersections = self.remote.root.processDownload(self.arch, pathPositiveFilter=self.maskedPaths, distance=self.pdist, moveToPath=moveToPath, locked=self.lock)
+		status, bestMatch, intersections = self.remote.root.processDownload(self.arch, pathPositiveFilter=self.maskedPaths, distance=self.pdist, moveToPath=moveToPath)
 		self.log.info("Processed archive. Return status '%s'", status)
 		if bestMatch:
 			self.log.info("Matching archive '%s'", bestMatch)

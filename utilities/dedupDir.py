@@ -48,7 +48,9 @@ class DirDeduper(DbBase.DbBase):
 				return
 
 			if not rowIds:
-				self.log.warning("Wat?")
+				self.log.warning("Could not add tag to row that does not exist!")
+				self.log.warning("Path: '%s'", srcPath)
+				self.log.warning("New tags: '%s'", newTags)
 				return
 
 			for tags, rowId in zip(tagsets, rowIds):
@@ -191,8 +193,33 @@ class DirDeduper(DbBase.DbBase):
 			self.addTag(fpath, tags)
 
 
+	def fixSwap(self):
+		self.log.info("Fixing swapped paths for %s.", self.tableName)
+		mismatch_ids = set()
+		with self.context_cursor() as cur:
+			cur.execute("""SELECT dbid, sourcesite, filename, downloadpath
+							FROM {tableName} WHERE dlstate=2 AND filename IS NOT NULL AND downloadpath IS NOT NULL ORDER BY dbid ASC""".format(tableName=self.tableName))
+			ret = cur.fetchall()
+
+		for dbid, sourcesite, filename, downloadpath in ret:
+			if filename.startswith("/"):   # So... these are getting swapped. Somehow.
+
+				with self.context_cursor() as cur:
+					self.log.warning("File has path and filename swapped! Source: %s, fname: '%s', fpath: '%s'", sourcesite, filename, downloadpath)
+					mismatch_ids.add(sourcesite)
+
+					cur.execute("""UPDATE
+										{tableName}
+									SET
+										filename = %s, downloadpath = %s
+									WHERE
+										dbid = %s;""".format(tableName=self.tableName),
+								(downloadpath, filename, dbid))
+					print(cur.rowcount)
+					cur.execute("COMMIT;")
 
 
+		self.log.info("Mismatching plugins: %s", mismatch_ids)
 	def cleanHistory(self):
 
 
@@ -201,17 +228,28 @@ class DirDeduper(DbBase.DbBase):
 
 		self.log.info("Querying for items.")
 		with self.context_cursor() as cur:
-			cur.execute("SELECT dbid, filename, downloadpath, tags FROM {tableName} WHERE dlstate=2 ORDER BY dbid ASC".format(tableName=self.tableName))
+			cur.execute("""SELECT dbid, sourcesite, filename, downloadpath, tags
+							FROM {tableName} WHERE dlstate=2 AND filename IS NOT NULL AND downloadpath IS NOT NULL ORDER BY dbid ASC""".format(tableName=self.tableName))
 			ret = cur.fetchall()
 
-		for dbid, filename, downloadpath, tags in ret:
+		for dbid, sourcesite, filename, downloadpath, tags in ret:
 			if not tags:
 				tags = ""
 
 
 			taglist = tags.split()
 
-			fpath = os.path.join(downloadpath, filename)
+			self.log.info("Item %s - DownloadPath: '%s', filename: '%s'", dbid, downloadpath, filename)
+
+			if downloadpath.startswith("/"):
+				fpath = os.path.join(downloadpath, filename)
+			elif filename.startswith("/"):   # So... these are getting swapped. Somehow.
+				self.log.warning("File has path and filename swapped! Source: %s", sourcesite)
+				raise RuntimeError("File has path and filename swapped! Source: %s" % sourcesite)
+			else:
+				raise RuntimeError("File has path and filename swapped! Source: %s" % sourcesite)
+
+
 
 			if tags and 'dup-checked' in taglist:
 				self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
@@ -223,8 +261,12 @@ class DirDeduper(DbBase.DbBase):
 			if not filename or not downloadpath:
 				self.log.error("Invalid path info: '%s', '%s'", downloadpath, filename)
 
-
 			if not os.path.exists(fpath):
+				continue
+
+			if not os.path.isfile(fpath):
+				self.log.error("Path is not a file! Path: '%s', File: '%s'", downloadpath, filename)
+				self.log.error("Joined path: '%s'", fpath)
 				continue
 
 			self.__process_download(fpath, pathPositiveFilter)
@@ -495,6 +537,16 @@ def runMDeduper():
 	dd = MDirDeduper()
 	dd.setupDbApi()
 	dd.cleanHistory()
+
+def fixSwap():
+
+	dd = MDirDeduper()
+	dd.setupDbApi()
+	dd.fixSwap()
+
+	dd = HDirDeduper()
+	dd.setupDbApi()
+	dd.fixSwap()
 
 
 

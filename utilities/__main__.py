@@ -239,6 +239,8 @@ def parseOneArgCall(param):
 		utilities.dedupDir.runMDeduper()
 	elif param == "clean-reset":
 		utilities.dedupDir.resetDeduperScan()
+	elif param == "fix-swapped-paths":
+		utilities.dedupDir.fixSwap()
 	else:
 		print("Unknown single-word arg!")
 

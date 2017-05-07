@@ -32,7 +32,8 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 	def getImage(self, imageUrl, referrer):
-
+		if imageUrl.startswith("//"):
+			imageUrl = "http:" + imageUrl
 		content, handle = self.wg.getpage(imageUrl, returnMultiple=True, addlHeaders={'Referer': referrer})
 		if not content or not handle:
 			raise ValueError("Failed to retreive image from page '%s'!" % referrer)
@@ -149,6 +150,6 @@ if __name__ == '__main__':
 	with tb.testSetup():
 		cl = ContentLoader()
 
-		cl.go()
+		cl.do_fetch_content()
 
 
