@@ -29,15 +29,18 @@ class DirDeduper(DbBase.DbBase):
 			cur.execute("BEGIN;")
 			basePath, fName = os.path.split(srcPath)
 			# print("fname='%s', path='%s'" % (fName, basePath))
-			cur.execute('''SELECT dbId, tags FROM {tableName} WHERE fileName=%s AND downloadPath=%s;'''.format(tableName=self.tableName), (fName, basePath))
+			query = '''SELECT dbId, tags FROM {tableName} WHERE fileName=%s AND downloadPath=%s;'''.format(tableName=self.tableName)
+			print("Query: '%s'" % query)
+			cur.execute(query, (fName, basePath))
 			rows = cur.fetchall()
+			print("Rows: '%s'" % rows)
 			if len(rows) >= 1:
 				exists = 0
 				for rowid, tagsTmp in rows:
 
 					if tagsTmp is None:
 						tagsTmp = ''
-					if not any([tmp in tagsTmp for tmp in ["deleted", "missing", "duplicate"]]):
+					if not any([tmp in tagsTmp for tmp in ["deleted", "duplicate"]]):
 						exists += 1
 						rowIds.append(rowid)
 
@@ -51,7 +54,8 @@ class DirDeduper(DbBase.DbBase):
 				self.log.warning("Could not add tag to row that does not exist!")
 				self.log.warning("Path: '%s'", srcPath)
 				self.log.warning("New tags: '%s'", newTags)
-				return
+
+				raise RuntimeError("Could not add tag to row that does not exist!")
 
 			for tags, rowId in zip(tagsets, rowIds):
 				if tags is None:
@@ -202,6 +206,7 @@ class DirDeduper(DbBase.DbBase):
 			ret = cur.fetchall()
 
 		for dbid, sourcesite, filename, downloadpath in ret:
+
 			if filename.startswith("/"):   # So... these are getting swapped. Somehow.
 
 				with self.context_cursor() as cur:
@@ -217,7 +222,12 @@ class DirDeduper(DbBase.DbBase):
 								(downloadpath, filename, dbid))
 					print(cur.rowcount)
 					cur.execute("COMMIT;")
-
+			else:
+				fqp = os.path.join(downloadpath, filename)
+				absp = os.path.abspath(fqp)
+				ndl, nf = os.path.split(absp)
+				if not any([downloadpath == ndl, filename == nf]):
+					print(downloadpath == ndl, filename == nf)
 
 		self.log.info("Mismatching plugins: %s", mismatch_ids)
 	def cleanHistory(self):
@@ -268,6 +278,22 @@ class DirDeduper(DbBase.DbBase):
 				self.log.error("Path is not a file! Path: '%s', File: '%s'", downloadpath, filename)
 				self.log.error("Joined path: '%s'", fpath)
 				continue
+
+			with self.context_cursor() as cur:
+				cur.execute('''SELECT dbId FROM {tableName} WHERE fileName=%s AND downloadPath=%s;'''.format(tableName=self.tableName), (filename, downloadpath))
+				haver1 = cur.fetchall()
+
+				basePath, fName = os.path.split(fpath)
+				cur.execute('''SELECT dbId FROM {tableName} WHERE fileName=%s AND downloadPath=%s;'''.format(tableName=self.tableName), (fName, basePath))
+				haver2 = cur.fetchall()
+
+			if not haver1:
+				self.log.error("Querying for file failed from source 1?")
+				raise RuntimeError("Requery for file failed: %s" % sourcesite)
+			if not haver2:
+				self.log.error("Querying for file failed from source 2?")
+				raise RuntimeError("Round-tripping through os.path.join failed: %s" % sourcesite)
+
 
 			self.__process_download(fpath, pathPositiveFilter)
 

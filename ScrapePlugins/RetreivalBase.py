@@ -74,6 +74,9 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 			if self.die:
 				self.log.warning("Skipping job due to die flag!")
 				return
+			if not runStatus.run:
+				self.log.info( "Breaking due to exit flag being set")
+				return
 
 			status = self.getLink(link)
 
@@ -92,9 +95,6 @@ class RetreivalBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 				self.log.info("	-> %s", ret1)
 			self.log.info("	-> %s", ret2)
 
-			if not runStatus.run:
-				self.log.info( "Breaking due to exit flag being set")
-				return
 		except SystemExit:
 			self.die = True
 			raise

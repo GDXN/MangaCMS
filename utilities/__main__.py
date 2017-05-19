@@ -105,6 +105,9 @@ def printHelp():
 	print("		Find duplicates for all the items downloaded under the key {source-key}, and remove them.")
 	print("		'Deleted' files are actually moved to {del-dir}, to allow checking before actual deletion.")
 	print("		The moved files are named with the entire file-path, with the '/' being replaced with ';'.")
+	print("	fix-swapped-paths")
+	print("		Fix items where the path and filename are swapped in the database.")
+	print("	")
 
 	print("*********************************************************")
 	print("Miscellaneous Tools")

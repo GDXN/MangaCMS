@@ -127,10 +127,10 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 			# Look up by URL, so we don't break the UNIQUE constraint.
 			rows = self.getRowsByValue(sourceUrl  = dlLink)
-
-			if not rows:
-				#We only look at the filename/series tuple to determine uniqueness,
-				rows = self.getRowsByValue(originName = fileN, seriesname = seriesName)
+			rows = [row for row in rows if row['dlState'] < 3]
+			# if not rows:
+			# 	#We only look at the filename/series tuple to determine uniqueness,
+			# 	rows = self.getRowsByValue(originName = fileN, seriesname = seriesName)
 
 			if len(rows) == 0:
 				newItems += 1
@@ -155,7 +155,12 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 				self.log.warning("Info dict for file:")
 				self.log.warning("'%s'", (dlLink, seriesName, fileN))
 				self.log.warning("Found rows:")
-				self.log.warning("'%s'", rows)
+				for row in rows:
+
+					self.log.warning("'%s'", row)
+					self.log.warning("'%s'", row['dlState'] < 3)
+
+
 			elif len(rows) == 1:
 				row = rows.pop()
 				if row["sourceUrl"] != dlLink:

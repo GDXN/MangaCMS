@@ -20,7 +20,6 @@ class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 	loggerPath = 'Main.DlProc'
 	tableKey = 'n/a'
 
-
 	def updatePath(self, oldPath, newPath):
 		oldItemRoot, oldItemFile = os.path.split(oldPath)
 		newItemRoot, newItemFile = os.path.split(newPath)
@@ -215,10 +214,17 @@ class MangaProcessor(DownloadProcessor):
 	tableName = 'MangaItems'
 	pron = False
 
+	def __init__(self, *args, **kwargs):
+		self.loggerPath += "-" + self.tableName
+		super().__init__(*args, **kwargs)
+
 class HentaiProcessor(DownloadProcessor):
 	tableName = 'HentaiItems'
 	pron = True
 
+	def __init__(self, *args, **kwargs):
+		self.loggerPath += "-" + self.tableName
+		super().__init__(*args, **kwargs)
 
 def processDownload(*args, **kwargs):
 	if 'pron' in kwargs:
