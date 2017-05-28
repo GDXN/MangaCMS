@@ -11,11 +11,11 @@ if [ $EUID -ne 0 ]; then
 fi
 
 # install said up-to-date python
-apt-get install -y python3.4 python3.4-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.5 unrar
+apt-get install -y python3.4 python3-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.5 unrar
 apt-get install -y postgresql-server-dev-9.5 postgresql-contrib libyaml-dev git phantomjs libffi-dev
 
 # PIL/Pillow support stuff
-sudo apt-get install -y libtiff4-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
+sudo apt-get install -y libtiff5-dev libjpeg-turbo8-dev zlib1g-dev liblcms2-dev libwebp-dev libxml2 libxslt1-dev
 
 # Install Numpy/Scipy support packages. Yes, scipy depends on FORTAN. Arrrgh
 sudo apt-get install -y gfortran libopenblas-dev liblapack-dev
@@ -48,6 +48,7 @@ sudo pip3 install --upgrade pyinotify python-dateutil apscheduler rarfile python
 sudo pip3 install --upgrade babel cython irc psycopg2 python-levenshtein chardet roman
 sudo pip3 install --upgrade python-sql natsort pyyaml pillow rpyc server_reloader selenium
 sudo pip3 install --upgrade logging_tree ftfy paramiko irc sqlalchemy
+sudo pip3 install --upgrade pysocks statsd pyexecjs
 
 # numpy and scipy are just needed for the image deduplication stuff. They can be left out if
 # those functions are not desired.
@@ -63,3 +64,5 @@ sudo pip3 install git+https://github.com/bear/parsedatetime
 sudo pip3 install --upgrade pylzma markdown
 
 sudo pip3 install git+https://github.com/fake-name/UniversalArchiveInterface.git
+
+echo "done"
