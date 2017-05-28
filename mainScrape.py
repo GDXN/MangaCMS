@@ -21,6 +21,7 @@ import runStatus
 import signal
 import nameTools as nt
 import activePlugins
+import firstRun
 
 import utilities.runPlugin
 
@@ -135,6 +136,7 @@ def preflight():
 	# This has been an issue in the past.
 	utilities.runPlugin.get_plugins()
 
+	firstRun.checkInitTables()
 
 	# runStatus.notq = UploadPlugins.Madokami.notifier.start_notifier()
 	runStatus.notq = None

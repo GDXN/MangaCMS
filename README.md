@@ -206,7 +206,13 @@ You also have to add the line
 to `/etc/postgresql/9.5/main/pg_hba.conf`, to allow local connections to the 
 postgres database with password auth.
 
-Once you have the above complete, you will want to run the bootstrap script `firstRun.py` to do the database setup. After that, you should be able to run `mainScrape` without issues.
+Once you have the above complete, the various tables should be bootstrapped upon 
+the execution of  `mainScrape.py`. This should be done /before/ any attempt to execute
+`mainWeb.py`, or the latter will fail due to the lack of the required tables.
+
+You can manually bootstrap the required tables by running `firstRun.py`. This 
+file should be idempotent, so running it repeatedly shouldn't have any harmful 
+side-effects.
 
 If you don't want all the plugins to run, you can disable them by commenting them out in `activePlugins.py`. The plugins that will run are in the dictionary `scrapePlugins` in that file. 
 Just comment out any plugin you don't want running.
