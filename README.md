@@ -189,7 +189,9 @@ postgres=# CREATE DATABASE mangacms;
 CREATE DATABASE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE mangacms to mangacmsuser;
 GRANT
-CREATE EXTENSION citext;
+postgres=# CREATE EXTENSION citext;
+CREATE EXTENSION
+postgres=# \q
 
 ```
 
