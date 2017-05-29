@@ -11,7 +11,7 @@ if [ $EUID -ne 0 ]; then
 fi
 
 # install said up-to-date python
-apt-get install -y python3.4 python3-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.5 unrar
+apt-get install -y python3 python3-dev build-essential postgresql-client postgresql-common libpq-dev postgresql-9.5 unrar
 apt-get install -y postgresql-server-dev-9.5 postgresql-contrib libyaml-dev git phantomjs libffi-dev
 
 # PIL/Pillow support stuff
