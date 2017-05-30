@@ -501,10 +501,11 @@ class MonitorDbBase(DbBase.DbBase):
 	def checkInitPrimaryDb(self):
 
 		self.log.info( "Content Retreiver Opening DB...",)
-		with self.context_cursor() as cur:
+		with self.transaction() as cur:
 			## LastChanged is when the last scanlation release was released
 			# Last checked is when the page was actually last scanned.
-			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
+			self.log.info("Checking table %s is present", self.tableName)
+			ret = cur.execute('''CREATE TABLE IF NOT EXISTS %s (
 												dbId            SERIAL PRIMARY KEY,
 
 												buName          CITEXT,
@@ -571,6 +572,7 @@ class MonitorDbBase(DbBase.DbBase):
 			# CREATE INDEX mangaseries_buTags_gin_index ON mangaseries USING gin((lower(buTags)::tsvector));
 
 
+			self.log.info("Checking table %s is present", self.nameMapTableName)
 			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
 												dbId            SERIAL PRIMARY KEY,
 												buId            text,
@@ -614,7 +616,7 @@ class MonitorDbBase(DbBase.DbBase):
 					cur.execute(nameFormat % (name, table))
 
 
-		self.log.info("Retreived page database created")
+		self.log.info("Retreived page database now exists")
 
 	@abc.abstractmethod
 	def go(self):

@@ -32,6 +32,10 @@ def checkInitTables():
 		print(plg)
 		tmp = plg()
 		tmp.checkInitPrimaryDb()
+		if hasattr(tmp, "checkInitSeriesDb"):
+			tmp.checkInitSeriesDb()
 
 if __name__ == "__main__":
+	import logSetup
+	logSetup.initLogging()
 	checkInitTables()
