@@ -96,15 +96,17 @@ class DbBase(LogBase.LoggerMixin, TransactionMixin, metaclass=abc.ABCMeta):
 		# 		debug           = True
 		# 	)
 		# self.mon_con.connect()
-
-		self.mon_con = statsd.StatsClient(
-				host = settings.GRAPHITE_DB_IP,
-				port = 8125,
-				prefix = 'MangaCMS.Scrapers.{tableName}.{pluginName}'.format(
-							tableName  = self.tableName.replace(".", "_"),
-							pluginName = self.pluginName.replace(".", "_"),
-						)
-				)
+		if settings.GRAPHITE_DB_IP:
+			self.mon_con = statsd.StatsClient(
+					host = settings.GRAPHITE_DB_IP,
+					port = 8125,
+					prefix = 'MangaCMS.Scrapers.{tableName}.{pluginName}'.format(
+								tableName  = self.tableName.replace(".", "_"),
+								pluginName = self.pluginName.replace(".", "_"),
+							)
+					)
+		else:
+			self.mon_con = None
 
 	def __del__(self):
 		if hasattr(self, 'db_connection_dict'):

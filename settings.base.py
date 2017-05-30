@@ -17,9 +17,7 @@ DATABASE_IP      = "127.0.0.1"
 # Note that a local socket will be tried before the DATABASE_IP value, so if DATABASE_IP is
 # invalid, it may work anyways.
 
-# If you have a statsd instance, put it's IP here. Otherwise, just leave it at localhost or any routable IP
-# UDP messages are sent to the address in question, but because they're UDP, pointing
-# them at an address where no one is listening is harmless.
+# If you have a statsd instance, put it's IP here. Otherwise, it can be set to None to disable
 GRAPHITE_DB_IP = "127.0.0.1"
 
 # Note: Paths have to be absolute.

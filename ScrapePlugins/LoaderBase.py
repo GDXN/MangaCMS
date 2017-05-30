@@ -60,10 +60,10 @@ class LoaderBase(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 				self.log.info("New item: %s", link)
 
 
+		if self.mon_con:
+			self.mon_con.incr('new_links', newItems)
 
-		ret = self.mon_con.incr('new_links', newItems)
-
-		self.log.info( "Done (%s new items, update: %s)", newItems, ret)
+		self.log.info( "Done (%s new items)", newItems)
 
 		return newItems
 
