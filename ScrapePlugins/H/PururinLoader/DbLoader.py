@@ -34,7 +34,7 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 			# I really don't get the logic behind Pururin's path scheme.
 			if pageOverride > 1:
 
-				urlPath = '/browse/search/1/{num}.html'.format(num=pageOverride)
+				urlPath = '/browse/newest?page={num}'.format(num=pageOverride)
 				pageUrl = urllib.parse.urljoin(self.urlBase, urlPath)
 			else:
 				# First page is just the bare URL. It /looks/ like they're blocking the root page by direct path.
@@ -51,10 +51,10 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 
 
-	def parseLinkLi(self, linkLi):
+	def parseLinkLi(self, linkdiv):
 		ret = {}
-		ret["originName"] = " / ".join(linkLi.h2.strings) # Messy hack to replace <br> tags with a ' / "', rather then just removing them.
-		ret["sourceUrl"] = urllib.parse.urljoin(self.urlBase, linkLi.a["href"])
+		ret["originName"] = " / ".join(linkdiv.find("div", class_='title').strings) # Messy hack to replace <br> tags with a ' / "', rather then just removing them.
+		ret["sourceUrl"] = urllib.parse.urljoin(self.urlBase, linkdiv["href"])
 		ret["retreivaltime"] = time.time()
 
 		return ret
@@ -72,9 +72,9 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 
 			soup = bs4.BeautifulSoup(page, "lxml")
 
-			mainSection = soup.find("ul", class_="gallery-list")
+			mainSection = soup.find("div", class_="gallery-listing")
 
-			doujinLink = mainSection.find_all("li", class_="gallery-block")
+			doujinLink = mainSection.find_all("a", class_="thumb-pururin")
 
 			for linkLi in doujinLink:
 				tmp = self.parseLinkLi(linkLi)
@@ -96,9 +96,10 @@ if __name__ == "__main__":
 
 	with tb.testSetup(load=False):
 
-		run = PururinDbLoader()
+		run = DbLoader()
 		# run.go()
 		for x in range(1000):
 			dat = run.getFeed(pageOverride=[x])
-			run.processLinksIntoDB(dat, ago=(60 * 60 * 24 * (x+100)))
+			print("Found %s items" % len(dat))
+			run._processLinksIntoDB(dat)
 

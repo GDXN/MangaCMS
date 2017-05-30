@@ -48,11 +48,12 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 	def getFileName(self, soup):
-		container = soup.find("table", class_="table-data")
+		container = soup.find("span", class_='info')
+		# Descriptive, eh?
+		tagTable = container.find("table", class_="table")
 		link_w_title = container.find("a", title=True)
 		title = link_w_title['title']
 
-		# Read THE iDOLM@STER CINDERELLA GIRLS X-RATED 765  / THE iDOLM@STER シンデレラガールズ X-RATED 765 Online
 		bad_prefix = "Read "
 		bad_postfix = " Online"
 		if title.startswith(bad_prefix):
@@ -97,7 +98,9 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 
 
 	def getCategoryTags(self, soup):
-		tagTable = soup.find("table", class_="table-info")
+		container = soup.find("span", class_='info')
+		# Descriptive, eh?
+		tagTable = container.find("table", class_="table")
 
 		tags = []
 
@@ -216,16 +219,21 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 		scripts = "\n".join([scrt.get_text() for scrt in soup.find_all("script")])
 		dat_arr = None
 		for line in [t.strip() for t in scripts.split("\n") if t.strip()]:
-			if line.startswith("var d = "):
+			var_prefix = "var chapters = "
+			if line.startswith(var_prefix):
 				# Trin off the assignment and semicoln
-				data = line[8:-1]
+				data = line[len(var_prefix):-1]
 				dat_arr = json.loads(data)
 		if not dat_arr:
 			return []
 
+		self.log.info("Found %s images", len(dat_arr))
+
 		images = []
-		for dummy_key, value in dat_arr.items():
-			images.append(self.getImage(value['chapter_image'], linkDict['spage']))
+		values = list(dat_arr.values())
+		values.sort(key=lambda x: x['page'])
+		for value in values:
+			images.append(self.getImage(value['image'], linkDict['spage']))
 
 		return images
 
@@ -284,7 +292,7 @@ class ContentLoader(ScrapePlugins.RetreivalBase.RetreivalBase):
 			return wholePath
 
 		else:
-
+			self.log.warning("No images found?")
 			self.updateDbEntry(linkDict["sourceUrl"], dlState=-1, downloadPath="ERROR", fileName="ERROR: FAILED")
 
 			return False
@@ -301,6 +309,9 @@ if __name__ == "__main__":
 
 	with tb.testSetup(load=False):
 
-		run = PururinContentLoader()
-		run.go()
+		run = ContentLoader()
+
+		todo = run._retreiveTodoLinksFromDB()
+		for link in todo:
+			run.getLink(link)
 
