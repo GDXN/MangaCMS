@@ -187,7 +187,7 @@ class MonitorDbBase(DbBase.DbBase):
 		queries = []
 		qArgs = []
 
-		row = self.getRowByValue(dbId=dbId)
+		row = self.getRowByValue(dbId=dbId, cur=cur)
 		if not row:
 			raise ValueError("Trying to update a row that doesn't exist!")
 
@@ -379,8 +379,6 @@ class MonitorDbBase(DbBase.DbBase):
 
 		new = 0
 		with self.transaction() as cur:
-
-
 			for name, mId in items:
 				row = self.getRowByValue(buId=mId, cur=cur)
 				if row:
