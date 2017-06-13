@@ -13,6 +13,13 @@ import runStatus
 PHASH_DISTANCE = 4
 
 
+NEGATIVE_KEYWORDS = [
+	'www.hentairules.com',     # HentaiRules seems to consistently bundle lots of shit into a single archive, which
+	                           # then gets deduped against, and you wind up with 37 one-shots in a single file,
+	                           # which then makes the tags less useful.
+]
+
+
 class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 
 	pluginName = 'Download Processor'
@@ -109,7 +116,7 @@ class DownloadProcessor(ScrapePlugins.MangaScraperDbBase.MangaScraperDbBase):
 				# I need some sort of deletion lock for file removal. Outside deletion is disabled until that's done.
 				# EDIT: Wrapped the deduper end in a lock.
 
-				dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathPositiveFilter=pathPositiveFilter)
+				dc = deduplicator.archChecker.ArchChecker(archivePath, phashDistance=phashThresh, pathPositiveFilter=pathPositiveFilter, negativeKeywords=NEGATIVE_KEYWORDS)
 				retTags, bestMatch, dummy_intersections = dc.process(moveToPath=moveToPath)
 				retTags = retTags.strip()
 
