@@ -150,8 +150,9 @@ def buildQuery(srcTbl, cols, **kwargs):
 
 		andOperators.append((srcTbl.seriesname == kwargs['seriesName']))
 
-
-
+	if "includeDeleted" not in kwargs or kwargs['includeDeleted'] is False:
+			match = '%was-duplicate%'
+			andOperators.append(sqlo.Not(sqlo.Like(srcTbl.tags, match)))
 
 	# Trigram similarity search uses the '%' symbol. It's only exposed by the python-sql library as the
 	# "mod" operator, but the syntax is compatible.
@@ -184,8 +185,8 @@ def buildQuery(srcTbl, cols, **kwargs):
 		query.limit = int(kwargs['limit'])
 
 	q, p = tuple(query)
-	# print("Query = '%s'" % (q, ))
-	# print("Params = '%s'" % (p, ))
+	## print("Query = '%s'" % (q, ))
+	## print("Params = '%s'" % (p, ))
 
 	return query
 
@@ -779,7 +780,7 @@ colours = {
 	%>
 </%def>
 
-<%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False, originTrigram=None)">
+<%def name="genPronTable(siteSource=None, limit=100, offset=0, tagsFilter=None, seriesFilter=None, getErrored=False, originTrigram=None, includeDeleted=False)">
 
 	<%
 
@@ -791,12 +792,13 @@ colours = {
 
 	query = buildQuery(hentaiTable,
 		cols,
-		tableKey      = siteSource,
-		tagsFilter    = tagsFilter,
-		seriesFilter  = seriesFilter,
-		limit         = limit,
-		offset        = offset,
-		originTrigram = originTrigram)
+		tableKey       = siteSource,
+		tagsFilter     = tagsFilter,
+		seriesFilter   = seriesFilter,
+		limit          = limit,
+		offset         = offset,
+		originTrigram  = originTrigram,
+		includeDeleted = includeDeleted)
 
 
 

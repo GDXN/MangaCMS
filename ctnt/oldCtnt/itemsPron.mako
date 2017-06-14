@@ -105,11 +105,14 @@ offset = limit * pageNo
 
 tagsFilter = None
 seriesFilter = None
+includeDeleted = False
 
 if "byTag" in request.params:
 	tagsFilter = request.params.getall("byTag")
 if "bySeries" in request.params:
 	seriesFilter = request.params.getall("bySeries")
+if "includeDeleted" in request.params:
+	includeDeleted = True
 
 if "sourceSite" in request.params:
 	tmpSource = request.params.getall("sourceSite")
@@ -121,8 +124,16 @@ else:
 
 prevPage = request.params.copy()
 prevPage["page"] = pageNo
+
 nextPage = request.params.copy()
 nextPage["page"] = pageNo+2
+
+noDups = request.params.copy()
+if 'includeDeleted' in noDups:
+	noDups.pop('includeDeleted')
+
+withDups = request.params.copy()
+withDups["includeDeleted"] = True
 
 
 sourceItems = {}
@@ -153,13 +164,24 @@ else:
 			<div class="contentdiv">
 				<h3>${sourceName}</h3>
 				${tableGenerators.genLegendTable(pron=True)}
-				Query =<br>
-				% for key in request.params.keys():
-					% if key != "page":
-						${key} ${request.params.getall(key)}<br>
-					% endif
-				% endfor
-				${tableGenerators.genPronTable(siteSource=sourceFilter, offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter)}
+				Query =
+				% if request.params:
+					% for key in set(request.params.keys()):
+						% if key != "page":
+							${key} ${request.params.getall(key)},
+						% endif
+					% endfor
+				% else:
+					None!
+				% endif
+
+				% if includeDeleted:
+					Including duplicates. <a href="itemsPron?${urllib.parse.urlencode(noDups)}">Without duplicates</a>
+				% else:
+					Not including duplicates. <a href="itemsPron?${urllib.parse.urlencode(withDups)}">With duplicates</a>
+				% endif
+
+				${tableGenerators.genPronTable(siteSource=sourceFilter, offset=pageNo, tagsFilter=tagsFilter, seriesFilter=seriesFilter, includeDeleted=includeDeleted)}
 			</div>
 
 			% if pageNo > 0:
