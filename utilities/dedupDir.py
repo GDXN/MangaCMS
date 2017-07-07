@@ -12,6 +12,8 @@ import traceback
 import os
 import deduplicator.archChecker
 
+class UntaggableError(RuntimeError):
+	pass
 
 class DirDeduper(DbBase.DbBase):
 
@@ -55,7 +57,7 @@ class DirDeduper(DbBase.DbBase):
 				self.log.warning("Path: '%s'", srcPath)
 				self.log.warning("New tags: '%s'", newTags)
 
-				raise RuntimeError("Could not add tag to row that does not exist!")
+				raise UntaggableError("Could not add tag to row that does not exist!")
 
 			for tags, rowId in zip(tagsets, rowIds):
 				if tags is None:
@@ -131,6 +133,10 @@ class DirDeduper(DbBase.DbBase):
 				time.sleep(3)
 				if failures > 50:
 					raise
+
+			except UntaggableError as e:
+				self.log.error("UntaggableError: %s", e)
+				return
 
 			except KeyboardInterrupt:
 				raise
@@ -269,7 +275,7 @@ class DirDeduper(DbBase.DbBase):
 			else:
 				raise RuntimeError("File has path and filename swapped! Source: %s" % sourcesite)
 
-			if tags and 'dup-checked' in taglist:
+			if tags and 'dup-checked' in taglist or 'missing-file' in taglist:
 				# self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
 				skipped += 1
 				if skipped % 100 == 0:
@@ -288,6 +294,7 @@ class DirDeduper(DbBase.DbBase):
 
 			if not os.path.exists(fpath):
 				self.log.warning("File for item seems to be missing!")
+				self.addTag(fpath, 'missing-file')
 				continue
 
 			if not os.path.isfile(fpath):
