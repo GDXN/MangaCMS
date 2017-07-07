@@ -1,9 +1,11 @@
 
-
+# Yeah. just used for ~~one~~ two boolean flags.
 run = True
 
-def getStatus(con, pluginName):
-	cur = con.cursor()
-	ret = cur.execute("""SELECT running,lastRun,lastRunTime FROM pluginStatus WHERE name=?""", (pluginName, ))
-	rets = ret.fetchall()[0]
-	return rets
+# Determines if proxies in nameTools preload contents when started.
+preloadDicts = False
+
+import multiprocessing
+run_state     = multiprocessing.Value('i', 1)
+
+notq = None

@@ -1,16 +1,24 @@
 
 
 import logging
-import sqlite3
+import psycopg2
+import threading
 import abc
 import traceback
 import time
+import settings
+import nameTools as nt
+import DbBase
 
-class MonitorDbBase(metaclass=abc.ABCMeta):
+class MonitorDbBase(DbBase.DbBase):
+	'''
+	This was originally supposed to be a general purpose series monitoring
+	base, but at this point it's basically only useful for MangaUpdates.
+	Meh?
+	'''
 
 	# Abstract class (must be subclassed)
 	__metaclass__ = abc.ABCMeta
-
 
 
 	@abc.abstractmethod
@@ -36,10 +44,13 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 
+
 	def __init__(self):
-		self.log = logging.getLogger(self.loggerPath)
+		super().__init__()
+
+
+
 		self.log.info("Loading %s Monitor BaseClass", self.pluginName)
-		self.openDB()
 		self.checkInitPrimaryDb()
 
 		self.validKwargs  = ["buName",
@@ -53,6 +64,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 							"buOriginState",
 							"buDescription",
 							"buRelState",
+							"buType",
 
 							"readingProgress",
 							"availProgress",
@@ -73,6 +85,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 							"buOriginState",
 							"buDescription",
 							"buRelState",
+							"buType",
 
 							"readingProgress",
 							"availProgress",
@@ -81,21 +94,37 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 							"lastChecked",
 							"itemAdded"]
 
-	def openDB(self):
-		self.log.info("Opening DB...",)
-		self.conn = sqlite3.connect(self.dbName, timeout=10)
 
-		self.log.info("DB opened. Activating 'wal' mode, exclusive locking")
-		rets = self.conn.execute('''PRAGMA journal_mode=wal;''')
-		# rets = self.conn.execute('''PRAGMA locking_mode=EXCLUSIVE;''')
-		rets = rets.fetchall()
 
-		self.log.info("PRAGMA return value = %s", rets)
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
+	# Messy hack to do log indirection so I can inject thread info into log statements, and give each thread it's own DB handle.
+	# Basically, intercept all class member accesses, and if the access is to either the logging interface, or the DB,
+	# look up/create a per-thread instance of each, and return that
+	#
+	# The end result is each thread just uses `self.conn` and `self.log` as normal, but actually get a instance of each that is
+	# specifically allocated for just that thread
+	#
+	# ~~Sqlite 3 doesn't like having it's DB handles shared across threads. You can turn the checking off, but I had
+	# db issues when it was disabled. This is a much more robust fix~~
+	#
+	# Migrated to PostgreSQL. We'll see how that works out.
+	#
+	# The log indirection is just so log statements include their originating thread. I like lots of logging.
+	#
+	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	def closeDB(self):
-		self.log.info("Closing DB...",)
-		self.conn.close()
-		self.log.info("DB Closed")
+	def __getattribute__(self, name):
+
+		threadName = threading.current_thread().name
+		if name == "log" and "Thread-" in threadName:
+			if threadName not in self.loggers:
+				self.loggers[threadName] = logging.getLogger("%s.Thread-%d" % (self.loggerPath, self.lastLoggerIndex))
+				self.lastLoggerIndex += 1
+			return self.loggers[threadName]
+
+
+		else:
+			return object.__getattribute__(self, name)
 
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -114,7 +143,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			if key not in self.validKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			keys.append("{key}".format(key=key))
-			values.append("?")
+			values.append("%s")
 			queryAdditionalArgs.append("{s}".format(s=kwargs[key]))
 
 		keysStr = ",".join(keys)
@@ -127,28 +156,38 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	# MASSIVELY faster if you set commit=False (it doesn't flush the write to disk), but that can open a transaction which locks the DB.
 	# Only pass commit=False if the calling code can gaurantee it'll call commit() itself within a reasonable timeframe.
 	def insertIntoDb(self, commit=True, **kwargs):
-		cur = self.conn.cursor()
+		cur = kwargs.pop('cur', None)
+
 		keysStr, valuesStr, queryAdditionalArgs = self.buildInsertArgs(**kwargs)
 
 		query = '''INSERT INTO {tableName} ({keys}) VALUES ({values});'''.format(tableName=self.tableName, keys=keysStr, values=valuesStr)
 
 		# print("Query = ", query, queryAdditionalArgs)
 
-		cur.execute(query, queryAdditionalArgs)
+		if cur:
+			cur.execute(query, queryAdditionalArgs)
+			return
 
-		if commit:
-			self.conn.commit()
+		with self.transaction(commit=commit) as cur:
+			cur.execute(query, queryAdditionalArgs)
 
 
 	# Update entry with key sourceUrl with values **kwargs
 	# kwarg names are checked for validity, and to prevent possiblity of sql injection.
 	def updateDbEntry(self, dbId, commit=True, **kwargs):
 
+		cur = kwargs.pop('cur', None)
+
+		# lowercase the tags/genre
+		if "buGenre" in kwargs:
+			kwargs['buGenre'] = kwargs['buGenre'].lower()
+		if "buTags" in kwargs:
+			kwargs['buTags'] = kwargs['buTags'].lower()
 
 		queries = []
 		qArgs = []
 
-		row = self.getRowByValue(dbId=dbId)
+		row = self.getRowByValue(dbId=dbId, cur=cur)
 		if not row:
 			raise ValueError("Trying to update a row that doesn't exist!")
 
@@ -158,48 +197,83 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			if key not in self.validKwargs:
 				raise ValueError("Invalid keyword argument: %s" % key)
 			else:
-				queries.append("{k}=?".format(k=key))
+				queries.append("{k}=%s".format(k=key))
 				qArgs.append(kwargs[key])
 
 		qArgs.append(dbId)
 		column = ", ".join(queries)
 
-		cur = self.conn.cursor()
 
-		query = '''UPDATE {t} SET {v} WHERE dbId=?;'''.format(t=self.tableName, v=column)
-		cur.execute(query, qArgs)
+		query = '''UPDATE {t} SET {v} WHERE dbId=%s;'''.format(t=self.tableName, v=column)
+
+		if cur:
+			cur.execute(query, qArgs)
+			return
+
+		try:
+			with self.transaction(commit=commit) as cur:
+				cur.execute(query, qArgs)
+		except Exception as e:
+			print(query)
+			print(qArgs)
+			raise e
 
 
-		if commit:
-			self.conn.commit()
 
 	def deleteRowById(self, rowId, commit=True):
-
-		cur = self.conn.cursor()
-
-
-		query = ''' DELETE FROM {tableN} WHERE dbId=?;'''.format(tableN=self.tableName)
+		query = ''' DELETE FROM {tableN} WHERE dbId=%s;'''.format(tableN=self.tableName)
 		qArgs = (rowId, )
-		cur.execute(query, qArgs)
 
-		if commit:
-			self.conn.commit()
+		with self.transaction(commit=commit) as cur:
+
+			cur.execute(query, qArgs)
+
+
+	def deleteRowByBuId(self, buId, commit=True):
+		buId = str(buId)
+		query1 = ''' DELETE FROM {tableN} WHERE buId=%s;'''.format(tableN=self.nameMapTableName)
+		qArgs = (buId, )
+		query2 = ''' DELETE FROM {tableN} WHERE buId=%s;'''.format(tableN=self.tableName)
+		qArgs = (buId, )
+
+
+		with self.transaction(commit=commit) as cur:
+
+			cur.execute(query1, qArgs)
+			cur.execute(query2, qArgs)
+
 
 	def getRowsByValue(self, **kwargs):
+		cur = kwargs.pop('cur', None)
+
 		if len(kwargs) != 1:
 			raise ValueError("getRowsByValue only supports calling with a single kwarg", kwargs)
-		validCols = ["dbId", "mtName", "mtId", "buName", "buId"]
+
+
+		validCols = ["dbId", "buName", "buId"]
 		key, val = kwargs.popitem()
 		if key not in validCols:
 			raise ValueError("Invalid column query: %s" % key)
 
-		cur = self.conn.cursor()
 
-		query = '''SELECT {cols} FROM {tableN} WHERE {key}=?;'''.format(cols=", ".join(self.validColName), tableN=self.tableName, key=key)
+		# work around the auto-cast of numeric strings to integers
+		typeSpecifier = ''
+		if key == "buId":
+			typeSpecifier = '::TEXT'
+
+
+		query = '''SELECT {cols} FROM {tableN} WHERE {key}=%s{type};'''.format(cols=", ".join(self.validColName), tableN=self.tableName, key=key, type=typeSpecifier)
 		# print("Query = ", query)
-		ret = cur.execute(query, (val, ))
 
-		rets = ret.fetchall()
+		if cur is None:
+			with self.transaction() as cur:
+				cur.execute(query, (val, ))
+				rets = cur.fetchall()
+		else:
+			cur.execute(query, (val, ))
+			rets = cur.fetchall()
+
+
 		retL = []
 		if rets:
 			keys = self.validColName
@@ -219,14 +293,15 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 
 
 	def getColumnItems(self, colName):
-		cur = self.conn.cursor()
 		if not colName in self.validColName:
 			raise ValueError("getColumn must be called with a valid column name", colName)
 
 		query = ''' SELECT ({colName}) FROM {tableN};'''.format(colName=colName, tableN=self.tableName)
-		ret = cur.execute(query)
 
-		rets = ret.fetchall()
+		with self.context_cursor() as cur:
+			ret = cur.execute(query)
+			rets = cur.fetchall()
+
 		retL = []
 		if rets:
 			for item in rets:
@@ -234,7 +309,7 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		return retL
 
 	def mergeItems(self, fromDict, toDict):
-		validMergeKeys = ["dbId", "mtName", "mtId", "buName", "buId"]
+		validMergeKeys = ["dbId", "buName", "buId"]
 		for modeDict in [fromDict, toDict]:
 			if len(modeDict) != 1:
 				raise ValueError("Each selector item must only be a single item long!")
@@ -249,9 +324,9 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 		toRow   = self.getRowByValue(**toDict)
 
 		if not fromRow:
-			raise ValueError("FromRow has no corresponding value in the dictionary! FromRow={row1}".format(row1=fromRow, row2=toRow))
+			raise ValueError("FromRow has no corresponding value in the dictionary! FromRow={row1}".format(row1=fromRow))
 		if not toRow:
-			raise ValueError("ToRow has no corresponding value in the dictionary! ToRow={row2}".format(row1=fromRow, row2=toRow))
+			raise ValueError("ToRow has no corresponding value in the dictionary! ToRow={row2}".format(row2=toRow))
 
 		# self.printDict(fromRow)
 		# self.printDict(toRow)
@@ -276,21 +351,14 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 					toRow[key] = fromRow[key]
 
 		# self.printDict(toRow)
-		try:
-			dbId = toRow["dbId"]
-			toRow.pop("dbId")
-			self.conn.commit()
+		dbId = toRow["dbId"]
+		toRow.pop("dbId")
+
+		with self.transaction(commit=True):
+
 			self.deleteRowById(fromRow["dbId"], commit=False)
 			self.updateDbEntry(dbId, commit=False, **toRow)
-			self.conn.commit()
 
-		except (sqlite3.OperationalError, sqlite3.IntegrityError) as e:
-			self.log.critical("Encountered error!")
-			self.log.critical(e)
-			traceback.print_exc()
-			self.conn.rollback()
-			self.log.critical("Rolled back")
-			raise e
 
 	def printDict(self, inDict):
 		keys = list(inDict.keys())
@@ -301,48 +369,127 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 			print("	", keyStr, " "*(20-len(keyStr)), inDict[key])
 
 	def printDb(self):
-		cur = self.conn.cursor()
-		ret = cur.execute('SELECT * FROM {db};'.format(db=self.tableName))
-		for line in ret.fetchall():
-			print(line)
+		with self.context_cursor() as cur:
+			cur.execute('SELECT * FROM {db};'.format(db=self.tableName))
+			for line in cur.fetchall():
+				print(line)
 
 
 	def insertBareNameItems(self, items):
 
-		cur = self.conn.cursor()
-		for name, mId in items:
-			row = self.getRowByValue(buId=mId)
-			if row:
-				if name.lower() != row["buName"].lower():
-					self.log.warning("Name disconnect!")
-					self.log.warning("New name='%s', old name='%s'.", name, row["buName"])
-					self.log.warning("Whole row=%s", row)
-					self.updateDbEntry(row["dbId"], buName=name, commit=False)
-
-			else:
-				row = self.getRowByValue(buName=name)
+		new = 0
+		with self.transaction() as cur:
+			for name, mId in items:
+				row = self.getRowByValue(buId=mId, cur=cur)
 				if row:
-					self.log.error("Conflicting with existing series?")
-					self.log.error("Existing row = %s, %s", row["buName"], row["buId"])
-					self.log.error("Current item = %s, %s", name, mId)
-					self.updateDbEntry(row["dbId"], buName=name, commit=False)
+					if name.lower() != row["buName"].lower():
+						self.log.warning("Name disconnect!")
+						self.log.warning("New name='%s', old name='%s'.", name, row["buName"])
+						self.log.warning("Whole row=%s", row)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0, cur=cur)
+
 				else:
-					self.insertIntoDb(buName=name,
-									buId=mId,
-									lastChanged=0,
-									lastChecked=0,
-									itemAdded=time.time(),
-									commit=False)
-				# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
-		cur.fetchall()
-		self.conn.commit()
+					row = self.getRowByValue(buName=name, cur=cur)
+					if row:
+						self.log.error("Conflicting with existing series?")
+						self.log.error("Existing row = %s, %s", row["buName"], row["buId"])
+						self.log.error("Current item = %s, %s", name, mId)
+						self.updateDbEntry(row["dbId"], buName=name, commit=False, lastChanged=0, lastChecked=0, cur=cur)
+					else:
+						self.insertIntoDb(buName    = name,
+										buId        = mId,
+										lastChanged = 0,
+										lastChecked = 0,
+										itemAdded   = time.time(),
+										commit      = False,
+										cur         = cur)
+						new += 1
+					# cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
+
+		if new:
+			self.log.info("%s new items in inserted set.", new)
 
 	def insertNames(self, buId, names):
+		self.log.info("Updating name synonym table for %s with %s name(s).", buId, len(names))
+		with self.transaction() as cur:
 
-		cur = self.conn.cursor()
-		for name in names:
-			cur.execute("""INSERT INTO %s (buId, name)VALUES (?, ?);""" % self.nameMapTableName, (buId, name))
-		cur.fetchall()
+
+			# delete the old names from the table, so if they're removed from the source, we'll match that.
+			cur.execute("DELETE FROM {tableName} WHERE buId=%s;".format(tableName=self.nameMapTableName), (buId, ))
+
+			alreadyAddedNames = []
+			for name in names:
+				fsSafeName = nt.prepFilenameForMatching(name)
+				if not fsSafeName:
+					fsSafeName = nt.makeFilenameSafe(name)
+
+				# we have to block duplicate names. Generally, it's pretty common
+				# for multiple names to screen down to the same name after
+				# passing through `prepFilenameForMatching()`.
+				if fsSafeName in alreadyAddedNames:
+					continue
+
+				alreadyAddedNames.append(fsSafeName)
+
+				cur.execute("""INSERT INTO %s (buId, name, fsSafeName) VALUES (%%s, %%s, %%s);""" % self.nameMapTableName, (buId, name, fsSafeName))
+
+		self.log.info("Updated!")
+	def getIdFromName(self, name):
+
+		with self.context_cursor() as cur:
+			cur.execute("""SELECT buId FROM %s WHERE name=%%s;""" % self.nameMapTableName, (name, ))
+			ret = cur.fetchall()
+		if ret:
+			if len(ret[0]) != 1:
+				raise ValueError("Have ambiguous name. Cannot definitively link to manga series.")
+			return ret[0][0]
+		else:
+			return None
+
+	def getIdFromDirName(self, fsSafeName):
+
+		with self.context_cursor() as cur:
+			cur.execute("""SELECT buId FROM %s WHERE fsSafeName=%%s;""" % self.nameMapTableName, (fsSafeName, ))
+			ret = cur.fetchall()
+		if ret:
+			if len(ret[0]) != 1:
+				raise ValueError("Have ambiguous fsSafeName. Cannot definitively link to manga series.")
+			return ret[0][0]
+		else:
+			return None
+
+	def getNamesFromId(self, mId):
+
+		with self.context_cursor() as cur:
+			cur.execute("""SELECT name FROM %s WHERE buId=%%s::TEXT;""" % self.nameMapTableName, (mId, ))
+			ret = cur.fetchall()
+		if ret:
+			return ret
+		else:
+			return None
+
+
+	def getLastCheckedFromId(self, mId):
+
+		with self.context_cursor() as cur:
+			ret = cur.execute("""SELECT lastChecked FROM %s WHERE buId=%%s::TEXT;""" % self.tableName, (mId, ))
+			ret = cur.fetchall()
+		if len(ret) > 1:
+			raise ValueError("How did you get more then one buId?")
+		if ret:
+			# Return structure is [(time)]
+			# we want to just return time
+			return ret[0][0]
+		else:
+			return 0
+
+
+	def updateLastCheckedFromId(self, mId, changed):
+		with self.context_cursor() as cur:
+			cur.execute("""UPDATE %s SET lastChecked=%%s WHERE buId=%%s::TEXT;""" % self.tableName, (changed, mId))
+
+
+
 
 	# ---------------------------------------------------------------------------------------------------------------------------------------------------------
 	# DB Management
@@ -352,57 +499,122 @@ class MonitorDbBase(metaclass=abc.ABCMeta):
 	def checkInitPrimaryDb(self):
 
 		self.log.info( "Content Retreiver Opening DB...",)
+		with self.transaction() as cur:
+			## LastChanged is when the last scanlation release was released
+			# Last checked is when the page was actually last scanned.
+			self.log.info("Checking table %s is present", self.tableName)
+			ret = cur.execute('''CREATE TABLE IF NOT EXISTS %s (
+												dbId            SERIAL PRIMARY KEY,
 
+												buName          CITEXT,
+												buId            text UNIQUE,
+												buTags          CITEXT,
+												buGenre         CITEXT,
+												buList          CITEXT,
 
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS %s (
-											dbId            INTEGER PRIMARY KEY,
+												buArtist        text,
+												buAuthor        text,
+												buOriginState   text,
+												buDescription   text,
+												buRelState      text,
+												buType          text,
 
-											buName          text COLLATE NOCASE UNIQUE,
-											buId            text COLLATE NOCASE UNIQUE,
-											buTags          text,
-											buGenre         text,
-											buList          text,
+												readingProgress int,
+												availProgress   int,
 
-											buArtist        text,
-											buAuthor        text,
-											buOriginState   text,
-											buDescription   text,
-											buRelState      text,
+												rating          int,
+												lastChanged     double precision,
+												lastChecked     double precision,
+												itemAdded       double precision NOT NULL
+												);''' % self.tableName)
 
-											readingProgress int,
-											availProgress   int,
-
-											rating          int,
-											lastChanged     real,
-											lastChecked     real,
-											itemAdded       real NOT NULL
-											);''' % self.tableName)
-
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastChanged)'''            % ("%s_lastChanged_index"  % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (lastChecked)'''            % ("%s_lastChecked_index"  % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (itemAdded)'''              % ("%s_itemAdded_index"    % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (rating)'''                 % ("%s_rating_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buName collate nocase)'''  % ("%s_buName_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId   collate nocase)'''  % ("%s_buId_index"         % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buTags collate nocase)'''  % ("%s_buTags_index"       % self.tableName, self.tableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buGenre collate nocase)''' % ("%s_buGenre_index"      % self.tableName, self.tableName))
+			cur.execute("SELECT relname FROM pg_class;")
+			haveIndexes = cur.fetchall()
+			haveIndexes = [index[0] for index in haveIndexes]
 
 
 
 
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS %s (
-											dbId            INTEGER PRIMARY KEY,
-											buId            text COLLATE NOCASE,
-											name            text COLLATE NOCASE,
-											FOREIGN KEY(buId) REFERENCES %s(buId),
-											UNIQUE(buId, name) ON CONFLICT REPLACE
-											);''' % (self.nameMapTableName, self.tableName))
+			indexes = [	("%s_lastChanged_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChanged)'''),
+						("%s_lastChecked_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (lastChecked)'''),
+						("%s_itemAdded_index"    % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (itemAdded)'''  ),
+						("%s_rating_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (rating)'''     ),
+						("%s_buName_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buName)''' ),
+						("%s_buId_index"         % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buId  )''' ),
+						("%s_buTags_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buTags)''' ),
+						("%s_buGenre_index"      % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buGenre)'''),
+						("%s_buType_index"       % self.tableName, self.tableName, '''CREATE INDEX %s ON %s (buType)'''),
 
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (buId collate nocase)''' % ("%s_nameTable_mtId_index"      % self.nameMapTableName, self.nameMapTableName))
-		self.conn.execute('''CREATE INDEX IF NOT EXISTS %s ON %s (name collate nocase)''' % ("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName))
+						# And the GiN indexes to allow full-text searching so we can search by genre/tags.
+						("%s_buTags_gin_index"   % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin((lower(buTags)::tsvector))'''),
+						("%s_buGenre_gin_index"  % self.tableName, self.tableName, '''CREATE INDEX %s ON %s USING gin((lower(buGenre)::tsvector))'''),
 
-		self.conn.commit()
-		self.log.info("Retreived page database created")
+			]
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					cur.execute(nameFormat % (name, table))
+
+
+			# CREATE INDEX mangaseries_buTags_gist_index ON mangaseries USING gist(to_tsvector('simple', buTags));
+			# CREATE INDEX mangaseries_buGenre_gist_index ON mangaseries USING gist(to_tsvector('simple', buGenre));
+
+			# CREATE INDEX mangaseries_buTags_gin_index ON mangaseries USING gin(to_tsvector('simple', buTags));
+			# CREATE INDEX mangaseries_buGenre_gin_index ON mangaseries USING gin(to_tsvector('simple', buGenre));
+
+			# SELECT * FROM ts_stat('SELECT to_tsvector(''english'',buTags) from mangaseries') ORDER BY nentry DESC;
+
+			# DROP INDEX mangaseries_buGenre_gin_index;
+			# DROP INDEX mangaseries_buTags_gin_index;
+
+			# CREATE INDEX mangaseries_buGenre_gin_index ON mangaseries USING gin((lower(buGenre)::tsvector));
+			# CREATE INDEX mangaseries_buTags_gin_index ON mangaseries USING gin((lower(buTags)::tsvector));
+
+
+			self.log.info("Checking table %s is present", self.nameMapTableName)
+			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
+												dbId            SERIAL PRIMARY KEY,
+												buId            text,
+												name            CITEXT,
+												fsSafeName      CITEXT,
+												FOREIGN KEY(buId) REFERENCES %s(buId),
+												UNIQUE(buId, name)
+												);''' % (self.nameMapTableName, self.tableName))
+
+
+
+			indexes = [	("%s_nameTable_buId_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (buId      )'''       ),
+						("%s_nameTable_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (name      )'''       ),
+						("%s_fSafeName_fs_name_index"   % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (fsSafeName, name)''' ),
+						("%s_fSafeName_name_index"      % self.nameMapTableName, self.nameMapTableName, '''CREATE INDEX %s ON %s (fsSafeName)'''       )
+			]
+
+
+			cur.execute('''CREATE TABLE IF NOT EXISTS %s (
+												dbId            SERIAL PRIMARY KEY,
+												buId            text,
+												vol             double precision,
+												chap            double precision,
+												other           text,
+												releaseText     text,
+
+												FOREIGN KEY(buId) REFERENCES %s(buId),
+												UNIQUE(buId, vol, chap, other)
+												);''' % (self.itemReleases, self.tableName))
+
+
+
+			indexes = [
+						("%s_nameTable_buId_index"      % self.itemReleases, self.itemReleases, '''CREATE INDEX %s ON %s (buId      )'''       ),
+
+			]
+
+			for name, table, nameFormat in indexes:
+				if not name.lower() in haveIndexes:
+					print(name, table, nameFormat)
+					cur.execute(nameFormat % (name, table))
+
+
+		self.log.info("Retreived page database now exists")
 
 	@abc.abstractmethod
 	def go(self):

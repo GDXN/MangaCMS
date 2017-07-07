@@ -1,35 +1,22 @@
 
-
-
-import time
-
-import threading
-
-
 import logging
 import wsgi_server
 
 import cherrypy
+import threading
 import nameTools as nt
-
-dbName = '/media/Storage/Scripts/MTDlTool/links.db'
-
-login   = "fake0name"
-passWd  = "9op6yh"
-
-dlDir = r"/media/Storage/MP"
-mDlDir = r"/media/Storage/Manga/"
-
-watchedFeed = "http://www.mangatraders.com/rss/watched/612668"
-mainFeed = "http://www.mangatraders.com/rss/files/"
-
-
 import runStatus
 
-def doHousekeeping():
-	nt.dirNameProxy.checkUpdate()
+import DbManagement.countCleaner
+import DbManagement.logTrimmer
 
+def trimDatabase():
+	cc = DbManagement.countCleaner.CountCleaner()
+	cc.clean()
 
+	# Trim the log files.
+	lc = DbManagement.logTrimmer.LogTrimmer()
+	lc.clean()
 
 def fixup_cherrypy_logs():
 	loggers = logging.Logger.manager.loggerDict.keys()
@@ -40,7 +27,6 @@ def fixup_cherrypy_logs():
 
 
 def runServer():
-
 
 	cherrypy.tree.graft(wsgi_server.app, "/")
 
@@ -66,22 +52,22 @@ def runServer():
 
 	fixup_cherrypy_logs()
 
-	# Example for a 2nd server (same steps as above):
-	# Remember to use a different port
 
-	# server2             = cherrypy._cpserver.Server()
+	houseKeepingTasks = []
+	for name, classInstance in nt.__dict__.items():
+		if  isinstance(classInstance, type) or not hasattr(classInstance, "NEEDS_REFRESHING"):
+			continue
+		print("Have item to schedule - ", name, classInstance, "every", classInstance.REFRESH_INTERVAL, "seconds.")
+		task = cherrypy.process.plugins.BackgroundTask(classInstance.REFRESH_INTERVAL, classInstance.refresh)  # Check if dir-dicts need updating
+		task.start()
+		houseKeepingTasks.append(task)
 
-	# server2.socket_host = "0.0.0.0"
-	# server2.socket_port = 8081
-	# server2.thread_pool = 30
-	# server2.subscribe()
 
-	# The filesystem watching mechanism breaks the autoreloader
-	# It crashes on restart unless the whole python interpreter is restarted.
-	# cherrypy.config.update({'engine.autoreload.on':False})
-
-	cherrypy.engine.housekeeper = cherrypy.process.plugins.BackgroundTask(5, doHousekeeping)
-	cherrypy.engine.housekeeper.start()
+	# Flatten tracking table for item counts. Hourly
+	# I can't easily wire this into the dynamic lookup above, so it's still manual.
+	housekeeper = cherrypy.process.plugins.BackgroundTask(60*60*1, trimDatabase)
+	housekeeper.start()
+	houseKeepingTasks.append(housekeeper)
 
 	cherrypy.engine.monitorPlugin = MonitorPlugin(cherrypy.engine)
 	cherrypy.engine.monitorPlugin.subscribe()
@@ -112,19 +98,18 @@ class MonitorPlugin(cherrypy.process.plugins.SimplePlugin):
 		if self.running:
 			print("Stopping directory observer")
 			nt.dirNameProxy.stop()
-			nt.dirsLookup.stop()
-			nt.nameLookup.stop()
 			print("Directory observer Stopped")
 
 
 def serverProcess():
 
+	runServer()
 	# webThread = threading.Thread(target=runServer)
 	# webThread.start()
-
+	# print("Starting observers in background.")
 	# while runStatus.run:
 	# 	time.sleep(0.1)
-	runServer()
+
 	print("Stopping server.")
 	cherrypy.engine.exit()
 

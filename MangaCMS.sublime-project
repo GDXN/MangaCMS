@@ -1,0 +1,27 @@
+{
+    "folders":
+    [
+        {
+            "follow_symlinks": true,
+            "path": "."
+        },
+        {
+            "follow_symlinks": true,
+            "path": "N:\\Scripts\\Deduper"
+        },
+        {
+            "follow_symlinks": true,
+            "path": "N:\\Scripts\\MangaCMS/"
+        }
+    ],
+    "settings":
+    {
+        "pylinter":
+        {
+            "python_path": [
+                            ],
+            "working_dir": "N:\\Scripts\\MangaCMS",
+            "use_icons": "true"
+        }
+    }
+}

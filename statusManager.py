@@ -1,37 +1,66 @@
 
-import sqlite3
+import psycopg2
 import settings
 
 
+# Manage the small table used to track plugin run state.
+
+def getConn():
+	'''
+	Try to get a local connection to the postgres DB. If that fails, try a IP connection. Will raise
+	an exception if the IP connection cannot be made.
+
+	Returns a psycopg2 connection on success.
+	'''
+	try:
+		con = psycopg2.connect(dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
+	except:
+		con = psycopg2.connect(host    = settings.DATABASE_IP,
+								dbname  = settings.DATABASE_DB_NAME,
+								user    = settings.DATABASE_USER,
+								password= settings.DATABASE_PASS)
+	return con
+
 def checkStatusTableExists():
-	con = sqlite3.connect(settings.dbName, timeout=30)
-	con.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name text, running boolean, lastRun real, lastRunTime real, PRIMARY KEY(name) ON CONFLICT REPLACE)''')
+	'''
+	Verify that the pluginstatus table exists. Creates it if required. This *must* be run before any plugins, or
+	the plugin RunBase will fail with an exception.
+	'''
+
+	con = getConn()
+	cur = con.cursor()
+
+	cur.execute('''CREATE TABLE IF NOT EXISTS pluginStatus (name        text,
+														running     boolean,
+														lastRun     double precision,
+														lastRunTime double precision,
+														lastError   double precision DEFAULT 0,
+														PRIMARY KEY(name))''')
+
 	con.commit()
 	con.close()
 
-
-def checkInitStatusTable(pluginName):
-
-	con = sqlite3.connect(settings.dbName, timeout=30)
-	con.execute('''INSERT INTO pluginStatus (name, running, lastRun, lastRunTime) VALUES (?, ?, ?, ?)''', (pluginName, False, -1, -1))
-	con.commit()
-	con.close()
 
 def getStatus(cur, pluginName):
-	ret = cur.execute("""SELECT running,lastRun,lastRunTime FROM pluginStatus WHERE name=?""", (pluginName, ))
-	rets = ret.fetchall()[0]
+	cur.execute("""SELECT running,lastRun,lastRunTime,lastError FROM pluginstatus WHERE name=%s""", (pluginName, ))
+	rets = cur.fetchall()
 	return rets
 
-def setStatus(pluginName, running=None, lastRun=None, lastRunTime=None):
 
-	con = sqlite3.connect(settings.dbName, timeout=30)
-	if running != None:  # Note: Can be set to "False". This is valid!
-		con.execute('''UPDATE pluginStatus SET running=? WHERE name=?;''', (running, pluginName))
-	if lastRun != None:
-		con.execute('''UPDATE pluginStatus SET lastRun=? WHERE name=?;''', (lastRun, pluginName))
-	if lastRunTime != None:
-		con.execute('''UPDATE pluginStatus SET lastRunTime=? WHERE name=?;''', (lastRunTime, pluginName))
+def resetAllRunningFlags():
+	'''
+	clear the runstate for all the plugins in the status table. Helpful for when
+	plugins crash without properly clearing their runstate.
+	'''
 
+	checkStatusTableExists()
+	print("Resetting run state for all plugins!")
+	con = getConn()
+	cur = con.cursor()
+	cur.execute('''UPDATE pluginstatus SET running=false;''')
 	con.commit()
 	con.close()
+
 

@@ -1,0 +1,1613 @@
+{
+    "jsonrpc": "2.0",
+    "method": "get_information",
+    "params": {
+        "os": "android",
+        "locale": "en",
+        "device": {
+            "uid": "ff664f69f686b9cd35da1ab08683510b",
+            "os": "android",
+            "adid": "",
+            "os_ver": "4.2.2",
+            "bundle_id": "mangabox.me",
+            "UUID": "8cf467bf-7633-4915-a909-a4ca819bc92e",
+            "require_image_size": "l",
+            "aid": "79fc41b8bdcdb20b",
+            "app_build": 88,
+            "lang": "en",
+            "app_ver": "1008005",
+            "model_name": "Genymotion Google Nexus 7 - 4.2.2 - API 17 - 800x1280"
+        },
+        "user": {
+            "locale": "en"
+        }
+    },
+    "id": "get_information"
+}
+
+{
+    "jsonrpc": "2.0",
+    "id": "get_information",
+    "result": [{
+        "updatedDate": 1392208425,
+        "publishedDate": 1392206430,
+        "url": "https://www.mangabox.me/information/5/",
+        "title": "Several Manga have been temporarily removed from t",
+        "type": "2",
+        "id": "5",
+        "expiredDate": 1423742430
+    }, {
+        "updatedDate": 1392820781,
+        "publishedDate": 1392850800,
+        "url": "https://www.mangabox.me/information/7/",
+        "title": "Chinese support",
+        "type": "3",
+        "id": "7",
+        "expiredDate": 1424300400
+    }, {
+        "updatedDate": 1396370411,
+        "publishedDate": 1396360800,
+        "url": "https://www.mangabox.me/information/11/",
+        "title": "Regarding the Publication Status of Several Manga",
+        "type": "2",
+        "id": "11",
+        "expiredDate": 1427896800
+    }, {
+        "updatedDate": 1417582096,
+        "publishedDate": 1417575600,
+        "url": "https://www.mangabox.me/information/57/",
+        "title": "Access to some manga where it is out of Japan",
+        "type": "3",
+        "id": "57",
+        "expiredDate": 2996060400
+    }]
+}
+
+-- -- -- -- -- -- -- -- -- -- -- -
+
+{
+    "jsonrpc": "2.0",
+    "method": "get_app_status",
+    "params": {
+        "first_launch": 0,
+        "device": {
+            "uid": "ff664f69f686b9cd35da1ab08683510b",
+            "os": "android",
+            "adid": "",
+            "os_ver": "4.2.2",
+            "bundle_id": "mangabox.me",
+            "UUID": "8cf467bf-7633-4915-a909-a4ca819bc92e",
+            "require_image_size": "l",
+            "aid": "79fc41b8bdcdb20b",
+            "app_build": 88,
+            "lang": "en",
+            "app_ver": "1008005",
+            "model_name": "Genymotion Google Nexus 7 - 4.2.2 - API 17 - 800x1280"
+        },
+        "user": {
+            "locale": "en"
+        }
+    },
+    "id": "get_app_status"
+}
+
+{
+    "jsonrpc": "2.0",
+    "id": "get_app_status",
+    "result": {
+        "recommend_on": 0,
+        "time": 1455419589,
+        "indies": {
+            "search": {
+                "enable": 1,
+                "path": "search"
+            },
+            "pre_read_tutorial_on": 0,
+            "unlock_coin_on": 0,
+            "coach_mark": {
+                "threshold_manga_count": 4,
+                "threshold_days": 7
+            }
+        },
+        "get_delta_on": 0,
+        "ad": {
+            "five": {
+                "loading_enabled_only_wifi": 0,
+                "five_on": 0,
+                "playback_enabled_only_wifi": 0
+            }
+        },
+        "indies_on": 0,
+        "recommend_first_on": 0,
+        "get_delta_v2_on": 1,
+        "force_update": {
+            "required": 0
+        },
+        "review_approach_type": 0,
+        "unlock": {
+            "unlock_coin_on": 0
+        },
+        "peak_time_log_limit_on": 1,
+        "store": {
+            "store_on": 0
+        },
+        "unlock_on": 1,
+        "langs": {
+            "en": "English",
+            "ja": "日本語",
+            "zh": "繁體中文"
+        },
+        "auser": {
+            "auser_on": 0
+        }
+    }
+}
+
+-- -- -- -- -- -- -- -- -- -- -- -
+
+{
+    "jsonrpc": "2.0",
+    "method": "get_magazines",
+    "params": {
+        "is_include_all": 1,
+        "locale": "en",
+        "device": {
+            "uid": "ff664f69f686b9cd35da1ab08683510b",
+            "os": "android",
+            "adid": "",
+            "os_ver": "4.2.2",
+            "bundle_id": "mangabox.me",
+            "UUID": "8cf467bf-7633-4915-a909-a4ca819bc92e",
+            "require_image_size": "l",
+            "aid": "79fc41b8bdcdb20b",
+            "app_build": 88,
+            "lang": "en",
+            "app_ver": "1008005",
+            "model_name": "Genymotion Google Nexus 7 - 4.2.2 - API 17 - 800x1280"
+        },
+        "user": {
+            "locale": "en"
+        }
+    },
+    "id": "get_magazines"
+}
+
+
+{
+    "jsonrpc": "2.0",
+    "id": "get_magazines",
+    "result": [{
+        "volumeDisplayYear": "2014",
+        "volume": "0",
+        "contentsCount": "64",
+        "wide_grids": [],
+        "updatedDate": 1425387076,
+        "publishDate": 1393340400,
+        "expireDate": 1456412400,
+        "appearDate": 1393340400,
+        "id": "33",
+        "title": "Digest",
+        "volumeDisplayNumber": "0"
+    }, {
+        "volumeDisplayYear": "2015",
+        "volume": "105",
+        "contentsCount": "12",
+        "wide_grids": [],
+        "updatedDate": 1447050933,
+        "publishDate": 1448377200,
+        "expireDate": 1455634800,
+        "appearDate": 1447772400,
+        "id": "305",
+        "title": "mangabox vol.52",
+        "volumeDisplayNumber": "52"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "106",
+        "contentsCount": "13",
+        "wide_grids": [],
+        "updatedDate": 1448416734,
+        "publishDate": 1448982000,
+        "expireDate": 1456239600,
+        "appearDate": 1448377200,
+        "id": "308",
+        "title": "mangabox vol.1",
+        "volumeDisplayNumber": "1"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "107",
+        "contentsCount": "11",
+        "wide_grids": [],
+        "updatedDate": 1448416785,
+        "publishDate": 1449586800,
+        "expireDate": 1456844400,
+        "appearDate": 1448982000,
+        "id": "311",
+        "title": "mangabox vol.2",
+        "volumeDisplayNumber": "2"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "108",
+        "contentsCount": "13",
+        "wide_grids": [],
+        "updatedDate": 1448441686,
+        "publishDate": 1450191600,
+        "expireDate": 1457449200,
+        "appearDate": 1449586800,
+        "id": "314",
+        "title": "mangabox vol.3",
+        "volumeDisplayNumber": "3"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "109",
+        "contentsCount": "9",
+        "wide_grids": [],
+        "updatedDate": 1448944126,
+        "publishDate": 1450796400,
+        "expireDate": 1458054000,
+        "appearDate": 1450191600,
+        "id": "317",
+        "title": "mangabox vol.4",
+        "volumeDisplayNumber": "4"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "110",
+        "contentsCount": "9",
+        "wide_grids": [],
+        "updatedDate": 1449130257,
+        "publishDate": 1451401200,
+        "expireDate": 1458658800,
+        "appearDate": 1450796400,
+        "id": "320",
+        "title": "mangabox vol.5",
+        "volumeDisplayNumber": "5"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "111",
+        "contentsCount": "11",
+        "wide_grids": [],
+        "updatedDate": 1449729123,
+        "publishDate": 1452006000,
+        "expireDate": 1459263600,
+        "appearDate": 1451401200,
+        "id": "323",
+        "title": "mangabox vol.6",
+        "volumeDisplayNumber": "6"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "112",
+        "contentsCount": "9",
+        "wide_grids": [],
+        "updatedDate": 1450173743,
+        "publishDate": 1452610800,
+        "expireDate": 1459868400,
+        "appearDate": 1452006000,
+        "id": "326",
+        "title": "mangabox vol.7",
+        "volumeDisplayNumber": "7"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "113",
+        "contentsCount": "14",
+        "wide_grids": [],
+        "updatedDate": 1450777418,
+        "publishDate": 1453215600,
+        "expireDate": 1460473200,
+        "appearDate": 1452610800,
+        "id": "329",
+        "title": "mangabox vol.8",
+        "volumeDisplayNumber": "8"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "114",
+        "contentsCount": "9",
+        "wide_grids": [],
+        "updatedDate": 1452153402,
+        "publishDate": 1453820400,
+        "expireDate": 1461078000,
+        "appearDate": 1453215600,
+        "id": "332",
+        "title": "mangabox vol.9",
+        "volumeDisplayNumber": "9"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "115",
+        "contentsCount": "13",
+        "wide_grids": [],
+        "updatedDate": 1452677722,
+        "publishDate": 1454425200,
+        "expireDate": 1461682800,
+        "appearDate": 1453820400,
+        "id": "335",
+        "title": "mangabox vol.10",
+        "volumeDisplayNumber": "10"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "116",
+        "contentsCount": "10",
+        "wide_grids": [],
+        "updatedDate": 1453529985,
+        "publishDate": 1455030000,
+        "expireDate": 1462287600,
+        "appearDate": 1454425200,
+        "id": "338",
+        "title": "mangabox vol.11",
+        "volumeDisplayNumber": "11"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "117",
+        "contentsCount": "10",
+        "wide_grids": [],
+        "updatedDate": 1453978304,
+        "publishDate": 1455634800,
+        "expireDate": 1462892400,
+        "appearDate": 1455030000,
+        "id": "341",
+        "title": "mangabox vol.12",
+        "volumeDisplayNumber": "12"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "118",
+        "contentsCount": "8",
+        "wide_grids": [],
+        "updatedDate": 1454563670,
+        "publishDate": 1456239600,
+        "expireDate": 1463497200,
+        "appearDate": 1455634800,
+        "id": "344",
+        "title": "mangabox vol.13",
+        "volumeDisplayNumber": "13"
+    }, {
+        "volumeDisplayYear": "2016",
+        "volume": "119",
+        "contentsCount": "12",
+        "wide_grids": [],
+        "updatedDate": 1455007253,
+        "publishDate": 1456844400,
+        "expireDate": 1464102000,
+        "appearDate": 1456239600,
+        "id": "347",
+        "title": "mangabox vol.14",
+        "volumeDisplayNumber": "14"
+    }]
+}
+
+-- -- -- -- -- -- -- -- -- -- -- -
+
+
+{
+    "jsonrpc": "2.0",
+    "method": "get_delta_v2",
+    "params": {
+        "times": {
+            "manga": 1453261351,
+            "content": 1455268306,
+            "magazine": 1455007253
+        },
+        "device": {
+            "uid": "ff664f69f686b9cd35da1ab08683510b",
+            "os": "android",
+            "adid": "",
+            "os_ver": "4.2.2",
+            "bundle_id": "mangabox.me",
+            "UUID": "8cf467bf-7633-4915-a909-a4ca819bc92e",
+            "require_image_size": "l",
+            "aid": "79fc41b8bdcdb20b",
+            "app_build": 88,
+            "lang": "en",
+            "app_ver": "1008005",
+            "model_name": "Genymotion Google Nexus 7 - 4.2.2 - API 17 - 800x1280"
+        },
+        "user": {
+            "locale": "en"
+        }
+    },
+    "id": "get_delta_v2"
+}
+
+{
+    "jsonrpc": "2.0",
+    "id": "get_delta_v2",
+    "result": {
+        "magazine": {
+            "deleted": [],
+            "updated": []
+        },
+        "manga": {
+            "deleted": [{
+                "date": 1455089107,
+                "id": 184
+            }, {
+                "date": 1455089232,
+                "id": 266
+            }],
+            "updated": []
+        },
+        "content": {
+            "deleted": [],
+            "updated": []
+        }
+    }
+}
+
+-- -- -- -- -- -- -- -- -- -- -- -
+
+[{
+    "jsonrpc": "2.0",
+    "method": "get_contents_by_magazine_id",
+    "params": {
+        "contentSize": "l",
+        "magazineId": 335,
+        "locale": "en",
+        "device": {
+            "uid": "ff664f69f686b9cd35da1ab08683510b",
+            "os": "android",
+            "adid": "",
+            "os_ver": "4.2.2",
+            "bundle_id": "mangabox.me",
+            "UUID": "8cf467bf-7633-4915-a909-a4ca819bc92e",
+            "require_image_size": "l",
+            "aid": "79fc41b8bdcdb20b",
+            "app_build": 88,
+            "lang": "en",
+            "app_ver": "1008005",
+            "model_name": "Genymotion Google Nexus 7 - 4.2.2 - API 17 - 800x1280"
+        },
+        "user": {
+            "locale": "en"
+        }
+    },
+    "id": 335
+}]
+
+
+{
+    "jsonrpc": "2.0",
+    "id": 335,
+    "result": [{
+        "gridState": "2",
+        "availableDate": 1453906800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1453981173,
+        "url": "",
+        "episode": {
+            "volume": "106",
+            "manga": {
+                "authors": [{
+                    "name": "Tsuina Miura",
+                    "id": "52",
+                    "role": "Story"
+                }, {
+                    "name": "Takahiro Ohba",
+                    "id": "53",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_38.png?1426154273",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1426154273,
+                "searchKeyword": "",
+                "createdDate": 1385095010,
+                "id": "38",
+                "mensRankIndex": 0,
+                "title": "High-rise Invasion"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "15993",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_15993.png?1452774361",
+        "mask": "117",
+        "numPages": "16",
+        "magazineId": "335",
+        "publishDate": 1454511600,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/fa7f2efed3563ed6cc23361f8cac913e425c17a8e2783f3c3bc9bf8abdfca3cf/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1453906800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454403397,
+        "url": "",
+        "episode": {
+            "volume": "31",
+            "manga": {
+                "authors": [{
+                    "name": "Yukari Koyama",
+                    "id": "298",
+                    "role": "Story"
+                }, {
+                    "name": "Eriza Kusakabe",
+                    "id": "299",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_238.png?1419242701",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1419242701,
+                "searchKeyword": "",
+                "createdDate": 1411380615,
+                "id": "238",
+                "mensRankIndex": 0,
+                "title": "HOLIDAY LOVE"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "15994",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_15994.png?1452825486",
+        "mask": "-118",
+        "numPages": "18",
+        "magazineId": "335",
+        "publishDate": 1454511600,
+        "index": "2",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/7cf3b4529a211741eed857e4d7224d12f78bb8b2b3b389da90c56641f843df91/webp",
+        "coverSize": "2",
+        "expiredDate": 1458140400
+    }, {
+        "gridState": 0,
+        "availableDate": 1453906800,
+        "position": "right",
+        "anchorPosition": "",
+        "updatedDate": 1453378896,
+        "url": "",
+        "episode": {
+            "volume": "61",
+            "manga": {
+                "authors": [{
+                    "name": "Aoi Sakaki",
+                    "id": "370",
+                    "role": "Story"
+                }, {
+                    "name": "Ayano",
+                    "id": "371",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_298.png?1417761670",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1417761670,
+                "searchKeyword": "",
+                "createdDate": 1417761371,
+                "id": "298",
+                "mensRankIndex": 0,
+                "title": "”Nisekoi\""
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "15995",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_15995.png?1452825794",
+        "mask": "109",
+        "numPages": "13",
+        "magazineId": "335",
+        "publishDate": 1454511600,
+        "index": "5",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/09ee9c5d31a9be08540c8723b1a3d7718fa4c52ad76a744ab6ae286e2270ba21/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1453993200,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454068863,
+        "url": "",
+        "episode": {
+            "volume": "104",
+            "manga": {
+                "authors": [{
+                    "name": "Rahson",
+                    "id": "58",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_42.png?1390817176",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1390817176,
+                "searchKeyword": "",
+                "createdDate": 1385095846,
+                "id": "42",
+                "mensRankIndex": 0,
+                "title": "Peephole"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "15996",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_15996.png?1452825871",
+        "mask": "55",
+        "numPages": "11",
+        "magazineId": "335",
+        "publishDate": 1454598000,
+        "index": "7",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/66284c83d1252924682c4d95d524dcbdd56758646411f2324021d6829e07f600/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1453993200,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454069186,
+        "url": "",
+        "episode": {
+            "volume": "44",
+            "manga": {
+                "authors": [{
+                    "name": "Seimaru Amagi",
+                    "id": "44",
+                    "role": "Story"
+                }, {
+                    "name": "hakus",
+                    "id": "251",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_198.png?1419242377",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1419242377,
+                "searchKeyword": "",
+                "createdDate": 1405576367,
+                "id": "198",
+                "mensRankIndex": 0,
+                "title": "Zero"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "15998",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_15998.png?1452826024",
+        "mask": "-105",
+        "numPages": "20",
+        "magazineId": "335",
+        "publishDate": 1454598000,
+        "index": "8",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/d57382d63977132dd8f4c3f40bdc2cd24ffaaa0e2a48e9d2d97554520ffc650b/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1454425200,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454466600,
+        "url": "",
+        "episode": {
+            "volume": "54",
+            "manga": {
+                "authors": [{
+                    "name": "Midori Amagaeru",
+                    "id": "276",
+                    "role": "Story"
+                }, {
+                    "name": "Kyokatsukasa",
+                    "id": "277",
+                    "role": "Comic"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_221.png?1408599452",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1408599452,
+                "searchKeyword": "",
+                "createdDate": 1408599387,
+                "id": "221",
+                "mensRankIndex": 0,
+                "title": "Online"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "15999",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_15999.png?1452826168",
+        "mask": "126",
+        "numPages": "18",
+        "magazineId": "335",
+        "publishDate": 1454598000,
+        "index": "3",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/aad7ac1aae024afd88f4c732712e18926cc4cf4df7088a662b56f53ce6a41659/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1453993200,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1453775743,
+        "url": "",
+        "episode": {
+            "volume": "46",
+            "manga": {
+                "authors": [{
+                    "name": "Ryuji Okita",
+                    "id": "304",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_243.png?1419242788",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1419242788,
+                "searchKeyword": "",
+                "createdDate": 1411383052,
+                "id": "243",
+                "mensRankIndex": 0,
+                "title": "Fling Girls"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "16000",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_16000.png?1452826251",
+        "mask": "100",
+        "numPages": "20",
+        "magazineId": "335",
+        "publishDate": 1454598000,
+        "index": "5",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/6f5993d89c7cfe48551dd290912bdaf63c8a8f2ac1b2efafb3c2379d8313fec4/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1454425200,
+        "position": "right",
+        "anchorPosition": "",
+        "updatedDate": 1454466797,
+        "url": "",
+        "episode": {
+            "volume": "75",
+            "manga": {
+                "authors": [{
+                    "name": "Musawo",
+                    "id": "257",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_204.png?1453261351",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1453261351,
+                "searchKeyword": "",
+                "createdDate": 1406014178,
+                "id": "204",
+                "mensRankIndex": 0,
+                "title": "Love and Lies"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "16001",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_16001.png?1452826426",
+        "mask": "-14",
+        "numPages": "10",
+        "magazineId": "335",
+        "publishDate": 1454770800,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/38be5f887a48cc2d9832ba2e96423ff4fbd85b644229983506517906ed3898b5/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1454079600,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454669969,
+        "url": "",
+        "episode": {
+            "volume": "75",
+            "manga": {
+                "authors": [{
+                    "name": "Yukiaki Kurando",
+                    "id": "261",
+                    "role": "Story"
+                }, {
+                    "name": "Yuusuke Nomura",
+                    "id": "262",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_207.png?1406609862",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1406609862,
+                "searchKeyword": "",
+                "createdDate": 1406609718,
+                "id": "207",
+                "mensRankIndex": 0,
+                "title": "Dolly Kill Kill"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "16002",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_16002.png?1452826315",
+        "mask": "-82",
+        "numPages": "12",
+        "magazineId": "335",
+        "publishDate": 1454684400,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/a37e32e45aca17e98f1e99fbc0fe5f8ffc99f9f7cdc03d2d984cee024ef3576e/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1454166000,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454069499,
+        "url": "",
+        "episode": {
+            "volume": "111",
+            "manga": {
+                "authors": [{
+                    "name": "Yusuke Osawa",
+                    "id": "66",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_49.png?1386234056",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1386234056,
+                "searchKeyword": "",
+                "createdDate": 1385097625,
+                "title": "GREEN WORLDZ",
+                "id": "49",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "16003",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_16003.png?1452826833",
+        "mask": "-47",
+        "numPages": "22",
+        "magazineId": "335",
+        "publishDate": 1454770800,
+        "index": "2",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/04702914d62b37691b7736671b96cd0cb8e06345f320fb1a3579a9fd236660b8/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1454338800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1453775988,
+        "url": "",
+        "episode": {
+            "volume": "60",
+            "manga": {
+                "authors": [{
+                    "name": "Kimio Yanagisawa",
+                    "id": "347",
+                    "role": "Story"
+                }, {
+                    "name": "Yousuke Mori",
+                    "id": "348",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_277.png?1416319611",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1416319611,
+                "searchKeyword": "",
+                "createdDate": 1416319425,
+                "id": "277",
+                "mensRankIndex": 0,
+                "title": "Roppongi Black Cross"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "16004",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_16004.png?1452826952",
+        "mask": "-23",
+        "numPages": "10",
+        "magazineId": "335",
+        "publishDate": 1454943600,
+        "index": "4",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/eb271d18e156099e0044b40ba29768d48b5274971b65d75744ac6c349127d614/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1454338800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454293042,
+        "url": "",
+        "episode": {
+            "volume": "35",
+            "manga": {
+                "authors": [{
+                    "name": "Kazuo Maekawa",
+                    "id": "292",
+                    "role": "Art"
+                }, {
+                    "name": "Ransuke Kuroi",
+                    "id": "293",
+                    "role": "Story"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_235.png?1419242651",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1419242651,
+                "searchKeyword": "",
+                "createdDate": 1411105038,
+                "id": "235",
+                "mensRankIndex": 0,
+                "title": "BLACKOUT – The Enigmatic Game –"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "16176",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_16176.png?1453953387",
+        "mask": "-56",
+        "numPages": "12",
+        "magazineId": "335",
+        "publishDate": 1454943600,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/6ff0a41cf2d787eea7d0ecb28672370085627f45a175cdaad9ee4eae9fb0fef3/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }, {
+        "gridState": 0,
+        "availableDate": 1454338800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1454403654,
+        "url": "",
+        "episode": {
+            "volume": "60",
+            "manga": {
+                "authors": [{
+                    "name": "Muneyuki Kaneshiro",
+                    "id": "48",
+                    "role": "Story"
+                }, {
+                    "name": "Naoki Serizawa",
+                    "id": "49",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_35.png?1386074904",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1386074904,
+                "searchKeyword": "",
+                "createdDate": 1385094476,
+                "title": "Billion Dogs",
+                "id": "35",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "16270",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/335/grid_16270.png?1454403466",
+        "mask": "88",
+        "numPages": "10",
+        "magazineId": "335",
+        "publishDate": 1454425200,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/335/l/b9753210989af6c023a97a5f18f516b601a72c6822f9224608dcab499e4a2063/webp",
+        "coverSize": "2",
+        "expiredDate": 1461682800
+    }]
+}
+
+
+{
+    "jsonrpc": "2.0",
+    "id": 305,
+    "result": [{
+        "gridState": "2",
+        "availableDate": 1447858800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1453365826,
+        "url": "",
+        "episode": {
+            "volume": "97",
+            "manga": {
+                "authors": [{
+                    "name": "Tsuina Miura",
+                    "id": "52",
+                    "role": "Story"
+                }, {
+                    "name": "Takahiro Ohba",
+                    "id": "53",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_38.png?1426154273",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1426154273,
+                "searchKeyword": "",
+                "createdDate": 1385095010,
+                "title": "High-rise Invasion",
+                "id": "38",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14857",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14857.png?1447138576",
+        "mask": "-104",
+        "numPages": "16",
+        "magazineId": "305",
+        "publishDate": 1448463600,
+        "index": "6",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/09a0452fc885b020cfb3c7778bcb211e621b07b66d4b86ed667231b8e06c57d8/webp",
+        "coverSize": "2",
+        "expiredDate": 1386082800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448290800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1448333345,
+        "url": "",
+        "episode": {
+            "volume": "26",
+            "manga": {
+                "authors": [{
+                    "name": "Yukari Koyama",
+                    "id": "298",
+                    "role": "Story"
+                }, {
+                    "name": "Eriza Kusakabe",
+                    "id": "299",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_238.png?1419242701",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1419242701,
+                "searchKeyword": "",
+                "createdDate": 1411380615,
+                "title": "HOLIDAY LOVE",
+                "id": "238",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14858",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14858.png?1447138679",
+        "mask": "-90",
+        "numPages": "18",
+        "magazineId": "305",
+        "publishDate": 1448463600,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/132091289a081829e7a304687f43cb90a80b0dbbd54a697be1eb45393b5bbd81/webp",
+        "coverSize": "2",
+        "expiredDate": 1450882800
+    }, {
+        "gridState": 0,
+        "availableDate": 1447858800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1447665492,
+        "url": "",
+        "episode": {
+            "volume": "53",
+            "manga": {
+                "authors": [{
+                    "name": "Nao Ninatsu",
+                    "id": "326",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_261.png?1413890292",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1413890292,
+                "searchKeyword": "",
+                "createdDate": 1413890099,
+                "id": "261",
+                "mensRankIndex": 0,
+                "title": "The Sentirental Girl"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14859",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14859.png?1447138766",
+        "mask": "-19",
+        "numPages": "6",
+        "magazineId": "305",
+        "publishDate": 1448463600,
+        "index": "7",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/0720b23a0824ca921e34a5ed86da333b6199dae63312603eae518acc33ce2a3e/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1447858800,
+        "position": "right",
+        "anchorPosition": "",
+        "updatedDate": 1447308998,
+        "url": "",
+        "episode": {
+            "volume": "51",
+            "manga": {
+                "authors": [{
+                    "name": "Aoi Sakaki",
+                    "id": "370",
+                    "role": "Story"
+                }, {
+                    "name": "Ayano",
+                    "id": "371",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_298.png?1417761670",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1417761670,
+                "searchKeyword": "",
+                "createdDate": 1417761371,
+                "title": "”Nisekoi\"",
+                "id": "298",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14860",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14860.png?1447138874",
+        "mask": "-104",
+        "numPages": "10",
+        "magazineId": "305",
+        "publishDate": 1448463600,
+        "index": "2",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/71c5ecf1b932de846e9a5cce27e39dcd567b39920775432222307f19dce650d1/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448290800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1448333503,
+        "url": "",
+        "episode": {
+            "volume": "63",
+            "manga": {
+                "authors": [{
+                    "name": "Kaishaku",
+                    "id": "199",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_159.png?1419242177",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1419242177,
+                "searchKeyword": "",
+                "createdDate": 1396594739,
+                "title": "Red Blood Red Legacy",
+                "id": "159",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14861",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14861.png?1447138982",
+        "mask": "-74",
+        "numPages": "10",
+        "magazineId": "305",
+        "publishDate": 1448550000,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/509964f46f7c7d62f64bf2b0589a146b0866ae5818f5b64f853933121991cc8a/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448290800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1448338806,
+        "url": "",
+        "episode": {
+            "volume": "50",
+            "manga": {
+                "authors": [{
+                    "name": "Midori Amagaeru",
+                    "id": "276",
+                    "role": "Story"
+                }, {
+                    "name": "Kyokatsukasa",
+                    "id": "277",
+                    "role": "Comic"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_221.png?1408599452",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1408599452,
+                "searchKeyword": "",
+                "createdDate": 1408599387,
+                "title": "Online",
+                "id": "221",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14863",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14863.png?1447139239",
+        "mask": "-35",
+        "numPages": "16",
+        "magazineId": "305",
+        "publishDate": 1448550000,
+        "index": "4",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/20153932270d8cee1358a6a40294e30bb61e66da8559af965829c5adcd6f91ee/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448636400,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1447665545,
+        "url": "",
+        "episode": {
+            "volume": "65",
+            "manga": {
+                "authors": [{
+                    "name": "Yukiaki Kurando",
+                    "id": "261",
+                    "role": "Story"
+                }, {
+                    "name": "Yuusuke Nomura",
+                    "id": "262",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_207.png?1406609862",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1406609862,
+                "searchKeyword": "",
+                "createdDate": 1406609718,
+                "title": "Dolly Kill Kill",
+                "id": "207",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14864",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14864.png?1447139333",
+        "mask": "11",
+        "numPages": "14",
+        "magazineId": "305",
+        "publishDate": 1448636400,
+        "index": "4",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/b171ba5885649e0d8eeb573792a694fe9bd327a7cc7e1eb988736a5597b1bef7/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448463600,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1448526393,
+        "url": "",
+        "episode": {
+            "volume": "102",
+            "manga": {
+                "authors": [{
+                    "name": "Yusuke Osawa",
+                    "id": "66",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_49.png?1386234056",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1386234056,
+                "searchKeyword": "",
+                "createdDate": 1385097625,
+                "title": "GREEN WORLDZ",
+                "id": "49",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14865",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14865.png?1447139487",
+        "mask": "8",
+        "numPages": "12",
+        "magazineId": "305",
+        "publishDate": 1448722800,
+        "index": "2",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/cfe93ce85a363cf4bde37c30e34eb5eeab49d202b42a7d0beb8a32b2fe0a5ad2/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448463600,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1448526418,
+        "url": "",
+        "episode": {
+            "volume": "66",
+            "manga": {
+                "authors": [{
+                    "name": "Musawo",
+                    "id": "257",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_204.png?1453261351",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1453261351,
+                "searchKeyword": "",
+                "createdDate": 1406014178,
+                "title": "Love and Lies",
+                "id": "204",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14866",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14866.png?1447139573",
+        "mask": "56",
+        "numPages": "8",
+        "magazineId": "305",
+        "publishDate": 1448722800,
+        "index": "1",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/b56560e2cc66305f09fad43686d8782fbc12c68d88111e805857f19e29ae3382/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448290800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1448333724,
+        "url": "",
+        "episode": {
+            "volume": "34",
+            "manga": {
+                "authors": [{
+                    "name": "KEYAKI UTIUTI",
+                    "id": "301",
+                    "role": "Author"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_240.png?1419242748",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1419242748,
+                "searchKeyword": "",
+                "createdDate": 1411381374,
+                "title": "B-Ball Goddess",
+                "id": "240",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14868",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14868.png?1447139824",
+        "mask": "-121",
+        "numPages": "20",
+        "magazineId": "305",
+        "publishDate": 1448895600,
+        "index": "4",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/ec4d45255a15d36bb26ddf92af856a2880782aa2a7a796cab5615aad4bee5c61/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448290800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1453359344,
+        "url": "",
+        "episode": {
+            "volume": "31",
+            "manga": {
+                "authors": [{
+                    "name": "Kazuo Maekawa",
+                    "id": "292",
+                    "role": "Art"
+                }, {
+                    "name": "Ransuke Kuroi",
+                    "id": "293",
+                    "role": "Story"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_235.png?1419242651",
+                "serialType": 0,
+                "tags": [],
+                "excludeDeltaUpdate": "0",
+                "womensRankIndex": 0,
+                "updatedDate": 1419242651,
+                "searchKeyword": "",
+                "createdDate": 1411105038,
+                "title": "BLACKOUT – The Enigmatic Game –",
+                "id": "235",
+                "mensRankIndex": 0
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14869",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14869.png?1447139917",
+        "mask": "-60",
+        "numPages": "12",
+        "magazineId": "305",
+        "publishDate": 1448895600,
+        "index": "2",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/aff1ad6634ab9caad3291743c4e2300cc428314cc5a21b8f20a04c850e0f7d6c/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }, {
+        "gridState": 0,
+        "availableDate": 1448290800,
+        "position": "left",
+        "anchorPosition": "",
+        "updatedDate": 1453357876,
+        "url": "",
+        "episode": {
+            "volume": "50",
+            "manga": {
+                "authors": [{
+                    "name": "Kimio Yanagisawa",
+                    "id": "347",
+                    "role": "Story"
+                }, {
+                    "name": "Yousuke Mori",
+                    "id": "348",
+                    "role": "Art"
+                }],
+                "comicsCompleted": "0",
+                "visibility": 0,
+                "serialType": 0,
+                "storeTopIndex": "0",
+                "storeTopThumbURL": "https://image-a.mangabox.me/static/content/images/l/comics_thumb/comics_thumb_277.png?1416319611",
+                "excludeDeltaUpdate": "0",
+                "tags": [],
+                "womensRankIndex": 0,
+                "updatedDate": 1416319611,
+                "searchKeyword": "",
+                "createdDate": 1416319425,
+                "id": "277",
+                "mensRankIndex": 0,
+                "title": "Roppongi Black Cross"
+            },
+            "type": "episode",
+            "ribbon": "1"
+        },
+        "id": "14870",
+        "gridImageURL": "https://image-a.mangabox.me/static/content/images/l/magazine_content_grid/305/grid_14870.png?1447139994",
+        "mask": "-112",
+        "numPages": "10",
+        "magazineId": "305",
+        "publishDate": 1448895600,
+        "index": "6",
+        "baseUrl": "https://image-a.mangabox.me/static/content/magazine/305/l/3942016c09a6eb511be2bcf3febc64bf2f1c8b6c8d5d0643f6ece7a78da42ae9/webp",
+        "coverSize": "2",
+        "expiredDate": 1455634800
+    }]
+}
