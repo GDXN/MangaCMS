@@ -167,6 +167,9 @@ class DirDeduper(DbBase.DbBase):
 			cur.execute('''SELECT dbid, filename, downloadpath, tags FROM mangaitems WHERE sourcesite=%s and dlstate=2;''', (sourceKey, ))
 			ret = cur.fetchall()
 		self.log.info("Found %s items from source %s.", len(ret), sourceKey)
+
+		skipped = 0
+
 		for dbid, filename, downloadpath, tags in ret:
 			if not tags:
 				tags = ""
@@ -176,7 +179,10 @@ class DirDeduper(DbBase.DbBase):
 			fpath = os.path.join(downloadpath, filename)
 
 			if tags and 'dup-checked' in taglist:
-				self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
+				# self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
+				skipped += 1
+				if skipped % 100 == 0:
+					self.log.info("Skipped %s items", skipped)
 				continue
 
 			if tags and 'was-duplicate' in taglist:
@@ -237,19 +243,23 @@ class DirDeduper(DbBase.DbBase):
 
 
 		self.log.info("Querying for items.")
+
 		with self.context_cursor() as cur:
 			cur.execute("""SELECT dbid, sourcesite, filename, downloadpath, tags
 							FROM {tableName} WHERE dlstate=2 AND filename IS NOT NULL AND downloadpath IS NOT NULL ORDER BY dbid ASC""".format(tableName=self.tableName))
 			ret = cur.fetchall()
 
+		self.log.info("Found %s items. Loading.", len(ret))
+
+		ret = [(dbid, sourcesite, filename, downloadpath, tags) for dbid, sourcesite, filename, downloadpath, tags in ret]
+		self.log.info("Items loaded. Processing.")
+		skipped = 0
+
 		for dbid, sourcesite, filename, downloadpath, tags in ret:
 			if not tags:
 				tags = ""
 
-
 			taglist = tags.split()
-
-			self.log.info("Item %s - DownloadPath: '%s', filename: '%s'", dbid, downloadpath, filename)
 
 			if downloadpath.startswith("/"):
 				fpath = os.path.join(downloadpath, filename)
@@ -259,19 +269,25 @@ class DirDeduper(DbBase.DbBase):
 			else:
 				raise RuntimeError("File has path and filename swapped! Source: %s" % sourcesite)
 
-
-
 			if tags and 'dup-checked' in taglist:
-				self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
+				# self.log.info("File %s was dup-checked in the current session. Skipping.", fpath)
+				skipped += 1
+				if skipped % 100 == 0:
+					self.log.info("Skipped %s items", skipped)
 				continue
 
 			if tags and 'was-duplicate' in taglist:
+				skipped += 1
 				continue
+
+			self.log.info("Item %s - DownloadPath: '%s', filename: '%s'", dbid, downloadpath, filename)
+
 
 			if not filename or not downloadpath:
 				self.log.error("Invalid path info: '%s', '%s'", downloadpath, filename)
 
 			if not os.path.exists(fpath):
+				self.log.warning("File for item seems to be missing!")
 				continue
 
 			if not os.path.isfile(fpath):
@@ -289,10 +305,12 @@ class DirDeduper(DbBase.DbBase):
 
 			if not haver1:
 				self.log.error("Querying for file failed from source 1?")
-				raise RuntimeError("Requery for file failed: %s" % sourcesite)
+				continue
+				# raise RuntimeError("Requery for file failed: %s" % sourcesite)
 			if not haver2:
 				self.log.error("Querying for file failed from source 2?")
-				raise RuntimeError("Round-tripping through os.path.join failed: %s" % sourcesite)
+				continue
+				# raise RuntimeError("Round-tripping through os.path.join failed: %s" % sourcesite)
 
 
 			self.__process_download(fpath, pathPositiveFilter)
