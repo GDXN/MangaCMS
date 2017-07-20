@@ -4,11 +4,18 @@ import ScrapePlugins.RunBase
 import ScrapePlugins.M.BtLoader.Run
 import ScrapePlugins.M.BtSeriesFetcher.Run
 
+class Bunch:
+	def __init__(self, **kwds):
+		self.__dict__.update(kwds)
+
 class Runner(ScrapePlugins.RunBase.ScraperBase):
 
 	loggerPath = "Main.Manga.Bt.Base"
+
 	pluginName = "BtBase"
 
+	feedLoader    = Bunch(tableKey='bt')
+	contentLoader = None
 
 	def _go(self):
 		self.log.info("BtBase calling plugins.")

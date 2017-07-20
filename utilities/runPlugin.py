@@ -24,6 +24,7 @@ def get_plugins():
 	ret = {}
 	for plugin_module, dummy_interval in activePlugins.scrapePlugins.values():
 		plugin = plugin_module.Runner
+		print("plugin.pluginName: ", plugin.pluginName)
 		# print(dir(plugin))
 		if not hasattr(plugin, 'pluginName'):
 			print("No pluginName: ", plugin)
@@ -79,7 +80,9 @@ def runPlugin(plug):
 
 	plgs = get_plugins()
 	if not plug in plgs:
-		print("Key {} not in available plugins ({})!".format(plug, list(plgs.keys())))
+		print("Key {} not in available plugins!".format(plug))
+		for key, plgd in plgs.items():
+			print("	Plugin {} -> {}!".format(key, plgd['name']))
 		return
 
 	to_run = plgs[plug]
