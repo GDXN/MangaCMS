@@ -13,6 +13,8 @@ import dateutil.parser
 
 import settings
 import datetime
+import urllib.error
+import traceback
 
 from ScrapePlugins.M.BtLoader.common import checkLogin
 import ScrapePlugins.LoaderBase
@@ -130,8 +132,12 @@ class DbLoader(ScrapePlugins.LoaderBase.LoaderBase):
 		self.log.info("Loading items from '%s'", seriesUrl)
 
 
-
-		soup = self.wg.getSoup(seriesUrl)
+		try:
+			soup = self.wg.getSoup(seriesUrl)
+		except urllib.error.URLError:
+			self.log.critical("Could not get series from batoto!")
+			self.log.critical(traceback.format_exc())
+			return []
 
 		# Find the divs containing either new files, or the day a file was uploaded
 		itemRows = soup.find_all("tr", class_=re.compile("chapter_row"))
